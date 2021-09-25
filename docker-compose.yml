@@ -1,0 +1,112 @@
+version: "3.5"
+
+services:
+  ####################### Keycloak #######################
+  keycloak:
+    image: tno:keycloak
+    restart: on-failure:1
+    container_name: tno-keycloak
+    build:
+      context: ./auth/keycloak
+    env_file:
+      - auth/keycloak/.env
+    volumes:
+      - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
+    ports:
+      - ${KEYCLOAK_HTTP_PORT:-50080}:8080
+      - ${KEYCLOAK_HTTPS_PORT:-50443}:8080
+    networks:
+      - tno
+
+  ####################### Database #######################
+  database:
+    image: tno:database
+    restart: on-failure:1
+    container_name: tno-database
+    build:
+      context: db/postgres
+    env_file:
+      - db/postgres/.env
+    ports:
+      - ${DATABASE_PORT:-51000}:1433
+    volumes:
+      - tno-database-data:/var/opt/postgres
+    networks:
+      - tno
+
+  ####################### API #######################
+  api-editor:
+    image: tno:api-editor
+    restart: on-failure:1
+    container_name: tno-api
+    build:
+      context: api/editor
+      args:
+        BUILD_CONFIGURATION: Debug
+    env_file: api/editor/.env
+    ports:
+      - ${API_EDITOR_HTTP_PORT:-52080}:443
+      - ${API_EDITOR_HTTPS_PORT:-52443}:8080
+    depends_on:
+      - database
+      - keycloak
+    networks:
+      - tno
+
+  ####################### App #######################
+  app-editor:
+    image: tno:app-editor
+    stdin_open: true
+    tty: true
+    restart: on-failure:1
+    container_name: tno-app-editor
+    build:
+      context: app/editor
+    env_file: ./app/editor/.env
+    volumes:
+      - ./app/editor/src:/usr/app/src
+      - ./app/editor/public:/usr/app/public
+      - tno-app-editor-node-cache:/usr/app/node_modules
+    ports:
+      - ${APP_EDITOR_HTTP_PORT:-53080}:3000
+      - ${APP_EDITOR_HTTPS_PORT:-53443}:3443
+    # depends_on:
+    #   - api-editor
+    networks:
+      - tno
+
+  ####################### App #######################
+  app-subscriber:
+    image: tno:app-subscriber
+    stdin_open: true
+    tty: true
+    restart: on-failure:1
+    container_name: tno-app-subscriber
+    build:
+      context: app/subscriber
+    env_file: ./app/subscriber/.env
+    volumes:
+      - ./app/subscriber:/usr/app
+      - tno-app-subscriber-node-cache:/usr/app/node_modules
+    ports:
+      - ${APP_SUBSCRIBER_HTTP_PORT:-54080}:3000
+      - ${APP_SUBSCRIBER_HTTPS_PORT:-54443}:3443
+    # depends_on:
+    #   - api-editor
+    networks:
+      - tno
+
+####################### Networks Definition #######################
+networks:
+  tno:
+    name: tno-net
+    driver: bridge
+
+####################### Volumes Definition #######################
+volumes:
+  tno-database-data:
+    name: tno-database-data
+  tno-app-editor-node-cache:
+    name: tno-app-editor-node-cache
+  tno-app-subscriber-node-cache:
+    name: tno-app-subscriber-node-cache
