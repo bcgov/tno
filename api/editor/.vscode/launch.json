@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-ApiApplication<api>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "ca.bc.gov.tno.api.editor.api.ApiApplication",
+      "projectName": "api",
+      "args": ""
+    }
+  ]
+}

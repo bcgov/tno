@@ -10,10 +10,9 @@
 			// Use the -bullseye variants on local arm64/Apple Silicon.
 			"VARIANT": "11-bullseye",
 			// Options
-			"INSTALL_MAVEN": "true",
-			"MAVEN_VERSION": "3.6.3",
-			"INSTALL_GRADLE": "false",
-			"NODE_VERSION": "lts/*"
+			"MAVEN_VERSION": "3.8.2",
+      "GRADLE_VERSION":"6.9.1",
+			"NODE_VERSION": "v16.10.0"
 		}
 	},
 
@@ -27,6 +26,7 @@
 	"extensions": [
 		"vscjava.vscode-java-pack",
 		"redhat.java",
+		"redhat.fabric8-analytics",
 		"vscjava.vscode-spring-initializr",
 		"vscjava.vscode-spring-boot-dashboard",
 		"pivotal.vscode-spring-boot",

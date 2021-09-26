@@ -1,10 +1,10 @@
-package ca.bc.gov.tno.editor;
+package ca.bc.gov.tno.api.editor.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EditorApplicationTests {
+class ApiApplicationTests {
 
 	@Test
 	void contextLoads() {

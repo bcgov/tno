@@ -1,13 +1,13 @@
-package ca.bc.gov.tno.editor;
+package ca.bc.gov.tno.api.editor.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class EditorApplication {
+public class ApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(EditorApplication.class, args);
+		SpringApplication.run(ApiApplication.class, args);
 	}
 
 }
