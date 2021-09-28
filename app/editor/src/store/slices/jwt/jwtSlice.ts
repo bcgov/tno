@@ -11,12 +11,16 @@ export const jwtSlice = createSlice({
   name: 'jwt',
   initialState: {
     token: '',
+    keycloakReady: false,
   },
   reducers: {
     storeToken(state: IJwtState, action: PayloadAction<any>) {
       state.token = action.payload;
     },
+    storeKeycloakReady(state: IJwtState, action: PayloadAction<boolean>) {
+      state.keycloakReady = action.payload;
+    },
   },
 });
 
-export const { storeToken } = jwtSlice.actions;
+export const { storeToken, storeKeycloakReady } = jwtSlice.actions;

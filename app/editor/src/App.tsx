@@ -1,19 +1,40 @@
-import './App.css';
-
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import { Layout } from 'components/layout';
+import { AppRouter } from 'components/router';
+import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
-
-import logo from './logo.svg';
+import { createKeycloakInstance, keycloakEventHandler } from 'utils';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+  const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();
+
+  React.useEffect(() => {
+    createKeycloakInstance().then((result) => {
+      setKeycloak(result);
+    });
+  }, []);
+
+  return keycloak ? (
+    <ReactKeycloakProvider
+      authClient={keycloak}
+      LoadingComponent={
+        <Layout>
+          <p>Loading</p>
+        </Layout>
+      }
+      onEvent={keycloakEventHandler(keycloak)}
+    >
+      <Layout>
+        <AppRouter />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
-      </header>
-    </div>
+      </Layout>
+    </ReactKeycloakProvider>
+  ) : (
+    <Layout>
+      <p>Loading</p>
+    </Layout>
   );
 }
 

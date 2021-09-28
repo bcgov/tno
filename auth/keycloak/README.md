@@ -34,7 +34,7 @@ docker exec -it {ContainerID} bash
 ### Export the Configuration
 
 ```bash
-$ docker exec -it keycloak bash
+$ docker exec -it tno-keycloak bash
 $ /opt/jboss/keycloak/bin/standalone.sh \
   -Dkeycloak.migration.action=export \
   -Dkeycloak.migration.provider=singleFile \

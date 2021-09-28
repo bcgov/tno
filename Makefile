@@ -57,4 +57,17 @@ rebuild: ## Build the local contains (n=service name) and then start them after 
 	@make build n=$(n)
 	@make up n=$(n)
 
+##############################################################################
+# Node Container Management
+##############################################################################
+
+npm-down: ## Removes containers, images, volumes, for specified application (n=service name).
+	@echo "$(P) Removing node containers and volumes."
+	@docker-compose stop $(n)
+	@docker-compose rm -f -v -s $(n)
+	@docker volume rm -f tno-$(n)-node-cache
+
+npm-refresh: ## Removes and rebuilds containers, images, volumes, for specified application (n=service name).
+	@make npm-down; make build n=$(n); make up $(n);
+
 .PHONY: local

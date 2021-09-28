@@ -38,7 +38,8 @@ export function useKeycloakWrapper(): IKeycloak {
   };
 
   return {
-    obj: keycloak,
+    instance: keycloak,
+    authenticated: keycloak.authenticated,
     userInfo: userInfo,
     hasRole: hasRole,
     hasClaim: hasClaim,

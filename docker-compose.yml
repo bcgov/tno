@@ -1,6 +1,21 @@
 version: '3.5'
 
 services:
+  ####################### Nginx #######################
+  nginx:
+    image: tno:nginx
+    restart: on-failure:1
+    container_name: tno-nginx
+    build:
+      context: ./network/nginx
+    env_file:
+      - network/nginx/.env
+    ports:
+      - ${NGINX_HTTP_PORT:-50009}:80
+      - ${NGINX_HTTPS_PORT:-50010}:443
+    networks:
+      - tno
+
   ####################### Keycloak #######################
   keycloak:
     image: tno:keycloak
@@ -13,8 +28,8 @@ services:
     volumes:
       - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
     ports:
-      - ${KEYCLOAK_HTTP_PORT:-50080}:8080
-      - ${KEYCLOAK_HTTPS_PORT:-50443}:443
+      - ${KEYCLOAK_HTTP_PORT:-50000}:8080
+      - ${KEYCLOAK_HTTPS_PORT:-50001}:443
     networks:
       - tno
 
@@ -28,7 +43,7 @@ services:
     env_file:
       - db/postgres/.env
     ports:
-      - ${DATABASE_PORT:-51000}:5432
+      - ${DATABASE_PORT:-50002}:5432
     volumes:
       - tno-database-data:/var/lib/postgressql/data
       - ./db/postgres/scripts:/docker-entrypoint-initdb.d
@@ -44,8 +59,8 @@ services:
       context: api/editor
     env_file: api/editor/.env
     ports:
-      - ${API_EDITOR_HTTP_PORT:-52443}:443
-      - ${API_EDITOR_HTTPS_PORT:-52080}:8080
+      - ${API_EDITOR_HTTP_PORT:-50003}:8080
+      - ${API_EDITOR_HTTPS_PORT:-50004}:443
     depends_on:
       - database
       - keycloak
@@ -67,8 +82,8 @@ services:
       - ./app/editor/public:/usr/app/public
       - tno-app-editor-node-cache:/usr/app/node_modules
     ports:
-      - ${APP_EDITOR_HTTP_PORT:-53080}:3000
-      - ${APP_EDITOR_HTTPS_PORT:-53443}:3443
+      - ${APP_EDITOR_HTTP_PORT:-50005}:3000
+      - ${APP_EDITOR_HTTPS_PORT:-50006}:3443
     depends_on:
       - api-editor
     networks:
@@ -88,8 +103,8 @@ services:
       - ./app/subscriber:/usr/app
       - tno-app-subscriber-node-cache:/usr/app/node_modules
     ports:
-      - ${APP_SUBSCRIBER_HTTP_PORT:-54080}:3000
-      - ${APP_SUBSCRIBER_HTTPS_PORT:-54443}:3443
+      - ${APP_SUBSCRIBER_HTTP_PORT:-50007}:3000
+      - ${APP_SUBSCRIBER_HTTPS_PORT:-50008}:3443
     depends_on:
       - api-editor
     networks:
