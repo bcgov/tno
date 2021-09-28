@@ -7,8 +7,8 @@ FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 ARG MAVEN_VERSION="3.8.2"
 # [Option] Install Gradle
 ARG GRADLE_VERSION="6.9.1"
-RUN if [ "${INSTALL_MAVEN}" != "" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install maven \"${MAVEN_VERSION}\""; fi \
-  && if [ "${INSTALL_GRADLE}" != "" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install gradle \"${GRADLE_VERSION}\""; fi
+RUN if [ "${MAVEN_VERSION}" != "" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install maven \"${MAVEN_VERSION}\""; fi \
+  && if [ "${GRADLE_VERSION}" != "" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install gradle \"${GRADLE_VERSION}\""; fi
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
 ARG NODE_VERSION="none"

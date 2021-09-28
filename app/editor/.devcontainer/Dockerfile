@@ -15,4 +15,4 @@ RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_V
 RUN su node -c "npm config set prefix $NVM_DIR/versions/node/${EXTRA_NODE_VERSION}"
 
 # [Optional] Uncomment if you want to install more global node packages
-# RUN su node -c "npm install -g <your-package-list -here>"
+RUN su node -c "npm install -g create-react-app"

@@ -1,4 +1,4 @@
-version: "3.5"
+version: '3.5'
 
 services:
   ####################### Keycloak #######################
@@ -14,7 +14,7 @@ services:
       - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
     ports:
       - ${KEYCLOAK_HTTP_PORT:-50080}:8080
-      - ${KEYCLOAK_HTTPS_PORT:-50443}:8080
+      - ${KEYCLOAK_HTTPS_PORT:-50443}:443
     networks:
       - tno
 
@@ -28,9 +28,10 @@ services:
     env_file:
       - db/postgres/.env
     ports:
-      - ${DATABASE_PORT:-51000}:1433
+      - ${DATABASE_PORT:-51000}:5432
     volumes:
-      - tno-database-data:/var/opt/postgres
+      - tno-database-data:/var/lib/postgressql/data
+      - ./db/postgres/scripts:/docker-entrypoint-initdb.d
     networks:
       - tno
 
@@ -38,15 +39,13 @@ services:
   api-editor:
     image: tno:api-editor
     restart: on-failure:1
-    container_name: tno-api
+    container_name: tno-api-editor
     build:
       context: api/editor
-      args:
-        BUILD_CONFIGURATION: Debug
     env_file: api/editor/.env
     ports:
-      - ${API_EDITOR_HTTP_PORT:-52080}:443
-      - ${API_EDITOR_HTTPS_PORT:-52443}:8080
+      - ${API_EDITOR_HTTP_PORT:-52443}:443
+      - ${API_EDITOR_HTTPS_PORT:-52080}:8080
     depends_on:
       - database
       - keycloak
@@ -70,8 +69,8 @@ services:
     ports:
       - ${APP_EDITOR_HTTP_PORT:-53080}:3000
       - ${APP_EDITOR_HTTPS_PORT:-53443}:3443
-    # depends_on:
-    #   - api-editor
+    depends_on:
+      - api-editor
     networks:
       - tno
 
@@ -91,8 +90,8 @@ services:
     ports:
       - ${APP_SUBSCRIBER_HTTP_PORT:-54080}:3000
       - ${APP_SUBSCRIBER_HTTPS_PORT:-54443}:3443
-    # depends_on:
-    #   - api-editor
+    depends_on:
+      - api-editor
     networks:
       - tno
 
