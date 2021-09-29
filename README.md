@@ -3,12 +3,12 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/bcgov/tno/issues)
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/tno/wiki)
-![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+[![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bcgov/tno/wiki)
 [![codecov](https://codecov.io/gh/bcgov/tno/branch/dev/graph/badge.svg)](https://codecov.io/gh/bcgov/tno)
 
-![Forks](https://img.shields.io/github/forks/bcgov/tno.svg)
-![Stars](https://img.shields.io/github/stars/bcgov/tno.svg)
-![Wachters](https://img.shields.io/github/watchers/bcgov/tno.svg)
+[![Forks](https://img.shields.io/github/forks/bcgov/tno.svg)](https://github.com/bcgov/tno/network/members)
+[![Stars](https://img.shields.io/github/stars/bcgov/tno.svg)](https://github.com/bcgov/tno/stargazers)
+[![Wachters](https://img.shields.io/github/watchers/bcgov/tno.svg)](https://github.com/bcgov/tno/watchers)
 
 GCPE’s primary role is to inform the public about government programs, services, policies, and priorities through traditional communication practices and, increasingly, through direct engagement and online services.
 
@@ -25,20 +25,22 @@ Today's News Online (TNO) is a news aggregation system that takes in news source
 This repository is a mono-repo containing all relevant documentation, code, and infrastructure that are required to setup and run the TNO solution.
 
 ### Frontend Applications
-![APP (React)](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Redux](https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white)
-![Javascript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
-![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Node](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
-![SAAS](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white)
+
+[![APP (React)](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://github.com/bcgov/tno/wiki)
+[![Redux](https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Javascript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)](https://github.com/bcgov/tno/wiki)
+[![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Node](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![SAAS](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white)](https://github.com/bcgov/tno/wiki)
 
 ### Backend Applications
-![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
-![SPRING](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+
+[![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![SPRING](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://github.com/bcgov/tno/wiki)
 
 ## Links
 

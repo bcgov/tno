@@ -11,8 +11,8 @@ services:
     env_file:
       - network/nginx/.env
     ports:
-      - ${NGINX_HTTP_PORT:-50009}:80
-      - ${NGINX_HTTPS_PORT:-50010}:443
+      - ${NGINX_HTTP_PORT:-50080}:80
+      - ${NGINX_HTTPS_PORT:-50443}:443
     networks:
       - tno
 
@@ -50,7 +50,7 @@ services:
     networks:
       - tno
 
-  ####################### API #######################
+  ####################### API - Editor #######################
   api-editor:
     image: tno:api-editor
     restart: on-failure:1
@@ -67,7 +67,7 @@ services:
     networks:
       - tno
 
-  ####################### App #######################
+  ####################### App - Editor #######################
   app-editor:
     image: tno:app-editor
     stdin_open: true
@@ -89,27 +89,6 @@ services:
     networks:
       - tno
 
-  ####################### App #######################
-  app-subscriber:
-    image: tno:app-subscriber
-    stdin_open: true
-    tty: true
-    restart: on-failure:1
-    container_name: tno-app-subscriber
-    build:
-      context: app/subscriber
-    env_file: ./app/subscriber/.env
-    volumes:
-      - ./app/subscriber:/usr/app
-      - tno-app-subscriber-node-cache:/usr/app/node_modules
-    ports:
-      - ${APP_SUBSCRIBER_HTTP_PORT:-50007}:3000
-      - ${APP_SUBSCRIBER_HTTPS_PORT:-50008}:3443
-    depends_on:
-      - api-editor
-    networks:
-      - tno
-
 ####################### Networks Definition #######################
 networks:
   tno:
@@ -122,5 +101,3 @@ volumes:
     name: tno-database-data
   tno-app-editor-node-cache:
     name: tno-app-editor-node-cache
-  tno-app-subscriber-node-cache:
-    name: tno-app-subscriber-node-cache
