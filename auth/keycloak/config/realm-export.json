@@ -271,7 +271,22 @@
       "security-admin-console" : [ ],
       "tno-api" : [ ],
       "admin-cli" : [ ],
-      "tno-service-account" : [ ],
+      "tno-service-account" : [ {
+        "id" : "741d1896-609e-4e60-88d4-f9ede9773865",
+        "name" : "uma_protection",
+        "composite" : false,
+        "clientRole" : true,
+        "containerId" : "c8c6977e-55e0-4146-a38c-8420c5761b6c",
+        "attributes" : { }
+      } ],
+      "tno-test" : [ {
+        "id" : "cf1c4b16-e2f7-4b96-9c5c-7b93c3db0d27",
+        "name" : "uma_protection",
+        "composite" : false,
+        "clientRole" : true,
+        "containerId" : "4238cbfe-6475-4674-b5b8-212f54d56746",
+        "attributes" : { }
+      } ],
       "account-console" : [ ],
       "broker" : [ {
         "id" : "a63e4594-ca42-4900-8aec-2c09d4b86de9",
@@ -469,7 +484,25 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "subscriber", "administrator", "default-roles-tno", "editor" ],
     "clientRoles" : {
-      "realm-management" : [ "realm-admin" ]
+      "realm-management" : [ "realm-admin" ],
+      "tno-service-account" : [ "uma_protection" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "c4b1c2b2-9507-4722-b83d-6ff3a95d8213",
+    "createdTimestamp" : 1632953642510,
+    "username" : "service-account-tno-test",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : false,
+    "serviceAccountClientId" : "tno-test",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-tno" ],
+    "clientRoles" : {
+      "tno-test" : [ "uma_protection" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
@@ -808,8 +841,8 @@
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "7cbd57a3-79cb-41df-a5e0-8de1402ee147",
-    "redirectUris" : [ "http://localhost:8080/*", "http://localhost:50003/*" ],
-    "webOrigins" : [ "http://localhost:50005", "http://localhost:50080", "http://localhost:8080", "http://localhost:50003" ],
+    "redirectUris" : [ "http://localhost:8080/*", "http://localhost:50080/*", "http://localhost:50003/*" ],
+    "webOrigins" : [ "http://localhost:50005", "http://localhost:50080", "http://localhost:8080", "*", "http://localhost:50003" ],
     "notBefore" : 0,
     "bearerOnly" : false,
     "consentRequired" : false,
@@ -893,6 +926,135 @@
     } ],
     "defaultClientScopes" : [ "web-origins", "profile", "roles", "email" ],
     "optionalClientScopes" : [ "address", "phone", "offline_access", "microprofile-jwt" ]
+  }, {
+    "id" : "4238cbfe-6475-4674-b5b8-212f54d56746",
+    "clientId" : "tno-test",
+    "name" : "Today's News Online API - Test User Client",
+    "description" : "This provides a way to login as a user to test the API",
+    "surrogateAuthRequired" : false,
+    "enabled" : true,
+    "alwaysDisplayInConsole" : false,
+    "clientAuthenticatorType" : "client-secret",
+    "secret" : "e6053caa-7732-4393-9505-0eea360c1c38",
+    "redirectUris" : [ "http://localhost:8080/*", "http://localhost:50000/*", "http://localhost:50003/*" ],
+    "webOrigins" : [ "*" ],
+    "notBefore" : 0,
+    "bearerOnly" : false,
+    "consentRequired" : false,
+    "standardFlowEnabled" : true,
+    "implicitFlowEnabled" : false,
+    "directAccessGrantsEnabled" : true,
+    "serviceAccountsEnabled" : true,
+    "authorizationServicesEnabled" : true,
+    "publicClient" : false,
+    "frontchannelLogout" : false,
+    "protocol" : "openid-connect",
+    "attributes" : {
+      "id.token.as.detached.signature" : "false",
+      "saml.assertion.signature" : "false",
+      "saml.force.post.binding" : "false",
+      "saml.multivalued.roles" : "false",
+      "saml.encrypt" : "false",
+      "login_theme" : "keycloak",
+      "oauth2.device.authorization.grant.enabled" : "false",
+      "backchannel.logout.revoke.offline.tokens" : "false",
+      "saml.server.signature" : "false",
+      "saml.server.signature.keyinfo.ext" : "false",
+      "use.refresh.tokens" : "true",
+      "exclude.session.state.from.auth.response" : "false",
+      "oidc.ciba.grant.enabled" : "false",
+      "saml.artifact.binding" : "false",
+      "backchannel.logout.session.required" : "true",
+      "client_credentials.use_refresh_token" : "false",
+      "saml_force_name_id_format" : "false",
+      "require.pushed.authorization.requests" : "false",
+      "saml.client.signature" : "false",
+      "tls.client.certificate.bound.access.tokens" : "false",
+      "saml.authnstatement" : "false",
+      "display.on.consent.screen" : "false",
+      "saml.onetimeuse.condition" : "false"
+    },
+    "authenticationFlowBindingOverrides" : { },
+    "fullScopeAllowed" : true,
+    "nodeReRegistrationTimeout" : -1,
+    "protocolMappers" : [ {
+      "id" : "c6662566-574c-43f6-b4a1-49d4755880fa",
+      "name" : "Client ID",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usersessionmodel-note-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "user.session.note" : "clientId",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "clientId",
+        "jsonType.label" : "String"
+      }
+    }, {
+      "id" : "877d9d76-e619-4ee6-a82b-81a865fd873a",
+      "name" : "Client Host",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usersessionmodel-note-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "user.session.note" : "clientHost",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "clientHost",
+        "jsonType.label" : "String"
+      }
+    }, {
+      "id" : "f37e8b23-bc5b-4a07-a562-69c9dcdffb9e",
+      "name" : "Client IP Address",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usersessionmodel-note-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "user.session.note" : "clientAddress",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "clientAddress",
+        "jsonType.label" : "String"
+      }
+    } ],
+    "defaultClientScopes" : [ "web-origins", "profile", "roles", "email" ],
+    "optionalClientScopes" : [ "address", "phone", "offline_access", "microprofile-jwt" ],
+    "authorizationSettings" : {
+      "allowRemoteResourceManagement" : true,
+      "policyEnforcementMode" : "ENFORCING",
+      "resources" : [ {
+        "name" : "Default Resource",
+        "type" : "urn:tno-test:resources:default",
+        "ownerManagedAccess" : false,
+        "attributes" : { },
+        "_id" : "d56a41d2-cac0-4d45-957b-dc8ab86e68d7",
+        "uris" : [ "/*" ]
+      } ],
+      "policies" : [ {
+        "id" : "13f1c4bc-5f1f-45e8-ba4e-01eb6f8dca77",
+        "name" : "Default Policy",
+        "description" : "A policy that grants access only for users within this realm",
+        "type" : "js",
+        "logic" : "POSITIVE",
+        "decisionStrategy" : "AFFIRMATIVE",
+        "config" : {
+          "code" : "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+        }
+      }, {
+        "id" : "d9122ba3-aab3-4c15-b1f4-39b51d90257d",
+        "name" : "Default Permission",
+        "description" : "A permission that applies to the default resource type",
+        "type" : "resource",
+        "logic" : "POSITIVE",
+        "decisionStrategy" : "UNANIMOUS",
+        "config" : {
+          "defaultResourceType" : "urn:tno-test:resources:default",
+          "applyPolicies" : "[\"Default Policy\"]"
+        }
+      } ],
+      "scopes" : [ ],
+      "decisionStrategy" : "UNANIMOUS"
+    }
   } ],
   "clientScopes" : [ {
     "id" : "66672f0f-8e07-4324-809c-80a8d6b1ba5d",

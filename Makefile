@@ -34,6 +34,14 @@ help:
 .PHONY: help
 
 ##############################################################################
+# Solution Configuration
+##############################################################################
+
+setup: ## Setup local environment for development, generate .env files.
+	@echo "$(P) Setup local development environment"
+	@./tools/scripts/gen-env-files.sh
+
+##############################################################################
 # Docker Development
 ##############################################################################
 
