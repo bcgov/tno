@@ -9,7 +9,7 @@ The solution has been setup to support `docker-compose` which will mimic the pro
 - [Git](https://git-scm.com/downloads)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-> If using Windows OS it is preferable to **not** use the WSL version of Docker Desktop. While it may work, mileage will vary in certain scenarios.
+> If using Windows OS it is preferable to **not** use the WSL version of Docker Desktop. While it may work, mileage may vary in certain scenarios.
 
 There are a number of Windows related dependencies that are required to take advantage of some of the automated build scripts.
 These scripts simplify the process of setting up your environment, but can be performed manually if you do not want to install the following.
