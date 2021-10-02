@@ -50,6 +50,27 @@ services:
     networks:
       - tno
 
+  ####################### Elasticsearch #######################
+  elastic:
+    image: tno:elastic
+    restart: on-failure:1
+    container_name: tno-elastic
+    build:
+      context: db/elasticsearch
+    env_file:
+      - db/elasticsearch/.env
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - ${ELASTIC_HTTP_PORT:-50007}:9200
+      - ${ELASTIC_COM_PORT:-50008}:9300
+    volumes:
+      - tno-elastic-data:/usr/share/elasticsearch/data
+    networks:
+      - tno
+
   ####################### API - Editor #######################
   api-editor:
     image: tno:api-editor
@@ -57,7 +78,7 @@ services:
     container_name: tno-api-editor
     build:
       context: api/editor
-    env_file: api/editor/.env
+    env_file: api/editor/api/src/main/resources/.env
     ports:
       - ${API_EDITOR_HTTP_PORT:-50003}:8080
       - ${API_EDITOR_HTTPS_PORT:-50004}:443
@@ -89,15 +110,11 @@ services:
     networks:
       - tno
 
-####################### Networks Definition #######################
-networks:
-  tno:
-    name: tno-net
-    driver: bridge
-
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:
     name: tno-database-data
+  tno-elastic-data:
+    name: tno-elastic-data
   tno-app-editor-node-cache:
     name: tno-app-editor-node-cache

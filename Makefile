@@ -42,28 +42,68 @@ setup: ## Setup local environment for development, generate .env files.
 	@./tools/scripts/gen-env-files.sh
 
 ##############################################################################
-# Docker Development
+# Docker Management
 ##############################################################################
 
-up: ## Runs the local containers (n=service name)
-	@echo "$(P) Running client and server..."
-	@docker-compose --env-file .env up -d $(n)
+up: ## Runs the local containers or the one specified (n=service name)
+	@echo "$(P) Running containers..."
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml up -d $(n)
 
 down: ## Stops the local containers and removes them
-	@echo "$(P) Stopping client and server..."
-	@docker-compose down
+	@echo "$(P) Stopping containers..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml down
 
-stop: ## Stops the local containers (n=service name)
-	@echo "$(P) Stopping client and server..."
-	@docker-compose stop $(n)
+stop: ## Stops the local containers or the one specified (n=service name)
+	@echo "$(P) Stopping containers..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml stop $(n)
 
-build: ## Builds the local containers (n=service name)
+build: ## Builds the local containers or the one specified (n=service name)
 	@echo "$(P) Building images..."
-	@docker-compose build --no-cache $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml build --no-cache $(n)
 
-rebuild: ## Build the local contains (n=service name) and then start them after building
+rebuild: ## Build the local contains or the one specified (n=service name) and then start them after building
 	@make build n=$(n)
 	@make up n=$(n)
+
+remove: ## Remove all the local containers
+	@echo "$(P) Removing images..."
+	@docker-compose rm -sv
+
+##############################################################################
+# Kafka Management
+##############################################################################
+
+kafka-up: ## Runs the local kafka containers or the one specified (n=service name)
+	@echo "$(P) Running kafka containers..."
+	@docker-compose --env-file .env -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml up -d $(n)
+
+kafka-down: ## Stops the local kafka containers and removes them
+	@echo "$(P) Stopping kafka containers..."
+	@docker-compose -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml down
+
+kafka-stop: ## Stops the local kafka containers or the one specified (n=service name)
+	@echo "$(P) Stopping kafka containers..."
+	@docker-compose -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml stop $(n)
+
+kafka-build: ## Builds the local kafka containers or the one specified (n=service name)
+	@echo "$(P) Building kafka images..."
+	@docker-compose -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml build --no-cache $(n)
+
+kafka-rebuild: ## Build the local kafka contains or the one specified (n=service name) and then start them after building
+	@make kafka-build n=$(n)
+	@make kafka-up n=$(n)
+
+kafka-remove: ## Remove the local kafka containers
+	@echo "$(P) Removing kafka images..."
+	@docker rm -fv tno-rest-proxy
+	@docker rm -fv tno-ksql-datagen
+	@docker rm -fv tno-ksqldb-cli
+	@docker rm -fv tno-schema-registry
+	@docker rm -fv tno-control-center
+	@docker rm -fv tno-ksqldb-server
+	@docker rm -fv tno-connect
+	@docker rm -fv tno-zookeeper
+	@docker rm -fv tno-broker
 
 ##############################################################################
 # Node Container Management

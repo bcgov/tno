@@ -40,7 +40,7 @@ This repository is a mono-repo containing all relevant documentation, code, and 
 [![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![SPRING](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/bcgov/tno/wiki)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Elasticsearch](https://img.shields.io/badge/Elasticsearch-4EA94B?style=for-the-badge&logo=elastic&logoColor=white)](https://github.com/bcgov/tno/wiki)
 
 ## Links
 

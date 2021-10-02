@@ -1,0 +1,7 @@
+version: "3.5"
+
+####################### Networks Definition #######################
+networks:
+  tno:
+    name: tno-net
+    driver: bridge

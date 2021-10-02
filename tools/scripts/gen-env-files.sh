@@ -6,6 +6,9 @@ read -p 'Username: ' varKeycloak
 echo 'Enter a username for the API database.'
 read -p 'Username: ' varApiDb
 
+echo 'Enter a username for the Elasticsearch.'
+read -p 'Username: ' varElastic
+
 passvar=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
 
 if [ -z "$passvar" ]
@@ -42,12 +45,31 @@ POSTGRES_PASSWORD=$passvar
 POSTGRES_DB=tno" >> ./db/postgres/.env
 fi
 
+# Elasticsearch
+if test -f "./db/elasticsearch/.env"; then
+    echo "./db/elasticsearch/.env exists"
+else
+echo \
+"NETWORK_HOST=0.0.0.0
+CLUSTER_NAME=tno-es-cluster
+CLUSTER_INITIAL_MASTER_NODES=tno
+NODE_NAME=tno
+ELASTIC_USERNAME=$varElastic
+ELASTIC_PASSWORD=$passvar
+DISCOVERY_TYPE=single-node
+BOOTSTRAP_MEMORY_LOCK=true
+ES_JAVA_OPTS=-Xms512m -Xmx512m" >> ./db/elasticsearch/.env
+fi
+
 # API - Editor
 if test -f "./api/editor/api/src/main/resources/.env"; then
     echo "./api/editor/api/src/main/resources/.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/" >> ./api/editor/api/src/main/resources/.env
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
+ELASTIC_URIS=host.docker.internal:50007
+ELASTIC_USERNAME=$varElastic
+ELASTIC_PASSWORD=$passvar" >> ./api/editor/api/src/main/resources/.env
 fi
 
 # APP - Editor

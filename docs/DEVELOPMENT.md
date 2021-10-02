@@ -82,7 +82,8 @@ The exposed container ports is configurable, but the defaults are identified bel
 | ---------- | ----- | --------------------------------------------------------------------------------------------- |
 | nginx      | 50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
 | keycloak   | 50000 | Provides authentication and account management services                                       |
-| database   | 50002 | Provides relational database for the API                                                      |
+| database   | 50002 | Provides Postgress relational database for the API                                            |
+| elastic    | 50007 | Provides NoSQL Elasticsearch database for the API                                             |
 | api-editor | 50003 | Provides the RESTful API which gives secure access to data                                    |
 | app-editor | 50005 | Provides the web application which is the UI                                                  |
 
@@ -112,3 +113,4 @@ Read more [here](../test/README.md).
 | keycloak   | [http://localhost:50000/](http://localhost:50000)        |
 | app-editor | [http://localhost:50080/app](http://localhost:50080/app) |
 | app-api    | [http://localhost:50080/api](http://localhost:50080/api) |
+| elastic    | [http://localhost:50007](http://localhost:50007)         |
