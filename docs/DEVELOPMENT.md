@@ -1,17 +1,16 @@
 # Begin Development
 
-Development can be performed by any IDE that supports Java and React.  However, this repositority is specifically built to support VS Code, which will enable developers to get everything running much quicker.
+Development can be performed by any IDE that supports Java and React.  However, this repositority is specifically built to support VS Code. VS Code will enable developers to get everything running significantly quicker.
 
 If you choose to use VS Code you can use the development containers instead of installing everything locally on your machine.
 The solution has been setup to support `docker-compose` which will mimic the production infrastructure implementation.
 
 To setup your local environment to run and develop the TNO solution, download or clone this mono-repo [https://github.com/bcgov/tno](https://github.com/bcgov/tno).
 
-## Required Installation
+## Docker Development
 
 If you choose to run the solution with Docker you will need to install the following.
 
-- [Git](https://git-scm.com/downloads)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
 > If using Windows OS it is preferable to **not** use the WSL version of Docker Desktop. While it may work, mileage may vary in certain scenarios.
@@ -42,25 +41,25 @@ After installing vscode will recognize when you open a folder that contains a `.
 Choosing to open the container will spin up one with all the required dependencies to do development work locally.
 In addition, it will also install all the associated plugins for VS Code.
 
-## Local Development
+## Local Development (Without Development Containers)
 
-If you would like to be able to build the solution locally or run the various components locally (not with Docker), you will need to install all of the following dependencies.
+If you would like to be able to build the solution locally or run the various components locally (not with Docker), you will need to install the following dependencies.
+This can be helpful if your computer's performance is unable to support development within docker containers.
 
-You will need to install the following dependencies if you do not plan to use the **Development Containers** (above).
-
-| Dependency | Version  |
-| ---------- | -------- |
-| Node       | v16.10.0 |
-| npm        | 7.24.0   |
-| yarn       | v1.22.5  |
-| jdk        | 11       |
-| maven      | 3.8.2    |
+| Dependency | Version  | Description |
+| ---------- | --------: | -- |
+| [Node](https://nodejs.org/en/download/)       | v16.10.0 | |
+| [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows) | | Required if you need to support different versions of node |
+| [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)        | 7.24.0   | |
+| [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)       | v1.22.5  | |
+| [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA)        | 11       | |
+| [maven](http://maven.apache.org/install.html)      | 3.8.2    | |
 
 ## Configure Environment
 
 In order for the various components of the solution to work they require the appropriate configuration files to be created.
 You can auto generate them with the provided scripts.
-This process will generate `.env` files in the required locations so that the docker containers can run.
+This process will generate `.env` files in the required locations so that the solution and docker containers can run.
 
 If you have installed `make` you can use the helper method.
 
@@ -85,7 +84,7 @@ The following containers are hosted in the TNO solution.
 The exposed container ports is configurable, but the defaults are identified below.
 
 | Container  | Port  | Description                                                                                   |
-| ---------- | ----- | --------------------------------------------------------------------------------------------- |
+| ---------- | ----: | --------------------------------------------------------------------------------------------- |
 | nginx      | 50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
 | keycloak   | 50000 | Provides authentication and account management services                                       |
 | database   | 50002 | Provides Postgress relational database for the API                                            |
@@ -100,9 +99,10 @@ make up
 ```
 
 If you haven't installed `make` you can use the docker-compose cli.
+The following command merges multiple compose files, builds and runs all of the containers.
 
 ```bash
-docker-compose up
+docker-compose -f docker-compose.override.yml -f docker-compose.yml -f ./db/kafka/docker-compose.yml -d up
 ```
 
 Once everything is up and running you can now view the application in your browser.
