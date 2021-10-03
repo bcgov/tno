@@ -1,10 +1,15 @@
 # Begin Development
 
+Development can be performed by any IDE that supports Java and React.  However, this repositority is specifically built to support VS Code, which will enable developers to get everything running much quicker.
+
 If you choose to use VS Code you can use the development containers instead of installing everything locally on your machine.
-However if you prefer you can also install everything locally for development.
 The solution has been setup to support `docker-compose` which will mimic the production infrastructure implementation.
 
+To setup your local environment to run and develop the TNO solution, download or clone this mono-repo [https://github.com/bcgov/tno](https://github.com/bcgov/tno).
+
 ## Required Installation
+
+If you choose to run the solution with Docker you will need to install the following.
 
 - [Git](https://git-scm.com/downloads)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
@@ -25,20 +30,21 @@ These scripts simplify the process of setting up your environment, but can be pe
 
 VS Code supports developing inside a container.
 This provides a very quick and reliable way to setup your whole local development environment without installing anything locally.
-In theory you will no longer need to worry about a forgotten or missing dependency, or an OS related issue.
+In theory you will no longer need to worry about missing dependencies, correct versions, or OS related issues.
 
 Development containers provide an amazing way to ensure all developers have the identical environment to work in.
 
 VS Code - [more information here](https://code.visualstudio.com/docs/remote/containers)
 
-- [VS Code](https://code.visualstudio.com/download)
+- Install [VS Code](https://code.visualstudio.com/download)
 
-After installing vscode will recognize if you open a folder that contains a `.devcontainer` folder and ask you if you want to open the container.
-Opening the container will spin up a container with all the required dependencies to do development work locally.
+After installing vscode will recognize when you open a folder that contains a `.devcontainer` folder and ask you if you want to open the container.
+Choosing to open the container will spin up one with all the required dependencies to do development work locally.
+In addition, it will also install all the associated plugins for VS Code.
 
 ## Local Development
 
-To setup your local environment to run and develop the TNO solution, download or clone this mono-repo [https://github.com/bcgov/tno](https://github.com/bcgov/tno).
+If you would like to be able to build the solution locally or run the various components locally (not with Docker), you will need to install all of the following dependencies.
 
 You will need to install the following dependencies if you do not plan to use the **Development Containers** (above).
 
