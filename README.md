@@ -22,7 +22,7 @@ Today's News Online (TNO) is a news aggregation system that takes in news source
 
 ## Introduction
 
-This repository is a mono-repo containing all relevant documentation, code, and infrastructure that are required to setup and run the TNO solution.
+This repository is a mono-repo containing all relevant documentation, code, and infrastructure that is required to setup and run the TNO solution.
 
 ### Frontend Applications
 
