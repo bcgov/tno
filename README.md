@@ -24,7 +24,7 @@ Today's News Online (TNO) is a news aggregation system that takes in news source
 
 This repository is a mono-repo containing all relevant documentation, code, and infrastructure that is required to setup and run the TNO solution.
 
-### Frontend Applications
+### Frontend Dependencies
 
 [![APP (React)](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://github.com/bcgov/tno/wiki)
 [![Redux](https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white)](https://github.com/bcgov/tno/wiki)
@@ -35,12 +35,21 @@ This repository is a mono-repo containing all relevant documentation, code, and 
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![SAAS](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white)](https://github.com/bcgov/tno/wiki)
 
-### Backend Applications
+### Backend Dependencies
 
 [![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![SPRING](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![Elasticsearch](https://img.shields.io/badge/Elasticsearch-4EA94B?style=for-the-badge&logo=elastic&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Kafka](https://img.shields.io/badge/Apache%20Kafka-20232A?style=for-the-badge&logo=apachekafka&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Keycloak](https://img.shields.io/badge/Keycloak-593D88?style=for-the-badge&logo=keycloak&logoColor=white)](https://github.com/bcgov/tno/wiki)
+
+### Infrastructure
+
+[![Docker](https://img.shields.io/badge/Docker-593D88?style=for-the-badge&logo=docker&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-E34F26?style=for-the-badge&logo=kubernetes&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Openshift](https://img.shields.io/badge/Openshift-CC6699?style=for-the-badge&logo=redhatopenshift&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Linux](https://img.shields.io/badge/Linux-6DB33F?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/bcgov/tno/wiki)
 
 ## Links
 
