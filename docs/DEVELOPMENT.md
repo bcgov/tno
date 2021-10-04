@@ -1,6 +1,6 @@
 # Begin Development
 
-Development can be performed by any IDE that supports Java and React.  However, this repositority is specifically built to support VS Code. VS Code will enable developers to get everything running significantly quicker.
+Development can be performed by any IDE that supports Java and React. However, this repositority is specifically built to support VS Code. VS Code will enable developers to get everything running significantly quicker.
 
 If you choose to use VS Code you can use the development containers instead of installing everything locally on your machine.
 The solution has been setup to support `docker-compose` which will mimic the production infrastructure implementation.
@@ -46,14 +46,14 @@ In addition, it will also install all the associated plugins for VS Code.
 If you would like to be able to build the solution locally or run the various components locally (not with Docker), you will need to install the following dependencies.
 This can be helpful if your computer's performance is unable to support development within docker containers.
 
-| Dependency | Version  | Description |
-| ---------- | --------: | -- |
-| [Node](https://nodejs.org/en/download/)       | v16.10.0 | |
-| [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows) | | Required if you need to support different versions of node |
-| [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)        | 7.24.0   | |
-| [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)       | v1.22.5  | |
-| [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA)        | 11       | |
-| [maven](http://maven.apache.org/install.html)      | 3.8.2    | |
+| Dependency                                                                                                                                           |  Version | Description                                                |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------: | ---------------------------------------------------------- |
+| [Node](https://nodejs.org/en/download/)                                                                                                              | v16.10.0 |                                                            |
+| [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows)                                                               |          | Required if you need to support different versions of node |
+| [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)                                                                                         |   7.24.0 |                                                            |
+| [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)                                                                                  |  v1.22.5 |                                                            |
+| [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA) |       11 |                                                            |
+| [maven](http://maven.apache.org/install.html)                                                                                                        |    3.8.2 |                                                            |
 
 ## Configure Environment
 
@@ -83,14 +83,21 @@ After the docker containers are ready it becomes much quicker.
 The following containers are hosted in the TNO solution.
 The exposed container ports is configurable, but the defaults are identified below.
 
-| Container  | Port  | Description                                                                                   |
-| ---------- | ----: | --------------------------------------------------------------------------------------------- |
-| nginx      | 50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
-| keycloak   | 50000 | Provides authentication and account management services                                       |
-| database   | 50002 | Provides Postgress relational database for the API                                            |
-| elastic    | 50007 | Provides NoSQL Elasticsearch database for the API                                             |
-| api-editor | 50003 | Provides the RESTful API which gives secure access to data                                    |
-| app-editor | 50005 | Provides the web application which is the UI                                                  |
+| Container       |         Port | Description                                                                                   |
+| --------------- | -----------: | --------------------------------------------------------------------------------------------- |
+| nginx           |        50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
+| keycloak        |        50000 | Provides authentication and account management services                                       |
+| database        |        50002 | Provides PostgreSQL relational database for the API                                           |
+| elastic         |        50007 | Provides NoSQL Elasticsearch database for the API                                             |
+| api-editor      |        50003 | Provides the RESTful API which gives secure access to data                                    |
+| app-editor      |        50005 | Provides the web application which is the UI                                                  |
+| zookeeper       |        50010 | Kafka Zookeeper to manage cluster                                                             |
+| broker          | 50012, 50017 | Kafka server and REST API v3                                                                  |
+| schema-registry |        50013 | Kafka schema registry services                                                                |
+| connect         |        50014 | Kafka connect Control Center with Schema Registry                                             |
+| control-center  |        50015 | Kafka UI to manage cluster                                                                    |
+| ksqldb-server   |        50016 | Kafka streaming services                                                                      |
+| rest-proxy      |        50018 | Kafka REST API v2                                                                             |
 
 If you have installed `make` you can use the helper method.
 
@@ -114,9 +121,12 @@ Be aware most of the api endpoints will require a valid JWToken.
 Use Postman to interact with the API independently from the web application.
 Read more [here](../test/README.md).
 
-| Container  | URI                                                      |
-| ---------- | -------------------------------------------------------- |
-| keycloak   | [http://localhost:50000/](http://localhost:50000)        |
-| app-editor | [http://localhost:50080/app](http://localhost:50080/app) |
-| app-api    | [http://localhost:50080/api](http://localhost:50080/api) |
-| elastic    | [http://localhost:50007](http://localhost:50007)         |
+| Container      | URI                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------ |
+| keycloak       | [http://localhost:50000/](http://localhost:50000)                                    |
+| app-editor     | [http://localhost:50080/app](http://localhost:50080/app)                             |
+| app-api        | [http://localhost:50080/api](http://localhost:50080/api)                             |
+| elastic        | [http://localhost:50007](http://localhost:50007)                                     |
+| control-center | [http://localhost:50015](http://localhost:50015)                                     |
+| broker         | [http://localhost:50017/kafka/v3/clusters](http://localhost:50017/kafka/v3/clusters) |
+| rest-proxy     | [http://localhost:50018](http://localhost:50018)                                     |

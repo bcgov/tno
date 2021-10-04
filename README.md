@@ -53,7 +53,7 @@ This repository is a mono-repo containing all relevant documentation, code, and 
 
 ## Links
 
-- [Begin Development](./docs/DEVELOPMENT.md)
+- [Begin Development](./docs/DEVELOPMENT.md) : Get started and help contribute to the project
 - [Wiki](https://github.com/bcgov/tno/wiki) : Documentation for this repository
 - [Openshift](./openshift/README.md) : Infrastructure and DevOps
 - [Testing](./test/README.md) : Testing resources

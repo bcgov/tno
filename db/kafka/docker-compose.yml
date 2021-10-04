@@ -9,10 +9,13 @@ services:
     container_name: tno-zookeeper
     build:
       context: db/kafka/zookeeper
-    ports:
-      - ${KAFKA_ZOOKEEPER_PORT:-50010}:2181
     env_file:
       - db/kafka/zookeeper/.env
+    ports:
+      - ${KAFKA_ZOOKEEPER_PORT:-50010}:2181
+    volumes:
+      - tno-zookeeper-data:/var/lib/zookeeper/data
+      - tno-zookeeper-log:/var/lib/zookeeper/log
     networks:
       - tno
 
@@ -30,6 +33,9 @@ services:
     ports:
       - ${KAFKA_BROKER_PORT:-50011}:9101
       - ${KAFKA_BROKER_ADVERTISED_HOST_PORT:-50012}:9092
+      - ${KAFKA_BROKER_REST_PORT:-50017}:8090
+    volumes:
+      - tno-broker-data:/var/lib/kafka/data
     networks:
       - tno
 
@@ -91,53 +97,14 @@ services:
     hostname: ksqldb-server
     container_name: tno-ksqldb-server
     build:
-      context: db/kafka/ksqldb
+      context: db/kafka/ksqldb-server
     env_file:
-      - db/kafka/ksqldb/.env
+      - db/kafka/ksqldb-server/.env
     depends_on:
       - broker
       - connect
     ports:
       - ${KAFKA_KSQLDB_PORT:-50016}:8088
-    networks:
-      - tno
-
-  ksqldb-cli:
-    image: tno:kafka-ksqldb-cli
-    restart: on-failure:1
-    container_name: tno-ksqldb-cli
-    build:
-      context: db/kafka/ksqldb-cli
-    depends_on:
-      - broker
-      - connect
-      - ksqldb-server
-    entrypoint: /bin/sh
-    tty: true
-    networks:
-      - tno
-
-  ksql-datagen:
-    image: tno:kafka-ksql-datagen
-    restart: on-failure:1
-    hostname: ksql-datagen
-    container_name: tno-ksql-datagen
-    build:
-      context: db/kafka/ksql-datagen
-    env_file:
-      - db/kafka/ksql-datagen/.env
-    depends_on:
-      - ksqldb-server
-      - broker
-      - schema-registry
-      - connect
-    command: "bash -c 'echo Waiting for Kafka to be ready... && \
-                       cub kafka-ready -b broker:29092 1 40 && \
-                       echo Waiting for Confluent Schema Registry to be ready... && \
-                       cub sr-ready schema-registry 8081 40 && \
-                       echo Waiting a few seconds for topic creation to finish... && \
-                       sleep 11 && \
-                       tail -f /dev/null'"
     networks:
       - tno
 
@@ -154,6 +121,15 @@ services:
       - broker
       - schema-registry
     ports:
-      - ${KAFKA_REST_PROXY_PORT:-50017}:8082
+      - ${KAFKA_REST_PROXY_PORT:-50018}:8082
     networks:
       - tno
+
+####################### Volumes Definition #######################
+volumes:
+  tno-zookeeper-data:
+    name: tno-zookeeper-data
+  tno-zookeeper-log:
+    name: tno-zookeeper-log
+  tno-broker-data:
+    name: tno-broker-data
