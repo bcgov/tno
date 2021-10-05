@@ -50,6 +50,7 @@ This repository is a mono-repo containing all relevant documentation, code, and 
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-E34F26?style=for-the-badge&logo=kubernetes&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![Openshift](https://img.shields.io/badge/Openshift-CC6699?style=for-the-badge&logo=redhatopenshift&logoColor=white)](https://github.com/bcgov/tno/wiki)
 [![Linux](https://img.shields.io/badge/Linux-6DB33F?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/bcgov/tno/wiki)
+[![Azure](https://img.shields.io/badge/Azure-007ACC?style=for-the-badge&logo=MicrosoftAzure&logoColor=white)](https://github.com/bcgov/tno/wiki)
 
 ## Links
 
