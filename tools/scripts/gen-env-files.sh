@@ -10,6 +10,7 @@ echo 'Enter a username for the Elasticsearch.'
 read -p 'Username: ' varElastic
 
 passvar=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
+azureKey=$(date +%s | sha256sum | base64 | head -c 29)
 
 if [ -z "$passvar" ]
 then
@@ -33,9 +34,17 @@ echo \
 "PROXY_ADDRESS_FORWARDING=true
 KEYCLOAK_USER=$varKeycloak
 KEYCLOAK_PASSWORD=$passvar
-KEYCLOAK_IMPORT=/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled
+KEYCLOAK_IMPORT='/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled'
 KEYCLOAK_LOGLEVEL=WARN
 ROOT_LOGLEVEL=WARN" >> ./auth/keycloak/.env
+fi
+
+# Azure Storage
+if test -f "./db/azure-storage/.env"; then
+    echo "./db/azure-storage/.env exists"
+else
+echo \
+"AZURITE_ACCOUNTS=devaccount1:$azureKey" >> ./db/azure-storage/.env
 fi
 
 # API Database - PostgreSQL
@@ -61,7 +70,7 @@ ELASTIC_USERNAME=$varElastic
 ELASTIC_PASSWORD=$passvar
 DISCOVERY_TYPE=single-node
 BOOTSTRAP_MEMORY_LOCK=true
-ES_JAVA_OPTS=-Xms512m -Xmx512m" >> ./db/elasticsearch/.env
+ES_JAVA_OPTS='-Xms512m -Xmx512m'" >> ./db/elasticsearch/.env
 fi
 
 # API - Editor
@@ -72,7 +81,10 @@ echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
 ELASTIC_URIS=host.docker.internal:50007
 ELASTIC_USERNAME=$varElastic
-ELASTIC_PASSWORD=$passvar" >> ./api/editor/api/src/main/resources/.env
+ELASTIC_PASSWORD=$passvar
+
+AZURE_STORAGE_CONTAINER_NAME=tno
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:50020/devaccount1;" >> ./api/editor/api/src/main/resources/.env
 fi
 
 # APP - Editor

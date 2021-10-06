@@ -71,6 +71,35 @@ services:
     networks:
       - tno
 
+  ####################### Azure Storage #######################
+  azure-storage:
+    image: tno:azure-storage
+    restart: on-failure:1
+    container_name: tno-azure-storage
+    build:
+      context: db/azure-storage
+    env_file:
+      - db/azure-storage/.env
+    entrypoint: azurite
+    # entrypoint: azurite-blob
+    command:
+      - -d
+      - /data/debug.log
+      - --blobHost
+      - 0.0.0.0
+      - --queueHost
+      - 0.0.0.0
+      - --tableHost
+      - 0.0.0.0
+    ports:
+      - ${AZURE_BLOB_PORT:-50020}:10000
+      - ${AZURE_QUEUE_PORT:-50021}:10001
+      - ${AZURE_TABLE_PORT:-50022}:10002
+    volumes:
+      - tno-azure-storage-data:/data
+    networks:
+      - tno
+
   ####################### API - Editor #######################
   api-editor:
     image: tno:api-editor
@@ -118,3 +147,5 @@ volumes:
     name: tno-elastic-data
   tno-app-editor-node-cache:
     name: tno-app-editor-node-cache
+  tno-azure-storage-data:
+    name: tno-azure-storage-data
