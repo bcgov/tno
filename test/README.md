@@ -7,19 +7,20 @@ Postman provides a way to send HTTP requests to endpoints and validate the resul
 
 Import the `./test/TNO.postman_collection.json` file into your Postman. Create an environment variables collection with the following keys.
 
-| Key                    | Value | Description                                          |
-| ---------------------- | ----- | ---------------------------------------------------- |
-| keycloak-scheme        |       | Uri scheme to connect to Keycloak [http\|https]      |
-| keycloak-host          |       | Uri domain host to connect to Keycloak               |
-| keycloak-port          |       | Uri port to connect to Keycloak                      |
-| realm                  |       | Keycloak realm for application                       |
-| service-account-secret |       | Keycloak Secret key to authenticate service account  |
-| schema                 |       | Uri scheme to connect to API [http\|https]           |
-| host                   |       | Uri domain host to connect to API                    |
-| port                   |       | Uri port to connect to API                           |
-| test-username          |       | Username for test account                            |
-| test-password          |       | Password for test account                            |
-| test-secret            |       | Keycloak secret key to authenticate the test account |
+| Key                    | Default Value | Description                                                                |
+| ---------------------- | ------------- | -------------------------------------------------------------------------- |
+| keycloak-scheme        | http          | Uri scheme to connect to Keycloak [http\|https]                            |
+| keycloak-host          | localhost     | Uri domain host to connect to Keycloak [localhost \| host.docker.internal] |
+| keycloak-port          | 50000         | Uri port to connect to Keycloak                                            |
+| realm                  | tno           | Keycloak realm for application                                             |
+| service-account-secret | {key}         | Keycloak Secret key to authenticate service account                        |
+| schema                 | http          | Uri scheme to connect to API [http\|https]                                 |
+| host                   | localhost     | Uri domain host to connect to API                                          |
+| port                   | 50003         | Uri port to connect to API                                                 |
+| test-username          | admin         | Username for test account                                                  |
+| test-password          | {password}    | Password for test account                                                  |
+| test-secret            | {key}         | Keycloak secret key to authenticate the test account                       |
+| root-path              | /api          | API default root path. Resolves reverse proxy vs direct                    |
 
 The Postman collection has an `TNO/auth` folder that contains endpoints that connect to Keycloak.
 Use one of the `token: {name}` endpoints to get a valid authentication token from Keycloak.

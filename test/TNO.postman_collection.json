@@ -201,17 +201,204 @@
 			"name": "api-editor",
 			"item": [
 				{
+					"name": "elastic",
+					"item": [
+						{
+							"name": "info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/elastic",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"elastic"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "azure-storage",
+					"item": [
+						{
+							"name": "upload",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "key1",
+											"value": "value1",
+											"type": "text"
+										},
+										{
+											"key": "key2",
+											"value": "value2",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/jfoster/Downloads/test.txt"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/upload",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"azure",
+										"upload"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "containers/:name",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "key1",
+											"value": "value1",
+											"type": "text"
+										},
+										{
+											"key": "key2",
+											"value": "value2",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/jfoster/Downloads/test.txt"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/containers/:name",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"azure",
+										"containers",
+										":name"
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": "test-container3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "download",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/download?file=test.txt",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"azure",
+										"download"
+									],
+									"query": [
+										{
+											"key": "file",
+											"value": "test.txt"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "cognitive-services",
+					"item": [
+						{
+							"name": "transcribe",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "key1",
+											"value": "value1",
+											"type": "text"
+										},
+										{
+											"key": "key2",
+											"value": "value2",
+											"type": "text"
+										},
+										{
+											"key": "file",
+											"type": "file",
+											"src": "/C:/Users/jfoster/Downloads/Recording.wav"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/cognitive/transcribe",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"cognitive",
+										"transcribe"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "userinfo",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}/userinfo",
+							"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/userinfo",
 							"protocol": "{{scheme}}",
 							"host": [
 								"{{host}}"
 							],
-							"port": "{{port}}",
+							"port": "{{port}}{{root-path}}",
 							"path": [
 								"userinfo"
 							]
@@ -225,12 +412,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}/",
+							"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/",
 							"protocol": "{{scheme}}",
 							"host": [
 								"{{host}}"
 							],
-							"port": "{{port}}",
+							"port": "{{port}}{{root-path}}",
 							"path": [
 								""
 							]
