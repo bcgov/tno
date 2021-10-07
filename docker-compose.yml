@@ -80,17 +80,17 @@ services:
       context: db/azure-storage
     env_file:
       - db/azure-storage/.env
-    entrypoint: azurite
+    # entrypoint: azurite
     # entrypoint: azurite-blob
-    command:
-      - -d
-      - /data/debug.log
-      - --blobHost
-      - 0.0.0.0
-      - --queueHost
-      - 0.0.0.0
-      - --tableHost
-      - 0.0.0.0
+    # command:
+    #   - -d
+    #   - /data/debug.log
+      # - --blobHost
+      # - 0.0.0.0
+      # - --queueHost
+      # - 0.0.0.0
+      # - --tableHost
+      # - 0.0.0.0
     ports:
       - ${AZURE_BLOB_PORT:-50020}:10000
       - ${AZURE_QUEUE_PORT:-50021}:10001

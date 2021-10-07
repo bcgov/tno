@@ -17,7 +17,22 @@
 	<properties>
 		<java.version>11</java.version>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>maven-cognitiveservices-speech</id>
+			<name>Microsoft Cognitive Services Speech Maven Repository</name>
+			<url>https://csspeechstorage.blob.core.windows.net/maven/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
+
+		<dependency>
+			<groupId>com.microsoft.cognitiveservices.speech</groupId>
+			<artifactId>client-sdk</artifactId>
+			<version>1.18.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.azure</groupId>

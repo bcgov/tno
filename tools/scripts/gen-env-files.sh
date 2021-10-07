@@ -9,6 +9,11 @@ read -p 'Username: ' varApiDb
 echo 'Enter a username for the Elasticsearch.'
 read -p 'Username: ' varElastic
 
+# Only required if the Azurite docker container doesn't allow for local domain names.
+# Workaround is to either use 'mcr.microsoft.com/azure-storage/azurite:3.14.0', or use the IP address.
+# echo 'Enter the IP of your local host.docker.internal.'
+# read -p 'IP: ' varHostDockerInternal
+
 passvar=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
 azureKey=$(date +%s | sha256sum | base64 | head -c 29)
 
