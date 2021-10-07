@@ -9,6 +9,12 @@ read -p 'Username: ' varApiDb
 echo 'Enter a username for the Elasticsearch.'
 read -p 'Username: ' varElastic
 
+echo 'Enter your Azure Cognitive Service subscription key.'
+read -p 'Key: ' varAzureCognitiveServiceKey
+
+echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
+read -p 'Region: ' varAzureCognitiveServiceRegion
+
 # Only required if the Azurite docker container doesn't allow for local domain names.
 # Workaround is to either use 'mcr.microsoft.com/azure-storage/azurite:3.14.0', or use the IP address.
 # echo 'Enter the IP of your local host.docker.internal.'
@@ -84,12 +90,16 @@ if test -f "./api/editor/api/src/main/resources/.env"; then
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
+
 ELASTIC_URIS=host.docker.internal:50007
 ELASTIC_USERNAME=$varElastic
 ELASTIC_PASSWORD=$passvar
 
 AZURE_STORAGE_CONTAINER_NAME=tno
-AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:50020/devaccount1;" >> ./api/editor/api/src/main/resources/.env
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:50020/devaccount1;
+
+COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=$varAzureCognitiveServiceKey
+COGNITIVE_SERVICES_SPEECH_REGION=$varAzureCognitiveServiceRegion" >> ./api/editor/api/src/main/resources/.env
 fi
 
 # APP - Editor
