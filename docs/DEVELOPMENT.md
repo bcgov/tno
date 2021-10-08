@@ -83,21 +83,22 @@ After the docker containers are ready it becomes much quicker.
 The following containers are hosted in the TNO solution.
 The exposed container ports is configurable, but the defaults are identified below.
 
-| Container       |         Port | Description                                                                                   |
-| --------------- | -----------: | --------------------------------------------------------------------------------------------- |
-| nginx           |        50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
-| keycloak        |        50000 | Provides authentication and account management services                                       |
-| database        |        50002 | Provides PostgreSQL relational database for the API                                           |
-| elastic         |        50007 | Provides NoSQL Elasticsearch database for the API                                             |
-| api-editor      |        50003 | Provides the RESTful API which gives secure access to data                                    |
-| app-editor      |        50005 | Provides the web application which is the UI                                                  |
-| zookeeper       |        50010 | Kafka Zookeeper to manage cluster                                                             |
-| broker          | 50012, 50017 | Kafka server and REST API v3                                                                  |
-| schema-registry |        50013 | Kafka schema registry services                                                                |
-| connect         |        50014 | Kafka connect Control Center with Schema Registry                                             |
-| control-center  |        50015 | Kafka UI to manage cluster                                                                    |
-| ksqldb-server   |        50016 | Kafka streaming services                                                                      |
-| rest-proxy      |        50018 | Kafka REST API v2                                                                             |
+| Container       |                Port | Description                                                                                   |
+| --------------- | ------------------: | --------------------------------------------------------------------------------------------- |
+| nginx           |               50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
+| keycloak        |               50000 | Provides authentication and account management services                                       |
+| database        |               50002 | Provides PostgreSQL relational database for the API                                           |
+| elastic         |               50007 | Provides NoSQL Elasticsearch database for the API                                             |
+| api-editor      |               50003 | Provides the RESTful API which gives secure access to data                                    |
+| app-editor      |               50005 | Provides the web application which is the UI                                                  |
+| zookeeper       |               50010 | Kafka Zookeeper to manage cluster                                                             |
+| broker          |        50012, 50017 | Kafka server and REST API v3                                                                  |
+| schema-registry |               50013 | Kafka schema registry services                                                                |
+| connect         |               50014 | Kafka connect Control Center with Schema Registry                                             |
+| control-center  |               50015 | Kafka UI to manage cluster                                                                    |
+| ksqldb-server   |               50016 | Kafka streaming services                                                                      |
+| rest-proxy      |               50018 | Kafka REST API v2                                                                             |
+| azure-storage   | 50020, 50021, 50022 | Azurite local Azure Storage for development                                                   |
 
 If you have installed `make` you can use the helper method.
 
