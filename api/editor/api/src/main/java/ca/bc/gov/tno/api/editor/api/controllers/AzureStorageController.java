@@ -23,7 +23,7 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import ca.bc.gov.tno.api.editor.azure.AzureBlobAdapter;
 
 @RestController
-@RequestMapping("/azure")
+@RequestMapping("/azure/storage")
 public class AzureStorageController {
 	@Autowired
 	AzureBlobAdapter azureBlobAdapter;

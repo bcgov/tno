@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class CognitiveServicesConfig {
+public class AzureCognitiveServicesConfig {
 
-  @Value("${microsoft.cognitiveservices.speech.subscription-key}")
+  @Value("${azure.cognitiveservices.speech.subscription-key}")
   private String subscriptionKey;
 
-  @Value("${microsoft.cognitiveservices.speech.region}")
+  @Value("${azure.cognitiveservices.speech.region}")
   private String region;
 
   @Bean

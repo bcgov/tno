@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+keycloak:
+  auth-server-url: ${env.KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:50000/auth/}
+  realm: tno
+  resource: tno-api
+  public-client: true
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  elasticsearch:
+    rest:
+      uris: ${env.ELASTIC_URIS}
+      username: ${env.ELASTIC_USERNAME}
+      password: ${env.ELASTIC_PASSWORD}
+
+azure:
+  storage:
+    container-name: ${env.AZURE_STORAGE_CONTAINER_NAME}
+    connection-string: ${env.AZURE_STORAGE_CONNECTION_STRING}
+
+  cognitiveservices:
+    speech:
+      subscription-key: ${env.COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY}
+      region: ${env.COGNITIVE_SERVICES_SPEECH_REGION}
+
+  videoanalyzer:
+    subscription-key: ${env.AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY}
+    account-id: ${env.AZURE_VIDEO_ANALYZER_ACCOUNT_ID}
+    location: ${env.AZURE_VIDEO_ANALYZER_LOCATION:trial}

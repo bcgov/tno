@@ -20,8 +20,8 @@ import com.microsoft.cognitiveservices.speech.audio.AudioStreamFormat;
 import com.microsoft.cognitiveservices.speech.audio.PushAudioInputStream;
 
 @RestController
-@RequestMapping("/cognitive")
-public class CognitiveServicesController {
+@RequestMapping("/azure/cognitive/services")
+public class AzureCognitiveServicesController {
 	@Autowired
 	SpeechConfig speechConfig;
 
