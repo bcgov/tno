@@ -8,6 +8,9 @@ import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.RestClients;
 import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 
+/**
+ * Configuration settings for Elasticsearch.
+ */
 @Configuration
 public class ElasticClientConfig extends AbstractElasticsearchConfiguration {
   @Value("${spring.elasticsearch.rest.username}")

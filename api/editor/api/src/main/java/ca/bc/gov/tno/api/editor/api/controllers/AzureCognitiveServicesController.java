@@ -19,12 +19,24 @@ import com.microsoft.cognitiveservices.speech.audio.AudioInputStream;
 import com.microsoft.cognitiveservices.speech.audio.AudioStreamFormat;
 import com.microsoft.cognitiveservices.speech.audio.PushAudioInputStream;
 
+/**
+ * Endpoints to communicate with Microsoft Azure Cognitive services API.
+ */
 @RestController
 @RequestMapping("/azure/cognitive/services")
 public class AzureCognitiveServicesController {
 	@Autowired
 	SpeechConfig speechConfig;
 
+	/**
+	 * Upload an audio file and transcribe it.
+	 * 
+	 * @param files
+	 * @return Transcription of audio file.
+	 * @throws InterruptedException
+	 * @throws ExecutionException
+	 * @throws IOException
+	 */
 	@PostMapping(path = "/transcribe", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public String uploadFile(@RequestPart(value = "file", required = true) MultipartFile files)
 			throws InterruptedException, ExecutionException, IOException {

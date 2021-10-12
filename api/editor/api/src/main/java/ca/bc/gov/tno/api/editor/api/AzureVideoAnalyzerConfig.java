@@ -3,6 +3,9 @@ package ca.bc.gov.tno.api.editor.api;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration settings for Azure Video Analyzer services.
+ */
 @Configuration
 public class AzureVideoAnalyzerConfig {
 

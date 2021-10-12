@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Endpoints to communicate with Elasticsearch.
+ */
 @RestController
 @RequestMapping("/elastic")
 public class ElasticController {
@@ -18,6 +21,12 @@ public class ElasticController {
 	@Autowired
 	RestHighLevelClient elasticClient;
 
+	/**
+	 * Request the Elasticsearch index page.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	@GetMapping("")
 	public MainResponse index() throws IOException {
 

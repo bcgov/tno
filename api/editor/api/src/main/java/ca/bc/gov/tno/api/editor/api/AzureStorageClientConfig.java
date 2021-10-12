@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration settings for Azure Storage services.
+ */
 @Configuration
 public class AzureStorageClientConfig {
 
