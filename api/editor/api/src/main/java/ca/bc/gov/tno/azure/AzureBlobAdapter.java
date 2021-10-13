@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.azure;
+package ca.bc.gov.tno.azure;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;

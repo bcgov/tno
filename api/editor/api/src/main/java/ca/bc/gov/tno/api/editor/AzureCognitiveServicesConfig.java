@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.api;
+package ca.bc.gov.tno.api.editor;
 
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
 

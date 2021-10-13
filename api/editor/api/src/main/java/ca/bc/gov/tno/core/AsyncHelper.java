@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.core;
+package ca.bc.gov.tno.core;
 
 import java.util.concurrent.Future;
 

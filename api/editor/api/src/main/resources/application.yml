@@ -13,6 +13,24 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
+  h2:
+    console:
+      enabled: false
+      
+  datasource:
+    url: ${env.DB_URL:jdbc:postgresql://database:5432/tno}
+    username: ${env.DB_USERNAME:admin}
+    password: ${env.DB_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL92Dialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
   elasticsearch:
     rest:
       uris: ${env.ELASTIC_URIS}

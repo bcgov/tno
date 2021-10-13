@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.api.controllers;
+package ca.bc.gov.tno.api.editor.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

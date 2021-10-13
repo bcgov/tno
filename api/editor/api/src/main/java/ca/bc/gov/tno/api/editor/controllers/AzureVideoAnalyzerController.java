@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.api.controllers;
+package ca.bc.gov.tno.api.editor.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,8 +14,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import ca.bc.gov.tno.api.editor.api.AzureVideoAnalyzerConfig;
-import ca.bc.gov.tno.api.editor.core.AsyncHelper;
+import ca.bc.gov.tno.api.editor.AzureVideoAnalyzerConfig;
+import ca.bc.gov.tno.core.AsyncHelper;
 
 /**
  * Endpoints to communicate with Microsoft Azure Video Analyzer API.

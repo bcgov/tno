@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.api.controllers;
+package ca.bc.gov.tno.api.editor.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -6,6 +6,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import ca.bc.gov.tno.azure.AzureBlobAdapter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,8 +21,6 @@ import com.azure.core.annotation.BodyParam;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-
-import ca.bc.gov.tno.api.editor.azure.AzureBlobAdapter;
 
 /**
  * Endpoints to interact with Microsoft Azure Storage API.

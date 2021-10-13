@@ -2,11 +2,11 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Spring Boot-ApiApplication<tno.api.editor>",
+      "name": "Spring Boot-ApiEditor",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "console": "internalConsole",
-      "mainClass": "ca.bc.gov.tno.api.editor.api.ApiApplication",
+      "mainClass": "ca.bc.gov.tno.api.editor.ApiEditor",
       "projectName": "tno.api.editor",
       "args": ""
     }
