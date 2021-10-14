@@ -91,6 +91,10 @@ else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
 
+DB_URL=jdbc:postgresql://host.docker.internal:50002/tno
+DB_USERNAME=$varApiDb
+DB_PASSWORD=$passvar
+
 ELASTIC_URIS=host.docker.internal:50007
 ELASTIC_USERNAME=$varElastic
 ELASTIC_PASSWORD=$passvar
