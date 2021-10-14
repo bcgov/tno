@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor;
+package ca.bc.gov.tno.elastic;
 
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;

@@ -14,7 +14,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import ca.bc.gov.tno.api.editor.AzureVideoAnalyzerConfig;
+import ca.bc.gov.tno.azure.AzureVideoAnalyzerConfig;
 import ca.bc.gov.tno.core.AsyncHelper;
 
 /**

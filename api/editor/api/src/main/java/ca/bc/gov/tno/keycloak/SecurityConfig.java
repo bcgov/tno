@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor;
+package ca.bc.gov.tno.keycloak;
 
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;

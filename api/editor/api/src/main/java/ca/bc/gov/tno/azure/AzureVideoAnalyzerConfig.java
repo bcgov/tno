@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor;
+package ca.bc.gov.tno.azure;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
