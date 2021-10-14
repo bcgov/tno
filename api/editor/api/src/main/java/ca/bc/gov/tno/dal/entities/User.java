@@ -2,6 +2,7 @@ package ca.bc.gov.tno.dal.entities;
 
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,8 +14,10 @@ import javax.persistence.Table;
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(nullable = false)
   private Long id;
 
+  @Column(nullable = false)
   private String username;
 
   public User() {
