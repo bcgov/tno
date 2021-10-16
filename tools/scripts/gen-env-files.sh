@@ -50,6 +50,14 @@ KEYCLOAK_LOGLEVEL=WARN
 ROOT_LOGLEVEL=WARN" >> ./auth/keycloak/.env
 fi
 
+# Nginx
+if test -f "./network/nginx/.env"; then
+    echo "./network/nginx/.env exists"
+else
+echo \
+"" >> ./network/nginx/.env
+fi
+
 # Azure Storage
 if test -f "./db/azure-storage/.env"; then
     echo "./db/azure-storage/.env exists"
