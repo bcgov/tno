@@ -4,7 +4,7 @@
       "type": "java",
       "name": "Spring Boot-ApiEditor",
       "request": "launch",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/api-editor",
       "console": "internalConsole",
       "mainClass": "ca.bc.gov.tno.ApiEditor",
       "projectName": "api-editor",
