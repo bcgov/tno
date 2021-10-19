@@ -15,6 +15,12 @@ read -p 'Key: ' varAzureCognitiveServiceKey
 echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
 read -p 'Region: ' varAzureCognitiveServiceRegion
 
+echo 'Enter your Azure Video Analyzer subscription key.'
+read -p 'Key: ' varAzureVideoAnalyzerKey
+
+echo 'Enter your Azure Video Analyzer account ID.'
+read -p 'Key: ' varAzureVideoAccountId
+
 # Only required if the Azurite docker container doesn't allow for local domain names.
 # Workaround is to either use 'mcr.microsoft.com/azure-storage/azurite:3.14.0', or use the IP address.
 # echo 'Enter the IP of your local host.docker.internal.'
@@ -111,7 +117,11 @@ AZURE_STORAGE_CONTAINER_NAME=tno
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:50020/devaccount1;
 
 COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=$varAzureCognitiveServiceKey
-COGNITIVE_SERVICES_SPEECH_REGION=$varAzureCognitiveServiceRegion" >> ./api/editor/api/src/main/resources/.env
+COGNITIVE_SERVICES_SPEECH_REGION=$varAzureCognitiveServiceRegion
+
+AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$varAzureVideoAnalyzerKey
+AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$varAzureVideoAccountId
+AZURE_VIDEO_ANALYZER_LOCATION=trial" >> ./api/editor/api/src/main/resources/.env
 fi
 
 # APP - Editor
