@@ -130,6 +130,11 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<folders>
+						<folder>${project.build.directory}/</folder>
+					</folders>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

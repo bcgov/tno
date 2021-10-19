@@ -99,8 +99,8 @@ ES_JAVA_OPTS='-Xms512m -Xmx512m'" >> ./db/elasticsearch/.env
 fi
 
 # API - Editor
-if test -f "./api/editor/api/src/main/resources/.env"; then
-    echo "./api/editor/api/src/main/resources/.env exists"
+if test -f "./api/editor/src/main/resources/.env"; then
+    echo "./api/editor/src/main/resources/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
@@ -121,7 +121,7 @@ COGNITIVE_SERVICES_SPEECH_REGION=$varAzureCognitiveServiceRegion
 
 AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$varAzureVideoAnalyzerKey
 AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$varAzureVideoAccountId
-AZURE_VIDEO_ANALYZER_LOCATION=trial" >> ./api/editor/api/src/main/resources/.env
+AZURE_VIDEO_ANALYZER_LOCATION=trial" >> ./api/editor/src/main/resources/.env
 fi
 
 # APP - Editor
