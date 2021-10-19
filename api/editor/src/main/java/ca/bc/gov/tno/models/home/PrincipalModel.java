@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.models.home;
+package ca.bc.gov.tno.models.home;
 
 import java.io.Serializable;
 import java.security.Principal;

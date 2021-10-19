@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.controllers;
+package ca.bc.gov.tno.controllers;
 
 import org.elasticsearch.client.core.MainResponse;
 
@@ -23,7 +23,7 @@ public class ElasticController {
 
 	/**
 	 * Request the Elasticsearch index page.
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */

@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.controllers;
+package ca.bc.gov.tno.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -30,7 +30,7 @@ public class AzureCognitiveServicesController {
 
 	/**
 	 * Upload an audio file and transcribe it.
-	 * 
+	 *
 	 * @param files
 	 * @return Transcription of audio file.
 	 * @throws InterruptedException

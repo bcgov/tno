@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.controllers;
+package ca.bc.gov.tno.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -31,7 +31,7 @@ public class AzureVideoAnalyzerController {
 
 	/**
 	 * Request an access token to make requests to Azure Video Analyzer API.
-	 * 
+	 *
 	 * @return A bearer token.
 	 * @throws InterruptedException
 	 * @throws ExecutionException
@@ -51,7 +51,7 @@ public class AzureVideoAnalyzerController {
 
 	/**
 	 * Requests a list of videos.
-	 * 
+	 *
 	 * @return An object containing a page of videos.
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -72,7 +72,7 @@ public class AzureVideoAnalyzerController {
 
 	/**
 	 * Upload a video.
-	 * 
+	 *
 	 * @param files
 	 * @return An object containing information about the new video.
 	 * @throws IOException

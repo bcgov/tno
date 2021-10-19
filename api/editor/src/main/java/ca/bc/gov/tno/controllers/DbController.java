@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.controllers;
+package ca.bc.gov.tno.controllers;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +24,7 @@ public class DbController {
 
 	/**
 	 * Request the Elasticsearch index page.
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */

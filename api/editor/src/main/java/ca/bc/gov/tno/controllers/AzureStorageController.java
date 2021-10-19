@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.api.editor.controllers;
+package ca.bc.gov.tno.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -36,7 +36,7 @@ public class AzureStorageController {
 
 	/**
 	 * Upload a file to blob storage.
-	 * 
+	 *
 	 * @param files
 	 * @return
 	 * @throws IOException
@@ -52,7 +52,7 @@ public class AzureStorageController {
 
 	/**
 	 * Download the specified file from blob storage.
-	 * 
+	 *
 	 * @param file
 	 * @return
 	 * @throws IOException
@@ -68,7 +68,7 @@ public class AzureStorageController {
 
 	/**
 	 * Create a new container in blob storage.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -81,7 +81,7 @@ public class AzureStorageController {
 
 	/**
 	 * Upload text data to blob storage.
-	 * 
+	 *
 	 * @param name
 	 * @param data
 	 * @return
@@ -100,7 +100,7 @@ public class AzureStorageController {
 
 	/**
 	 * Download text data from blob storage.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 * @throws IOException

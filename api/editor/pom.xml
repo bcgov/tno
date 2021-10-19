@@ -9,8 +9,8 @@
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
-	<groupId>ca.bc.gov.tno.api.editor</groupId>
-	<artifactId>tno.api.editor</artifactId>
+	<groupId>ca.bc.gov.tno</groupId>
+	<artifactId>api-editor</artifactId>
 	<version>0.0.1-alpha</version>
 	<name>api</name>
 	<description>TNO Editor RESTful API</description>
