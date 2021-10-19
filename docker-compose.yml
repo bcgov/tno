@@ -115,7 +115,7 @@ services:
     container_name: tno-app-editor
     build:
       context: app/editor
-    env_file: ./app/editor/.env
+    env_file: ./app/editor/api-editor/.env
     volumes:
       - ./app/editor/src:/usr/app/src
       - ./app/editor/public:/usr/app/public
