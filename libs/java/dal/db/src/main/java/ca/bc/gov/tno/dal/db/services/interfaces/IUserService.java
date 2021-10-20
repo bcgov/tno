@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.dal.services;
+package ca.bc.gov.tno.dal.db.services.interfaces;
 
 import java.util.List;
 

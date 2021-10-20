@@ -11,25 +11,25 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "\"Users\"")
-public class User {
+public class User extends Audit {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(nullable = false)
-  private Long id;
+  @Column(name = "\"id\"", nullable = false)
+  private int id;
 
-  @Column(nullable = false)
+  @Column(name = "\"username\"", nullable = false)
   private String username;
 
   public User() {
 
   }
 
-  public User(Long id, String username) {
+  public User(int id, String username) {
     this.id = id;
     this.username = username;
   }
 
-  public Long getId() {
+  public int getId() {
     return id;
   }
 

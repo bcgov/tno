@@ -3,15 +3,15 @@ server:
 
 keycloak:
   auth-server-url: ${env.KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:50000/auth/}
-  realm: tno
-  resource: tno-api
+  realm: ${env.KEYCLOAK_REALM:tno}
+  resource: ${env.KEYCLOAK_RESOURCE:tno-api}
   public-client: true
 
 spring:
   servlet:
     multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
+      max-file-size: ${env.MAX_FILE_SIZE:50MB}
+      max-request-size: ${env.MAX_REQUEST_SIZE:50MB}
 
   h2:
     console:
@@ -23,16 +23,16 @@ spring:
     password: ${env.DB_PASSWORD}
 
   flyway:
-    enabled: true
-    validate-on-migrate: true
+    enabled: ${env.DB_MIGRATION_ENABLED:true}
+    validate-on-migrate: ${env.DB_VALIDATE_MIGRATION:true}
 
   jpa:
-    show-sql: true
+    show-sql: ${env.JPA_SHOW_SQL:true}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL92Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${env.JPA_DDL_AUTO:none}
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 

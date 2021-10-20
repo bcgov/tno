@@ -20,6 +20,16 @@
 
 	<repositories>
 		<repository>
+			<id>maven-central-staging</id>
+			<name>Maven Central Staging Repository</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1010</url>
+		</repository>
+		<repository>
+			<id>maven-central</id>
+			<name>Maven Central Repository</name>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+		<repository>
 			<id>maven-cognitiveservices-speech</id>
 			<name>Microsoft Cognitive Services Speech Maven Repository</name>
 			<url>https://csspeechstorage.blob.core.windows.net/maven/</url>
@@ -27,6 +37,12 @@
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>ca.bc.gov.tno</groupId>
+			<artifactId>dal-db</artifactId>
+			<version>0.0.5-alpha</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.microsoft.cognitiveservices.speech</groupId>
 			<artifactId>client-sdk</artifactId>
@@ -77,7 +93,7 @@
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>8.0.1</version>
+			<version>8.0.2</version>
 		</dependency>
 
 		<dependency>

@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+maven-settings.xml
+*.rev
+*.key
+flyway.conf

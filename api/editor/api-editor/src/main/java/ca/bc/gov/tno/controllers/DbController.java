@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ca.bc.gov.tno.dal.entities.User;
-import ca.bc.gov.tno.dal.services.IUserService;
+import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
+import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
+import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.dal.db.entities.User;
 
 /**
  * Endpoints to communicate with Elasticsearch.
@@ -22,6 +24,9 @@ public class DbController {
 	@Autowired
 	private IUserService userService;
 
+	@Autowired
+	private IDataSourceService dataSourceService;
+
 	/**
 	 * Request the Elasticsearch index page.
 	 *
@@ -32,6 +37,12 @@ public class DbController {
 	public List<User> findUsers() {
 		var users = userService.findAll();
 		return users;
+	}
+
+	@GetMapping(path = "/data/sources", produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<DataSource> findDataSources() {
+		var dataSources = dataSourceService.findAll();
+		return dataSources;
 	}
 
 }

@@ -37,7 +37,8 @@
 		"redhat.vscode-xml",
 		"dotjoshjohnson.xml",
 		"dhruv.maven-dependency-explorer",
-		"pflannery.vscode-versionlens"
+		"pflannery.vscode-versionlens",
+		"youmaycallmev.vscode-java-saber"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
