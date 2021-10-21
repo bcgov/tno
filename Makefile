@@ -77,7 +77,7 @@ base-up: ## Runs the local containers without Kafka or the one specified (n=serv
 	@echo "$(P) Running containers..."
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml up -d $(n)
 
-stop: ## Stops the local containers without stopping Kafka or the one specified (n=service name)
+base-stop: ## Stops the local containers without stopping Kafka or the one specified (n=service name)
 	@echo "$(P) Stopping containers..."
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml stop $(n)
 
