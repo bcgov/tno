@@ -267,3 +267,13 @@ KAFKA_REST_BOOTSTRAP_SERVERS='broker:9092'
 KAFKA_REST_LISTENERS="http://0.0.0.0:8082"
 KAFKA_REST_SCHEMA_REGISTRY_URL='http://schema-registry:8081'" >> ./db/kafka/rest-proxy/.env
 fi
+
+# Kafka schema-registry
+if test -f "./db/kafka/schema-registry/.env"; then
+    echo "./db/kafka/schema-registry/.env exists"
+else
+echo \
+"SCHEMA_REGISTRY_HOST_NAME=schema-registry
+SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS='broker:9092'
+SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081" >> ./db/kafka/schema-registry/.env
+fi
