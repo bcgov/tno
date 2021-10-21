@@ -70,8 +70,8 @@ public class Schedule extends Audit {
    * Creates a new instance of a Schedule object, initializes with specified
    * parameters.
    * 
-   * @param id
-   * @param name
+   * @param id   Primary key
+   * @param name Unique name
    */
   public Schedule(int id, String name) {
     this.id = id;
@@ -163,7 +163,7 @@ public class Schedule extends Audit {
   }
 
   /**
-   * @return EnumSet<WeekDays> return the runOnWeekDays
+   * @return EnumSet{WeekDays} return the runOnWeekDays
    */
   public EnumSet<WeekDays> getRunOnWeekDays() {
     return runOnWeekDays;
@@ -177,7 +177,7 @@ public class Schedule extends Audit {
   }
 
   /**
-   * @return EnumSet<Months> return the runOnMonths
+   * @return EnumSet{Months} return the runOnMonths
    */
   public EnumSet<Months> getRunOnMonths() {
     return runOnMonths;
@@ -205,7 +205,7 @@ public class Schedule extends Audit {
   }
 
   /**
-   * @return Set<DataSource> return the dataSources
+   * @return Set{DataSource} return the dataSources
    */
   public Set<DataSource> getDataSources() {
     return dataSources;

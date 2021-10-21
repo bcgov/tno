@@ -111,7 +111,7 @@ public class DataSourceType extends Audit {
   }
 
   /**
-   * @return Set<DataSource> return the dataSources
+   * @return Set{DataSource} return the dataSources
    */
   public Set<DataSource> getDataSources() {
     return dataSources;

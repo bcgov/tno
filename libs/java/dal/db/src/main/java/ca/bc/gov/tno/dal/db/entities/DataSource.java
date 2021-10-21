@@ -309,7 +309,7 @@ public class DataSource extends Audit {
   }
 
   /**
-   * @return Map<String, Object> return the connection
+   * @return Map{String, Object} return the connection
    */
   public Map<String, Object> getConnection() {
     return connection;

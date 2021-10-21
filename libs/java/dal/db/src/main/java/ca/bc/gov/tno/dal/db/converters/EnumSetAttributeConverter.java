@@ -48,9 +48,9 @@ public class EnumSetAttributeConverter<T extends Enum<T>> implements AttributeCo
   /**
    * Get all the enum values from the specified type.
    * 
-   * @param <T>
-   * @param enumType
-   * @return
+   * @param <T>      Type of enum
+   * @param enumType The enum
+   * @return An array of the enum values
    */
   public static <T extends Enum<T>> T[] getValues(Class<T> enumType) {
     return (T[]) enumType.getEnumConstants();

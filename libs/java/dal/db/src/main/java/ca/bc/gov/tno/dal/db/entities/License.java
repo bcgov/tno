@@ -48,9 +48,9 @@ public class License extends Audit {
    * Creates a new instance of a License object, initializes with specified
    * parameters.
    * 
-   * @param id
-   * @param name
-   * @param ttl
+   * @param id   Primary key
+   * @param name Unique name
+   * @param ttl  Time to live in days
    */
   public License(int id, String name, int ttl) {
     this.id = id;
@@ -129,7 +129,7 @@ public class License extends Audit {
   }
 
   /**
-   * @return Set<DataSource> return the dataSources
+   * @return Set{DataSource} return the dataSources
    */
   public Set<DataSource> getDataSources() {
     return dataSources;

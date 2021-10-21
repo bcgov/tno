@@ -22,7 +22,7 @@
 		<repository>
 			<id>maven-central-staging</id>
 			<name>Maven Central Staging Repository</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1010</url>
+			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1011</url>
 		</repository>
 		<repository>
 			<id>maven-central</id>
