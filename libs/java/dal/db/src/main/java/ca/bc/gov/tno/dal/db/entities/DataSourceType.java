@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 /**
  * DataSourceType class, provides a way to identify the different data source
  * types.
@@ -32,6 +34,7 @@ public class DataSourceType extends Audit {
   @Column(name = "\"isEnabled\"", nullable = false)
   private boolean isEnabled;
 
+  @JsonBackReference
   @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
   private Set<DataSource> dataSources;
 

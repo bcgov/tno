@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 /**
  * License class, provides a way to manage license information for data sources.
  */
@@ -34,6 +36,7 @@ public class License extends Audit {
   @Column(name = "\"ttl\"", nullable = false)
   private int ttl;
 
+  @JsonBackReference
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
   private Set<DataSource> dataSources;
 

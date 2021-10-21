@@ -36,6 +36,10 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
   elasticsearch:
     rest:
       uris: ${env.ELASTIC_URIS}

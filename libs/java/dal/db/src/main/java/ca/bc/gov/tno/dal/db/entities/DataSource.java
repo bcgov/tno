@@ -321,5 +321,4 @@ public class DataSource extends Audit {
   public void setConnection(Map<String, Object> connection) {
     this.connection = connection;
   }
-
 }

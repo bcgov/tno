@@ -38,11 +38,11 @@ By default maven will not make a request for new information until cache expires
 You can force the cache to be updated with the `-U` argument.
 
 ```bash
-# Force maven to fetch dependencies from remote repository.
-mvn clean install -U -X
-
 # Or clear the local repository
 mvn dependency:purge-local-repository
+
+# Force maven to fetch dependencies from remote repository.
+mvn clean install -U -X
 ```
 
 To view dependency sources.

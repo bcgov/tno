@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import ca.bc.gov.tno.dal.db.Months;
 import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.converters.WeekDaysAttributeConverter;
@@ -56,6 +58,7 @@ public class Schedule extends Audit {
   @Column(name = "\"dayOfMonth\"", nullable = false)
   private int dayOfMonth;
 
+  @JsonBackReference
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
   private Set<DataSource> dataSources;
 
