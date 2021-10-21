@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo ""
+echo "*************************************"
+echo "Setting up Docker Configuration Files"
+echo "*************************************"
+
 varKeycloak=$(grep -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env)
 if [ -z "$varKeycloak" ]
 then

@@ -40,6 +40,8 @@ help:
 setup: ## Setup local environment for development, generate .env files.
 	@echo "$(P) Setup local development environment"
 	@./tools/scripts/gen-env-files.sh
+	@./tools/scripts/gen-dal-db-files.sh
+	@./tools/scripts/gen-keys.sh
 
 ##############################################################################
 # Docker Management
