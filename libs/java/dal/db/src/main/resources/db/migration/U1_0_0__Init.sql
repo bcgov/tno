@@ -1,9 +1,8 @@
-DROP TABLE public."SyndicationSources";
-DROP TABLE public."DataSources";
-DROP TABLE public."Schedules";
-DROP TABLE public."Licenses";
-DROP TABLE public."DataSourceTypes";
-DROP TABLE public."Users";
+DROP TABLE public."DataSource";
+DROP TABLE public."Schedule";
+DROP TABLE public."License";
+DROP TABLE public."DataSourceType";
+DROP TABLE public."User";
 
 DELETE FROM public.flyway_schema_history
 WHERE version = '1.0.0'

@@ -1,14 +1,21 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+/**
+ * License class, provides a way to manage license information for data sources.
+ */
 @Entity
-@Table(name = "\"Licenses\"")
+@Table(name = "\"License\"")
 public class License extends Audit {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,10 +34,24 @@ public class License extends Audit {
   @Column(name = "\"ttl\"", nullable = false)
   private int ttl;
 
+  @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
+  private Set<DataSource> dataSources;
+
+  /**
+   * Creates a new instance of a License object.
+   */
   public License() {
 
   }
 
+  /**
+   * Creates a new instance of a License object, initializes with specified
+   * parameters.
+   * 
+   * @param id
+   * @param name
+   * @param ttl
+   */
   public License(int id, String name, int ttl) {
     this.id = id;
     this.name = name;
@@ -105,6 +126,20 @@ public class License extends Audit {
    */
   public void setTtl(int ttl) {
     this.ttl = ttl;
+  }
+
+  /**
+   * @return Set<DataSource> return the dataSources
+   */
+  public Set<DataSource> getDataSources() {
+    return dataSources;
+  }
+
+  /**
+   * @param dataSources the dataSources to set
+   */
+  public void setDataSources(Set<DataSource> dataSources) {
+    this.dataSources = dataSources;
   }
 
 }

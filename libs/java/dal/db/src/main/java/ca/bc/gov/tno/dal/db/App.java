@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.dal.db;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
+import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 
 /**
  * Use this CommandLineRunner application to test the database DAL.
@@ -22,6 +24,9 @@ public class App implements CommandLineRunner {
   @Autowired
   IUserService userService;
 
+  @Autowired
+  ILicenseService licenseService;
+
   public static void main(String[] args) {
     System.out.println("TNO Database DAL Console Application");
     SpringApplication.run(App.class, args);
@@ -35,6 +40,10 @@ public class App implements CommandLineRunner {
 
     System.out.println("Fetching data sources");
     var sources = dataSourceService.findAll();
-    sources.forEach(ds -> System.out.println(ds.getName()));
+    sources.forEach(ds -> System.out.println(ds.getName() + " " + ds.getConnection()));
+
+    System.out.println("Fetching licenses");
+    var licenses = licenseService.findAll();
+    licenses.forEach(l -> System.out.println(l.getName()));
   }
 }

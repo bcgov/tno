@@ -1,6 +1,5 @@
 package ca.bc.gov.tno.controllers;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,9 @@ public class DbController {
 	private IDataSourceService dataSourceService;
 
 	/**
-	 * Request the Elasticsearch index page.
+	 * Request a list of all users from the db.
 	 *
 	 * @return
-	 * @throws IOException
 	 */
 	@GetMapping(path = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<User> findUsers() {
@@ -39,6 +37,11 @@ public class DbController {
 		return users;
 	}
 
+	/**
+	 * Request a list of all data sources from the db.
+	 * 
+	 * @return
+	 */
 	@GetMapping(path = "/data/sources", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<DataSource> findDataSources() {
 		var dataSources = dataSourceService.findAll();

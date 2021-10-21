@@ -5,14 +5,14 @@ import java.util.EnumSet;
 import ca.bc.gov.tno.dal.db.entities.IEnumValue;
 
 /**
- * Provides options for different syndication types.
+ * Provides options for different types of authentication.
  */
-public enum SyndicationTypes implements IEnumValue {
-  RSS(0), ATOM(1);
+public enum AuthenticationTypes implements IEnumValue {
+  Token(0), User(1);
 
   private final int value;
 
-  SyndicationTypes(final int newValue) {
+  AuthenticationTypes(final int newValue) {
     value = newValue;
   }
 

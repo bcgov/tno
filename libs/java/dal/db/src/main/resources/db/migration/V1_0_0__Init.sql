@@ -1,5 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE TABLE IF NOT EXISTS public."Users"
+CREATE TABLE IF NOT EXISTS public."User"
 (
     "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
     "username" VARCHAR(50) NOT NULL,
@@ -14,12 +14,12 @@ CREATE TABLE IF NOT EXISTS public."Users"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_Users" PRIMARY KEY ("id")
+    CONSTRAINT "pk_User" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_Users_name" ON public."Users" ("username");
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_Users_key" ON public."Users" ("key");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_User_name" ON public."User" ("username");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_User_key" ON public."User" ("key");
 
-CREATE TABLE IF NOT EXISTS public."DataSourceTypes"
+CREATE TABLE IF NOT EXISTS public."DataSourceType"
 (
     "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
     "name" VARCHAR(50) NOT NULL,
@@ -32,11 +32,11 @@ CREATE TABLE IF NOT EXISTS public."DataSourceTypes"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_DataSourceTypes" PRIMARY KEY ("id")
+    CONSTRAINT "pk_DataSourceType" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSourceTypes_name" ON public."DataSourceTypes" ("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSourceType_name" ON public."DataSourceType" ("name");
 
-CREATE TABLE IF NOT EXISTS public."Licenses"
+CREATE TABLE IF NOT EXISTS public."License"
 (
     "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
     "name" VARCHAR(50) NOT NULL,
@@ -50,11 +50,11 @@ CREATE TABLE IF NOT EXISTS public."Licenses"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_Licenses" PRIMARY KEY ("id")
+    CONSTRAINT "pk_License" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_Licenses_name" ON public."Licenses" ("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_License_name" ON public."License" ("name");
 
-CREATE TABLE IF NOT EXISTS public."Schedules"
+CREATE TABLE IF NOT EXISTS public."Schedule"
 (
     "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
     "name" VARCHAR(50) NOT NULL,
@@ -73,11 +73,11 @@ CREATE TABLE IF NOT EXISTS public."Schedules"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_Schedules" PRIMARY KEY ("id")
+    CONSTRAINT "pk_Schedule" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_Schedules_name" ON public."Schedules" ("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Schedule_name" ON public."Schedule" ("name");
 
-CREATE TABLE IF NOT EXISTS public."DataSources"
+CREATE TABLE IF NOT EXISTS public."DataSource"
 (
     "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
     "name" VARCHAR(50) NOT NULL,
@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS public."DataSources"
     "scheduleId" INT NOT NULL,
     "topic" VARCHAR(50) NOT NULL,
     "lastRanOn" TIMESTAMP WITH TIME ZONE,
+    "connection" JSON NOT NULL,
     -- Audit Columns
     "createdById" UUID NOT NULL,
     "createdBy" VARCHAR(50) NOT NULL,
@@ -96,41 +97,19 @@ CREATE TABLE IF NOT EXISTS public."DataSources"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_DataSources" PRIMARY KEY ("id"),
-    CONSTRAINT "fk_DataSourceTypes_DataSources" FOREIGN KEY ("typeId") REFERENCES public."DataSourceTypes" ("id"),
-    CONSTRAINT "fk_Licenses_DataSources" FOREIGN KEY ("licenseId") REFERENCES public."Licenses" ("id"),
-    CONSTRAINT "fk_Schedules_DataSources" FOREIGN KEY ("scheduleId") REFERENCES public."Schedules" ("id")
+    CONSTRAINT "pk_DataSource" PRIMARY KEY ("id"),
+    CONSTRAINT "fk_DataSourceType_DataSource" FOREIGN KEY ("typeId") REFERENCES public."DataSourceType" ("id"),
+    CONSTRAINT "fk_License_DataSource" FOREIGN KEY ("licenseId") REFERENCES public."License" ("id"),
+    CONSTRAINT "fk_Schedule_DataSource" FOREIGN KEY ("scheduleId") REFERENCES public."Schedule" ("id")
 );
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSources_name" ON public."DataSources" ("name");
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSources_abbr" ON public."DataSources" ("abbr");
-
-CREATE TABLE IF NOT EXISTS public."SyndicationSources"
-(
-    "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
-    "name" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(2000),
-    "isEnabled" BOOLEAN DEFAULT true,
-    "url" VARCHAR(500) NOT NULL,
-    "typeId" INT NOT NULL,
-    "dataSourceId" INT NOT NULL,
-    "topic" VARCHAR(50) NOT NULL,
-    -- Audit Columns
-    "createdById" UUID NOT NULL,
-    "createdBy" VARCHAR(50) NOT NULL,
-    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedById" UUID NOT NULL,
-    "updatedBy" VARCHAR(50) NOT NULL,
-    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_SyndicationSources" PRIMARY KEY ("id"),
-    CONSTRAINT "fk_DataSources_SyndicationSources" FOREIGN KEY ("dataSourceId") REFERENCES public."DataSources" ("id")
-);
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_SyndicationSources_name" ON public."SyndicationSources" ("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSource_name" ON public."DataSource" ("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSource_abbr" ON public."DataSource" ("abbr");
 
 -------------------------------------------------------------------------------
 -- Seed Data
 -------------------------------------------------------------------------------
 
-INSERT INTO public."DataSourceTypes" (
+INSERT INTO public."DataSourceType" (
     "name"
     , "createdById"
     , "createdBy"
@@ -156,7 +135,7 @@ INSERT INTO public."DataSourceTypes" (
     , ''
 );
 
-INSERT INTO public."Licenses" (
+INSERT INTO public."License" (
     "name"
     , "ttl"
     , "createdById"
@@ -172,7 +151,7 @@ INSERT INTO public."Licenses" (
     , ''
 );
 
-INSERT INTO public."Schedules" (
+INSERT INTO public."Schedule" (
     "name"
     , "delayMS"
     , "repeat"
@@ -196,13 +175,14 @@ INSERT INTO public."Schedules" (
     , ''
 );
 
-INSERT INTO public."DataSources" (
+INSERT INTO public."DataSource" (
     "name"
     , "abbr"
     , "typeId"
     , "licenseId"
     , "scheduleId"
     , "topic"
+    , "connection"
     , "createdById"
     , "createdBy"
     , "updatedById"
@@ -214,6 +194,7 @@ INSERT INTO public."DataSources" (
     , 1 -- licenseId
     , 1 -- scheduleId
     , '' -- topic
+    , '{ "url": "", "syndicationType": 0, "authenticationType": 0, "token": "" }' -- connection
     , '00000000-0000-0000-0000-000000000000'
     , ''
     , '00000000-0000-0000-0000-000000000000'

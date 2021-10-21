@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "\"Users\"")
+@Table(name = "\"User\"")
 public class User extends Audit {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
