@@ -1,25 +1,76 @@
 #!/bin/bash
 
-echo 'Enter a username for the keycloak realm administrator'
-read -p 'Username: ' varKeycloak
+varKeycloak=$(grep -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env)
+if [ -z "$varKeycloak" ]
+then
+    echo 'Enter a username for the keycloak realm administrator'
+    read -p 'Username: ' varKeycloak
+else
+  echo "Your keycloak username: $varKeycloak"
+fi
 
-echo 'Enter a username for the API database.'
-read -p 'Username: ' varApiDb
+varApiDb=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
+if [ -z "$varApiDb" ]
+then
+    echo 'Enter a username for the database.'
+    read -p 'Username: ' varApiDb
+else
+  echo "Your database username: $varApiDb"
+fi
 
-echo 'Enter a username for the Elasticsearch.'
-read -p 'Username: ' varElastic
+varElastic=$(grep -Po 'ELASTIC_USERNAME=\K.*$' ./db/elasticsearch/.env)
+if [ -z "$varElastic" ]
+then
+    echo 'Enter a username for the Elasticsearch.'
+    read -p 'Username: ' varElastic
+else
+  echo "Your Elasticsearch username: $varElastic"
+fi
 
-echo 'Enter your Azure Cognitive Service subscription key.'
-read -p 'Key: ' varAzureCognitiveServiceKey
+varAzureCognitiveServiceKey=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+if [ -z "$varAzureCognitiveServiceKey" ]
+then
+    echo 'Enter your Azure Cognitive Service subscription key.'
+    read -p 'Key: ' varAzureCognitiveServiceKey
+else
+  echo "Your Azure Cognitive Service subscription key: $varAzureCognitiveServiceKey"
+fi
 
-echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
-read -p 'Region: ' varAzureCognitiveServiceRegion
+varAzureCognitiveServiceRegion=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+if [ -z "$varAzureCognitiveServiceRegion" ]
+then
+    echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
+    read -p 'Region: ' varAzureCognitiveServiceRegion
+else
+  echo "Your Azure Cognitive Service region: $varAzureCognitiveServiceRegion"
+fi
 
-echo 'Enter your Azure Video Analyzer subscription key.'
-read -p 'Key: ' varAzureVideoAnalyzerKey
+varAzureVideoAnalyzerKey=$(grep -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+if [ -z "$varAzureVideoAnalyzerKey" ]
+then
+    echo 'Enter your Azure Video Analyzer subscription key.'
+    read -p 'Key: ' varAzureVideoAnalyzerKey
+else
+  echo "Your Azure Video Analyzer subscription key: $varAzureVideoAnalyzerKey"
+fi
 
-echo 'Enter your Azure Video Analyzer account ID.'
-read -p 'Key: ' varAzureVideoAccountId
+varAzureVideoAccountId=$(grep -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+if [ -z "$varAzureVideoAccountId" ]
+then
+    echo 'Enter your Azure Video Analyzer account ID.'
+    read -p 'Key: ' varAzureVideoAccountId
+else
+  echo "Your Azure Video Analyzer account ID: $varAzureVideoAccountId"
+fi
+
+varAzureVideoLocation=$(grep -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+if [ -z "$varAzureVideoLocation" ]
+then
+    echo 'Enter your Azure Video Analyzer location (i.e. trial).'
+    read -p 'Location: ' varAzureVideoLocation
+else
+  echo "Your Azure Video Analyzer location: $varAzureVideoLocation"
+fi
 
 # Only required if the Azurite docker container doesn't allow for local domain names.
 # Workaround is to either use 'mcr.microsoft.com/azure-storage/azurite:3.14.0', or use the IP address.
@@ -36,7 +87,7 @@ then
   passvar=$(date +%s | sha256sum | base64 | head -c 29)A8!
   echo "Your generated password is: $passvar"
 else
-  echo "Your current password is: $passvar"
+  echo "Your password is: $passvar"
 fi
 
 ###########################################################################
@@ -54,6 +105,7 @@ KEYCLOAK_PASSWORD=$passvar
 KEYCLOAK_IMPORT='/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled'
 KEYCLOAK_LOGLEVEL=WARN
 ROOT_LOGLEVEL=WARN" >> ./auth/keycloak/.env
+    echo "./auth/keycloak/.env created"
 fi
 
 # Nginx
@@ -62,6 +114,7 @@ if test -f "./network/nginx/.env"; then
 else
 echo \
 "" >> ./network/nginx/.env
+    echo "./network/nginx/.env created"
 fi
 
 # Azure Storage
@@ -70,6 +123,7 @@ if test -f "./db/azure-storage/.env"; then
 else
 echo \
 "AZURITE_ACCOUNTS=devaccount1:$azureKey" >> ./db/azure-storage/.env
+    echo "./db/azure-storage/.env created"
 fi
 
 # API Database - PostgreSQL
@@ -80,6 +134,7 @@ echo \
 "POSTGRES_USER=$varApiDb
 POSTGRES_PASSWORD=$passvar
 POSTGRES_DB=tno" >> ./db/postgres/.env
+    echo "./db/postgres/.env created"
 fi
 
 # Elasticsearch
@@ -96,6 +151,7 @@ ELASTIC_PASSWORD=$passvar
 DISCOVERY_TYPE=single-node
 BOOTSTRAP_MEMORY_LOCK=true
 ES_JAVA_OPTS='-Xms512m -Xmx512m'" >> ./db/elasticsearch/.env
+    echo "./db/elasticsearch/.env created"
 fi
 
 # API - Editor
@@ -121,7 +177,8 @@ COGNITIVE_SERVICES_SPEECH_REGION=$varAzureCognitiveServiceRegion
 
 AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$varAzureVideoAnalyzerKey
 AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$varAzureVideoAccountId
-AZURE_VIDEO_ANALYZER_LOCATION=trial" >> ./api/editor/api-editor/src/main/resources/.env
+AZURE_VIDEO_ANALYZER_LOCATION=$varAzureVideoLocation" >> ./api/editor/api-editor/src/main/resources/.env
+    echo "./api/editor/api-editor/src/main/resources/.env created"
 fi
 
 # APP - Editor
@@ -133,6 +190,7 @@ echo \
 CHOKIDAR_USEPOLLING=true
 #API_URL=http://api-editor:8080/
 REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://localhost:50000/auth" >> ./app/editor/.env
+    echo "./app/editor/.env created"
 fi
 
 ###########################################################################
@@ -146,6 +204,7 @@ else
 echo \
 "ZOOKEEPER_TICK_TIME=2000
 ZOOKEEPER_CLIENT_PORT=2181" >> ./db/kafka/zookeeper/.env
+    echo "./db/kafka/zookeeper/.env created"
 fi
 
 # Kafka broker
@@ -182,6 +241,7 @@ KAFKA_KAFKA_REST_ADVERTISED_LISTENERS=http://localhost:50017
 KAFKA_KAFKA_REST_ACCESS_CONTROL_ALLOW_ORIGIN='*'
 KAFKA_KAFKA_REST_ACCESS_CONTROL_ALLOW_METHODS=GET,POST,PUT,DELETE
 KAFKA_KAFKA_REST_ACCESS_CONTROL_ALLOW_HEADERS=origin,content-type,accept,authorization" >> ./db/kafka/broker/.env
+    echo "./db/kafka/broker/.env created"
 fi
 
 # Kafka schema-registry
@@ -192,6 +252,7 @@ echo \
 "SCHEMA_REGISTRY_HOST_NAME=schema-registry
 SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS='broker:9092'
 SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081" >> ./db/kafka/schema-registry/.env
+    echo "./db/kafka/schema-registry/.env created"
 fi
 
 # Kafka connect
@@ -219,6 +280,7 @@ CONNECT_PRODUCER_INTERCEPTOR_CLASSES="io.confluent.monitoring.clients.intercepto
 CONNECT_CONSUMER_INTERCEPTOR_CLASSES="io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
 CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
 CONNECT_LOG4J_LOGGERS=org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR" >> ./db/kafka/connect/.env
+    echo "./db/kafka/connect/.env created"
 fi
 
 # Kafka control-center
@@ -236,6 +298,7 @@ CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS=1
 CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS=1
 CONFLUENT_METRICS_TOPIC_REPLICATION=1
 PORT=9021" >> ./db/kafka/control-center/.env
+    echo "./db/kafka/control-center/.env created"
 fi
 
 # Kafka ksqldb-server
@@ -255,6 +318,7 @@ KSQL_KSQL_CONNECT_URL="http://connect:8083"
 KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR=1
 KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE='true'
 KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE='true'" >> ./db/kafka/ksqldb-server/.env
+    echo "./db/kafka/ksqldb-serve/.env created"
 fi
 
 # Kafka rest-proxy
@@ -266,6 +330,7 @@ echo \
 KAFKA_REST_BOOTSTRAP_SERVERS='broker:9092'
 KAFKA_REST_LISTENERS="http://0.0.0.0:8082"
 KAFKA_REST_SCHEMA_REGISTRY_URL='http://schema-registry:8081'" >> ./db/kafka/rest-proxy/.env
+    echo "./db/kafka/rest-proxy/.env created"
 fi
 
 # Kafka schema-registry
@@ -276,4 +341,5 @@ echo \
 "SCHEMA_REGISTRY_HOST_NAME=schema-registry
 SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS='broker:9092'
 SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081" >> ./db/kafka/schema-registry/.env
+    echo "./db/kafka/schema-registry/.env created"
 fi
