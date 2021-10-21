@@ -6,7 +6,7 @@ then
     echo 'Enter a username for the keycloak realm administrator'
     read -p 'Username: ' varKeycloak
 else
-  echo "Your keycloak username: $varKeycloak"
+    echo "Your keycloak username: $varKeycloak"
 fi
 
 varApiDb=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
@@ -15,7 +15,7 @@ then
     echo 'Enter a username for the database.'
     read -p 'Username: ' varApiDb
 else
-  echo "Your database username: $varApiDb"
+    echo "Your database username: $varApiDb"
 fi
 
 varElastic=$(grep -Po 'ELASTIC_USERNAME=\K.*$' ./db/elasticsearch/.env)
@@ -24,7 +24,7 @@ then
     echo 'Enter a username for the Elasticsearch.'
     read -p 'Username: ' varElastic
 else
-  echo "Your Elasticsearch username: $varElastic"
+    echo "Your Elasticsearch username: $varElastic"
 fi
 
 varAzureCognitiveServiceKey=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
@@ -33,7 +33,7 @@ then
     echo 'Enter your Azure Cognitive Service subscription key.'
     read -p 'Key: ' varAzureCognitiveServiceKey
 else
-  echo "Your Azure Cognitive Service subscription key: $varAzureCognitiveServiceKey"
+    echo "Your Azure Cognitive Service subscription key: $varAzureCognitiveServiceKey"
 fi
 
 varAzureCognitiveServiceRegion=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
@@ -42,7 +42,7 @@ then
     echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
     read -p 'Region: ' varAzureCognitiveServiceRegion
 else
-  echo "Your Azure Cognitive Service region: $varAzureCognitiveServiceRegion"
+    echo "Your Azure Cognitive Service region: $varAzureCognitiveServiceRegion"
 fi
 
 varAzureVideoAnalyzerKey=$(grep -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
@@ -51,16 +51,16 @@ then
     echo 'Enter your Azure Video Analyzer subscription key.'
     read -p 'Key: ' varAzureVideoAnalyzerKey
 else
-  echo "Your Azure Video Analyzer subscription key: $varAzureVideoAnalyzerKey"
+    echo "Your Azure Video Analyzer subscription key: $varAzureVideoAnalyzerKey"
 fi
 
 varAzureVideoAccountId=$(grep -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
 if [ -z "$varAzureVideoAccountId" ]
 then
     echo 'Enter your Azure Video Analyzer account ID.'
-    read -p 'Key: ' varAzureVideoAccountId
+    read -p 'Account ID: ' varAzureVideoAccountId
 else
-  echo "Your Azure Video Analyzer account ID: $varAzureVideoAccountId"
+    echo "Your Azure Video Analyzer account ID: $varAzureVideoAccountId"
 fi
 
 varAzureVideoLocation=$(grep -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
@@ -69,7 +69,7 @@ then
     echo 'Enter your Azure Video Analyzer location (i.e. trial).'
     read -p 'Location: ' varAzureVideoLocation
 else
-  echo "Your Azure Video Analyzer location: $varAzureVideoLocation"
+    echo "Your Azure Video Analyzer location: $varAzureVideoLocation"
 fi
 
 # Only required if the Azurite docker container doesn't allow for local domain names.
@@ -93,6 +93,15 @@ fi
 ###########################################################################
 # TNO Configuration
 ###########################################################################
+
+# Docker Compose
+if test -f "./.env"; then
+    echo "./.env exists"
+else
+echo \
+"" >> ./.env
+    echo "./.env created"
+fi
 
 # Keycloak
 if test -f "./auth/keycloak/.env"; then
@@ -331,15 +340,4 @@ KAFKA_REST_BOOTSTRAP_SERVERS='broker:9092'
 KAFKA_REST_LISTENERS="http://0.0.0.0:8082"
 KAFKA_REST_SCHEMA_REGISTRY_URL='http://schema-registry:8081'" >> ./db/kafka/rest-proxy/.env
     echo "./db/kafka/rest-proxy/.env created"
-fi
-
-# Kafka schema-registry
-if test -f "./db/kafka/schema-registry/.env"; then
-    echo "./db/kafka/schema-registry/.env exists"
-else
-echo \
-"SCHEMA_REGISTRY_HOST_NAME=schema-registry
-SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS='broker:9092'
-SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081" >> ./db/kafka/schema-registry/.env
-    echo "./db/kafka/schema-registry/.env created"
 fi
