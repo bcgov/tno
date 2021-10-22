@@ -60,3 +60,7 @@ azure:
     subscription-key: ${env.AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY}
     account-id: ${env.AZURE_VIDEO_ANALYZER_ACCOUNT_ID}
     location: ${env.AZURE_VIDEO_ANALYZER_LOCATION:trial}
+
+kafka:
+  bootstrap:
+    servers: ${env.KAFKA_BOOTSTRAP_SERVERS}
