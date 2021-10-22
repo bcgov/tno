@@ -1,0 +1,136 @@
+---
+version: '3.5'
+
+services:
+  zookeeper:
+    image: tno:kafka-zookeeper
+    restart: on-failure:1
+    hostname: zookeeper
+    container_name: tno-zookeeper
+    build:
+      context: db/kafka/zookeeper
+    env_file:
+      - db/kafka/zookeeper/.env
+    ports:
+      - ${KAFKA_ZOOKEEPER_PORT:-50010}:2181
+    volumes:
+      - tno-zookeeper-data:/var/lib/zookeeper/data
+      - tno-zookeeper-log:/var/lib/zookeeper/log
+    networks:
+      - tno
+
+  broker:
+    image: tno:kafka-broker
+    restart: on-failure:1
+    hostname: broker
+    container_name: tno-broker
+    build:
+      context: db/kafka/broker
+    env_file:
+      - db/kafka/broker/.env
+    depends_on:
+      - zookeeper
+    ports:
+      # - ${KAFKA_BROKER_PORT:-50011}:9101
+      - ${KAFKA_BROKER_ADVERTISED_HOST_PORT:-50012}:9092
+      - ${KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT:-50019}:29094
+      # - ${KAFKA_BROKER_REST_PORT:-50017}:8090
+    volumes:
+      - tno-broker-data:/var/lib/kafka/data
+    networks:
+      - tno
+
+  schema-registry:
+    image: tno:kafka-schema-registry
+    restart: on-failure:1
+    hostname: schema-registry
+    container_name: tno-schema-registry
+    build:
+      context: db/kafka/schema-registry
+    env_file:
+      - db/kafka/schema-registry/.env
+    depends_on:
+      - broker
+    ports:
+      - ${KAFKA_SCHMEA_REGISTRY_PORT:-50013}:8081
+    networks:
+      - tno
+
+  connect:
+    image: tno:kafka-schema-connect
+    restart: on-failure:1
+    hostname: connect
+    container_name: tno-connect
+    build:
+      context: db/kafka/connect
+    env_file:
+      - db/kafka/connect/.env
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - ${KAFKA_SCHEMA_CONNECT_PORT:-50014}:8083
+    networks:
+      - tno
+
+  control-center:
+    image: tno:kafka-control-center
+    restart: on-failure:1
+    hostname: control-center
+    container_name: tno-control-center
+    build:
+      context: db/kafka/control-center
+    env_file:
+      - db/kafka/control-center/.env
+    depends_on:
+      - broker
+      - schema-registry
+      - connect
+      - ksqldb-server
+    ports:
+      - ${KAFKA_CONTROL_CENTER_PORT:-50015}:9021
+    networks:
+      - tno
+
+  ksqldb-server:
+    image: tno:kafka-ksqldb-server
+    restart: on-failure:1
+    hostname: ksqldb-server
+    container_name: tno-ksqldb-server
+    build:
+      context: db/kafka/ksqldb-server
+    env_file:
+      - db/kafka/ksqldb-server/.env
+    depends_on:
+      - broker
+      - connect
+    ports:
+      - ${KAFKA_KSQLDB_PORT:-50016}:8088
+    networks:
+      - tno
+
+  rest-proxy:
+    image: tno:kafka-rest-proxy
+    restart: on-failure:1
+    hostname: rest-proxy
+    container_name: tno-rest-proxy
+    build:
+      context: db/kafka/rest-proxy
+    env_file:
+      - db/kafka/rest-proxy/.env
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - ${KAFKA_REST_PROXY_PORT:-50018}:8082
+    networks:
+      - tno
+
+####################### Volumes Definition #######################
+volumes:
+  tno-zookeeper-data:
+    name: tno-zookeeper-data
+  tno-zookeeper-log:
+    name: tno-zookeeper-log
+  tno-broker-data:
+    name: tno-broker-data
