@@ -1,10 +1,10 @@
 #!/bin/bash
 
 echo 'Enter the Staging Repository Id you want to release'
-read -p 'Repository Id: ' varStagingRepoId
+read -p 'Repository Id: cabcgovtno-' varStagingRepoId
 
-if [ -z "$varStagingRepoId" ]
+if [ ! -z "$varStagingRepoId" ]
 then
   cd dal-db
-  mvn nexus-staging:release -DstagingRepositoryId=$varStagingRepoId
+  mvn nexus-staging:release -DstagingRepositoryId="cabcgovtno-$varStagingRepoId"
 fi

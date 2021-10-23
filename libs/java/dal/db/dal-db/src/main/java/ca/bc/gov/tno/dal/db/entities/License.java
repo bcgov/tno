@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  */
 @Entity
 @Table(name = "\"License\"")
-public class License extends Audit {
+public class License extends AuditColumns {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)

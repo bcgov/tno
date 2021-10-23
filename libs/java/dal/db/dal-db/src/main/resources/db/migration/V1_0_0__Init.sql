@@ -105,6 +105,25 @@ CREATE TABLE IF NOT EXISTS public."DataSource"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSource_name" ON public."DataSource" ("name");
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSource_abbr" ON public."DataSource" ("abbr");
 
+CREATE TABLE IF NOT EXISTS public."DataSourceReference"
+(
+    "source" VARCHAR(50) NOT NULL,
+    "uid" VARCHAR(10) NOT NULL,
+    "topic" VARCHAR(50) NOT NULL,
+    "offset" INT NOT NULL DEFAULT -1,
+    "status" INT NOT NULL DEFAULT 0,
+    "publishedOn" TIMESTAMP WITH TIME ZONE,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_DataSourceReference" PRIMARY KEY ("source", "uid")
+);
+CREATE INDEX IF NOT EXISTS "idx_DataSourceReference_topic" ON public."DataSourceReference" ("topic");
+
 -------------------------------------------------------------------------------
 -- Seed Data
 -------------------------------------------------------------------------------

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  */
 @Entity
 @Table(name = "\"DataSourceType\"")
-public class DataSourceType extends Audit {
+public class DataSourceType extends AuditColumns {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)

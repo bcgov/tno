@@ -9,7 +9,9 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,14 +69,17 @@ public class KafkaController {
 	public Map<String, Object> pushTopic(@PathVariable String topic, @PathVariable String key, @RequestBody String value)
 			throws InterruptedException, ExecutionException {
 		var props = new Properties();
-		props.put("bootstrap.servers", bootstrapServers);
-		props.put("acks", "all");
-		props.put("retries", 0);
-		props.put("batch.size", 16384);
-		props.put("linger.ms", 1);
-		props.put("buffer.memory", 33554432);
-		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+		props.put(ProducerConfig.CLIENT_ID_CONFIG, "rss-01");
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		props.put(ProducerConfig.ACKS_CONFIG, "all");
+		props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+		props.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 5);
+		props.put(ProducerConfig.RETRIES_CONFIG, 10000000);
+		props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+		props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
 		var producer = new KafkaProducer<String, String>(props);
 		var response = producer.send(new ProducerRecord<String, String>(topic, key, value));

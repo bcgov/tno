@@ -48,5 +48,9 @@ purge: ## Purge local repository.
 install: ## Force install to fetch dependencies from remote repository.
 	@echo "$(P) Force install to fetch dependencies from remote repository."
 	@cd api-editor; mvn clean install -U -X
+	
+run: ## Manually run the project.
+	@echo "$(P) Manually run the project."
+	@cd api-editor; mvn spring-boot:run
 
 .PHONY: local

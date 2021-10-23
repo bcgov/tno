@@ -9,7 +9,7 @@ import ca.bc.gov.tno.dal.db.SyndicationTypes;
 /**
  * SyndicationSources class, defines
  */
-public class ConnectionSyndication extends Audit {
+public class ConnectionSyndication extends AuditColumns {
 
   private String url;
 

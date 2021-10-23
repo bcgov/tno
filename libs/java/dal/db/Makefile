@@ -48,12 +48,16 @@ purge: ## Purge local repository.
 install: ## Force install to fetch dependencies from remote repository.
 	@echo "$(P) Force install to fetch dependencies from remote repository."
 	@mvn clean install -U -X
+	
+run: ## Manually run the test project.
+	@echo "$(P) Manually run the test project."
+	@cd dal-db-test; mvn spring-boot:run
 
 ##############################################################################
 # Maven Central Repository Commands
 ##############################################################################
 
-deploy-maven: ## Build and deploy the package to Maven Central
+deploy-staging: ## Build and deploy the package to Maven Central
 	@echo "$(P) Build and deploy package to Maven Central"
 	@./scripts/deploy-maven.sh
 

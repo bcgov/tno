@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import ca.bc.gov.tno.dal.db.converters.HashMapConverter;
 
@@ -22,7 +24,7 @@ import ca.bc.gov.tno.dal.db.converters.HashMapConverter;
  */
 @Entity
 @Table(name = "\"DataSource\"")
-public class DataSource extends Audit {
+public class DataSource extends AuditColumns {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)
@@ -64,6 +66,7 @@ public class DataSource extends Audit {
   @Column(name = "\"topic\"", nullable = false)
   private String topic;
 
+  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "\"lastRanOn\"")
   private Date lastRanOn;
 

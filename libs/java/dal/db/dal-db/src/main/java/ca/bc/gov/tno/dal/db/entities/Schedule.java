@@ -13,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -26,7 +28,7 @@ import ca.bc.gov.tno.dal.db.converters.MonthsAttributeConverter;
  */
 @Entity
 @Table(name = "\"Schedule\"")
-public class Schedule extends Audit {
+public class Schedule extends AuditColumns {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)
@@ -44,6 +46,7 @@ public class Schedule extends Audit {
   @Column(name = "\"delayMS\"", nullable = false)
   private int delayMS;
 
+  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "\"runAt\"")
   private Date runAt;
 

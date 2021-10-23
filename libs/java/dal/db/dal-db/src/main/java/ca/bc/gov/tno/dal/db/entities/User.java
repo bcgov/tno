@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "\"User\"")
-public class User extends Audit {
+public class User extends AuditColumns {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)

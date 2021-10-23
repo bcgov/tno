@@ -1,20 +1,29 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
+
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.Source;
+import org.hibernate.annotations.SourceType;
 
 @MappedSuperclass
-public abstract class Audit {
-
+public abstract class AuditColumns implements Serializable {
     @Column(name = "\"createdById\"", nullable = false)
     private UUID createdById;
 
     @Column(name = "\"createdBy\"", nullable = false)
     private String createdBy;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "\"createdOn\"", nullable = false)
     private Date createdOn;
 
@@ -24,6 +33,10 @@ public abstract class Audit {
     @Column(name = "\"updatedBy\"", nullable = false)
     private String updatedBy;
 
+    @Version
+    @Source(SourceType.DB)
+    @Generated(GenerationTime.ALWAYS)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "\"updatedOn\"", nullable = false)
     private Date updatedOn;
 
