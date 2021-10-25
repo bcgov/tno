@@ -57,9 +57,13 @@ run: ## Manually run the test project.
 # Maven Central Repository Commands
 ##############################################################################
 
+setup: ## Import private key
+	@echo "$(P) Import private key"
+	@./scripts/setup.sh
+
 deploy-staging: ## Build and deploy the package to Maven Central
 	@echo "$(P) Build and deploy package to Maven Central"
-	@./scripts/deploy-maven.sh
+	@./scripts/deploy-staging.sh
 
 close-staging: ## Close the staging repository
 	@echo "$(P) Close the staging repository"

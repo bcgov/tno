@@ -1,4 +1,22 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Ensure the created audit columns are not changed.
+-- Ensure the updated timestamp is updated.
+CREATE OR REPLACE FUNCTION updateAudit()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        NEW."createdOn" = OLD."createdOn";
+        NEW."createdById" = OLD."createdById";
+        NEW."createdBy" = OLD."createdBy";
+    ELSIF (TG_OP = 'INSERT') THEN
+        NEW."createdOn" = now();
+    END IF;
+    NEW."updatedOn" = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
 CREATE TABLE IF NOT EXISTS public."User"
 (
     "id" INT NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -18,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public."User"
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_User_name" ON public."User" ("username");
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_User_key" ON public."User" ("key");
+CREATE TRIGGER tr_auditUser BEFORE INSERT OR UPDATE ON public."User" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE TABLE IF NOT EXISTS public."DataSourceType"
 (
@@ -35,6 +54,7 @@ CREATE TABLE IF NOT EXISTS public."DataSourceType"
     CONSTRAINT "pk_DataSourceType" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSourceType_name" ON public."DataSourceType" ("name");
+CREATE TRIGGER tr_auditDataSourceType BEFORE INSERT OR UPDATE ON public."DataSourceType" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE TABLE IF NOT EXISTS public."License"
 (
@@ -53,6 +73,7 @@ CREATE TABLE IF NOT EXISTS public."License"
     CONSTRAINT "pk_License" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_License_name" ON public."License" ("name");
+CREATE TRIGGER tr_auditLicense BEFORE INSERT OR UPDATE ON public."License" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE TABLE IF NOT EXISTS public."Schedule"
 (
@@ -76,6 +97,7 @@ CREATE TABLE IF NOT EXISTS public."Schedule"
     CONSTRAINT "pk_Schedule" PRIMARY KEY ("id")
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_Schedule_name" ON public."Schedule" ("name");
+CREATE TRIGGER tr_auditSchedule BEFORE INSERT OR UPDATE ON public."Schedule" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE TABLE IF NOT EXISTS public."DataSource"
 (
@@ -104,11 +126,12 @@ CREATE TABLE IF NOT EXISTS public."DataSource"
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSource_name" ON public."DataSource" ("name");
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSource_abbr" ON public."DataSource" ("abbr");
+CREATE TRIGGER tr_auditDataSource BEFORE INSERT OR UPDATE ON public."DataSource" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
-CREATE TABLE IF NOT EXISTS public."DataSourceReference"
+CREATE TABLE IF NOT EXISTS public."ContentReference"
 (
     "source" VARCHAR(50) NOT NULL,
-    "uid" VARCHAR(10) NOT NULL,
+    "uid" VARCHAR(100) NOT NULL,
     "topic" VARCHAR(50) NOT NULL,
     "offset" INT NOT NULL DEFAULT -1,
     "status" INT NOT NULL DEFAULT 0,
@@ -120,9 +143,10 @@ CREATE TABLE IF NOT EXISTS public."DataSourceReference"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_DataSourceReference" PRIMARY KEY ("source", "uid")
+    CONSTRAINT "pk_ContentReference" PRIMARY KEY ("source", "uid")
 );
-CREATE INDEX IF NOT EXISTS "idx_DataSourceReference_topic" ON public."DataSourceReference" ("topic");
+CREATE INDEX IF NOT EXISTS "idx_ContentReference_topic" ON public."ContentReference" ("topic");
+CREATE TRIGGER tr_auditContentReference BEFORE INSERT OR UPDATE ON public."ContentReference" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 -------------------------------------------------------------------------------
 -- Seed Data

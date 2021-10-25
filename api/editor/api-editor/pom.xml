@@ -22,7 +22,7 @@
 		<repository>
 			<id>maven-central-staging</id>
 			<name>Maven Central Staging Repository</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1016</url>
+			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1018</url>
 		</repository>
 		<repository>
 			<id>maven-central</id>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>ca.bc.gov.tno</groupId>
 			<artifactId>dal-db</artifactId>
-			<version>0.0.5-alpha</version>
+			<version>0.0.6-alpha</version>
 		</dependency>
 
 		<dependency>

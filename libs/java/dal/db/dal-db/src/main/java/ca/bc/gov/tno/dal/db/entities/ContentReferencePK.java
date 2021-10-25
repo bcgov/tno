@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * DataSourceReferencePK class, provides primary key for DataSourceReferencePK.
+ * ContentReferencePK class, provides primary key for ContentReferencePK.
  */
 public class ContentReferencePK implements Serializable {
   /**
@@ -18,14 +18,14 @@ public class ContentReferencePK implements Serializable {
   private String uid;
 
   /**
-   * Creates a new instance of a DataSourceReferencePK object.
+   * Creates a new instance of a ContentReferencePK object.
    */
   public ContentReferencePK() {
 
   }
 
   /**
-   * Creates a new instance of a DataSourceReferencePK object, initializes with
+   * Creates a new instance of a ContentReferencePK object, initializes with
    * specified parameters.
    * 
    * @param source Data source abbreviation

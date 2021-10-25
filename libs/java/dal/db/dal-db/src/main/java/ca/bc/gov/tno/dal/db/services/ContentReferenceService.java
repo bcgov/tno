@@ -1,14 +1,12 @@
 package ca.bc.gov.tno.dal.db.services;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentReference;
 import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
 import ca.bc.gov.tno.dal.db.repositories.IContentReferenceRepository;
@@ -42,12 +40,8 @@ public class ContentReferenceService implements IContentReferenceService {
    * Add the content reference.
    */
   @Override
-  public ContentReference add(ContentReference reference) {
-    // TODO: globally set this and get the current user.
-    reference.setCreatedOn(Date.from(Instant.now()));
-    reference.setCreatedById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-    reference.setCreatedBy("unknown");
-    var result = repository.save(reference);
+  public ContentReference add(ContentReference entity) {
+    var result = repository.save(PrincipalHelper.addAudit(entity));
     return result;
   }
 
@@ -55,12 +49,8 @@ public class ContentReferenceService implements IContentReferenceService {
    * Update the content reference.
    */
   @Override
-  public ContentReference update(ContentReference reference) {
-    // TODO: globally set this and get the current user.
-    reference.setUpdatedOn(Date.from(Instant.now()));
-    reference.setUpdatedById(UUID.fromString("00000000-0000-0000-0000-000000000000"));
-    reference.setUpdatedBy("unknown");
-    var result = repository.save(reference);
+  public ContentReference update(ContentReference entity) {
+    var result = repository.save(PrincipalHelper.updateAudit(entity));
     return result;
   }
 

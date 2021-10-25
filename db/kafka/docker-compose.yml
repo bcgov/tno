@@ -40,91 +40,33 @@ services:
     networks:
       - tno
 
-  # schema-registry:
-  #   image: tno:kafka-schema-registry
-  #   restart: on-failure:1
-  #   hostname: schema-registry
-  #   container_name: tno-schema-registry
-  #   build:
-  #     context: db/kafka/schema-registry
-  #   env_file:
-  #     - db/kafka/schema-registry/.env
-  #   depends_on:
-  #     - broker
-  #   ports:
-  #     - ${KAFKA_SCHMEA_REGISTRY_PORT:-50013}:8081
-  #   networks:
-  #     - tno
+  rest-proxy:
+    image: tno:kafka-rest-proxy
+    restart: on-failure:1
+    hostname: rest-proxy
+    container_name: tno-rest-proxy
+    build:
+      context: db/kafka/rest-proxy
+    env_file:
+      - db/kafka/rest-proxy/.env
+    depends_on:
+      - broker
+    ports:
+      - ${KAFKA_REST_PROXY_PORT:-50018}:8082
+    networks:
+      - tno
 
-  # connect:
-  #   image: tno:kafka-schema-connect
-  #   restart: on-failure:1
-  #   hostname: connect
-  #   container_name: tno-connect
-  #   build:
-  #     context: db/kafka/connect
-  #   env_file:
-  #     - db/kafka/connect/.env
-  #   depends_on:
-  #     - broker
-  #     - schema-registry
-  #   ports:
-  #     - ${KAFKA_SCHEMA_CONNECT_PORT:-50014}:8083
-  #   networks:
-  #     - tno
-
-  # control-center:
-  #   image: tno:kafka-control-center
-  #   restart: on-failure:1
-  #   hostname: control-center
-  #   container_name: tno-control-center
-  #   build:
-  #     context: db/kafka/control-center
-  #   env_file:
-  #     - db/kafka/control-center/.env
-  #   depends_on:
-  #     - broker
-  #     - schema-registry
-  #     - connect
-  #     - ksqldb-server
-  #   ports:
-  #     - ${KAFKA_CONTROL_CENTER_PORT:-50015}:9021
-  #   networks:
-  #     - tno
-
-  # ksqldb-server:
-  #   image: tno:kafka-ksqldb-server
-  #   restart: on-failure:1
-  #   hostname: ksqldb-server
-  #   container_name: tno-ksqldb-server
-  #   build:
-  #     context: db/kafka/ksqldb-server
-  #   env_file:
-  #     - db/kafka/ksqldb-server/.env
-  #   depends_on:
-  #     - broker
-  #     - connect
-  #   ports:
-  #     - ${KAFKA_KSQLDB_PORT:-50016}:8088
-  #   networks:
-  #     - tno
-
-  # rest-proxy:
-  #   image: tno:kafka-rest-proxy
-  #   restart: on-failure:1
-  #   hostname: rest-proxy
-  #   container_name: tno-rest-proxy
-  #   build:
-  #     context: db/kafka/rest-proxy
-  #   env_file:
-  #     - db/kafka/rest-proxy/.env
-  #   depends_on:
-  #     - broker
-  #     - schema-registry
-  #   ports:
-  #     - ${KAFKA_REST_PROXY_PORT:-50018}:8082
-  #   networks:
-  #     - tno
+  cat:
+    image: tno:kafkacat
+    restart: on-failure:1
+    hostname: cat
+    container_name: tno-kafkacat
+    build:
+      context: db/kafka/cat
+    depends_on:
+      - broker
+    networks:
+      - tno
 
 ####################### Volumes Definition #######################
 volumes:

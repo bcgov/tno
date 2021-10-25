@@ -23,6 +23,8 @@ public abstract class AuditColumns implements Serializable {
     @Column(name = "\"createdBy\"", nullable = false)
     private String createdBy;
 
+    @Source(SourceType.DB)
+    @Generated(GenerationTime.ALWAYS)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "\"createdOn\"", nullable = false)
     private Date createdOn;

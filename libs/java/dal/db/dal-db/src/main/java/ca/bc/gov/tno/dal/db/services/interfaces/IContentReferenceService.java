@@ -11,9 +11,9 @@ public interface IContentReferenceService {
 
   Optional<ContentReference> findById(ContentReferencePK key);
 
-  ContentReference add(ContentReference reference);
+  ContentReference add(ContentReference entity);
 
-  ContentReference update(ContentReference reference);
+  ContentReference update(ContentReference entity);
 
-  void delete(ContentReference reference);
+  void delete(ContentReference entity);
 }

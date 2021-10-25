@@ -2,7 +2,7 @@ package ca.bc.gov.tno.dal.db;
 
 import java.util.EnumSet;
 
-import ca.bc.gov.tno.dal.db.entities.IEnumValue;
+import ca.bc.gov.tno.IEnumValue;
 
 /**
  * Provides options for different syndication types.

@@ -1,16 +1,23 @@
 package ca.bc.gov.tno.controllers;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -94,6 +101,39 @@ public class KafkaController {
 		model.put("serializedKeySize", result.serializedKeySize());
 		model.put("serializedValueSize", result.serializedValueSize());
 		return model;
+	}
+
+	/**
+	 * Fetch all the messages in the specified topic.
+	 * 
+	 * @param topic
+	 * @return
+	 */
+	@GetMapping(path = "/topics/{topic}")
+	public List<Map<String, String>> getTopic(@PathVariable String topic) {
+		var props = new Properties();
+		props.put(ConsumerConfig.CLIENT_ID_CONFIG, "rss-01");
+		props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
+		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+		var consumer = new KafkaConsumer<String, String>(props);
+		consumer.subscribe(Arrays.asList(topic));
+
+		consumer.seekToBeginning(consumer.assignment());
+		var records = consumer.poll(Duration.ofMillis(1000));
+		consumer.close();
+		List<Map<String, String>> messages = new ArrayList<Map<String, String>>();
+		records.records(topic).iterator().forEachRemaining(m -> {
+			var record = new HashMap<String, String>();
+			var key = m.key() == null ? "NA" : m.key();
+			record.put(key, m.value());
+			messages.add(record);
+		});
+		return messages;
 	}
 
 }

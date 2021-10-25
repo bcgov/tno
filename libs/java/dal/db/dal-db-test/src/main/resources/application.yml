@@ -8,7 +8,7 @@ logging:
 
 spring:
   main:
-    banner-mode: off
+    banner-mode: 'off'
 
   h2:
     console:
@@ -20,7 +20,7 @@ spring:
     password: ${env.DB_PASSWORD}
 
   flyway:
-    enabled: ${env.DB_MIGRATION_ENABLED:true}
+    enabled: ${env.DB_MIGRATION_ENABLED:false}
     validate-on-migrate: ${env.DB_VALIDATE_MIGRATION:true}
 
   jpa:

@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.dal.db.entities;
+package ca.bc.gov.tno;
 
 public interface IEnumValue {
 

@@ -5,7 +5,7 @@ import java.util.stream.IntStream;
 
 import javax.persistence.AttributeConverter;
 
-import ca.bc.gov.tno.dal.db.entities.IEnumValue;
+import ca.bc.gov.tno.IEnumValue;
 
 /**
  * Convert an EnumSet to and from an Integer. This supports Flags, which enables

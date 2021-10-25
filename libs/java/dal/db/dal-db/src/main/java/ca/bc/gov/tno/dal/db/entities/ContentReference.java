@@ -13,13 +13,13 @@ import javax.persistence.TemporalType;
 import ca.bc.gov.tno.dal.db.KafkaMessageStatus;
 
 /**
- * DataSourceReference class, provides a way to capture a reference to content
- * from data sources. This is used to map content in Kafka and to ensure
- * duplicates are not entered.
+ * ContentReference class, provides a way to capture a reference to content from
+ * data sources. This is used to map content in Kafka and to ensure duplicates
+ * are not entered.
  */
 @Entity
 @IdClass(ContentReferencePK.class)
-@Table(name = "\"DataSourceReference\"")
+@Table(name = "\"ContentReference\"")
 public class ContentReference extends AuditColumns {
   /**
    * The data source abbreviation.
@@ -61,14 +61,14 @@ public class ContentReference extends AuditColumns {
   private KafkaMessageStatus status;
 
   /**
-   * Creates a new instance of a DataSourceReference object.
+   * Creates a new instance of a ContentReference object.
    */
   public ContentReference() {
 
   }
 
   /**
-   * Creates a new instance of a DataSourceReference object, initializes with
+   * Creates a new instance of a ContentReference object, initializes with
    * specified parameters.
    * 
    * @param source Data source abbreviation
