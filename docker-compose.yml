@@ -16,23 +16,6 @@ services:
     networks:
       - tno
 
-  ####################### Keycloak #######################
-  keycloak:
-    image: tno:keycloak
-    restart: on-failure:1
-    container_name: tno-keycloak
-    build:
-      context: ./auth/keycloak
-    env_file:
-      - auth/keycloak/.env
-    volumes:
-      - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
-    ports:
-      - ${KEYCLOAK_HTTP_PORT:-50000}:8080
-      - ${KEYCLOAK_HTTPS_PORT:-50001}:443
-    networks:
-      - tno
-
   ####################### Database #######################
   database:
     image: tno:database
@@ -47,6 +30,25 @@ services:
     volumes:
       - tno-database-data:/var/lib/postgressql/data
       - ./db/postgres/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - tno
+
+  ####################### Keycloak #######################
+  keycloak:
+    image: tno:keycloak
+    restart: on-failure:1
+    container_name: tno-keycloak
+    build:
+      context: ./auth/keycloak
+    env_file:
+      - auth/keycloak/.env
+    volumes:
+      - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
+    ports:
+      - ${KEYCLOAK_HTTP_PORT:-50000}:8080
+      - ${KEYCLOAK_HTTPS_PORT:-50001}:443
+    depends_on:
+      - database
     networks:
       - tno
 

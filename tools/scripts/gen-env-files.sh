@@ -14,13 +14,13 @@ else
     echo "Your keycloak username: $varKeycloak"
 fi
 
-varApiDb=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
-if [ -z "$varApiDb" ]
+varDbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
+if [ -z "$varDbUser" ]
 then
     echo 'Enter a username for the database.'
-    read -p 'Username: ' varApiDb
+    read -p 'Username: ' varDbUser
 else
-    echo "Your database username: $varApiDb"
+    echo "Your database username: $varDbUser"
 fi
 
 varElastic=$(grep -Po 'ELASTIC_USERNAME=\K.*$' ./db/elasticsearch/.env)
@@ -108,12 +108,31 @@ echo \
     echo "./.env created"
 fi
 
+# Database - PostgreSQL
+if test -f "./db/postgres/.env"; then
+    echo "./db/postgres/.env exists"
+else
+echo \
+"POSTGRES_USER=$varDbUser
+POSTGRES_PASSWORD=$passvar
+POSTGRES_DB=tno
+KEYCLOAK_DB=keycloak" >> ./db/postgres/.env
+    echo "./db/postgres/.env created"
+fi
+
 # Keycloak
 if test -f "./auth/keycloak/.env"; then
     echo "./auth/keycloak/.env exists"
 else
 echo \
 "PROXY_ADDRESS_FORWARDING=true
+DB_VENDOR=POSTGRES
+DB_ADDR=database
+DB_PORT=5432
+DB_DATABASE=keycloak
+DB_SCHEMA=public
+DB_USER=$varDbUser
+DB_PASSWORD=$passvar
 KEYCLOAK_USER=$varKeycloak
 KEYCLOAK_PASSWORD=$passvar
 KEYCLOAK_IMPORT='/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled'
@@ -138,17 +157,6 @@ else
 echo \
 "AZURITE_ACCOUNTS=devaccount1:$azureKey" >> ./db/azure-storage/.env
     echo "./db/azure-storage/.env created"
-fi
-
-# API Database - PostgreSQL
-if test -f "./db/postgres/.env"; then
-    echo "./db/postgres/.env exists"
-else
-echo \
-"POSTGRES_USER=$varApiDb
-POSTGRES_PASSWORD=$passvar
-POSTGRES_DB=tno" >> ./db/postgres/.env
-    echo "./db/postgres/.env created"
 fi
 
 # Elasticsearch
@@ -178,7 +186,7 @@ echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
 
 DB_URL=jdbc:postgresql://host.docker.internal:50002/tno
-DB_USERNAME=$varApiDb
+DB_USERNAME=$varDbUser
 DB_PASSWORD=$passvar
 
 ELASTIC_URIS=host.docker.internal:50007
