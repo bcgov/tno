@@ -198,6 +198,753 @@
 			]
 		},
 		{
+			"name": "azure",
+			"item": [
+				{
+					"name": "video-analyzer",
+					"item": [
+						{
+							"name": "videos",
+							"item": [
+								{
+									"name": "list",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{azure-video-subscription-key}}",
+												"type": "text"
+											},
+											{
+												"key": "x-ms-client-request-id",
+												"value": "",
+												"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"url": {
+											"raw": "https://api.videoindexer.ai/{{azure-video-location}}/accounts/{{azure-video-account-id}}/videos?pageSize=25&skip=0",
+											"protocol": "https",
+											"host": [
+												"api",
+												"videoindexer",
+												"ai"
+											],
+											"path": [
+												"{{azure-video-location}}",
+												"accounts",
+												"{{azure-video-account-id}}",
+												"videos"
+											],
+											"query": [
+												{
+													"key": "createdAfter",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "createdBefore",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "pageSize",
+													"value": "25"
+												},
+												{
+													"key": "skip",
+													"value": "0"
+												},
+												{
+													"key": "accessToken",
+													"value": "{{azure-video-access-token}}",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "thumbnail",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{azure-video-subscription-key}}",
+												"type": "text"
+											},
+											{
+												"key": "x-ms-client-request-id",
+												"value": "",
+												"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"url": {
+											"raw": "https://api.videoindexer.ai/{{azure-video-location}}/accounts/{{azure-video-account-id}}/videos/:videoId/Thumnails/:thumbnailId",
+											"protocol": "https",
+											"host": [
+												"api",
+												"videoindexer",
+												"ai"
+											],
+											"path": [
+												"{{azure-video-location}}",
+												"accounts",
+												"{{azure-video-account-id}}",
+												"videos",
+												":videoId",
+												"Thumnails",
+												":thumbnailId"
+											],
+											"query": [
+												{
+													"key": "accessToken",
+													"value": "{{azure-video-access-token}}",
+													"disabled": true
+												}
+											],
+											"variable": [
+												{
+													"key": "videoId",
+													"value": "e2228a52d9"
+												},
+												{
+													"key": "thumbnailId",
+													"value": "00000000-0000-0000-0000-000000000000"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "captions",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{azure-video-subscription-key}}",
+												"type": "text"
+											},
+											{
+												"key": "x-ms-client-request-id",
+												"value": "",
+												"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"url": {
+											"raw": "https://api.videoindexer.ai/{{azure-video-location}}/accounts/{{azure-video-account-id}}/videos/:videoId/Captions?format=Txt&language=en-US&includeAudioEffects=false",
+											"protocol": "https",
+											"host": [
+												"api",
+												"videoindexer",
+												"ai"
+											],
+											"path": [
+												"{{azure-video-location}}",
+												"accounts",
+												"{{azure-video-account-id}}",
+												"videos",
+												":videoId",
+												"Captions"
+											],
+											"query": [
+												{
+													"key": "accessToken",
+													"value": "{{azure-video-access-token}}",
+													"disabled": true
+												},
+												{
+													"key": "indexId",
+													"value": "",
+													"description": "The video id",
+													"disabled": true
+												},
+												{
+													"key": "format",
+													"value": "Txt",
+													"description": "The captions format. Allowed values: Vtt / Ttml / Srt / Txt / Csv"
+												},
+												{
+													"key": "language",
+													"value": "en-US",
+													"description": "The language of the captions. Supported languages: Serbian (Cyrillic): sr-Cyrl-RS, Serbian (Latin): sr-Latn-RS, Bosnian: bs-Latn, Chinese (Simplified): zh-Hans, Chinese (Traditional): zh-Hant, Filipino: fil-PH, English United Kingdom: en-GB, Fijian: en-FJ, English Australia: en-AU, Samoan: en-WS, English United States: en-US, Greek: el-GR, Spanish: es-ES, Spanish (Mexico): es-MX, Estonian: et-EE, Persian: fa-IR, Finnish: fi-FI, French (Canada): fr-CA, French: fr-FR, Haitian: fr-HT, Afrikaans: af-ZA, Arabic (Saudi Arabia): ar-SA, Arabic Syrian Arab Republic: ar-SY, Arabic (Palestinian Authority): ar-PS, Arabic (Qatar): ar-QA, Arabic Egypt: ar-EG, Arabic Modern Standard (Bahrain): ar-BH, Arabic (Oman): ar-OM, Arabic (Lebanon): ar-LB, Arabic (United Arab Emirates): ar-AE, Arabic (Kuwait): ar-KW, Arabic (Jordan): ar-JO, Arabic (Iraq): ar-IQ, Arabic (Israel): ar-IL, Danish: da-DK, German: de-DE, Bulgarian: bg-BG, Bangla: bn-BD, Malagasy: mg-MG, Malay: ms-MY, Maltese: mt-MT, Catalan: ca-ES, Czech: cs-CZ, Dutch: nl-NL, Norwegian: nb-NO, Indonesian: id-ID, Italian: it-IT, Lithuanian: lt-LT, Latvian: lv-LV, Japanese: ja-JP, Urdu: ur-PK, Ukrainian: uk-UA, Hindi: hi-IN, Hebrew: he-IL, Hungarian: hu-HU, Croatian: hr-HR, Korean: ko-KR, Vietnamese: vi-VN, Turkish: tr-TR, Tamil: ta-IN, Thai: th-TH, Tongan: to-TO, Russian: ru-RU, Romanian: ro-RO, Portuguese: pt-BR, Polish: pl-PL, Swedish: sv-SE, Kiswahili: sw-KE, Slovenian: sl-SI, Slovak: sk-SK, Chinese (Cantonese, Traditional): zh-HK."
+												},
+												{
+													"key": "includeAudioEffects",
+													"value": "false",
+													"description": "Include audio effects"
+												}
+											],
+											"variable": [
+												{
+													"key": "videoId",
+													"value": "e2228a52d9"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "player-widget",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{azure-video-subscription-key}}",
+												"type": "text"
+											},
+											{
+												"key": "x-ms-client-request-id",
+												"value": "",
+												"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"url": {
+											"raw": "https://api.videoindexer.ai/{{azure-video-location}}/accounts/{{azure-video-account-id}}/videos/:videoId/PlayerWidget",
+											"protocol": "https",
+											"host": [
+												"api",
+												"videoindexer",
+												"ai"
+											],
+											"path": [
+												"{{azure-video-location}}",
+												"accounts",
+												"{{azure-video-account-id}}",
+												"videos",
+												":videoId",
+												"PlayerWidget"
+											],
+											"query": [
+												{
+													"key": "accessToken",
+													"value": "{{azure-video-access-token}}",
+													"disabled": true
+												}
+											],
+											"variable": [
+												{
+													"key": "videoId",
+													"value": "e2228a52d9"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "stream-url",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{azure-video-subscription-key}}",
+												"type": "text"
+											},
+											{
+												"key": "x-ms-client-request-id",
+												"value": "",
+												"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"url": {
+											"raw": "https://api.videoindexer.ai/{{azure-video-location}}/accounts/{{azure-video-account-id}}/videos/:videoId/streaming-url",
+											"protocol": "https",
+											"host": [
+												"api",
+												"videoindexer",
+												"ai"
+											],
+											"path": [
+												"{{azure-video-location}}",
+												"accounts",
+												"{{azure-video-account-id}}",
+												"videos",
+												":videoId",
+												"streaming-url"
+											],
+											"query": [
+												{
+													"key": "accessToken",
+													"value": "{{azure-video-access-token}}",
+													"disabled": true
+												},
+												{
+													"key": "useProxy",
+													"value": "",
+													"description": "\nWrap the streaming endpoint with proxy. Required for delivering content to Safari browsers. <a href=https://azure.microsoft.com/en-us/blog/how-to-make-token-authorized-aes-encrypted-hls-stream-working-in-safari/ /a>",
+													"disabled": true
+												},
+												{
+													"key": "urlFormat",
+													"value": "SMOOTH_STREAMING_FORMAT",
+													"description": "Streaming URL format.. Allowed values: SMOOTH_STREAMING_FORMAT / MPEG_DASH / HLS_V4 / HLS_V3",
+													"disabled": true
+												},
+												{
+													"key": "tokenLifetimeInMinutes",
+													"value": "",
+													"description": "Format - int32. Streaming URL token lifetime in minutes. Value must be positive. Default is 60 minutes",
+													"disabled": true
+												}
+											],
+											"variable": [
+												{
+													"key": "videoId",
+													"value": "e2228a52d9"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "upload",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Ocp-Apim-Subscription-Key",
+												"value": "{{azure-video-subscription-key}}",
+												"type": "text"
+											},
+											{
+												"key": "x-ms-client-request-id",
+												"value": "",
+												"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "",
+													"type": "file",
+													"src": "/C:/Users/jfoster/Downloads/Recording.m4a"
+												}
+											]
+										},
+										"url": {
+											"raw": "https://api.videoindexer.ai/{{azure-video-location}}/accounts/{{azure-video-account-id}}/videos?name=test&privacy=Private&description=test&language=en-US&streamingPreset=Default&sendSuccessEmail=true&fileName",
+											"protocol": "https",
+											"host": [
+												"api",
+												"videoindexer",
+												"ai"
+											],
+											"path": [
+												"{{azure-video-location}}",
+												"accounts",
+												"{{azure-video-account-id}}",
+												"videos"
+											],
+											"query": [
+												{
+													"key": "accessToken",
+													"value": "{{azure-video-access-token}}",
+													"disabled": true
+												},
+												{
+													"key": "name",
+													"value": "test",
+													"description": "The video name"
+												},
+												{
+													"key": "privacy",
+													"value": "Private",
+													"description": "The video privacy mode. Allowed values: Private / Public"
+												},
+												{
+													"key": "priority",
+													"value": "High",
+													"description": "Index priority, can be used in paid regions only. Allowed values: Low / Normal / High",
+													"disabled": true
+												},
+												{
+													"key": "description",
+													"value": "test",
+													"description": "The video description."
+												},
+												{
+													"key": "partition",
+													"value": "",
+													"description": "A partition to partition videos by (used for searching a specific partition)",
+													"disabled": true
+												},
+												{
+													"key": "externalId",
+													"value": "",
+													"description": "An external id to associate with the video (can be searched for later).",
+													"disabled": true
+												},
+												{
+													"key": "externalUrl",
+													"value": "",
+													"description": "Format - uri. An external URL to associate with the video (can be retrieved later)",
+													"disabled": true
+												},
+												{
+													"key": "callbackUrl",
+													"value": "",
+													"description": "Format - uri. A url to send notifications to (POST). These are the supported notifications:\n\nVideo indexing completed: 2 additional query string parameters will be added to the url: id and state.\n\nFor example, if the callback url is 'https://test.com/notifyme?projectName=MyProject', the notification will be sent to 'https://test.com/notifyme?projectName=MyProject&id=12345abcde&state=Processed'.\n\nA face was identified (after the face was trained in another video): 4 additional query string parameters will be added to the url: id, faceId, knownPersonId and personName.\n\nFor example, if the callback url is 'https://test.com/notifyme?projectName=MyProject', the notification will be sent to 'https://test.com/notifyme?projectName=MyProject&id=12345abcde&faceId=1234&knownPersonId=B689EC08-FAB6-497A-A727-DA7285DBD436&personName=JohnSmith'.",
+													"disabled": true
+												},
+												{
+													"key": "metadata",
+													"value": "",
+													"description": "Metadata to associate with the video (will be returned in queries).",
+													"disabled": true
+												},
+												{
+													"key": "language",
+													"value": "en-US",
+													"description": "The language of the video, to be used when generating the transcript: Auto-detect single language - 'auto', Auto-detect multi language (preview) - 'multi'.. Supported languages: Chinese (Simplified): zh-Hans, English United Kingdom: en-GB, English Australia: en-AU, English United States: en-US, Spanish: es-ES, Spanish (Mexico): es-MX, Finnish: fi-FI, French (Canada): fr-CA, French: fr-FR, Arabic (Saudi Arabia): ar-SA, Arabic Syrian Arab Republic: ar-SY, Arabic (Palestinian Authority): ar-PS, Arabic (Qatar): ar-QA, Arabic Egypt: ar-EG, Arabic Modern Standard (Bahrain): ar-BH, Arabic (Oman): ar-OM, Arabic (Lebanon): ar-LB, Arabic (United Arab Emirates): ar-AE, Arabic (Kuwait): ar-KW, Arabic (Jordan): ar-JO, Arabic (Iraq): ar-IQ, Arabic (Israel): ar-IL, Danish: da-DK, German: de-DE, Czech: cs-CZ, Dutch: nl-NL, Norwegian: nb-NO, Italian: it-IT, Japanese: ja-JP, Hindi: hi-IN, Korean: ko-KR, Turkish: tr-TR, Thai: th-TH, Russian: ru-RU, Portuguese: pt-BR, Polish: pl-PL, Swedish: sv-SE, Chinese (Cantonese, Traditional): zh-HK."
+												},
+												{
+													"key": "videoUrl",
+													"value": "",
+													"description": "Format - uri. A public url of the video/audio file (url encoded). It is recommended to use readonly urls (e.g. when using Azure Storage SAS urls). If not specified, the file should be passed as a multipart/form body content.",
+													"disabled": true
+												},
+												{
+													"key": "indexingPreset",
+													"value": "",
+													"description": "The indexing preset to use. Allowed values: Default / AudioOnly / VideoOnly / BasicAudio / Advanced / AdvancedAudio / AdvancedVideo",
+													"disabled": true
+												},
+												{
+													"key": "streamingPreset",
+													"value": "Default",
+													"description": "The streaming preset to use. Allowed values: NoStreaming / Default / SingleBitrate / AdaptiveBitrate"
+												},
+												{
+													"key": "linguisticModelId",
+													"value": "",
+													"description": "Linguistic model id as received by 'create linguistic model' call",
+													"disabled": true
+												},
+												{
+													"key": "personModelId",
+													"value": "",
+													"description": "Faces will be identified against the provided person model.",
+													"disabled": true
+												},
+												{
+													"key": "animationModelId",
+													"value": "",
+													"description": "Animations will be identified against the provided animation model.",
+													"disabled": true
+												},
+												{
+													"key": "sendSuccessEmail",
+													"value": "true",
+													"description": "Indicates whether to send a success mail once video was succesfully indexed"
+												},
+												{
+													"key": "assetId",
+													"value": "",
+													"description": "Azure media services asset id. Used to index from existing assets in your connected Azure media services account. (Paid only)",
+													"disabled": true
+												},
+												{
+													"key": "brandsCategories",
+													"value": "",
+													"description": "List of brands categories delimited by comma. Azure Video Analyzer for Media will only take these categories in to account when indexing. If not specified all brands will be used.",
+													"disabled": true
+												},
+												{
+													"key": "fileName",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "access-token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"postman.setEnvironmentVariable(\"azure-video-access-token\", responseBody.replaceAll('\"', \"\"));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Ocp-Apim-Subscription-Key",
+										"value": "{{azure-video-subscription-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-ms-client-request-id",
+										"value": "",
+										"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "https://api.videoindexer.ai/auth/{{azure-video-location}}/accounts/{{azure-video-account-id}}/accessToken?allowEdit=true",
+									"protocol": "https",
+									"host": [
+										"api",
+										"videoindexer",
+										"ai"
+									],
+									"path": [
+										"auth",
+										"{{azure-video-location}}",
+										"accounts",
+										"{{azure-video-account-id}}",
+										"accessToken"
+									],
+									"query": [
+										{
+											"key": "allowEdit",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "access-token-user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"postman.setEnvironmentVariable(\"azure-video-access-token\", responseBody.replaceAll('\"', \"\"));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Ocp-Apim-Subscription-Key",
+										"value": "{{azure-video-subscription-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-ms-client-request-id",
+										"value": "",
+										"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "https://api.videoindexer.ai/auth/{{azure-video-location}}/users/me/accessToken?allowEdit=true",
+									"protocol": "https",
+									"host": [
+										"api",
+										"videoindexer",
+										"ai"
+									],
+									"path": [
+										"auth",
+										"{{azure-video-location}}",
+										"users",
+										"me",
+										"accessToken"
+									],
+									"query": [
+										{
+											"key": "allowEdit",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "access-token-with-permission",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"postman.setEnvironmentVariable(\"azure-video-access-token\", responseBody.replaceAll('\"', \"\"));"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Ocp-Apim-Subscription-Key",
+										"value": "{{azure-video-subscription-key}}",
+										"type": "text"
+									},
+									{
+										"key": "x-ms-client-request-id",
+										"value": "",
+										"description": "\nFormat - uuid. A globally unique identifier (GUID) for the request which can be sent by client for instrumentation purposes. The server makes sure all logs associated with handling the request can be linked to the client request id so a client can provide this request id in support tickets so support engineers could find the logs linked to this particular request, so avoid using the same request id for different requests, including in retry scenarios.",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "https://api.videoindexer.ai/auth/{{azure-video-location}}/accounts/{{azure-video-account-id}}/accessTokenWithPermission?permission=Contributor",
+									"protocol": "https",
+									"host": [
+										"api",
+										"videoindexer",
+										"ai"
+									],
+									"path": [
+										"auth",
+										"{{azure-video-location}}",
+										"accounts",
+										"{{azure-video-account-id}}",
+										"accessTokenWithPermission"
+									],
+									"query": [
+										{
+											"key": "permission",
+											"value": "Contributor",
+											"description": "The requested permission. Allowed values: Reader (allows reading content) / Contributor (allows modifying content) / MyAccessAdministrator (allows managing the acting user's permission) / Owner (allows managing permissions and modifying content)"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{azure-video-access-token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "api-editor",
 			"item": [
 				{
@@ -253,7 +1000,7 @@
 									]
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/upload",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/storage/upload",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -261,6 +1008,7 @@
 									"port": "{{port}}{{root-path}}",
 									"path": [
 										"azure",
+										"storage",
 										"upload"
 									]
 								}
@@ -293,7 +1041,7 @@
 									]
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/containers/:name",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/storage/containers/:name",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -301,6 +1049,7 @@
 									"port": "{{port}}{{root-path}}",
 									"path": [
 										"azure",
+										"storage",
 										"containers",
 										":name"
 									],
@@ -320,7 +1069,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/download?file=test.txt",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/storage/download?file=test.txt",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -328,6 +1077,7 @@
 									"port": "{{port}}{{root-path}}",
 									"path": [
 										"azure",
+										"storage",
 										"download"
 									],
 									"query": [
@@ -371,15 +1121,1418 @@
 									]
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/cognitive/transcribe",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/cognitive/services/transcribe",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{port}}{{root-path}}",
 									"path": [
+										"azure",
 										"cognitive",
+										"services",
 										"transcribe"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "video-analyzer",
+					"item": [
+						{
+							"name": "videos",
+							"item": [
+								{
+									"name": "list",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/video/analyzer/videos",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"azure",
+												"video",
+												"analyzer",
+												"videos"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "access-token",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/azure/video/analyzer/access-token",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"azure",
+										"video",
+										"analyzer",
+										"access-token"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "admin",
+					"item": [
+						{
+							"name": "dataSources",
+							"item": [
+								{
+									"name": "data/sources",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "contentReferences",
+							"item": [
+								{
+									"name": "content/references",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source/:uid",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references",
+												":source",
+												":uid"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": null
+												},
+												{
+													"key": "uid",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source/:uid",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references",
+												":source",
+												":uid"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": null
+												},
+												{
+													"key": "uid",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source/:uid",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references",
+												":source",
+												":uid"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": null
+												},
+												{
+													"key": "uid",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "dataSourceTypes",
+							"item": [
+								{
+									"name": "data/source/types",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"source",
+												"types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/source/types/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"source",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/source/types",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"source",
+												"types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/source/types/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"source",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/source/types/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"source",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "licenses",
+							"item": [
+								{
+									"name": "licenses",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "licenses",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "licenses/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "schedules",
+							"item": [
+								{
+									"name": "schedules",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "users",
+							"item": [
+								{
+									"name": "users",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "roles",
+							"item": [
+								{
+									"name": "roles",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "claims",
+							"item": [
+								{
+									"name": "claims",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "kafka",
+					"item": [
+						{
+							"name": "topics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/kafka/topics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"kafka",
+										"topics"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "topics",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": \"test3\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/kafka/topics/test/1",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"kafka",
+										"topics",
+										"test",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "topics/:topic",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/kafka/topics/:topic",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"kafka",
+										"topics",
+										":topic"
+									],
+									"variable": [
+										{
+											"key": "topic",
+											"value": "test"
+										}
 									]
 								}
 							},
@@ -430,6 +2583,380 @@
 		{
 			"name": "app-editor",
 			"item": []
+		},
+		{
+			"name": "temp",
+			"item": []
+		},
+		{
+			"name": "kafka",
+			"item": [
+				{
+					"name": "topics",
+					"item": [
+						{
+							"name": "topics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"topics"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "topics/:topic",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"topics",
+										":topic"
+									],
+									"variable": [
+										{
+											"key": "topic",
+											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "topic/:topic",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"value\": \"api-test\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"topics",
+										":topic"
+									],
+									"variable": [
+										{
+											"key": "topic",
+											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "topics/:topic/partitions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic/partitions",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"topics",
+										":topic",
+										"partitions"
+									],
+									"variable": [
+										{
+											"key": "topic",
+											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "topics/:topic/partitions/:id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic/partitions/:id",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"topics",
+										":topic",
+										"partitions",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "topic",
+											"value": "test"
+										},
+										{
+											"key": "id",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "consumers",
+					"item": [
+						{
+							"name": "consumers",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group?auto.offset.reset=earliest&auto.commit.enable=false",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group"
+									],
+									"query": [
+										{
+											"key": "auto.offset.reset",
+											"value": "earliest"
+										},
+										{
+											"key": "auto.commit.enable",
+											"value": "false"
+										}
+									],
+									"variable": [
+										{
+											"key": "group",
+											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "brokers",
+					"item": [
+						{
+							"name": "brokers",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/brokers",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"brokers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "clusters",
+					"item": [
+						{
+							"name": "clusters",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"v3",
+										"clusters"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "clusters/:id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"v3",
+										"clusters",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5cp01VYcTEuiVAWvNM11Dg"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "clusters/:id/topics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id/topics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"v3",
+										"clusters",
+										":id",
+										"topics"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5cp01VYcTEuiVAWvNM11Dg"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "clusters/:id/topics/:topic",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id/topics/:topic",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"v3",
+										"clusters",
+										":id",
+										"topics",
+										":topic"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5cp01VYcTEuiVAWvNM11Dg"
+										},
+										{
+											"key": "topic",
+											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "clusters/:id/topics",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"topic_name\": \"topic-1\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id/topics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"v3",
+										"clusters",
+										":id",
+										"topics"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5cp01VYcTEuiVAWvNM11Dg"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
 		}
 	],
 	"auth": {
