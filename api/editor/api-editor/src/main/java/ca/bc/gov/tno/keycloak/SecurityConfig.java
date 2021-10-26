@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = KeycloakSecurityComponents.class)
+@EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   // Submits the KeycloakAuthenticationProvider to the AuthenticationManager
   @Autowired
@@ -46,9 +48,7 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     super.configure(http);
-    http.authorizeRequests().antMatchers("/**").permitAll();
-    // http.authorizeRequests().antMatchers("/test/user").hasAnyRole("app-user");
-    // http.authorizeRequests().antMatchers("/test/admin").hasAnyRole("app-admin");
+    http.authorizeRequests().antMatchers("/admin/**").hasAnyRole("administrator");
     // http.authorizeRequests().antMatchers("/test/all-user").hasAnyRole("app-user",
     // "app-admin");
     http.authorizeRequests().anyRequest().permitAll();

@@ -1,6 +1,7 @@
 package ca.bc.gov.tno.dal.db.entities;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,23 +21,38 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @Entity
 @Table(name = "\"DataSourceType\"")
 public class DataSourceType extends AuditColumns {
+  /**
+   * Primary key to identify the data source type.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)
   private int id;
 
+  /**
+   * A unique name to identify the data source type.
+   */
   @Column(name = "\"name\"", nullable = false)
   private String name;
 
+  /**
+   * A description of the data source type.
+   */
   @Column(name = "\"description\"")
   private String description;
 
+  /**
+   * Whether this record is enabled or disabled.
+   */
   @Column(name = "\"isEnabled\"", nullable = false)
   private boolean isEnabled;
 
+  /**
+   * A collection of data sources of this type.
+   */
   @JsonBackReference
   @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
-  private Set<DataSource> dataSources;
+  private List<DataSource> dataSources = new ArrayList<>();
 
   /**
    * Creates a new instance of a DataSourceType object.
@@ -114,17 +130,10 @@ public class DataSourceType extends AuditColumns {
   }
 
   /**
-   * @return Set{DataSource} return the dataSources
+   * @return List{DataSource} return the dataSources
    */
-  public Set<DataSource> getDataSources() {
+  public List<DataSource> getDataSources() {
     return dataSources;
-  }
-
-  /**
-   * @param dataSources the dataSources to set
-   */
-  public void setDataSources(Set<DataSource> dataSources) {
-    this.dataSources = dataSources;
   }
 
 }

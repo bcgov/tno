@@ -2,6 +2,7 @@ package ca.bc.gov.tno.dal.db.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,13 +16,13 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
- * License class, provides a way to manage license information for data sources.
+ * Claim class, provides a way to manage claims.
  */
 @Entity
-@Table(name = "\"License\"")
-public class License extends AuditColumns {
+@Table(name = "\"Claim\"")
+public class Claim extends AuditColumns {
   /**
-   * Primary key to identify the license.
+   * Primary key to identify the claim.
    */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,13 +30,19 @@ public class License extends AuditColumns {
   private int id;
 
   /**
-   * A unique name to identify the license.
+   * A unique name to identify the claim.
    */
   @Column(name = "\"name\"", nullable = false)
   private String name;
 
   /**
-   * A description of the license.
+   * A unique key to identify the claim.
+   */
+  @Column(name = "\"key\"", nullable = false)
+  private UUID key;
+
+  /**
+   * A description of the claim.
    */
   @Column(name = "\"description\"")
   private String description;
@@ -47,38 +54,29 @@ public class License extends AuditColumns {
   private boolean isEnabled;
 
   /**
-   * The number of days content is allowed to be kept before it must be purged (0
-   * = forever).
-   */
-  @Column(name = "\"ttl\"", nullable = false)
-  private int ttl;
-
-  /**
-   * A collection of data sources that belong to this license.
+   * A collection of role claims that belong to this claim.
    */
   @JsonBackReference
-  @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
-  private List<DataSource> dataSources = new ArrayList<>();
+  @OneToMany(mappedBy = "claim", fetch = FetchType.LAZY)
+  private List<RoleClaim> roleClaims = new ArrayList<>();
 
   /**
-   * Creates a new instance of a License object.
+   * Creates a new instance of a Claim object.
    */
-  public License() {
+  public Claim() {
 
   }
 
   /**
-   * Creates a new instance of a License object, initializes with specified
+   * Creates a new instance of a Claim object, initializes with specified
    * parameters.
    * 
    * @param id   Primary key
    * @param name Unique name
-   * @param ttl  Time to live in days
    */
-  public License(int id, String name, int ttl) {
+  public Claim(int id, String name) {
     this.id = id;
     this.name = name;
-    this.ttl = ttl;
   }
 
   /**
@@ -86,13 +84,6 @@ public class License extends AuditColumns {
    */
   public int getId() {
     return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(int id) {
-    this.id = id;
   }
 
   /**
@@ -107,6 +98,20 @@ public class License extends AuditColumns {
    */
   public void setName(String name) {
     this.name = name;
+  }
+
+  /**
+   * @return UUID return the key
+   */
+  public UUID getKey() {
+    return key;
+  }
+
+  /**
+   * @param key the key to set
+   */
+  public void setKey(UUID key) {
+    this.key = key;
   }
 
   /**
@@ -138,24 +143,17 @@ public class License extends AuditColumns {
   }
 
   /**
-   * @return int return the ttl
+   * @param id the id to set
    */
-  public int getTtl() {
-    return ttl;
+  public void setId(int id) {
+    this.id = id;
   }
 
   /**
-   * @param ttl the ttl to set
+   * @param roleClaims the roleClaims to set
    */
-  public void setTtl(int ttl) {
-    this.ttl = ttl;
-  }
-
-  /**
-   * @return List{DataSource} return the dataSources
-   */
-  public List<DataSource> getDataSources() {
-    return dataSources;
+  public void setRoleClaims(List<RoleClaim> roleClaims) {
+    this.roleClaims = roleClaims;
   }
 
 }

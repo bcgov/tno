@@ -1,7 +1,9 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -29,41 +31,72 @@ import ca.bc.gov.tno.dal.db.converters.MonthsAttributeConverter;
 @Entity
 @Table(name = "\"Schedule\"")
 public class Schedule extends AuditColumns {
+  /**
+   * Primary key to identify the schedule.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)
   private int id;
 
+  /**
+   * A unique name to identify the schedule.
+   */
   @Column(name = "\"name\"", nullable = false)
   private String name;
 
+  /**
+   * A description of the schedule.
+   */
   @Column(name = "\"description\"")
   private String description;
 
+  /**
+   * Whether this record is enabled or disabled.
+   */
   @Column(name = "\"isEnabled\"", nullable = false)
   private boolean isEnabled;
 
+  /**
+   * The number of milliseconds the service should rest before running again.
+   */
   @Column(name = "\"delayMS\"", nullable = false)
   private int delayMS;
 
+  /**
+   * The date and time the service should begin running on. This is useful if a
+   * service should be delayed from running for a period of time.
+   */
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "\"runAt\"")
   private Date runAt;
 
+  /**
+   * Identify which week days the service should run.
+   */
   @Column(name = "\"runOnWeekDays\"", nullable = false)
   @Convert(converter = WeekDaysAttributeConverter.class)
   private EnumSet<WeekDays> runOnWeekDays;
 
+  /**
+   * Identify which months the service should run.
+   */
   @Column(name = "\"runOnMonths\"", nullable = false)
   @Convert(converter = MonthsAttributeConverter.class)
   private EnumSet<Months> runOnMonths;
 
+  /**
+   * Identify the day of the month the service should run.
+   */
   @Column(name = "\"dayOfMonth\"", nullable = false)
   private int dayOfMonth;
 
+  /**
+   * A collection of data sources that belong to this schedule.
+   */
   @JsonBackReference
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
-  private Set<DataSource> dataSources;
+  private List<DataSource> dataSources = new ArrayList<>();
 
   /**
    * Creates a new instance of a Schedule object.
@@ -211,17 +244,10 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return Set{DataSource} return the dataSources
+   * @return List{DataSource} return the dataSources
    */
-  public Set<DataSource> getDataSources() {
+  public List<DataSource> getDataSources() {
     return dataSources;
-  }
-
-  /**
-   * @param dataSources the dataSources to set
-   */
-  public void setDataSources(Set<DataSource> dataSources) {
-    this.dataSources = dataSources;
   }
 
 }

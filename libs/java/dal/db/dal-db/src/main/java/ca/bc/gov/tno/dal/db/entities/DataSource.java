@@ -25,51 +25,94 @@ import ca.bc.gov.tno.dal.db.converters.HashMapConverter;
 @Entity
 @Table(name = "\"DataSource\"")
 public class DataSource extends AuditColumns {
+  /**
+   * Primary key to identify the data source.
+   */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "\"id\"", nullable = false)
   private int id;
 
+  /**
+   * A unique name to identify the data source.
+   */
   @Column(name = "\"name\"", nullable = false)
   private String name;
 
+  /**
+   * A unique abbreviation to identify the data source. This is used in the
+   * content reference table.
+   */
   @Column(name = "\"abbr\"", nullable = false)
   private String abbr;
 
+  /**
+   * A description of the data source.
+   */
   @Column(name = "\"description\"")
   private String description;
 
+  /**
+   * Whether this record is enabled or disabled.
+   */
   @Column(name = "\"isEnabled\"", nullable = false)
   private boolean isEnabled;
 
+  /**
+   * Foreign key to the data source type.
+   */
   @Column(name = "\"typeId\"", nullable = false)
   private int typeId;
 
+  /**
+   * The data source type reference.
+   */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"typeId\"", insertable = false, updatable = false)
   private DataSourceType type;
 
+  /**
+   * Foreign key to the license.
+   */
   @Column(name = "\"licenseId\"", nullable = false)
   private int licenseId;
 
+  /**
+   * The license reference.
+   */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"licenseId\"", insertable = false, updatable = false)
   private License license;
 
+  /**
+   * Foreign key to the schedule.
+   */
   @Column(name = "\"scheduleId\"", nullable = false)
   private int scheduleId;
 
+  /**
+   * The schedule reference.
+   */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"scheduleId\"", insertable = false, updatable = false)
   private Schedule schedule;
 
+  /**
+   * The Kafka topic that content will be pushed into.
+   */
   @Column(name = "\"topic\"", nullable = false)
   private String topic;
 
+  /**
+   * The date and time this data source was successfully ingested on.
+   */
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "\"lastRanOn\"")
   private Date lastRanOn;
 
+  /**
+   * JSON configuration values for the ingestion services.
+   */
   @Convert(converter = HashMapConverter.class)
   @Column(name = "\"connection\"", nullable = false, columnDefinition = "json")
   private Map<String, Object> connection;

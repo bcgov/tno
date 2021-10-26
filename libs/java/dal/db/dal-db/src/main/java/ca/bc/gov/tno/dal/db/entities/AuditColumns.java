@@ -15,26 +15,49 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Source;
 import org.hibernate.annotations.SourceType;
 
+/**
+ * AuditColumns abstract class, provides standardized audit columns for entities
+ * in the DB.
+ */
 @MappedSuperclass
 public abstract class AuditColumns implements Serializable {
+    /**
+     * The uid that identifies the user who created the record.
+     */
     @Column(name = "\"createdById\"", nullable = false)
     private UUID createdById;
 
+    /**
+     * A name that identifies the user who created the record.
+     */
     @Column(name = "\"createdBy\"", nullable = false)
     private String createdBy;
 
+    /**
+     * When the record was created. Automatically set by the DB.
+     */
     @Source(SourceType.DB)
     @Generated(GenerationTime.ALWAYS)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "\"createdOn\"", nullable = false)
     private Date createdOn;
 
+    /**
+     * The uid that identifies the user who updated the record last.
+     */
     @Column(name = "\"updatedById\"", nullable = false)
     private UUID updatedById;
 
+    /**
+     * The name that identifies the user who updated the record last.
+     */
     @Column(name = "\"updatedBy\"", nullable = false)
     private String updatedBy;
 
+    /**
+     * When the record was last updated. Automatically set by the DB. Provides
+     * concurrency control to enforce optimistic concurrency.
+     */
     @Version
     @Source(SourceType.DB)
     @Generated(GenerationTime.ALWAYS)
@@ -78,13 +101,6 @@ public abstract class AuditColumns implements Serializable {
     }
 
     /**
-     * @param createdOn the createdOn to set
-     */
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    /**
      * @return UUID return the updatedById
      */
     public UUID getUpdatedById() {
@@ -117,13 +133,6 @@ public abstract class AuditColumns implements Serializable {
      */
     public Date getUpdatedOn() {
         return updatedOn;
-    }
-
-    /**
-     * @param updatedOn the updatedOn to set
-     */
-    public void setUpdatedOn(Date updatedOn) {
-        this.updatedOn = updatedOn;
     }
 
 }

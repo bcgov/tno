@@ -1,0 +1,61 @@
+package ca.bc.gov.tno.dal.db.services;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import ca.bc.gov.tno.auth.PrincipalHelper;
+import ca.bc.gov.tno.dal.db.entities.Role;
+import ca.bc.gov.tno.dal.db.repositories.IRoleRepository;
+import ca.bc.gov.tno.dal.db.services.interfaces.IRoleService;
+
+@Service
+public class RoleService implements IRoleService {
+
+  @Autowired
+  private IRoleRepository repository;
+
+  @Override
+  public List<Role> findAll() {
+    var roles = (List<Role>) repository.findAll();
+    return roles;
+  }
+
+  /**
+   * Find the role for the specified 'key'.
+   */
+  @Override
+  public Optional<Role> findById(Integer key) {
+    var reference = repository.findById(key);
+    return reference;
+  }
+
+  /**
+   * Add the role.
+   */
+  @Override
+  public Role add(Role entity) {
+    var result = repository.save(PrincipalHelper.addAudit(entity));
+    return result;
+  }
+
+  /**
+   * Update the role.
+   */
+  @Override
+  public Role update(Role entity) {
+    var result = repository.save(PrincipalHelper.updateAudit(entity));
+    return result;
+  }
+
+  /**
+   * Delete the role.
+   */
+  @Override
+  public void delete(Role entity) {
+    repository.delete(entity);
+  }
+
+}
