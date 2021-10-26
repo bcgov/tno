@@ -132,4 +132,12 @@ npm-down: ## Removes containers, images, volumes, for specified application (n=s
 npm-refresh: ## Removes and rebuilds containers, images, volumes, for specified application (n=service name).
 	@make npm-down; make build n=$(n); make up $(n);
 
+##############################################################################
+# Flyway Database Migration Commands
+##############################################################################
+
+db-update: ## Run the flyway database migration update
+	@echo "$(P) Run the flyway database migration update"
+	@cd libs/java/dal/db; make db-update;
+
 .PHONY: local
