@@ -16,6 +16,7 @@ services:
     volumes:
       - tno-zookeeper-data:/var/lib/zookeeper/data
       - tno-zookeeper-log:/var/lib/zookeeper/log
+      - tno-zookeeper-secrets:/etc/zookeeper/secrets
     networks:
       - tno
 
@@ -37,6 +38,25 @@ services:
       # - ${KAFKA_BROKER_REST_PORT:-50017}:8090
     volumes:
       - tno-broker-data:/var/lib/kafka/data
+      - tno-broker-secrets:/etc/kafka/secrets
+    networks:
+      - tno
+
+  schema-registry:
+    image: tno:kafka-schema-registry
+    restart: on-failure:1
+    hostname: schema-registry
+    container_name: tno-schema-registry
+    build:
+      context: db/kafka/schema-registry
+    env_file:
+      - db/kafka/schema-registry/.env
+    depends_on:
+      - broker
+    ports:
+      - ${KAFKA_SCHMEA_REGISTRY_PORT:-50013}:8081
+    volumes:
+      - tno-schema-secrets:/etc/schema-registry/secrets
     networks:
       - tno
 
@@ -51,8 +71,48 @@ services:
       - db/kafka/rest-proxy/.env
     depends_on:
       - broker
+      - schema-registry
     ports:
       - ${KAFKA_REST_PROXY_PORT:-50018}:8082
+    networks:
+      - tno
+
+  connect:
+    image: tno:kafka-connect
+    restart: on-failure:1
+    hostname: connect
+    container_name: tno-connect
+    build:
+      context: db/kafka/connect
+    env_file:
+      - db/kafka/connect/.env
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - ${KAFKA_CONNECT_PORT:-50014}:8083
+    volumes:
+      - ./db/kafka/connect/jars:/etc/kafka-connect/jars
+      - tno-connect-secrets:/etc/kafka-connect/secrets
+      - tno-connect-data:/var/lib/kafka/data
+      - tno-broker-secrets:/etc/kafka/secrets
+    networks:
+      - tno
+
+  ksqldb:
+    image: tno:kafka-ksqldb
+    restart: on-failure:1
+    hostname: ksqldb
+    container_name: tno-ksqldb
+    build:
+      context: db/kafka/ksqldb
+    env_file:
+      - db/kafka/ksqldb/.env
+    depends_on:
+      - broker
+      - connect
+    ports:
+      - ${KAFKA_KSQLDB_PORT:-50016}:8088
     networks:
       - tno
 
@@ -74,5 +134,15 @@ volumes:
     name: tno-zookeeper-data
   tno-zookeeper-log:
     name: tno-zookeeper-log
+  tno-zookeeper-secrets:
+    name: tno-zookeeper-secrets
   tno-broker-data:
     name: tno-broker-data
+  tno-broker-secrets:
+    name: tno-broker-secrets
+  tno-connect-data:
+    name: tno-connect-data
+  tno-connect-secrets:
+    name: tno-connect-secrets
+  tno-schema-secrets:
+    name: tno-schema-secrets

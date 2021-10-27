@@ -22,7 +22,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
 # Copy the settings.xml configuration file so that the local repository and Maven Central connection will work.
-COPY maven-settings.xml /home/vscode/.m2/settings.xml
-RUN mkdir -p /home/vscode/.m2/repository
-RUN sudo chmod 777 /home/vscode/.m2/repository
+# COPY maven-settings.xml /home/vscode/.m2/settings.xml
+# RUN mkdir -p /home/vscode/.m2/repository
+# RUN sudo chmod 777 /home/vscode/.m2/repository
 

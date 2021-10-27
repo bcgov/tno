@@ -28,7 +28,8 @@ services:
     ports:
       - ${DATABASE_PORT:-50002}:5432
     volumes:
-      - tno-database-data:/var/lib/postgressql/data
+      - tno-database-data:/var/lib/postgresql/data
+      - tno-database-sdata:/var/lib/postgressql/data
       - ./db/postgres/scripts:/docker-entrypoint-initdb.d
     networks:
       - tno
@@ -134,6 +135,8 @@ services:
 volumes:
   tno-database-data:
     name: tno-database-data
+  tno-database-sdata:
+    name: tno-database-sdata
   tno-elastic-data:
     name: tno-elastic-data
   tno-app-editor-node-cache:
