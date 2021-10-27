@@ -1,0 +1,50 @@
+@import './_variables';
+@import './_colors';
+
+:export {
+  mapfilterHeight: $mapfilter-height;
+  footerHeight: $footer-height;
+  headerHeight: $header-height;
+
+  primaryColor: $primary-color;
+  primaryLightColor: $primary-light-color;
+  secondaryVariantColor: $secondary-variant-color;
+  lightVariantColor: $light-variant-color;
+  darkVariantColor: $dark-variant-color;
+  textColor: $text-color;
+  formBackground: $form-background-color;
+  dropdownBackgroundColor: $dropdown-background-color;
+  accentColor: $accent-color;
+  lightAccentColor: $light-accent-color;
+  tableColor: $table-color;
+  tableHeaderColor: $table-header-color;
+  sresIconColor: $sres-icon-color;
+  dangerColor: $danger-color;
+  lightDangerColor: $light-danger-color;
+  iconLightColor: $icon-light-color;
+  activeColor: $active-color;
+  completedColor: $completed-color;
+  filterBackgroundColor: $filter-background-color;
+  slideOutBlue: $slide-out-blue;
+
+  primary: $bs-primary;
+  secondary: $bs-secondary;
+  success: $bs-success;
+  info: $bs-info;
+  warning: $bs-warning;
+  danger: $bs-danger;
+  light: $bs-light;
+  dark: $bs-dark;
+
+  primaryRgb: $bs-primary-rgb;
+  secondaryRgb: $bs-secondary-rgb;
+  successRgb: $bs-success-rgb;
+  infoRgb: $bs-info-rgb;
+  warningRgb: $bs-warning-rgb;
+  dangerRgb: $bs-danger-rgb;
+  lightRgb: $bs-light-rgb;
+  darkRgb: $bs-dark-rgb;
+  whiteRgb: $bs-white-rgb;
+  blackRgb: $bs-black-rgb;
+  textOpacity: $bs-text-opacity;
+}

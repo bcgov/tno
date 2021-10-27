@@ -7,7 +7,7 @@ import { IKeycloak, IKeycloakUser } from '.';
  */
 export function useKeycloakWrapper(): IKeycloak {
   const { keycloak } = useKeycloak();
-  const userInfo = keycloak?.userInfo as IKeycloakUser;
+  const token = keycloak.tokenParsed as IKeycloakUser;
 
   /**
    * Determine if the user has the specified 'claim'
@@ -18,8 +18,8 @@ export function useKeycloakWrapper(): IKeycloak {
       claim !== undefined &&
       claim !== null &&
       (typeof claim === 'string'
-        ? userInfo?.roles?.includes(claim)
-        : claim.some((c) => userInfo?.roles?.includes(c)))
+        ? token?.roles?.includes(claim)
+        : claim.some((c) => token?.roles?.includes(c)))
     );
   };
 
@@ -32,17 +32,25 @@ export function useKeycloakWrapper(): IKeycloak {
       role !== undefined &&
       role !== null &&
       (typeof role === 'string'
-        ? userInfo?.groups?.includes(role)
-        : role.some((r) => userInfo?.groups?.includes(r)))
+        ? token?.groups?.includes(role)
+        : role.some((r) => token?.groups?.includes(r)))
     );
+  };
+
+  /**
+   * Extract the display name from the token.
+   * @returns User's display name.
+   */
+  const getDisplayName = () => {
+    return token?.display_name ?? '';
   };
 
   return {
     instance: keycloak,
     authenticated: keycloak.authenticated,
-    userInfo: userInfo,
-    hasRole: hasRole,
-    hasClaim: hasClaim,
+    getDisplayName,
+    hasRole,
+    hasClaim,
   };
 }
 

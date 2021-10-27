@@ -1,5 +1,5 @@
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { Layout } from 'components/layout';
+import { Layout, Loading } from 'components';
 import { AppRouter } from 'components/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
@@ -19,21 +19,18 @@ function App() {
       authClient={keycloak}
       LoadingComponent={
         <Layout>
-          <p>Loading</p>
+          <Loading />
         </Layout>
       }
       onEvent={keycloakEventHandler(keycloak)}
     >
-      <Layout>
+      <Layout authReady={true}>
         <AppRouter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
       </Layout>
     </ReactKeycloakProvider>
   ) : (
     <Layout>
-      <p>Loading</p>
+      <Loading />
     </Layout>
   );
 }

@@ -4,6 +4,10 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import { PrivateRoute } from '.';
 
+/**
+ * AppRouter provides a SPA router to manage routes.
+ * @returns AppRouter component.
+ */
 export const AppRouter = () => {
   return (
     <BrowserRouter basename={process.env.PUBLIC_URL}>

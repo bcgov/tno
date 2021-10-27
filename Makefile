@@ -123,20 +123,20 @@ kafka-remove: ## Remove the local kafka containers
 # Node Container Management
 ##############################################################################
 
-npm-down: ## Removes containers, images, volumes, for specified application (n=service name).
+npm-down: ## Removes node containers, images, volumes, for specified application (n=service name).
 	@echo "$(P) Removing node containers and volumes."
 	@docker-compose stop $(n)
 	@docker-compose rm -f -v -s $(n)
 	@docker volume rm -f tno-$(n)-node-cache
 
-npm-refresh: ## Removes and rebuilds containers, images, volumes, for specified application (n=service name).
-	@make npm-down; make build n=$(n); make up $(n);
+npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
+	@make npm-down n=api-editor; make build n=api-editor; make up n=api-editor;
 
 ##############################################################################
 # Flyway Database Migration Commands
 ##############################################################################
 
-db-update: ## Run the flyway database migration update
+db-update: ## Run the flyway database migration update (requires maven to be installed).
 	@echo "$(P) Run the flyway database migration update"
 	@cd libs/java/dal/db; make db-update;
 

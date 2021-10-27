@@ -276,18 +276,6 @@ KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL=http://schema-registry:8081
     echo "./db/kafka/broker/.env created"
 fi
 
-# Kafka rest-proxy
-if test -f "./db/kafka/rest-proxy/.env"; then
-    echo "./db/kafka/rest-proxy/.env exists"
-else
-echo \
-"KAFKA_REST_HOST_NAME=rest-proxy
-KAFKA_REST_BOOTSTRAP_SERVERS='broker:29092'
-KAFKA_REST_LISTENERS='http://0.0.0.0:8082'
-# KAFKA_REST_SCHEMA_REGISTRY_URL='http://schema-registry:8081'" >> ./db/kafka/rest-proxy/.env
-    echo "./db/kafka/rest-proxy/.env created"
-fi
-
 # Kafka schema-registry
 if test -f "./db/kafka/schema-registry/.env"; then
     echo "./db/kafka/schema-registry/.env exists"
@@ -297,6 +285,18 @@ echo \
 SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS='broker:29092'
 SCHEMA_REGISTRY_LISTENERS=http://0.0.0.0:8081" >> ./db/kafka/schema-registry/.env
     echo "./db/kafka/schema-registry/.env created"
+fi
+
+# Kafka rest-proxy
+if test -f "./db/kafka/rest-proxy/.env"; then
+    echo "./db/kafka/rest-proxy/.env exists"
+else
+echo \
+"KAFKA_REST_HOST_NAME=rest-proxy
+KAFKA_REST_BOOTSTRAP_SERVERS='broker:29092'
+KAFKA_REST_LISTENERS='http://0.0.0.0:8082'
+KAFKA_REST_SCHEMA_REGISTRY_URL='http://schema-registry:8081'" >> ./db/kafka/rest-proxy/.env
+    echo "./db/kafka/rest-proxy/.env created"
 fi
 
 # Kafka connect

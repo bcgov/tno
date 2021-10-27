@@ -7,10 +7,8 @@ import { store } from 'store';
 import { ThemeProvider } from 'styled-components';
 
 import App from './App';
+import css from './css/_variables.module.scss';
 import * as serviceWorker from './serviceWorker';
-
-// eslint-disable-next-line import/no-webpack-loader-syntax
-const css = require('sass-extract-loader?{"plugins": ["sass-extract-js"]}!./css/_variables.scss');
 
 const Index = () => {
   return (

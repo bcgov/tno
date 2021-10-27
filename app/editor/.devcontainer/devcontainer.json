@@ -24,7 +24,8 @@
 		"dbaeumer.vscode-eslint",
 		"esbenp.prettier-vscode",
 		"rvest.vs-code-prettier-eslint",
-		"formulahendry.auto-close-tag"
+		"formulahendry.auto-close-tag",
+		"cssho.vscode-svgviewer"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
