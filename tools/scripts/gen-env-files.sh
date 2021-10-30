@@ -219,6 +219,18 @@ REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://localhost:50000/auth" >> ./app/editor/
     echo "./app/editor/.env created"
 fi
 
+# APP - Subscriber
+if test -f "./app/subscriber/.env"; then
+    echo "./app/subscriber/.env exists"
+else
+echo \
+"NODE_ENV=development
+CHOKIDAR_USEPOLLING=true
+#API_URL=http://api-subscriber:8080/
+REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://localhost:50000/auth" >> ./app/subscriber/.env
+    echo "./app/subscriber/.env created"
+fi
+
 ###########################################################################
 # Kafka Configuration
 ###########################################################################

@@ -59,6 +59,11 @@ stop: ## Stops the local containers or the one specified (n=service name)
 	@echo "$(P) Stopping containers..."
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml stop $(n)
 
+restart: ## Stop and start the local contains or the one specified (n=servic ename)
+	@echo "$(P) Restarting containers..."
+	@make stop n=$(n)
+	@make up n=$(n)
+
 build: ## Builds the local containers or the one specified (n=service name)
 	@echo "$(P) Building images..."
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml build --no-cache $(n)
@@ -130,7 +135,7 @@ npm-down: ## Removes node containers, images, volumes, for specified application
 	@docker volume rm -f tno-$(n)-node-cache
 
 npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
-	@make npm-down n=api-editor; make build n=api-editor; make up n=api-editor;
+	@make npm-down n=app-editor; make build n=app-editor; make up n=app-editor;
 
 ##############################################################################
 # Flyway Database Migration Commands
