@@ -1,10 +1,15 @@
 debug: false
 
-logging:
-  level:
-    org:
-      springframework:
-        context: DEBUG
+server:
+  port: ${env.SERVER_PORT:8080}
+
+# logging:
+#   level:
+#     root: ERROR
+#     ca.bc.gov.tno: DEBUG
+#     org:
+#       springframework:
+#         context: DEBUG
 
 spring:
   main:
@@ -32,3 +37,19 @@ spring:
       ddl-auto: ${env.JPA_DDL_AUTO:none}
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+kafka:
+  bootstrap-servers: ${env.KAFKA_BOOTSTRAP_SERVERS}
+  consumer:
+    group-id: ${env.KAFKA_GROUP_ID}
+    topics: ${env.KAFKA_CONSUMER_TOPICS}
+    poll-delay: ${env.KAFKA_POLL_DELAY:5000}
+    enable-auto-commit: ${env.ENABLE_AUTO_COMMIT:false}
+    auto-offset-reset: ${env.AUTO_OFFSET_RESET:earliest}
+  producer:
+    client-id: ${env.KAFKA_CLIENT_ID}
+    topic: ${env.KAFKA_PRODUCER_TOPIC}
+
+nlp:
+  max-failed-attempts: ${env.MAX_FAILED_ATTEMPTS:3}
+  failed-delay: ${env.FAILED_DELAY:5000}

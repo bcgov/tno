@@ -38,7 +38,8 @@
 		"dotjoshjohnson.xml",
 		"dhruv.maven-dependency-explorer",
 		"pflannery.vscode-versionlens",
-		"youmaycallmev.vscode-java-saber"
+		"youmaycallmev.vscode-java-saber",
+    "streetsidesoftware.code-spell-checker"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

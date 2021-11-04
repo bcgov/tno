@@ -26,7 +26,8 @@
 		"rvest.vs-code-prettier-eslint",
 		"formulahendry.auto-close-tag",
 		"cssho.vscode-svgviewer",
-		"jpoissonnier.vscode-styled-components"
+		"jpoissonnier.vscode-styled-components",
+    "streetsidesoftware.code-spell-checker"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

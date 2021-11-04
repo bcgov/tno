@@ -1,0 +1,27 @@
+version: '3.5'
+
+services:
+  ####################### NLP Service #######################
+  nlp:
+    image: tno:nlp
+    restart: on-failure:1
+    container_name: tno-nlp
+    build:
+      context: services/nlp
+    env_file:
+      - services/nlp/src/main/resources/.env
+    ports:
+      - ${NLP_PORT:-50052}:8080
+    volumes:
+      - ./services/nlp/src/main/resources/models:/app/classes/models
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# To inspect healthcheck
+# docker inspect --format='{{json .State.Health}}' tno-nlp

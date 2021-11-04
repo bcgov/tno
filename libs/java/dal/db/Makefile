@@ -73,6 +73,14 @@ release-staging: ## Release the staging repository
 	@echo "$(P) Release the staging repository"
 	@./scripts/release-staging-repo.sh
 
+drop-staging: ## Drop the staging repository
+	@echo "$(P) Drop the staging repository"
+	@./scripts/drop-staging-repo.sh
+
+deploy-release: ## Build and deploy the package to Maven Central and release it
+	@echo "$(P) Build and deploy package to Maven Central"
+	@./scripts/deploy-release.sh
+
 ##############################################################################
 # Flyway Database Migration Commands
 ##############################################################################
