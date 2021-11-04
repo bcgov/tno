@@ -44,11 +44,11 @@ package: ## Clean and build a package.
 purge: ## Purge local repository.
 	@echo "$(P) Purge local repository"
 	@mvn dependency:purge-local-repository
-	
+
 install: ## Force install to fetch dependencies from remote repository.
 	@echo "$(P) Force install to fetch dependencies from remote repository."
 	@mvn clean install -U -X
-	
+
 run: ## Manually run the test project.
 	@echo "$(P) Manually run the test project."
 	@cd dal-db-test; mvn spring-boot:run

@@ -6,7 +6,7 @@
 
   <groupId>ca.bc.gov.tno</groupId>
   <artifactId>dal-db</artifactId>
-  <version>0.0.8-alpha</version>
+  <version>0.0.9-alpha</version>
 
   <name>dal-db</name>
   <description>TNO Database Data Access Layer (DAL)</description>
