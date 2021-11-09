@@ -15,20 +15,21 @@ spring:
       enabled: false
       
   datasource:
-    url: ${env.DB_URL:jdbc:postgresql://database:5432/tno}
-    username: ${env.DB_USERNAME}
-    password: ${env.DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://database:5432/tno}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   flyway:
-    enabled: ${env.DB_MIGRATION_ENABLED:false}
-    validate-on-migrate: ${env.DB_VALIDATE_MIGRATION:true}
+    enabled: ${DB_MIGRATION_ENABLED:false}
+    validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
 
   jpa:
-    show-sql: ${env.JPA_SHOW_SQL:true}
+    show-sql: ${JPA_SHOW_SQL:true}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL92Dialect
+        current_session_context_class: thread
     hibernate:
-      ddl-auto: ${env.JPA_DDL_AUTO:none}
+      ddl-auto: ${JPA_DDL_AUTO:none}
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

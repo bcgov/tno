@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install curl -y
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","nlp-0.0.1-alpha.jar"]
+ENTRYPOINT ["java","-jar","NlpService.jar"]
 
 # ENTRYPOINT ["tail"]
 # CMD ["-f","/dev/null"]

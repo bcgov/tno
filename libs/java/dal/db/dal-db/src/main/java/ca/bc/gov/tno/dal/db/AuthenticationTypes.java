@@ -7,18 +7,35 @@ import ca.bc.gov.tno.IEnumValue;
 /**
  * Provides options for different types of authentication.
  */
-public enum AuthenticationTypes implements IEnumValue {
-  Token(0), User(1);
+public enum AuthenticationTypes implements IEnumValue<Integer> {
+  /**
+   * Token required.
+   */
+  Token(0),
+  /**
+   * User account required.
+   */
+  User(1);
 
   private final int value;
 
+  /**
+   * Creates a new instance of an AuthenticationTypes enum value, initializes with
+   * specified value.
+   */
   AuthenticationTypes(final int newValue) {
     value = newValue;
   }
 
-  public int getValue() {
+  /**
+   * Get the value of the current enum.
+   */
+  public Integer getValue() {
     return value;
   }
 
-  public static final EnumSet<SyndicationTypes> All = EnumSet.allOf(SyndicationTypes.class);
+  /**
+   * Return all values of the enum.
+   */
+  public static final EnumSet<AuthenticationTypes> All = EnumSet.allOf(AuthenticationTypes.class);
 }

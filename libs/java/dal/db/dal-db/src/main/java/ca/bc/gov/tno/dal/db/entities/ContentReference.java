@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.KafkaMessageStatus;
 
 /**
@@ -42,10 +43,16 @@ public class ContentReference extends AuditColumns {
   private String topic;
 
   /**
+   * The Kafka partition the message is stored in.
+   */
+  @Column(name = "\"partition\"", nullable = false)
+  private int partition;
+
+  /**
    * The Kafka offset the message was saved.
    */
   @Column(name = "\"offset\"", nullable = false)
-  private int offset;
+  private long offset;
 
   /**
    * The date and time the content was published.
@@ -53,6 +60,13 @@ public class ContentReference extends AuditColumns {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "\"publishedOn\"")
   private Date publishedOn;
+
+  /**
+   * The date and time the source content was updated.
+   */
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "\"sourceUpdatedOn\"")
+  private Date sourceUpdatedOn;
 
   /**
    * The status of the reference in Kafka.
@@ -79,6 +93,7 @@ public class ContentReference extends AuditColumns {
     this.source = source;
     this.uid = uid;
     this.topic = topic;
+    this.partition = -1;
     this.offset = -1;
     this.status = KafkaMessageStatus.InProgress;
   }
@@ -126,16 +141,30 @@ public class ContentReference extends AuditColumns {
   }
 
   /**
-   * @return int return the offset
+   * @return int return the partition
    */
-  public int getOffset() {
+  public int getPartition() {
+    return partition;
+  }
+
+  /**
+   * @param partition the partition to set
+   */
+  public void setPartition(int partition) {
+    this.partition = partition;
+  }
+
+  /**
+   * @return long return the offset
+   */
+  public long getOffset() {
     return offset;
   }
 
   /**
    * @param offset the offset to set
    */
-  public void setOffset(int offset) {
+  public void setOffset(long offset) {
     this.offset = offset;
   }
 
@@ -151,6 +180,20 @@ public class ContentReference extends AuditColumns {
    */
   public void setPublishedOn(Date publishedOn) {
     this.publishedOn = publishedOn;
+  }
+
+  /**
+   * @return Date return the sourceUpdatedOn
+   */
+  public Date getSourceUpdatedOn() {
+    return sourceUpdatedOn;
+  }
+
+  /**
+   * @param sourceUpdatedOn the sourceUpdatedOn to set
+   */
+  public void setSourceUpdatedOn(Date sourceUpdatedOn) {
+    this.sourceUpdatedOn = sourceUpdatedOn;
   }
 
   /**

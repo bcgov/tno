@@ -11,12 +11,21 @@ import ca.bc.gov.tno.dal.db.entities.Claim;
 import ca.bc.gov.tno.dal.db.repositories.IClaimRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IClaimService;
 
+/**
+ * ClaimService class, provides a concrete way to interact with claims in the
+ * database.
+ */
 @Service
 public class ClaimService implements IClaimService {
 
   @Autowired
   private IClaimRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of claims.
+   */
   @Override
   public List<Claim> findAll() {
     var claims = (List<Claim>) repository.findAll();
@@ -24,7 +33,10 @@ public class ClaimService implements IClaimService {
   }
 
   /**
-   * Find the claim for the specified 'key'.
+   * Find the claim for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the claim if it exists.
    */
   @Override
   public Optional<Claim> findById(Integer key) {
@@ -33,7 +45,10 @@ public class ClaimService implements IClaimService {
   }
 
   /**
-   * Add the claim.
+   * Add a new claim to the data source.
+   * 
+   * @param entity The claim to add.
+   * @return A new instance of the claim that was added.
    */
   @Override
   public Claim add(Claim entity) {
@@ -42,7 +57,10 @@ public class ClaimService implements IClaimService {
   }
 
   /**
-   * Update the claim.
+   * Update the specified claim in the data source.
+   * 
+   * @param entity The claim to update.
+   * @return A new instance of the claim that was updated.
    */
   @Override
   public Claim update(Claim entity) {
@@ -51,7 +69,9 @@ public class ClaimService implements IClaimService {
   }
 
   /**
-   * Delete the claim.
+   * Delete the specified claim from the data source.
+   * 
+   * @param entity The claim to delete.
    */
   @Override
   public void delete(Claim entity) {

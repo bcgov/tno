@@ -6,7 +6,7 @@
 
   <groupId>ca.bc.gov.tno</groupId>
   <artifactId>dal-db-test</artifactId>
-  <version>0.0.5-alpha</version>
+  <version>1.0-SNAPSHOT</version>
 
   <name>dal-db-test</name>
   <description>TNO Database Data Access Layer (DAL)</description>
@@ -29,12 +29,17 @@
     <dependency>
       <groupId>ca.bc.gov.tno</groupId>
       <artifactId>dal-db</artifactId>
-      <version>0.0.9-alpha</version>
+      <version>LATEST</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-loader</artifactId>
+      <version>2.5.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
       <version>2.5.6</version>
     </dependency>
     <dependency>
@@ -46,49 +51,6 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
       <version>5.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-      <version>2.5.6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-relational</artifactId>
-      <version>2.2.6</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.vladmihalcea</groupId>
-      <artifactId>hibernate-types-55</artifactId>
-      <version>2.14.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>5.5.6</version>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
-      <version>42.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>runtime</scope>
-      <version>1.4.200</version>
-    </dependency>
-    <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>me.paulschwarz</groupId>
-      <artifactId>spring-dotenv</artifactId>
-      <version>2.4.1</version>
     </dependency>
 
     <dependency>
@@ -107,11 +69,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-core</artifactId>
-        <version>8.0.1</version>
-      </dependency>
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging</artifactId>

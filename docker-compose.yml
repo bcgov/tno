@@ -4,6 +4,7 @@ services:
   ####################### Nginx #######################
   nginx:
     image: tno:nginx
+    profiles: ["core"]
     restart: on-failure:1
     container_name: tno-nginx
     build:
@@ -19,6 +20,7 @@ services:
   ####################### Database #######################
   database:
     image: tno:database
+    profiles: ["core"]
     restart: on-failure:1
     container_name: tno-database
     build:
@@ -37,6 +39,7 @@ services:
   ####################### Keycloak #######################
   keycloak:
     image: tno:keycloak
+    profiles: ["core"]
     restart: on-failure:1
     container_name: tno-keycloak
     build:
@@ -62,6 +65,7 @@ services:
   ####################### Elasticsearch #######################
   elastic:
     image: tno:elastic
+    profiles: ["core"]
     restart: on-failure:1
     container_name: tno-elastic
     build:
@@ -90,6 +94,7 @@ services:
   ####################### Azure Storage #######################
   azure-storage:
     image: tno:azure-storage
+    profiles: ["core"]
     restart: on-failure:1
     container_name: tno-azure-storage
     build:
@@ -108,6 +113,7 @@ services:
   ####################### API - Editor #######################
   api-editor:
     image: tno:api-editor
+    profiles: ["core"]
     restart: on-failure:1
     container_name: tno-api-editor
     build:
@@ -131,6 +137,7 @@ services:
   ####################### App - Editor #######################
   app-editor:
     image: tno:app-editor
+    profiles: ["core"]
     stdin_open: true
     tty: true
     restart: on-failure:1
@@ -153,6 +160,7 @@ services:
   ####################### App - Subscriber #######################
   app-subscriber:
     image: tno:app-subscriber
+    profiles: ["core"]
     stdin_open: true
     tty: true
     restart: on-failure:1
@@ -172,6 +180,72 @@ services:
     networks:
       - tno
 
+  ####################### Ingestion Services #######################
+
+  rss:
+    image: tno:rss
+    profiles: ["service"]
+    restart: on-failure:1
+    container_name: tno-rss
+    build:
+      context: services/syndication
+    env_file:
+      - services/syndication/rss.env
+    ports:
+      - ${SYNDICATION_PORT:-50052}:8080
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  atom:
+    image: tno:atom
+    profiles: ["service"]
+    restart: on-failure:1
+    container_name: tno-atom
+    build:
+      context: services/syndication
+    env_file:
+      - services/syndication/atom.env
+    ports:
+      - ${SYNDICATION_PORT:-50053}:8080
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  ####################### NLP Service #######################
+
+  nlp:
+    image: tno:nlp
+    profiles: ["service"]
+    restart: on-failure:1
+    container_name: tno-nlp
+    build:
+      context: services/nlp
+    env_file:
+      - services/nlp/.env
+    ports:
+      - ${NLP_PORT:-50060}:8080
+    volumes:
+      - ./services/nlp/src/main/resources/models:/app/classes/models
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:
@@ -187,3 +261,6 @@ volumes:
 
   tno-azure-storage-data:
     name: tno-azure-storage-data
+
+# To inspect healthcheck
+# docker inspect --format='{{json .State.Health}}' tno-nlp

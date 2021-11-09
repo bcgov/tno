@@ -14,6 +14,11 @@ import ca.bc.gov.tno.IEnumValue;
  */
 public class MonthsAttributeConverter implements AttributeConverter<EnumSet<Months>, Integer> {
 
+  /**
+   * Convert to the database column value.
+   * 
+   * @param attribute The entity property value.
+   */
   @Override
   public Integer convertToDatabaseColumn(EnumSet<Months> attribute) {
     if (attribute == null)
@@ -22,12 +27,17 @@ public class MonthsAttributeConverter implements AttributeConverter<EnumSet<Mont
     var values = new int[attribute.size()];
     var index = 0;
     for (var a : attribute) {
-      values[index++] = ((IEnumValue) a).getValue();
+      values[index++] = ((IEnumValue<Integer>) a).getValue();
     }
     var sum = IntStream.of(values).sum();
     return sum;
   }
 
+  /**
+   * Convert to the entity property value.
+   * 
+   * @param dbData The database column value.
+   */
   @Override
   public EnumSet<Months> convertToEntityAttribute(Integer dbData) {
     if (dbData == null)
@@ -36,7 +46,7 @@ public class MonthsAttributeConverter implements AttributeConverter<EnumSet<Mont
     var all = Months.values();
     var values = EnumSet.noneOf(Months.class);
     for (var a : all) {
-      var value = ((IEnumValue) a).getValue();
+      var value = ((IEnumValue<Integer>) a).getValue();
       if (value == (dbData & value)) {
         values.add(a);
       }

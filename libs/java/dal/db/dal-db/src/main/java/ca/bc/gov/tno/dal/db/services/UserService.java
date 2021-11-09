@@ -11,12 +11,21 @@ import ca.bc.gov.tno.dal.db.entities.User;
 import ca.bc.gov.tno.dal.db.repositories.IUserRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
 
+/**
+ * RoleService class, provides a concrete way to interact with users in the
+ * database.
+ */
 @Service
 public class UserService implements IUserService {
 
   @Autowired
   private IUserRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of users.
+   */
   @Override
   public List<User> findAll() {
     var users = (List<User>) repository.findAll();
@@ -24,7 +33,10 @@ public class UserService implements IUserService {
   }
 
   /**
-   * Find the user for the specified 'key'.
+   * Find the user for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the user if it exists.
    */
   @Override
   public Optional<User> findById(Integer key) {
@@ -33,7 +45,10 @@ public class UserService implements IUserService {
   }
 
   /**
-   * Add the user.
+   * Add a new user to the data source.
+   * 
+   * @param entity The user to add.
+   * @return A new instance of the user that was added.
    */
   @Override
   public User add(User entity) {
@@ -42,7 +57,10 @@ public class UserService implements IUserService {
   }
 
   /**
-   * Update the user.
+   * Update the specified user in the data source.
+   * 
+   * @param entity The user to update.
+   * @return A new instance of the user that was updated.
    */
   @Override
   public User update(User entity) {
@@ -51,7 +69,9 @@ public class UserService implements IUserService {
   }
 
   /**
-   * Delete the user.
+   * Delete the specified user from the data source.
+   * 
+   * @param entity The user to delete.
    */
   @Override
   public void delete(User entity) {

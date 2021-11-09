@@ -46,7 +46,7 @@ Configuration:
 
   Loggers:
     logger:
-      - name: ca.bc.gov.tno.nlp
+      - name: ca.bc.gov.tno.services.nlp
         level: all
         additivity: false
         AppenderRef:

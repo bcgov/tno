@@ -8,7 +8,8 @@
       "console": "internalConsole",
       "mainClass": "ca.bc.gov.tno.ApiEditor",
       "projectName": "api-editor",
-      "args": "",
+      "args": [""],
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

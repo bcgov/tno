@@ -39,7 +39,7 @@ public class KafkaController {
 
 	/**
 	 * List all topics
-	 * 
+	 *
 	 * @return
 	 * @throws InterruptedException
 	 * @throws ExecutionException
@@ -73,7 +73,7 @@ public class KafkaController {
 	 * @throws IOException
 	 */
 	@PostMapping(path = "/topics/{topic}/{key}", consumes = { MediaType.APPLICATION_JSON_VALUE })
-	public Map<String, Object> pushTopic(@PathVariable String topic, @PathVariable String key, @RequestBody String value)
+	public Map<String, Object> pushMessage(@PathVariable String topic, @PathVariable String key, @RequestBody String value)
 			throws InterruptedException, ExecutionException {
 		var props = new Properties();
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, "rss-01");
@@ -105,7 +105,7 @@ public class KafkaController {
 
 	/**
 	 * Fetch all the messages in the specified topic.
-	 * 
+	 *
 	 * @param topic
 	 * @return
 	 */

@@ -11,12 +11,21 @@ import ca.bc.gov.tno.dal.db.entities.DataSourceType;
 import ca.bc.gov.tno.dal.db.repositories.IDataSourceTypeRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceTypeService;
 
+/**
+ * DataSourceTypeService class, provides a concrete way to interact with data
+ * source types in the database.
+ */
 @Service
 public class DataSourceTypeService implements IDataSourceTypeService {
 
   @Autowired
   private IDataSourceTypeRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of data source type.
+   */
   @Override
   public List<DataSourceType> findAll() {
     var dataSourceTypes = (List<DataSourceType>) repository.findAll();
@@ -24,7 +33,10 @@ public class DataSourceTypeService implements IDataSourceTypeService {
   }
 
   /**
-   * Find the data source type for the specified 'key'.
+   * Find the data source type for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the data source type if it exists.
    */
   @Override
   public Optional<DataSourceType> findById(Integer key) {
@@ -33,7 +45,10 @@ public class DataSourceTypeService implements IDataSourceTypeService {
   }
 
   /**
-   * Add the data source type.
+   * Add a new data source type to the data source.
+   * 
+   * @param entity The data source type to add.
+   * @return A new instance of the data source type that was added.
    */
   @Override
   public DataSourceType add(DataSourceType entity) {
@@ -42,7 +57,10 @@ public class DataSourceTypeService implements IDataSourceTypeService {
   }
 
   /**
-   * Update the data source type.
+   * Update the specified data source type in the data source.
+   * 
+   * @param entity The data source type to update.
+   * @return A new instance of the data source type that was updated.
    */
   @Override
   public DataSourceType update(DataSourceType entity) {
@@ -51,7 +69,9 @@ public class DataSourceTypeService implements IDataSourceTypeService {
   }
 
   /**
-   * Delete the data source type.
+   * Delete the specified data source type from the data source.
+   * 
+   * @param entity The data source type to delete.
    */
   @Override
   public void delete(DataSourceType entity) {
