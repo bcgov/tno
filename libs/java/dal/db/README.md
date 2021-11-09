@@ -58,7 +58,7 @@ export GPG_TTY=$(tty)
 Package and deploy to Maven Central.
 
 ```bash
-mvn clean deploy -P release
+mvn clean deploy -P staging
 ```
 
 You package should now be visible in the Maven Central Staging Repositories [https://s01.oss.sonatype.org/](https://s01.oss.sonatype.org/).

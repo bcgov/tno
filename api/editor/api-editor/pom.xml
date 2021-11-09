@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>ca.bc.gov.tno</groupId>
 			<artifactId>dal-db</artifactId>
-			<version>0.0.8-alpha</version>
+			<version>0.0.10-alpha</version>
 		</dependency>
 
 		<dependency>

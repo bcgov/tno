@@ -6,6 +6,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -47,7 +48,9 @@ public class App implements CommandLineRunner {
   public static void main(String[] args) {
     System.out.println("TNO Database DAL Console Application");
 
-    SpringApplication.run(App.class, args);
+    var app = new SpringApplication(App.class);
+    app.setWebApplicationType(WebApplicationType.NONE);
+    app.run(args);
     System.exit(0);
   }
 

@@ -2,5 +2,5 @@
 
 export GPG_TTY=$(tty)
 cd dal-db
-mvn clean deploy -P release -e
+mvn clean deploy -P staging -e
 echo "Go to Nexus Repository Manager to get the Staging Repository Id - https://s01.oss.sonatype.org/"

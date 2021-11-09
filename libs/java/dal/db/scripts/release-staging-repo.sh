@@ -6,5 +6,5 @@ read -p 'Repository Id: cabcgovtno-' varStagingRepoId
 if [ ! -z "$varStagingRepoId" ]
 then
   cd dal-db
-  mvn nexus-staging:release -DstagingRepositoryId="cabcgovtno-$varStagingRepoId"
+  mvn nexus-staging:release -P staging -DstagingRepositoryId="cabcgovtno-$varStagingRepoId"
 fi

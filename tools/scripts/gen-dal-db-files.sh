@@ -32,9 +32,9 @@ if test -f "./libs/java/dal/db/.devcontainer/maven-settings.xml"; then
     echo "./libs/java/dal/db/.devcontainer/maven-settings.xml exists"
 else
 echo \
-"<?xml version="1.0" encoding="UTF-8"?>
+"<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <settings>
-  <localRepository>${user.home}/.m2/repository</localRepository>
+  <localRepository>\${user.home}/.m2/repository</localRepository>
   <interactiveMode>true</interactiveMode>
   <offline>false</offline>
   <servers>

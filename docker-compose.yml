@@ -52,6 +52,12 @@ services:
       - database
     networks:
       - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/auth/realms/tno || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   ####################### Elasticsearch #######################
   elastic:
@@ -73,6 +79,13 @@ services:
       - tno-elastic-data:/usr/share/elasticsearch/data
     networks:
       - tno
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "-u '$$ELASTIC_USERNAME:$$ELASTIC_PASSWORD'", "http://localhost:9200/_cat/health"]
+    #   # test: curl -f -u '${ELASTIC_USERNAME}:${ELASTIC_PASSWORD}' http://localhost:9200/_cat/health
+    #   interval: 1m
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 15s
 
   ####################### Azure Storage #######################
   azure-storage:
@@ -108,6 +121,12 @@ services:
       - keycloak
     networks:
       - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
   ####################### App - Editor #######################
   app-editor:

@@ -128,6 +128,24 @@ services:
     networks:
       - tno
 
+  kowl:
+    image: tno:kafka-kowl
+    restart: on-failure:1
+    hostname: kowl
+    container_name: tno-kowl
+    build:
+      context: db/kafka/kowl
+    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+    volumes:
+      - ./db/kafka/kowl/.env:/etc/kowl/config.yaml
+    depends_on:
+      - schema-registry
+      - connect
+    ports:
+      - ${KAFKA_KOWL_PORT:-50017}:8080
+    networks:
+      - tno
+
 ####################### Volumes Definition #######################
 volumes:
   tno-zookeeper-data:

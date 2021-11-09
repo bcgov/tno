@@ -359,21 +359,19 @@ KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE='true'" >> ./db/kafka/ksqldb/.en
     echo "./db/kafka/ksqldb/.env created"
 fi
 
-# # Kafka control-center
-# if test -f "./db/kafka/control-center/.env"; then
-#     echo "./db/kafka/control-center/.env exists"
-# else
-# echo \
-# "CONTROL_CENTER_BOOTSTRAP_SERVERS='broker:29092'
-# # CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER='connect:8083'
-# CONTROL_CENTER_CONNECT_CONNECT_DEFAULT_CLUSTER='connect:8083'
-# CONTROL_CENTER_KSQL_KSQLDB1_URL='http://ksqldb-server:8088'
-# CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL='http://host.docker.internal:50016'
-# CONTROL_CENTER_SCHEMA_REGISTRY_URL='http://schema-registry:8081'
-# CONTROL_CENTER_REPLICATION_FACTOR=1
-# CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS=1
-# CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS=1
-# CONFLUENT_METRICS_TOPIC_REPLICATION=1
-# PORT=9021" >> ./db/kafka/control-center/.env
-#     echo "./db/kafka/control-center/.env created"
-# fi
+# Kafka Kowl
+if test -f "./db/kafka/kowl/.env"; then
+    echo "./db/kafka/kowl/.env exists"
+else
+echo \
+"# See: https://github.com/cloudhut/kowl/tree/master/docs/config for reference config files.
+# This is a YAML file because of Kowl's lack of configuration options.
+# Keep this as a .env so it doesn't get committed to source.
+kafka:
+  brokers:
+    - broker:29092
+
+# server:
+  # listenPort: 8080" >> ./db/kafka/kowl/.env
+    echo "./db/kafka/kowl/.env created"
+fi
