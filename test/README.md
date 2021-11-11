@@ -25,6 +25,7 @@ Import the `./test/TNO.postman_collection.json` file into your Postman. Create a
 | azure-video-account-id       |               | Azure Video Analyzer account id                                            |
 | azure-video-subscription-key |               | Azure Video Analyzer subscription key                                      |
 | kafka-rest-port              | 50018         | Port to the Kafka REST proxy                                               |
+| nlp-port                     | 50052         | Port to the NLP service API                                                |
 
 The Postman collection has an `TNO/auth` folder that contains endpoints that connect to Keycloak.
 Use one of the `token: {name}` endpoints to get a valid authentication token from Keycloak.
