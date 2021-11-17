@@ -2541,6 +2541,30 @@
 					]
 				},
 				{
+					"name": "health",
+					"item": [
+						{
+							"name": "health",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/health",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"health"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "userinfo",
 					"request": {
 						"method": "GET",
@@ -2614,32 +2638,6 @@
 							"response": []
 						},
 						{
-							"name": "topics/:topic",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{kafka-rest-port}}",
-									"path": [
-										"topics",
-										":topic"
-									],
-									"variable": [
-										{
-											"key": "topic",
-											"value": "test"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "topic/:topic",
 							"request": {
 								"method": "POST",
@@ -2648,11 +2646,16 @@
 										"key": "Content",
 										"value": "application/json",
 										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.json.v2+json",
+										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"value\": \"api-test\"\r\n}",
+									"raw": "{\r\n    \"records\": [\r\n        {\r\n            \"key\": \"uid-01\",\r\n            \"value\": {\r\n                \"source\": \"NTLP\",\r\n                \"uid\": \"uid-01\",\r\n                \"link\": \"https://some.com/place\",\r\n                \"language\": null,\r\n                \"author\": \"John Doe\",\r\n                \"title\": \"A Test Story\",\r\n                \"summary\": \"A test story summary\",\r\n                \"body\": \"Gunmen opened fire at a Cancun beach resort on Thursday, killing two people in what Mexican state officials called a confrontation between rival drug dealers that witnesses said forced tourists and hotel staff to hide for several hours. \\nThe shooting occurred on the beach near the Hyatt Ziva Cancun, an all-inclusive resort in Puerto Morelos that is popular with American tourists. \\n\\\"The @FGEQuintanaRoo reports that there was a confrontation between members of antagonistic groups of drug dealers on a beach in Bahía Petempich, Puerto Morelos,\\\" the attorney general for Quintana Roo state said via Twitter on Thursday. \\\"Two of them lost their lives at the scene. There are no serious injuries.\\\" \\nThe Secretariat of Public Security of Quintana Roo later tweeted that no tourists were seriously injured or kidnapped. The news site Notacaribe reported one person was injured at the scene after being hit with the handle of a weapon. \\nMike Sington, a Twitter user and former executive at NBC Universal, told Reuters by direct message that he was hiding with other guests of the resort in a dark area of the hotel and that staff had not explained what was happening. Other guests told him they heard gunshots and that a gunman had been on the beach, he said.\\nA senior state official said a group of gunmen arrived by boat in pursuit of the men who were slain, in what another Mexican official said appeared to have been a targeted \\\"execution.\\\"\\nMike Sington, a Twitter user and former executive at NBC Universal, told Reuters by direct message that he was hiding with other guests of the resort in a dark area of the hotel and that staff had not explained what was happening. Other guests told him they heard gunshots and that a gunman had been on the beach, he said.\\nHotel staff later sent text messages saying the gunman had been apprehended and that staff would escort guests to their rooms where they were ordered to shelter in place, Sington said.\\n\\\"I've never been so scared, literally shaking,\\\" he tweeted.\\nHe later added that guests were taken out of hiding and brought to the lobby, where they cried and hugged each other.\\nIn a statement released Thursday evening, Global Affairs Canada said it is not aware of any Canadian citizens affected by the shooting but continues to monitor the situation closely. \\nCanadian citizens requiring emergency consular assistance should contact the Consular Agency of Canada in Cancun, Mexico at 52 (55) 5724-9795 or cncun@international.gc.ca or call the department's 24/7 Emergency Watch and Response Centre at 1-800-387-3124 (toll-free), +1 613-996-8885 or by sending an email to sos@international.gc.ca.\\nMexican security forces were sent in to reinforce Tulum — another popular resort about 130 kilometres from Cancun — after two foreign tourists were killed and others wounded last month during a shootout between suspected gang members.\",\r\n                \"publishedOn\": \"2021-10-04T01:00:00\",\r\n                \"tags\": [\r\n                    {\r\n                        \"key\": \"category\",\r\n                        \"value\": \"test\"\r\n                    }\r\n                ]\r\n            }\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2745,12 +2748,27 @@
 					"name": "consumers",
 					"item": [
 						{
-							"name": "consumers",
+							"name": "group",
 							"request": {
 								"method": "POST",
-								"header": [],
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"my_consumer\",\r\n  \"format\": \"jsonschema\",\r\n  \"auto.offset.reset\": \"earliest\",\r\n  \"auto.commit.enable\": \"false\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group?auto.offset.reset=earliest&auto.commit.enable=false",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -2763,17 +2781,106 @@
 									"query": [
 										{
 											"key": "auto.offset.reset",
-											"value": "earliest"
+											"value": "earliest",
+											"disabled": true
 										},
 										{
 											"key": "auto.commit.enable",
-											"value": "false"
+											"value": "false",
+											"disabled": true
+										},
+										{
+											"key": "name",
+											"value": "test-consumer",
+											"disabled": true
+										},
+										{
+											"key": "format",
+											"value": "jsonschema",
+											"disabled": true
 										}
 									],
 									"variable": [
 										{
 											"key": "group",
 											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "instance",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group/instances/:consumer",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group",
+										"instances",
+										":consumer"
+									],
+									"variable": [
+										{
+											"key": "group",
+											"value": "test"
+										},
+										{
+											"key": "consumer",
+											"value": "my_consumer"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "consumers/:group/instance/:consumer",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group/instances/:consumer/offsets",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group",
+										"instances",
+										":consumer",
+										"offsets"
+									],
+									"variable": [
+										{
+											"key": "group",
+											"value": "test"
+										},
+										{
+											"key": "consumer",
+											"value": "my_consumer"
 										}
 									]
 								}
@@ -2849,7 +2956,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "5cp01VYcTEuiVAWvNM11Dg"
+											"value": "5xFuUPCUQxGxRtCiOPyT6Q"
 										}
 									]
 								}
@@ -2877,7 +2984,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "5cp01VYcTEuiVAWvNM11Dg"
+											"value": "5xFuUPCUQxGxRtCiOPyT6Q"
 										}
 									]
 								}
@@ -2906,7 +3013,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "5cp01VYcTEuiVAWvNM11Dg"
+											"value": "5xFuUPCUQxGxRtCiOPyT6Q"
 										},
 										{
 											"key": "topic",
@@ -2924,7 +3031,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"topic_name\": \"topic-1\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"topic_name\": \"nlp\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2947,7 +3054,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "5cp01VYcTEuiVAWvNM11Dg"
+											"value": "Dja5AfDJTH-rMtXW1we-Ag"
 										}
 									]
 								}
@@ -2955,6 +3062,146 @@
 							"response": []
 						}
 					]
+				}
+			]
+		},
+		{
+			"name": "nlp",
+			"item": [
+				{
+					"name": "health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{nlp-port}}/health",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{nlp-port}}",
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pause",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{nlp-port}}/pause",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{nlp-port}}",
+							"path": [
+								"pause"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "resume",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{nlp-port}}/resume",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{nlp-port}}",
+							"path": [
+								"resume"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "stop",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{nlp-port}}/stop",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{nlp-port}}",
+							"path": [
+								"stop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "start",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{nlp-port}}/start",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{nlp-port}}",
+							"path": [
+								"start"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "elasticsearch",
+			"item": [
+				{
+					"name": "health",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "elastic",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://localhost:50007/_cat/health",
+							"protocol": "{{scheme}}",
+							"host": [
+								"localhost"
+							],
+							"port": "50007",
+							"path": [
+								"_cat",
+								"health"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
