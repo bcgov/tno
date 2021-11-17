@@ -11,9 +11,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
  * Claim class, provides a way to manage claims.
@@ -25,7 +28,8 @@ public class Claim extends AuditColumns {
    * Primary key to identify the claim.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Claim")
+  @SequenceGenerator(name = "seq_Claim", allocationSize = 1)
   @Column(name = "\"id\"", nullable = false)
   private int id;
 
@@ -51,7 +55,7 @@ public class Claim extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean isEnabled;
+  private boolean enabled;
 
   /**
    * A collection of role claims that belong to this claim.
@@ -129,17 +133,17 @@ public class Claim extends AuditColumns {
   }
 
   /**
-   * @return boolean return the isEnabled
+   * @return boolean return the enabled
    */
-  public boolean isIsEnabled() {
-    return isEnabled;
+  public boolean isEnabled() {
+    return enabled;
   }
 
   /**
-   * @param isEnabled the isEnabled to set
+   * @param enabled the enabled to set
    */
-  public void setIsEnabled(boolean isEnabled) {
-    this.isEnabled = isEnabled;
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   /**

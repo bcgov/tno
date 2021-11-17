@@ -4,6 +4,7 @@ version: '3.5'
 services:
   zookeeper:
     image: tno:kafka-zookeeper
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: zookeeper
     container_name: tno-zookeeper
@@ -22,6 +23,7 @@ services:
 
   broker:
     image: tno:kafka-broker
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: broker
     container_name: tno-broker
@@ -44,6 +46,7 @@ services:
 
   schema-registry:
     image: tno:kafka-schema-registry
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: schema-registry
     container_name: tno-schema-registry
@@ -62,6 +65,7 @@ services:
 
   rest-proxy:
     image: tno:kafka-rest-proxy
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: rest-proxy
     container_name: tno-rest-proxy
@@ -79,6 +83,7 @@ services:
 
   connect:
     image: tno:kafka-connect
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: connect
     container_name: tno-connect
@@ -101,6 +106,7 @@ services:
 
   ksqldb:
     image: tno:kafka-ksqldb
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: ksqldb
     container_name: tno-ksqldb
@@ -118,6 +124,7 @@ services:
 
   cat:
     image: tno:kafkacat
+    profiles: ["kafka"]
     restart: on-failure:1
     hostname: cat
     container_name: tno-kafkacat
@@ -128,8 +135,11 @@ services:
     networks:
       - tno
 
+  ####################### Utilities #######################
+
   kowl:
     image: tno:kafka-kowl
+    profiles: ["utility"]
     restart: on-failure:1
     hostname: kowl
     container_name: tno-kowl
@@ -138,9 +148,6 @@ services:
     entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
     volumes:
       - ./db/kafka/kowl/.env:/etc/kowl/config.yaml
-    depends_on:
-      - schema-registry
-      - connect
     ports:
       - ${KAFKA_KOWL_PORT:-50017}:8080
     networks:

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -14,12 +13,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.Months;
 import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.converters.WeekDaysAttributeConverter;
@@ -35,7 +36,8 @@ public class Schedule extends AuditColumns {
    * Primary key to identify the schedule.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Schedule")
+  @SequenceGenerator(name = "seq_Schedule", allocationSize = 1)
   @Column(name = "\"id\"", nullable = false)
   private int id;
 
@@ -55,7 +57,7 @@ public class Schedule extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean isEnabled;
+  private boolean enabled;
 
   /**
    * The number of milliseconds the service should rest before running again.
@@ -70,6 +72,13 @@ public class Schedule extends AuditColumns {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "\"runAt\"")
   private Date runAt;
+
+  /**
+   * Number of times to run before waiting for next RunAt. "0" is used for
+   * continuous running.
+   */
+  @Column(name = "\"repeat\"", nullable = false)
+  private int repeat;
 
   /**
    * Identify which week days the service should run.
@@ -108,7 +117,7 @@ public class Schedule extends AuditColumns {
   /**
    * Creates a new instance of a Schedule object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id   Primary key
    * @param name Unique name
    */
@@ -160,17 +169,17 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return boolean return the isEnabled
+   * @return boolean return the enabled
    */
-  public boolean isIsEnabled() {
-    return isEnabled;
+  public boolean isEnabled() {
+    return enabled;
   }
 
   /**
-   * @param isEnabled the isEnabled to set
+   * @param enabled the enabled to set
    */
-  public void setIsEnabled(boolean isEnabled) {
-    this.isEnabled = isEnabled;
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   /**
@@ -199,6 +208,20 @@ public class Schedule extends AuditColumns {
    */
   public void setRunAt(Date runAt) {
     this.runAt = runAt;
+  }
+
+  /**
+   * @return Date return the repeat
+   */
+  public int getRepeat() {
+    return repeat;
+  }
+
+  /**
+   * @param repeat the repeat to set
+   */
+  public void setRepeat(int repeat) {
+    this.repeat = repeat;
   }
 
   /**

@@ -49,82 +49,66 @@ setup: ## Setup local environment for development, generate configuration files.
 # Docker Management
 ##############################################################################
 
-up: ## Runs the local containers or the one specified (n=service name)
-	@echo "$(P) Running containers..."
+build: ## Builds all containers or the one specified (n=service name)
+	@echo "$(P) Building images..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml build --no-cache $(n)
+
+up: ## Starts all containers or the one specified (n=service name)
+	@echo "$(P) Starting all containers..."
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml up -d $(n)
 
-down: ## Stops the local containers and removes them
+stop: ## Stops all containers or the one specified (n=service name)
+	@echo "$(P) Stopping all containers..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml stop $(n)
+
+down: ## Stops all containers and removes them
 	@echo "$(P) Stopping containers..."
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml down
 
-stop: ## Stops the local containers or the one specified (n=service name)
-	@echo "$(P) Stopping containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml stop $(n)
-
-restart: ## Stop and start the local contains or the one specified (n=servic ename)
+restart: ## Stop and start all containers or the one specified (n=servic ename)
 	@echo "$(P) Restarting containers..."
 	@make stop n=$(n)
 	@make up n=$(n)
 
-build: ## Builds the local containers or the one specified (n=service name)
-	@echo "$(P) Building images..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml build --no-cache $(n)
-
-rebuild: ## Build the local contains or the one specified (n=service name) and then start them after building
+rebuild: ## Rebuild all containers or the one specified (n=service name) and then start them after building
 	@make build n=$(n)
 	@make up n=$(n)
 
-remove: ## Remove all the local containers
+remove: ## Remove all containers
 	@echo "$(P) Removing images..."
 	@docker-compose rm -sv
 
 ##############################################################################
-# Non-Kafka Management
+# Core Management
 ##############################################################################
 
-base-up: ## Runs the containers without Kafka or the one specified (n=service name)
+core-up: ## Runs the core containers, or the one specified (n=service name)
 	@echo "$(P) Running containers..."
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml up -d $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core up -d $(n)
 
-base-stop: ## Stops the containers without stopping Kafka or the one specified (n=service name)
+core-stop: ## Stops the core containers, or the one specified (n=service name)
 	@echo "$(P) Stopping containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml stop $(n)
-
-##############################################################################
-# Service Management
-##############################################################################
-
-service-build: ## Builds the service containers, or the one specified (n=service name)
-	@echo "$(P) Building service containers..."
-	@docker-compose --env-file .env -f docker-compose.services.yml -f docker-compose.override.yml build $(n)
-
-service-up: ## Runs the service containers, or the one specified (n=service name)
-	@echo "$(P) Running service containers..."
-	@docker-compose --env-file .env -f docker-compose.services.yml -f docker-compose.override.yml up -d $(n)
-
-service-stop: ## Stops the service containers, or the one specified (n=service name)
-	@echo "$(P) Stopping service containers..."
-	@docker-compose -f docker-compose.services.yml -f docker-compose.override.yml stop $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core stop $(n)
 
 ##############################################################################
 # Kafka Management
 ##############################################################################
 
+kafka-build: ## Builds the kafka containers or the one specified (n=service name)
+	@echo "$(P) Building kafka images..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml --profile kafka build --no-cache $(n)
+
 kafka-up: ## Runs the kafka containers or the one specified (n=service name)
 	@echo "$(P) Running kafka containers..."
-	@docker-compose --env-file .env -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml up -d $(n)
-
-kafka-down: ## Stops the kafka containers and removes them
-	@echo "$(P) Stopping kafka containers..."
-	@docker-compose -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml down
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka up -d $(n)
 
 kafka-stop: ## Stops the kafka containers or the one specified (n=service name)
 	@echo "$(P) Stopping kafka containers..."
-	@docker-compose -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml stop $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka stop $(n)
 
-kafka-build: ## Builds the kafka containers or the one specified (n=service name)
-	@echo "$(P) Building kafka images..."
-	@docker-compose -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml build --no-cache $(n)
+kafka-down: ## Stops the kafka containers and removes them
+	@echo "$(P) Stopping kafka containers..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka down
 
 kafka-rebuild: ## Build the kafka contains or the one specified (n=service name) and then start them after building
 	@make kafka-build n=$(n)
@@ -132,15 +116,34 @@ kafka-rebuild: ## Build the kafka contains or the one specified (n=service name)
 
 kafka-remove: ## Remove the kafka containers
 	@echo "$(P) Removing kafka images..."
+	@docker rm -fv tno-kafkacat
+	@docker rm -fv tno-ksqldb
+	@docker rm -fv tno-cconnect
 	@docker rm -fv tno-rest-proxy
-	@docker rm -fv tno-ksql-datagen
-	@docker rm -fv tno-ksqldb-cli
 	@docker rm -fv tno-schema-registry
-	@docker rm -fv tno-control-center
-	@docker rm -fv tno-ksqldb-server
-	@docker rm -fv tno-connect
-	@docker rm -fv tno-zookeeper
 	@docker rm -fv tno-broker
+	@docker rm -fv tno-zookeeper
+	@docker rm -fv tno-kowl
+
+##############################################################################
+# Service Management
+##############################################################################
+
+service-build: ## Builds the service containers, or the one specified (n=service name)
+	@echo "$(P) Building service containers..."
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service  build $(n)
+
+service-up: ## Runs the service containers, or the one specified (n=service name)
+	@echo "$(P) Running service containers..."
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service up -d $(n)
+
+service-stop: ## Stops the service containers, or the one specified (n=service name)
+	@echo "$(P) Stopping service containers..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service stop $(n)
+
+service-down: ## Stops the service containers and removes them
+	@echo "$(P) Stopping service containers..."
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service down
 
 ##############################################################################
 # Node Container Management

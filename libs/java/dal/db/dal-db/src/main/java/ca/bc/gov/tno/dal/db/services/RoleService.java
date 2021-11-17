@@ -11,12 +11,21 @@ import ca.bc.gov.tno.dal.db.entities.Role;
 import ca.bc.gov.tno.dal.db.repositories.IRoleRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IRoleService;
 
+/**
+ * RoleService class, provides a concrete way to interact with roles in the
+ * database.
+ */
 @Service
 public class RoleService implements IRoleService {
 
   @Autowired
   private IRoleRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of roles.
+   */
   @Override
   public List<Role> findAll() {
     var roles = (List<Role>) repository.findAll();
@@ -24,7 +33,10 @@ public class RoleService implements IRoleService {
   }
 
   /**
-   * Find the role for the specified 'key'.
+   * Find the role for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the role if it exists.
    */
   @Override
   public Optional<Role> findById(Integer key) {
@@ -33,7 +45,10 @@ public class RoleService implements IRoleService {
   }
 
   /**
-   * Add the role.
+   * Add a new role to the data source.
+   * 
+   * @param entity The role to add.
+   * @return A new instance of the role that was added.
    */
   @Override
   public Role add(Role entity) {
@@ -42,7 +57,10 @@ public class RoleService implements IRoleService {
   }
 
   /**
-   * Update the role.
+   * Update the specified role in the data source.
+   * 
+   * @param entity The role to update.
+   * @return A new instance of the role that was updated.
    */
   @Override
   public Role update(Role entity) {
@@ -51,7 +69,9 @@ public class RoleService implements IRoleService {
   }
 
   /**
-   * Delete the role.
+   * Delete the specified role from the data source.
+   * 
+   * @param entity The role to delete.
    */
   @Override
   public void delete(Role entity) {

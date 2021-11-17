@@ -89,29 +89,46 @@ The exposed container ports is configurable, but the defaults are identified bel
 | keycloak        |               50000 | Provides authentication and account management services                                       |
 | database        |               50002 | Provides PostgreSQL relational database for the API                                           |
 | elastic         |               50007 | Provides NoSQL Elasticsearch database for the API                                             |
+| azure-storage   | 50020, 50021, 50022 | Azurite local Azure Storage for development                                                   |
 | api-editor      |               50003 | Provides the RESTful API which gives secure access to data                                    |
-| app-editor      |               50005 | Provides the web application which is the UI                                                  |
+| app-editor      |               50005 | Web application for Editors                                                                   |
+| app-subscriber  |               50050 | Web application for Subscribers                                                               |
 | zookeeper       |               50010 | Kafka Zookeeper to manage cluster                                                             |
 | broker          |        50012, 50017 | Kafka server and REST API v3                                                                  |
+| rest-proxy      |               50018 | Kafka REST API                                                                                |
 | schema-registry |               50013 | Kafka schema registry services                                                                |
 | connect         |               50014 | Kafka connect Control Center with Schema Registry                                             |
-| control-center  |               50015 | Kafka UI to manage cluster                                                                    |
 | ksqldb-server   |               50016 | Kafka streaming services                                                                      |
-| rest-proxy      |               50018 | Kafka REST API v2                                                                             |
-| azure-storage   | 50020, 50021, 50022 | Azurite local Azure Storage for development                                                   |
 
 If you have installed `make` you can use the helper method.
 
 ```bash
-make up
+make core-up
+make kafka-up
 ```
 
 If you haven't installed `make` you can use the docker-compose cli.
 The following command merges multiple compose files, builds and runs all of the containers.
+The assumption for the rest of the documentation is that you have installed `make`.
 
 ```bash
 docker-compose -f docker-compose.override.yml -f docker-compose.yml -f ./db/kafka/docker-compose.yml -d up
 ```
+
+Once these containers are running you can then start up the other services.
+
+```bash
+make service-up
+```
+
+| Container  |  Port | Description                                                    |
+| ---------- | ----: | -------------------------------------------------------------- |
+| kafka kowl | 50017 | Kafka UI to view cluster                                       |
+| atom       |       | Kafka Producer to ingest syndication ATOM feeds                |
+| rss        |       | Kafka Producer to ingest syndication RSS feeds                 |
+| transcribe |       | Kafka Consumer/Producer to transcribe audio/video content      |
+| nlp        |       | Kafka Consumer/Producer to perform Natural Language Processing |
+| index      |       | Kafka Consumer to index content for search                     |
 
 Once everything is up and running you can now view the application in your browser.
 Login into Keycloak with the username and password you configured in your `.env` file.
@@ -122,12 +139,12 @@ Be aware most of the api endpoints will require a valid JWToken.
 Use Postman to interact with the API independently from the web application.
 Read more [here](../test/README.md).
 
-| Container      | URI                                                                                  |
-| -------------- | ------------------------------------------------------------------------------------ |
-| keycloak       | [http://localhost:50000/](http://localhost:50000)                                    |
-| app-editor     | [http://localhost:50080/app](http://localhost:50080/app)                             |
-| app-api        | [http://localhost:50080/api](http://localhost:50080/api)                             |
-| elastic        | [http://localhost:50007](http://localhost:50007)                                     |
-| control-center | [http://localhost:50015](http://localhost:50015)                                     |
-| broker         | [http://localhost:50017/kafka/v3/clusters](http://localhost:50017/kafka/v3/clusters) |
-| rest-proxy     | [http://localhost:50018](http://localhost:50018)                                     |
+| Container        | URI                                                      |
+| ---------------- | -------------------------------------------------------- |
+| keycloak         | [http://localhost:50000/](http://localhost:50000)        |
+| app-editor       | [http://localhost:50080/app](http://localhost:50080/app) |
+| app-subscriber   | [http://localhost:50080](http://localhost:50080)         |
+| app-api          | [http://localhost:50080/api](http://localhost:50080/api) |
+| elastic          | [http://localhost:50007](http://localhost:50007)         |
+| kafka kowl       | [http://localhost:50017](http://localhost:50017)         |
+| kafka rest-proxy | [http://localhost:50018](http://localhost:50018)         |

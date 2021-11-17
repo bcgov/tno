@@ -22,6 +22,7 @@
 
   <modules>
     <module>dal-db</module>
+    <module>dal-db-migration</module>
     <module>dal-db-test</module>
   </modules>
 

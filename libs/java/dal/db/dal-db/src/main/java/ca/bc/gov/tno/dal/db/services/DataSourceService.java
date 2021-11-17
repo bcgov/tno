@@ -3,6 +3,7 @@ package ca.bc.gov.tno.dal.db.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,23 @@ import ca.bc.gov.tno.dal.db.entities.DataSource;
 import ca.bc.gov.tno.dal.db.repositories.IDataSourceRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 
+/**
+ * DataSourceService class, provides a concrete way to interact with data
+ * sources in the database.
+ */
 @Service
 public class DataSourceService implements IDataSourceService {
+  @Autowired
+  private SessionFactory sessionFactory;
 
   @Autowired
   private IDataSourceRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of data source.
+   */
   @Override
   public List<DataSource> findAll() {
     var DataSources = (List<DataSource>) repository.findAll();
@@ -24,7 +36,10 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
-   * Find the data source for the specified 'key'.
+   * Find the data source for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the data source if it exists.
    */
   @Override
   public Optional<DataSource> findById(Integer key) {
@@ -33,7 +48,31 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
-   * Add the data source.
+   * Find the data source for the specified code.
+   * 
+   * @param code The unique code.
+   * @return A new instance of the data source if it exists.
+   */
+  @Override
+  public Optional<DataSource> findByCode(String code) {
+    var sql = "FROM DataSource ds WHERE ds.code = :code";
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var query = session.createQuery(sql).setParameter("code", code).setMaxResults(1);
+      var result = query.uniqueResult();
+      return Optional.ofNullable((DataSource) result);
+    } finally {
+      ts.commit();
+    }
+  }
+
+  /**
+   * Add a new data source to the data source.
+   * 
+   * @param entity The data source to add.
+   * @return A new instance of the data source that was added.
    */
   @Override
   public DataSource add(DataSource entity) {
@@ -42,7 +81,10 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
-   * Update the data source.
+   * Update the specified data source in the data source.
+   * 
+   * @param entity The data source to update.
+   * @return A new instance of the data source that was updated.
    */
   @Override
   public DataSource update(DataSource entity) {
@@ -51,7 +93,9 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
-   * Delete the data source.
+   * Delete the specified data source from the data source.
+   * 
+   * @param entity The data source to delete.
    */
   @Override
   public void delete(DataSource entity) {

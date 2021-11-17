@@ -21,10 +21,15 @@
 	</parent>
 
 	<repositories>
-		<repository>
+		<!-- <repository>
 			<id>maven-central-staging</id>
 			<name>Maven Central Staging Repository</name>
 			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1023</url>
+		</repository> -->
+		<repository>
+			<id>maven-releases</id>
+			<name>Maven Central Repository - Releases</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/releases/</url>
 		</repository>
 		<repository>
 			<id>maven-central</id>
@@ -42,7 +47,7 @@
 		<dependency>
 			<groupId>ca.bc.gov.tno</groupId>
 			<artifactId>dal-db</artifactId>
-			<version>0.0.10-alpha</version>
+			<version>0.0.17-alpha</version>
 		</dependency>
 
 		<dependency>
@@ -60,12 +65,12 @@
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-storage-blob</artifactId>
-			<version>12.14.1</version>
+			<version>12.14.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-storage-common</artifactId>
-			<version>12.14.0</version>
+			<version>12.14.1</version>
 		</dependency>
 
 		<dependency>
@@ -77,13 +82,7 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-elasticsearch</artifactId>
-			<version>4.2.6</version>
-		</dependency>
-
-		<dependency>
-			<groupId>me.paulschwarz</groupId>
-			<artifactId>spring-dotenv</artifactId>
-			<version>2.4.1</version>
+			<version>4.3.0</version>
 		</dependency>
 
 		<dependency>

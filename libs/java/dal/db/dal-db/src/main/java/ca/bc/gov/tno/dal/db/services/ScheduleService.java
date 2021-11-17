@@ -11,12 +11,21 @@ import ca.bc.gov.tno.dal.db.entities.Schedule;
 import ca.bc.gov.tno.dal.db.repositories.IScheduleRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IScheduleService;
 
+/**
+ * RoleService class, provides a concrete way to interact with schedules in the
+ * database.
+ */
 @Service
 public class ScheduleService implements IScheduleService {
 
   @Autowired
   private IScheduleRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of schedules.
+   */
   @Override
   public List<Schedule> findAll() {
     var schedules = (List<Schedule>) repository.findAll();
@@ -24,7 +33,10 @@ public class ScheduleService implements IScheduleService {
   }
 
   /**
-   * Find the schedule for the specified 'key'.
+   * Find the schedule for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the schedule if it exists.
    */
   @Override
   public Optional<Schedule> findById(Integer key) {
@@ -33,7 +45,10 @@ public class ScheduleService implements IScheduleService {
   }
 
   /**
-   * Add the schedule.
+   * Add a new schedule to the data source.
+   * 
+   * @param entity The schedule to add.
+   * @return A new instance of the schedule that was added.
    */
   @Override
   public Schedule add(Schedule entity) {
@@ -42,7 +57,10 @@ public class ScheduleService implements IScheduleService {
   }
 
   /**
-   * Update the schedule.
+   * Update the specified schedule in the data source.
+   * 
+   * @param entity The schedule to update.
+   * @return A new instance of the schedule that was updated.
    */
   @Override
   public Schedule update(Schedule entity) {
@@ -51,7 +69,9 @@ public class ScheduleService implements IScheduleService {
   }
 
   /**
-   * Delete the schedule.
+   * Delete the specified schedule from the data source.
+   * 
+   * @param entity The schedule to delete.
    */
   @Override
   public void delete(Schedule entity) {

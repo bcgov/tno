@@ -5,21 +5,56 @@ import java.util.EnumSet;
 import ca.bc.gov.tno.IEnumValue;
 
 /**
- * Provides options for which day of the week.
+ * Provides an option for each month. This is a flag enum which allows for more
+ * than one or more selected values.
  */
-public enum Months implements IEnumValue {
-  NA(0), January(1), February(2), March(4), April(8), May(16), June(32), July(64), August(128), September(256),
-  October(512), November(1024), December(2048);
+public enum Months implements IEnumValue<Integer> {
+  /** Not Applicable */
+  NA(0),
+  /** January */
+  January(1),
+  /** February */
+  February(2),
+  /** March */
+  March(4),
+  /** April */
+  April(8),
+  /** May */
+  May(16),
+  /** June */
+  June(32),
+  /** July */
+  July(64),
+  /** August */
+  August(128),
+  /** September */
+  September(256),
+  /** October */
+  October(512),
+  /** November */
+  November(1024),
+  /** December */
+  December(2048);
 
   private final int value;
 
+  /**
+   * Creates a new instance of an Months enum value, initializes with specified
+   * value.
+   */
   Months(final int newValue) {
     value = newValue;
   }
 
-  public int getValue() {
+  /**
+   * Get the current enum value.
+   */
+  public Integer getValue() {
     return value;
   }
 
+  /**
+   * Get all the month enum values.
+   */
   public static final EnumSet<Months> All = EnumSet.allOf(Months.class);
 }
