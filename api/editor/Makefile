@@ -37,6 +37,10 @@ help:
 # Maven Commands
 ##############################################################################
 
+clean: ## Clean package.
+	@echo "$(P) Clean package"
+	@mvn clean
+
 package: ## Clean and build a package.
 	@echo "$(P) Clean and build a package"
 	@cd api-editor; mvn clean package

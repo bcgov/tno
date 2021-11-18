@@ -1,6 +1,7 @@
 package ca.bc.gov.tno.dal.db.entities;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -12,11 +13,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import ca.bc.gov.tno.dal.db.converters.HashMapConverter;
+import ca.bc.gov.tno.dal.db.AuditColumns;
+import ca.bc.gov.tno.dal.db.converters.HashMapToStringConverter;
 
 /**
  * DataSource class, defines a set of data, how often it is requested, the
@@ -29,7 +32,8 @@ public class DataSource extends AuditColumns {
    * Primary key to identify the data source.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_DataSource")
+  @SequenceGenerator(name = "seq_DataSource", allocationSize = 1)
   @Column(name = "\"id\"", nullable = false)
   private int id;
 
@@ -43,8 +47,8 @@ public class DataSource extends AuditColumns {
    * A unique abbreviation to identify the data source. This is used in the
    * content reference table.
    */
-  @Column(name = "\"abbr\"", nullable = false)
-  private String abbr;
+  @Column(name = "\"code\"", nullable = false)
+  private String code;
 
   /**
    * A description of the data source.
@@ -56,7 +60,7 @@ public class DataSource extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean isEnabled;
+  private boolean enabled;
 
   /**
    * Foreign key to the data source type.
@@ -113,9 +117,9 @@ public class DataSource extends AuditColumns {
   /**
    * JSON configuration values for the ingestion services.
    */
-  @Convert(converter = HashMapConverter.class)
-  @Column(name = "\"connection\"", nullable = false, columnDefinition = "json")
-  private Map<String, Object> connection;
+  @Convert(converter = HashMapToStringConverter.class)
+  @Column(name = "\"connection\"", nullable = false, columnDefinition = "text") // TODO: Switch to JSON in DB
+  private Map<String, Object> connection = new HashMap<>();
 
   /**
    * Creates a new instance of a DataSource object.
@@ -215,31 +219,31 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return boolean return the isEnabled
+   * @return boolean return the enabled
    */
-  public boolean isIsEnabled() {
-    return isEnabled;
+  public boolean isEnabled() {
+    return enabled;
   }
 
   /**
-   * @param isEnabled the isEnabled to set
+   * @param enabled the enabled to set
    */
-  public void setIsEnabled(boolean isEnabled) {
-    this.isEnabled = isEnabled;
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 
   /**
-   * @return String return the abbr
+   * @return String return the code
    */
-  public String getAbbr() {
-    return abbr;
+  public String getCode() {
+    return code;
   }
 
   /**
-   * @param abbr the abbr to set
+   * @param code the code to set
    */
-  public void setAbbr(String abbr) {
-    this.abbr = abbr;
+  public void setCode(String code) {
+    this.code = code;
   }
 
   /**

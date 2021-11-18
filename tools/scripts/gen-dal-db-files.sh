@@ -23,6 +23,11 @@ else
     echo "OSSRH Maven Central password: $varOssrhPassword"
 fi
 
+
+varDbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
+varPassword=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
+varDbName=$(grep -Po 'POSTGRES_DB=\K.*$' ./db/postgres/.env)
+
 ###########################################################################
 # TNO Configuration
 ###########################################################################
@@ -49,15 +54,15 @@ echo \
 fi
 
 # Flyway configuration
-if test -f "./libs/java/dal/db/flyway.conf"; then
-    echo "./libs/java/dal/db/flyway.conf exists"
+if test -f "./libs/java/dal/db/dal-db-migration/flyway.conf"; then
+    echo "./libs/java/dal/db/dal-db-migration/flyway.conf exists"
 else
 echo \
-"flyway.user=admin
-flyway.password=lka32%alskdjf!9987_A!
-flyway.url=jdbc:postgresql://host.docker.internal:50002/tno
+"flyway.user=$varDbUser
+flyway.password=$varPassword
+flyway.url=jdbc:postgresql://host.docker.internal:50002/$varDbName
 flyway.schemas=public
 flyway.baselineOnMigrate=true
-# flyway.locations=filesystem:db/migration" >> ./libs/java/dal/db/flyway.conf
-    echo "./libs/java/dal/db/flyway.conf created"
+# flyway.locations=filesystem:db/migration" >> ./libs/java/dal/db/dal-db-migration/flyway.conf
+    echo "./libs/java/dal/db/dal-db-migration/flyway.conf created"
 fi

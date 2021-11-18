@@ -1,15 +1,13 @@
 debug: false
 
 server:
-  port: ${env.SERVER_PORT:8080}
+  port: ${SERVER_PORT:8080}
 
-# logging:
-#   level:
-#     root: ERROR
-#     ca.bc.gov.tno: DEBUG
-#     org:
-#       springframework:
-#         context: DEBUG
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:50000/auth/}
+  realm: ${KEYCLOAK_REALM:tno}
+  resource: ${KEYCLOAK_RESOURCE:tno-api}
+  public-client: true
 
 spring:
   main:
@@ -20,36 +18,37 @@ spring:
       enabled: false
       
   datasource:
-    url: ${env.DB_URL:jdbc:postgresql://database:5432/tno}
-    username: ${env.DB_USERNAME}
-    password: ${env.DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://database:5432/tno}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   flyway:
-    enabled: ${env.DB_MIGRATION_ENABLED:false}
-    validate-on-migrate: ${env.DB_VALIDATE_MIGRATION:true}
+    enabled: ${DB_MIGRATION_ENABLED:false}
+    validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
 
   jpa:
-    show-sql: ${env.JPA_SHOW_SQL:true}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL92Dialect
+        current_session_context_class: thread
     hibernate:
-      ddl-auto: ${env.JPA_DDL_AUTO:none}
+      ddl-auto: ${JPA_DDL_AUTO:none}
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 kafka:
-  bootstrap-servers: ${env.KAFKA_BOOTSTRAP_SERVERS}
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   consumer:
-    group-id: ${env.KAFKA_GROUP_ID}
-    topics: ${env.KAFKA_CONSUMER_TOPICS}
-    poll-delay: ${env.KAFKA_POLL_DELAY:5000}
-    enable-auto-commit: ${env.ENABLE_AUTO_COMMIT:false}
-    auto-offset-reset: ${env.AUTO_OFFSET_RESET:earliest}
+    group-id: ${KAFKA_GROUP_ID}
+    topics: ${KAFKA_CONSUMER_TOPICS}
+    poll-timeout: ${KAFKA_POLL_TIMEOUT:5000}
+    enable-auto-commit: ${ENABLE_AUTO_COMMIT:false}
+    auto-offset-reset: ${AUTO_OFFSET_RESET:earliest}
   producer:
-    client-id: ${env.KAFKA_CLIENT_ID}
-    topic: ${env.KAFKA_PRODUCER_TOPIC}
+    client-id: ${KAFKA_CLIENT_ID}
+    topic: ${KAFKA_PRODUCER_TOPIC}
 
-nlp:
-  max-failed-attempts: ${env.MAX_FAILED_ATTEMPTS:3}
-  failed-delay: ${env.FAILED_DELAY:5000}
+service:
+  max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
+  failed-delay: ${FAILED_DELAY:5000}

@@ -11,12 +11,21 @@ import ca.bc.gov.tno.dal.db.entities.License;
 import ca.bc.gov.tno.dal.db.repositories.ILicenseRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 
+/**
+ * DataSourceTypeService class, provides a concrete way to interact with
+ * licenses in the database.
+ */
 @Service
 public class LicenseService implements ILicenseService {
 
   @Autowired
   private ILicenseRepository repository;
 
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of license.
+   */
   @Override
   public List<License> findAll() {
     var licenses = (List<License>) repository.findAll();
@@ -24,7 +33,10 @@ public class LicenseService implements ILicenseService {
   }
 
   /**
-   * Find the license for the specified 'key'.
+   * Find the license for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the license if it exists.
    */
   @Override
   public Optional<License> findById(Integer key) {
@@ -33,7 +45,10 @@ public class LicenseService implements ILicenseService {
   }
 
   /**
-   * Add the license.
+   * Add a new license to the data source.
+   * 
+   * @param entity The license to add.
+   * @return A new instance of the license that was added.
    */
   @Override
   public License add(License entity) {
@@ -42,7 +57,10 @@ public class LicenseService implements ILicenseService {
   }
 
   /**
-   * Update the license.
+   * Update the specified license in the data source.
+   * 
+   * @param entity The license to update.
+   * @return A new instance of the license that was updated.
    */
   @Override
   public License update(License entity) {
@@ -51,7 +69,9 @@ public class LicenseService implements ILicenseService {
   }
 
   /**
-   * Delete the license.
+   * Delete the specified license from the data source.
+   * 
+   * @param entity The license to delete.
    */
   @Override
   public void delete(License entity) {

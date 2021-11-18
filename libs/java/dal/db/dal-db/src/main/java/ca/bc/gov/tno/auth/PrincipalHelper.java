@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import ca.bc.gov.tno.dal.db.entities.AuditColumns;
+import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
  * PrincipalHelper class, provides helper methods for a Principal.
@@ -19,32 +19,38 @@ public class PrincipalHelper {
    */
   public static UUID getUserUid() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
-    var uid = authentication.getName();
 
-    // TODO: Need to handle different types of user names.
-    if (uid != null && uid.length() > 0)
-      return UUID.fromString(uid);
+    if (authentication != null) {
+      var uid = authentication.getName();
+
+      // TODO: Need to handle different types of user names.
+      if (uid != null && uid.length() > 0)
+        return UUID.fromString(uid);
+    }
 
     return UUID.fromString("00000000-0000-0000-0000-000000000000");
   }
 
   /**
-   * Extract the principal's perferred username.
+   * Extract the principal's preferred username.
    * 
    * @return Users preferred name.
    */
   public static String getUserName() {
     var authentication = SecurityContextHolder.getContext().getAuthentication();
-    SimpleKeycloakAccount details = (SimpleKeycloakAccount) authentication.getDetails();
-    if (details != null) {
-      var context = details.getKeycloakSecurityContext();
-      var token = context.getToken();
 
-      if (token != null) {
-        var name = token.getPreferredUsername();
+    if (authentication != null) {
+      SimpleKeycloakAccount details = (SimpleKeycloakAccount) authentication.getDetails();
+      if (details != null) {
+        var context = details.getKeycloakSecurityContext();
+        var token = context.getToken();
 
-        if (name != null && name.length() > 0)
-          return name;
+        if (token != null) {
+          var name = token.getPreferredUsername();
+
+          if (name != null && name.length() > 0)
+            return name;
+        }
       }
     }
 

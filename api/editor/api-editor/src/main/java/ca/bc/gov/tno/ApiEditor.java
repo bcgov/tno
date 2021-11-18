@@ -5,9 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.*" })
-@EntityScan(basePackages = { "ca.bc.gov.tno.dal.*" })
-@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno", "ca.bc.gov.tno.keycloak", "ca.bc.gov.tno.dal.*",
+@EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.db" })
+@EntityScan(basePackages = { "ca.bc.gov.tno.dal.db" })
+@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno", "ca.bc.gov.tno.keycloak", "ca.bc.gov.tno.dal.db",
 		"ca.bc.gov.tno.azure", "ca.bc.gov.tno.elastic", "ca.bc.gov.tno.kafka" })
 public class ApiEditor {
 

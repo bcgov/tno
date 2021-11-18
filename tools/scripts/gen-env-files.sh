@@ -82,18 +82,20 @@ fi
 # echo 'Enter the IP of your local host.docker.internal.'
 # read -p 'IP: ' varHostDockerInternal
 
-passvar=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
+varPassword=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
 azureKey=$(date +%s | sha256sum | base64 | head -c 29)
 
-if [ -z "$passvar" ]
+if [ -z "$varPassword" ]
 then
   # Generate a random password that satisfies password requirements.
   echo 'A password is randomly being generated.'
-  passvar=$(date +%s | sha256sum | base64 | head -c 29)A8!
-  echo "Your generated password is: $passvar"
+  varPassword=$(date +%s | sha256sum | base64 | head -c 29)A8!
+  echo "Your generated password is: $varPassword"
 else
-  echo "Your password is: $passvar"
+  echo "Your password is: $varPassword"
 fi
+
+varDbName="tno"
 
 ###########################################################################
 # TNO Configuration
@@ -114,10 +116,21 @@ if test -f "./db/postgres/.env"; then
 else
 echo \
 "POSTGRES_USER=$varDbUser
-POSTGRES_PASSWORD=$passvar
-POSTGRES_DB=tno
+POSTGRES_PASSWORD=$varPassword
+POSTGRES_DB=$varDbName
 KEYCLOAK_DB=keycloak" >> ./db/postgres/.env
     echo "./db/postgres/.env created"
+fi
+
+# Database - DAL
+if test -f "./libs/java/dal/db/.env"; then
+    echo "./libs/java/dal/db/.env exists"
+else
+echo \
+"DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
+DB_USERNAME=$varDbUser
+DB_PASSWORD=$varPassword" >> ./libs/java/dal/db/.env
+    echo "./libs/java/dal/db/.env created"
 fi
 
 # Keycloak
@@ -132,9 +145,9 @@ DB_PORT=5432
 DB_DATABASE=keycloak
 DB_SCHEMA=public
 DB_USER=$varDbUser
-DB_PASSWORD=$passvar
+DB_PASSWORD=$varPassword
 KEYCLOAK_USER=$varKeycloak
-KEYCLOAK_PASSWORD=$passvar
+KEYCLOAK_PASSWORD=$varPassword
 KEYCLOAK_IMPORT='/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled'
 KEYCLOAK_LOGLEVEL=WARN
 ROOT_LOGLEVEL=WARN" >> ./auth/keycloak/.env
@@ -166,10 +179,10 @@ else
 echo \
 "NETWORK_HOST=0.0.0.0
 CLUSTER_NAME=tno-es-cluster
-CLUSTER_INITIAL_MASTER_NODES=tno
-NODE_NAME=tno
+CLUSTER_INITIAL_MASTER_NODES=$varDbName
+NODE_NAME=$varDbName
 ELASTIC_USERNAME=$varElastic
-ELASTIC_PASSWORD=$passvar
+ELASTIC_PASSWORD=$varPassword
 DISCOVERY_TYPE=single-node
 DISCOVERY_SEED_HOSTS=
 DISCOVERY_SEED_PROVIDERS=
@@ -179,21 +192,21 @@ ES_JAVA_OPTS='-Xms512m -Xmx512m'" >> ./db/elasticsearch/.env
 fi
 
 # API - Editor
-if test -f "./api/editor/api-editor/src/main/resources/.env"; then
-    echo "./api/editor/api-editor/src/main/resources/.env exists"
+if test -f "./api/editor/.env"; then
+    echo "./api/editor/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
 
-DB_URL=jdbc:postgresql://host.docker.internal:50002/tno
+DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
 DB_USERNAME=$varDbUser
-DB_PASSWORD=$passvar
+DB_PASSWORD=$varPassword
 
 ELASTIC_URIS=host.docker.internal:50007
 ELASTIC_USERNAME=$varElastic
-ELASTIC_PASSWORD=$passvar
+ELASTIC_PASSWORD=$varPassword
 
-AZURE_STORAGE_CONTAINER_NAME=tno
+AZURE_STORAGE_CONTAINER_NAME=$varDbName
 AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:50020/devaccount1;
 
 COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=$varAzureCognitiveServiceKey
@@ -203,8 +216,8 @@ AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$varAzureVideoAnalyzerKey
 AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$varAzureVideoAccountId
 AZURE_VIDEO_ANALYZER_LOCATION=$varAzureVideoLocation
 
-KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019" >> ./api/editor/api-editor/src/main/resources/.env
-    echo "./api/editor/api-editor/src/main/resources/.env created"
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019" >> ./api/editor/.env
+    echo "./api/editor/.env created"
 fi
 
 # APP - Editor
@@ -374,4 +387,85 @@ kafka:
 # server:
   # listenPort: 8080" >> ./db/kafka/kowl/.env
     echo "./db/kafka/kowl/.env created"
+fi
+
+###########################################################################
+# Services Configuration
+###########################################################################
+
+## Syndication - ATOM
+if test -f "./services/syndication/atom.env"; then
+    echo "./ervices/syndication/atom.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
+DB_USERNAME=$varDbUser
+DB_PASSWORD=$varPassword
+
+KAFKA_LOGS_TOPIC=atom-logs
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
+KAFKA_CLIENT_ID=atom-01
+
+MAX_FAILED_ATTEMPTS=5
+
+DATA_SOURCE_ID=GHI
+DATA_SOURCE_TYPE=ATOM
+DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
+DATA_SOURCE_TOPIC=test" >> ./ervices/syndication/atom.env
+    echo "./ervices/syndication/atom.env created"
+fi
+
+## Syndication - RSS
+if test -f "./services/syndication/rss.env"; then
+    echo "./ervices/syndication/rss.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
+DB_USERNAME=$varDbUser
+DB_PASSWORD=$varPassword
+
+KAFKA_LOGS_TOPIC=rss-logs
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
+KAFKA_CLIENT_ID=rss-01
+
+MAX_FAILED_ATTEMPTS=5
+
+DATA_SOURCE_ID=HTH
+DATA_SOURCE_TYPE=RSS
+DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
+DATA_SOURCE_TOPIC=test" >> ./ervices/syndication/rss.env
+    echo "./ervices/syndication/rss.env created"
+fi
+
+## NLP
+if test -f "./services/nlp/.env"; then
+    echo "./ervices/nlp/.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
+DB_USERNAME=$varDbUser
+DB_PASSWORD=$varPassword
+
+KAFKA_LOGS_TOPIC=nlp-logs
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
+KAFKA_GROUP_ID=nlp-01
+KAFKA_CONSUMER_TOPICS=test
+KAFKA_POLL_TIMEOUT=5000
+ENABLE_AUTO_COMMIT=true
+AUTO_OFFSET_RESET=latest
+
+KAFKA_CLIENT_ID=nlp-01
+KAFKA_PRODUCER_TOPIC=nlp
+
+MAX_FAILED_ATTEMPTS=5" >> ./ervices/nlp/.env
+    echo "./ervices/nlp/.env created"
 fi

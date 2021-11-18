@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.dal.db;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.hibernate.exception.ConstraintViolationException;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import ca.bc.gov.tno.dal.db.entities.ContentReference;
 import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
+import ca.bc.gov.tno.dal.db.entities.DataSource;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
@@ -77,6 +79,35 @@ public class App implements CommandLineRunner {
     System.out.println("Fetching data sources");
     var sources = dataSourceService.findAll();
     sources.forEach(ds -> System.out.println(ds.getName() + " " + ds.getConnection()));
+
+    var find = dataSourceService.findByCode("test");
+    if (!find.isEmpty())
+      throw new IllegalStateException();
+
+    var add = new DataSource();
+    add.setCode("ghi");
+    add.setName("Global Hunger Index");
+    add.setTopic("test");
+    add.setConnection(new HashMap<String, Object>() {
+      {
+        put("url", "https://www.globalhungerindex.org/atom.xml");
+      }
+    });
+    add.setTypeId(1);
+    add.setLicenseId(1);
+    add.setScheduleId(1);
+    var addResult = dataSourceService.add(add);
+    if (addResult.getId() == 0)
+      throw new IllegalStateException();
+
+    var findAddById = dataSourceService.findById(addResult.getId());
+    if (findAddById.isEmpty())
+      throw new IllegalStateException();
+    var findAddByCode = dataSourceService.findByCode(addResult.getCode());
+    if (findAddByCode.isEmpty())
+      throw new IllegalStateException();
+
+    dataSourceService.delete(addResult);
   }
 
   private void TestLicenses() {

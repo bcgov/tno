@@ -10,6 +10,8 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import ca.bc.gov.tno.dal.db.AuditColumns;
+
 /**
  * RoleClaim class, provides a way to manage claim roles.
  */
