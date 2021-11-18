@@ -55,7 +55,7 @@ build: ## Builds all containers or the one specified (n=service name)
 
 up: ## Starts all containers or the one specified (n=service name)
 	@echo "$(P) Starting all containers..."
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml up -d $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile core --profile kafka --profile utility up -d $(n)
 
 stop: ## Stops all containers or the one specified (n=service name)
 	@echo "$(P) Stopping all containers..."
