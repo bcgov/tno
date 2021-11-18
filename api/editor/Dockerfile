@@ -12,4 +12,4 @@ RUN apt-get update && apt-get install curl -y
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","api-editor-0.0.1-alpha.jar"]
+ENTRYPOINT ["java","-jar","ApiEditor.jar"]

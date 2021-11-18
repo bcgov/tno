@@ -25,6 +25,3 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 COPY maven-settings.xml /home/vscode/.m2/settings.xml
 RUN mkdir -p /home/vscode/.m2/repository
 RUN sudo chmod 777 /home/vscode/.m2/repository
-
-# To resolve API Incompatibilities with Maven Nexus deploy.
-RUN export JDK_JAVA_OPTIONS='--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.desktop/java.awt.font=ALL-UNNAMED'

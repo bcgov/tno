@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.195.0/containers/java
+{
+	"name": "Java",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			// Update the VARIANT arg to pick a Java version: 8, 11, 14
+			// Append -bullseye or -buster to pin to an OS version.
+			// Use the -bullseye variants on local arm64/Apple Silicon.
+			"VARIANT": "17-bullseye",
+			// Options
+			"MAVEN_VERSION": "3.8.2",
+      "GRADLE_VERSION":"6.9.1",
+			"NODE_VERSION": "v16.10.0"
+		}
+	},
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"java.home": "/docker-java-home",
+		"maven.executable.path": "/usr/local/sdkman/candidates/maven/current/bin/mvn"
+	},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"vscjava.vscode-java-pack",
+		"redhat.java",
+		"redhat.fabric8-analytics",
+		"vscjava.vscode-spring-initializr",
+		"vscjava.vscode-spring-boot-dashboard",
+		"vscjava.vscode-java-pack",
+		"pivotal.vscode-spring-boot",
+		"pivotal.vscode-boot-dev-pack",
+		"shengchen.vscode-checkstyle",
+		"esbenp.prettier-vscode",
+		"redhat.vscode-xml",
+		"dotjoshjohnson.xml",
+		"dhruv.maven-dependency-explorer",
+		"pflannery.vscode-versionlens",
+		"youmaycallmev.vscode-java-saber",
+		"ckolkman.vscode-postgres",
+		"streetsidesoftware.code-spell-checker"
+	],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [8080],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "bash scripts/setup.sh",
+
+	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode"
+}

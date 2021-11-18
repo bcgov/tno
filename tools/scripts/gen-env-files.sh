@@ -393,7 +393,7 @@ fi
 # Services Configuration
 ###########################################################################
 
-## Syndication - ATOM
+## Syndication - ATOM Producer
 if test -f "./services/syndication/atom.env"; then
     echo "./services/syndication/atom.env exists"
 else
@@ -414,11 +414,11 @@ MAX_FAILED_ATTEMPTS=5
 DATA_SOURCE_ID=GHI
 DATA_SOURCE_TYPE=ATOM
 DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
-DATA_SOURCE_TOPIC=test" >> ./services/syndication/atom.env
+DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/atom.env
     echo "./services/syndication/atom.env created"
 fi
 
-## Syndication - RSS
+## Syndication - RSS Producer
 if test -f "./services/syndication/rss.env"; then
     echo "./services/syndication/rss.env exists"
 else
@@ -439,11 +439,11 @@ MAX_FAILED_ATTEMPTS=5
 DATA_SOURCE_ID=HTH
 DATA_SOURCE_TYPE=RSS
 DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
-DATA_SOURCE_TOPIC=test" >> ./services/syndication/rss.env
+DATA_SOURCE_TOPIC=news-hth" >> ./services/syndication/rss.env
     echo "./services/syndication/rss.env created"
 fi
 
-## NLP
+## NLP Consumer/Producer
 if test -f "./services/nlp/.env"; then
     echo "./services/nlp/.env exists"
 else
@@ -458,14 +458,42 @@ KAFKA_LOGS_TOPIC=nlp-logs
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
 KAFKA_GROUP_ID=nlp-01
-KAFKA_CONSUMER_TOPICS=test
+KAFKA_CONSUMER_TOPICS=news-hth, news-ghi
 KAFKA_POLL_TIMEOUT=5000
 ENABLE_AUTO_COMMIT=true
 AUTO_OFFSET_RESET=latest
 
 KAFKA_CLIENT_ID=nlp-01
-KAFKA_PRODUCER_TOPIC=nlp
+KAFKA_PRODUCER_TOPIC=news-nlp
 
 MAX_FAILED_ATTEMPTS=5" >> ./services/nlp/.env
     echo "./services/nlp/.env created"
+fi
+
+## Elasticsearch Consumer
+if test -f "./services/elastic/.env"; then
+    echo "./ervices/elastic/.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
+DB_USERNAME=$varDbUser
+DB_PASSWORD=$varPassword
+
+KAFKA_LOGS_TOPIC=elastic-logs
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
+KAFKA_GROUP_ID=elastic-01
+KAFKA_CONSUMER_TOPICS=news-nlp
+KAFKA_POLL_TIMEOUT=5000
+ENABLE_AUTO_COMMIT=true
+AUTO_OFFSET_RESET=earliest
+
+MAX_FAILED_ATTEMPTS=5
+
+ELASTIC_URL=host.docker.internal:50007
+ELASTIC_USERNAME=$varElastic
+ELASTIC_PASSWORD=$varPassword" >> ./ervices/elastic/.env
+    echo "./ervices/elastic/.env created"
 fi

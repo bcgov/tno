@@ -103,8 +103,7 @@ The exposed container ports is configurable, but the defaults are identified bel
 If you have installed `make` you can use the helper method.
 
 ```bash
-make core-up
-make kafka-up
+make up
 ```
 
 If you haven't installed `make` you can use the docker-compose cli.

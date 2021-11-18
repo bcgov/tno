@@ -55,7 +55,7 @@ build: ## Builds all containers or the one specified (n=service name)
 
 up: ## Starts all containers or the one specified (n=service name)
 	@echo "$(P) Starting all containers..."
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile core --profile kafka --profile utility up -d $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka up -d $(n)
 
 stop: ## Stops all containers or the one specified (n=service name)
 	@echo "$(P) Stopping all containers..."
@@ -123,7 +123,6 @@ kafka-remove: ## Remove the kafka containers
 	@docker rm -fv tno-schema-registry
 	@docker rm -fv tno-broker
 	@docker rm -fv tno-zookeeper
-	@docker rm -fv tno-kowl
 
 ##############################################################################
 # Service Management
@@ -131,19 +130,19 @@ kafka-remove: ## Remove the kafka containers
 
 service-build: ## Builds the service containers, or the one specified (n=service name)
 	@echo "$(P) Building service containers..."
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service  build $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility  build $(n)
 
 service-up: ## Runs the service containers, or the one specified (n=service name)
 	@echo "$(P) Running service containers..."
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service up -d $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility up -d $(n)
 
 service-stop: ## Stops the service containers, or the one specified (n=service name)
 	@echo "$(P) Stopping service containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service stop $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility stop $(n)
 
 service-down: ## Stops the service containers and removes them
 	@echo "$(P) Stopping service containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service down
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility down
 
 ##############################################################################
 # Node Container Management
@@ -151,7 +150,7 @@ service-down: ## Stops the service containers and removes them
 
 npm-down: ## Removes node containers, images, volumes, for specified application (n=service name).
 	@echo "$(P) Removing node containers and volumes."
-	@docker-compose stop $(n)
+	@make stop $(n)
 	@docker-compose rm -f -v -s $(n)
 	@docker volume rm -f tno-$(n)-node-cache
 
@@ -165,5 +164,13 @@ npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
 db-update: ## Run the flyway database migration update (requires maven to be installed).
 	@echo "$(P) Run the flyway database migration update"
 	@cd libs/java/dal/db; make db-update;
+
+##############################################################################
+# Kafka Utility Commands
+##############################################################################
+
+reset-consumer-offset: ## Reset the consumer group topic offset.
+	@echo "$(P) Reset the consumer group topic offset"
+	@cd ./db/kafka/broker/scripts; ./reset-consumer-offset.sh
 
 .PHONY: local

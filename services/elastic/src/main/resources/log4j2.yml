@@ -1,0 +1,60 @@
+Configuration:
+  properties:
+    property:
+      - name: filename
+        value: logs/app.log
+      - name: bootstrapServers
+        value: ${env:KAFKA_BOOTSTRAP_SERVERS}
+      - name: topic
+        value: ${env:KAFKA_LOGS_TOPIC}
+
+  status: warn
+
+  appenders:
+    Console:
+      name: LogToConsole
+      PatternLayout:
+        Pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-7t] %c{1}:%L - %m%n"
+        
+    #File:
+    #  name: File
+    #  fileName: logs/app.log
+    #  PatternLayout:
+    #    Pattern: "%d %p %C{1.} [%t] %m%n"
+
+    RollingFile:
+      - name: LogToRollingFile
+        fileName: ${filename}
+        filePattern: "logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
+        PatternLayout:
+          pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-7t] %c{1}:%L - %m%n"
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: 10MB
+        DefaultRollOverStrategy:
+          max: 10
+
+    Kafka:
+      name: LogToKafka
+      topic: ${topic}
+      key: ${sys:pid}
+      Property:
+        - name: bootstrap.servers
+          value: ${bootstrapServers}
+      PatternLayout:
+        pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-7t] %c{1}:%L - %m%n"
+
+  Loggers:
+    logger:
+      - name: ca.bc.gov.tno
+        level: all
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+          - ref: LogToKafka
+
+    Root:
+      level: error
+      AppenderRef:
+        ref: LogToConsole

@@ -10,4 +10,4 @@ COPY --from=base /project/target .
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","tno.api.editor-0.0.1-alpha.jar"]
+ENTRYPOINT ["java","-jar","ApiEditor.jar"]

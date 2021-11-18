@@ -11,9 +11,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import ca.bc.gov.tno.models.NlpContent;
-import ca.bc.gov.tno.services.nlp.events.ConsumerRecordReceivedEvent;
+import ca.bc.gov.tno.models.SourceContent;
+import ca.bc.gov.tno.services.events.ErrorEvent;
+import ca.bc.gov.tno.services.kafka.events.ConsumerRecordReceivedEvent;
 import ca.bc.gov.tno.services.nlp.events.ContentParsedEvent;
-import ca.bc.gov.tno.services.nlp.events.ErrorEvent;
 
 /**
  * ContentParser class, provides a way to parse through the content, clean it up
@@ -22,17 +23,29 @@ import ca.bc.gov.tno.services.nlp.events.ErrorEvent;
 @Async
 @Component
 @Scope("prototype")
-public class ContentParser implements ApplicationListener<ConsumerRecordReceivedEvent> {
+public class ContentParser implements ApplicationListener<ConsumerRecordReceivedEvent<String, SourceContent>> {
   private static final Logger logger = LogManager.getLogger(ContentParser.class);
 
+  private final ApplicationEventPublisher eventPublisher;
+
+  /**
+   * Creates a new instance of a ContentParser object, initializes with specified
+   * parameters.
+   * 
+   * @param eventPublisher Application event publisher.
+   */
   @Autowired
-  private ApplicationEventPublisher applicationEventPublisher;
+  public ContentParser(final ApplicationEventPublisher eventPublisher) {
+    this.eventPublisher = eventPublisher;
+  }
 
   /**
    * Remove any HTML from the content body. Then fire the ready event.
+   * 
+   * @param event The source event.
    */
   @Override
-  public void onApplicationEvent(ConsumerRecordReceivedEvent event) {
+  public void onApplicationEvent(ConsumerRecordReceivedEvent<String, SourceContent> event) {
     try {
       var record = event.getRecord();
       var content = record.value();
@@ -49,12 +62,12 @@ public class ContentParser implements ApplicationListener<ConsumerRecordReceived
       logger.info(String.format("Content has been parsed: '%s'", result.getUid()));
 
       var parsedEvent = new ContentParsedEvent(this, content, result);
-      applicationEventPublisher.publishEvent(parsedEvent);
+      eventPublisher.publishEvent(parsedEvent);
     } catch (Exception ex) {
       // TODO: Failed content needs to identified so that it can be rerun. Or it needs
       // to be pushed as it is into the next queue.
       var errorEvent = new ErrorEvent(this, ex);
-      applicationEventPublisher.publishEvent(errorEvent);
+      eventPublisher.publishEvent(errorEvent);
     }
   }
 }

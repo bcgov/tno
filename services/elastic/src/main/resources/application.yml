@@ -1,0 +1,56 @@
+debug: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:50000/auth/}
+  realm: ${KEYCLOAK_REALM:tno}
+  resource: ${KEYCLOAK_RESOURCE:tno-api}
+  public-client: true
+
+spring:
+  main:
+    banner-mode: 'off'
+
+  h2:
+    console:
+      enabled: false
+      
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://database:5432/tno}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  flyway:
+    enabled: ${DB_MIGRATION_ENABLED:false}
+    validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
+
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL92Dialect
+        current_session_context_class: thread
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:none}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+service:
+  max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
+  failed-delay: ${FAILED_DELAY:5000}
+
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  consumer:
+    group-id: ${KAFKA_GROUP_ID}
+    topics: ${KAFKA_CONSUMER_TOPICS}
+    poll-timeout: ${KAFKA_POLL_TIMEOUT:5000}
+    enable-auto-commit: ${ENABLE_AUTO_COMMIT:false}
+    auto-offset-reset: ${AUTO_OFFSET_RESET:earliest}
+
+elastic:
+  url: ${ELASTIC_URL}
+  username: ${ELASTIC_USERNAME}
+  password: ${ELASTIC_PASSWORD}

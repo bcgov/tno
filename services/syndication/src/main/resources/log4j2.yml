@@ -46,7 +46,7 @@ Configuration:
 
   Loggers:
     logger:
-      - name: ca.bc.gov.tno.services.syndication
+      - name: ca.bc.gov.tno
         level: all
         additivity: false
         AppenderRef:
