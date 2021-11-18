@@ -118,7 +118,7 @@ services:
     container_name: tno-api-editor
     build:
       context: api/editor
-    env_file: api/editor/api-editor/src/main/resources/.env
+    env_file: api/editor/.env
     ports:
       - ${API_EDITOR_HTTP_PORT:-50003}:8080
       - ${API_EDITOR_HTTPS_PORT:-50004}:443
