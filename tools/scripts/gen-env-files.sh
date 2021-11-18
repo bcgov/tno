@@ -395,7 +395,7 @@ fi
 
 ## Syndication - ATOM
 if test -f "./services/syndication/atom.env"; then
-    echo "./ervices/syndication/atom.env exists"
+    echo "./services/syndication/atom.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
@@ -414,13 +414,13 @@ MAX_FAILED_ATTEMPTS=5
 DATA_SOURCE_ID=GHI
 DATA_SOURCE_TYPE=ATOM
 DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
-DATA_SOURCE_TOPIC=test" >> ./ervices/syndication/atom.env
-    echo "./ervices/syndication/atom.env created"
+DATA_SOURCE_TOPIC=test" >> ./services/syndication/atom.env
+    echo "./services/syndication/atom.env created"
 fi
 
 ## Syndication - RSS
 if test -f "./services/syndication/rss.env"; then
-    echo "./ervices/syndication/rss.env exists"
+    echo "./services/syndication/rss.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
@@ -439,13 +439,13 @@ MAX_FAILED_ATTEMPTS=5
 DATA_SOURCE_ID=HTH
 DATA_SOURCE_TYPE=RSS
 DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
-DATA_SOURCE_TOPIC=test" >> ./ervices/syndication/rss.env
-    echo "./ervices/syndication/rss.env created"
+DATA_SOURCE_TOPIC=test" >> ./services/syndication/rss.env
+    echo "./services/syndication/rss.env created"
 fi
 
 ## NLP
 if test -f "./services/nlp/.env"; then
-    echo "./ervices/nlp/.env exists"
+    echo "./services/nlp/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
@@ -466,6 +466,6 @@ AUTO_OFFSET_RESET=latest
 KAFKA_CLIENT_ID=nlp-01
 KAFKA_PRODUCER_TOPIC=nlp
 
-MAX_FAILED_ATTEMPTS=5" >> ./ervices/nlp/.env
-    echo "./ervices/nlp/.env created"
+MAX_FAILED_ATTEMPTS=5" >> ./services/nlp/.env
+    echo "./services/nlp/.env created"
 fi
