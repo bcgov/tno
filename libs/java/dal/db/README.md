@@ -23,10 +23,10 @@ We do this to create a local copy that we can then move into a destination proje
 
 ```bash
 mvn install:install-file \
-   -Dfile=target/dal-db-0.0.1-alpha.jar \
+   -Dfile=target/dal-db-0.0.1-SNAPSHOT.jar \
    -DgroupId=ca.bc.gov.tno \
    -DartifactId=dal-db \
-   -Dversion=0.0.1-alpha \
+   -Dversion=0.0.1-SNAPSHOT \
    -Dpackaging=jar \
    -DgeneratePom=true \
    -DlocalRepositoryPath=/workspaces/tno/libs/java/dal/db/target/repository
@@ -38,6 +38,7 @@ To push an image to Maven Central you must have an account setup.
 Tutorial example provided [here](https://dzone.com/articles/how-to-create-a-java-library-from-scratch-to-maven).
 
 Information
+
 - [Central Sonatype](https://central.sonatype.org/publish/publish-maven/)
 - [Tutorial](https://dzone.com/articles/how-to-create-a-java-library-from-scratch-to-maven)
 - [Nexus Repository Manager](https://s01.oss.sonatype.org/index.html#view-repositories;releases~browsestorage)
@@ -94,7 +95,7 @@ gpg --export -a "{uid}" > public.key
 # Get your public key.
 gpg --list-keys
 
-# Distribute your public key.  Replace curly brackets with your public key. 
+# Distribute your public key.  Replace curly brackets with your public key.
 gpg --keyserver keyserver.ubuntu.com --send-keys {public key}
 
 # Export private keys to share with other computers.  Replace the curly brackets with your uid (probably email).

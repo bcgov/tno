@@ -20,7 +20,7 @@ services:
   ####################### Database #######################
   database:
     image: tno:database
-    profiles: ["core"]
+    profiles: ["core", "data"]
     restart: on-failure:1
     container_name: tno-database
     build:
@@ -65,7 +65,7 @@ services:
   ####################### Elasticsearch #######################
   elastic:
     image: tno:elastic
-    profiles: ["core"]
+    profiles: ["core", "elastic", "data"]
     restart: on-failure:1
     container_name: tno-elastic
     build:
@@ -90,6 +90,20 @@ services:
     #   timeout: 10s
     #   retries: 3
     #   start_period: 15s
+
+  dejavu:
+    image: tno:dejavu
+    profiles: ["utility", "elastic"]
+    restart: on-failure:1
+    container_name: tno-dejavu
+    build:
+      context: db/elasticsearch/dejavu
+    ports:
+      - ${ELASTIC_DEJAVU_HTTP_PORT:-50009}:1358
+    links:
+      - elastic
+    networks:
+      - tno
 
   ####################### Azure Storage #######################
   azure-storage:
@@ -184,7 +198,7 @@ services:
 
   rss:
     image: tno:rss
-    profiles: ["service"]
+    profiles: ["service", "data"]
     restart: on-failure:1
     container_name: tno-rss
     build:
@@ -193,6 +207,9 @@ services:
       - services/syndication/rss.env
     ports:
       - ${SYNDICATION_PORT:-50052}:8080
+    depends_on:
+      - database
+      - broker
     networks:
       - tno
     healthcheck:
@@ -204,7 +221,7 @@ services:
 
   atom:
     image: tno:atom
-    profiles: ["service"]
+    profiles: ["service", "data"]
     restart: on-failure:1
     container_name: tno-atom
     build:
@@ -213,6 +230,9 @@ services:
       - services/syndication/atom.env
     ports:
       - ${SYNDICATION_PORT:-50053}:8080
+    depends_on:
+      - database
+      - broker
     networks:
       - tno
     healthcheck:
@@ -222,11 +242,9 @@ services:
       retries: 3
       start_period: 30s
 
-  ####################### NLP Service #######################
-
   nlp:
     image: tno:nlp
-    profiles: ["service"]
+    profiles: ["service", "data"]
     restart: on-failure:1
     container_name: tno-nlp
     build:
@@ -237,6 +255,31 @@ services:
       - ${NLP_PORT:-50060}:8080
     volumes:
       - ./services/nlp/src/main/resources/models:/app/classes/models
+    depends_on:
+      - database
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  search:
+    image: tno:search
+    profiles: ["service", "data", "elastic"]
+    restart: on-failure:1
+    container_name: tno-search
+    build:
+      context: services/elastic
+    env_file:
+      - services/elastic/.env
+    ports:
+      - ${NLP_PORT:-50060}:8080
+    depends_on:
+      - database
+      - elastic
     networks:
       - tno
     healthcheck:

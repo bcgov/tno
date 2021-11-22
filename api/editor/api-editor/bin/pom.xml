@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>ca.bc.gov.tno</groupId>
 	<artifactId>api-editor</artifactId>
-	<version>0.0.1-alpha</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
 	<description>TNO Editor RESTful API</description>
 	<properties>

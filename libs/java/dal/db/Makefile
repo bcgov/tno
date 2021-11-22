@@ -65,32 +65,24 @@ setup: ## Import private key
 	@echo "$(P) Import private key"
 	@./scripts/setup.sh
 
-fix-compatibility: ## Resolve issue with compatibility issue with Maven
-	@export JDK_JAVA_OPTIONS='--add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.desktop/java.awt.font=ALL-UNNAMED'
-
 deploy-staging: ## Build and deploy the package to Maven Central
 	@echo "$(P) Build and deploy package to Maven Central"
-	@make fix-compatibility
 	@./scripts/deploy-staging.sh
 
 close-staging: ## Close the staging repository
 	@echo "$(P) Close the staging repository"
-	@make fix-compatibility
 	@./scripts/close-staging-repo.sh
 
 release-staging: ## Release the staging repository
 	@echo "$(P) Release the staging repository"
-	@make fix-compatibility
 	@./scripts/release-staging-repo.sh
 
 drop-staging: ## Drop the staging repository
 	@echo "$(P) Drop the staging repository"
-	@make fix-compatibility
 	@./scripts/drop-staging-repo.sh
 
 deploy-release: ## Build and deploy the package to Maven Central and release it
 	@echo "$(P) Build and deploy package to Maven Central"
-	@make fix-compatibility
 	@./scripts/deploy-release.sh
 
 ##############################################################################

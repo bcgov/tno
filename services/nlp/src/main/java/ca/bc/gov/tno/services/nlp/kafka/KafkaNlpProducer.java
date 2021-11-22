@@ -22,9 +22,9 @@ import ca.bc.gov.tno.dal.db.KafkaMessageStatus;
 import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
 import ca.bc.gov.tno.models.NlpContent;
-import ca.bc.gov.tno.services.nlp.config.NlpConfig;
+import ca.bc.gov.tno.services.events.ErrorEvent;
+import ca.bc.gov.tno.services.kafka.config.KafkaProducerConfig;
 import ca.bc.gov.tno.services.nlp.events.ContentReadyEvent;
-import ca.bc.gov.tno.services.nlp.events.ErrorEvent;
 
 /**
  * KafkaNlpProducer class, provides a process that pushes messages to Kafka
@@ -35,29 +35,26 @@ import ca.bc.gov.tno.services.nlp.events.ErrorEvent;
 public class KafkaNlpProducer implements ApplicationListener<ContentReadyEvent> {
   private static final Logger logger = LogManager.getLogger(KafkaNlpProducer.class);
 
-  @Autowired
-  private ApplicationEventPublisher applicationEventPublisher;
-
-  @Autowired
-  private NlpConfig config;
-
-  @Autowired
-  private IContentReferenceService contentReferenceService;
-
-  private KafkaProducer<String, NlpContent> producer;
+  private final ApplicationEventPublisher eventPublisher;
+  private final KafkaProducerConfig config;
+  private final IContentReferenceService service;
+  private final KafkaProducer<String, NlpContent> producer;
 
   /**
-   * Create a new instance of a KafkaNlpProducer object.
+   * Create a new instance of a KafkaNlpProducer object, initializes with
+   * specified parameters.
+   * 
+   * @param config         The Kafka producer configuration settings.
+   * @param service        The content reference service.
+   * @param eventPublisher The Application event publisher.
    */
-  public KafkaNlpProducer() {
-  }
+  @Autowired
+  public KafkaNlpProducer(final KafkaProducerConfig config, final IContentReferenceService service,
+      final ApplicationEventPublisher eventPublisher) {
+    this.config = config;
+    this.service = service;
+    this.eventPublisher = eventPublisher;
 
-  /**
-   * Initialize after constructor. Creates a new instance of a KafkaProducer that
-   * can be used by the send() method.
-   */
-  @PostConstruct
-  public void init() {
     var props = new Properties();
     props.put(ProducerConfig.CLIENT_ID_CONFIG, config.getClientId());
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
@@ -70,9 +67,12 @@ public class KafkaNlpProducer implements ApplicationListener<ContentReadyEvent> 
     props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
     props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
     props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-    producer = new KafkaProducer<String, NlpContent>(props);
+    this.producer = new KafkaProducer<String, NlpContent>(props);
   }
 
+  /**
+   * Send message to Kafka.
+   */
   @Override
   public void onApplicationEvent(ContentReadyEvent event) {
     var content = event.getContent();
@@ -80,7 +80,7 @@ public class KafkaNlpProducer implements ApplicationListener<ContentReadyEvent> 
       send(content);
     } catch (InterruptedException | ExecutionException ex) {
       var errorEvent = new ErrorEvent(this, ex);
-      applicationEventPublisher.publishEvent(errorEvent);
+      eventPublisher.publishEvent(errorEvent);
       producer.flush();
     }
   }
@@ -93,7 +93,7 @@ public class KafkaNlpProducer implements ApplicationListener<ContentReadyEvent> 
    * @throws InterruptedException
    */
   public void send(NlpContent content) throws InterruptedException, ExecutionException {
-    var topic = config.getProducerTopic();
+    var topic = config.getTopic();
     var key = String.format("%s-%s", content.getSource(), content.getUid());
     logger.info(String.format("NLP content sending: '%s', topic: %s", key, topic));
     var response = producer.send(new ProducerRecord<String, NlpContent>(topic, key, content));
@@ -102,12 +102,11 @@ public class KafkaNlpProducer implements ApplicationListener<ContentReadyEvent> 
         record.partition(), record.offset()));
 
     // Update the content reference status.
-    var rContentReference = contentReferenceService
-        .findById(new ContentReferencePK(content.getSource(), content.getUid()));
+    var rContentReference = service.findById(new ContentReferencePK(content.getSource(), content.getUid()));
     if (rContentReference.isPresent()) {
       var contentReference = rContentReference.get();
       contentReference.setStatus(KafkaMessageStatus.NLP);
-      contentReferenceService.update(contentReference);
+      service.update(contentReference);
       logger.info(
           String.format("Content reference updated with NLP: '%s', source: %s, topic: %s, partition: %s, offset: %s",
               content.getUid(), content.getSource(), content.getTopic(), content.getPartition(), content.getOffset()));
@@ -117,6 +116,9 @@ public class KafkaNlpProducer implements ApplicationListener<ContentReadyEvent> 
     }
   }
 
+  /**
+   * Flush and close the kafka producer.
+   */
   @Override
   public void finalize() {
     producer.flush();

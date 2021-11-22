@@ -6,7 +6,7 @@
 
   <groupId>ca.bc.gov.tno</groupId>
   <artifactId>core</artifactId>
-  <version>0.0.2-alpha</version>
+  <version>0.0.2-SNAPSHOT</version>
 
   <name>core</name>
   <description>TNO Core library</description>

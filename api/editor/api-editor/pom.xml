@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ca.bc.gov.tno</groupId>
 	<artifactId>api-editor</artifactId>
-	<version>0.0.1-alpha</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
 	<description>TNO Editor RESTful API</description>
 	<properties>
@@ -47,7 +47,7 @@
 		<dependency>
 			<groupId>ca.bc.gov.tno</groupId>
 			<artifactId>dal-db</artifactId>
-			<version>0.0.17-alpha</version>
+			<version>0.0.17-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -129,5 +129,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalName>ApiEditor</finalName>
 	</build>
 </project>

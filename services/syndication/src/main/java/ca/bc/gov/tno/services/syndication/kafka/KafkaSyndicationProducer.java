@@ -9,8 +9,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import com.rometools.rome.feed.synd.SyndEntry;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -33,10 +31,10 @@ import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
 import ca.bc.gov.tno.models.SourceContent;
 import ca.bc.gov.tno.models.Tag;
-import ca.bc.gov.tno.services.syndication.config.KafkaProducerConfig;
-import ca.bc.gov.tno.services.syndication.events.ErrorEvent;
-import ca.bc.gov.tno.services.syndication.events.SourceCompleteEvent;
-import ca.bc.gov.tno.services.syndication.events.FeedReadyEvent;
+import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
+import ca.bc.gov.tno.services.events.ErrorEvent;
+import ca.bc.gov.tno.services.kafka.config.KafkaProducerConfig;
+import ca.bc.gov.tno.services.syndication.events.ProducerSendEvent;
 import ca.bc.gov.tno.services.syndication.models.PublishedRecord;
 import ca.bc.gov.tno.TagKey;
 
@@ -46,32 +44,24 @@ import ca.bc.gov.tno.TagKey;
  */
 @Async
 @Component
-public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEvent> {
+public class KafkaSyndicationProducer implements ApplicationListener<ProducerSendEvent> {
   private static final Logger logger = LogManager.getLogger(KafkaSyndicationProducer.class);
 
-  @Autowired
-  private ApplicationEventPublisher applicationEventPublisher;
-
-  @Autowired
-  private KafkaProducerConfig kafkaConfig;
-
-  @Autowired
-  private IContentReferenceService contentReferenceService;
-
-  private KafkaProducer<String, SourceContent> producer;
+  private final ApplicationEventPublisher eventPublisher;
+  private final KafkaProducerConfig kafkaConfig;
+  private final IContentReferenceService contentReferenceService;
+  private final KafkaProducer<String, SourceContent> producer;
 
   /**
    * Create a new instance of a KafkaSyndicationProducer object.
    */
-  public KafkaSyndicationProducer() {
-  }
+  @Autowired
+  public KafkaSyndicationProducer(final KafkaProducerConfig config, final IContentReferenceService service,
+      final ApplicationEventPublisher eventPublisher) {
+    this.kafkaConfig = config;
+    this.contentReferenceService = service;
+    this.eventPublisher = eventPublisher;
 
-  /**
-   * Initialize after constructor. Creates a new instance of a KafkaProducer that
-   * can be used by the send() method.
-   */
-  @PostConstruct
-  public void init() {
     var props = new Properties();
     props.put(ProducerConfig.CLIENT_ID_CONFIG, kafkaConfig.getClientId());
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
@@ -84,20 +74,23 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
     props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
     props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
     props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-    producer = new KafkaProducer<String, SourceContent>(props);
+    this.producer = new KafkaProducer<String, SourceContent>(props);
   }
 
+  /**
+   * Send the message to Kafka.
+   */
   @Override
-  public void onApplicationEvent(FeedReadyEvent event) {
+  public void onApplicationEvent(ProducerSendEvent event) {
     try {
       var config = event.getConfig();
       send(event);
 
-      var doneEvent = new SourceCompleteEvent(event.getSource(), config);
-      applicationEventPublisher.publishEvent(doneEvent);
+      var doneEvent = new TransactionCompleteEvent<>(event.getSource(), config);
+      eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
       var errorEvent = new ErrorEvent(this, ex);
-      applicationEventPublisher.publishEvent(errorEvent);
+      eventPublisher.publishEvent(errorEvent);
       producer.flush();
     }
   }
@@ -109,11 +102,11 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
    * @throws ExecutionException
    * @throws InterruptedException
    */
-  public void send(FeedReadyEvent event) throws InterruptedException, ExecutionException {
-    var feed = event.getFeed();
+  public void send(ProducerSendEvent event) throws InterruptedException, ExecutionException {
+    var feed = event.getData();
     var responses = new ArrayList<PublishedRecord>();
 
-    for (SyndEntry entry : feed.getEntries()) {
+    for (var entry : feed.getEntries()) {
       var record = handleDuplication(event, entry);
       if (record != null)
         responses.add(record);
@@ -145,7 +138,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
       } catch (Exception ex) {
         // Hopefully an error on one entry won't stop all other entries.
         var errorEvent = new ErrorEvent(this, ex);
-        applicationEventPublisher.publishEvent(errorEvent);
+        eventPublisher.publishEvent(errorEvent);
       }
 
       futureIter.remove();
@@ -162,7 +155,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
    * @param entry
    * @return A new PublishRecord object or null to stop duplication.
    */
-  private PublishedRecord handleDuplication(FeedReadyEvent event, SyndEntry entry) {
+  private PublishedRecord handleDuplication(ProducerSendEvent event, SyndEntry entry) {
     var config = event.getConfig();
     var source = config.getId();
     var topic = config.getTopic();
@@ -225,7 +218,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
       // multiple times. This needs to be handled.
       // Hopefully an error on one entry won't stop all other entries.
       var errorEvent = new ErrorEvent(this, ex);
-      applicationEventPublisher.publishEvent(errorEvent);
+      eventPublisher.publishEvent(errorEvent);
     }
 
     return null;
@@ -238,7 +231,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
    * @param entry
    * @return Future{RecordMetadata} object.
    */
-  private Future<RecordMetadata> publishEntry(FeedReadyEvent event, SyndEntry entry) {
+  private Future<RecordMetadata> publishEntry(ProducerSendEvent event, SyndEntry entry) {
     try {
       var config = event.getConfig();
       var topic = config.getTopic();
@@ -248,7 +241,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
       return producer.send(new ProducerRecord<String, SourceContent>(topic, key, content));
     } catch (Exception ex) {
       var errorEvent = new ErrorEvent(this, ex);
-      applicationEventPublisher.publishEvent(errorEvent);
+      eventPublisher.publishEvent(errorEvent);
     }
     return CompletableFuture.completedFuture(null);
   }
@@ -260,8 +253,8 @@ public class KafkaSyndicationProducer implements ApplicationListener<FeedReadyEv
    * @param entry
    * @return new instance of a SourceContent object.
    */
-  private SourceContent generateContent(FeedReadyEvent event, SyndEntry entry) {
-    var feed = event.getFeed();
+  private SourceContent generateContent(ProducerSendEvent event, SyndEntry entry) {
+    var feed = event.getData();
     var config = event.getConfig();
     var source = entry.getSource() != null ? entry.getSource() : feed;
 

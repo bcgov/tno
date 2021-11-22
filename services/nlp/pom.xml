@@ -6,7 +6,7 @@
 
   <groupId>ca.bc.gov.tno</groupId>
   <artifactId>nlp</artifactId>
-  <version>0.0.1-alpha</version>
+  <version>0.0.1-SNAPSHOT</version>
 
   <name>nlp</name>
   <description>TNO Natural Language Processor</description>
@@ -40,6 +40,11 @@
 
   <repositories>
     <repository>
+      <id>maven-snapshots</id>
+      <name>Maven Central Repository - Snapshots</name>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+    <repository>
       <id>maven-staging</id>
       <name>Maven Central Repository - Staging</name>
       <url>https://s01.oss.sonatype.org/content/groups/staging/</url>
@@ -65,8 +70,8 @@
   <dependencies>
     <dependency>
       <groupId>ca.bc.gov.tno</groupId>
-      <artifactId>dal-db</artifactId>
-      <version>0.0.17-alpha</version>
+      <artifactId>service</artifactId>
+      <version>0.0.7-SNAPSHOT</version>
     </dependency>
 
     <dependency>

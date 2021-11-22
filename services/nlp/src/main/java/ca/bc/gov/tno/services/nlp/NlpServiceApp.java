@@ -13,7 +13,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import ca.bc.gov.tno.services.nlp.events.ServiceStartEvent;
+import ca.bc.gov.tno.services.events.ServiceStartEvent;
 
 /**
  * NlpServiceApp class, provides a process that pulls messages from Kafka
@@ -22,7 +22,8 @@ import ca.bc.gov.tno.services.nlp.events.ServiceStartEvent;
  */
 @EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.db" })
 @EntityScan(basePackages = { "ca.bc.gov.tno.dal.db" })
-@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno.services.nlp", "ca.bc.gov.tno.dal.db" })
+@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno.services.nlp", "ca.bc.gov.tno.dal.db",
+    "ca.bc.gov.tno.services" })
 public class NlpServiceApp implements ApplicationRunner {
   private static final Logger logger = LogManager.getLogger(NlpServiceApp.class);
 

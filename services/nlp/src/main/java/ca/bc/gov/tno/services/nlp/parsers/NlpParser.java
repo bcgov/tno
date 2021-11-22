@@ -21,9 +21,9 @@ import org.springframework.stereotype.Component;
 
 import ca.bc.gov.tno.models.SourceContent;
 import ca.bc.gov.tno.models.Tag;
+import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.nlp.events.ContentParsedEvent;
 import ca.bc.gov.tno.services.nlp.events.ContentReadyEvent;
-import ca.bc.gov.tno.services.nlp.events.ErrorEvent;
 import ca.bc.gov.tno.TagKey;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -40,13 +40,23 @@ import opennlp.tools.util.Span;
 public class NlpParser implements ApplicationListener<ContentParsedEvent> {
   private static final Logger logger = LogManager.getLogger(ContentParser.class);
 
+  private final ApplicationEventPublisher eventPublisher;
+
+  /**
+   * Creates a new instance of a NlpParser object, initializes with specified
+   * parameters.
+   * 
+   * @param eventPublisher Application event publisher.
+   */
   @Autowired
-  private ApplicationEventPublisher applicationEventPublisher;
+  public NlpParser(final ApplicationEventPublisher eventPublisher) {
+    this.eventPublisher = eventPublisher;
+  }
 
   /**
    * Parse content and extract keywords, Name Entity Recognition (NER).
    * 
-   * @param event
+   * @param event The source event.
    */
   @Override
   public void onApplicationEvent(ContentParsedEvent event) {
@@ -59,12 +69,12 @@ public class NlpParser implements ApplicationListener<ContentParsedEvent> {
       logger.info(String.format("NLP processed '%s'", content.getUid()));
 
       var readyEvent = new ContentReadyEvent(this, result);
-      applicationEventPublisher.publishEvent(readyEvent);
+      eventPublisher.publishEvent(readyEvent);
     } catch (IOException | InterruptedException | ExecutionException ex) {
       // TODO: Failed content needs to identified so that it can be rerun. Or it needs
       // to be pushed as it is into the next queue.
       var errorEvent = new ErrorEvent(this, ex);
-      applicationEventPublisher.publishEvent(errorEvent);
+      eventPublisher.publishEvent(errorEvent);
     }
   }
 
