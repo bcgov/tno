@@ -458,7 +458,7 @@ KAFKA_LOGS_TOPIC=nlp-logs
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
 KAFKA_GROUP_ID=nlp-01
-KAFKA_CONSUMER_TOPICS=news-hth, news-ghi
+KAFKA_CONSUMER_TOPICS=news-hth,news-ghi
 KAFKA_POLL_TIMEOUT=5000
 ENABLE_AUTO_COMMIT=true
 AUTO_OFFSET_RESET=latest
@@ -472,7 +472,7 @@ fi
 
 ## Elasticsearch Consumer
 if test -f "./services/elastic/.env"; then
-    echo "./ervices/elastic/.env exists"
+    echo "./services/elastic/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:50000/auth/
@@ -494,6 +494,6 @@ MAX_FAILED_ATTEMPTS=5
 
 ELASTIC_URL=host.docker.internal:50007
 ELASTIC_USERNAME=$varElastic
-ELASTIC_PASSWORD=$varPassword" >> ./ervices/elastic/.env
-    echo "./ervices/elastic/.env created"
+ELASTIC_PASSWORD=$varPassword" >> ./services/elastic/.env
+    echo "./services/elastic/.env created"
 fi
