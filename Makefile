@@ -51,7 +51,7 @@ setup: ## Setup local environment for development, generate configuration files.
 
 build: ## Builds all containers or the one specified (n=service name)
 	@echo "$(P) Building images..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml build --no-cache $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka build --no-cache $(n)
 
 up: ## Starts all containers or the one specified (n=service name)
 	@echo "$(P) Starting all containers..."
@@ -59,11 +59,11 @@ up: ## Starts all containers or the one specified (n=service name)
 
 stop: ## Stops all containers or the one specified (n=service name)
 	@echo "$(P) Stopping all containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml stop $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka stop $(n)
 
 down: ## Stops all containers and removes them
 	@echo "$(P) Stopping containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml down
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka down
 
 restart: ## Stop and start all containers or the one specified (n=servic ename)
 	@echo "$(P) Restarting containers..."
@@ -158,12 +158,21 @@ npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
 	@make npm-down n=app-editor; make build n=app-editor; make up n=app-editor;
 
 ##############################################################################
-# Flyway Database Migration Commands
+# Database Commands
 ##############################################################################
 
 db-update: ## Run the flyway database migration update (requires maven to be installed).
 	@echo "$(P) Run the flyway database migration update"
 	@cd libs/java/dal/db; make db-update;
+
+db-refresh: ## Stop and delete the database container and volume, then rebuilds and starts.
+	@echo "$(P) Stop and delete the database container and volume, then rebuilds and starts"
+	@make stop n=keycloak
+	@make stop n=database
+	@docker-compose rm -f -v -s database
+	@docker volume rm -f tno-database-data
+	@make build n=database
+	@make up n=keycloak
 
 ##############################################################################
 # Kafka Utility Commands

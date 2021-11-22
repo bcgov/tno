@@ -1,0 +1,48 @@
+kind: Template
+apiVersion: v1
+labels:
+  template: quickstart-network-security-policy
+metadata:
+  name: quickstart-network-security-policy
+parameters:
+  - name: PROJECT_NAMESPACE
+    displayName: "OpenShift Project Namespace"
+    description: "The namespace of the OpenShift project containing the application."
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod, tools]"
+    required: true
+
+objects:
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: allow-from-openshift-ingress
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+    spec:
+      # This policy allows any pod with a route & service combination
+      # to accept traffic from the OpenShift router pods. This is
+      # required for things outside of OpenShift (like the Internet)
+      # to reach your pods.
+      ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  network.openshift.io/policy-group: ingress
+      podSelector: {}
+      policyTypes:
+        - Ingress
+  - kind: NetworkPolicy
+    apiVersion: networking.k8s.io/v1
+    metadata:
+      name: allow-same-namespace
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+    spec:
+      # Allow all pods within the current namespace to communicate
+      # to one another.
+      podSelector:
+      ingress:
+      - from:
+        - podSelector: {}

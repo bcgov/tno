@@ -1,0 +1,309 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: patroni-pgsql-persistent
+  annotations:
+    description: |-
+      Patroni Postgresql database cluster, with persistent storage.
+    iconClass: icon-postgresql
+    openshift.io/display-name: Patroni Postgresql (Persistent)
+    openshift.io/long-description: This template deploys a patroni postgresql HA
+      cluster with persistent storage.
+    tags: postgresql
+
+parameters:
+  - name: APP_NAME
+    displayName: "App Name"
+    description: "The name of the application (grouped)."
+    required: true
+    value: "tno"
+  - name: GROUP_NAME
+    displayName: "Component Group Name"
+    description: "The name of the application component group [app, api, database]"
+    required: true
+    value: "database"
+  - name: PROJECT_NAMESPACE
+    displayName: "OpenShift Project Namespace"
+    description: "The namespace of the OpenShift project containing the application."
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod]"
+    required: true
+    value: "dev"
+  - name: INSTANCE
+    displayName: "Unique Identifier"
+    description: "A unique identifier to allow for multiple instances (i.e. '-01')."
+    value: ""
+
+  - name: CLUSTER_NAME
+    displayName: Application Cluster Name
+    description: The name of the application cluster.
+    value: patroni-postgres
+
+  - name: IMAGE_TAG
+    displayName:
+    description: The image tag used to specify which image you would like deployed. Don't use `latest`.
+    value: "12.4-latest"
+
+  - name: STORAGE_CLASS
+    displayName: "The Storage Class Name"
+    description: "The storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
+    required: true
+    value: "netapp-file-standard"
+  - name: ACCESS_MODE
+    displayName: "The Storage Access Mode"
+    description: "The storage access mode [ReadWriteOnce, ReadWriteMany]"
+    required: true
+    value: "ReadWriteOnce"
+  - name: VOLUME_CAPACITY
+    displayName: "Persistent Volume Capacity"
+    description: "Volume space available for data, e.g. 512Mi, 2Gi."
+    required: true
+    value: "2Gi"
+
+  - name: REPLICAS
+    displayName: REPLICAS
+    description: The number of StatefulSet replicas to use.
+    required: true
+    value: "3"
+  - name: CPU_REQUEST
+    displayName: "Requested Minimum Resources CPU Limit"
+    description: "The requested minimum resources CPU limit (in cores) for this build."
+    required: true
+    value: 100m
+  - name: CPU_LIMIT
+    displayName: "Resources CPU Limit"
+    description: "The resources CPU limit (in cores) for this build."
+    required: true
+    value: 1000m
+  - name: MEMORY_REQUEST
+    displayName: "Requested Minimum Memory Limit"
+    description: "Minimum requested amount of memory the container can use."
+    required: true
+    value: 250Mi
+  - name: MEMORY_LIMIT
+    displayName: "Memory Limit"
+    description: "Maximum amount of memory the container can use."
+    required: true
+    value: 500Mi
+
+objects:
+  # Service for network
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        app: ${APP_NAME}
+        group: ${GROUP_NAME}
+        cluster-name: ${CLUSTER_NAME}
+    spec:
+      ports:
+        - name: database
+          port: 5432
+          protocol: TCP
+          targetPort: 5432
+        - name: api
+          port: 8008
+          protocol: TCP
+          targetPort: 8008
+      selector:
+        cluster-name: ${CLUSTER_NAME}
+        role: master
+        app.kubernetes.io/name: patroni
+      sessionAffinity: None
+      type: ClusterIP
+    status:
+      loadBalancer: {}
+
+  # Postgres cluster
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        app: ${APP_NAME}
+        group: ${GROUP_NAME}
+        cluster-name: ${CLUSTER_NAME}
+    spec:
+      podManagementPolicy: OrderedReady
+      replicas: ${{REPLICAS}}
+      revisionHistoryLimit: 10
+      selector:
+        matchLabels:
+          statefulset: ${CLUSTER_NAME}
+      serviceName: ${CLUSTER_NAME}
+      template:
+        metadata:
+          labels:
+            app: ${APP_NAME}
+            group: ${GROUP_NAME}
+            statefulset: ${CLUSTER_NAME}
+            cluster-name: ${CLUSTER_NAME}
+            app.kubernetes.io/name: patroni
+        spec:
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          serviceAccountName: ${APP_NAME}${INSTANCE}
+          terminationGracePeriodSeconds: 0
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: statefulset
+                        operator: In
+                        values:
+                          - ${CLUSTER_NAME}
+                  topologyKey: "kubernetes.io/hostname"
+          volumes:
+            - name: backup
+              persistentVolumeClaim:
+                claimName: ${APP_NAME}-${GROUP_NAME}-backup
+          containers:
+            - name: postgresql
+              image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAMESPACE}-tools/patroni-postgres:${IMAGE_TAG}
+              imagePullPolicy: Always
+              env:
+                - name: POD_IP
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: status.podIP
+                - name: PATRONI_NAME
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.name
+                - name: PATRONI_KUBERNETES_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+                - name: PATRONI_SCOPE
+                  value: ${CLUSTER_NAME}
+                - name: PATRONI_LOG_LEVEL
+                  value: WARNING
+                - name: PATRONI_POSTGRESQL_DATA_DIR
+                  value: /home/postgres/pgdata/pgroot/data
+                - name: PATRONI_POSTGRESQL_PGPASS
+                  value: /tmp/pgpass
+                - name: PATRONI_POSTGRESQL_LISTEN
+                  value: 0.0.0.0:5432
+                - name: PATRONI_RESTAPI_LISTEN
+                  value: 0.0.0.0:8008
+                - name: PATRONI_KUBERNETES_LABELS
+                  value: '{"cluster-name": "${CLUSTER_NAME}", "app.kubernetes.io/name": "patroni"}'
+                - name: PATRONI_SUPERUSER_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: PATRONI_SUPERUSER_USERNAME
+                - name: PATRONI_SUPERUSER_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: PATRONI_SUPERUSER_PASSWORD
+                - name: PATRONI_REPLICATION_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: PATRONI_REPLICATION_USERNAME
+                - name: PATRONI_REPLICATION_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: PATRONI_REPLICATION_PASSWORD
+                - name: APP_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: POSTGRESQL_USER
+                - name: APP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: POSTGRESQL_PASSWORD
+                - name: APP_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      key: POSTGRESQL_DATABASE
+              ports:
+                - containerPort: 8008
+                  protocol: TCP
+                - containerPort: 5432
+                  protocol: TCP
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              # readinessProbe:
+              #   httpGet:
+              #     scheme: HTTP
+              #     path: /readiness
+              #     port: 8008
+              #   initialDelaySeconds: 3
+              #   periodSeconds: 10
+              #   timeoutSeconds: 5
+              #   successThreshold: 1
+              #   failureThreshold: 3
+              # livenessProbe:
+              #   httpGet:
+              #     scheme: HTTP
+              #     path: /liveness
+              #     port: 8008
+              #   initialDelaySeconds: 3
+              #   periodSeconds: 10
+              #   timeoutSeconds: 5
+              #   successThreshold: 1
+              #   failureThreshold: 3
+              readinessProbe:
+                initialDelaySeconds: 5
+                timeoutSeconds: 5
+                failureThreshold: 4
+                exec:
+                  command:
+                    - /usr/share/scripts/patroni/health_check.sh
+              livenessProbe:
+                initialDelaySeconds: 5
+                timeoutSeconds: 5
+                failureThreshold: 4
+                exec:
+                  command:
+                    - /usr/share/scripts/patroni/health_check.sh
+              volumeMounts:
+                - name: postgresql
+                  mountPath: /home/postgres/pgdata
+                - name: backup
+                  mountPath: /backups
+      updateStrategy:
+        type: RollingUpdate
+      volumeClaimTemplates:
+        - metadata:
+            annotations:
+              volume.beta.kubernetes.io/storage-class: ${STORAGE_CLASS}
+            labels:
+              app: ${APP_NAME}
+              group: ${GROUP_NAME}
+            name: postgresql
+          spec:
+            storageClassName: ${STORAGE_CLASS}
+            accessModes:
+              - ${ACCESS_MODE}
+            resources:
+              requests:
+                storage: ${VOLUME_CAPACITY}
