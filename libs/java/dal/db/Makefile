@@ -89,6 +89,10 @@ deploy-release: ## Build and deploy the package to Maven Central and release it
 # Flyway Database Migration Commands
 ##############################################################################
 
+install-oc: ## Download Openshift CLI so that it can be used within the container
+	@echo "$(P) Download Openshift CLI so that it can be used within the container"
+	@./scripts/install-oc.sh
+
 db-update: ## Run the flyway database migration update
 	@echo "$(P) Run the flyway database migration update"
 	@./scripts/db-update.sh

@@ -18,21 +18,21 @@ services:
       - tno
 
   ####################### Database #######################
+
+  ## Redhat Image
   database:
     image: tno:database
     profiles: ["core", "data"]
     restart: on-failure:1
     container_name: tno-database
     build:
-      context: db/postgres
+      context: ${DB_CONTEXT:-db/postgres/docker}
     env_file:
-      - db/postgres/.env
+      - ${DB_CONTEXT:-db/postgres/docker}/.env
     ports:
       - ${DATABASE_PORT:-50002}:5432
     volumes:
-      - tno-database-data:/var/lib/postgresql/data
-      - tno-database-sdata:/var/lib/postgressql/data
-      - ./db/postgres/scripts:/docker-entrypoint-initdb.d
+      - tno-database-data:${DB_VOLUME:-/var/lib/postgresql/data}
     networks:
       - tno
 
@@ -293,8 +293,6 @@ services:
 volumes:
   tno-database-data:
     name: tno-database-data
-  tno-database-sdata:
-    name: tno-database-sdata
   tno-elastic-data:
     name: tno-elastic-data
   tno-editor-node-cache:

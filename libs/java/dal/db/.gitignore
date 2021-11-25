@@ -35,3 +35,4 @@ maven-settings.xml
 *.rev
 *.key
 flyway.conf
+bin/
