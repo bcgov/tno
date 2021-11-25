@@ -12,21 +12,21 @@ parameters:
     description: "The name of the application (grouped)."
     required: true
     value: "tno"
-  - name: ROLE_NAME
+  - name: GROUP_NAME
     displayName: "Component Role Name"
     description: "The name of the application component role [app, api, database]"
     required: true
     value: "database"
-  - name: ENV_NAME
-    displayName: "Environment name"
-    description: "The name for this environment [dev, test, prod]"
-    required: true
-    value: "dev"
   - name: PROJECT_NAMESPACE
     displayName: "OpenShift Project Namespace"
     description: "The namespace of the OpenShift project containing the application."
     required: true
     value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod]"
+    required: true
+    value: "dev"
   - name: INSTANCE
     displayName: "Unique Identifier"
     description: "A unique identifier to allow for multiple instances (i.e. '-01')."
@@ -38,21 +38,6 @@ parameters:
     required: true
     value: "latest"
 
-  - name: POSTGRESQL_USER
-    displayName: "Database user username"
-    description: "The username of the database administrator."
-    required: true
-    value: "admin"
-  - name: POSTGRESQL_PASSWORD
-    displayName: "Database user Password"
-    description: "The password of the database administrator."
-    from: '[\w]{5}_[\w]{15}_1aB!'
-    generate: expression
-  - name: POSTGRESQL_ADMIN_PASSWORD
-    displayName: "Database administrator Password"
-    description: "The password of the database administrator."
-    from: '[\w]{5}_[\w]{15}_1aB!'
-    generate: expression
   - name: POSTGRESQL_PORT
     displayName: "Database container port"
     description: "The port to communicate with the database."
@@ -68,43 +53,6 @@ parameters:
     description: "The name of the keycloak database that will be created."
     required: true
     value: "keycloak"
-
-  - name: STORAGE_CLASS_NAME
-    displayName: "The Storage Class Name"
-    description: "The storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
-    required: true
-    value: "netapp-file-standard"
-  - name: ACCESS_MODE
-    displayName: "The Storage Access Mode"
-    description: "The storage access mode [ReadWriteOnce, ReadWriteMany]"
-    required: true
-    value: "ReadWriteMany"
-  - name: VOLUME_CAPACITY
-    displayName: "Persistent Volume Capacity"
-    description: "Volume space available for data, e.g. 512Mi, 2Gi."
-    required: true
-    value: "5Gi"
-
-  - name: BACKUP_ROLE_NAME
-    displayName: "Backup Service Role Name"
-    description: "The name of the application component role [app, api, database, backup]"
-    required: true
-    value: "backup"
-  - name: BACKUP_STORAGE_CLASS_NAME
-    displayName: "The Backup Storage Class Name"
-    description: "The backup storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
-    required: true
-    value: "netapp-file-backup"
-  - name: BACKUP_ACCESS_MODE
-    displayName: "The Backup Storage Access Mode"
-    description: "The backup storage access mode [ReadWriteOnce, ReadWriteMany]"
-    required: true
-    value: "ReadWriteMany"
-  - name: BACKUP_VOLUME_CAPACITY
-    displayName: "Backup persistent Volume Capacity"
-    description: "Backup bolume space available for data, e.g. 512Mi, 2Gi."
-    required: true
-    value: "5Gi"
 
   - name: CPU_REQUEST
     displayName: "Requested Minimum Resources CPU Limit"
@@ -127,85 +75,18 @@ parameters:
     required: true
     value: 500Mi
 objects:
-  # Persistent storage for the database.
-  - kind: PersistentVolumeClaim
-    apiVersion: v1
-    metadata:
-      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-      labels:
-        name: ${APP_NAME}-database${INSTANCE}
-        app: ${APP_NAME}
-        env: ${ENV_NAME}
-        role: ${ROLE_NAME}
-    resourceVersion: "250191500"
-    selfLink: /api/v1/namespaces/${PROJECT_NAMESPACE}-${ENV_NAME}/persistentvolumeclaims/${APP_NAME}-${ROLE_NAME}${INSTANCE}
-    annotations:
-      pv.kubernetes.io/bind-completed: "yes"
-      pv.kubernetes.io/bound-by-controller: "yes"
-      volume.beta.kubernetes.io/storage-provisioner: csi.trident.netapp.io
-      description: "${APP_NAME} Database storage volume"
-    finalizers:
-      - kubernetes.io/pvc-protection
-    spec:
-      accessModes:
-        - ${ACCESS_MODE}
-      resources:
-        requests:
-          storage: ${VOLUME_CAPACITY}
-      storageClassName: ${STORAGE_CLASS_NAME}
-      volumeMode: Filesystem
-
-  # Storage for backup.
-  - kind: PersistentVolumeClaim
-    apiVersion: v1
-    metadata:
-      name: ${APP_NAME}-${BACKUP_ROLE_NAME}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-      labels:
-        name: ${APP_NAME}-${BACKUP_ROLE_NAME}
-        app: ${APP_NAME}
-        role: ${BACKUP_ROLE_NAME}
-        env: ${ENV_NAME}
-    spec:
-      storageClassName: ${BACKUP_STORAGE_CLASS_NAME}
-      accessModes:
-        - ${BACKUP_ACCESS_MODE}
-      resources:
-        requests:
-          storage: ${BACKUP_VOLUME_CAPACITY}
-
-  # Add a resource secret for the database password.  By default this is generated.
-  - kind: Secret
-    apiVersion: v1
-    metadata:
-      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-      annotations:
-        description: "Database connection settings"
-      labels:
-        name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
-        app: ${APP_NAME}
-        role: ${ROLE_NAME}
-        env: ${ENV_NAME}
-    type: Opaque
-    stringData:
-      POSTGRESQL_USER: ${POSTGRESQL_USER}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_ADMIN_PASSWORD: ${POSTGRESQL_ADMIN_PASSWORD}
-
   # Expose the database port to the pod.
   - kind: Service
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
         description: Exposes the database server
       labels:
-        name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
         app: ${APP_NAME}
-        role: ${ROLE_NAME}
+        role: ${GROUP_NAME}
         env: ${ENV_NAME}
     spec:
       ports:
@@ -214,7 +95,7 @@ objects:
           port: ${{POSTGRESQL_PORT}}
           targetPort: ${{POSTGRESQL_PORT}}
       selector:
-        name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
       type: ClusterIP
       sessionAffinity: None
 
@@ -222,14 +103,14 @@ objects:
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
         description: Defines how to deploy the database server
       labels:
-        name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
         app: ${APP_NAME}
-        role: ${ROLE_NAME}
+        role: ${GROUP_NAME}
         env: ${ENV_NAME}
     spec:
       strategy:
@@ -244,32 +125,32 @@ objects:
           imageChangeParams:
             automatic: true
             containerNames:
-              - ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+              - ${APP_NAME}-${GROUP_NAME}${INSTANCE}
             from:
               kind: ImageStreamTag
               namespace: "${PROJECT_NAMESPACE}-tools"
-              name: ${APP_NAME}-${ROLE_NAME}:${IMAGE_TAG}
+              name: ${APP_NAME}-${GROUP_NAME}:${IMAGE_TAG}
       replicas: 1
       selector:
-        name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
       template:
         metadata:
-          name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+          name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
           labels:
-            name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+            name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
             app: ${APP_NAME}
-            role: ${ROLE_NAME}
+            role: ${GROUP_NAME}
             env: ${ENV_NAME}
         spec:
           volumes:
             - name: db-data
               persistentVolumeClaim:
-                claimName: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+                claimName: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
             - name: backup
               persistentVolumeClaim:
-                claimName: ${APP_NAME}-${BACKUP_ROLE_NAME}
+                claimName: ${APP_NAME}-${GROUP_NAME}-backup
           containers:
-            - name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+            - name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
               image: ""
               ports:
                 - containerPort: ${{POSTGRESQL_PORT}}
@@ -278,17 +159,17 @@ objects:
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
                       key: POSTGRESQL_USER
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
                       key: POSTGRESQL_PASSWORD
                 - name: POSTGRESQL_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}-${ROLE_NAME}${INSTANCE}
+                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
                       key: POSTGRESQL_ADMIN_PASSWORD
                 - name: POSTGRESQL_DATABASE
                   value: ${POSTGRESQL_DATABASE}

@@ -1,0 +1,116 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: postgres-deploy
+  annotations:
+    openshift.io/display-name: PostgreSQL Database Server
+    description: The World's Most Advanced Open Source Relational Database.
+    tags: tno,database,postgres
+parameters:
+  - name: APP_NAME
+    displayName: "App Name"
+    description: "The name of the application (grouped)."
+    required: true
+    value: "tno"
+  - name: GROUP_NAME
+    displayName: "Component Group Name"
+    description: "The name of the application component group [app, api, database]"
+    required: true
+    value: "database"
+  - name: PROJECT_NAMESPACE
+    displayName: "OpenShift Project Namespace"
+    description: "The namespace of the OpenShift project containing the application."
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod]"
+    required: true
+    value: "dev"
+  - name: INSTANCE
+    displayName: "Unique Identifier"
+    description: "A unique identifier to allow for multiple instances (i.e. '-01')."
+    value: ""
+
+  - name: STORAGE_CLASS
+    displayName: "The Storage Class Name"
+    description: "The storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
+    required: true
+    value: "netapp-file-standard"
+  - name: ACCESS_MODE
+    displayName: "The Storage Access Mode"
+    description: "The storage access mode [ReadWriteOnce, ReadWriteMany]"
+    required: true
+    value: "ReadWriteMany"
+  - name: VOLUME_CAPACITY
+    displayName: "Persistent Volume Capacity"
+    description: "Volume space available for data, e.g. 512Mi, 2Gi."
+    required: true
+    value: "5Gi"
+
+  - name: GROUP_NAME
+    displayName: "Backup Service Role Name"
+    description: "The name of the application component role [app, api, database, backup]"
+    required: true
+    value: "backup"
+  - name: BACKUP_STORAGE
+    displayName: "The Backup Storage Class Name"
+    description: "The backup storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
+    required: true
+    value: "netapp-file-backup"
+  - name: BACKUP_ACCESS_MODE
+    displayName: "The Backup Storage Access Mode"
+    description: "The backup storage access mode [ReadWriteOnce, ReadWriteMany]"
+    required: true
+    value: "ReadWriteMany"
+  - name: BACKUP_VOLUME_CAPACITY
+    displayName: "Backup persistent Volume Capacity"
+    description: "Backup bolume space available for data, e.g. 512Mi, 2Gi."
+    required: true
+    value: "5Gi"
+objects:
+  # Persistent storage for the database.
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${APP_NAME}-database${INSTANCE}
+        app: ${APP_NAME}
+        group: ${GROUP_NAME}
+    resourceVersion: "250191500"
+    selfLink: /api/v1/namespaces/${PROJECT_NAMESPACE}-${ENV_NAME}/persistentvolumeclaims/${APP_NAME}-${GROUP_NAME}${INSTANCE}
+    annotations:
+      pv.kubernetes.io/bind-completed: "yes"
+      pv.kubernetes.io/bound-by-controller: "yes"
+      volume.beta.kubernetes.io/storage-provisioner: csi.trident.netapp.io
+      description: "${APP_NAME} Database storage volume"
+    finalizers:
+      - kubernetes.io/pvc-protection
+    spec:
+      accessModes:
+        - ${ACCESS_MODE}
+      resources:
+        requests:
+          storage: ${VOLUME_CAPACITY}
+      storageClassName: ${STORAGE_CLASS}
+      volumeMode: Filesystem
+
+  # Storage for backup.
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}-backup
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${APP_NAME}-${GROUP_NAME}-backup
+        app: ${APP_NAME}
+        group: ${GROUP_NAME}
+    spec:
+      storageClassName: ${BACKUP_STORAGE}
+      accessModes:
+        - ${BACKUP_ACCESS_MODE}
+      resources:
+        requests:
+          storage: ${BACKUP_VOLUME_CAPACITY}
