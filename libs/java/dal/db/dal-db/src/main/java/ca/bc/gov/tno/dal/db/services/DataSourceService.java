@@ -18,11 +18,21 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
  */
 @Service
 public class DataSourceService implements IDataSourceService {
-  @Autowired
-  private SessionFactory sessionFactory;
+  private final SessionFactory sessionFactory;
+  private final IDataSourceRepository repository;
 
+  /**
+   * Creates a new instance of a DataSourceService object, initializes with
+   * specified parameters.
+   * 
+   * @param repository     The data source repository.
+   * @param sessionFactory The session factory.
+   */
   @Autowired
-  private IDataSourceRepository repository;
+  public DataSourceService(final IDataSourceRepository repository, final SessionFactory sessionFactory) {
+    this.repository = repository;
+    this.sessionFactory = sessionFactory;
+  }
 
   /**
    * Find all that match the criteria.

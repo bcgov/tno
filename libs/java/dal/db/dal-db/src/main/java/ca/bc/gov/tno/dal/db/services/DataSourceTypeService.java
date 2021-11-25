@@ -18,8 +18,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceTypeService;
 @Service
 public class DataSourceTypeService implements IDataSourceTypeService {
 
+  private final IDataSourceTypeRepository repository;
+
+  /**
+   * Creates a new instance of a DataSourceTypeService object, initializes with
+   * specified parameters.
+   * 
+   * @param repository The data source type repository.
+   */
   @Autowired
-  private IDataSourceTypeRepository repository;
+  public DataSourceTypeService(final IDataSourceTypeRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.

@@ -19,8 +19,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
 @Service
 public class ContentReferenceService implements IContentReferenceService {
 
+  private final IContentReferenceRepository repository;
+
+  /**
+   * Creates a new instance of a ContentReferenceService object, initializes with
+   * specified parameters.
+   * 
+   * @param repository The content reference repository.
+   */
   @Autowired
-  private IContentReferenceRepository repository;
+  public ContentReferenceService(final IContentReferenceRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.

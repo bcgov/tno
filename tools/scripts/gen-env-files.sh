@@ -14,7 +14,7 @@ else
     echo "Your keycloak username: $varKeycloak"
 fi
 
-varDbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
+varDbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/docker/.env)
 if [ -z "$varDbUser" ]
 then
     echo 'Enter a username for the database.'
@@ -32,7 +32,7 @@ else
     echo "Your Elasticsearch username: $varElastic"
 fi
 
-varAzureCognitiveServiceKey=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+varAzureCognitiveServiceKey=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env)
 if [ -z "$varAzureCognitiveServiceKey" ]
 then
     echo 'Enter your Azure Cognitive Service subscription key.'
@@ -41,7 +41,7 @@ else
     echo "Your Azure Cognitive Service subscription key: $varAzureCognitiveServiceKey"
 fi
 
-varAzureCognitiveServiceRegion=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+varAzureCognitiveServiceRegion=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/.env)
 if [ -z "$varAzureCognitiveServiceRegion" ]
 then
     echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
@@ -50,7 +50,7 @@ else
     echo "Your Azure Cognitive Service region: $varAzureCognitiveServiceRegion"
 fi
 
-varAzureVideoAnalyzerKey=$(grep -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+varAzureVideoAnalyzerKey=$(grep -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env)
 if [ -z "$varAzureVideoAnalyzerKey" ]
 then
     echo 'Enter your Azure Video Analyzer subscription key.'
@@ -59,7 +59,7 @@ else
     echo "Your Azure Video Analyzer subscription key: $varAzureVideoAnalyzerKey"
 fi
 
-varAzureVideoAccountId=$(grep -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+varAzureVideoAccountId=$(grep -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/.env)
 if [ -z "$varAzureVideoAccountId" ]
 then
     echo 'Enter your Azure Video Analyzer account ID.'
@@ -68,7 +68,7 @@ else
     echo "Your Azure Video Analyzer account ID: $varAzureVideoAccountId"
 fi
 
-varAzureVideoLocation=$(grep -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/api-editor/src/main/resources/.env)
+varAzureVideoLocation=$(grep -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/.env)
 if [ -z "$varAzureVideoLocation" ]
 then
     echo 'Enter your Azure Video Analyzer location (i.e. trial).'
@@ -110,16 +110,30 @@ echo \
     echo "./.env created"
 fi
 
-# Database - PostgreSQL
-if test -f "./db/postgres/.env"; then
-    echo "./db/postgres/.env exists"
+# Database - PostgreSQL DockerHub Image
+if test -f "./db/postgres/docker/.env"; then
+    echo "./db/postgres/docker/.env exists"
 else
 echo \
 "POSTGRES_USER=$varDbUser
 POSTGRES_PASSWORD=$varPassword
 POSTGRES_DB=$varDbName
-KEYCLOAK_DB=keycloak" >> ./db/postgres/.env
-    echo "./db/postgres/.env created"
+KEYCLOAK_DB=keycloak" >> ./db/postgres/docker/.env
+    echo "./db/postgres/docker/.env created"
+fi
+
+# Database - PostgreSQL Redhat Image
+if test -f "./db/postgres/rhel8/.env"; then
+    echo "./db/postgres/rhel8/.env exists"
+else
+echo \
+"POSTGRESQL_USER=$varDbUser
+POSTGRESQL_PASSWORD=$varPassword
+POSTGRESQL_DATABASE=$varDbName
+KEYCLOAK_DATABASE=keycloak
+
+POSTGRESQL_ADMIN_PASSWORD=$varPassword" >> ./db/postgres/rhel8/.env
+    echo "./db/postgres/rhel8/.env created"
 fi
 
 # Database - DAL

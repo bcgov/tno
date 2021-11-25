@@ -87,7 +87,6 @@ objects:
         name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
         app: ${APP_NAME}
         role: ${GROUP_NAME}
-        env: ${ENV_NAME}
     spec:
       ports:
         - name: ${POSTGRESQL_PORT}-tcp
@@ -111,7 +110,6 @@ objects:
         name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
         app: ${APP_NAME}
         role: ${GROUP_NAME}
-        env: ${ENV_NAME}
     spec:
       strategy:
         type: Recreate
@@ -140,7 +138,6 @@ objects:
             name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
             app: ${APP_NAME}
             role: ${GROUP_NAME}
-            env: ${ENV_NAME}
         spec:
           volumes:
             - name: db-data

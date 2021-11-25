@@ -18,8 +18,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IRoleService;
 @Service
 public class RoleService implements IRoleService {
 
-  @Autowired
   private IRoleRepository repository;
+
+  /**
+   * Creates a new instance of a RoleService object, initializes with specified
+   * parameters.
+   * 
+   * @param repository The role repository.
+   */
+  @Autowired
+  public RoleService(final IRoleRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.

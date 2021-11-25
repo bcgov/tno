@@ -1,22 +1,22 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: postgres-build
+  name: java-flyway-build
   annotations:
-    openshift.io/display-name: PostgreSQL Database Server
-    description: The World's Most Advanced Open Source Relational Database.
-    tags: tno,database,postgres
+    openshift.io/display-name: Java flyway migration image
+    description: Build an image containing the Java flyway migration application.
+    tags: database,postgres,flyway,java
 parameters:
   - name: APP_NAME
-    displayName: "App Name"
-    description: "The name of the application (grouped)."
+    displayName: "Application Name"
+    description: "The name of the application."
     required: true
     value: "tno"
   - name: GROUP_NAME
     displayName: "Component Group Name"
     description: "The name of the application component (e.g api, app, database)."
     required: true
-    value: "database"
+    value: "db-migration"
   - name: PROJECT_NAMESPACE
     displayName: "OpenShift Project Namespace"
     description: "The namespace of the OpenShift project containing the application."
@@ -46,7 +46,7 @@ parameters:
   - name: CONTEXT_DIR
     displayName: "Context Directory"
     description: "Set this to use a subdirectory of the source code repository"
-    value: "db/postgres/rhel8"
+    value: "libs/java/dal/db/dal-db-migration"
 
   - name: OUTPUT_IMAGE_TAG
     displayName: "Output Image Tag"
@@ -63,7 +63,7 @@ parameters:
     displayName: "Memory Limit"
     description: "Maximum amount of memory the container can use."
     required: true
-    value: 250Mi
+    value: 500Mi
 objects:
   # The final build image.
   - kind: ImageStream
@@ -72,7 +72,7 @@ objects:
       name: ${APP_NAME}-${GROUP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
-        description: Keeps track of changes in the postgres database image
+        description: Keeps track of changes in the image
       labels:
         app: ${APP_NAME}
         role: ${GROUP_NAME}
@@ -84,7 +84,7 @@ objects:
       name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
-        description: Defines how to build the postgres database image
+        description: Defines how to build the image
       labels:
         name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
         app: ${APP_NAME}
