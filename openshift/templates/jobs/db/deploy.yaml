@@ -1,0 +1,127 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: postgres-db-migration
+  annotations:
+    description: Java flyway database migration for postgreSQL database
+    iconClass: icon-postgresql
+    openshift.io/display-name: Java flyway database migration for postgreSQL database
+    openshift.io/long-description: Java flyway database migration for postgreSQL database
+    tags: postgresql,database,flyway,migration
+
+parameters:
+  - name: APP_NAME
+    displayName: "Application Name"
+    description: "The name of the application."
+    required: true
+    value: "tno"
+  - name: GROUP_NAME
+    displayName: "Component Group Name"
+    description: "The name of the application component group"
+    required: true
+    value: "db-migration"
+  - name: PROJECT_NAMESPACE
+    displayName: "OpenShift Project Namespace"
+    description: "The namespace of the OpenShift project containing the application."
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod]"
+    required: true
+    value: "dev"
+  - name: INSTANCE
+    displayName: "Unique Identifier"
+    description: "A unique identifier to allow for multiple instances (i.e. '-dev')."
+    value: ""
+
+  - name: IMAGE_TAG
+    displayName: "Image Tag"
+    description: "The image tag that identifies which image to run. (i.e. 'dev')."
+    value: "dev"
+
+  - name: DB_SERVICE_NAME
+    displayName: Database Service Name
+    description: The database service name that will be used to communicate with the database.
+    required: true
+    value: "tno-database"
+  - name: DB_URL
+    displayName: Flyway URL
+    description: Flyway URL configuration setting.
+    required: true
+    value: jdbc:postgresql://tno-database:5432/tno
+  - name: DB_SCHEMAS
+    displayName: Flyway Schemas
+    description: Flyway schemas configuration setting.
+    required: true
+    value: "public"
+
+  - name: CPU_REQUEST
+    displayName: "Requested Minimum Resources CPU Limit"
+    description: "The requested minimum resources CPU limit (in cores) for this build."
+    required: true
+    value: 100m
+  - name: CPU_LIMIT
+    displayName: "Resources CPU Limit"
+    description: "The resources CPU limit (in cores) for this build."
+    required: true
+    value: 250m
+  - name: MEMORY_REQUEST
+    displayName: "Requested Minimum Memory Limit"
+    description: "Minimum requested amount of memory the container can use."
+    required: true
+    value: 50Mi
+  - name: MEMORY_LIMIT
+    displayName: "Memory Limit"
+    description: "Maximum amount of memory the container can use."
+    required: true
+    value: 250Mi
+
+objects:
+  # Job with container
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}-${IMAGE_TAG}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        app: ${APP_NAME}
+        group: ${GROUP_NAME}
+    spec:
+      backoffLimit: 5
+      activeDeadlineSeconds: 100
+      template:
+        metadata:
+          name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+          labels:
+            name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+            app: ${APP_NAME}
+            role: ${GROUP_NAME}
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: ${APP_NAME}-${GROUP_NAME}
+              image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAMESPACE}-tools/${APP_NAME}-${GROUP_NAME}:${IMAGE_TAG}
+              env:
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SERVICE_NAME}
+                      key: PATRONI_SUPERUSER_USERNAME
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SERVICE_NAME}
+                      key: PATRONI_SUPERUSER_PASSWORD
+                - name: DB_URL
+                  value: ${DB_URL}
+                - name: DB_SCHEMAS
+                  value: ${DB_SCHEMAS}
+              resources:
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: "${MEMORY_REQUEST}"

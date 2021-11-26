@@ -18,8 +18,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IClaimService;
 @Service
 public class ClaimService implements IClaimService {
 
+  private final IClaimRepository repository;
+
+  /**
+   * Creates a new instance of a ClaimService object, initializes with specified
+   * parameters.
+   * 
+   * @param repository The claim repository.
+   */
   @Autowired
-  private IClaimRepository repository;
+  public ClaimService(final IClaimRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.

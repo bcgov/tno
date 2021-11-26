@@ -57,7 +57,7 @@ oc get pods -n ${project:-9b301c-dev}
 oc port-forward $podName ${localPort:-22222}:${containerPort:-5432}
 ```
 
-## Network Security Policies
+## Network Policies
 
 By default security is Zero Trust.
 Which means nothing can communicate.

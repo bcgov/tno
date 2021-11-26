@@ -125,7 +125,7 @@ services:
   cat:
     image: tno:kafkacat
     profiles: ["kafka", "data"]
-    restart: on-failure:1
+    restart: "no"
     hostname: cat
     container_name: tno-kafkacat
     build:

@@ -45,6 +45,12 @@ setup: ## Setup local environment for development, generate configuration files.
 	@mkdir -p ./app/editor/node_modules
 	@mkdir -p ./app/subscriber/node_modules
 
+init: ## Initialize your local environment and start the core solution.
+	@echo "$(P) Initialize your local environment and start the core solution"
+	@make setup
+	@make up
+	@make db-update
+
 ##############################################################################
 # Docker Management
 ##############################################################################
@@ -163,7 +169,7 @@ npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
 
 db-update: ## Run the flyway database migration update (requires maven to be installed).
 	@echo "$(P) Run the flyway database migration update"
-	@cd libs/java/dal/db; make db-update;
+	@./tools/scripts/db-update.sh
 
 db-refresh: ## Stop and delete the database container and volume, then rebuilds and starts.
 	@echo "$(P) Stop and delete the database container and volume, then rebuilds and starts"

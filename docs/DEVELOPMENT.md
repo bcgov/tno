@@ -55,30 +55,21 @@ This can be helpful if your computer's performance is unable to support developm
 | [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA) |       11 |                                                            |
 | [maven](http://maven.apache.org/install.html)                                                                                                        |    3.8.2 |                                                            |
 
-## Configure Environment
+## Standup Local Environment
 
 In order for the various components of the solution to work they require the appropriate configuration files to be created.
 You can auto generate them with the provided scripts.
 This process will generate `.env` files in the required locations so that the solution and docker containers can run.
 
 If you have installed `make` you can use the helper method.
+If you haven't installed `make` you can use the docker-compose cli.
+Review the `Makefile` and the related scripts `./tools/scripts` to understand how to do this.
+
+When using `make` commands you can review the options by using the following command.
 
 ```bash
-make setup
+make
 ```
-
-If you haven't installed `make` you can manually run the bash script.
-
-```bash
-./tools/scripts/gen-env-files.sh
-```
-
-## Standup Local Environment
-
-You now have everything installed and ready to be run locally.
-All that remains is to turn everything on.
-The first time you do this takes a little longer as each container needs to be built and initialized.
-After the docker containers are ready it becomes much quicker.
 
 The following containers are hosted in the TNO solution.
 The exposed container ports is configurable, but the defaults are identified below.
@@ -100,36 +91,20 @@ The exposed container ports is configurable, but the defaults are identified bel
 | connect         |               50014 | Kafka connect Control Center with Schema Registry                                             |
 | ksqldb-server   |               50016 | Kafka streaming services                                                                      |
 
-If you have installed `make` you can use the helper method.
+The first time you do this takes a little longer as each container needs to be built and initialized.
+After the docker containers are ready it becomes much quicker.
+Additionally, there are a number of configuration settings (usernames, passwords, keys, etc) that are created the first time you execute this script.
 
 ```bash
-make up
+# Configure your local environment.
+# Start all of the core and kafka containers.
+# Initialize the PostgreSQL database.
+# Initialize the Kafka cluster topics.
+# Initialize the Elasticsearch indexes.
+make init
 ```
 
-If you haven't installed `make` you can use the docker-compose cli.
-The following command merges multiple compose files, builds and runs all of the containers.
-The assumption for the rest of the documentation is that you have installed `make`.
-
-```bash
-docker-compose -f docker-compose.override.yml -f docker-compose.yml -f ./db/kafka/docker-compose.yml -d up
-```
-
-Once these containers are running you can then start up the other services.
-
-```bash
-make service-up
-```
-
-| Container  |  Port | Description                                                    |
-| ---------- | ----: | -------------------------------------------------------------- |
-| kafka kowl | 50017 | Kafka UI to view cluster                                       |
-| atom       |       | Kafka Producer to ingest syndication ATOM feeds                |
-| rss        |       | Kafka Producer to ingest syndication RSS feeds                 |
-| transcribe |       | Kafka Consumer/Producer to transcribe audio/video content      |
-| nlp        |       | Kafka Consumer/Producer to perform Natural Language Processing |
-| index      |       | Kafka Consumer to index content for search                     |
-
-Once everything is up and running you can now view the application in your browser.
+You can now view the application in your browser.
 Login into Keycloak with the username and password you configured in your `.env` file.
 You can then change the passwords for the default users to anything you would like.
 Then you can login to the web application with one of those default users.
@@ -140,10 +115,28 @@ Read more [here](../test/README.md).
 
 | Container        | URI                                                      |
 | ---------------- | -------------------------------------------------------- |
-| keycloak         | [http://localhost:50000/](http://localhost:50000)        |
 | app-editor       | [http://localhost:50080/app](http://localhost:50080/app) |
 | app-subscriber   | [http://localhost:50080](http://localhost:50080)         |
-| app-api          | [http://localhost:50080/api](http://localhost:50080/api) |
-| elastic          | [http://localhost:50007](http://localhost:50007)         |
-| kafka kowl       | [http://localhost:50017](http://localhost:50017)         |
+| api-editor       | [http://localhost:50080/api](http://localhost:50080/api) |
+| keycloak         | [http://localhost:50000/](http://localhost:50000)        |
 | kafka rest-proxy | [http://localhost:50018](http://localhost:50018)         |
+| kafka kowl       | [http://localhost:50017](http://localhost:50017)         |
+| elastic          | [http://localhost:50007](http://localhost:50007)         |
+
+Once the core and Kafka containers are running you can then start up the other services.
+
+```bash
+make service-up
+```
+
+Below is a list of all the additional services and utilities.
+
+| Container  |  Port | Description                                                    |
+| ---------- | ----: | -------------------------------------------------------------- |
+| kowl       | 50017 | Kafka UI to view cluster                                       |
+| dejavu     | 50009 | Elasticsearch UI to view cluster                               |
+| atom       |       | Kafka Producer to ingest syndication ATOM feeds                |
+| rss        |       | Kafka Producer to ingest syndication RSS feeds                 |
+| transcribe |       | Kafka Consumer/Producer to transcribe audio/video content      |
+| nlp        |       | Kafka Consumer/Producer to perform Natural Language Processing |
+| search     |       | Kafka Consumer to index content for search                     |

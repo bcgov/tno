@@ -18,8 +18,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IScheduleService;
 @Service
 public class ScheduleService implements IScheduleService {
 
-  @Autowired
   private IScheduleRepository repository;
+
+  /**
+   * Creates a new instance of a ScheduleService object, initializes with
+   * specified parameters.
+   * 
+   * @param repository The schedule repository.
+   */
+  @Autowired
+  public ScheduleService(final IScheduleRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.

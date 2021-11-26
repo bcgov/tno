@@ -18,8 +18,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
 @Service
 public class UserService implements IUserService {
 
-  @Autowired
   private IUserRepository repository;
+
+  /**
+   * Creates a new instance of a UserService object, initializes with specified
+   * parameters.
+   * 
+   * @param repository The user repository.
+   */
+  @Autowired
+  public UserService(final IUserRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.

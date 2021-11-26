@@ -1,0 +1,37 @@
+debug: false
+
+logging:
+  level:
+    org:
+      springframework:
+        context: DEBUG
+
+spring:
+  main:
+    banner-mode: 'off'
+
+  h2:
+    console:
+      enabled: false
+      
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://database:5432/tno}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  flyway:
+    enabled: ${DB_MIGRATION_ENABLED:true}
+    validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
+    schemas: public
+    baselineOnMigrate: true
+
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL92Dialect
+        current_session_context_class: thread
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:none}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

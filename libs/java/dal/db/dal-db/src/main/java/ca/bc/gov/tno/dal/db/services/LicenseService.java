@@ -18,8 +18,18 @@ import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 @Service
 public class LicenseService implements ILicenseService {
 
-  @Autowired
   private ILicenseRepository repository;
+
+  /**
+   * Creates a new instance of a LicenseService object, initializes with specified
+   * parameters.
+   * 
+   * @param repository The license repository.
+   */
+  @Autowired
+  public LicenseService(final ILicenseRepository repository) {
+    this.repository = repository;
+  }
 
   /**
    * Find all that match the criteria.
