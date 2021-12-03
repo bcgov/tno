@@ -5,98 +5,6 @@ echo "*************************************"
 echo "Setting up Docker Configuration Files"
 echo "*************************************"
 
-varKeycloak=$(grep -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env)
-if [ -z "$varKeycloak" ]
-then
-    echo 'Enter a username for the keycloak realm administrator'
-    read -p 'Username: ' varKeycloak
-else
-    echo "Your keycloak username: $varKeycloak"
-fi
-
-varDbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/docker/.env)
-if [ -z "$varDbUser" ]
-then
-    echo 'Enter a username for the database.'
-    read -p 'Username: ' varDbUser
-else
-    echo "Your database username: $varDbUser"
-fi
-
-varElastic=$(grep -Po 'ELASTIC_USERNAME=\K.*$' ./db/elasticsearch/.env)
-if [ -z "$varElastic" ]
-then
-    echo 'Enter a username for the Elasticsearch.'
-    read -p 'Username: ' varElastic
-else
-    echo "Your Elasticsearch username: $varElastic"
-fi
-
-varAzureCognitiveServiceKey=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env)
-if [ -z "$varAzureCognitiveServiceKey" ]
-then
-    echo 'Enter your Azure Cognitive Service subscription key.'
-    read -p 'Key: ' varAzureCognitiveServiceKey
-else
-    echo "Your Azure Cognitive Service subscription key: $varAzureCognitiveServiceKey"
-fi
-
-varAzureCognitiveServiceRegion=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/.env)
-if [ -z "$varAzureCognitiveServiceRegion" ]
-then
-    echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
-    read -p 'Region: ' varAzureCognitiveServiceRegion
-else
-    echo "Your Azure Cognitive Service region: $varAzureCognitiveServiceRegion"
-fi
-
-varAzureVideoAnalyzerKey=$(grep -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env)
-if [ -z "$varAzureVideoAnalyzerKey" ]
-then
-    echo 'Enter your Azure Video Analyzer subscription key.'
-    read -p 'Key: ' varAzureVideoAnalyzerKey
-else
-    echo "Your Azure Video Analyzer subscription key: $varAzureVideoAnalyzerKey"
-fi
-
-varAzureVideoAccountId=$(grep -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/.env)
-if [ -z "$varAzureVideoAccountId" ]
-then
-    echo 'Enter your Azure Video Analyzer account ID.'
-    read -p 'Account ID: ' varAzureVideoAccountId
-else
-    echo "Your Azure Video Analyzer account ID: $varAzureVideoAccountId"
-fi
-
-varAzureVideoLocation=$(grep -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/.env)
-if [ -z "$varAzureVideoLocation" ]
-then
-    echo 'Enter your Azure Video Analyzer location (i.e. trial).'
-    read -p 'Location: ' varAzureVideoLocation
-else
-    echo "Your Azure Video Analyzer location: $varAzureVideoLocation"
-fi
-
-# Only required if the Azurite docker container doesn't allow for local domain names.
-# Workaround is to either use 'mcr.microsoft.com/azure-storage/azurite:3.14.0', or use the IP address.
-# echo 'Enter the IP of your local host.docker.internal.'
-# read -p 'IP: ' varHostDockerInternal
-
-varPassword=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
-azureKey=$(date +%s | sha256sum | base64 | head -c 29)
-
-if [ -z "$varPassword" ]
-then
-  # Generate a random password that satisfies password requirements.
-  echo 'A password is randomly being generated.'
-  varPassword=$(date +%s | sha256sum | base64 | head -c 29)A8!
-  echo "Your generated password is: $varPassword"
-else
-  echo "Your password is: $varPassword"
-fi
-
-varDbName="tno"
-
 ###########################################################################
 # TNO Configuration
 ###########################################################################
@@ -153,18 +61,19 @@ if test -f "./auth/keycloak/.env"; then
 else
 echo \
 "PROXY_ADDRESS_FORWARDING=true
-DB_VENDOR=POSTGRES
-DB_ADDR=database
-DB_PORT=5432
-DB_DATABASE=keycloak
-DB_SCHEMA=public
-DB_USER=$varDbUser
-DB_PASSWORD=$varPassword
 KEYCLOAK_USER=$varKeycloak
 KEYCLOAK_PASSWORD=$varPassword
 KEYCLOAK_IMPORT='/tmp/realm-export.json -Dkeycloak.profile.feature.scripts=enabled -Dkeycloak.profile.feature.upload_scripts=enabled'
 KEYCLOAK_LOGLEVEL=WARN
-ROOT_LOGLEVEL=WARN" >> ./auth/keycloak/.env
+ROOT_LOGLEVEL=WARN
+
+DB_VENDOR=POSTGRES
+DB_ADDR=database
+DB_PORT=5432
+DB_SCHEMA=public
+DB_DATABASE=keycloak
+DB_USER=$varDbUser
+DB_PASSWORD=$varPassword" >> ./auth/keycloak/.env
     echo "./auth/keycloak/.env created"
 fi
 
@@ -418,7 +327,7 @@ DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
 DB_USERNAME=$varDbUser
 DB_PASSWORD=$varPassword
 
-KAFKA_LOGS_TOPIC=atom-logs
+KAFKA_LOGS_TOPIC=logs-atom
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
 KAFKA_CLIENT_ID=atom-01
@@ -443,7 +352,7 @@ DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
 DB_USERNAME=$varDbUser
 DB_PASSWORD=$varPassword
 
-KAFKA_LOGS_TOPIC=rss-logs
+KAFKA_LOGS_TOPIC=logs-rss
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
 KAFKA_CLIENT_ID=rss-01
@@ -468,7 +377,7 @@ DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
 DB_USERNAME=$varDbUser
 DB_PASSWORD=$varPassword
 
-KAFKA_LOGS_TOPIC=nlp-logs
+KAFKA_LOGS_TOPIC=logs-nlp
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
 KAFKA_GROUP_ID=nlp-01
@@ -495,7 +404,7 @@ DB_URL=jdbc:postgresql://host.docker.internal:50002/$varDbName
 DB_USERNAME=$varDbUser
 DB_PASSWORD=$varPassword
 
-KAFKA_LOGS_TOPIC=elastic-logs
+KAFKA_LOGS_TOPIC=logs-elastic
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:50019
 KAFKA_GROUP_ID=elastic-01
