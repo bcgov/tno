@@ -39,7 +39,7 @@ help:
 
 setup: ## Setup local environment for development, generate configuration files.
 	$(info Setup local environment for development, generate configuration files.)
-	@./tools/scritps/variables.sh
+	@./tools/scripts/variables.sh
 	@./tools/scripts/gen-env-files.sh
 	@./tools/scripts/gen-maven-files.sh
 	@./tools/scripts/gen-keys.sh
