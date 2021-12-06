@@ -2768,7 +2768,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -2776,7 +2776,7 @@
 									"port": "{{kafka-rest-port}}",
 									"path": [
 										"consumers",
-										":group"
+										":group_name"
 									],
 									"query": [
 										{
@@ -2802,7 +2802,7 @@
 									],
 									"variable": [
 										{
-											"key": "group",
+											"key": "group_name",
 											"value": "test"
 										}
 									]
@@ -2822,7 +2822,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group/instances/:consumer",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -2830,18 +2830,18 @@
 									"port": "{{kafka-rest-port}}",
 									"path": [
 										"consumers",
-										":group",
+										":group_name",
 										"instances",
-										":consumer"
+										":consumer_id"
 									],
 									"variable": [
 										{
-											"key": "group",
-											"value": "test"
+											"key": "group_name",
+											"value": "nlp-01"
 										},
 										{
-											"key": "consumer",
-											"value": "my_consumer"
+											"key": "consumer_id",
+											"value": null
 										}
 									]
 								}
@@ -2849,7 +2849,46 @@
 							"response": []
 						},
 						{
-							"name": "consumers/:group/instance/:consumer",
+							"name": "offsets",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/offsets",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"offsets"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "offsets",
 							"request": {
 								"method": "GET",
 								"header": [
@@ -2860,7 +2899,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group/instances/:consumer/offsets",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/offsets",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -2868,19 +2907,372 @@
 									"port": "{{kafka-rest-port}}",
 									"path": [
 										"consumers",
-										":group",
+										":group_name",
 										"instances",
-										":consumer",
+										":consumer_id",
 										"offsets"
 									],
 									"variable": [
 										{
-											"key": "group",
-											"value": "test"
+											"key": "group_name",
+											"value": null
 										},
 										{
-											"key": "consumer",
-											"value": "my_consumer"
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "subscription",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/subscription",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"subscription"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "subscription",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/subscription",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"subscription"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": "atom-01"
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "subscription",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/subscription",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"subscription"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "assignments",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/assignments",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"assignments"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "assignments",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/assignments",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"assignments"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "positions",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/positions",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"positions"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "positions/beginning",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/positions/beginning",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"positions",
+										"beginning"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "positions/end",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/positions/end",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"positions",
+										"end"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "records",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/vnd.kafka.jsonschema.v2+json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/records",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{kafka-rest-port}}",
+									"path": [
+										"consumers",
+										":group_name",
+										"instances",
+										":consumer_id",
+										"records"
+									],
+									"variable": [
+										{
+											"key": "group_name",
+											"value": null
+										},
+										{
+											"key": "consumer_id",
+											"value": null
 										}
 									]
 								}
@@ -2917,6 +3309,680 @@
 					"name": "clusters",
 					"item": [
 						{
+							"name": "consumer-groups",
+							"item": [
+								{
+									"name": "consumers",
+									"item": [
+										{
+											"name": "one",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id",
+													"protocol": "{{scheme}}",
+													"host": [
+														"{{host}}"
+													],
+													"port": "{{kafka-rest-port}}",
+													"path": [
+														"v3",
+														"clusters",
+														":culster_id",
+														"consumer-groups",
+														":group_id",
+														"consumers",
+														":consumer_id"
+													],
+													"variable": [
+														{
+															"key": "culster_id",
+															"value": "Dja5AfDJTH-rMtXW1we-Ag"
+														},
+														{
+															"key": "group_id",
+															"value": "nlp-01"
+														},
+														{
+															"key": "consumer_id",
+															"value": null
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "assignments",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id/assignments",
+													"protocol": "{{scheme}}",
+													"host": [
+														"{{host}}"
+													],
+													"port": "{{kafka-rest-port}}",
+													"path": [
+														"v3",
+														"clusters",
+														":culster_id",
+														"consumer-groups",
+														":group_id",
+														"consumers",
+														":consumer_id",
+														"assignments"
+													],
+													"variable": [
+														{
+															"key": "culster_id",
+															"value": "Dja5AfDJTH-rMtXW1we-Ag"
+														},
+														{
+															"key": "group_id",
+															"value": "nlp-01"
+														},
+														{
+															"key": "consumer_id",
+															"value": null
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "assignment",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id/assignments/:topic_name/partitions/:partition_id",
+													"protocol": "{{scheme}}",
+													"host": [
+														"{{host}}"
+													],
+													"port": "{{kafka-rest-port}}",
+													"path": [
+														"v3",
+														"clusters",
+														":culster_id",
+														"consumer-groups",
+														":group_id",
+														"consumers",
+														":consumer_id",
+														"assignments",
+														":topic_name",
+														"partitions",
+														":partition_id"
+													],
+													"variable": [
+														{
+															"key": "culster_id",
+															"value": "Dja5AfDJTH-rMtXW1we-Ag"
+														},
+														{
+															"key": "group_id",
+															"value": "nlp-01"
+														},
+														{
+															"key": "consumer_id",
+															"value": null
+														},
+														{
+															"key": "topic_name",
+															"value": null
+														},
+														{
+															"key": "partition_id",
+															"value": null
+														}
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "all",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/consumer-groups",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"consumer-groups"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "one",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":culster_id",
+												"consumer-groups",
+												":group_id"
+											],
+											"variable": [
+												{
+													"key": "culster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "group_id",
+													"value": "nlp-01"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "consumers",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":culster_id",
+												"consumer-groups",
+												":group_id",
+												"consumers"
+											],
+											"variable": [
+												{
+													"key": "culster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "group_id",
+													"value": "nlp-01"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "lag-summary",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/lag-summary",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":culster_id",
+												"consumer-groups",
+												":group_id",
+												"lag-summary"
+											],
+											"variable": [
+												{
+													"key": "culster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "group_id",
+													"value": "nlp-01"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "lags",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/lags",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":culster_id",
+												"consumer-groups",
+												":group_id",
+												"lags"
+											],
+											"variable": [
+												{
+													"key": "culster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "group_id",
+													"value": "nlp-01"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "lags/:topic_name",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/lags/:topic_name/partitions/:partition_id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":culster_id",
+												"consumer-groups",
+												":group_id",
+												"lags",
+												":topic_name",
+												"partitions",
+												":partition_id"
+											],
+											"variable": [
+												{
+													"key": "culster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "group_id",
+													"value": "nlp-01"
+												},
+												{
+													"key": "topic_name",
+													"value": null
+												},
+												{
+													"key": "partition_id",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "topics",
+							"item": [
+								{
+									"name": "all",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "one",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												":topic_name"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "topic_name",
+													"value": "test"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "add",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"topic_name\": \"elastic-logs\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												":topic_name"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "topic_name",
+													"value": "test"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "partitions",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												":topic_name",
+												"partitions"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "topic_name",
+													"value": "test"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "partitions/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/:partition_id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												":topic_name",
+												"partitions",
+												":partition_id"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "topic_name",
+													"value": "test"
+												},
+												{
+													"key": "partition_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "reassignment",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/-/partitions/-/reassignment",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												"-",
+												"partitions",
+												"-",
+												"reassignment"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": ":id/reassignment",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/-/reassignment",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												":topic_name",
+												"partitions",
+												"-",
+												"reassignment"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "topic_name",
+													"value": "nlp"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": ":id/reassignment",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/:partition_id/reassignment",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{kafka-rest-port}}",
+											"path": [
+												"v3",
+												"clusters",
+												":cluster_id",
+												"topics",
+												":topic_name",
+												"partitions",
+												":partition_id",
+												"reassignment"
+											],
+											"variable": [
+												{
+													"key": "cluster_id",
+													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+												},
+												{
+													"key": "topic_name",
+													"value": "nlp"
+												},
+												{
+													"key": "partition_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "clusters",
 							"request": {
 								"method": "GET",
@@ -2952,104 +4018,6 @@
 										"v3",
 										"clusters",
 										":id"
-									],
-									"variable": [
-										{
-											"key": "id",
-											"value": "5xFuUPCUQxGxRtCiOPyT6Q"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "clusters/:id/topics",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id/topics",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{kafka-rest-port}}",
-									"path": [
-										"v3",
-										"clusters",
-										":id",
-										"topics"
-									],
-									"variable": [
-										{
-											"key": "id",
-											"value": "5xFuUPCUQxGxRtCiOPyT6Q"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "clusters/:id/topics/:topic",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id/topics/:topic",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{kafka-rest-port}}",
-									"path": [
-										"v3",
-										"clusters",
-										":id",
-										"topics",
-										":topic"
-									],
-									"variable": [
-										{
-											"key": "id",
-											"value": "5xFuUPCUQxGxRtCiOPyT6Q"
-										},
-										{
-											"key": "topic",
-											"value": "test"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "clusters/:id/topics",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"topic_name\": \"nlp\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id/topics",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{kafka-rest-port}}",
-									"path": [
-										"v3",
-										"clusters",
-										":id",
-										"topics"
 									],
 									"variable": [
 										{
@@ -3163,11 +4131,139 @@
 					},
 					"response": []
 				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
 			]
 		},
 		{
 			"name": "elasticsearch",
 			"item": [
+				{
+					"name": "indices",
+					"item": [
+						{
+							"name": "indices",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "{{elastic-password}}",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "{{elastic-username}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{elastic-port}}/_cat/indices/*?v&s=index",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{elastic-port}}",
+									"path": [
+										"_cat",
+										"indices",
+										"*"
+									],
+									"query": [
+										{
+											"key": "v",
+											"value": null
+										},
+										{
+											"key": "s",
+											"value": "index"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "indexes",
+					"item": [
+						{
+							"name": "index",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "{{elastic-password}}",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "{{elastic-username}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"settings\":{\r\n        \"index\":{\r\n            \"number_of_shards\": 1,\r\n            \"number_of_replicas\": 1\r\n        }\r\n    },\r\n    \"mappings\": {\r\n        \"properties\": {\r\n            \"type\": { \"type\": \"keyword\" },\r\n            \"language\": { \"type\": \"keyword\" },\r\n            \"title\": { \"type\": \"text\" },\r\n            \"copyright\":{ \"type\": \"text\", \"index\": false },\r\n            \"author\": { \"type\": \"text\" },\r\n            \"summary\": { \"type\": \"text\" },\r\n            \"publishedOn\": { \"type\": \"date\" },\r\n            \"updatedOn\": { \"type\": \"date\" },\r\n            \"kafka\": {\r\n                \"type\": \"object\",\r\n                \"properties\": {\r\n                    \"topic\": { \"type\": \"keyword\", \"index\": false },\r\n                    \"offset\": { \"type\": \"long\", \"index\": false },\r\n                    \"partition\": { \"type\": \"integer\", \"index\": false }\r\n                }\r\n            },\r\n            \"source\": {\r\n                \"type\": \"object\",\r\n                \"properties\": {\r\n                    \"name\": { \"type\": \"keyword\" },\r\n                    \"uid\": { \"type\": \"keyword\", \"index\": false },\r\n                    \"link\": { \"type\": \"keyword\", \"index\": false },\r\n                    \"filePath\": { \"type\": \"keyword\", \"index\": false },\r\n                    \"streamUrl\": { \"type\": \"keyword\", \"index\": false }\r\n                }\r\n            },\r\n            \"tags\": {\r\n                \"type\": \"nested\",\r\n                \"properties\": {\r\n                    \"key\": { \"type\": \"keyword\" },\r\n                    \"value\": { \"type\": \"text\" }\r\n                }\r\n            }\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{elastic-port}}/:id",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{elastic-port}}",
+									"path": [
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "story"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
 				{
 					"name": "health",
 					"request": {
@@ -3176,12 +4272,12 @@
 							"basic": [
 								{
 									"key": "password",
-									"value": "",
+									"value": "{{elastic-password}}",
 									"type": "string"
 								},
 								{
 									"key": "username",
-									"value": "elastic",
+									"value": "{{elastic-username}}",
 									"type": "string"
 								}
 							]
@@ -3189,12 +4285,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{scheme}}://localhost:50007/_cat/health",
+							"raw": "{{scheme}}://{{host}}:{{elastic-port}}/_cat/health",
 							"protocol": "{{scheme}}",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "50007",
+							"port": "{{elastic-port}}",
 							"path": [
 								"_cat",
 								"health"

@@ -39,7 +39,7 @@ help:
 
 clean: ## Clean package.
 	@echo "$(P) Clean package"
-	@mvn clean
+	@cd api-editor; mvn clean
 
 package: ## Clean and build a package.
 	@echo "$(P) Clean and build a package"

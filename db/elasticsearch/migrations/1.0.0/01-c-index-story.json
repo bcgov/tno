@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    }
+  },
+  "mappings": {
+    "properties": {
+      "type": { "type": "keyword" },
+      "language": { "type": "keyword" },
+      "title": { "type": "text" },
+      "copyright": { "type": "text", "index": false },
+      "author": { "type": "text" },
+      "summary": { "type": "text" },
+      "publishedOn": { "type": "date" },
+      "updatedOn": { "type": "date" },
+      "kafka": {
+        "type": "object",
+        "properties": {
+          "topic": { "type": "keyword", "index": false },
+          "offset": { "type": "long", "index": false },
+          "partition": { "type": "integer", "index": false }
+        }
+      },
+      "source": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "keyword" },
+          "uid": { "type": "keyword", "index": false },
+          "link": { "type": "keyword", "index": false },
+          "filePath": { "type": "keyword", "index": false },
+          "streamUrl": { "type": "keyword", "index": false }
+        }
+      },
+      "tags": {
+        "type": "nested",
+        "properties": {
+          "key": { "type": "keyword" },
+          "value": { "type": "text" }
+        }
+      }
+    }
+  }
+}

@@ -27,6 +27,11 @@
 			<url>https://s01.oss.sonatype.org/content/repositories/cabcgovtno-1023</url>
 		</repository> -->
 		<repository>
+			<id>maven-snapshots</id>
+			<name>Maven Central Repository - Snapshots</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+		</repository>
+		<repository>
 			<id>maven-releases</id>
 			<name>Maven Central Repository - Releases</name>
 			<url>https://s01.oss.sonatype.org/content/repositories/releases/</url>

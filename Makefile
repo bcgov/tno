@@ -38,62 +38,71 @@ help:
 ##############################################################################
 
 setup: ## Setup local environment for development, generate configuration files.
-	@echo "$(P) Setup local development environment"
+	$(info Setup local environment for development, generate configuration files.)
+	@./tools/scritps/variables.sh
 	@./tools/scripts/gen-env-files.sh
-	@./tools/scripts/gen-dal-db-files.sh
+	@./tools/scripts/gen-maven-files.sh
 	@./tools/scripts/gen-keys.sh
 	@mkdir -p ./app/editor/node_modules
 	@mkdir -p ./app/subscriber/node_modules
 
 init: ## Initialize your local environment and start the core solution.
-	@echo "$(P) Initialize your local environment and start the core solution"
+	$(info Initialize your local environment and start the core solution)
 	@make setup
 	@make up
 	@make db-update
+	@make elastic-update
 
 ##############################################################################
 # Docker Management
 ##############################################################################
 
 build: ## Builds all containers or the one specified (n=service name)
-	@echo "$(P) Building images..."
+	$(info Builds all containers or the one specified (n=$(n)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka build --no-cache $(n)
 
 up: ## Starts all containers or the one specified (n=service name)
-	@echo "$(P) Starting all containers..."
+	$(info Starts all containers or the one specified (n=$(n)))
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka up -d $(n)
 
 stop: ## Stops all containers or the one specified (n=service name)
-	@echo "$(P) Stopping all containers..."
+	$(info Stops all containers or the one specified (n=$(n)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka stop $(n)
 
 down: ## Stops all containers and removes them
-	@echo "$(P) Stopping containers..."
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka down
+	$(info Stops all containers and removes them)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka down -v
 
-restart: ## Stop and start all containers or the one specified (n=servic ename)
-	@echo "$(P) Restarting containers..."
+restart: ## Restart all containers or the one specified (n=servic ename)
+	$(info Restart all containers or the one specified (n=$(n)))
 	@make stop n=$(n)
 	@make up n=$(n)
 
-rebuild: ## Rebuild all containers or the one specified (n=service name) and then start them after building
+refresh: ## Stop, build, and start all containers or the one specified (n=service name)
+	$(info Stop, build, and start all containers or the one specified (n=$(n)))
+	@make stop n=$(n)
 	@make build n=$(n)
 	@make up n=$(n)
 
 remove: ## Remove all containers
-	@echo "$(P) Removing images..."
+	$(info Remove all containers)
 	@docker-compose rm -sv
+
+nuke: ## Stop all containers, delete all containers, volumes, and configuration
+	$(info Stop all containers, delete all containers, volumes, and configuration)
+	@./tools/scripts/delete-conf.sh
+	@make down
 
 ##############################################################################
 # Core Management
 ##############################################################################
 
 core-up: ## Runs the core containers, or the one specified (n=service name)
-	@echo "$(P) Running containers..."
+	$(info Runs the core containers, or the one specified (n=$(n)))
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core up -d $(n)
 
 core-stop: ## Stops the core containers, or the one specified (n=service name)
-	@echo "$(P) Stopping containers..."
+	$(info Stops the core containers, or the one specified (n=$(n)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core stop $(n)
 
 ##############################################################################
@@ -101,27 +110,28 @@ core-stop: ## Stops the core containers, or the one specified (n=service name)
 ##############################################################################
 
 kafka-build: ## Builds the kafka containers or the one specified (n=service name)
-	@echo "$(P) Building kafka images..."
+	$(info Builds the kafka containers or the one specified (n=$(n)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml --profile kafka build --no-cache $(n)
 
 kafka-up: ## Runs the kafka containers or the one specified (n=service name)
-	@echo "$(P) Running kafka containers..."
+	$(info Runs the kafka containers or the one specified (n=$(n)))
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka up -d $(n)
 
 kafka-stop: ## Stops the kafka containers or the one specified (n=service name)
-	@echo "$(P) Stopping kafka containers..."
+	$(info Stops the kafka containers or the one specified (n=$(n)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka stop $(n)
 
 kafka-down: ## Stops the kafka containers and removes them
-	@echo "$(P) Stopping kafka containers..."
+	$(info Stops the kafka containers and removes them)
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka down
 
 kafka-rebuild: ## Build the kafka contains or the one specified (n=service name) and then start them after building
+	$(info Build the kafka contains or the one specified (n=service name) and then start them after building)
 	@make kafka-build n=$(n)
 	@make kafka-up n=$(n)
 
 kafka-remove: ## Remove the kafka containers
-	@echo "$(P) Removing kafka images..."
+	$(info Remove the kafka containers)
 	@docker rm -fv tno-kafkacat
 	@docker rm -fv tno-ksqldb
 	@docker rm -fv tno-cconnect
@@ -135,19 +145,19 @@ kafka-remove: ## Remove the kafka containers
 ##############################################################################
 
 service-build: ## Builds the service containers, or the one specified (n=service name)
-	@echo "$(P) Building service containers..."
+	$(info Builds the service containers, or the one specified (n=$(n)))
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility  build $(n)
 
 service-up: ## Runs the service containers, or the one specified (n=service name)
-	@echo "$(P) Running service containers..."
+	$(info Runs the service containers, or the one specified (n=$(n)))
 	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility up -d $(n)
 
 service-stop: ## Stops the service containers, or the one specified (n=service name)
-	@echo "$(P) Stopping service containers..."
+	$(info Stops the service containers, or the one specified (n=$(n)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility stop $(n)
 
 service-down: ## Stops the service containers and removes them
-	@echo "$(P) Stopping service containers..."
+	$(info Stops the service containers and removes them)
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility down
 
 ##############################################################################
@@ -155,12 +165,13 @@ service-down: ## Stops the service containers and removes them
 ##############################################################################
 
 npm-down: ## Removes node containers, images, volumes, for specified application (n=service name).
-	@echo "$(P) Removing node containers and volumes."
+	$(info Removes node containers, images, volumes, for specified application (n=$(n)))
 	@make stop $(n)
 	@docker-compose rm -f -v -s $(n)
 	@docker volume rm -f tno-$(n)-node-cache
 
 npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
+	$(info Removes and rebuilds node app containers, images, volumes)
 	@make npm-down n=app-editor; make build n=app-editor; make up n=app-editor;
 
 ##############################################################################
@@ -168,11 +179,11 @@ npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
 ##############################################################################
 
 db-update: ## Run the flyway database migration update (requires maven to be installed).
-	@echo "$(P) Run the flyway database migration update"
+	$(info Run the flyway database migration update (requires maven to be installed))
 	@./tools/scripts/db-update.sh
 
 db-refresh: ## Stop and delete the database container and volume, then rebuilds and starts.
-	@echo "$(P) Stop and delete the database container and volume, then rebuilds and starts"
+	$(info Stop and delete the database container and volume, then rebuilds and starts)
 	@make stop n=keycloak
 	@make stop n=database
 	@docker-compose rm -f -v -s database
@@ -181,11 +192,23 @@ db-refresh: ## Stop and delete the database container and volume, then rebuilds 
 	@make up n=keycloak
 
 ##############################################################################
+# Elasticsearch Commands
+##############################################################################
+
+elastic-update: ## Run the elasticsearch migration (n=migration name, r=rollback, i=ignore errors).
+	$(info Run the elasticsearch migration (n=$(n)))
+	@./db/elasticsearch/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(i),-i,"")
+#  $(if $(r),-r,"")
+# ifdef ERROR1
+# 	$(error failed to run migration)
+# endif
+
+##############################################################################
 # Kafka Utility Commands
 ##############################################################################
 
 reset-consumer-offset: ## Reset the consumer group topic offset.
-	@echo "$(P) Reset the consumer group topic offset"
+	$(info Reset the consumer group topic offset)
 	@cd ./db/kafka/broker/scripts; ./reset-consumer-offset.sh
 
 .PHONY: local
