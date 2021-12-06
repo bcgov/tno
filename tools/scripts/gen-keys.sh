@@ -13,7 +13,7 @@ echo 'Enter the "key-id" (normally your email address) that you use to generate 
 read -p 'key id: ' varKeyUid
 
 # If key doesn't exist, then create it
-if [ ! $(gpg -k $varKeyUid | grep -w $varKeyUid)]; then
+if [ ! $(gpg -k $varKeyUid | grep -w $varKeyUid) ]; then
   gpg --gen-key
 fi
 
