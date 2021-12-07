@@ -82,10 +82,9 @@ if test -f "./db/postgres/docker/.env"; then
     echo "./db/postgres/docker/.env exists"
 else
 echo \
-"POSTGRESQL_USER=$dbUser
-POSTGRESQL_PASSWORD=$password
-POSTGRESQL_DATABASE=$dbName
-POSTGRESQL_ADMIN_PASSWORD=$password
+"POSTGRES_USER=$dbUser
+POSTGRES_PASSWORD=$password
+POSTGRES_DB=$dbName
 
 KEYCLOAK_DATABASE=$keycloakDbName" >> ./db/postgres/docker/.env
     echo "./db/postgres/docker/.env created"
