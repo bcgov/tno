@@ -52,6 +52,7 @@ init: ## Initialize your local environment and start the core solution.
 	@make up
 	@make db-update
 	@make elastic-update
+	@make kafka-update
 
 nuke: ## Stop all containers, delete all containers, volumes, and configuration
 	$(info Stop all containers, delete all containers, volumes, and configuration)
@@ -216,5 +217,9 @@ elastic-update: ## Run the elasticsearch migration (n=migration name, r=rollback
 reset-consumer-offset: ## Reset the consumer group topic offset.
 	$(info Reset the consumer group topic offset)
 	@cd ./db/kafka/broker/scripts; ./reset-consumer-offset.sh
+
+kafka-update: ## Run the kafka migration (n=migration name, r=rollback, z=zookeeper)
+	$(info Run the kafka migration (n=$(n)))
+	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(z),-z $(z),"")
 
 .PHONY: local
