@@ -4,7 +4,9 @@ services:
   ####################### Nginx #######################
   nginx:
     image: tno:nginx
-    profiles: ["core"]
+    profiles:
+      - all
+      - core
     restart: on-failure:1
     container_name: tno-nginx
     build:
@@ -12,8 +14,8 @@ services:
     env_file:
       - network/nginx/.env
     ports:
-      - ${NGINX_HTTP_PORT:-50080}:80
-      - ${NGINX_HTTPS_PORT:-50443}:443
+      - ${NGINX_HTTP_PORT:-40080}:80
+      - ${NGINX_HTTPS_PORT:-40443}:443
     networks:
       - tno
 
@@ -22,7 +24,10 @@ services:
   ## Redhat Image
   database:
     image: tno:database
-    profiles: ["core", "data"]
+    profiles:
+      - all
+      - core
+      - data
     restart: on-failure:1
     container_name: tno-database
     build:
@@ -30,7 +35,7 @@ services:
     env_file:
       - ${DB_CONTEXT:-db/postgres/docker}/.env
     ports:
-      - ${DATABASE_PORT:-50002}:5432
+      - ${DATABASE_PORT:-40000}:5432
     volumes:
       - tno-database-data:${DB_VOLUME:-/var/lib/postgresql/data}
     networks:
@@ -39,7 +44,9 @@ services:
   ####################### Keycloak #######################
   keycloak:
     image: tno:keycloak
-    profiles: ["core"]
+    profiles:
+      - all
+      - core
     restart: on-failure:1
     container_name: tno-keycloak
     build:
@@ -49,8 +56,8 @@ services:
     volumes:
       - ./auth/keycloak/config/realm-export.json:/tmp/realm-export.json
     ports:
-      - ${KEYCLOAK_HTTP_PORT:-50000}:8080
-      - ${KEYCLOAK_HTTPS_PORT:-50001}:443
+      - ${KEYCLOAK_HTTP_PORT:-40001}:8080
+      - ${KEYCLOAK_HTTPS_PORT:-40002}:443
     depends_on:
       - database
     networks:
@@ -65,7 +72,12 @@ services:
   ####################### Elasticsearch #######################
   elastic:
     image: tno:elastic
-    profiles: ["core", "elastic", "data"]
+    profiles:
+      - all
+      - core
+      - elastic
+      - utility
+      - data
     restart: on-failure:1
     container_name: tno-elastic
     build:
@@ -77,8 +89,8 @@ services:
         soft: -1
         hard: -1
     ports:
-      - ${ELASTIC_HTTP_PORT:-50007}:9200
-      - ${ELASTIC_COM_PORT:-50008}:9300
+      - ${ELASTIC_HTTP_PORT:-40003}:9200
+      - ${ELASTIC_COM_PORT:-40004}:9300
     volumes:
       - tno-elastic-data:/usr/share/elasticsearch/data
     networks:
@@ -93,13 +105,16 @@ services:
 
   dejavu:
     image: tno:dejavu
-    profiles: ["utility", "elastic"]
+    profiles:
+      - all
+      - utility
+      - elastic
     restart: on-failure:1
     container_name: tno-dejavu
     build:
       context: db/elasticsearch/dejavu
     ports:
-      - ${ELASTIC_DEJAVU_HTTP_PORT:-50009}:1358
+      - ${ELASTIC_DEJAVU_HTTP_PORT:-40005}:1358
     links:
       - elastic
     networks:
@@ -108,7 +123,9 @@ services:
   ####################### Azure Storage #######################
   azure-storage:
     image: tno:azure-storage
-    profiles: ["core"]
+    profiles:
+      - all
+      - core
     restart: on-failure:1
     container_name: tno-azure-storage
     build:
@@ -116,9 +133,9 @@ services:
     env_file:
       - db/azure-storage/.env
     ports:
-      - ${AZURE_BLOB_PORT:-50020}:10000
-      - ${AZURE_QUEUE_PORT:-50021}:10001
-      - ${AZURE_TABLE_PORT:-50022}:10002
+      - ${AZURE_BLOB_PORT:-40006}:10000
+      - ${AZURE_QUEUE_PORT:-40007}:10001
+      - ${AZURE_TABLE_PORT:-40008}:10002
     volumes:
       - tno-azure-storage-data:/data
     networks:
@@ -127,15 +144,17 @@ services:
   ####################### API - Editor #######################
   api-editor:
     image: tno:api-editor
-    profiles: ["core"]
+    profiles:
+      - all
+      - core
     restart: on-failure:1
     container_name: tno-api-editor
     build:
       context: api/editor
     env_file: api/editor/.env
     ports:
-      - ${API_EDITOR_HTTP_PORT:-50003}:8080
-      - ${API_EDITOR_HTTPS_PORT:-50004}:443
+      - ${API_EDITOR_HTTP_PORT:-40010}:8080
+      - ${API_EDITOR_HTTPS_PORT:-40011}:443
     depends_on:
       - database
       - keycloak
@@ -151,7 +170,9 @@ services:
   ####################### App - Editor #######################
   app-editor:
     image: tno:app-editor
-    profiles: ["core"]
+    profiles:
+      - all
+      - core
     stdin_open: true
     tty: true
     restart: on-failure:1
@@ -164,8 +185,8 @@ services:
       - ./app/editor/public:/usr/app/public
       - tno-editor-node-cache:/usr/app/node_modules
     ports:
-      - ${APP_EDITOR_HTTP_PORT:-50005}:3000
-      - ${APP_EDITOR_HTTPS_PORT:-50006}:3443
+      - ${APP_EDITOR_HTTP_PORT:-40081}:3000
+      - ${APP_EDITOR_HTTPS_PORT:-40444}:3443
     depends_on:
       - api-editor
     networks:
@@ -174,7 +195,9 @@ services:
   ####################### App - Subscriber #######################
   app-subscriber:
     image: tno:app-subscriber
-    profiles: ["core"]
+    profiles:
+      - all
+      - core
     stdin_open: true
     tty: true
     restart: on-failure:1
@@ -187,8 +210,8 @@ services:
       - ./app/subscriber/public:/usr/app/public
       - tno-subscriber-node-cache:/usr/app/node_modules
     ports:
-      - ${APP_SUBSCRIBER_HTTP_PORT:-50050}:3000
-      - ${APP_SUBSCRIBER_HTTPS_PORT:-50051}:3443
+      - ${APP_SUBSCRIBER_HTTP_PORT:-40082}:3000
+      - ${APP_SUBSCRIBER_HTTPS_PORT:-40445}:3443
     depends_on:
       - api-editor
     networks:
@@ -198,7 +221,10 @@ services:
 
   rss:
     image: tno:rss
-    profiles: ["service", "data"]
+    profiles:
+      - all
+      - service
+      - data
     restart: on-failure:1
     container_name: tno-rss
     build:
@@ -206,7 +232,7 @@ services:
     env_file:
       - services/syndication/rss.env
     ports:
-      - ${SYNDICATION_PORT:-50052}:8080
+      - ${SYNDICATION_RSS_PORT:-40020}:8080
     depends_on:
       - database
       - broker
@@ -221,7 +247,10 @@ services:
 
   atom:
     image: tno:atom
-    profiles: ["service", "data"]
+    profiles:
+      - all
+      - service
+      - data
     restart: on-failure:1
     container_name: tno-atom
     build:
@@ -229,7 +258,7 @@ services:
     env_file:
       - services/syndication/atom.env
     ports:
-      - ${SYNDICATION_PORT:-50053}:8080
+      - ${SYNDICATION_ATOM_PORT:-40021}:8080
     depends_on:
       - database
       - broker
@@ -244,7 +273,10 @@ services:
 
   nlp:
     image: tno:nlp
-    profiles: ["service", "data"]
+    profiles:
+      - all
+      - service
+      - data
     restart: on-failure:1
     container_name: tno-nlp
     build:
@@ -252,7 +284,7 @@ services:
     env_file:
       - services/nlp/.env
     ports:
-      - ${NLP_PORT:-50060}:8080
+      - ${NLP_PORT:-40022}:8080
     volumes:
       - ./services/nlp/src/main/resources/models:/app/classes/models
     depends_on:
@@ -266,17 +298,21 @@ services:
       retries: 3
       start_period: 30s
 
-  search:
-    image: tno:search
-    profiles: ["service", "data", "elastic"]
+  indexing:
+    image: tno:indexing
+    profiles:
+      - all
+      - service
+      - data
+      - elastic
     restart: on-failure:1
-    container_name: tno-search
+    container_name: tno-indexing
     build:
       context: services/elastic
     env_file:
       - services/elastic/.env
     ports:
-      - ${NLP_PORT:-50060}:8080
+      - ${INDEXING_PORT:-40023}:8080
     depends_on:
       - database
       - elastic
