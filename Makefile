@@ -37,9 +37,9 @@ help:
 # Solution Configuration
 ##############################################################################
 
+
 setup: ## Setup local environment for development, generate configuration files.
 	$(info Setup local environment for development, generate configuration files.)
-	@./tools/scripts/variables.sh
 	@./tools/scripts/gen-env-files.sh
 	@./tools/scripts/gen-maven-files.sh
 	@./tools/scripts/gen-keys.sh
@@ -52,6 +52,12 @@ init: ## Initialize your local environment and start the core solution.
 	@make up
 	@make db-update
 	@make elastic-update
+	@make kafka-update
+
+nuke: ## Stop all containers, delete all containers, volumes, and configuration
+	$(info Stop all containers, delete all containers, volumes, and configuration)
+	@make down
+	@./tools/scripts/nuke.sh
 
 ##############################################################################
 # Docker Management
@@ -59,7 +65,7 @@ init: ## Initialize your local environment and start the core solution.
 
 build: ## Builds all containers or the one specified (n=service name)
 	$(info Builds all containers or the one specified (n=$(n)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka build --no-cache $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile all --no-cache $(n)
 
 up: ## Starts all containers or the one specified (n=service name)
 	$(info Starts all containers or the one specified (n=$(n)))
@@ -67,11 +73,11 @@ up: ## Starts all containers or the one specified (n=service name)
 
 stop: ## Stops all containers or the one specified (n=service name)
 	$(info Stops all containers or the one specified (n=$(n)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka stop $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile all stop $(n)
 
 down: ## Stops all containers and removes them
 	$(info Stops all containers and removes them)
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile core --profile kafka down -v
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile all down -v
 
 restart: ## Restart all containers or the one specified (n=servic ename)
 	$(info Restart all containers or the one specified (n=$(n)))
@@ -87,11 +93,6 @@ refresh: ## Stop, build, and start all containers or the one specified (n=servic
 remove: ## Remove all containers
 	$(info Remove all containers)
 	@docker-compose rm -sv
-
-nuke: ## Stop all containers, delete all containers, volumes, and configuration
-	$(info Stop all containers, delete all containers, volumes, and configuration)
-	@./tools/scripts/delete-conf.sh
-	@make down
 
 ##############################################################################
 # Core Management
@@ -123,22 +124,12 @@ kafka-stop: ## Stops the kafka containers or the one specified (n=service name)
 
 kafka-down: ## Stops the kafka containers and removes them
 	$(info Stops the kafka containers and removes them)
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka down
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile kafka down -v
 
 kafka-rebuild: ## Build the kafka contains or the one specified (n=service name) and then start them after building
 	$(info Build the kafka contains or the one specified (n=service name) and then start them after building)
 	@make kafka-build n=$(n)
 	@make kafka-up n=$(n)
-
-kafka-remove: ## Remove the kafka containers
-	$(info Remove the kafka containers)
-	@docker rm -fv tno-kafkacat
-	@docker rm -fv tno-ksqldb
-	@docker rm -fv tno-cconnect
-	@docker rm -fv tno-rest-proxy
-	@docker rm -fv tno-schema-registry
-	@docker rm -fv tno-broker
-	@docker rm -fv tno-zookeeper
 
 ##############################################################################
 # Service Management
@@ -146,19 +137,39 @@ kafka-remove: ## Remove the kafka containers
 
 service-build: ## Builds the service containers, or the one specified (n=service name)
 	$(info Builds the service containers, or the one specified (n=$(n)))
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility  build $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service  build $(n)
 
 service-up: ## Runs the service containers, or the one specified (n=service name)
 	$(info Runs the service containers, or the one specified (n=$(n)))
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility up -d $(n)
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service up -d $(n)
 
 service-stop: ## Stops the service containers, or the one specified (n=service name)
 	$(info Stops the service containers, or the one specified (n=$(n)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility stop $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service stop $(n)
 
 service-down: ## Stops the service containers and removes them
 	$(info Stops the service containers and removes them)
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service --profile utility down
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile service down -v
+
+##############################################################################
+# Utilities Management
+##############################################################################
+
+utility-build: ## Builds the utility containers, or the one specified (n=service name)
+	$(info Builds the utility containers, or the one specified (n=$(n)))
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile utility  build $(n)
+
+utility-up: ## Runs the utility containers, or the one specified (n=service name)
+	$(info Runs the utility containers, or the one specified (n=$(n)))
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile utility up -d $(n)
+
+utility-stop: ## Stops the utility containers, or the one specified (n=service name)
+	$(info Stops the utility containers, or the one specified (n=$(n)))
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile utility stop $(n)
+
+utility-down: ## Stops the utility containers and removes them
+	$(info Stops the utility containers and removes them)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile utility down -v
 
 ##############################################################################
 # Node Container Management
@@ -198,17 +209,17 @@ db-refresh: ## Stop and delete the database container and volume, then rebuilds 
 elastic-update: ## Run the elasticsearch migration (n=migration name, r=rollback, i=ignore errors).
 	$(info Run the elasticsearch migration (n=$(n)))
 	@./db/elasticsearch/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(i),-i,"")
-#  $(if $(r),-r,"")
-# ifdef ERROR1
-# 	$(error failed to run migration)
-# endif
 
 ##############################################################################
-# Kafka Utility Commands
+# Kafka Commands
 ##############################################################################
 
 reset-consumer-offset: ## Reset the consumer group topic offset.
 	$(info Reset the consumer group topic offset)
 	@cd ./db/kafka/broker/scripts; ./reset-consumer-offset.sh
+
+kafka-update: ## Run the kafka migration (n=migration name, r=rollback, z=zookeeper)
+	$(info Run the kafka migration (n=$(n)))
+	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(z),-z $(z),"")
 
 .PHONY: local

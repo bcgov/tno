@@ -2,34 +2,35 @@
 
 echo ""
 echo "*********************************"
-echo "Setting up Development Containers"
+echo "Setting up Maven Configuration"
 echo "*********************************"
 
-varOssrhUsername=$(grep -Po '<username>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml)
-if [ -z "$varOssrhUsername" ]
+. ./tools/scripts/variables.sh
+
+ossrhUsername=$(grep -Po '<username>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml)
+if [ -z "$ossrhUsername" ]
 then
     echo 'Enter your OSSRH Maven Central username'
-    read -p 'Username: ' varOssrhUsername
+    read -p 'Username: ' ossrhUsername
 else
-    echo "OSSRH Maven Central username: $varOssrhUsername"
+    echo "OSSRH Maven Central username: $ossrhUsername"
 fi
 
-varOssrhPassword=$(grep -Po '<password>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml)
-if [ -z "$varOssrhPassword" ]
+ossrhPassword=$(grep -Po '<password>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml)
+if [ -z "$ossrhPassword" ]
 then
     echo 'Enter your OSSRH Maven Central password.'
-    read -p 'Password: ' varOssrhPassword
+    read -p 'Password: ' ossrhPassword
 else
-    echo "OSSRH Maven Central password: $varOssrhPassword"
+    echo "OSSRH Maven Central password: $ossrhPassword"
 fi
 
-
-varDbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
-varPassword=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
-varDbName=$(grep -Po 'POSTGRES_DB=\K.*$' ./db/postgres/.env)
+dbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
+password=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
+dbName=$(grep -Po 'POSTGRES_DB=\K.*$' ./db/postgres/.env)
 
 ###########################################################################
-# TNO Configuration
+# Project Configuration
 ###########################################################################
 
 # Flyway configuration
@@ -37,9 +38,9 @@ if test -f "./libs/java/dal/db/dal-db-migration/flyway.conf"; then
     echo "./libs/java/dal/db/dal-db-migration/flyway.conf exists"
 else
 echo \
-"flyway.user=$varDbUser
-flyway.password=$varPassword
-flyway.url=jdbc:postgresql://host.docker.internal:50002/$varDbName
+"flyway.user=$dbUser
+flyway.password=$password
+flyway.url=jdbc:postgresql://host.docker.internal:50002/$dbName
 flyway.schemas=public
 flyway.baselineOnMigrate=true
 # flyway.locations=filesystem:db/migration" >> ./libs/java/dal/db/dal-db-migration/flyway.conf
@@ -59,8 +60,8 @@ echo \
   <servers>
     <server>
       <id>ossrh</id>
-      <username>$varOssrhUsername</username>
-      <password>$varOssrhPassword</password>
+      <username>$ossrhUsername</username>
+      <password>$ossrhPassword</password>
     </server>
   </servers>
 </settings>" >> ./libs/java/dal/db/.devcontainer/maven-settings.xml
@@ -80,8 +81,8 @@ echo \
   <servers>
     <server>
       <id>ossrh</id>
-      <username>$varOssrhUsername</username>
-      <password>$varOssrhPassword</password>
+      <username>$ossrhUsername</username>
+      <password>$ossrhPassword</password>
     </server>
   </servers>
 </settings>" >> ./libs/java/dal/elastic/.devcontainer/maven-settings.xml
@@ -101,8 +102,8 @@ echo \
   <servers>
     <server>
       <id>ossrh</id>
-      <username>$varOssrhUsername</username>
-      <password>$varOssrhPassword</password>
+      <username>$ossrhUsername</username>
+      <password>$ossrhPassword</password>
     </server>
   </servers>
 </settings>" >> ./libs/java/core/.devcontainer/maven-settings.xml
@@ -122,8 +123,8 @@ echo \
   <servers>
     <server>
       <id>ossrh</id>
-      <username>$varOssrhUsername</username>
-      <password>$varOssrhPassword</password>
+      <username>$ossrhUsername</username>
+      <password>$ossrhPassword</password>
     </server>
   </servers>
 </settings>" >> ./libs/java/service/.devcontainer/maven-settings.xml

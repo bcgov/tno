@@ -55,7 +55,7 @@ bootstrap:
 http:
   port: 9200
   cors:
-    allow-origin: http://localhost:50009,http://127.0.0.1:50009,https://opensource.appbase.io
+    allow-origin: http://localhost:40005,http://127.0.0.1:40005,https://opensource.appbase.io
     enabled: true
     allow-headers: X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization,x-search-query,x-search-state,x-search-filters
     allow-credentials: true

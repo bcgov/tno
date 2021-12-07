@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=rin:u:p:
-LONGOPTS=rollback,ignore,version:,user:,password:
+OPTIONS=rin:u:p:h:
+LONGOPTS=rollback,ignore,version:,user:,password:,url:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,7 +33,7 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-version=* rollback=false ignore=false user=${ELASTIC_USERNAME:-} password=${ELASTIC_PASSWORD:-}
+version=* rollback=false ignore=false user=${ELASTIC_USERNAME:-} password=${ELASTIC_PASSWORD:-} url=${ELASTIC_URL:-}
 # now enjoy the options in order and nicely split until we see --
 while true; do
   case "$1" in
@@ -57,6 +57,10 @@ while true; do
       ;;
     -p|--password)
       password="$2"
+      shift 2
+      ;;
+    -h|--url)
+      url="$2"
       shift 2
       ;;
     --)
@@ -86,6 +90,14 @@ if [ -z "$password" ]; then
   fi
 fi
 
+if [ -z "$url" ]; then
+  url=$(grep -Po 'ELASTIC_URL=\K.*$' ./services/elastic/.env)
+  if [ -z "$url" ]; then
+      echo "Enter the URL to Elasticsearch."
+      read -p 'URL: ' url
+  fi
+fi
+
 echo "version: $version, user: $user, rollback: $rollback, ignore: $ignore"
 
 #################################################
@@ -97,14 +109,14 @@ auth=$(echo -ne "$user:$password" | base64 --wrap 0)
 deleteIndex () {
   local indexName=$(echo $1 | sed 's/.*-index-\([^ ]*\)\.json/\1/')
   echo "Deleting index: $indexName" >&2
-  local response=$(curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Basic $auth" --write-out '%{http_code}' --silent --output /dev/null http://localhost:50007/$indexName)
+  local response=$(curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Basic $auth" --write-out '%{http_code}' --silent --output /dev/null $url/$indexName)
   echo $response
 }
 
 addIndex() {
   local indexName=$(echo $1 | sed 's/.*-index-\([^ ]*\)\.json/\1/')
   echo "Adding index: $indexName" >&2
-  local response=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Basic $auth" -d @$fileName --write-out '%{http_code}' --silent --output /dev/null http://localhost:50007/$indexName)
+  local response=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Basic $auth" -d @$fileName --write-out '%{http_code}' --silent --output /dev/null $url/$indexName)
   echo $response
 }
 

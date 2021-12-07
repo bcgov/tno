@@ -4,7 +4,11 @@ version: '3.5'
 services:
   zookeeper:
     image: tno:kafka-zookeeper
-    profiles: ["kafka", "data"]
+    profiles:
+      - all
+      - kafka
+      - data
+      - utility
     restart: on-failure:1
     hostname: zookeeper
     container_name: tno-zookeeper
@@ -13,7 +17,7 @@ services:
     env_file:
       - db/kafka/zookeeper/.env
     ports:
-      - ${KAFKA_ZOOKEEPER_PORT:-50010}:2181
+      - ${KAFKA_ZOOKEEPER_PORT:-40100}:2181
     volumes:
       - tno-zookeeper-data:/var/lib/zookeeper/data
       - tno-zookeeper-log:/var/lib/zookeeper/log
@@ -23,7 +27,11 @@ services:
 
   broker:
     image: tno:kafka-broker
-    profiles: ["kafka", "data"]
+    profiles:
+      - all
+      - kafka
+      - data
+      - utility
     restart: on-failure:1
     hostname: broker
     container_name: tno-broker
@@ -34,10 +42,8 @@ services:
     depends_on:
       - zookeeper
     ports:
-      # - ${KAFKA_BROKER_PORT:-50011}:9101
-      - ${KAFKA_BROKER_ADVERTISED_HOST_PORT:-50012}:9092
-      - ${KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT:-50019}:29094
-      # - ${KAFKA_BROKER_REST_PORT:-50017}:8090
+      - ${KAFKA_BROKER_ADVERTISED_HOST_PORT:-40101}:9092
+      - ${KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT:-40102}:29094
     volumes:
       - tno-broker-data:/var/lib/kafka/data
       - tno-broker-secrets:/etc/kafka/secrets
@@ -46,7 +52,11 @@ services:
 
   schema-registry:
     image: tno:kafka-schema-registry
-    profiles: ["kafka", "data"]
+    profiles:
+      - all
+      - kafka
+      - data
+      - utility
     restart: on-failure:1
     hostname: schema-registry
     container_name: tno-schema-registry
@@ -57,7 +67,7 @@ services:
     depends_on:
       - broker
     ports:
-      - ${KAFKA_SCHMEA_REGISTRY_PORT:-50013}:8081
+      - ${KAFKA_SCHEMA_REGISTRY_PORT:-40103}:8081
     volumes:
       - tno-schema-secrets:/etc/schema-registry/secrets
     networks:
@@ -65,7 +75,11 @@ services:
 
   rest-proxy:
     image: tno:kafka-rest-proxy
-    profiles: ["kafka", "data"]
+    profiles:
+      - all
+      - kafka
+      - data
+      - utility
     restart: on-failure:1
     hostname: rest-proxy
     container_name: tno-rest-proxy
@@ -77,13 +91,17 @@ services:
       - broker
       - schema-registry
     ports:
-      - ${KAFKA_REST_PROXY_PORT:-50018}:8082
+      - ${KAFKA_REST_PROXY_PORT:-40104}:8082
     networks:
       - tno
 
   connect:
     image: tno:kafka-connect
-    profiles: ["kafka", "data"]
+    profiles:
+      - all
+      - kafka
+      - data
+      - utility
     restart: on-failure:1
     hostname: connect
     container_name: tno-connect
@@ -95,7 +113,7 @@ services:
       - broker
       - schema-registry
     ports:
-      - ${KAFKA_CONNECT_PORT:-50014}:8083
+      - ${KAFKA_CONNECT_PORT:-40105}:8083
     volumes:
       - ./db/kafka/connect/jars:/etc/kafka-connect/jars
       - tno-connect-secrets:/etc/kafka-connect/secrets
@@ -106,7 +124,11 @@ services:
 
   ksqldb:
     image: tno:kafka-ksqldb
-    profiles: ["kafka", "data"]
+    profiles:
+      - all
+      - kafka
+      - data
+      - utility
     restart: on-failure:1
     hostname: ksqldb
     container_name: tno-ksqldb
@@ -118,28 +140,34 @@ services:
       - broker
       - connect
     ports:
-      - ${KAFKA_KSQLDB_PORT:-50016}:8088
+      - ${KAFKA_KSQLDB_PORT:-40106}:8088
     networks:
       - tno
 
-  cat:
-    image: tno:kafkacat
-    profiles: ["kafka", "data"]
-    restart: "no"
-    hostname: cat
-    container_name: tno-kafkacat
-    build:
-      context: db/kafka/cat
-    depends_on:
-      - broker
-    networks:
-      - tno
+  # cat:
+  #   image: tno:kafkacat
+  #   profiles:
+  #     - all
+  #     - utility
+  #     - data
+  #   restart: "no"
+  #   hostname: cat
+  #   container_name: tno-kafkacat
+  #   build:
+  #     context: db/kafka/cat
+  #   depends_on:
+  #     - broker
+  #   networks:
+  #     - tno
 
   ####################### Utilities #######################
 
   kowl:
     image: tno:kafka-kowl
-    profiles: ["utility", "data"]
+    profiles:
+      - all
+      - utility
+      - data
     restart: on-failure:1
     hostname: kowl
     container_name: tno-kowl
@@ -153,7 +181,7 @@ services:
       - connect
       - schema-registry
     ports:
-      - ${KAFKA_KOWL_PORT:-50017}:8080
+      - ${KAFKA_KOWL_PORT:-40180}:8080
     networks:
       - tno
 
