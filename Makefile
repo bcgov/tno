@@ -65,7 +65,7 @@ nuke: ## Stop all containers, delete all containers, volumes, and configuration
 
 build: ## Builds all containers or the one specified (n=service name)
 	$(info Builds all containers or the one specified (n=$(n)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile all --no-cache $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile all build $(n)
 
 up: ## Starts all containers or the one specified (n=service name)
 	$(info Starts all containers or the one specified (n=$(n)))
@@ -112,7 +112,7 @@ core-stop: ## Stops the core containers, or the one specified (n=service name)
 
 kafka-build: ## Builds the kafka containers or the one specified (n=service name)
 	$(info Builds the kafka containers or the one specified (n=$(n)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml --profile kafka build --no-cache $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml  -f ./db/kafka/docker-compose.yml --profile kafka build $(n)
 
 kafka-up: ## Runs the kafka containers or the one specified (n=service name)
 	$(info Runs the kafka containers or the one specified (n=$(n)))
