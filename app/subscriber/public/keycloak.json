@@ -1,6 +1,6 @@
 {
   "realm": "tno",
-  "auth-server-url": "http://localhost:50000/auth/",
+  "auth-server-url": "http://localhost:40001/auth/",
   "ssl-required": "external",
   "resource": "tno-app",
   "public-client": true,

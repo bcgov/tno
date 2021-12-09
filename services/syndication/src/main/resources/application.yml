@@ -4,7 +4,7 @@ server:
   port: ${SERVER_PORT:8080}
 
 keycloak:
-  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:50000/auth/}
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:40001/auth/}
   realm: ${KEYCLOAK_REALM:tno}
   resource: ${KEYCLOAK_RESOURCE:tno-api}
   public-client: true

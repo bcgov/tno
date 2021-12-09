@@ -19,7 +19,7 @@ Replace the curly bracket values.
 ```conf
 flyway.user={username}
 flyway.password={password}
-flyway.url={url:jdbc:postgresql://host.docker.internal:50002/tno}
+flyway.url={url:jdbc:postgresql://host.docker.internal:40000/tno}
 flyway.schemas={schema:public}
 flyway.baselineOnMigrate=true
 # flyway.locations=filesystem:db/migration

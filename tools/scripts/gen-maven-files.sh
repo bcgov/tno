@@ -40,7 +40,7 @@ else
 echo \
 "flyway.user=$dbUser
 flyway.password=$password
-flyway.url=jdbc:postgresql://host.docker.internal:50002/$dbName
+flyway.url=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
 flyway.schemas=public
 flyway.baselineOnMigrate=true
 # flyway.locations=filesystem:db/migration" >> ./libs/java/dal/db/dal-db-migration/flyway.conf
