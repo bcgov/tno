@@ -7,7 +7,7 @@ echo "*********************************"
 
 . ./tools/scripts/variables.sh
 
-ossrhUsername=$(grep -Po '<username>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml)
+ossrhUsername=$(grep -Po '<username>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml 2>/dev/null)
 if [ -z "$ossrhUsername" ]
 then
     echo 'Enter your OSSRH Maven Central username'
@@ -16,7 +16,7 @@ else
     echo "OSSRH Maven Central username: $ossrhUsername"
 fi
 
-ossrhPassword=$(grep -Po '<password>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml)
+ossrhPassword=$(grep -Po '<password>\K[^\<]+' ./libs/java/dal/db/.devcontainer/maven-settings.xml 2>/dev/null)
 if [ -z "$ossrhPassword" ]
 then
     echo 'Enter your OSSRH Maven Central password.'
@@ -25,9 +25,9 @@ else
     echo "OSSRH Maven Central password: $ossrhPassword"
 fi
 
-dbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/.env)
-password=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/.env)
-dbName=$(grep -Po 'POSTGRES_DB=\K.*$' ./db/postgres/.env)
+dbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/docker/.env)
+password=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/docker/.env)
+dbName=$(grep -Po 'POSTGRES_DB=\K.*$' ./db/postgres/docker/.env)
 
 ###########################################################################
 # Project Configuration
