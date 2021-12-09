@@ -1,0 +1,124 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: database-backup-build
+  annotations:
+    openshift.io/display-name: Database Backup Build Template
+    description: A pod that runs scheduled database backups with chron jobs.
+    tags: tno,database,backup
+parameters:
+  - name: APP_NAME
+    displayName: "App Name"
+    description: "The name of the application (grouped)."
+    required: true
+    value: "tno"
+  - name: GROUP_NAME
+    displayName: "Component Group Name"
+    description: "The name of the application component (e.g api, app, database)."
+    required: true
+    value: "backup"
+  - name: PROJECT_NAMESPACE
+    displayName: "OpenShift Project Namespace"
+    description: "The namespace of the OpenShift project containing the application."
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod, tools]"
+    required: true
+    value: "tools"
+  - name: INSTANCE
+    displayName: "Unique Identifier"
+    description: "A unique identifier to allow for multiple instances (i.e. 'dev')."
+    value: "master"
+
+  - name: GIT_URL
+    displayName: "Git Repository URL"
+    description: "The URL of the repository with your application source code."
+    required: true
+    value: "https://github.com/BCDevOps/backup-container.git"
+  - name: GIT_REF
+    displayName: "Git Reference"
+    description:
+      "Set this to a branch name, tag or other ref of your repository if you
+      are not using the default branch."
+    value: master
+  - name: CONTEXT_DIR
+    displayName: "Context Directory"
+    description: "Set this to use a subdirectory of the source code repository"
+    value: "/docker"
+
+  - name: BASE_IMAGE_FOR_BUILD
+    displayName: Base Image
+    description: Base image to build from.  Docker creds or Artificatory setup may be needed to alleviate docker rate-limiting
+    required: true
+    value: docker.io/centos/postgresql-12-centos7:20200917-804ef01
+
+  - name: OUTPUT_IMAGE_TAG
+    displayName: "Output Image Tag"
+    description: "The tag given to the built image."
+    required: true
+    value: "latest"
+
+  - name: CPU_LIMIT
+    displayName: "Resources CPU Limit"
+    description: "The resources CPU limit (in cores) for this build."
+    required: true
+    value: 500m
+  - name: MEMORY_LIMIT
+    displayName: "Memory Limit"
+    description: "Maximum amount of memory the container can use."
+    required: true
+    value: 250Mi
+objects:
+  # The final build image.
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Database backup images
+      labels:
+        app: ${APP_NAME}
+        role: ${GROUP_NAME}
+
+  # The build config that will be created will be named for the branch you created it for.
+  - kind: BuildConfig
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Defines how to build the database backup image
+      labels:
+        name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
+        app: ${APP_NAME}
+        role: ${GROUP_NAME}
+        branch: ${GIT_REF}
+    spec:
+      completionDeadlineSeconds: 1800
+      triggers:
+        - type: ImageChange
+        - type: ConfigChange
+      runPolicy: Serial
+      source:
+        git:
+          uri: ${GIT_URL}
+          ref: ${GIT_REF}
+        contextDir: ${CONTEXT_DIR}
+      strategy:
+        type: Docker
+        dockerStrategy:
+          from:
+            kind: DockerImage
+            name: ${BASE_IMAGE_FOR_BUILD}
+          dockerfilePath: Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: ${APP_NAME}-${GROUP_NAME}:${OUTPUT_IMAGE_TAG}
+      resources:
+        limits:
+          cpu: ${CPU_LIMIT}
+          memory: ${MEMORY_LIMIT}

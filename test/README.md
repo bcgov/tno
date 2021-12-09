@@ -11,12 +11,12 @@ Import the `./test/TNO.postman_collection.json` file into your Postman. Create a
 | ---------------------------- | ------------- | -------------------------------------------------------------------------- |
 | keycloak-scheme              | http          | Uri scheme to connect to Keycloak [http\|https]                            |
 | keycloak-host                | localhost     | Uri domain host to connect to Keycloak [localhost \| host.docker.internal] |
-| keycloak-port                | 50000         | Uri port to connect to Keycloak                                            |
+| keycloak-port                | 40001         | Uri port to connect to Keycloak                                            |
 | realm                        | tno           | Keycloak realm for application                                             |
 | service-account-secret       | {key}         | Keycloak Secret key to authenticate service account                        |
 | schema                       | http          | Uri scheme to connect to API [http\|https]                                 |
 | host                         | localhost     | Uri domain host to connect to API                                          |
-| port                         | 50003         | Uri port to connect to API                                                 |
+| port                         | 40010         | Uri port to connect to API                                                 |
 | test-username                | admin         | Username for test account                                                  |
 | test-password                | {password}    | Password for test account                                                  |
 | test-secret                  | {key}         | Keycloak secret key to authenticate the test account                       |
@@ -24,8 +24,8 @@ Import the `./test/TNO.postman_collection.json` file into your Postman. Create a
 | azure-video-location         | trail         | Azure Video location                                                       |
 | azure-video-account-id       |               | Azure Video Analyzer account id                                            |
 | azure-video-subscription-key |               | Azure Video Analyzer subscription key                                      |
-| kafka-rest-port              | 50018         | Port to the Kafka REST proxy                                               |
-| nlp-port                     | 50052         | Port to the NLP service API                                                |
+| kafka-rest-port              | 40104         | Port to the Kafka REST proxy                                               |
+| nlp-port                     | 40022         | Port to the NLP service API                                                |
 
 The Postman collection has an `TNO/auth` folder that contains endpoints that connect to Keycloak.
 Use one of the `token: {name}` endpoints to get a valid authentication token from Keycloak.

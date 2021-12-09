@@ -76,20 +76,20 @@ The exposed container ports is configurable, but the defaults are identified bel
 
 | Container       |                Port | Description                                                                                   |
 | --------------- | ------------------: | --------------------------------------------------------------------------------------------- |
-| nginx           |               50080 | Provides a reverse proxy network configuration enable a single entry point to the application |
-| keycloak        |               50000 | Provides authentication and account management services                                       |
-| database        |               50002 | Provides PostgreSQL relational database for the API                                           |
-| elastic         |               50007 | Provides NoSQL Elasticsearch database for the API                                             |
-| azure-storage   | 50020, 50021, 50022 | Azurite local Azure Storage for development                                                   |
-| api-editor      |               50003 | Provides the RESTful API which gives secure access to data                                    |
-| app-editor      |               50005 | Web application for Editors                                                                   |
-| app-subscriber  |               50050 | Web application for Subscribers                                                               |
-| zookeeper       |               50010 | Kafka Zookeeper to manage cluster                                                             |
-| broker          |        50012, 50017 | Kafka server and REST API v3                                                                  |
-| rest-proxy      |               50018 | Kafka REST API                                                                                |
-| schema-registry |               50013 | Kafka schema registry services                                                                |
-| connect         |               50014 | Kafka connect Control Center with Schema Registry                                             |
-| ksqldb-server   |               50016 | Kafka streaming services                                                                      |
+| nginx           |               40080 | Provides a reverse proxy network configuration enable a single entry point to the application |
+| keycloak        |               40001 | Provides authentication and account management services                                       |
+| database        |               40000 | Provides PostgreSQL relational database for the API                                           |
+| elastic         |               40003 | Provides NoSQL Elasticsearch database for the API                                             |
+| azure-storage   | 40006, 40007, 40008 | Azurite local Azure Storage for development                                                   |
+| api-editor      |               40010 | Provides the RESTful API which gives secure access to data                                    |
+| app-editor      |               40081 | Web application for Editors                                                                   |
+| app-subscriber  |               40082 | Web application for Subscribers                                                               |
+| zookeeper       |               40100 | Kafka Zookeeper to manage cluster                                                             |
+| broker          |        40101, 40102 | Kafka server and REST API v3                                                                  |
+| schema-registry |               40103 | Kafka schema registry services                                                                |
+| rest-proxy      |               40104 | Kafka REST API                                                                                |
+| connect         |               40105 | Kafka connect Control Center with Schema Registry                                             |
+| ksqldb-server   |               40106 | Kafka streaming services                                                                      |
 
 The first time you do this takes a little longer as each container needs to be built and initialized.
 After the docker containers are ready it becomes much quicker.
@@ -115,13 +115,13 @@ Read more [here](../test/README.md).
 
 | Container        | URI                                                      |
 | ---------------- | -------------------------------------------------------- |
-| app-editor       | [http://localhost:50080/app](http://localhost:50080/app) |
-| app-subscriber   | [http://localhost:50080](http://localhost:50080)         |
-| api-editor       | [http://localhost:50080/api](http://localhost:50080/api) |
-| keycloak         | [http://localhost:50000/](http://localhost:50000)        |
-| kafka rest-proxy | [http://localhost:50018](http://localhost:50018)         |
-| kafka kowl       | [http://localhost:50017](http://localhost:50017)         |
-| elastic          | [http://localhost:50007](http://localhost:50007)         |
+| app-editor       | [http://localhost:40081/app](http://localhost:40081/app) |
+| app-subscriber   | [http://localhost:40082](http://localhost:40082)         |
+| api-editor       | [http://localhost:40010/api](http://localhost:40010/api) |
+| keycloak         | [http://localhost:40001/](http://localhost:40001)        |
+| kafka rest-proxy | [http://localhost:40104](http://localhost:40104)         |
+| kafka kowl       | [http://localhost:40180](http://localhost:40180)         |
+| elastic          | [http://localhost:40003](http://localhost:40003)         |
 
 Once the core and Kafka containers are running you can then start up the other services.
 
@@ -133,10 +133,10 @@ Below is a list of all the additional services and utilities.
 
 | Container  |  Port | Description                                                    |
 | ---------- | ----: | -------------------------------------------------------------- |
-| kowl       | 50017 | Kafka UI to view cluster                                       |
-| dejavu     | 50009 | Elasticsearch UI to view cluster                               |
-| atom       |       | Kafka Producer to ingest syndication ATOM feeds                |
-| rss        |       | Kafka Producer to ingest syndication RSS feeds                 |
+| kowl       | 40180 | Kafka UI to view cluster                                       |
+| dejavu     | 40005 | Elasticsearch UI to view cluster                               |
+| rss        | 40020 | Kafka Producer to ingest syndication RSS feeds                 |
+| atom       | 40021 | Kafka Producer to ingest syndication ATOM feeds                |
+| nlp        | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
+| indexing   | 40023 | Kafka Consumer to index content for search                     |
 | transcribe |       | Kafka Consumer/Producer to transcribe audio/video content      |
-| nlp        |       | Kafka Consumer/Producer to perform Natural Language Processing |
-| search     |       | Kafka Consumer to index content for search                     |
