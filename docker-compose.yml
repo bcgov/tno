@@ -6,7 +6,9 @@ services:
     image: tno:nginx
     profiles:
       - all
-      - core
+      - editor
+      - subscriber
+      - ingest
     restart: on-failure:1
     container_name: tno-nginx
     build:
@@ -26,8 +28,11 @@ services:
     image: tno:database
     profiles:
       - all
-      - core
+      - editor
+      - subscriber
       - data
+      - ingest
+      - init
     restart: on-failure:1
     container_name: tno-database
     build:
@@ -46,7 +51,9 @@ services:
     image: tno:keycloak
     profiles:
       - all
-      - core
+      - editor
+      - subscriber
+      - init
     restart: on-failure:1
     container_name: tno-keycloak
     build:
@@ -74,10 +81,12 @@ services:
     image: tno:elastic
     profiles:
       - all
-      - core
+      - editor
+      - subscriber
       - elastic
       - utility
       - data
+      - init
     restart: on-failure:1
     container_name: tno-elastic
     build:
@@ -125,7 +134,7 @@ services:
     image: tno:azure-storage
     profiles:
       - all
-      - core
+      - data
     restart: on-failure:1
     container_name: tno-azure-storage
     build:
@@ -146,7 +155,8 @@ services:
     image: tno:api-editor
     profiles:
       - all
-      - core
+      - editor
+      - subscriber
     restart: on-failure:1
     container_name: tno-api-editor
     build:
@@ -172,7 +182,7 @@ services:
     image: tno:app-editor
     profiles:
       - all
-      - core
+      - editor
     stdin_open: true
     tty: true
     restart: on-failure:1
@@ -197,7 +207,7 @@ services:
     image: tno:app-subscriber
     profiles:
       - all
-      - core
+      - subscriber
     stdin_open: true
     tty: true
     restart: on-failure:1

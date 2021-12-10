@@ -95,13 +95,29 @@ The first time you do this takes a little longer as each container needs to be b
 After the docker containers are ready it becomes much quicker.
 Additionally, there are a number of configuration settings (usernames, passwords, keys, etc) that are created the first time you execute this script.
 
+Many laptops cannot handle running all containers running at one time, so you may want to use the other `make p=$profile` commands specifically to only start what you need.
+
 ```bash
 # Configure your local environment.
-# Start all of the core and kafka containers.
+# Start all of the containers that require initialization.
 # Initialize the PostgreSQL database.
 # Initialize the Kafka cluster topics.
 # Initialize the Elasticsearch indexes.
 make init
+```
+
+If you choose to only run what you need for specific types of feature development/testing you can use the following commands.
+Or if you choose to run everything use the `make up` command.
+
+```bash
+# Start up containers for the editor application.
+make up p=editor
+# Start up containers for the subscriber application.
+make up p=subscriber
+# Start up containers for ingestion services.
+make up p=ingest
+# Start up containers for Kafka only.
+make up p=kafka
 ```
 
 You can now view the application in your browser.
@@ -123,10 +139,14 @@ Read more [here](../test/README.md).
 | kafka kowl       | [http://localhost:40180](http://localhost:40180)         |
 | elastic          | [http://localhost:40003](http://localhost:40003)         |
 
-Once the core and Kafka containers are running you can then start up the other services.
+Once the core containers are running you can then start up the other services and utilities.
 
 ```bash
-make service-up
+# Start up the various utilities to view Kafka, and Elasticsearch.
+make up p=utility
+
+# Start up the various supplementary services for the solution.
+make up p=service
 ```
 
 Below is a list of all the additional services and utilities.
