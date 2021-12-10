@@ -23,7 +23,7 @@ spring:
     password: ${DB_PASSWORD}
 
   flyway:
-    enabled: ${DB_MIGRATION_ENABLED:true}
+    enabled: ${DB_MIGRATION_ENABLED:false}
     validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
 
   jpa:

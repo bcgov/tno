@@ -47,12 +47,6 @@ $ /opt/jboss/keycloak/bin/standalone.sh \
   -Djboss.management.http.port=7777
 ```
 
-Or (this doesn't appear to work on Windows)
-
-```bash
-$ docker exec -it keycloak bash /opt/jboss/keycloak/bin/standalone.sh -Djboss.socket.binding.port-offset=100 -Dkeycloak.migration.action=export -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.strategy=OVERWRITE_EXISTING -Dkeycloak.migration.realmName=tno -Dkeycloak.migration.usersExportStrategy=REALM_FILE -Dkeycloak.migration.file=/tmp/realm-export.json
-```
-
 ## Import Realm
 
 If you have issues with the automatic import you can manually import the realm.
