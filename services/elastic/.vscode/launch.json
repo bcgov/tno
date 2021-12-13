@@ -1,0 +1,16 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot - Run Application",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "ca.bc.gov.tno.services.elastic.ElasticServiceApp",
+      "projectName": "elastic",
+      "preLaunchTask": "package",
+      "args": [""],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
