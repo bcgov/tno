@@ -10,8 +10,7 @@ services:
       - data
       - utility
       - ingest
-      - editor
-      - subscriber
+      - app
       - init
     restart: on-failure:1
     hostname: zookeeper
@@ -37,8 +36,7 @@ services:
       - data
       - utility
       - ingest
-      - editor
-      - subscriber
+      - app
       - init
     restart: on-failure:1
     hostname: broker
@@ -65,8 +63,7 @@ services:
       - kafka
       - data
       - utility
-      - editor
-      - subscriber
+      - app
     restart: on-failure:1
     hostname: schema-registry
     container_name: tno-schema-registry
@@ -90,8 +87,7 @@ services:
       - kafka
       - data
       - utility
-      - editor
-      - subscriber
+      - app
     restart: on-failure:1
     hostname: rest-proxy
     container_name: tno-rest-proxy

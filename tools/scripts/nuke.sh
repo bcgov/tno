@@ -1,4 +1,5 @@
 #!/bin/bash
+
 echo ""
 echo "*****************************************************"
 echo "Nuking local TNO environment and configuration"
@@ -39,8 +40,8 @@ if [[ $numFiles > 0 ]]; then
     for file in "${configFiles[@]}"; do
       echo "Moving '$file' -> '$file.$currentDT$fileExt'"
       mv "$file" "$file.$currentDT$fileExt"
-    done 
-    echo "" 
+    done
+    echo ""
     echo "All configuration files moved.."
   else
     # User chose not move configuration files.

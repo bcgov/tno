@@ -3,7 +3,7 @@
   "description": "Today's News Online Editor application",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/app/",
+  "homepage": "/",
   "dependencies": {
     "@headlessui/react": "1.4.1",
     "@react-keycloak/web": "3.4.0",

@@ -1,0 +1,49 @@
+name: React Editor Application
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    pull_request:
+      - master
+      - dev
+    paths:
+      - "./app/editor/**.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      working-directory: ./app/editor
+
+    strategy:
+      matrix:
+        node-version:
+          - "16.10.0"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Extract Branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Use NodeJs ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: NPM Continuos Integration
+        run: npm ci
+        working-directory: ${{ env.working-directory }}
+
+      - name: NPM Lint
+        run: npm run lint
+        working-directory: ${{ env.working-directory }}
+
+      - name: NPM Build
+        run: npm run build --if-present
+        working-directory: ${{ env.working-directory }}

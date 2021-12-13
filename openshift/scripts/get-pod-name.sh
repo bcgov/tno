@@ -1,0 +1,12 @@
+#!/bin/bash
+
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+if [ ! $1 ]; then
+  die "First argument require to specify the label [name=?]."
+fi
+
+oc get pod -l name=$1 --no-headers -o custom-columns=POD:.metadata.name

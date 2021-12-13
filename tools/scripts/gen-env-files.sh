@@ -20,7 +20,8 @@ echo \
 # Network
 #############################
 
-NGINX_HTTP_PORT=$portNginx
+NGINX_HTTP_EDITOR_PORT=$portNginxEditor
+NGINX_HTTP_SUBSCRIBER_PORT=$portNginxSubscriber
 NGINX_HTTPS_PORT=$portNginxHttps
 
 #############################
@@ -86,7 +87,7 @@ echo \
 POSTGRES_PASSWORD=$password
 POSTGRES_DB=$dbName
 
-KEYCLOAK_DATABASE=$keycloakDbName" >> ./db/postgres/docker/.env
+KEYCLOAK_DB=$keycloakDbName" >> ./db/postgres/docker/.env
     echo "./db/postgres/docker/.env created"
 fi
 

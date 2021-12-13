@@ -97,7 +97,7 @@ objects:
           labels:
             name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
             app: ${APP_NAME}
-            role: ${GROUP_NAME}
+            group: ${GROUP_NAME}
         spec:
           restartPolicy: Never
           containers:
