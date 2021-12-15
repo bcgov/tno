@@ -64,28 +64,28 @@ nuke: ## Stop all containers, delete all containers, volumes, and configuration
 ##############################################################################
 
 build: ## Builds all containers or the one specified (args: n={service name}, p={profile name, [all,kafka,service,utility,ingest]})
-	$(info Builds all containers or the one specified (n=$(n), p=$(if $(p),$(p),"all")))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),"all") build $(n)
+	$(info Builds all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) build $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,kafka,service,utility,ingest]}))
-	$(info Starts all containers or the one specified (n=$(n), p=$(if $(p),$(p),"all")))
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),"all") up -d $(n)
+	$(info Starts all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
+	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) up -d $(n)
 
 stop: ## Stops all containers or the one specified (args: n={service name}, p={profile name, [all,kafka,service,utility,ingest]}))
-	$(info Stops all containers or the one specified (n=$(n), p=$(if $(p),$(p),"all")))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),"all") stop $(n)
+	$(info Stops all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) stop $(n)
 
 down: ## Stops all containers and removes them
 	$(info Stops all containers and removes them)
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),"all") down -v
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,kafka,service,utility,ingest]}))
-	$(info Restart all containers or the one specified (n=$(n), p=$(if $(p),$(p),"all")))
+	$(info Restart all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
 	@make stop n=$(n) p=$(p)
 	@make up n=$(n) p=$(p)
 
 refresh: ## Stop, build, and start all containers or the one specified (args: n={service name}, p={profile name, [all,kafka,service,utility,ingest]}))
-	$(info Stop, build, and start all containers or the one specified (n=$(n), p=$(if $(p),$(p),"all")))
+	$(info Stop, build, and start all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
 	@make stop n=$(n) p=$(p)
 	@make build n=$(n) p=$(p)
 	@make up n=$(n) p=$(p)
@@ -100,7 +100,7 @@ remove: ## Remove all containers
 
 npm-down: ## Removes node containers, images, volumes, for specified application (args: n={service name}).
 	$(info Removes node containers, images, volumes, for specified application (n=$(n)))
-	@make stop $(n)
+	@make stop n=$(n)
 	@docker-compose rm -f -v -s $(n)
 	@docker volume rm -f tno-$(n)-node-cache
 

@@ -1,16 +1,14 @@
-import { Navigate, RouteProps } from 'react-router-dom';
-
-import { Claim, Role, useKeycloakWrapper } from '../../hooks';
+import { Navigate } from 'react-router-dom';
+import { Claim, Role, useKeycloakWrapper } from 'tno-core';
 
 /**
  * PrivateRoute properties.
  */
-interface IPrivateRouteProps extends RouteProps {
+interface IPrivateRouteProps {
   /**
-   * The component to load if the route is active.
-   * You can use children elements instead.
+   * The path to redirect to if user is unauthorized.
    */
-  element?: React.ReactElement | null;
+  redirectTo: string;
   /**
    * A role the user belongs to.
    */
@@ -20,9 +18,13 @@ interface IPrivateRouteProps extends RouteProps {
    */
   claims?: Claim | Array<Claim>;
   /**
-   * The path to redirect to if user is unauthorized.
+   * The element to load if authorized.
    */
-  redirectTo: string;
+  element?: React.ReactElement | null;
+  /**
+   * The children elements to load if authorized.
+   */
+  children?: React.ReactNode;
 }
 
 /**

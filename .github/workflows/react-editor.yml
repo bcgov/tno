@@ -5,14 +5,17 @@ on:
     branches:
       - master
       - dev
-    pull_request:
+    paths:
+      - app/editor/**
+  pull_request:
+    branches:
       - master
       - dev
     paths:
-      - "./app/editor/**.*"
+      - app/editor/**
 
 jobs:
-  build:
+  build-app-editor:
     runs-on: ubuntu-latest
     env:
       CI: true
@@ -36,14 +39,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: NPM Continuos Integration
-        run: npm ci
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install Dependencies
+        run: yarn
         working-directory: ${{ env.working-directory }}
 
-      - name: NPM Lint
-        run: npm run lint
+      - name: Linting
+        run: yarn lint
         working-directory: ${{ env.working-directory }}
 
-      - name: NPM Build
-        run: npm run build --if-present
+      - name: Building
+        run: yarn build --if-present
         working-directory: ${{ env.working-directory }}

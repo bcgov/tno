@@ -23,7 +23,7 @@ export const Header: React.FC<IHeaderProps> = ({ name, authReady = true, childre
       {authReady && <MenuToggle />}
       <div>
         <a href="https://www2.gov.bc.ca/gov/content/home">
-          <img alt="BC Gov logo" src="./assets/gov_bc_logo.svg" />
+          <img alt="BC Gov logo" src={process.env.PUBLIC_URL + '/assets/gov_bc_logo.svg'} />
         </a>
       </div>
       <div>

@@ -36,7 +36,7 @@ function App() {
         }
         onEvent={keycloakEventHandler(keycloak)}
       >
-        <BrowserRouter basename={process.env.PUBLIC_URL}>
+        <BrowserRouter>
           <Layout name={name}>{{ menu: <NavMenu />, router: <AppRouter /> }}</Layout>
         </BrowserRouter>
 

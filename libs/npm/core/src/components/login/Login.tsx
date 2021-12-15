@@ -1,4 +1,4 @@
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useKeycloakWrapper } from '../../hooks';
 
@@ -9,10 +9,10 @@ import { useKeycloakWrapper } from '../../hooks';
  */
 export const Login = () => {
   const keycloak = useKeycloakWrapper();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   if (keycloak.authenticated) {
-    history.push('/');
+    navigate('/');
   }
   return <div>Anonymous user</div>;
 };

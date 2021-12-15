@@ -1,6 +1,8 @@
 import { Home } from 'features/home';
-import { Route, Switch } from 'react-router-dom';
-import { Claim, Login, NotFound, PrivateRoute } from 'tno-core';
+import { Route, Routes } from 'react-router-dom';
+import { Claim, Login, NotFound } from 'tno-core';
+
+import { PrivateRoute } from '.';
 
 /**
  * AppRouter provides a SPA router to manage routes.
@@ -8,13 +10,18 @@ import { Claim, Login, NotFound, PrivateRoute } from 'tno-core';
  */
 export const AppRouter = () => {
   return (
-    <Switch>
-      <Route path="/login" component={Login}></Route>
-      <PrivateRoute path="/admin" claims={Claim.administrator}>
-        <p>Administration</p>
-      </PrivateRoute>
-      <Route path="/" exact={true} component={Home}></Route>
-      <Route path="*" exact={true} component={NotFound} />
-    </Switch>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute redirectTo="/login" claims={Claim.administrator}>
+            <p>Administration</p>
+          </PrivateRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };

@@ -45,7 +45,7 @@ export const useSummon = ({
   });
 
   instance.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${state.token}`;
+    config!.headers!.Authorization = `Bearer ${state.token}`;
     if (selector !== undefined) {
       const storedValue = selector(state);
 
