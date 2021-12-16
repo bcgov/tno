@@ -1,0 +1,60 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: react-nginx-build
+  annotations:
+    openshift.io/display-name: React Nginx Web Application Image
+    description:
+      Build an image containing the React web application, hosted within nginx.
+      It also includes environment variables.
+    tags: react,nginx
+
+parameters:
+  - name: VERSION
+    displayName: Version
+    description: The Version to build and release.
+    required: true
+  - name: UID
+    displayName: Unique Identifier
+    description: A way to uniquely identify different build configurations (i.e. ".dev").
+    required: true
+    value: ".dev"
+
+objects:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: app-editor-
+      namespace: 9b301c-tools
+      labels:
+        tekton.dev/pipeline: build-deploy-with-template
+    spec:
+      pipelineRef:
+        name: build-deploy-with-template
+      serviceAccountName: pipeline
+      timeout: 1h0m0s
+      params:
+        - name: SOLUTION_NAME
+          value: tno
+        - name: APP_NAME
+          value: app-editor${UID}
+        - name: TEMPLATE_NAME
+          value: react-nginx-build
+        - name: GIT_URL
+          value: "https://github.com/bcgov/tno.git"
+        - name: GIT_REF
+          value: dev
+        - name: CONTEXT_DIR
+          value: app/editor
+        - name: DOCKERFILE
+          value: Dockerfile.nginx
+        - name: IMAGE_NAME
+          value: tno-app-editor
+        - name: IMAGE_TAG
+          value: ${VERSION}
+        - name: DEPLOY_TO
+          value: dev
+        - name: CPU_LIMIT
+          value: 2000m
+        - name: MEMORY_LIMIT
+          value: 2Gi

@@ -1,0 +1,41 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: github-webhook-ingress
+  annotations:
+    openshift.io/display-name: GitHub WebHook Ingress
+    description: Ingress object to enable git webhook
+    tags: tno,webhook
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Name
+    description: The name of the solution.
+    required: true
+    value: tno
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application.
+    required: true
+    value: app-editor
+objects:
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: git-webhook-${SOLUTION_NAME}-${APP_NAME}
+      app: ${APP_NAME}
+      solution: ${SOLUTION_NAME}
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    spec:
+      rules:
+        - host: tno-tekton.apps.silver.devops.gov.bc.ca
+          http:
+            paths:
+              - path: /hooks
+                pathType: Exact
+                backend:
+                  service:
+                    name: el-git-${SOLUTION_NAME}-${APP_NAME}
+                    port:
+                      number: 8080

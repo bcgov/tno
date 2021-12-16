@@ -1,0 +1,32 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: git-merge-trigger
+  annotations:
+    openshift.io/display-name: GIT Merge Trigger
+    description:
+      Listen for a GIT merge event to trigger a pipeline run.
+    tags: git,trigger,tekton
+
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Name
+    description: The name of the solution.
+    required: true
+    value: tno
+
+objects:
+  # Bind to the GIT repo.
+  - apiVersion: triggers.tekton.dev/v1alpha1
+    kind: TriggerBinding
+    metadata:
+      name: git-${SOLUTION_NAME}
+      app: ${SOLUTION_NAME}
+    spec:
+      params:
+        - name: GIT_REF
+          value: $(body.head_commit.id)
+        - name: GIT_URL
+          value: "https://github.com/$(body.repository.full_name)"
+        - name: VERSION
+          value: "dev" # TODO: Dynamically generate this somehow.

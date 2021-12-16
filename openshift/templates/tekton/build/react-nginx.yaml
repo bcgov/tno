@@ -4,33 +4,26 @@ metadata:
   name: react-nginx-build
   annotations:
     openshift.io/display-name: React Nginx Web Application Image
-    description: Build an image containing the React web application.
+    description:
+      Build an image containing the React web application, hosted within nginx.
+      It also includes environment variables.
     tags: react,nginx
+
 parameters:
-  - name: APP_NAME
-    displayName: "Application Name"
-    description: "The name of the application."
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
     required: true
     value: "tno"
-  - name: GROUP_NAME
-    displayName: "Component Group Name"
-    description: "The name of the application component (e.g api, app, database)."
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application.
     required: true
-    value: "app-editor"
-  - name: PROJECT_NAMESPACE
-    displayName: "OpenShift Project Namespace"
-    description: "The namespace of the OpenShift project containing the application."
-    required: true
-    value: "9b301c"
-  - name: ENV_NAME
-    displayName: "Environment name"
-    description: "The name for this environment [dev, test, prod, tools]"
-    required: true
-    value: "tools"
-  - name: INSTANCE
-    displayName: "Unique Identifier"
-    description: "A unique identifier to allow for multiple instances (i.e. 'dev')."
-    value: "dev"
+
+  - name: NODE_ENV
+    displayName: "Node Environment"
+    description: "A way to identify within the app which environment the app is in"
+    value: "production"
 
   - name: GIT_URL
     displayName: "Git Repository URL"
@@ -47,18 +40,17 @@ parameters:
     displayName: "Context Directory"
     description: "Set this to use a subdirectory of the source code repository"
     value: "app/editor"
-
-  - name: FILE_CONFIG_MOUNT_PATH
-    displayName: "Environment File Mount Path"
-    description: "The path to use to mount the config file."
+  - name: DOCKERFILE
+    displayName: "Dockerfile Name"
+    description: "The Dockerfile name"
     required: true
-    value: "./"
-  - name: NODE_ENV
-    displayName: "Node Environment"
-    description: "A way to identify within the app which environment the app is in"
-    value: "production"
+    value: "Dockerfile"
 
-  - name: OUTPUT_IMAGE_TAG
+  - name: IMAGE_NAME
+    displayName: "Output Image Name"
+    description: "The name given to the built image."
+    required: true
+  - name: IMAGE_TAG
     displayName: "Output Image Tag"
     description: "The tag given to the built image."
     required: true
@@ -74,20 +66,19 @@ parameters:
     description: "Maximum amount of memory the container can use."
     required: true
     value: 2Gi
+
 objects:
   # Environment Variable configuration settings.
   - kind: ConfigMap
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}-env.${INSTANCE}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       annotations:
         description: Environment variable configuration
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}-env.${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
-        env: ${ENV_NAME}
+        solution: ${SOLUTION_NAME}
     data:
       environment.env: |-
         NODE_ENV=${NODE_ENV}
@@ -97,27 +88,25 @@ objects:
   - kind: ImageStream
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      name: ${SOLUTION_NAME}-${IMAGE_NAME}
       annotations:
         description: Keeps track of changes in the image
       labels:
+        name: ${SOLUTION_NAME}-${IMAGE_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
+        solution: ${SOLUTION_NAME}
 
   # The build config that will be created will be named for the branch you created it for.
   - kind: BuildConfig
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       annotations:
         description: Defines how to build the image
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
-        branch: ${GIT_REF}
+        solution: ${SOLUTION_NAME}
     spec:
       completionDeadlineSeconds: 1800
       triggers:
@@ -131,17 +120,17 @@ objects:
         contextDir: ${CONTEXT_DIR}
         configMaps:
           - configMap:
-              name: ${APP_NAME}-${GROUP_NAME}-env.${INSTANCE}
-            destinationDir: ${FILE_CONFIG_MOUNT_PATH}
+              name: ${SOLUTION_NAME}-${APP_NAME}
+            destinationDir: ./
       strategy:
         type: Docker
         dockerStrategy:
           imageOptimizationPolicy: SkipLayers
-          dockerfilePath: Dockerfile.nginx
+          dockerfilePath: ${DOCKERFILE}
       output:
         to:
           kind: ImageStreamTag
-          name: ${APP_NAME}-${GROUP_NAME}:${OUTPUT_IMAGE_TAG}
+          name: ${IMAGE_NAME}:${IMAGE_TAG}
       resources:
         limits:
           cpu: ${CPU_LIMIT}

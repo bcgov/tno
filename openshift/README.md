@@ -106,31 +106,45 @@ Some Redhat images are only accessible if they are first imported through Opensh
 oc import-image postgresql-13 --from=registry.redhat.io/rhel8/postgresql-13 --confirm -n 9b301c-tools
 ```
 
+## Push/Pull Images with Docker
+
+Login first.
+
+```bash
+# Login with Docker (insecure)
+docker login -u $(oc whoami) -p $(oc whoami -t) image-registry.apps.silver.devops.gov.bc.ca
+# Or login securely
+oc whoami -t | docker login -u $(oc whoami) --password-stdin image-registry.apps.silver.devops.gov.bc.ca
+```
+
 ## Push Image
 
 If you have a local image you can push up to Openshift.
 
 ```bash
-# Login with Docker
-docker login -u $(oc whoami) -p $(oc whoami -t) image-registry.apps.silver.devops.gov.bc.ca
 # List images
 docker images
 # Tag the image you want to push
 docker tag $imageName:$tag image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/$imageName:$tag
 # Push to image registry in Openshift
 docker push image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/$imageName:$tag
-
 ```
 
-## Pul Image
+## Pull Image
 
 If you want to pull down an image from Openshift.
 
 ```bash
-# Login with Docker
-docker login -u $(oc whoami) -p $(oc whoami -t) image-registry.apps.silver.devops.gov.bc.ca
 # List image
 oc get is -n 9b301c-tools
 # Pull image from Openshift
 docker pull image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/$imageName:$tag
+```
+
+## Test Network in Container
+
+Sometimes you may need to confirm you container can communicate with the internet.
+
+```bash
+timeout 5 bash -c "</dev/tcp/google.com/443"; echo $?
 ```

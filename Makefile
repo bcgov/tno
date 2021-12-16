@@ -65,7 +65,7 @@ nuke: ## Stop all containers, delete all containers, volumes, and configuration
 
 build: ## Builds all containers or the one specified (args: n={service name}, p={profile name, [all,kafka,service,utility,ingest]})
 	$(info Builds all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) build $(n)
+	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) build --no-cache $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,kafka,service,utility,ingest]}))
 	$(info Starts all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
@@ -75,8 +75,8 @@ stop: ## Stops all containers or the one specified (args: n={service name}, p={p
 	$(info Stops all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) stop $(n)
 
-down: ## Stops all containers and removes them
-	$(info Stops all containers and removes them)
+down: ## Stops all containers and removes them (p={profile name, [all,kafka,service,utility,ingest]})))
+	$(info Stops all containers and removes them (p=$(if $(p),$(p),all)))
 	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,kafka,service,utility,ingest]}))
@@ -98,15 +98,15 @@ remove: ## Remove all containers
 # Node Container Management
 ##############################################################################
 
-npm-down: ## Removes node containers, images, volumes, for specified application (args: n={service name}).
-	$(info Removes node containers, images, volumes, for specified application (n=$(n)))
-	@make stop n=$(n)
-	@docker-compose rm -f -v -s $(n)
-	@docker volume rm -f tno-$(n)-node-cache
+npm-down: ## Removes node containers, images, volumes, for specified application (args: n=[editor,subscriber]).
+	$(info Removes node containers, images, volumes, for specified application (n=$(if $(n),$(n),app-editor)))
+	@make stop n=app-$(if $(n),$(n),editor)
+	@docker-compose rm -f -v -s app-$(if $(n),$(n),editor)
+	@docker volume rm -f tno-$(if $(n),$(n),editor)-node-cache
 
-npm-refresh: ## Removes and rebuilds node app containers, images, volumes.
-	$(info Removes and rebuilds node app containers, images, volumes)
-	@make npm-down n=app-editor; make build n=app-editor; make up n=app-editor;
+npm-refresh: ## Run yarn install within the container (args: n=[editor,subscriber]).
+	$(info Run yarn install within the container (args: n=$(if $(n),$(n),app-editor)))
+	@make npm-down n=$(if $(n),$(n),editor); make build n=app-$(if $(n),$(n),editor); make up n=app-$(if $(n),$(n),editor)
 
 ##############################################################################
 # Database Commands
