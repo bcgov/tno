@@ -6,8 +6,7 @@ services:
     image: tno:nginx
     profiles:
       - all
-      - editor
-      - subscriber
+      - app
       - ingest
     restart: on-failure:1
     container_name: tno-nginx
@@ -16,8 +15,13 @@ services:
     env_file:
       - network/nginx/.env
     ports:
-      - ${NGINX_HTTP_PORT:-40080}:80
+      - ${NGINX_HTTP_EDITOR_PORT:-40080}:80
+      - ${NGINX_HTTP_SUBSCRIBER_PORT:-40081}:81
       - ${NGINX_HTTPS_PORT:-40443}:443
+    depends_on:
+      - api-editor
+      - app-editor
+      - app-subscriber
     networks:
       - tno
 
@@ -28,8 +32,7 @@ services:
     image: tno:database
     profiles:
       - all
-      - editor
-      - subscriber
+      - app
       - data
       - ingest
       - init
@@ -51,8 +54,7 @@ services:
     image: tno:keycloak
     profiles:
       - all
-      - editor
-      - subscriber
+      - app
       - init
     restart: on-failure:1
     container_name: tno-keycloak
@@ -81,8 +83,7 @@ services:
     image: tno:elastic
     profiles:
       - all
-      - editor
-      - subscriber
+      - app
       - elastic
       - utility
       - data
@@ -155,8 +156,7 @@ services:
     image: tno:api-editor
     profiles:
       - all
-      - editor
-      - subscriber
+      - app
     restart: on-failure:1
     container_name: tno-api-editor
     build:
@@ -182,20 +182,21 @@ services:
     image: tno:app-editor
     profiles:
       - all
-      - editor
+      - app
     stdin_open: true
     tty: true
     restart: on-failure:1
     container_name: tno-app-editor
     build:
       context: app/editor
+      dockerfile: Dockerfile
     env_file: ./app/editor/.env
     volumes:
       - ./app/editor/src:/usr/app/src
       - ./app/editor/public:/usr/app/public
       - tno-editor-node-cache:/usr/app/node_modules
     ports:
-      - ${APP_EDITOR_HTTP_PORT:-40081}:3000
+      - ${APP_EDITOR_HTTP_PORT:-40082}:3000
       - ${APP_EDITOR_HTTPS_PORT:-40444}:3443
     depends_on:
       - api-editor
@@ -207,7 +208,7 @@ services:
     image: tno:app-subscriber
     profiles:
       - all
-      - subscriber
+      - app
     stdin_open: true
     tty: true
     restart: on-failure:1
@@ -220,7 +221,7 @@ services:
       - ./app/subscriber/public:/usr/app/public
       - tno-subscriber-node-cache:/usr/app/node_modules
     ports:
-      - ${APP_SUBSCRIBER_HTTP_PORT:-40082}:3000
+      - ${APP_SUBSCRIBER_HTTP_PORT:-40083}:3000
       - ${APP_SUBSCRIBER_HTTPS_PORT:-40445}:3443
     depends_on:
       - api-editor
@@ -348,6 +349,5 @@ volumes:
 
   tno-azure-storage-data:
     name: tno-azure-storage-data
-
 # To inspect healthcheck
 # docker inspect --format='{{json .State.Health}}' tno-nlp

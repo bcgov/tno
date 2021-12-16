@@ -16,3 +16,4 @@ RUN su node -c "npm config set prefix $NVM_DIR/versions/node/${EXTRA_NODE_VERSIO
 
 # [Optional] Uncomment if you want to install more global node packages
 RUN su node -c "npm install -g create-react-app"
+RUN su node -c "npm install -g np"

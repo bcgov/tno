@@ -1,13 +1,16 @@
-import { Redirect, Route, RouteProps } from 'react-router-dom';
+import { Navigate, RouteProps } from 'react-router-dom';
 
 import { Claim, Role, useKeycloakWrapper } from '../../hooks';
 
+/**
+ * PrivateRoute properties.
+ */
 interface IPrivateRouteProps extends RouteProps {
   /**
    * The component to load if the route is active.
    * You can use children elements instead.
    */
-  component?: React.ComponentType<any>;
+  element?: React.ReactElement | null;
   /**
    * A role the user belongs to.
    */
@@ -16,6 +19,10 @@ interface IPrivateRouteProps extends RouteProps {
    * A claim the user has.
    */
   claims?: Claim | Array<Claim>;
+  /**
+   * The path to redirect to if user is unauthorized.
+   */
+  redirectTo: string;
 }
 
 /**
@@ -24,28 +31,21 @@ interface IPrivateRouteProps extends RouteProps {
  * @returns PrivateRoute component.
  */
 export const PrivateRoute = ({
-  component: Component,
+  redirectTo,
   claims,
   roles,
+  element,
   children,
-  ...rest
 }: IPrivateRouteProps) => {
   const keycloak = useKeycloakWrapper();
-  return (
-    <Route
-      {...rest}
-      render={(routeProps) => {
-        if (
-          !keycloak.authenticated ||
-          (!!claims && !keycloak.hasClaim(claims)) ||
-          (!!roles && !keycloak.hasRole(roles))
-        ) {
-          return <Redirect to="/login" />;
-        } else {
-          if (Component) return <Component {...routeProps} />;
-          else return children;
-        }
-      }}
-    ></Route>
-  );
+
+  if (
+    !keycloak.authenticated ||
+    (!!claims && !keycloak.hasClaim(claims)) ||
+    (!!roles && !keycloak.hasRole(roles))
+  ) {
+    return <Navigate to={redirectTo} />;
+  }
+
+  return element ? element : <>{children}</>;
 };

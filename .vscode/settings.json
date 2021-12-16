@@ -1,6 +1,8 @@
 {
   "git.ignoreLimitWarning": true,
   "yaml.schemas": {
-    " https://raw.githubusercontent.com/garethr/openshift-json-schema/master/v4.1.0/_definitions.json": ["/*"],
+    " https://raw.githubusercontent.com/garethr/openshift-json-schema/master/v4.1.0/_definitions.json": [
+      "/*"
+    ]
   }
 }

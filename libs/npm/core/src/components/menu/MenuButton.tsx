@@ -1,7 +1,7 @@
 import { Menu as HMenu } from '@headlessui/react';
 import { LiHTMLAttributes } from 'react';
 import { IconType } from 'react-icons/lib';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Claim, Role, useKeycloakWrapper } from '../../hooks';
 import { MenuStatus } from '.';
@@ -58,7 +58,7 @@ export const MenuButton: React.FC<IMenuButtonProps> = ({
   roles,
   ...rest
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const keycloak = useKeycloakWrapper();
   const Icon = icon;
 
@@ -72,7 +72,7 @@ export const MenuButton: React.FC<IMenuButtonProps> = ({
         <div
           data-for="main-tooltip-right"
           data-tip={status === MenuStatus.narrow ? label : ''}
-          onClick={() => !!route && history.push(route)}
+          onClick={() => !!route && navigate(route)}
         >
           {showIcon && Icon && <Icon />}
           {status === MenuStatus.full && label}

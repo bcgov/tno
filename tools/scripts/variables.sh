@@ -133,7 +133,8 @@ export azureKey=$(date +%s | sha256sum | base64 | head -c 29)
 # Port Configuration
 ######################################################################
 
-export portNginx=40080
+export portNginxEditor=40080
+export portNginxSubscriber=40081
 export portNginxHttps=40443
 
 export portDatabase=40000
@@ -148,9 +149,9 @@ export portAzureTable=40008
 
 export portApiEditor=40010
 export portApiEditorHttps=40011
-export portAppEditor=40081
+export portAppEditor=40082
 export portAppEditorHttps=40444
-export portAppSubscriber=40082
+export portAppSubscriber=40083
 export portAppSubscriberHttps=40445
 
 export portSyndicationRss=40020

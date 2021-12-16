@@ -11,7 +11,7 @@ keycloak:
 
 spring:
   main:
-    banner-mode: "off"
+    banner-mode: 'off'
 
   h2:
     console:

@@ -7,5 +7,5 @@ This will run the database migration for the current build.
 # Build
 docker build -t tno:db-migration.
 # Run
-docker run -itd --env-file=.env tno:db-migration
+docker run -id --env-file=.env tno:db-migration
 ```
