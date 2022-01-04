@@ -1,0 +1,5 @@
+.devcontainer
+.gitignore
+Dockerfile
+/logs
+*.env
