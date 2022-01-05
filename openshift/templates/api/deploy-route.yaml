@@ -1,12 +1,12 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: app-editor-route
+  name: api-editor-route
   annotations:
-    description: Editor web application route
-    openshift.io/display-name: Editor Web Application Route
-    openshift.io/long-description: Route to Editor web application.
-    tags: app,react,nginx,editor
+    description: Editor API application route
+    openshift.io/display-name: Editor API Application Route
+    openshift.io/long-description: Route to Editor API application.
+    tags: api,java,maven,editor
 
 parameters:
   - name: SOLUTION_NAME
@@ -38,7 +38,7 @@ parameters:
   - name: APP_PATH
     displayName: Application URL Root Path
     description: The URL root path to the web application
-    value: ''
+    value: '/api'
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod

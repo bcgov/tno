@@ -32,7 +32,7 @@
     "react-tooltip": "4.2.21",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.1",
-    "tno-core": "0.0.75",
+    "tno-core": "0.0.79",
     "yup": "0.32.11"
   },
   "devDependencies": {
@@ -53,12 +53,16 @@
     "@types/redux-logger": "3.0.9",
     "@types/styled-components": "5.1.9",
     "@types/yup": "0.29.13",
-    "compression-webpack-plugin": "9.1.2",
+    "@typescript-eslint/eslint-plugin": "5.7.0",
+    "@typescript-eslint/parser": "5.7.0",
+    "compression-webpack-plugin": "9.2.0",
     "cross-env": "7.0.3",
     "customize-cra": "1.0.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-simple-import-sort": "7.0.0",
+    "eslint-plugin-flowtype": "8.0.3",
+    "eslint-plugin-react-hooks": "4.3.0",
     "prettier": "2.5.1",
     "pretty": "2.0.0",
     "pretty-quick": "3.1.2",
@@ -71,7 +75,9 @@
   "peerDependencies": {
     "redux": "4.1.2"
   },
-  "resolutions": {},
+  "resolutions": {
+    "react-error-overlay": "6.0.9"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

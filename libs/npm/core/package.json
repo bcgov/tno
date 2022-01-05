@@ -1,14 +1,18 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.75",
+  "version": "0.0.79",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
-    "dist",
+    "dist/**/*",
+    "src/**/*",
     "package.json"
   ],
   "main": "dist/index.js",
+  "module": "dist/index.js",
+  "unpkg": "dist/index.min.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@headlessui/react": "1.4.2",
     "@react-keycloak/web": "3.4.0",
@@ -24,6 +28,7 @@
     "react-datepicker": "4.5.0",
     "react-dom": "17.0.2",
     "react-error-boundary": "3.1.4",
+    "react-error-overlay": "6.0.9",
     "react-icons": "4.3.1",
     "react-inlinesvg": "2.3.0",
     "react-router-dom": "6.1.1",
@@ -50,7 +55,7 @@
     "@types/styled-components": "5.1.9",
     "@types/yup": "0.29.13",
     "axios-mock-adapter": "1.20.0",
-    "compression-webpack-plugin": "9.1.2",
+    "compression-webpack-plugin": "9.2.0",
     "cpy-cli": "3.1.1",
     "cross-env": "7.0.3",
     "customize-cra": "1.0.0",
@@ -71,16 +76,17 @@
   },
   "resolutions": {},
   "scripts": {
-    "prebuild": "del dist/",
-    "build": "tsc",
+    "prebuild": "rm -rf dist/",
+    "build": "tsc --build",
     "postbuild": "yarn run copy-files",
     "copy-files": "cpy '**/*' '!**/*.ts*' ../dist/ --cwd=src/ --no-overwrite --parents; cp -r ./src/@types ./dist/@types",
-    "clean": "del dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete",
+    "clean": "rm -rf dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete",
     "pretty-quick": "pretty-quick",
     "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
-    "check": "prettier --check \"./src/**/*.{js,jsx,ts,tsx,css,scss}\""
+    "check": "prettier --check \"./src/**/*.{js,jsx,ts,tsx,css,scss}\"",
+    "prepublish": "yarn build"
   },
   "eslintConfig": {
     "extends": [

@@ -1,4 +1,4 @@
-FROM node:16.10-bullseye as build-deps
+FROM rhel8/nodejs-16 as build-deps
 
 USER root
 

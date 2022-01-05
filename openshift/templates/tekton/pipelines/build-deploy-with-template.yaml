@@ -1,0 +1,99 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: build-deploy-with-template
+spec:
+  params:
+    - name: SOLUTION_NAME
+      description: The name of the solution.
+      type: string
+      default: tno
+    - name: APP_NAME
+      description: The name of the application component (e.g api, solution, database).
+      type: string
+
+    - name: TEMPLATE_NAME
+      description: The BuildConfig Template name that will be used to generate a BuildConfig.
+      type: string
+
+    - name: GIT_URL
+      description: The URL of the repository with your application source code.
+      type: string
+      default: "https://github.com/bcgov/tno.git"
+    - name: GIT_REF
+      description:
+        Set this to a branch name, tag or other ref of your repository if you
+        are not using the default branch.
+      type: string
+      default: "dev"
+    - name: CONTEXT_DIR
+      description: Set this to use a subdirectory of the source code repository
+      type: string
+      default: ""
+    - name: DOCKERFILE
+      description: The Dockerfile name
+      type: string
+      default: "Dockerfile"
+
+    - name: IMAGE_NAME
+      description: The name of the built image
+      type: string
+    - name: IMAGE_TAG
+      description: Tag to apply to the built image
+      type: string
+
+    - name: DEPLOY_TO
+      description: The environment to deploy to [dev, test, prod].
+      type: string
+
+    - name: CPU_LIMIT
+      description: The resources CPU limit (in cores) for this build.
+      default: 2000m
+    - name: MEMORY_LIMIT
+      description: Maximum amount of memory the container can use.
+      default: 2Gi
+  tasks:
+    - name: build
+      taskRef:
+        name: oc-build-with-template
+        kind: Task
+      params:
+        - name: TEMPLATE_NAME
+          value: $(params.TEMPLATE_NAME)
+        - name: SOLUTION_NAME
+          value: $(params.SOLUTION_NAME)
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+
+        - name: GIT_URL
+          value: $(params.GIT_URL)
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT_DIR
+          value: $(params.CONTEXT_DIR)
+        - name: DOCKERFILE
+          value: $(params.DOCKERFILE)
+
+        - name: IMAGE_NAME
+          value: $(params.IMAGE_NAME)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+
+        - name: CPU_LIMIT
+          value: $(params.CPU_LIMIT)
+        - name: MEMORY_LIMIT
+          value: $(params.MEMORY_LIMIT)
+
+    - name: deploy
+      runAfter:
+        - build
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: IMAGE_NAME
+          value: $(params.IMAGE_NAME)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)

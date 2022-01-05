@@ -1,11 +1,13 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: app-editor-build
+  name: react-nginx-build
   annotations:
     openshift.io/display-name: React Nginx Web Application Image
-    description: Build an image containing the React web application.
-    tags: app,react,nginx,editor
+    description:
+      Build an image containing the React web application, hosted within nginx.
+      It also includes environment variables.
+    tags: react,nginx
 
 parameters:
   - name: SOLUTION_NAME
@@ -15,13 +17,17 @@ parameters:
     value: "tno"
   - name: APP_NAME
     displayName: Application Name
-    description: The name of the application (e.g. app-editor.dev).
+    description: The name of the application.
     required: true
-    value: "app-editor.dev"
+
+  - name: NODE_ENV
+    displayName: "Node Environment"
+    description: "A way to identify within the app which environment the app is in"
+    value: "production"
 
   - name: GIT_URL
-    displayName: Git Repository URL
-    description: The URL of the repository with your application source code.
+    displayName: "Git Repository URL"
+    description: "The URL of the repository with your application source code."
     required: true
     value: "https://github.com/bcgov/tno.git"
   - name: GIT_REF
@@ -31,41 +37,36 @@ parameters:
       are not using the default branch."
     value: dev
   - name: CONTEXT_DIR
-    displayName: Context Directory
-    description: Set this to use a subdirectory of the source code repository
+    displayName: "Context Directory"
+    description: "Set this to use a subdirectory of the source code repository"
     value: "app/editor"
   - name: DOCKERFILE
-    displayName: Dockerfile Name
-    description: The Dockerfile name
+    displayName: "Dockerfile Name"
+    description: "The Dockerfile name"
     required: true
-    value: "Dockerfile.nginx"
+    value: "Dockerfile"
 
-  - name: FILE_CONFIG_MOUNT_PATH
-    displayName: Environment File Mount Path
-    description: The path to use to mount the config file.
+  - name: IMAGE_NAME
+    displayName: "Output Image Name"
+    description: "The name given to the built image."
     required: true
-    value: "./"
-  - name: NODE_ENV
-    displayName: Node Environment
-    description: A way to identify within the app which environment the app is in
-    value: "production"
-
-  - name: OUTPUT_IMAGE_TAG
-    displayName: Output Image Tag
-    description: The tag given to the built image.
+  - name: IMAGE_TAG
+    displayName: "Output Image Tag"
+    description: "The tag given to the built image."
     required: true
     value: "latest"
 
   - name: CPU_LIMIT
-    displayName: Resources CPU Limit
-    description: The resources CPU limit (in cores) for this build.
+    displayName: "Resources CPU Limit"
+    description: "The resources CPU limit (in cores) for this build."
     required: true
     value: 2000m
   - name: MEMORY_LIMIT
-    displayName: Memory Limit
-    description: Maximum amount of memory the container can use.
+    displayName: "Memory Limit"
+    description: "Maximum amount of memory the container can use."
     required: true
     value: 2Gi
+
 objects:
   # Environment Variable configuration settings.
   - kind: ConfigMap
@@ -73,11 +74,11 @@ objects:
     metadata:
       name: ${SOLUTION_NAME}-${APP_NAME}
       annotations:
-        description: Environment variable configuration for react application.
+        description: Environment variable configuration
       labels:
         name: ${SOLUTION_NAME}-${APP_NAME}
-        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
+        solution: ${SOLUTION_NAME}
     data:
       environment.env: |-
         NODE_ENV=${NODE_ENV}
@@ -87,12 +88,13 @@ objects:
   - kind: ImageStream
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}
+      name: ${SOLUTION_NAME}-${IMAGE_NAME}
       annotations:
-        description: Destination for built images.
+        description: Keeps track of changes in the image
       labels:
-        solution: ${SOLUTION_NAME}
+        name: ${SOLUTION_NAME}-${IMAGE_NAME}
         app: ${APP_NAME}
+        solution: ${SOLUTION_NAME}
 
   # The build config that will be created will be named for the branch you created it for.
   - kind: BuildConfig
@@ -100,12 +102,11 @@ objects:
     metadata:
       name: ${SOLUTION_NAME}-${APP_NAME}
       annotations:
-        description: Build image from Dockerfile in git repo.
+        description: Defines how to build the image
       labels:
         name: ${SOLUTION_NAME}-${APP_NAME}
-        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        branch: ${GIT_REF}
+        solution: ${SOLUTION_NAME}
     spec:
       completionDeadlineSeconds: 1800
       triggers:
@@ -120,7 +121,7 @@ objects:
         configMaps:
           - configMap:
               name: ${SOLUTION_NAME}-${APP_NAME}
-            destinationDir: ${FILE_CONFIG_MOUNT_PATH}
+            destinationDir: ./
       strategy:
         type: Docker
         dockerStrategy:
@@ -129,7 +130,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: ${SOLUTION_NAME}-${APP_NAME}:${OUTPUT_IMAGE_TAG}
+          name: ${IMAGE_NAME}:${IMAGE_TAG}
       resources:
         limits:
           cpu: ${CPU_LIMIT}

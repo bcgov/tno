@@ -1,0 +1,152 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: git-triggered-pipeline
+  annotations:
+    openshift.io/display-name: GIT Triggered Pipeline
+    description:
+      Listen for a GIT merge event to trigger a pipeline run.
+    tags: git,trigger,tekton
+
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Name
+    description: The name of the solution.
+    required: true
+    value: tno
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application.
+    required: true
+    value: app-editor
+
+  - name: UID
+    displayName: Unique Identifier
+    description: A way to identify a different build configuration for the same application (e.g .dev, .master).
+    value: .dev
+  - name: BRANCH
+    displayName: Branch Name
+    description: The branch name that is allowed to start a pipeline run.
+    required: true
+    value: dev
+
+  - name: TEMPLATE_NAME
+    displayName: BuildConfig Template Name
+    description: The BuildConfig Template name that will be used to generate a BuildConfig.
+    required: true
+    value: react-nginx-build
+  - name: CONTEXT_DIR
+    displayName: Context Directory
+    description: Set this to use a subdirectory of the source code repository
+    value: app/editor
+  - name: DOCKERFILE
+    displayName: Dockerfile Name
+    description: The Dockerfile name
+    required: true
+    value: Dockerfile.nginx
+
+  - name: DEPLOY_TO
+    displayName: Deploy To
+    description: The environment to deploy to [dev, test, prod, tools]
+    required: true
+    value: dev
+
+  - name: CPU_LIMIT
+    displayName: Resources CPU Limit
+    description: The resources CPU limit (in cores) for this build.
+    required: true
+    value: 2000m
+  - name: MEMORY_LIMIT
+    displayName: Memory Limit
+    description: Maximum amount of memory the container can use.
+    required: true
+    value: 2Gi
+
+objects:
+  # Create a pipeline run object.
+  - apiVersion: triggers.tekton.dev/v1alpha1
+    kind: TriggerTemplate
+    metadata:
+      name: git-${SOLUTION_NAME}-${APP_NAME}
+      solution: ${SOLUTION_NAME}
+      app: ${APP_NAME}
+    spec:
+      params:
+        - name: GIT_REF
+          description: The git revision
+          default: master
+        - name: GIT_URL
+          description: The git repository url
+        - name: DEPLOY_TO
+          description: The environment to depoloy to
+        - name: VERSION
+          description: The version to tag the image with
+      resourcetemplates:
+        - apiVersion: tekton.dev/v1beta1
+          kind: PipelineRun
+          metadata:
+            generateName: ${APP_NAME}-
+            labels:
+              tekton.dev/pipeline: build-deploy-with-template
+          spec:
+            pipelineRef:
+              name: build-deploy-with-template
+            serviceAccountName: pipeline
+            timeout: 1h0m0s
+            params:
+              - name: SOLUTION_NAME
+                value: ${SOLUTION_NAME}
+              - name: APP_NAME
+                value: ${APP_NAME}${UID}
+              - name: TEMPLATE_NAME
+                value: ${TEMPLATE_NAME}
+              - name: GIT_URL
+                value: $(tt.params.GIT_URL)
+              - name: GIT_REF
+                value: $(tt.params.GIT_REF)
+              - name: CONTEXT_DIR
+                value: ${CONTEXT_DIR}
+              - name: DOCKERFILE
+                value: ${DOCKERFILE}
+              - name: IMAGE_NAME
+                value: ${SOLUTION_NAME}-${APP_NAME}
+              - name: IMAGE_TAG
+                value: $(tt.params.VERSION)
+              - name: DEPLOY_TO
+                value: ${DEPLOY_TO}
+              - name: CPU_LIMIT
+                value: ${CPU_LIMIT}
+              - name: MEMORY_LIMIT
+                value: ${MEMORY_LIMIT}
+
+  # The GIT push event will generate a pipeline run.
+  - apiVersion: triggers.tekton.dev/v1alpha1
+    kind: EventListener
+    metadata:
+      name: git-${SOLUTION_NAME}-${APP_NAME}
+      solution: ${SOLUTION_NAME}
+      app: ${APP_NAME}
+    spec:
+      serviceAccountName: pipeline
+      triggers:
+        - name: github-listener
+          interceptors:
+            - github:
+                secretRef:
+                  secretName: ${SOLUTION_NAME}-webhook
+                  secretKey: webhook
+                eventTypes:
+                  - push
+            - cel:
+                filter: >-
+                  body.ref == 'refs/heads/${BRANCH}'
+                  && (body.commits.exists(c, c.added.exists(m, m.startsWith('${CONTEXT_DIR}')))
+                    || body.commits.exists(c, c.modified.exists(m, m.startsWith('${CONTEXT_DIR}')))
+                    || body.commits.exists(c, c.removed.exists(m, m.startsWith('${CONTEXT_DIR}')))
+                    || body.head_commit.added.exists(m, m.startsWith('${CONTEXT_DIR}'))
+                    || body.head_commit.modified.exists(m, m.startsWith('${CONTEXT_DIR}'))
+                    || body.head_commit.removed.exists(m, m.startsWith('${CONTEXT_DIR}')))
+          bindings:
+            - ref: git-${SOLUTION_NAME}
+          template:
+            ref: git-${SOLUTION_NAME}-${APP_NAME}
