@@ -158,6 +158,7 @@ export portSyndicationRss=40020
 export portSyndicationAtom=40021
 export portNlp=40022
 export portIndexing=40023
+export portAudio=40024
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101

@@ -1,0 +1,62 @@
+debug: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:40001/auth/}
+  realm: ${KEYCLOAK_REALM:tno}
+  resource: ${KEYCLOAK_RESOURCE:tno-api}
+  public-client: true
+
+spring:
+  main:
+    banner-mode: "off"
+
+  h2:
+    console:
+      enabled: false
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://database:5432/tno}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  flyway:
+    enabled: ${DB_MIGRATION_ENABLED:false}
+    validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
+
+  jpa:
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL92Dialect
+        current_session_context_class: thread
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:none}
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+kafka:
+  bootstrap-servers2: ${KAFKA_BOOTSTRAP_SERVERS:test.com}
+  bootstrap-servers: test.com
+  producer:
+    client-id: ${KAFKA_CLIENT_ID}
+
+service:
+  max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
+  failed-delay: ${FAILED_DELAY:5000}
+
+data:
+  sources:
+    - id: ${DATA_SOURCE_ID}
+      type: ${DATA_SOURCE_TYPE:AUDIO}
+      delay: ${DATA_SOURCE_DELAY:5000}
+      topic: ${DATA_SOURCE_TOPIC}
+      audioUrl: ${DATA_SOURCE_URL}
+      captureCmd: ${MEDIA_CAPTURE_CMD}
+      captureDir: ${MEDIA_CAPTURE_DIR}
+      clipCmd: ${MEDIA_CLIP_CMD}
+      clipDuration: ${MEDIA_CLIP_DURATION}
+      clipDir: ${MEDIA_CLIP_DIR}
+      streamTimeout: ${MEDIA_STREAM_TIMEOUT}
