@@ -21,7 +21,7 @@ objects:
     kind: TriggerBinding
     metadata:
       name: git-${SOLUTION_NAME}
-      app: ${SOLUTION_NAME}
+      solution: ${SOLUTION_NAME}
     spec:
       params:
         - name: GIT_REF

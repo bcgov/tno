@@ -1,12 +1,12 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: app-editor-deploy
+  name: api-editor-deploy
   annotations:
-    description: Editor web application deployment configuration
-    openshift.io/display-name: Editor Web Application Deployment Configuration
-    openshift.io/long-description: Deployment configuriation to Editor web application.
-    tags: app,react,nginx,editor
+    description: Editor API application deployment configuration
+    openshift.io/display-name: Editor API Application Deployment Configuration
+    openshift.io/long-description: Deployment configuriation to Editor API application.
+    tags: api,java,maven,editor
 
 parameters:
   - name: SOLUTION_NAME
@@ -18,7 +18,7 @@ parameters:
     displayName: Application Name
     description: The name of the application.
     required: true
-    value: "app-editor"
+    value: "api-editor"
 
   - name: PROJECT_NAMESPACE
     displayName: OpenShift Project Namespace
@@ -36,42 +36,31 @@ parameters:
     description: The image tag that identifies which image to run. (i.e. 'dev').
     value: 'dev'
 
-  - name: API_APP_NAME
-    displayName: API Component Group Name
-    description: The name of the API component group
-    required: true
-    value: 'api-editor'
-
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
     value: '8080'
 
+  - name: KEYCLOAK_AUTH_SERVER_URL
+    displayName: Keycloak Authority URL
+    description: The Keycloak authority URL.
+    required: true
+    value: 'https://dev.oidc.gov.bc.ca/auth/'
   - name: KEYCLOAK_REALM
     displayName: Keycloak SSO realm
     description: Keycloak SSO realm, used by the frontend login.
     required: true
     value: 'gcpe'
-  - name: KEYCLOAK_AUTHORITY_URL
-    displayName: Keycloak Authority URL
-    description: The Keycloak authority URL.
-    required: true
-    value: 'https://dev.oidc.gov.bc.ca/auth/'
   - name: KEYCLOAK_CLIENT_ID
     displayName: Keycloak Client ID
     description: The Keycloak Client ID to identify the resource.
     required: true
-    value: 'tno-app'
-  - name: FILE_CONFIG_MOUNT_PATH
-    displayName: keycloak.json Mount Path
-    description: The path to use to mount the config file.
+    value: 'tno-api'
+
+  - name: KAFKA_BOOTSTRAP_SERVERS
+    displayName: Kafka Bootstrap Servers
+    description: Comma delimited list of host:port to the Kafka Bootstrap servers.
     required: true
-    value: '/usr/share/nginx/html/'
-  - name: KEYCLOAK_CONFIG_FILE_NAME
-    displayName: keycloak.json Config File Name
-    description: The name of the configuration file to be used for keycloak.json.
-    required: true
-    value: 'keycloak.json'
 
   - name: REPLICAS
     displayName: Pod Replicas
@@ -99,25 +88,6 @@ parameters:
     value: 250Mi
 
 objects:
-  # Allow the app to communicate with the api.
-  - kind: NetworkPolicy
-    apiVersion: networking.k8s.io/v1
-    metadata:
-      name: pod-from-pod-permit-${SOLUTION_NAME}-${APP_NAME}-${API_APP_NAME}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-    spec:
-      #description: Allow api pod(s) to receive communication from app pod(s).
-      podSelector:
-        matchLabels:
-          solution: ${SOLUTION_NAME}
-          app: ${API_APP_NAME}
-      ingress:
-        - from:
-            - podSelector:
-                matchLabels:
-                  solution: ${SOLUTION_NAME}
-                  app: ${APP_NAME}
-
   # Open up ports to communicate with the app.
   - kind: Service
     apiVersion: v1
@@ -156,15 +126,26 @@ objects:
         solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
     type: Opaque
-    data:
-      keycloak.json: '{
-        "realm": "${KEYCLOAK_REALM}",
-        "auth-server-url": "${KEYCLOAK_AUTHORITY_URL}",
-        "ssl-required": "external",
-        "resource": "${KEYCLOAK_CLIENT_ID}",
-        "public-client": true,
-        "confidential-port": 0
-        }'
+    stringData:
+      KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+
+  # Kafka configuration settings.
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}-kafka
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Kafak connection configuration
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}-kafka
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    type: Opaque
+    stringData:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
 
   # How the app will be deployed to the pod.
   - kind: DeploymentConfig
@@ -200,13 +181,6 @@ objects:
             solution: ${SOLUTION_NAME}
             app: ${APP_NAME}
         spec:
-          volumes:
-            - name: ${SOLUTION_NAME}-${APP_NAME}-keycloak
-              configMap:
-                name: ${SOLUTION_NAME}-${APP_NAME}-sso
-                items:
-                  - key: ${KEYCLOAK_CONFIG_FILE_NAME}
-                    path: ${KEYCLOAK_CONFIG_FILE_NAME}
           containers:
             - name: ${SOLUTION_NAME}-${APP_NAME}
               image: ''
@@ -221,13 +195,101 @@ objects:
                 limits:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
-              volumeMounts:
-                - name: ${SOLUTION_NAME}-${APP_NAME}-keycloak
-                  mountPath: ${FILE_CONFIG_MOUNT_PATH}${KEYCLOAK_CONFIG_FILE_NAME}
-                  subPath: ${KEYCLOAK_CONFIG_FILE_NAME}
+              env:
+                - name: KEYCLOAK_AUTH_SERVER_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+                      key: KEYCLOAK_AUTH_SERVER_URL
+                - name: KEYCLOAK_REALM
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+                      key: KEYCLOAK_REALM
+                - name: KEYCLOAK_RESOURCE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+                      key: KEYCLOAK_CLIENT_ID
+
+                - name: KAFKA_BOOTSTRAP_SERVERS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-kafka
+                      key: KAFKA_BOOTSTRAP_SERVERS
+
+                - name: DB_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-database
+                      key: DB_URL
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-database
+                      key: DB_USERNAME
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-database
+                      key: DB_PASSWORD
+
+                - name: ELASTIC_URIS
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-elastic
+                      key: ELASTIC_URIS
+                - name: ELASTIC_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-elastic
+                      key: ELASTIC_USERNAME
+                - name: ELASTIC_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-elastic
+                      key: ELASTIC_PASSWORD
+
+                - name: AZURE_STORAGE_CONTAINER_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: AZURE_STORAGE_CONTAINER_NAME
+                - name: AZURE_STORAGE_CONTAINER_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: AZURE_STORAGE_CONTAINER_NAME
+
+                - name: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
+                - name: COGNITIVE_SERVICES_SPEECH_REGION
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: COGNITIVE_SERVICES_SPEECH_REGION
+
+                - name: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
+                - name: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
+                - name: AZURE_VIDEO_ANALYZER_LOCATION
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      key: AZURE_VIDEO_ANALYZER_LOCATION
               livenessProbe:
                 httpGet:
-                  path: '/nginx-status'
+                  path: '/health'
                   port: ${{APP_PORT}}
                   scheme: HTTP
                 initialDelaySeconds: 30
@@ -237,7 +299,7 @@ objects:
                 failureThreshold: 3
               readinessProbe:
                 httpGet:
-                  path: '/nginx-status'
+                  path: '/health'
                   port: ${{APP_PORT}}
                   scheme: HTTP
                 initialDelaySeconds: 10
