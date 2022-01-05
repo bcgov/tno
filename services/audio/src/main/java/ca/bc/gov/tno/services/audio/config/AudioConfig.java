@@ -1,8 +1,5 @@
 package ca.bc.gov.tno.services.audio.config;
 
-import java.time.LocalTime;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import ca.bc.gov.tno.dal.db.entities.DataSource;
@@ -15,11 +12,6 @@ import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 @Configuration
 //@ConfigurationProperties("data")
 public class AudioConfig extends DataSourceConfig {
-  /**
-   * URL to the audio data source feed
-   */
-  private String url;
-
   /**
    * URL to the audio streaming source
    */
@@ -56,6 +48,11 @@ public class AudioConfig extends DataSourceConfig {
   private long streamStartTime;
 
   /**
+   * Time at which the audio began streaming
+   */
+  private long streamTimeout;
+
+  /**
    * Creates a new instance of a AudioConfig object.
    */
   public AudioConfig() {
@@ -70,22 +67,6 @@ public class AudioConfig extends DataSourceConfig {
    */
   public AudioConfig(DataSource dataSource) {
     super(dataSource);
-
-    setUrl((String) dataSource.getConnection().get("url"));
-  }
-
-  /**
-   * @return String return the url
-   */
-  public String getUrl() {
-    return url;
-  }
-
-  /**
-   * @param url the url to set
-   */
-  public void setUrl(String url) {
-    this.url = url;
   }
 
   /**
@@ -185,6 +166,21 @@ public class AudioConfig extends DataSourceConfig {
   public void setClipDir(String dir) {
     this.clipDir = dir;
   }
+
+  /**
+   * @return String return the stream timeout
+   */
+  public long getStreamTimeout() {
+    return streamTimeout;
+  }
+
+  /**
+   * @param url the stream timeout to set
+   */
+  public void setStreamTimeout(long timeout) {
+    this.streamTimeout = timeout;
+  }
+
 
 
 }

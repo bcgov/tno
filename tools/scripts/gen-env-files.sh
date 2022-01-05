@@ -62,6 +62,7 @@ SYNDICATION_RSS_PORT=$portSyndicationRss
 SYNDICATION_ATOM_PORT=$portSyndicationAtom
 NLP_PORT=$portNlp
 INDEXING_PORT=$portIndexing
+AUDIO_PORT=$portAudio
 
 #############################
 # Kafka Configuration
@@ -425,6 +426,38 @@ DATA_SOURCE_TYPE=RSS
 DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
 DATA_SOURCE_TOPIC=news-hth" >> ./services/syndication/rss.env
     echo "./services/syndication/rss.env created"
+fi
+
+## Audio - Clip Producer
+if test -f "./services/audio/audio.env"; then
+    echo "./services/audio/atom.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:40001/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:40000/tno
+DB_USERNAME=stuartm
+DB_PASSWORD=YTc0YjE3ZGU3N2Q4OTkyZDc3OWEwNA8!
+
+KAFKA_LOGS_TOPIC=logs-audio
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:40102
+KAFKA_CLIENT_ID=audio-capture-01
+
+MAX_FAILED_ATTEMPTS=5
+
+DATA_SOURCE_ID=CBCKAM
+DATA_SOURCE_TYPE=CLIP
+DATA_SOURCE_DELAY=60000
+DATA_SOURCE_TOPIC=media-cbckam
+DATA_SOURCE_URL=http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_kam
+MEDIA_CAPTURE_CMD=curl --retry 4 [capture-url] > [capture-path] &> /dev/null
+MEDIA_CAPTURE_DIR=/workspaces/tno/capture
+MEDIA_CLIP_CMD=ffmpeg -ss [start] -i [capture] -t [duration] -f mov -acodec alac -ab 64k -ar 22050 -vol 400 -y [clip] > /dev/null
+MEDIA_CLIP_DURATION=50
+MEDIA_CLIP_DIR=/workspaces/tno/clips
+MEDIA_STREAM_TIMEOUT=60000" >> ./services/audio/audio.env
+    echo "./services/audio/audio.env created"
 fi
 
 ## NLP Consumer/Producer

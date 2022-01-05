@@ -336,6 +336,32 @@ services:
       retries: 3
       start_period: 30s
 
+  audio:
+    image: tno:audio
+    profiles:
+      - all
+      - service
+      - data
+    restart: on-failure:1
+    container_name: tno-audio
+    build:
+      context: services/audio
+    env_file:
+      - services/audio/audio.env
+    ports:
+      - ${AUDIO_PORT:-40024}:8080
+    depends_on:
+      - database
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:

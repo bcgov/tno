@@ -54,15 +54,13 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
     try {
       caller = event.getSource();
-      var url = audioConfig.getAudioUrl();
-      var readyEvent = new ProducerSendEvent(caller, audioConfig, destination);
 
-      if (startAudioStream()) {
-        eventPublisher.publishEvent(readyEvent);
-      } else {
+      if (!startAudioStream(mediaSource)) {
         executeClipCmd(cmd, mediaSource, destination);
-        eventPublisher.publishEvent(readyEvent);
       }
+      
+      var readyEvent = new ProducerSendEvent(caller, audioConfig, destination);
+      eventPublisher.publishEvent(readyEvent);
     } catch (Exception ex) {
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
@@ -73,29 +71,24 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
    * Obtain the location of the streaming file for this event and check that it is being written to.
    * If the file doesn't exist, or the audio stream has dropped, start streaming from the media source.
    */
-  private boolean startAudioStream() {
+  private boolean startAudioStream(String mediaSource) {
 
-    String captureFilePath = audioConfig.getCaptureDir() + "/" + audioConfig.getId() + ".mpg";
-    File captureFile = new File(captureFilePath);
+    File captureFile = new File(mediaSource);
     String cmd = audioConfig.getCaptureCmd();
-    long created = 0;
     boolean startedStream = false;
+    long modified = 0;
+    long current = 0;
 
-    // Start recording the audio stream if it doesn't exist
-    if (!captureFile.exists()) {
-        executeCaptureCmd(cmd, captureFilePath);
+    if (captureFile.exists()) {
+      modified = captureFile.lastModified();
+      current = System.currentTimeMillis();
+    }
+
+    // Start recording the audio stream if it has dropped or the capture file it doesn't exist
+    if (modified == 0 || current - modified > audioConfig.getStreamTimeout()) {
+        executeCaptureCmd(cmd, mediaSource);
         audioConfig.setStreamStartTime(System.currentTimeMillis());
         startedStream = true;
-    } else {
-      // Check to see if the audio stream has dropped
-      // TODO: handle rollover from one day to next
-      long modified = captureFile.lastModified();
-      long current = System.currentTimeMillis();
-      if (current - modified > 60000) {
-        executeCaptureCmd(cmd, captureFilePath);
-        audioConfig.setStreamStartTime(System.currentTimeMillis());
-        startedStream = true;
-      } 
     }
 
     return startedStream;
@@ -113,14 +106,14 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       cmd = cmd.replace("[capture-url]", audioConfig.getAudioUrl());
       cmd = cmd.replace("[capture-path]", captureFilePath);
 
-      String[] cmda = {
+      String[] cmdArray = {
         "/bin/sh",
             "-c",
         cmd
       };
 
       try {
-        Process p = new ProcessBuilder(cmda).start();
+        Process p = new ProcessBuilder(cmdArray).start();
         logger.info("Capture command executed '" + cmd);
       } catch (Exception e) {
         logger.info("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);
@@ -147,14 +140,14 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       cmd = cmd.replace("[duration]", audioConfig.getClipDuration());
       cmd = cmd.replace("[start]", offset);
 
-      String[] cmda = {
+      String[] cmdArray = {
         "/bin/sh",
             "-c",
         cmd
       };
 
       try {
-        Process p = new ProcessBuilder(cmda).start();
+        Process p = new ProcessBuilder(cmdArray).start();
         logger.info("Clip command executed '" + cmd);
       } catch (Exception e) {
         logger.info("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);
@@ -181,7 +174,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 		// directory
 		path = audioConfig.getClipDir() + "/" + year + month + day + "/" + audioConfig.getId();
 
-		// create directory if neccessary
+		// create directory if necessary
 		File dirTarget = new File(path);
 		if (!dirTarget.isDirectory()) {
 			try {

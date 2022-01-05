@@ -53,10 +53,10 @@ data:
       type: ${DATA_SOURCE_TYPE:AUDIO}
       delay: ${DATA_SOURCE_DELAY:5000}
       topic: ${DATA_SOURCE_TOPIC}
-      url: ${DATA_SOURCE_URL}
-      audioUrl: ${MEDIA_SOURCE_URL}
+      audioUrl: ${DATA_SOURCE_URL}
       captureCmd: ${MEDIA_CAPTURE_CMD}
       captureDir: ${MEDIA_CAPTURE_DIR}
       clipCmd: ${MEDIA_CLIP_CMD}
       clipDuration: ${MEDIA_CLIP_DURATION}
       clipDir: ${MEDIA_CLIP_DIR}
+      streamTimeout: ${MEDIA_STREAM_TIMEOUT}
