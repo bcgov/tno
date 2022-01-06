@@ -12,16 +12,17 @@ metadata:
     tags: postgresql
 
 parameters:
-  - name: APP_NAME
-    displayName: "App Name"
-    description: "The name of the application (grouped)."
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
     required: true
     value: "tno"
-  - name: GROUP_NAME
-    displayName: "Component Group Name"
-    description: "The name of the application component group [app, api, database]"
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
     required: true
     value: "database"
+
   - name: PROJECT_NAMESPACE
     displayName: "OpenShift Project Namespace"
     description: "The namespace of the OpenShift project containing the application."
@@ -54,12 +55,12 @@ objects:
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}-backup
+      name: ${SOLUTION_NAME}-${APP_NAME}-backup
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}-backup
+        name: ${SOLUTION_NAME}-${APP_NAME}-backup
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
     spec:
       storageClassName: ${STORAGE_CLASS}
       accessModes:

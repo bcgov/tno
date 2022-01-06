@@ -7,16 +7,17 @@ metadata:
     description: The World's Most Advanced Open Source Relational Database.
     tags: tno,database,postgres
 parameters:
-  - name: APP_NAME
-    displayName: "App Name"
-    description: "The name of the application (grouped)."
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
     required: true
     value: "tno"
-  - name: GROUP_NAME
-    displayName: "Component Group Name"
-    description: "The name of the application component (e.g api, app, database)."
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
     required: true
-    value: "database"
+    value: "database.dev"
+
   - name: PROJECT_NAMESPACE
     displayName: "OpenShift Project Namespace"
     description: "The namespace of the OpenShift project containing the application."
@@ -27,10 +28,6 @@ parameters:
     description: "The name for this environment [dev, test, prod, tools]"
     required: true
     value: "tools"
-  - name: INSTANCE
-    displayName: "Unique Identifier"
-    description: "A unique identifier to allow for multiple instances (i.e. 'dev')."
-    value: "dev"
 
   - name: GIT_URL
     displayName: "Git Repository URL"
@@ -69,26 +66,27 @@ objects:
   - kind: ImageStream
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
         description: Keeps track of changes in the postgres database image
       labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        role: ${GROUP_NAME}
 
   # The build config that will be created will be named for the branch you created it for.
   - kind: BuildConfig
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
         description: Defines how to build the postgres database image
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}.${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        role: ${GROUP_NAME}
         branch: ${GIT_REF}
     spec:
       completionDeadlineSeconds: 1800
@@ -109,7 +107,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: ${APP_NAME}-${GROUP_NAME}:${OUTPUT_IMAGE_TAG}
+          name: ${SOLUTION_NAME}-${APP_NAME}:${OUTPUT_IMAGE_TAG}
       resources:
         limits:
           cpu: ${CPU_LIMIT}

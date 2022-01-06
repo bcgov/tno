@@ -1,0 +1,103 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: elastic-deploy
+  annotations:
+    openshift.io/display-name: Elasticsearch Server
+    description: Elasticsearch is a search engine based on the Lucene library. It provides a distributed, multitenant-capable full-text search engine with an HTTP web interface and schema-free JSON documents.
+    tags: tno,elastic
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
+    required: true
+    value: "tno"
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
+    required: true
+    value: "elastic"
+
+  - name: PROJECT_NAMESPACE
+    displayName: OpenShift Project Namespace
+    description: The namespace of the OpenShift project containing the application.
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: Environment name
+    description: The name for this environment [dev, test, prod]
+    required: true
+    value: "dev"
+
+  - name: HTTP_PORT
+    displayName: HTTP Client Port
+    description: The REST API port to communicate with the elastic.
+    required: true
+    value: "9200"
+
+  - name: NETWORK_HOST
+    displayName: Network Host
+    description: A resilient production cluster must involve nodes on other servers.
+    required: true
+    value: "0.0.0.0"
+  - name: DISCOVERY_SEED_HOSTS
+    displayName: Discovery Seed Hosts
+    description: Provides a list of the addresses of the master-eligible nodes in the cluster.
+  - name: DISCOVERY_SEED_PROVIDERS
+    displayName: Discovery Seed Providers
+    description: Specifies which types of seed hosts provider to use to obtain the addresses of the seed nodes used to start the discovery process.
+  - name: DISCOVERY_TYPE
+    displayName: Discovery Type
+    description: Specifies whether Elasticsearch should form a multiple-node cluster.
+    required: true
+    value: "single-node"
+  - name: CORS_ALLOW_ORIGINS
+    displayName: CORS Allow Origins
+    description: Comma separated list of CORS allowed origins.
+    value: http://localhost:40005,http://127.0.0.1:40005,https://opensource.appbase.io
+
+objects:
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Elasticsearch YAML configuration
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    type: Opaque
+    data:
+      elasticsearch.yml: >-
+        network:
+          host: ${NETWORK_HOST}
+        cluster:
+          name: ${SOLUTION_NAME}-${APP_NAME}
+        node:
+          name: ${SOLUTION_NAME}-01
+        path:
+          data: /usr/share/elasticsearch/data
+        http:
+          port: ${HTTP_PORT}
+          cors:
+            allow-origin: ${CORS_ALLOW_ORIGINS}
+            enabled: true
+            allow-headers: X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization,x-search-query,x-search-state,x-search-filters
+            allow-credentials: true
+        discovery:
+          type: ${DISCOVERY_TYPE}
+          # seed_hosts: ${DISCOVERY_SEED_HOSTS}
+          # seed_providers: ${DISCOVERY_SEED_PROVIDERS}
+        xpack:
+          security:
+            enabled: true
+            transport:
+              ssl:
+                enabled: false
+          monitoring:
+            enabled: true
+            collection:
+              enabled: true
+

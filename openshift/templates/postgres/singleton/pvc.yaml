@@ -7,16 +7,17 @@ metadata:
     description: The World's Most Advanced Open Source Relational Database.
     tags: tno,database,postgres
 parameters:
-  - name: APP_NAME
-    displayName: "App Name"
-    description: "The name of the application (grouped)."
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
     required: true
     value: "tno"
-  - name: GROUP_NAME
-    displayName: "Component Group Name"
-    description: "The name of the application component group [app, api, database]"
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
     required: true
     value: "database"
+
   - name: PROJECT_NAMESPACE
     displayName: "OpenShift Project Namespace"
     description: "The namespace of the OpenShift project containing the application."
@@ -27,10 +28,6 @@ parameters:
     description: "The name for this environment [dev, test, prod]"
     required: true
     value: "dev"
-  - name: INSTANCE
-    displayName: "Unique Identifier"
-    description: "A unique identifier to allow for multiple instances (i.e. '-01')."
-    value: ""
 
   - name: STORAGE_CLASS
     displayName: "The Storage Class Name"
@@ -48,11 +45,6 @@ parameters:
     required: true
     value: "5Gi"
 
-  - name: GROUP_NAME
-    displayName: "Backup Service Role Name"
-    description: "The name of the application component role [app, api, database, backup]"
-    required: true
-    value: "backup"
   - name: BACKUP_STORAGE
     displayName: "The Backup Storage Class Name"
     description: "The backup storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
@@ -73,19 +65,14 @@ objects:
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       labels:
-        name: ${APP_NAME}-database${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
-    resourceVersion: "250191500"
-    selfLink: /api/v1/namespaces/${PROJECT_NAMESPACE}-${ENV_NAME}/persistentvolumeclaims/${APP_NAME}-${GROUP_NAME}${INSTANCE}
     annotations:
-      pv.kubernetes.io/bind-completed: "yes"
-      pv.kubernetes.io/bound-by-controller: "yes"
-      volume.beta.kubernetes.io/storage-provisioner: csi.trident.netapp.io
-      description: "${APP_NAME} Database storage volume"
+      description: "${SOLUTION_NAME} Database storage volume"
     finalizers:
       - kubernetes.io/pvc-protection
     spec:
@@ -101,12 +88,12 @@ objects:
   - kind: PersistentVolumeClaim
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}-backup
+      name: ${SOLUTION_NAME}-${APP_NAME}-backup
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}-backup
+        name: ${SOLUTION_NAME}-${APP_NAME}-backup
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
     spec:
       storageClassName: ${BACKUP_STORAGE}
       accessModes:
