@@ -1,0 +1,70 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: elastic-route
+  annotations:
+    openshift.io/display-name: Elasticsearch Server
+    description: Elasticsearch is a search engine based on the Lucene library. It provides a distributed, multitenant-capable full-text search engine with an HTTP web interface and schema-free JSON documents.
+    tags: tno,elastic
+
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
+    required: true
+    value: "tno"
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application.
+    required: true
+    value: "elastic"
+
+  - name: PROJECT_NAMESPACE
+    displayName: OpenShift Project Namespace
+    description: The namespace of the OpenShift project containing the application.
+    required: true
+    value: '9b301c'
+  - name: ENV_NAME
+    displayName: Environment name
+    description: The name for this environment [dev, test, prod]
+    required: true
+    value: 'dev'
+
+  - name: APP_HOST
+    displayName: Application Hostname
+    description: The exposed hostname that will route to the the React frontend, if left blank a value will be defaulted.
+    value: 'tno-dev.apps.silver.devops.gov.bc.ca'
+  - name: APP_PATH
+    displayName: Application URL Root Path
+    description: The URL root path to the web application
+    value: '/elastic'
+  - name: HTTP_PORT
+    displayName: HTTP Application Port
+    description: The port used to communicate with the Pod API
+    value: '9200'
+
+objects:
+  - kind: Route
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+      annotations:
+        haproxy.router.openshift.io/rewrite-target: /
+    spec:
+      host: ${APP_HOST}
+      path: ${APP_PATH}
+      to:
+        kind: Service
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        weight: 100
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+        # caCertificate: ""
+        # certificate: ""
+        # key: ""

@@ -7,16 +7,17 @@ metadata:
     description: The World's Most Advanced Open Source Relational Database.
     tags: tno,database,postgres
 parameters:
-  - name: APP_NAME
-    displayName: "App Name"
-    description: "The name of the application (grouped)."
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
     required: true
     value: "tno"
-  - name: GROUP_NAME
-    displayName: "Component Role Name"
-    description: "The name of the application component role [app, api, database]"
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
     required: true
     value: "database"
+
   - name: PROJECT_NAMESPACE
     displayName: "OpenShift Project Namespace"
     description: "The namespace of the OpenShift project containing the application."
@@ -27,10 +28,6 @@ parameters:
     description: "The name for this environment [dev, test, prod]"
     required: true
     value: "dev"
-  - name: INSTANCE
-    displayName: "Unique Identifier"
-    description: "A unique identifier to allow for multiple instances (i.e. '-01')."
-    value: ""
 
   - name: IMAGE_TAG
     displayName: "Source Image Tag"
@@ -79,14 +76,14 @@ objects:
   - kind: Service
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
         description: Exposes the database server
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        role: ${GROUP_NAME}
     spec:
       ports:
         - name: ${POSTGRESQL_PORT}-tcp
@@ -94,7 +91,7 @@ objects:
           port: ${{POSTGRESQL_PORT}}
           targetPort: ${{POSTGRESQL_PORT}}
       selector:
-        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
       type: ClusterIP
       sessionAffinity: None
 
@@ -102,14 +99,14 @@ objects:
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
         description: Defines how to deploy the database server
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        role: ${GROUP_NAME}
     spec:
       strategy:
         type: Recreate
@@ -123,31 +120,31 @@ objects:
           imageChangeParams:
             automatic: true
             containerNames:
-              - ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+              - ${SOLUTION_NAME}-${APP_NAME}
             from:
               kind: ImageStreamTag
               namespace: "${PROJECT_NAMESPACE}-tools"
-              name: ${APP_NAME}-${GROUP_NAME}:${IMAGE_TAG}
+              name: ${SOLUTION_NAME}-${APP_NAME}:${IMAGE_TAG}
       replicas: 1
       selector:
-        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}
       template:
         metadata:
-          name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+          name: ${SOLUTION_NAME}-${APP_NAME}
           labels:
-            name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+            name: ${SOLUTION_NAME}-${APP_NAME}
+            solution: ${SOLUTION_NAME}
             app: ${APP_NAME}
-            role: ${GROUP_NAME}
         spec:
           volumes:
             - name: db-data
               persistentVolumeClaim:
-                claimName: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                claimName: ${SOLUTION_NAME}-${APP_NAME}
             - name: backup
               persistentVolumeClaim:
-                claimName: ${APP_NAME}-${GROUP_NAME}-backup
+                claimName: ${SOLUTION_NAME}-${APP_NAME}-backup
           containers:
-            - name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+            - name: ${SOLUTION_NAME}-${APP_NAME}
               image: ""
               ports:
                 - containerPort: ${{POSTGRESQL_PORT}}
@@ -156,17 +153,17 @@ objects:
                 - name: POSTGRESQL_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: POSTGRESQL_USER
                 - name: POSTGRESQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: POSTGRESQL_PASSWORD
                 - name: POSTGRESQL_ADMIN_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: POSTGRESQL_ADMIN_PASSWORD
                 - name: POSTGRESQL_DATABASE
                   value: ${POSTGRESQL_DATABASE}

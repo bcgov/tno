@@ -58,15 +58,7 @@ fi
 # Elasticsearch configuration
 ######################################################################
 
-export elasticUser=$(grep -Po 'ELASTIC_USERNAME=\K.*$' ./db/elasticsearch/.env 2>/dev/null)
-if [ -z "$elasticUser" ]
-then
-    echo 'Enter a username for Elasticsearch.'
-    read -p 'Username: ' elasticUser
-    export elasticUser
-else
-    echo "Your Elasticsearch username: $elasticUser"
-fi
+export elasticUser=elastic
 
 ######################################################################
 # Asure configuration
