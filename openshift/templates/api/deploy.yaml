@@ -45,22 +45,45 @@ parameters:
     displayName: Keycloak Authority URL
     description: The Keycloak authority URL.
     required: true
-    value: 'https://dev.oidc.gov.bc.ca/auth/'
+    value: https://dev.oidc.gov.bc.ca/auth/
   - name: KEYCLOAK_REALM
     displayName: Keycloak SSO realm
     description: Keycloak SSO realm, used by the frontend login.
     required: true
-    value: 'gcpe'
+    value: gcpe
   - name: KEYCLOAK_CLIENT_ID
     displayName: Keycloak Client ID
     description: The Keycloak Client ID to identify the resource.
     required: true
-    value: 'tno-api'
+    value: tno-api
+
+  - name: DB_SECRETS_NAME
+    displayName: Database Secret Name
+    description: Name of the database secrets object.
+    required: true
+    value: tno-database
+  - name: DB_URL
+    displayName: Database URL
+    description: PostgreSQL database URL connection string.
+    required: true
+    value: jdbc:postgresql://tno-database:5432/tno
+
+  - name: ELASTIC_SECRETS_NAME
+    displayName: Elasticsearch Secret Name
+    description: Name of the Elasticsearch secrets object.
+    required: true
+    value: tno-elastic
+  - name: ELASTIC_URIS
+    displayName: Elasticsearch Server URIs
+    description: Comma delimited Elasticsearch server URIs.
+    required: true
+    value: tno-elastic:9200
 
   - name: KAFKA_BOOTSTRAP_SERVERS
     displayName: Kafka Bootstrap Servers
-    description: Comma delimited list of host:port to the Kafka Bootstrap servers.
+    description: Comma delimited Kafka bootstrap servers.
     required: true
+    value: tno-kafka-broker:29094
 
   - name: REPLICAS
     displayName: Pod Replicas
@@ -75,7 +98,7 @@ parameters:
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.
     required: true
-    value: 125m
+    value: 250m
   - name: MEMORY_REQUEST
     displayName: Requested Minimum Memory Limit
     description: Minimum requested amount of memory the container can use.
@@ -107,44 +130,33 @@ objects:
           protocol: TCP
           targetPort: ${{APP_PORT}}
       selector:
-        name: ${SOLUTION_NAME}-${APP_NAME}
         solution: ${SOLUTION_NAME}
-        group: ${APP_NAME}
+        app: ${APP_NAME}
       sessionAffinity: None
       type: ClusterIP
 
-  # Keycloak configuration settings.
+  # Configuration settings
   - kind: ConfigMap
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+      name: ${SOLUTION_NAME}-${APP_NAME}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       annotations:
-        description: Keycloak client JSON configuration
+        description: API configuration settings
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}-sso
+        name: ${SOLUTION_NAME}-${APP_NAME}
         solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
     type: Opaque
-    stringData:
+    data:
       KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL}
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
 
-  # Kafka configuration settings.
-  - kind: ConfigMap
-    apiVersion: v1
-    metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}-kafka
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-      annotations:
-        description: Kafak connection configuration
-      labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}-kafka
-        solution: ${SOLUTION_NAME}
-        app: ${APP_NAME}
-    type: Opaque
-    stringData:
+      DB_URL: ${DB_URL}
+
+      ELASTIC_URIS: ${ELASTIC_URIS}
+
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
 
   # How the app will be deployed to the pod.
@@ -199,93 +211,93 @@ objects:
                 - name: KEYCLOAK_AUTH_SERVER_URL
                   valueFrom:
                     configMapKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: KEYCLOAK_AUTH_SERVER_URL
                 - name: KEYCLOAK_REALM
                   valueFrom:
                     configMapKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: KEYCLOAK_REALM
                 - name: KEYCLOAK_RESOURCE
                   valueFrom:
                     configMapKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-sso
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: KEYCLOAK_CLIENT_ID
 
                 - name: KAFKA_BOOTSTRAP_SERVERS
                   valueFrom:
                     configMapKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-kafka
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: KAFKA_BOOTSTRAP_SERVERS
 
                 - name: DB_URL
                   valueFrom:
-                    secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-database
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: DB_URL
                 - name: DB_USERNAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-database
-                      key: DB_USERNAME
+                      name: ${DB_SECRETS_NAME}
+                      key: POSTGRESQL_USER
                 - name: DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-database
-                      key: DB_PASSWORD
+                      name: ${DB_SECRETS_NAME}
+                      key: POSTGRESQL_PASSWORD
 
                 - name: ELASTIC_URIS
                   valueFrom:
-                    secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-elastic
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: ELASTIC_URIS
                 - name: ELASTIC_USERNAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-elastic
+                      name: ${ELASTIC_SECRETS_NAME}
                       key: ELASTIC_USERNAME
                 - name: ELASTIC_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-elastic
+                      name: ${ELASTIC_SECRETS_NAME}
                       key: ELASTIC_PASSWORD
 
                 - name: AZURE_STORAGE_CONTAINER_NAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: AZURE_STORAGE_CONTAINER_NAME
-                - name: AZURE_STORAGE_CONTAINER_NAME
+                - name: AZURE_STORAGE_CONNECTION_STRING
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
-                      key: AZURE_STORAGE_CONTAINER_NAME
+                      name: ${SOLUTION_NAME}-${APP_NAME}
+                      key: AZURE_STORAGE_CONNECTION_STRING
 
                 - name: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
                 - name: COGNITIVE_SERVICES_SPEECH_REGION
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: COGNITIVE_SERVICES_SPEECH_REGION
 
                 - name: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
                 - name: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
                 - name: AZURE_VIDEO_ANALYZER_LOCATION
                   valueFrom:
                     secretKeyRef:
-                      name: ${SOLUTION_NAME}-${APP_NAME}-azure
+                      name: ${SOLUTION_NAME}-${APP_NAME}
                       key: AZURE_VIDEO_ANALYZER_LOCATION
               livenessProbe:
                 httpGet:

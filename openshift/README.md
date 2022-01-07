@@ -148,3 +148,23 @@ Sometimes you may need to confirm you container can communicate with the interne
 ```bash
 timeout 5 bash -c "</dev/tcp/google.com/443"; echo $?
 ```
+
+## Change Resource Requirements
+
+If you need to update the resource requirements of pods you can do this without editing their templates.
+
+```bash
+oc set resource dc/${DeployConfig.name} --limits=cpu=500m,memory=500Mi --requests=cpu=50m,memory=50Mi
+```
+
+## Extract the current project name without the environment
+
+Sometimes it's a pain to remember the random names of the project, it's nice to use a command that extracts it.
+
+```bash
+# Extract the random characters of the project namespace.
+project=$(oc project --short); project=${project//-[a-z]*/}; echo $project
+
+# Change the current environment
+oc project $project-tools
+```

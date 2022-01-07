@@ -46,10 +46,6 @@ parameters:
     required: true
     value: "Dockerfile"
 
-  - name: IMAGE_NAME
-    displayName: "Output Image Name"
-    description: "The name given to the built image."
-    required: true
   - name: IMAGE_TAG
     displayName: "Output Image Tag"
     description: "The tag given to the built image."
@@ -72,11 +68,11 @@ objects:
   - kind: ConfigMap
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
       annotations:
         description: Environment variable configuration
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}
+        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
         app: ${APP_NAME}
         solution: ${SOLUTION_NAME}
     data:
@@ -88,11 +84,11 @@ objects:
   - kind: ImageStream
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${IMAGE_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}
       annotations:
         description: Keeps track of changes in the image
       labels:
-        name: ${SOLUTION_NAME}-${IMAGE_NAME}
+        name: ${SOLUTION_NAME}-${APP_NAME}
         app: ${APP_NAME}
         solution: ${SOLUTION_NAME}
 
@@ -100,11 +96,11 @@ objects:
   - kind: BuildConfig
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
       annotations:
         description: Defines how to build the image
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}
+        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
         app: ${APP_NAME}
         solution: ${SOLUTION_NAME}
     spec:
@@ -130,7 +126,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: ${IMAGE_NAME}:${IMAGE_TAG}
+          name: ${SOLUTION_NAME}-${APP_NAME}:${IMAGE_TAG}
       resources:
         limits:
           cpu: ${CPU_LIMIT}

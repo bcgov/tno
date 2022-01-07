@@ -18,7 +18,7 @@ parameters:
     displayName: Application Name
     description: The name of the application.
     required: true
-    value: "app-editor"
+    value: "api-editor"
 
   - name: PROJECT_NAMESPACE
     displayName: OpenShift Project Namespace
@@ -55,6 +55,8 @@ objects:
         name: ${SOLUTION_NAME}-${APP_NAME}
         solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
+      annotations:
+        haproxy.router.openshift.io/rewrite-target: /
     spec:
       host: ${APP_HOST}
       path: ${APP_PATH}

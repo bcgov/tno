@@ -13,21 +13,23 @@ import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfig
  */
 @Configuration
 public class ElasticClientConfig extends AbstractElasticsearchConfiguration {
-  @Value("${spring.elasticsearch.rest.username}")
+  @Value("${spring.elasticsearch.username}")
   private String username;
 
-  @Value("${spring.elasticsearch.rest.password}")
+  @Value("${spring.elasticsearch.password}")
   private String password;
 
-  @Value("${spring.elasticsearch.rest.uris}")
+  @Value("${spring.elasticsearch.uris}")
   private String uris;
 
   @Override
   @Bean
   public RestHighLevelClient elasticsearchClient() {
 
-    final ClientConfiguration clientConfiguration = ClientConfiguration.builder().connectedTo(uris)
-        .withBasicAuth(username, password).build();
+    final ClientConfiguration clientConfiguration = ClientConfiguration.builder()
+        .connectedTo(uris)
+        .withBasicAuth(username, password)
+        .build();
 
     return RestClients.create(clientConfiguration).rest();
   }

@@ -24,8 +24,10 @@ objects:
       solution: ${SOLUTION_NAME}
     spec:
       params:
+        # - name: GIT_REF
+        #   value: $(body.head_commit.id) # The commit identify.
         - name: GIT_REF
-          value: $(body.head_commit.id)
+          value: $(body.ref.split('/')[2])
         - name: GIT_URL
           value: "https://github.com/$(body.repository.full_name)"
         - name: VERSION

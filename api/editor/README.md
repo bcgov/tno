@@ -1,5 +1,13 @@
 # API Editor
 
+Use the `make` commands to perform the following tasks;
+
+- clean: Clean up prior build artifacts
+- install: Force install to fetch dependencies from remote repository
+- package: Clean and build the package
+- purge: Purge local repository
+- run: Manually run the application
+
 To manually run the API.
 
 ```bash

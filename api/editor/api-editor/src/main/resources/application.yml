@@ -41,10 +41,9 @@ spring:
       fail-on-empty-beans: false
 
   elasticsearch:
-    rest:
-      uris: ${ELASTIC_URIS}
-      username: ${ELASTIC_USERNAME}
-      password: ${ELASTIC_PASSWORD}
+    uris: ${ELASTIC_URIS}
+    username: ${ELASTIC_USERNAME}
+    password: ${ELASTIC_PASSWORD}
 
 azure:
   storage:

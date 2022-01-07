@@ -15,9 +15,9 @@ parameters:
     value: "tno"
   - name: APP_NAME
     displayName: Application Name
-    description: The name of the application (e.g. api-editor.dev).
+    description: The name of the application (e.g. api-editor).
     required: true
-    value: "api-editor.dev"
+    value: "api-editor"
 
   - name: GIT_URL
     displayName: Git Repository URL
@@ -25,10 +25,10 @@ parameters:
     required: true
     value: "https://github.com/bcgov/tno.git"
   - name: GIT_REF
-    displayName: "Git Reference"
+    displayName: Git Reference
     description:
-      "Set this to a branch name, tag or other ref of your repository if you
-      are not using the default branch."
+      Set this to a branch name, tag or other ref of your repository if you
+      are not using the default branch.
     value: dev
   - name: CONTEXT_DIR
     displayName: Context Directory
@@ -56,6 +56,7 @@ parameters:
     description: Maximum amount of memory the container can use.
     required: true
     value: 2Gi
+
 objects:
   # The final build image.
   - kind: ImageStream
@@ -65,6 +66,7 @@ objects:
       annotations:
         description: Destination for built images.
       labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
         solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
 
@@ -72,11 +74,11 @@ objects:
   - kind: BuildConfig
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}
+      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
       annotations:
         description: Build image from Dockerfile in git repo.
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}
+        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
         solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
         branch: ${GIT_REF}

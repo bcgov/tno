@@ -44,9 +44,6 @@ spec:
       type: string
       default: Dockerfile
 
-    - name: IMAGE_NAME
-      description: The name given to the built image.
-      type: string
     - name: IMAGE_TAG
       description: The tag given to the built image.
       type: string
@@ -71,7 +68,6 @@ spec:
         GIT_REF=$(params.GIT_REF)
         CONTEXT_DIR=$(params.CONTEXT_DIR)
         DOCKERFILE=$(params.DOCKERFILE)
-        IMAGE_NAME=$(params.IMAGE_NAME)
         IMAGE_TAG=$(params.IMAGE_TAG)
         CPU_LIMIT=$(params.CPU_LIMIT)
         MEMORY_LIMIT=$(params.MEMORY_LIMIT)
@@ -85,8 +81,8 @@ spec:
       image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
       resources: {}
       script: |
-        oc start-build $(params.SOLUTION_NAME)-$(params.APP_NAME) --follow --wait
+        oc start-build $(params.SOLUTION_NAME)-$(params.APP_NAME).$(params.GIT_REF) --follow --wait
 
-        if [ "$(params.IMAGE_NAME)" != "latest" ]; then
-          oc tag $(params.IMAGE_NAME):$(params.IMAGE_TAG) $(params.IMAGE_NAME):latest
+        if [ "$(params.IMAGE_TAG)" != "latest" ]; then
+          oc tag $(params.SOLUTION_NAME)-$(params.APP_NAME):$(params.IMAGE_TAG) $(params.SOLUTION_NAME)-$(params.APP_NAME):latest
         fi
