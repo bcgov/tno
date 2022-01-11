@@ -40,6 +40,10 @@ help:
 clean: ## Clean package.
 	@echo "$(P) Clean package"
 	@cd api-editor; mvn clean
+	
+lint: ## Run linter.
+	@echo "$(P) Run linter."
+	@cd api-editor; mvn site
 
 package: ## Clean and build a package.
 	@echo "$(P) Clean and build a package"

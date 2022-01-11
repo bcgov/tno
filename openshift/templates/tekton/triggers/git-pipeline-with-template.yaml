@@ -20,13 +20,9 @@ parameters:
     required: true
     value: app-editor
 
-  - name: UID
-    displayName: Unique Identifier
-    description: A way to identify a different build configuration for the same application (e.g .dev, .master).
-    value: .dev
-  - name: BRANCH
-    displayName: Branch Name
-    description: The branch name that is allowed to start a pipeline run.
+  - name: GIT_REF
+    displayName: GIT Branch or Refernce
+    description: The GIT branch name or reference that will start a pipeline run.
     required: true
     value: dev
 
@@ -97,7 +93,7 @@ objects:
               - name: SOLUTION_NAME
                 value: ${SOLUTION_NAME}
               - name: APP_NAME
-                value: ${APP_NAME}${UID}
+                value: ${APP_NAME}
               - name: TEMPLATE_NAME
                 value: ${TEMPLATE_NAME}
               - name: GIT_URL
@@ -108,8 +104,6 @@ objects:
                 value: ${CONTEXT_DIR}
               - name: DOCKERFILE
                 value: ${DOCKERFILE}
-              - name: IMAGE_NAME
-                value: ${SOLUTION_NAME}-${APP_NAME}
               - name: IMAGE_TAG
                 value: $(tt.params.VERSION)
               - name: DEPLOY_TO
@@ -139,7 +133,7 @@ objects:
                   - push
             - cel:
                 filter: >-
-                  body.ref == 'refs/heads/${BRANCH}'
+                  body.ref == 'refs/heads/${GIT_REF}'
                   && (body.commits.exists(c, c.added.exists(m, m.startsWith('${CONTEXT_DIR}')))
                     || body.commits.exists(c, c.modified.exists(m, m.startsWith('${CONTEXT_DIR}')))
                     || body.commits.exists(c, c.removed.exists(m, m.startsWith('${CONTEXT_DIR}')))

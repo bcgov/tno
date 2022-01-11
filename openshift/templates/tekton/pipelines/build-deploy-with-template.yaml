@@ -2,6 +2,10 @@ apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
   name: build-deploy-with-template
+  annotations:
+    description: Build an docker image from a GIT repository using a prebuilt oc template.
+      Then deploy to the specified environment.
+    tags: oc,git,docker,build,deploy
 spec:
   params:
     - name: SOLUTION_NAME
@@ -35,16 +39,15 @@ spec:
       type: string
       default: "Dockerfile"
 
-    - name: IMAGE_NAME
-      description: The name of the built image
-      type: string
     - name: IMAGE_TAG
       description: Tag to apply to the built image
       type: string
+      default: "latest"
 
     - name: DEPLOY_TO
-      description: The environment to deploy to [dev, test, prod].
+      description: The environment to deploy to [dev, test, prod, tools].
       type: string
+      default: "dev"
 
     - name: CPU_LIMIT
       description: The resources CPU limit (in cores) for this build.
@@ -74,8 +77,6 @@ spec:
         - name: DOCKERFILE
           value: $(params.DOCKERFILE)
 
-        - name: IMAGE_NAME
-          value: $(params.IMAGE_NAME)
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
 
@@ -92,7 +93,7 @@ spec:
         kind: Task
       params:
         - name: IMAGE_NAME
-          value: $(params.IMAGE_NAME)
+          value: $(params.SOLUTION_NAME)-$(params.APP_NAME)
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: ENV

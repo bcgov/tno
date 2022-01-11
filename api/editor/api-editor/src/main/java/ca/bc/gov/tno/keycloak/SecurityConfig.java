@@ -1,6 +1,5 @@
 package ca.bc.gov.tno.keycloak;
 
-import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
@@ -31,11 +30,6 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     KeycloakAuthenticationProvider keycloakAuthenticationProvider = keycloakAuthenticationProvider();
     keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
     auth.authenticationProvider(keycloakAuthenticationProvider);
-  }
-
-  @Bean
-  public KeycloakSpringBootConfigResolver KeycloakConfigResolver() {
-    return new KeycloakSpringBootConfigResolver();
   }
 
   // Specifies the session authentication strategy

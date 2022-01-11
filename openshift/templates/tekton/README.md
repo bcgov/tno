@@ -23,6 +23,7 @@ To automate Pipelines use Triggers.
 | Name                                          | Trigger | Description                                                                |
 | --------------------------------------------- | ------- | -------------------------------------------------------------------------- |
 | [DEV:app-editor](#build-deploy-with-template) | Git     | Builds the `dev` branch app-editor and deploys to the **DEV** environment. |
+| [DEV:api-editor](#build-deploy-with-template) | Git     | Builds the `dev` branch api-editor and deploys to the **DEV** environment. |
 
 ## GitHub Triggers
 
@@ -40,11 +41,11 @@ This pipeline uses native OpenShift BuildConfig and DeployConfig objects to buil
 When a GIT Webhook event is triggered the EventListener will create a PipelineRun object that uses the `build-deploy-with-template` Pipeline.
 The EventListener filters each webhook to ensure a PipelineRun object is only created when appropriate files have been added/modified/removed from a specific branch.
 
-| Template                   | Types                          | Description                                                                     | Install                                                                                         |
-| -------------------------- | ------------------------------ | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| react-nginx                | Template                       | A template that will be used to generate a BuildConfig within the pipeline task | `oc create -f ./build/react-nginx.yaml`                                                         |
-| oc-build-with-template     | Task                           | A Task that runs the above template and then runs the generated BuildConfig     | `oc create -f ./tasks/oc-build-with-template.yaml`                                              |
-| oc-deploy-with-tag         | Task                           | A Task that runs a DeployConfig                                                 | `oc create -f ./tasks/oc-deploy-with-tag.yaml`                                                  |
-| build-deploy-with-template | Pipeline                       | A Pipeline that runs the above two Tasks                                        | `oc create -f ./pipelines/build-deploy-with-template.yaml`                                      |
-| git-ingress                | Ingress                        | An Ingress that is used by the webhook for each app                             | `oc process -f ./triggers/git-ingress.yaml \| oc create --save-config=true -f -`                |
-| git-pipeline-with-template | TriggerTemplate, EventListener | A TriggerTemplate and EventListener for the above Pipeline                      | `oc process -f ./triggers/git-pipeline-with-template.yaml \| oc create --save-config=true -f -` |
+| Template                   | Types                          | Description                                                                     | Install                                                                                                                   |
+| -------------------------- | ------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| react-nginx                | Template                       | A template that will be used to generate a BuildConfig within the pipeline task | `oc create -f ./build/react-nginx.yaml`                                                                                   |
+| oc-build-with-template     | Task                           | A Task that runs the above template and then runs the generated BuildConfig     | `oc create -f ./tasks/oc-build-with-template.yaml`                                                                        |
+| oc-deploy-with-tag         | Task                           | A Task that runs a DeployConfig                                                 | `oc create -f ./tasks/oc-deploy-with-tag.yaml`                                                                            |
+| build-deploy-with-template | Pipeline                       | A Pipeline that runs the above two Tasks                                        | `oc create -f ./pipelines/build-deploy-with-template.yaml`                                                                |
+| git-ingress                | Ingress                        | An Ingress that is used by the webhook for each app                             | `oc process -f ./triggers/git-ingress.yaml \| oc create --save-config=true -f -`                                          |
+| git-pipeline-with-template | TriggerTemplate, EventListener | A TriggerTemplate and EventListener for the above Pipeline                      | `oc process -f ./triggers/git-pipeline-with-template.yaml --param-file=${paramFile} \| oc create --save-config=true -f -` |
