@@ -1,0 +1,311 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: kafka-zookeeper-cluster
+  annotations:
+    description: Kafka zookeeper cluster
+    iconClass: icon-zookeeper
+    tags: kafka,zookeeper,confluent
+
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
+    required: true
+    value: "tno"
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
+    required: true
+    value: "zookeeper"
+
+  - name: PROJECT_NAMESPACE
+    displayName: "OpenShift Project Namespace"
+    description: "The namespace of the OpenShift project containing the application."
+    required: true
+    value: "9b301c"
+  - name: ENV_NAME
+    displayName: "Environment name"
+    description: "The name for this environment [dev, test, prod]"
+    required: true
+    value: "dev"
+
+  - name: IMAGE
+    displayName: Image
+    description: The image name and path.
+    required: true
+    value: "image-registry.openshift-image-registry.svc:5000/9b301c-tools/tno-zookeeper"
+  - name: IMAGE_TAG
+    displayName: Image Tag
+    description: The image tag used to specify which image you would like deployed.
+    required: true
+    value: "latest"
+
+  - name: STORAGE_CLASS
+    displayName: "The Storage Class Name"
+    description: "The storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
+    required: true
+    value: "netapp-file-standard"
+  - name: ACCESS_MODE
+    displayName: "The Storage Access Mode"
+    description: "The storage access mode [ReadWriteOnce, ReadWriteMany]"
+    required: true
+    value: "ReadWriteOnce"
+  - name: VOLUME_CAPACITY
+    displayName: "Persistent Volume Capacity"
+    description: "Volume space available for data, e.g. 512Mi, 2Gi."
+    required: true
+    value: "1Gi"
+
+  - name: REPLICAS
+    displayName: REPLICAS
+    description: The number of StatefulSet replicas to use.
+    required: true
+    value: "3"
+  - name: CPU_REQUEST
+    displayName: "Requested Minimum Resources CPU Limit"
+    description: "The requested minimum resources CPU limit (in cores) for this build."
+    required: true
+    value: 25m
+  - name: CPU_LIMIT
+    displayName: "Resources CPU Limit"
+    description: "The resources CPU limit (in cores) for this build."
+    required: true
+    value: 50m
+  - name: MEMORY_REQUEST
+    displayName: "Requested Minimum Memory Limit"
+    description: "Minimum requested amount of memory the container can use."
+    required: true
+    value: 125Mi
+  - name: MEMORY_LIMIT
+    displayName: "Memory Limit"
+    description: "Maximum amount of memory the container can use."
+    required: true
+    value: 1Gi
+
+objects:
+  # Service for external communication
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    spec:
+      type: ClusterIP
+      sessionAffinity: None
+      ports:
+        - name: client
+          port: 2181
+          protocol: TCP
+          targetPort: 2181
+      selector:
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+        statefulset: ${SOLUTION_NAME}-${APP_NAME}-cluster
+
+  # Service for headless communication
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}-headless
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}-headless
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    spec:
+      clusterIP: None
+      sessionAffinity: None
+      ports:
+        - name: server
+          port: 2888
+          protocol: TCP
+          targetPort: 2888
+        - name: leader-election
+          port: 3888
+          protocol: TCP
+          targetPort: 3888
+      selector:
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+        statefulset: ${SOLUTION_NAME}-${APP_NAME}-cluster
+
+  - apiVersion: policy/v1beta1
+    kind: PodDisruptionBudget
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+    spec:
+      selector:
+        matchLabels:
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+      maxUnavailable: 1
+
+  - apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    spec:
+      podManagementPolicy: OrderedReady
+      replicas: ${{REPLICAS}}
+      revisionHistoryLimit: 10
+      selector:
+        matchLabels:
+          statefulset: ${SOLUTION_NAME}-${APP_NAME}-cluster
+      serviceName: ${SOLUTION_NAME}-${APP_NAME}-headless
+      updateStrategy:
+        type: RollingUpdate
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${SOLUTION_NAME}-${APP_NAME}
+            from:
+              kind: ImageStreamTag
+              namespace: ${PROJECT_NAMESPACE}-tools
+              name: ${SOLUTION_NAME}-${APP_NAME}:${IMAGE_TAG}
+      template:
+        metadata:
+          labels:
+            solution: ${SOLUTION_NAME}
+            app: ${APP_NAME}
+            statefulset: ${SOLUTION_NAME}-${APP_NAME}-cluster
+        spec:
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          serviceAccountName: ${SOLUTION_NAME}
+          terminationGracePeriodSeconds: 0
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: statefulset
+                        operator: In
+                        values:
+                          - ${SOLUTION_NAME}-${APP_NAME}-cluster
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            - name: ${APP_NAME}
+              image: ${IMAGE}:${IMAGE_TAG}
+              imagePullPolicy: Always
+              lifecycle:
+                postStart:
+                  exec:
+                    command: ["/bin/sh", "-c", "echo ${POD_NAME##*-} > ${ZOOKEEPER_DATA_DIR}/myid"]
+              env:
+                - name: POD_IP
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: status.podIP
+                - name: POD_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.namespace
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.name
+                # This is supposed to extract the ordinal value from the pod name, but it doesn't currently work.  Instead the lifecycle hook will do the trick above.
+                - name: ZOOKEEPER_SERVER_ID
+                  valueFrom:
+                    fieldRef:
+                      apiVersion: v1
+                      fieldPath: metadata.annotations['spec.pod.beta.kubernetes.io/statefulset-index']
+                - name: ZOOKEEPER_TICK_TIME
+                  value: "2000"
+                - name: ZOOKEEPER_CLIENT_PORT
+                  value: "2181"
+                - name: ZOOKEEPER_ELECTION_PORT
+                  value: "3888"
+                - name: ZOOKEEPER_SERVER_PORT
+                  value: "2888"
+                - name: ZOOKEEPER_LOG_LEVEL
+                  value: "INFO"
+                - name: ZOOKEEPER_DATA_DIR
+                  value: /var/lib/zookeeper/data
+                - name: KAFKA_OPTS
+                  value: -Dzookeeper.4lw.commands.whitelist=ruok
+              ports:
+                - containerPort: 2181
+                  name: client
+                - containerPort: 2888
+                  name: server
+                - containerPort: 3888
+                  name: leader-election
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              # livenessProbe:
+              #   exec:
+              #     command: ['/bin/bash', '-c', 'echo "ruok" | nc -w 2 localhost 2181 | grep imok']
+              #     initialDelaySeconds: 30
+              #     periodSeconds: 10
+              #     timeoutSeconds: 5
+              #     failureThreshold: 6
+              #     successThreshold: 1
+              # readinessProbe:
+              #   exec:
+              #     command: ['/bin/bash', '-c', 'echo "ruok" | nc -w 2 localhost 2181 | grep imok']
+              #     initialDelaySeconds: 5
+              #     periodSeconds: 10
+              #     timeoutSeconds: 5
+              #     failureThreshold: 6
+              #     successThreshold: 1
+              volumeMounts:
+                - name: zookeeper-data
+                  mountPath: /var/lib/zookeeper/data
+                - name: zookeeper-logs
+                  mountPath: /var/lib/zookeeper/log
+      volumeClaimTemplates:
+        - metadata:
+            annotations:
+              volume.beta.kubernetes.io/storage-class: ${STORAGE_CLASS}
+            labels:
+              solution: ${SOLUTION_NAME}
+              app: ${APP_NAME}
+            name: zookeeper-data
+          spec:
+            storageClassName: ${STORAGE_CLASS}
+            accessModes:
+              - ${ACCESS_MODE}
+            resources:
+              requests:
+                storage: ${VOLUME_CAPACITY}
+        - metadata:
+            annotations:
+              volume.beta.kubernetes.io/storage-class: ${STORAGE_CLASS}
+            labels:
+              solution: ${SOLUTION_NAME}
+              app: ${APP_NAME}
+            name: zookeeper-logs
+          spec:
+            storageClassName: ${STORAGE_CLASS}
+            accessModes:
+              - ${ACCESS_MODE}
+            resources:
+              requests:
+                storage: ${VOLUME_CAPACITY}

@@ -1,1 +1,1 @@
-FROM confluentinc/cp-schema-registry:6.2.1
+FROM confluentinc/cp-schema-registry:7.0.1

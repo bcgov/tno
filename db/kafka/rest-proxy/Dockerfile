@@ -1,1 +1,1 @@
-FROM confluentinc/cp-kafka-rest:6.2.1
+FROM confluentinc/cp-kafka-rest:7.0.1

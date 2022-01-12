@@ -1,1 +1,1 @@
-FROM confluentinc/cp-kafkacat:6.2.1
+FROM confluentinc/cp-kafkacat:7.0.1
