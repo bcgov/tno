@@ -12,6 +12,8 @@ The following components need to be setup and running before the API.
 | [Database](../postgres/patroni/README.md)     | PostgreSQL database cluster |
 | [Elasticsearch](../elastic/cluster/README.md) | Elasticsearch cluster       |
 
+## Installation
+
 ```bash
 # Login
 oc login --token=${token} --server=https://api.silver.devops.gov.bc.ca:6443

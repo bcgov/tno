@@ -168,3 +168,7 @@ project=$(oc project --short); project=${project//-[a-z]*/}; echo $project
 # Change the current environment
 oc project $project-tools
 ```
+
+## Helpful Information on Docker Permissions
+
+(Documentation)[https://developers.redhat.com/blog/2020/10/26/adapting-docker-and-kubernetes-containers-to-run-on-red-hat-openshift-container-platform#executable_permissions]

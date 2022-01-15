@@ -1,1 +1,1 @@
-FROM quay.io/cloudhut/kowl:v1.4.0
+FROM quay.io/cloudhut/kowl:v1.5.0

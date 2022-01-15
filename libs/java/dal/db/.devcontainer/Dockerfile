@@ -4,7 +4,7 @@ ARG VARIANT=17-bullseye
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
 # [Option] Install Maven
-ARG MAVEN_VERSION="3.8.2"
+ARG MAVEN_VERSION="3.8.4"
 # [Option] Install Gradle
 ARG GRADLE_VERSION="6.9.1"
 RUN if [ "${MAVEN_VERSION}" != "" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install maven \"${MAVEN_VERSION}\""; fi \

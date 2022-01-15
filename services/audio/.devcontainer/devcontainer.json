@@ -10,7 +10,7 @@
 			// Use the -bullseye variants on local arm64/Apple Silicon.
 			"VARIANT": "17-bullseye",
 			// Options
-			"MAVEN_VERSION": "3.8.2",
+			"MAVEN_VERSION": "3.8.4",
       "GRADLE_VERSION":"6.9.1",
 			"NODE_VERSION": "v16.10.0"
 		}
