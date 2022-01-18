@@ -48,6 +48,10 @@ spec:
       description: The environment to deploy to [dev, test, prod, tools].
       type: string
       default: "dev"
+    - name: WEB_APP_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: ""
 
     - name: CPU_LIMIT
       description: The resources CPU limit (in cores) for this build.
@@ -55,6 +59,12 @@ spec:
     - name: MEMORY_LIMIT
       description: Maximum amount of memory the container can use.
       default: 2Gi
+
+  workspaces:
+    - name: owasp-settings
+      description: |
+        mounts /zap/wrk to store generated configs and results.
+
   tasks:
     - name: build
       taskRef:
@@ -98,3 +108,25 @@ spec:
           value: $(params.IMAGE_TAG)
         - name: ENV
           value: $(params.DEPLOY_TO)
+
+    - name: owasp-scanner
+      conditions:
+        - conditionRef: run-owasp
+          params:
+            - name: TARGET_URL
+              value: $(params.WEB_APP_URL)
+      runAfter:
+        - deploy
+      taskRef:
+        name: owasp-scanner
+        kind: Task
+      params:
+        - name: TARGET_URL
+          value: $(params.WEB_APP_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: "1"
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings

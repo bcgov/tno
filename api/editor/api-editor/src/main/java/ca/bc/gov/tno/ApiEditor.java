@@ -21,11 +21,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 		"ca.bc.gov.tno.azure",
 		"ca.bc.gov.tno.elastic",
 		"ca.bc.gov.tno.kafka" })
-public final class ApiEditor {
+public class ApiEditor {
 
 	/**
 	 * Start the API web-server.
-	 * 
+	 *
 	 * @param args Command line arguments.
 	 */
 	public static void main(final String[] args) {

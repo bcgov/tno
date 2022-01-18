@@ -1,0 +1,181 @@
+apiVersion: v1
+kind: Template
+message: "Login to SonarQube with the default admin user: admin/admin"
+metadata:
+  name: sonarqube
+  annotations:
+    description: The SonarQube OpenShift template
+    tags: sonarqube
+parameters:
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
+    required: true
+    value: "sonarqube"
+
+  - name: IMAGE
+    displayName: Image
+    description: The image name and path.
+    required: true
+    value: sonarqube
+  - name: IMAGE_TAG
+    displayName: Image Tag
+    description: The image tag used to specify which image you would like deployed.
+    required: true
+    value: lts-community
+
+  - name: APP_PORT
+    displayName: Application Port
+    description: The port used to communicate with the Pod
+    value: "9000"
+  - name: DB_SERVICE
+    displayName: Database Service name
+    description: Name of the database service
+    value: postgres
+
+  - name: REPLICAS
+    displayName: REPLICAS
+    description: The number of StatefulSet replicas to use.
+    required: true
+    value: "1"
+  - name: CPU_REQUEST
+    displayName: "Requested Minimum Resources CPU Limit"
+    description: "The requested minimum resources CPU limit (in cores) for this build."
+    required: true
+    value: 20m
+  - name: CPU_LIMIT
+    displayName: "Resources CPU Limit"
+    description: "The resources CPU limit (in cores) for this build."
+    required: true
+    value: 250m
+  - name: MEMORY_REQUEST
+    displayName: "Requested Minimum Memory Limit"
+    description: "Minimum requested amount of memory the container can use."
+    required: true
+    value: 100Mi
+  - name: MEMORY_LIMIT
+    displayName: "Memory Limit"
+    description: "Maximum amount of memory the container can use."
+    required: true
+    value: 2Gi
+
+objects:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        name: ${APP_NAME}
+        app: ${APP_NAME}
+    spec:
+      ports:
+        - name: ${APP_PORT}-tcp
+          port: ${{APP_PORT}}
+          protocol: TCP
+          targetPort: ${{APP_PORT}}
+      selector:
+        app: ${APP_NAME}
+        deploymentconfig: ${APP_NAME}
+      sessionAffinity: None
+      type: ClusterIP
+
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        name: ${APP_NAME}
+        app: ${APP_NAME}
+    spec:
+      replicas: ${{REPLICAS}}
+      selector:
+        app: ${APP_NAME}
+      strategy:
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Recreate
+        recreateParams:
+          timeoutSeconds: 9600
+      triggers:
+        - type: ConfigChange
+      template:
+        metadata:
+          annotations:
+            openshift.io/container.sonarqube.image.entrypoint: '["./bin/run.sh"]'
+          labels:
+            app: ${APP_NAME}
+        spec:
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - name: ${APP_NAME}
+              persistentVolumeClaim:
+                claimName: ${APP_NAME}
+          containers:
+            - name: ${APP_NAME}
+              image: ${IMAGE}:${IMAGE_TAG}
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: ${{APP_PORT}}
+                  protocol: TCP
+              env:
+                - name: SONARQUBE_JDBC_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SERVICE}
+                      key: POSTGRESQL_USER
+                - name: SONARQUBE_JDBC_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SERVICE}
+                      key: POSTGRESQL_PASSWORD
+                - name: SONARQUBE_JDBC_URL
+                  value: "jdbc:postgresql://${DB_SERVICE}/${APP_NAME}"
+                - name: SONAR_FORCEAUTHENTICATION
+                  value: "false"
+              volumeMounts:
+                - mountPath: /opt/sonarqube/data
+                  name: ${APP_NAME}
+                  subPath: data
+                - mountPath: /opt/sonarqube/logs
+                  name: ${APP_NAME}
+                  subPath: logs
+                - mountPath: /opt/sonarqube/temp
+                  name: ${APP_NAME}
+                  subPath: temp
+                - mountPath: /opt/sonarqube/extensions/plugins
+                  name: ${APP_NAME}
+                  subPath: plugins
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: ${{APP_PORT}}
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                timeoutSeconds: 5
+                failureThreshold: 3
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: ${{APP_PORT}}
+                initialDelaySeconds: 60
+                periodSeconds: 20
+                successThreshold: 1
+                timeoutSeconds: 5
+                failureThreshold: 3
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+              terminationMessagePath: /dev/termination-log

@@ -93,22 +93,22 @@ parameters:
     displayName: Requested Minimum Resources CPU Limit
     description: The requested minimum resources CPU limit (in cores) for this build.
     required: true
-    value: 50m
+    value: 20m
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.
     required: true
-    value: 250m
+    value: 100m
   - name: MEMORY_REQUEST
     displayName: Requested Minimum Memory Limit
     description: Minimum requested amount of memory the container can use.
     required: true
-    value: 50Mi
+    value: 250Mi
   - name: MEMORY_LIMIT
     displayName: Memory Limit
     description: Maximum amount of memory the container can use.
     required: true
-    value: 250Mi
+    value: 500Mi
 
 objects:
   # Open up ports to communicate with the app.
@@ -304,7 +304,7 @@ objects:
                   path: '/health'
                   port: ${{APP_PORT}}
                   scheme: HTTP
-                initialDelaySeconds: 30
+                initialDelaySeconds: 60
                 timeoutSeconds: 60
                 periodSeconds: 10
                 successThreshold: 1
@@ -314,7 +314,7 @@ objects:
                   path: '/health'
                   port: ${{APP_PORT}}
                   scheme: HTTP
-                initialDelaySeconds: 10
+                initialDelaySeconds: 60
                 timeoutSeconds: 60
                 periodSeconds: 10
                 successThreshold: 1
