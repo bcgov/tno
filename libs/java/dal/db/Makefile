@@ -61,29 +61,29 @@ run: ## Manually run the test project.
 # Maven Central Repository Commands
 ##############################################################################
 
-setup: ## Import private key
+setup: ## Import private key (u=[sudo])
 	@echo "$(P) Import private key"
-	@./scripts/setup.sh
+	@./scripts/setup.sh $(u)
 
-deploy-staging: ## Build and deploy the package to Maven Central
+deploy-staging: ## Build and deploy the package to Maven Central (u=[sudo])
 	@echo "$(P) Build and deploy package to Maven Central"
-	@./scripts/deploy-staging.sh
+	@./scripts/deploy-staging.sh $(u)
 
-close-staging: ## Close the staging repository
+close-staging: ## Close the staging repository (u=[sudo])
 	@echo "$(P) Close the staging repository"
-	@./scripts/close-staging-repo.sh
+	@./scripts/close-staging-repo.sh $(u)
 
-release-staging: ## Release the staging repository
+release-staging: ## Release the staging repository (u=[sudo])
 	@echo "$(P) Release the staging repository"
-	@./scripts/release-staging-repo.sh
+	@./scripts/release-staging-repo.sh $(u)
 
-drop-staging: ## Drop the staging repository
+drop-staging: ## Drop the staging repository (u=[sudo])
 	@echo "$(P) Drop the staging repository"
-	@./scripts/drop-staging-repo.sh
+	@./scripts/drop-staging-repo.sh $(u)
 
-deploy-release: ## Build and deploy the package to Maven Central and release it
+deploy-release: ## Build and deploy the package to Maven Central and release it (u=[sudo])
 	@echo "$(P) Build and deploy package to Maven Central"
-	@./scripts/deploy-release.sh
+	@./scripts/deploy-release.sh $(u)
 
 ##############################################################################
 # Flyway Database Migration Commands
