@@ -1,0 +1,51 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: sonarqube-data
+  annotations:
+    openshift.io/display-name: Sonarqube storage
+    description: Sonarqube storage
+    tags: sonarqube
+parameters:
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application (e.g. api-editor.dev).
+    required: true
+    value: "sonarqube"
+
+  - name: STORAGE_CLASS
+    displayName: "The Storage Class Name"
+    description: "The storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]"
+    required: true
+    value: "netapp-file-standard"
+  - name: ACCESS_MODE
+    displayName: "The Storage Access Mode"
+    description: "The storage access mode [ReadWriteOnce, ReadWriteMany]"
+    required: true
+    value: "ReadWriteMany"
+  - name: VOLUME_CAPACITY
+    displayName: "Persistent Volume Capacity"
+    description: "Volume space available for data, e.g. 512Mi, 2Gi."
+    required: true
+    value: "2Gi"
+
+objects:
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        name: ${APP_NAME}
+        app: ${APP_NAME}
+    annotations:
+      description: "${APP_NAME} storage volume"
+    finalizers:
+      - kubernetes.io/pvc-protection
+    spec:
+      accessModes:
+        - ${ACCESS_MODE}
+      resources:
+        requests:
+          storage: ${VOLUME_CAPACITY}
+      storageClassName: ${STORAGE_CLASS}
+      volumeMode: Filesystem

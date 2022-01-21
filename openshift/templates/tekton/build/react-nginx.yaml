@@ -116,7 +116,7 @@ objects:
         contextDir: ${CONTEXT_DIR}
         configMaps:
           - configMap:
-              name: ${SOLUTION_NAME}-${APP_NAME}
+              name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
             destinationDir: ./
       strategy:
         type: Docker

@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Condition
+metadata:
+  name: run-owasp
+spec:
+  params:
+    - name: TARGET_URL
+      type: string
+  check:
+    image: alpine
+    script: |
+      if [ -z "$(params.TARGET_URL)" ]; then
+        exit 1
+      fi

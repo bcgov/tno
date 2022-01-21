@@ -154,7 +154,7 @@ timeout 5 bash -c "</dev/tcp/google.com/443"; echo $?
 If you need to update the resource requirements of pods you can do this without editing their templates.
 
 ```bash
-oc set resource dc/${DeployConfig.name} --limits=cpu=500m,memory=500Mi --requests=cpu=50m,memory=50Mi
+oc set resources dc/${DeployConfig.name} --requests=cpu=50m,memory=50Mi --limits=cpu=500m,memory=500Mi
 ```
 
 ## Extract the current project name without the environment
@@ -167,6 +167,27 @@ project=$(oc project --short); project=${project//-[a-z]*/}; echo $project
 
 # Change the current environment
 oc project $project-tools
+```
+
+## Copy Files to or from a Container
+
+You can use the CLI to copy local files to or from a remote directory in a container.
+More information [here](https://docs.openshift.com/container-platform/3.11/dev_guide/copy_files_to_container.html)
+
+```bash
+oc rsync <source> <destination> [-c <container>]
+
+# Copy to pod
+oc rsync /home/user/source devpod1234:/src
+
+# Copy from pod
+oc rsync devpod1234:/src /home/user/source
+```
+
+If you need to create a pod that mounts a PVC first.
+
+```bash
+oc run some-pod --overrides='{"spec": {"containers": [{"command": ["/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"], "image": "registry.access.redhat.com/rhel7/rhel:latest", "name": "some-pod", "volumeMounts": [{"mountPath": "/data", "name": "some-data"}]}], "volumes": [{"name": "some-data", "persistentVolumeClaim": {"claimName": "test-file"}}]}}' --image=dummy --restart=Never
 ```
 
 ## Helpful Information on Docker Permissions

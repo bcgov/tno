@@ -46,6 +46,9 @@ parameters:
     description: The environment to deploy to [dev, test, prod, tools]
     required: true
     value: dev
+  - name: WEB_APP_URL
+    displayName: Web Application URL
+    description: The URL to the web application that will be ZAP scanned.
 
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
@@ -104,6 +107,8 @@ objects:
                 value: ${CONTEXT_DIR}
               - name: DOCKERFILE
                 value: ${DOCKERFILE}
+              - name: WEB_APP_URL
+                value: ${WEB_APP_URL}
               - name: IMAGE_TAG
                 value: $(tt.params.VERSION)
               - name: DEPLOY_TO

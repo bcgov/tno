@@ -37,7 +37,6 @@ help:
 # Solution Configuration
 ##############################################################################
 
-
 setup: ## Setup local environment for development, generate configuration files.
 	$(info Setup local environment for development, generate configuration files.)
 	@./tools/scripts/gen-env-files.sh
@@ -58,6 +57,10 @@ nuke: ## Stop all containers, delete all containers, volumes, and configuration
 	$(info Stop all containers, delete all containers, volumes, and configuration)
 	@make down
 	@./tools/scripts/nuke.sh
+
+switch: ## Switch to the specified oc project (n=environment)
+	$(info Switch to the specified oc project n=$(n))
+	@./tools/scripts/switch-project.sh $(n)
 
 ##############################################################################
 # Docker Management

@@ -135,17 +135,17 @@ objects:
         app: ${APP_NAME}
         statefulset: ${SOLUTION_NAME}-${APP_NAME}-cluster
 
-  - apiVersion: policy/v1beta1
-    kind: PodDisruptionBudget
-    metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-    spec:
-      selector:
-        matchLabels:
-        solution: ${SOLUTION_NAME}
-        app: ${APP_NAME}
-      maxUnavailable: 1
+  # - apiVersion: policy/v1beta1
+  #   kind: PodDisruptionBudget
+  #   metadata:
+  #     name: ${SOLUTION_NAME}-${APP_NAME}
+  #     namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+  #   spec:
+  #     selector:
+  #       matchLabels:
+  #       solution: ${SOLUTION_NAME}
+  #       app: ${APP_NAME}
+  #     maxUnavailable: 1
 
   - apiVersion: apps/v1
     kind: StatefulSet
