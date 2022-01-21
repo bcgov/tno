@@ -1,12 +1,14 @@
 #!/bin/bash
 
+. ./tools/scripts/os.sh
+
 ######################################################################
 # Keycloak configuration
 ######################################################################
 
 export keycloakDbName="keycloak"
 
-export keycloakUser=$(grep -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env 2>/dev/null)
+export keycloakUser=$("$GREP" -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env 2>/dev/null)
 if [ -z "$keycloakUser" ]
 then
     echo 'Enter a username for the keycloak realm administrator'
@@ -16,7 +18,7 @@ else
     echo "Your keycloak username: $keycloakUser"
 fi
 
-export keycloakPassword=$(grep -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env 2>/dev/null)
+export keycloakPassword=$("$GREP" -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env 2>/dev/null)
 if [ -z "$keycloakPassword" ]
 then
     echo 'Enter a password for the keycloak realm administrator'
@@ -32,7 +34,7 @@ fi
 
 export dbName="tno"
 
-export dbUser=$(grep -Po 'POSTGRES_USER=\K.*$' ./db/postgres/docker/.env 2>/dev/null)
+export dbUser=$("$GREP" -Po 'POSTGRES_USER=\K.*$' ./db/postgres/docker/.env 2>/dev/null)
 if [ -z "$dbUser" ]
 then
     echo 'Enter a username for the Postgres database.'
@@ -42,7 +44,7 @@ else
     echo "Your database username: $dbUser"
 fi
 
-export password=$(grep -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/docker/.env 2>/dev/null)
+export password=$("$GREP" -Po 'POSTGRES_PASSWORD=\K.*$' ./db/postgres/docker/.env 2>/dev/null)
 if [ -z "$password" ]
 then
     # Generate a random password that satisfies password requirements.
@@ -64,7 +66,7 @@ export elasticUser=elastic
 # Asure configuration
 ######################################################################
 
-export azureCognitiveServiceKey=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureCognitiveServiceKey=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env 2>/dev/null)
 if [ -z "$azureCognitiveServiceKey" ]
 then
     echo 'Enter your Azure Cognitive Service subscription key.'
@@ -74,7 +76,7 @@ else
     echo "Your Azure Cognitive Service subscription key: $azureCognitiveServiceKey"
 fi
 
-export azureCognitiveServiceRegion=$(grep -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureCognitiveServiceRegion=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/.env 2>/dev/null)
 if [ -z "$azureCognitiveServiceRegion" ]
 then
     echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
@@ -84,7 +86,7 @@ else
     echo "Your Azure Cognitive Service region: $azureCognitiveServiceRegion"
 fi
 
-export azureVideoAnalyzerKey=$(grep -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureVideoAnalyzerKey=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env 2>/dev/null)
 if [ -z "$azureVideoAnalyzerKey" ]
 then
     echo 'Enter your Azure Video Analyzer subscription key.'
@@ -94,7 +96,7 @@ else
     echo "Your Azure Video Analyzer subscription key: $azureVideoAnalyzerKey"
 fi
 
-export azureVideoAccountId=$(grep -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureVideoAccountId=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/.env 2>/dev/null)
 if [ -z "$azureVideoAccountId" ]
 then
     echo 'Enter your Azure Video Analyzer account ID.'
@@ -104,7 +106,7 @@ else
     echo "Your Azure Video Analyzer account ID: $azureVideoAccountId"
 fi
 
-export azureVideoLocation=$(grep -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureVideoLocation=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/.env 2>/dev/null)
 if [ -z "$azureVideoLocation" ]
 then
     echo 'Enter your Azure Video Analyzer location (i.e. trial).'
