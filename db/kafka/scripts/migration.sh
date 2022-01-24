@@ -18,7 +18,7 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
 fi
 
 OPTIONS=rn:z:p:
-LONGOPTS=rollback,version:,zookeeper:,partitions:,replication:
+LONGOPTS=rollback,version:,bootstrap:,partitions:,replication:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,7 +33,7 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-version=* rollback=false zookeeper=${ZOOKEEPER:-zookeeper:2181} partitions=1 replication=1
+version=* rollback=false bootstrap=${BOOTSTRAP:-broker:29092} partitions=1 replication=1
 # now enjoy the options in order and nicely split until we see --
 while true; do
   case "$1" in
@@ -46,8 +46,8 @@ while true; do
       version="$2"
       shift 2
       ;;
-    -z|--zookeeper)
-      zookeeper="$2"
+    -z|--bootstrap)
+      bootstrap="$2"
       shift 2
       ;;
     -p|--partitions)
@@ -69,15 +69,15 @@ while true; do
   esac
 done
 
-if [ -z "$zookeeper" ]; then
-    echo "Enter the host and port to Zookeeper."
-    read -p 'Host and Port: ' zookeeper
+if [ -z "$bootstrap" ]; then
+    echo "Enter the host and port to the bootstrap server."
+    read -p 'Host and Port: ' bootstrap
 fi
 
-echo "version: $version, zookeeper: $zookeeper, rollback: $rollback, partitions: $partitions, replication: $replication"
+echo "version: $version, bootstrap: $bootstrap, rollback: $rollback, partitions: $partitions, replication: $replication"
 
 # Make variables available scripts.
-export zookeeper
+export bootstrap
 export partitions
 export replication
 
