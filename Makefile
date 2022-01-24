@@ -144,8 +144,8 @@ reset-consumer-offset: ## Reset the consumer group topic offset.
 	$(info Reset the consumer group topic offset)
 	@cd ./db/kafka/broker/scripts; ./reset-consumer-offset.sh
 
-kafka-update: ## Run the kafka migration (n=migration name, r=rollback, z=zookeeper)
+kafka-update: ## Run the kafka migration (n=migration name, r=rollback, b=bootstrap server)
 	$(info Run the kafka migration (n=$(n)))
-	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(z),-z $(z),"")
+	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(b),-b $(b),"")
 
 .PHONY: local
