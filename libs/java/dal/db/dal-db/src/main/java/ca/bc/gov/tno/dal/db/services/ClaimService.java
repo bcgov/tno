@@ -49,7 +49,7 @@ public class ClaimService implements IClaimService {
    * @return A new instance of the claim if it exists.
    */
   @Override
-  public Optional<Claim> findById(Integer key) {
+  public Optional<Claim> findById(int key) {
     var reference = repository.findById(key);
     return reference;
   }

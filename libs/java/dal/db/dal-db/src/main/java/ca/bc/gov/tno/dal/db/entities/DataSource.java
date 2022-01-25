@@ -54,26 +54,26 @@ public class DataSource extends AuditColumns {
    * A description of the data source.
    */
   @Column(name = "\"description\"")
-  private String description;
+  private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean enabled;
+  private boolean enabled = true;
 
   /**
-   * Foreign key to the data source type.
+   * Foreign key to the media type.
    */
-  @Column(name = "\"typeId\"", nullable = false)
-  private int typeId;
+  @Column(name = "\"mediaTypeId\"", nullable = false)
+  private int mediaTypeId;
 
   /**
-   * The data source type reference.
+   * The media type reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"typeId\"", insertable = false, updatable = false)
-  private DataSourceType type;
+  @JoinColumn(name = "\"mediaTypeId\"", insertable = false, updatable = false)
+  private MediaType mediaType;
 
   /**
    * Foreign key to the license.
@@ -125,7 +125,6 @@ public class DataSource extends AuditColumns {
    * Creates a new instance of a DataSource object.
    */
   public DataSource() {
-
   }
 
   /**
@@ -135,13 +134,13 @@ public class DataSource extends AuditColumns {
    * @param id         The primary key
    * @param name       The unique name
    * @param abbr       The unique abbreviation
-   * @param type       Foreign key to the data source type
+   * @param mediaType  Foreign key to the media type
    * @param license    Foreign key to the license
    * @param schedule   Foreign key to the schedule
    * @param topic      The Kafka topic
    * @param connection The connection information
    */
-  public DataSource(int id, String name, String abbr, DataSourceType type, License license, Schedule schedule,
+  public DataSource(int id, String name, String abbr, MediaType mediaType, License license, Schedule schedule,
       String topic, Map<String, Object> connection) {
     if (name == null)
       throw new NullPointerException("Parameter 'name' cannot be null.");
@@ -151,8 +150,8 @@ public class DataSource extends AuditColumns {
       throw new NullPointerException("Parameter 'abbr' cannot be null.");
     if (abbr.length() == 0)
       throw new IllegalArgumentException("Parameter 'abbr' cannot be empty.");
-    if (type == null)
-      throw new NullPointerException("Parameter 'type' cannot be null.");
+    if (mediaType == null)
+      throw new NullPointerException("Parameter 'mediaType' cannot be null.");
     if (license == null)
       throw new NullPointerException("Parameter 'license' cannot be null.");
     if (schedule == null)
@@ -166,8 +165,8 @@ public class DataSource extends AuditColumns {
 
     this.id = id;
     this.name = name;
-    this.type = type;
-    this.typeId = type.getId();
+    this.mediaType = mediaType;
+    this.mediaTypeId = mediaType.getId();
     this.license = license;
     this.licenseId = license.getId();
     this.schedule = schedule;
@@ -275,17 +274,17 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return DataSourceType return the type
+   * @return MediaType return the media type
    */
-  public DataSourceType getType() {
-    return type;
+  public MediaType getMediaType() {
+    return mediaType;
   }
 
   /**
-   * @param type the type to set
+   * @param mediaType the media type to set
    */
-  public void setType(DataSourceType type) {
-    this.type = type;
+  public void setMediaType(MediaType mediaType) {
+    this.mediaType = mediaType;
   }
 
   /**
@@ -317,17 +316,17 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return int return the typeId
+   * @return int return the mediaTypeId
    */
-  public int getTypeId() {
-    return typeId;
+  public int getMediaTypeId() {
+    return mediaTypeId;
   }
 
   /**
-   * @param typeId the typeId to set
+   * @param mediaTypeId the mediaTypeId to set
    */
-  public void setTypeId(int typeId) {
-    this.typeId = typeId;
+  public void setMediaTypeId(int mediaTypeId) {
+    this.mediaTypeId = mediaTypeId;
   }
 
   /**

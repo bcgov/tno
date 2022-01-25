@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS public."User"
     "username" VARCHAR(50) NOT NULL,
     "email" VARCHAR(250) NOT NULL,
     "key" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "displayName" VARCHAR(100),
-    "firstName" VARCHAR(100),
-    "lastName" VARCHAR(100),
+    "displayName" VARCHAR(100) NOT NULL DEFAULT '',
+    "firstName" VARCHAR(100) NOT NULL DEFAULT '',
+    "lastName" VARCHAR(100) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "lastLoginOn" TIMESTAMP WITH TIME ZONE,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public."Role"
 (
     "id" INT NOT NULL DEFAULT nextval('seq_Role'),
     "name" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(2000),
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
     "key" UUID,
     -- Audit Columns
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS public."Claim"
 (
     "id" INT NOT NULL DEFAULT nextval('seq_Claim'),
     "name" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(2000),
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
     "key" UUID,
     -- Audit Columns
@@ -119,13 +119,14 @@ CREATE TABLE IF NOT EXISTS public."RoleClaim"
 );
 CREATE TRIGGER tr_auditRoleClaim BEFORE INSERT OR UPDATE ON public."RoleClaim" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
-CREATE SEQUENCE IF NOT EXISTS public.seq_DataSourceType AS INT INCREMENT BY 1 START 1;
-CREATE TABLE IF NOT EXISTS public."DataSourceType"
+CREATE SEQUENCE IF NOT EXISTS public.seq_MediaType AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."MediaType"
 (
-    "id" INT NOT NULL DEFAULT nextval('seq_DataSourceType'),
+    "id" INT NOT NULL DEFAULT nextval('seq_MediaType'),
     "name" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(2000),
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INT NOT NULL DEFAULT 0,
     -- Audit Columns
     "createdById" UUID NOT NULL,
     "createdBy" VARCHAR(50) NOT NULL,
@@ -133,19 +134,20 @@ CREATE TABLE IF NOT EXISTS public."DataSourceType"
     "updatedById" UUID NOT NULL,
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "pk_DataSourceType" PRIMARY KEY ("id")
+    CONSTRAINT "pk_MediaType" PRIMARY KEY ("id")
 );
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DataSourceType_name" ON public."DataSourceType" ("name");
-CREATE TRIGGER tr_auditDataSourceType BEFORE INSERT OR UPDATE ON public."DataSourceType" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_MediaType_name" ON public."MediaType" ("name");
+CREATE TRIGGER tr_auditMediaType BEFORE INSERT OR UPDATE ON public."MediaType" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE SEQUENCE IF NOT EXISTS public.seq_License AS INT INCREMENT BY 1 START 1;
 CREATE TABLE IF NOT EXISTS public."License"
 (
     "id" INT NOT NULL DEFAULT nextval('seq_License'),
     "name" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(2000),
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
     "ttl" INT NOT NULL,
+    "sortOrder" INT NOT NULL DEFAULT 0,
     -- Audit Columns
     "createdById" UUID NOT NULL,
     "createdBy" VARCHAR(50) NOT NULL,
@@ -163,7 +165,7 @@ CREATE TABLE IF NOT EXISTS public."Schedule"
 (
     "id" INT NOT NULL DEFAULT nextval('seq_Schedule'),
     "name" VARCHAR(50) NOT NULL,
-    "description" VARCHAR(2000),
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
     "delayMS" INT NOT NULL,
     "runAt" TIMESTAMP WITH TIME ZONE,
@@ -189,9 +191,9 @@ CREATE TABLE IF NOT EXISTS public."DataSource"
     "id" INT NOT NULL DEFAULT nextval('seq_DataSource'),
     "name" VARCHAR(50) NOT NULL,
     "code" VARCHAR(10) NOT NULL,
-    "description" VARCHAR(2000),
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
     "isEnabled" BOOLEAN NOT NULL DEFAULT true,
-    "typeId" INT NOT NULL,
+    "mediaTypeId" INT NOT NULL,
     "licenseId" INT NOT NULL,
     "scheduleId" INT NOT NULL,
     "topic" VARCHAR(50) NOT NULL,
@@ -206,7 +208,7 @@ CREATE TABLE IF NOT EXISTS public."DataSource"
     "updatedBy" VARCHAR(50) NOT NULL,
     "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "pk_DataSource" PRIMARY KEY ("id"),
-    CONSTRAINT "fk_DataSourceType_DataSource" FOREIGN KEY ("typeId") REFERENCES public."DataSourceType" ("id"),
+    CONSTRAINT "fk_MediaType_DataSource" FOREIGN KEY ("mediaTypeId") REFERENCES public."MediaType" ("id"),
     CONSTRAINT "fk_License_DataSource" FOREIGN KEY ("licenseId") REFERENCES public."License" ("id"),
     CONSTRAINT "fk_Schedule_DataSource" FOREIGN KEY ("scheduleId") REFERENCES public."Schedule" ("id")
 );
@@ -234,14 +236,285 @@ CREATE TABLE IF NOT EXISTS public."ContentReference"
     CONSTRAINT "pk_ContentReference" PRIMARY KEY ("source", "uid")
 );
 CREATE INDEX IF NOT EXISTS "idx_ContentReference_topic" ON public."ContentReference" ("topic");
-CREATE TRIGGER tr_auditContentReference BEFORE INSERT OR UPDATE ON public."ContentReference" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 CREATE INDEX IF NOT EXISTS "idx_ContentReference_partition_offset" ON public."ContentReference" ("partition", "offset");
+CREATE TRIGGER tr_auditContentReference BEFORE INSERT OR UPDATE ON public."ContentReference" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_TonePool AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."TonePool"
+(
+    "id" INT NOT NULL DEFAULT nextval('seq_TonePool'),
+    "name" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
+    "ownerId" INT NOT NULL,
+    "sortOrder" INT NOT NULL DEFAULT 0,
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "isPublic" BOOLEAN NOT NULL DEFAULT true,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_TonePool" PRIMARY KEY ("id"),
+    CONSTRAINT "fk_User_TonePool" FOREIGN KEY ("ownerId") REFERENCES public."User" ("id")
+);
+CREATE INDEX IF NOT EXISTS "idx_TonePool_name" ON public."TonePool" ("ownerId", "name");
+CREATE TRIGGER tr_auditTonePool BEFORE INSERT OR UPDATE ON public."TonePool" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_Category AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."Category"
+(
+    "id" INT NOT NULL DEFAULT nextval('seq_Category'),
+    "name" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_Category" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "idx_Category_name" ON public."Category" ("name");
+CREATE TRIGGER tr_auditCategory BEFORE INSERT OR UPDATE ON public."Category" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_Action AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."Action"
+(
+    "id" INT NOT NULL DEFAULT nextval('seq_Action'),
+    "name" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "valueLabel" VARCHAR(100) NOT NULL DEFAULT '',
+    "valueType" INT NOT NULL DEFAULT 0,
+    "sortOrder" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_Action" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "idx_Action_name" ON public."Action" ("name");
+CREATE TRIGGER tr_auditAction BEFORE INSERT OR UPDATE ON public."Action" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."Tag"
+(
+    "id" VARCHAR(6) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_Tag" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "idx_Tag_name" ON public."Tag" ("name");
+CREATE TRIGGER tr_auditTag BEFORE INSERT OR UPDATE ON public."Tag" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_ContentType AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."ContentType"
+(
+    "id" INT NOT NULL DEFAULT nextval('seq_ContentType'),
+    "name" VARCHAR(100) NOT NULL,
+    "description" VARCHAR(2000) NOT NULL DEFAULT '',
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_ContentType" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "idx_ContentType_name" ON public."ContentType" ("name");
+CREATE TRIGGER tr_auditContentType BEFORE INSERT OR UPDATE ON public."ContentType" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_Content AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."Content"
+(
+    "id" INT NOT NULL DEFAULT nextval('seq_Content'),
+    "status" INT NOT NULL DEFAULT 0,
+    "contentTypeId" INT NOT NULL,
+    "headline" VARCHAR(500) NOT NULL,
+    "dataSourceId" INT,
+    "source" VARCHAR(100) NOT NULL DEFAULT '',
+    "uid" VARCHAR(100) NOT NULL DEFAULT '',
+    "licenseId" INT NOT NULL,
+    "mediaTypeId" INT NOT NULL,
+    "page" VARCHAR(10) NOT NULL,
+    "section" VARCHAR(100) NOT NULL,
+    "publishedOn" TIMESTAMP WITH TIME ZONE,
+    "reportId" INT,
+    "summary" TEXT NOT NULL DEFAULT '',
+    "sourceURL" VARCHAR(500) NOT NULL DEFAULT '',
+    "transcription" TEXT NOT NULL DEFAULT '',
+    "ownerId" INT NOT NULL,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_Content" PRIMARY KEY ("id"),
+    CONSTRAINT "fk_User_Content" FOREIGN KEY ("ownerId") REFERENCES public."User" ("id"),
+    CONSTRAINT "fk_MediaType_Content" FOREIGN KEY ("mediaTypeId") REFERENCES public."MediaType" ("id"),
+    CONSTRAINT "fk_License_Content" FOREIGN KEY ("licenseId") REFERENCES public."License" ("id"),
+    CONSTRAINT "fk_ContentType_Content" FOREIGN KEY ("contentTypeId") REFERENCES public."ContentType" ("id")
+);
+CREATE INDEX IF NOT EXISTS "idx_ContentType_headline" ON public."Content" ("headline");
+CREATE INDEX IF NOT EXISTS "idx_ContentType" ON public."Content" ("createdOn", "publishedOn", "page", "section");
+CREATE INDEX IF NOT EXISTS "idx_ContentType_source_uid" ON public."Content" ("source", "uid");
+CREATE TRIGGER tr_auditContent BEFORE INSERT OR UPDATE ON public."Content" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."TimeTracking"
+(
+    "contentId" INT NOT NULL,
+    "userId" INT NOT NULL,
+    "effort" DECIMAL NOT NULL DEFAULT 0,
+    "activity" VARCHAR(100) NOT NULL,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_TimeTracking" PRIMARY KEY ("contentId", "userId"),
+    CONSTRAINT "fk_Content_TimeTracking" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id"),
+    CONSTRAINT "fk_User_TimeTracking" FOREIGN KEY ("userId") REFERENCES public."User" ("id")
+);
+CREATE TRIGGER tr_auditTimeTracking BEFORE INSERT OR UPDATE ON public."TimeTracking" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."ContentAction"
+(
+    "contentId" INT NOT NULL,
+    "actionId" INT NOT NULL,
+    "value" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_ContentAction" PRIMARY KEY ("contentId", "actionId"),
+    CONSTRAINT "fk_Content_ContentAction" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id"),
+    CONSTRAINT "fk_Action_ContentAction" FOREIGN KEY ("actionId") REFERENCES public."Action" ("id")
+);
+CREATE TRIGGER tr_auditContentAction BEFORE INSERT OR UPDATE ON public."ContentAction" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."ContentTone"
+(
+    "contentId" INT NOT NULL,
+    "tonePoolId" INT NOT NULL,
+    "value" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_ContentTone" PRIMARY KEY ("contentId", "tonePoolId"),
+    CONSTRAINT "fk_Content_ContentTone" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id"),
+    CONSTRAINT "fk_TonePool_ContentTone" FOREIGN KEY ("tonePoolId") REFERENCES public."TonePool" ("id")
+);
+CREATE TRIGGER tr_auditContentTone BEFORE INSERT OR UPDATE ON public."ContentTone" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."ContentCategory"
+(
+    "contentId" INT NOT NULL,
+    "categoryId" INT NOT NULL,
+    "score" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_ContentCategory" PRIMARY KEY ("contentId", "categoryId"),
+    CONSTRAINT "fk_Content_ContentCategory" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id"),
+    CONSTRAINT "fk_Category_ContentCategory" FOREIGN KEY ("categoryId") REFERENCES public."Category" ("id")
+);
+CREATE TRIGGER tr_auditContentCategory BEFORE INSERT OR UPDATE ON public."ContentCategory" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."ContentTag"
+(
+    "contentId" INT NOT NULL,
+    "tagId" VARCHAR(6) NOT NULL,
+    "score" INT NOT NULL DEFAULT 0,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_ContentTag" PRIMARY KEY ("contentId", "tagId"),
+    CONSTRAINT "fk_Content_ContentTag" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id"),
+    CONSTRAINT "fk_Tag_ContentTag" FOREIGN KEY ("tagId") REFERENCES public."Tag" ("id")
+);
+CREATE TRIGGER tr_auditContentTag BEFORE INSERT OR UPDATE ON public."ContentTag" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE TABLE IF NOT EXISTS public."ContentLink"
+(
+    "contentId" INT NOT NULL,
+    "linkId" INT NOT NULL,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_ContentLink" PRIMARY KEY ("contentId", "linkId"),
+    CONSTRAINT "fk_Content_ContentLink" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id"),
+    CONSTRAINT "fk_Content_ContentLink_Link" FOREIGN KEY ("linkId") REFERENCES public."Content" ("id")
+);
+CREATE TRIGGER tr_auditContentLink BEFORE INSERT OR UPDATE ON public."ContentLink" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_FileReference AS INT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public."FileReference"
+(
+    "id" INT NOT NULL DEFAULT nextval('seq_FileReference'),
+    "contentId" INT NOT NULL,
+    "mimeType" VARCHAR(100) NOT NULL,
+    "path" VARCHAR(500) NOT NULL,
+    "size" INT NOT NULL,
+    "length" INT NOT NULL,
+    -- Audit Columns
+    "createdById" UUID NOT NULL,
+    "createdBy" VARCHAR(50) NOT NULL,
+    "createdOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedById" UUID NOT NULL,
+    "updatedBy" VARCHAR(50) NOT NULL,
+    "updatedOn" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "pk_FileReference" PRIMARY KEY ("id"),
+    CONSTRAINT "fk_Content_FileReference" FOREIGN KEY ("contentId") REFERENCES public."Content" ("id")
+);
+CREATE TRIGGER tr_auditFileReference BEFORE INSERT OR UPDATE ON public."FileReference" FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 -------------------------------------------------------------------------------
 -- Seed Data
 -------------------------------------------------------------------------------
 
-INSERT INTO public."DataSourceType" (
+INSERT INTO public."MediaType" (
     "name"
     , "createdById"
     , "createdBy"
@@ -281,7 +554,21 @@ INSERT INTO public."License" (
     , "updatedById"
     , "updatedBy"
 ) VALUES (
-    'Forever'
+    'Regular Expire'
+    , 90 -- ttl
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Special Expire'
+    , 150 -- ttl
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Never Expire'
     , 0 -- ttl
     , '00000000-0000-0000-0000-000000000000'
     , ''
@@ -495,6 +782,152 @@ INSERT INTO public."RoleClaim" (
 ), (
     '3' -- roleId
     , '3' -- claimId
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+);
+
+INSERT INTO public."TonePool" (
+    "name"
+    , "ownerId"
+    , "isPublic"
+    , "createdById"
+    , "createdBy"
+    , "updatedById"
+    , "updatedBy"
+) VALUES (
+    'Default'
+    , 1
+    , true
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+);
+
+INSERT INTO public."Action" (
+    "name"
+    , "valueLabel"
+    , "valueType"
+    , "createdById"
+    , "createdBy"
+    , "updatedById"
+    , "updatedBy"
+) VALUES (
+    'Publish' -- name
+    , '' -- valueLabel
+    , 0 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Alert' -- name
+    , '' -- valueLabel
+    , 0 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Front Page' -- name
+    , '' -- valueLabel
+    , 0 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Top Story' -- name
+    , '' -- valueLabel
+    , 0 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'On Ticker' -- name
+    , '' -- valueLabel
+    , 0 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Non Qualified Subject' -- name
+    , '' -- valueLabel
+    , 0 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Commentary' -- name
+    , 'Commentary Timeout' -- valueLabel
+    , 2 -- valueType
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+);
+
+INSERT INTO public."Category" (
+    "name"
+    , "createdById"
+    , "createdBy"
+    , "updatedById"
+    , "updatedBy"
+) VALUES (
+    'TBD'
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+);
+
+INSERT INTO public."Tag" (
+    "id"
+    , "name"
+    , "createdById"
+    , "createdBy"
+    , "updatedById"
+    , "updatedBy"
+) VALUES (
+    'TBD'
+    , 'To Be Determined'
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+);
+
+INSERT INTO public."ContentType" (
+    "name"
+    , "createdById"
+    , "createdBy"
+    , "updatedById"
+    , "updatedBy"
+) VALUES (
+    'Snippet'
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Syndication'
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'Radio'
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'TV'
     , '00000000-0000-0000-0000-000000000000'
     , ''
     , '00000000-0000-0000-0000-000000000000'

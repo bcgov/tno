@@ -24,64 +24,64 @@ import ca.bc.gov.tno.core.AsyncHelper;
 @RequestMapping("/azure/video/analyzer")
 public class AzureVideoAnalyzerController {
 
-	@Autowired
-	private AzureVideoAnalyzerConfig config;
+  @Autowired
+  private AzureVideoAnalyzerConfig config;
 
-	private HttpClient client = HttpClient.newHttpClient();
+  private HttpClient client = HttpClient.newHttpClient();
 
-	/**
-	 * Request an access token to make requests to Azure Video Analyzer API.
-	 *
-	 * @return A bearer token.
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	@GetMapping(path = "/access-token", produces = MediaType.TEXT_PLAIN_VALUE)
-	public String getAccessToken() throws InterruptedException, ExecutionException {
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(String.format("https://api.videoindexer.ai/auth/%s/accounts/%s/accessToken?allowEdit=true",
-						config.location, config.accountId)))
-				.header("Ocp-Apim-Subscription-Key", config.subscriptionKey).build();
-		Future<HttpResponse<String>> response = client.sendAsync(request, BodyHandlers.ofString());
+  /**
+   * Request an access token to make requests to Azure Video Analyzer API.
+   *
+   * @return A bearer token.
+   * @throws InterruptedException
+   * @throws ExecutionException
+   */
+  @GetMapping(path = "/access-token", produces = MediaType.TEXT_PLAIN_VALUE)
+  public String getAccessToken() throws InterruptedException, ExecutionException {
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(String.format("https://api.videoindexer.ai/auth/%s/accounts/%s/accessToken?allowEdit=true",
+            config.location, config.accountId)))
+        .header("Ocp-Apim-Subscription-Key", config.subscriptionKey).build();
+    Future<HttpResponse<String>> response = client.sendAsync(request, BodyHandlers.ofString());
 
-		String token = AsyncHelper.wait(response).get().body().replace("\"", "");
+    String token = AsyncHelper.wait(response).get().body().replace("\"", "");
 
-		return token;
-	}
+    return token;
+  }
 
-	/**
-	 * Requests a list of videos.
-	 *
-	 * @return An object containing a page of videos.
-	 * @throws IOException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	@GetMapping(path = "/videos", produces = MediaType.APPLICATION_JSON_VALUE)
-	public String listVideos() throws IOException, InterruptedException, ExecutionException {
-		String token = getAccessToken();
-		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create(
-						String.format("https://api.videoindexer.ai/%s/accounts/%s/videos", config.location, config.accountId)))
-				.header("Ocp-Apim-Subscription-Key", config.subscriptionKey)
-				.header("Authorization", String.format("Bearer %s", token)).build();
-		Future<HttpResponse<String>> response = client.sendAsync(request, BodyHandlers.ofString());
-		String list = AsyncHelper.wait(response).get().body();
-		return list;
-	}
+  /**
+   * Requests a list of videos.
+   *
+   * @return An object containing a page of videos.
+   * @throws IOException
+   * @throws InterruptedException
+   * @throws ExecutionException
+   */
+  @GetMapping(path = "/videos", produces = MediaType.APPLICATION_JSON_VALUE)
+  public String listVideos() throws IOException, InterruptedException, ExecutionException {
+    String token = getAccessToken();
+    HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create(
+            String.format("https://api.videoindexer.ai/%s/accounts/%s/videos", config.location, config.accountId)))
+        .header("Ocp-Apim-Subscription-Key", config.subscriptionKey)
+        .header("Authorization", String.format("Bearer %s", token)).build();
+    Future<HttpResponse<String>> response = client.sendAsync(request, BodyHandlers.ofString());
+    String list = AsyncHelper.wait(response).get().body();
+    return list;
+  }
 
-	/**
-	 * Upload a video.
-	 *
-	 * @param files
-	 * @return An object containing information about the new video.
-	 * @throws IOException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
-	 */
-	@PostMapping(path = "/upload", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-	public String uploadFile(@RequestPart(value = "file", required = true) MultipartFile files)
-			throws IOException, InterruptedException, ExecutionException {
-		return "test";
-	}
+  /**
+   * Upload a video.
+   *
+   * @param files
+   * @return An object containing information about the new video.
+   * @throws IOException
+   * @throws InterruptedException
+   * @throws ExecutionException
+   */
+  @PostMapping(path = "/upload", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+  public String uploadFile(@RequestPart(value = "file", required = true) MultipartFile files)
+      throws IOException, InterruptedException, ExecutionException {
+    return "test";
+  }
 }

@@ -11,7 +11,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
-import ca.bc.gov.tno.dal.db.KafkaMessageStatus;
+import ca.bc.gov.tno.dal.db.ContentStatus;
 
 /**
  * ContentReference class, provides a way to capture a reference to content from
@@ -72,7 +72,7 @@ public class ContentReference extends AuditColumns {
    * The status of the reference in Kafka.
    */
   @Column(name = "\"status\"", nullable = false)
-  private KafkaMessageStatus status;
+  private ContentStatus status;
 
   /**
    * Creates a new instance of a ContentReference object.
@@ -95,7 +95,7 @@ public class ContentReference extends AuditColumns {
     this.topic = topic;
     this.partition = -1;
     this.offset = -1;
-    this.status = KafkaMessageStatus.InProgress;
+    this.status = ContentStatus.InProgress;
   }
 
   /**
@@ -199,14 +199,14 @@ public class ContentReference extends AuditColumns {
   /**
    * @return KafkaMessageStatus return the status
    */
-  public KafkaMessageStatus getStatus() {
+  public ContentStatus getStatus() {
     return status;
   }
 
   /**
    * @param status the status to set
    */
-  public void setStatus(KafkaMessageStatus status) {
+  public void setStatus(ContentStatus status) {
     this.status = status;
   }
 

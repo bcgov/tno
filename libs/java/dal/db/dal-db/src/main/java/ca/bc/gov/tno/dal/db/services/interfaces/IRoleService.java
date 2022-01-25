@@ -22,7 +22,7 @@ public interface IRoleService {
    * @param key The primary key.
    * @return A new instance of the role if it exists.
    */
-  Optional<Role> findById(Integer key);
+  Optional<Role> findById(int key);
 
   /**
    * Add a new role to the data source.

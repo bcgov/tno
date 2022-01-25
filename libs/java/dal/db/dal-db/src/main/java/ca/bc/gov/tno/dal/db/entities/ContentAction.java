@@ -1,0 +1,157 @@
+package ca.bc.gov.tno.dal.db.entities;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import ca.bc.gov.tno.dal.db.AuditColumns;
+
+/**
+ * ContentAction class, provides a way to manage content actions.
+ */
+@Entity
+@IdClass(ContentActionPK.class)
+@Table(name = "\"ContentAction\"")
+public class ContentAction extends AuditColumns {
+  /**
+   * Primary key to identify the content action.
+   * Foreign key to content.
+   */
+  @Id
+  @Column(name = "\"contentId\"", nullable = false)
+  private int contentId;
+
+  /**
+   * The content reference.
+   */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  private Content content;
+
+  /**
+   * Primary key to identify the content action.
+   * Foreign key to action .
+   */
+  @Id
+  @Column(name = "\"actionId\"", nullable = false)
+  private int actionId;
+
+  /**
+   * The action reference.
+   */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "\"actionId\"", insertable = false, updatable = false)
+  private Action action;
+
+  /**
+   * Value of action.
+   */
+  @Column(name = "\"value\"", nullable = false)
+  private String value;
+
+  /**
+   * Creates a new instance of a ContentAction object.
+   */
+  public ContentAction() {
+
+  }
+
+  /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
+   * @param content Content object
+   * @param action  Action object
+   * @param value   Action value
+   */
+  public ContentAction(Content content, Action action, String value) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+    if (action == null)
+      throw new NullPointerException("Parameter 'action' cannot be null.");
+    if (value == null)
+      throw new NullPointerException("Parameter 'value' cannot be null.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.action = action;
+    this.actionId = action.getId();
+    this.value = value;
+  }
+
+  /**
+   * @return int return the contentId
+   */
+  public int getContentId() {
+    return contentId;
+  }
+
+  /**
+   * @param contentId the contentId to set
+   */
+  public void setContentId(int contentId) {
+    this.contentId = contentId;
+  }
+
+  /**
+   * @return Content return the content
+   */
+  public Content getContent() {
+    return content;
+  }
+
+  /**
+   * @param content the content to set
+   */
+  public void setContent(Content content) {
+    this.content = content;
+  }
+
+  /**
+   * @return int return the actionId
+   */
+  public int getActionId() {
+    return actionId;
+  }
+
+  /**
+   * @param actionId the actionId to set
+   */
+  public void setActionId(int actionId) {
+    this.actionId = actionId;
+  }
+
+  /**
+   * @return Action return the action
+   */
+  public Action getAction() {
+    return action;
+  }
+
+  /**
+   * @param action the action to set
+   */
+  public void setAction(Action action) {
+    this.action = action;
+  }
+
+  /**
+   * @return String return the value
+   */
+  public String getValue() {
+    return value;
+  }
+
+  /**
+   * @param value the value to set
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+}

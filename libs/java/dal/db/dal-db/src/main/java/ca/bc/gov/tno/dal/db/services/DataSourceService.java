@@ -52,7 +52,7 @@ public class DataSourceService implements IDataSourceService {
    * @return A new instance of the data source if it exists.
    */
   @Override
-  public Optional<DataSource> findById(Integer key) {
+  public Optional<DataSource> findById(int key) {
     var reference = repository.findById(key);
     return reference;
   }

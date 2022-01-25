@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * ContentReferencePK class, provides primary key for ContentReferencePK.
+ * ContentReferencePK class, provides primary key for ContentReference.
  */
 public class ContentReferencePK implements Serializable {
   /**

@@ -12,7 +12,7 @@ import ca.bc.gov.tno.dal.db.repositories.ILicenseRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 
 /**
- * DataSourceTypeService class, provides a concrete way to interact with
+ * MediaTypeService class, provides a concrete way to interact with
  * licenses in the database.
  */
 @Service
@@ -49,7 +49,7 @@ public class LicenseService implements ILicenseService {
    * @return A new instance of the license if it exists.
    */
   @Override
-  public Optional<License> findById(Integer key) {
+  public Optional<License> findById(int key) {
     var reference = repository.findById(key);
     return reference;
   }

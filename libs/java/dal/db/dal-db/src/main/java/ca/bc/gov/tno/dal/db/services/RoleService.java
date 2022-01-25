@@ -49,7 +49,7 @@ public class RoleService implements IRoleService {
    * @return A new instance of the role if it exists.
    */
   @Override
-  public Optional<Role> findById(Integer key) {
+  public Optional<Role> findById(int key) {
     var reference = repository.findById(key);
     return reference;
   }

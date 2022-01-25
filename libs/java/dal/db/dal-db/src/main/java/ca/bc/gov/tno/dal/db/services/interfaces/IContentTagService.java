@@ -1,0 +1,51 @@
+package ca.bc.gov.tno.dal.db.services.interfaces;
+
+import java.util.List;
+import java.util.Optional;
+
+import ca.bc.gov.tno.dal.db.entities.ContentTag;
+import ca.bc.gov.tno.dal.db.entities.ContentTagPK;
+
+/**
+ * IContentTagService interface, provides a way to interact with content
+ * types.
+ */
+public interface IContentTagService {
+  /**
+   * Find all that match the criteria.
+   * 
+   * @return A list of content tag.
+   */
+  List<ContentTag> findAll();
+
+  /**
+   * Find the content tag for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the content tag if it exists.
+   */
+  Optional<ContentTag> findById(ContentTagPK key);
+
+  /**
+   * Add a new content tag to the content.
+   * 
+   * @param entity The content tag to add.
+   * @return A new instance of the content tag that was added.
+   */
+  ContentTag add(ContentTag entity);
+
+  /**
+   * Update the specified content tag in the content.
+   * 
+   * @param entity The content tag to update.
+   * @return A new instance of the content tag that was updated.
+   */
+  ContentTag update(ContentTag entity);
+
+  /**
+   * Delete the specified content tag from the content.
+   * 
+   * @param entity The content tag to delete.
+   */
+  void delete(ContentTag entity);
+}

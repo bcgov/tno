@@ -22,7 +22,7 @@ public interface IUserService {
    * @param key The primary key.
    * @return A new instance of the user if it exists.
    */
-  Optional<User> findById(Integer key);
+  Optional<User> findById(int key);
 
   /**
    * Add a new user to the data source.

@@ -57,25 +57,25 @@ public class User extends AuditColumns {
    * The user's display name.
    */
   @Column(name = "\"displayName\"", nullable = true)
-  private String displayName;
+  private String displayName = "";
 
   /**
    * The user's first name.
    */
   @Column(name = "\"firstName\"", nullable = true)
-  private String firstName;
+  private String firstName = "";
 
   /**
    * The user's last name.
    */
   @Column(name = "\"lastName\"", nullable = true)
-  private String lastName;
+  private String lastName = "";
 
   /**
    * Whether the user is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean enabled;
+  private boolean enabled = true;
 
   /**
    * Whether the email has been verified.

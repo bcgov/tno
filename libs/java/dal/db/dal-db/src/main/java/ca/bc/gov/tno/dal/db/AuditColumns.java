@@ -101,6 +101,13 @@ public abstract class AuditColumns implements Serializable {
     }
 
     /**
+     * @param createdOn the createdOn to set
+     */
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    /**
      * @return UUID return the updatedById
      */
     public UUID getUpdatedById() {
@@ -133,6 +140,13 @@ public abstract class AuditColumns implements Serializable {
      */
     public Date getUpdatedOn() {
         return updatedOn;
+    }
+
+    /**
+     * @param updatedOn the updatedOn to set
+     */
+    public void setUpdatedOn(Date updatedOn) {
+        this.updatedOn = updatedOn;
     }
 
 }

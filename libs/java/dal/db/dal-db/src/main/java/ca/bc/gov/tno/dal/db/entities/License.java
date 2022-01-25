@@ -42,13 +42,13 @@ public class License extends AuditColumns {
    * A description of the license.
    */
   @Column(name = "\"description\"")
-  private String description;
+  private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean enabled;
+  private boolean enabled = true;
 
   /**
    * The number of days content is allowed to be kept before it must be purged (0
@@ -63,6 +63,13 @@ public class License extends AuditColumns {
   @JsonBackReference
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
   private List<DataSource> dataSources = new ArrayList<>();
+
+  /**
+   * A collection of content that belong to this license.
+   */
+  @JsonBackReference
+  @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
+  private List<Content> contents = new ArrayList<>();
 
   /**
    * Creates a new instance of a License object.

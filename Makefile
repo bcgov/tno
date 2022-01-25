@@ -119,11 +119,16 @@ db-update: ## Run the flyway database migration update (requires maven to be ins
 	$(info Run the flyway database migration update (requires maven to be installed))
 	@./tools/scripts/db-update.sh
 
-db-refresh: ## Stop and delete the database container and volume, then rebuilds and starts.
-	$(info Stop and delete the database container and volume, then rebuilds and starts)
+db-refresh: ## Drop database and reinitialize
+	$(info Drop database and reinitialize)
+	@./tools/scripts/db-drop.sh
+	@make db-update
+
+db-nuke: ## Stop and delete the database container and volume, then rebuild and start.
+	$(info Stop and delete the database container and volume, then rebuild and start)
 	@make stop n=keycloak
 	@make stop n=database
-	@docker-compose rm -f -v -s database
+	@docker rm -f -v tno-database
 	@docker volume rm -f tno-database-data
 	@make build n=database
 	@make up n=keycloak

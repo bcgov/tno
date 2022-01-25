@@ -22,7 +22,7 @@ public interface IScheduleService {
    * @param key The primary key.
    * @return A new instance of the schedule if it exists.
    */
-  Optional<Schedule> findById(Integer key);
+  Optional<Schedule> findById(int key);
 
   /**
    * Add a new schedule to the data source.

@@ -49,13 +49,13 @@ public class Claim extends AuditColumns {
    * A description of the claim.
    */
   @Column(name = "\"description\"")
-  private String description;
+  private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean enabled;
+  private boolean enabled = true;
 
   /**
    * A collection of role claims that belong to this claim.
@@ -144,13 +144,6 @@ public class Claim extends AuditColumns {
    */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(int id) {
-    this.id = id;
   }
 
   /**
