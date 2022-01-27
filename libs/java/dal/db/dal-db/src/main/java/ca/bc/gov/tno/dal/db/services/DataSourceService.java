@@ -65,11 +65,11 @@ public class DataSourceService implements IDataSourceService {
    */
   @Override
   public Optional<DataSource> findByCode(String code) {
-    var sql = "FROM DataSource ds WHERE ds.code = :code";
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
     try {
+      var sql = "FROM DataSource ds WHERE ds.code = :code";
       var query = session.createQuery(sql).setParameter("code", code).setMaxResults(1);
       var result = query.uniqueResult();
       return Optional.ofNullable((DataSource) result);

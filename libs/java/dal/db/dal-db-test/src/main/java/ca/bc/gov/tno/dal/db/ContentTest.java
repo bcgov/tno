@@ -44,6 +44,7 @@ public class ContentTest {
     result = Update(result);
     FindById(result);
     Delete(result);
+    Paging();
   }
 
   public Content Add() {
@@ -115,5 +116,35 @@ public class ContentTest {
         .orElse(null);
     if (result != null)
       throw new IllegalStateException("Entity must be deleted");
+  }
+
+  public void Paging() {
+    var contentType = contentTypeService.findById(1).get(); // Snippet
+    var mediaType = mediaTypeService.findById(3).get(); // TV
+    var license = licenseService.findById(1).get(); // 90
+    // var dataSource = dataSourceService.findById(1).get();
+    var user = userService.findById(1).get(); // Admin
+
+    var c1 = contentService
+        .add(new Content(contentType, mediaType, license, "S1", user, ContentStatus.Published, "headline 1"));
+    var c2 = contentService
+        .add(new Content(contentType, mediaType, license, "S1", user, ContentStatus.InProgress, "headline 2"));
+    var c3 = contentService
+        .add(new Content(contentType, mediaType, license, "S2", user, ContentStatus.InProgress, "another title 3"));
+
+    var result = contentService.find(1, 2, null);
+
+    if (result.getItems().size() != 2)
+      throw new IllegalStateException("Result should return 2 items");
+    if (result.getPage() != 1)
+      throw new IllegalStateException("Property 'page' should be 1");
+    if (result.getQuantity() != 2)
+      throw new IllegalStateException("Property 'quantity' should be 2");
+    if (result.getTotal() != 3)
+      throw new IllegalStateException("Property 'total' should be 3");
+
+    contentService.delete(c1);
+    contentService.delete(c2);
+    contentService.delete(c3);
   }
 }

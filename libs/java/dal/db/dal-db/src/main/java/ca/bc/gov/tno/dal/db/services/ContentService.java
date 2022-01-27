@@ -1,15 +1,22 @@
 package ca.bc.gov.tno.dal.db.services;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
+import ca.bc.gov.tno.dal.db.SortDirection;
 import ca.bc.gov.tno.dal.db.entities.Content;
+import ca.bc.gov.tno.dal.db.models.SortParam;
 import ca.bc.gov.tno.dal.db.repositories.IContentRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
+import ca.bc.gov.tno.models.Paged;
+import ca.bc.gov.tno.models.interfaces.IPaged;
 
 /**
  * ContentService class, provides a concrete way to interact with content
@@ -18,17 +25,20 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 @Service
 public class ContentService implements IContentService {
 
+  private final SessionFactory sessionFactory;
   private final IContentRepository repository;
 
   /**
    * Creates a new instance of a ContentService object, initializes with
    * specified parameters.
    * 
-   * @param repository The content repository.
+   * @param repository     The content repository.
+   * @param sessionFactory The session factory.
    */
   @Autowired
-  public ContentService(final IContentRepository repository) {
+  public ContentService(final IContentRepository repository, final SessionFactory sessionFactory) {
     this.repository = repository;
+    this.sessionFactory = sessionFactory;
   }
 
   /**
@@ -38,8 +48,48 @@ public class ContentService implements IContentService {
    */
   @Override
   public List<Content> findAll() {
-    var Contents = (List<Content>) repository.findAll();
-    return Contents;
+    var items = (List<Content>) repository.findAll();
+    return items;
+  }
+
+  /**
+   * Find a page of content that match the query.
+   * 
+   * @param page     The page to pull content from.
+   * @param quantity Number of items to return in a page.
+   * @param sort     An array of sort parameters ['col1 desc', 'col2 asc']
+   * @return A page of content.
+   */
+  public IPaged<Content> find(int page, int quantity, SortParam[] sort) {
+    page = page < 1 ? 1 : page;
+    quantity = quantity < 1 ? 10 : quantity;
+
+    if (sort == null || sort.length == 0)
+      sort = new SortParam[] {
+          new SortParam("createdOn", SortDirection.Descending),
+          new SortParam("updatedOn", SortDirection.Descending),
+          new SortParam("source", SortDirection.Ascending),
+          new SortParam("headline", SortDirection.Ascending) };
+
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var order = String.join(", ", Arrays.stream(sort).map(s -> "c." + s).toArray(String[]::new));
+      var pageSql = "FROM Content c ORDER BY " + order;
+      var pageQuery = session.createQuery(pageSql)
+          .setFirstResult((page - 1) * quantity)
+          .setMaxResults(quantity);
+      var items = pageQuery.getResultList();
+
+      var totalSql = "SELECT COUNT(*) FROM Content";
+      var totalQuery = session.createQuery(totalSql);
+      var total = (long) totalQuery.uniqueResult();
+
+      return new Paged<Content>(ListHelper.castList(Content.class, items), page, quantity, total);
+    } finally {
+      ts.commit();
+    }
   }
 
   /**
