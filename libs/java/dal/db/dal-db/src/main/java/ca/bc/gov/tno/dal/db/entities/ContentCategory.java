@@ -16,21 +16,21 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  */
 @Entity
 @IdClass(ContentCategoryPK.class)
-@Table(name = "\"ContentCategory\"")
+@Table(name = "content_category", schema = "public")
 public class ContentCategory extends AuditColumns {
   /**
    * Primary key to identify the content category.
    * Foreign key to content.
    */
   @Id
-  @Column(name = "\"contentId\"", nullable = false)
+  @Column(name = "content_id", nullable = false)
   private int contentId;
 
   /**
    * The content reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
 
   /**
@@ -38,20 +38,20 @@ public class ContentCategory extends AuditColumns {
    * Foreign key to category .
    */
   @Id
-  @Column(name = "\"categoryId\"", nullable = false)
+  @Column(name = "category_id", nullable = false)
   private int categoryId;
 
   /**
    * The category reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"categoryId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "category_id", insertable = false, updatable = false)
   private Category category;
 
   /**
    * Score of category.
    */
-  @Column(name = "\"score\"", nullable = false)
+  @Column(name = "score", nullable = false)
   private int score;
 
   /**

@@ -58,6 +58,14 @@ nuke: ## Stop all containers, delete all containers, volumes, and configuration
 	@make down
 	@./tools/scripts/nuke.sh
 
+##############################################################################
+# Openshift Management
+##############################################################################
+
+project: ## Switch to TNO project namespace within Openshift: 9b301c
+	$(info Switch to TNO project namespace within Openshift: 9b301c)
+	@oc project 9b301c-tools
+
 switch: ## Switch to the specified oc project (n=environment)
 	$(info Switch to the specified oc project n=$(n))
 	@./tools/scripts/switch-project.sh $(n)
@@ -116,7 +124,7 @@ npm-refresh: ## Run yarn install within the container (args: n=[editor,subscribe
 ##############################################################################
 
 db-update: ## Run the flyway database migration update (requires maven to be installed).
-	$(info Run the flyway database migration update (requires maven to be installed))
+	$(info Run the flyway database migration update)
 	@./tools/scripts/db-update.sh
 
 db-refresh: ## Drop database and reinitialize

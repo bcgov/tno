@@ -30,39 +30,39 @@ import ca.bc.gov.tno.dal.db.converters.MonthsAttributeConverter;
  * Schedule class, provides a way to manage scheduling details for data sources.
  */
 @Entity
-@Table(name = "\"Schedule\"")
+@Table(name = "schedule", schema = "public")
 public class Schedule extends AuditColumns {
   /**
    * Primary key to identify the schedule.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Schedule")
-  @SequenceGenerator(name = "seq_Schedule", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_schedule")
+  @SequenceGenerator(name = "seq_schedule", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the schedule.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the schedule.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * The number of milliseconds the service should rest before running again.
    */
-  @Column(name = "\"delayMS\"", nullable = false)
+  @Column(name = "delay_ms", nullable = false)
   private int delayMS;
 
   /**
@@ -70,42 +70,42 @@ public class Schedule extends AuditColumns {
    * service should be delayed from running for a period of time.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "\"runAt\"")
+  @Column(name = "run_at")
   private Date runAt;
 
   /**
    * Number of times to run before waiting for next RunAt. "0" is used for
    * continuous running.
    */
-  @Column(name = "\"repeat\"", nullable = false)
+  @Column(name = "repeat", nullable = false)
   private int repeat;
 
   /**
    * Identify which week days the service should run.
    */
-  @Column(name = "\"runOnWeekDays\"", nullable = false)
+  @Column(name = "run_on_week_days", nullable = false)
   @Convert(converter = WeekDaysAttributeConverter.class)
   private EnumSet<WeekDays> runOnWeekDays;
 
   /**
    * Identify which months the service should run.
    */
-  @Column(name = "\"runOnMonths\"", nullable = false)
+  @Column(name = "run_on_months", nullable = false)
   @Convert(converter = MonthsAttributeConverter.class)
   private EnumSet<Months> runOnMonths;
 
   /**
    * Identify the day of the month the service should run.
    */
-  @Column(name = "\"dayOfMonth\"", nullable = false)
+  @Column(name = "day_of_month", nullable = false)
   private int dayOfMonth;
 
   /**
    * A collection of data sources that belong to this schedule.
    */
-  @JsonBackReference("dataSources")
+  @JsonBackReference("data_sources")
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
-  private List<DataSource> dataSources = new ArrayList<>();
+  private List<DataSource> data_sources = new ArrayList<>();
 
   /**
    * Creates a new instance of a Schedule object.
@@ -267,10 +267,10 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return List{DataSource} return the dataSources
+   * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return dataSources;
+    return data_sources;
   }
 
 }

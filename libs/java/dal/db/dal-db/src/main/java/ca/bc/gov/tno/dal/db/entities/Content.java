@@ -27,175 +27,175 @@ import ca.bc.gov.tno.dal.db.ContentStatus;
  * Content class, defines a piece of content.
  */
 @Entity
-@Table(name = "\"Content\"")
+@Table(name = "content", schema = "public")
 public class Content extends AuditColumns {
   /**
    * Primary key to identify the content.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Content")
-  @SequenceGenerator(name = "seq_Content", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_content")
+  @SequenceGenerator(name = "seq_content", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * The status of the reference in Kafka.
    */
-  @Column(name = "\"status\"", nullable = false)
+  @Column(name = "status", nullable = false)
   private ContentStatus status = ContentStatus.InProgress;
 
   /**
    * Foreign key to the content type.
    */
-  @Column(name = "\"contentTypeId\"", nullable = false)
+  @Column(name = "content_type_id", nullable = false)
   private int contentTypeId;
 
   /**
    * The content type reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentTypeId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_type_id", insertable = false, updatable = false)
   private ContentType contentType;
 
   /**
    * A unique headline to identify the content.
    */
-  @Column(name = "\"headline\"", nullable = false)
+  @Column(name = "headline", nullable = false)
   private String headline;
 
   /**
    * Foreign key to the data source.
    */
-  @Column(name = "\"dataSourceId\"", nullable = true)
+  @Column(name = "data_source_id", nullable = true)
   private Integer dataSourceId;
 
   /**
    * The content type reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"dataSourceId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "data_source_id", insertable = false, updatable = false)
   private DataSource dataSource;
 
   /**
    * A source name.
    */
-  @Column(name = "\"source\"", nullable = false)
+  @Column(name = "source", nullable = false)
   private String source = "";
 
   /**
    * The unique identifier from the source.
    */
-  @Column(name = "\"uid\"")
+  @Column(name = "uid")
   private String uid = "";
 
   /**
    * Foreign key to the license.
    */
-  @Column(name = "\"licenseId\"", nullable = false)
+  @Column(name = "license_id", nullable = false)
   private int licenseId;
 
   /**
    * The license reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"licenseId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "license_id", insertable = false, updatable = false)
   private License license;
 
   /**
    * Foreign key to the media type.
    */
-  @Column(name = "\"mediaTypeId\"", nullable = false)
+  @Column(name = "media_type_id", nullable = false)
   private int mediaTypeId;
 
   /**
    * The media type reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"mediaTypeId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "media_type_id", insertable = false, updatable = false)
   private MediaType mediaType;
 
   /**
    * The page the content was from.
    */
-  @Column(name = "\"page\"", nullable = false)
+  @Column(name = "page", nullable = false)
   private String page = "";
 
   /**
    * The section the content was from.
    */
-  @Column(name = "\"section\"", nullable = false)
+  @Column(name = "section", nullable = false)
   private String section = "";
 
   /**
    * The published date.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "\"publishedOn\"")
+  @Column(name = "published_on")
   private Date publishedOn;
 
   /**
    * The content summary.
    */
-  @Column(name = "\"summary\"", nullable = false)
+  @Column(name = "summary", nullable = false)
   private String summary = "";
 
   /**
    * The content transcription.
    */
-  @Column(name = "\"transcription\"", nullable = false)
+  @Column(name = "transcription", nullable = false)
   private String transcription = "";
 
   /**
    * The content source URL.
    */
-  @Column(name = "\"sourceURL\"", nullable = false)
+  @Column(name = "source_url", nullable = false)
   private String sourceURL = "";
 
   /**
    * Foreign key to the user who owns this content.
    */
-  @Column(name = "\"ownerId\"", nullable = false)
+  @Column(name = "owner_id", nullable = false)
   private int ownerId;
 
   /**
    * The schedule reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"ownerId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "owner_id", insertable = false, updatable = false)
   private User owner;
 
   /**
    * A collection of content actions linked to this content.
    */
-  @JsonBackReference("contentActions")
+  @JsonBackReference("content_actions")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content categories linked to this content.
    */
-  @JsonBackReference("contentCategories")
+  @JsonBackReference("content_categories")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 
   /**
    * A collection of content tags linked to this content.
    */
-  @JsonBackReference("contentTags")
+  @JsonBackReference("content_tags")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * A collection of content tone pools linked to this content.
    */
-  @JsonBackReference("contentTones")
+  @JsonBackReference("content_tones")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 
   /**
    * A collection of time tracking linked to this content.
    */
-  @JsonBackReference("timeTrackings")
+  @JsonBackReference("time_trackings")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<TimeTracking> timeTrackings = new ArrayList<>();
 

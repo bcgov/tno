@@ -1,0 +1,40 @@
+DROP TABLE public.content_reference;
+DROP TABLE public.file_reference;
+DROP TABLE public.time_tracking;
+DROP TABLE public.content_action;
+DROP TABLE public.content_tone;
+DROP TABLE public.content_category;
+DROP TABLE public.content_tag;
+DROP TABLE public.content_link;
+DROP TABLE public.content;
+DROP TABLE public.data_source;
+DROP TABLE public.schedule;
+DROP TABLE public.content_type;
+DROP TABLE public.media_type;
+DROP TABLE public.license;
+DROP TABLE public.action;
+DROP TABLE public.tone_pool;
+DROP TABLE public.category;
+DROP TABLE public.tag;
+DROP TABLE public.user_role;
+DROP TABLE public.role_claim;
+DROP TABLE public.user;
+DROP TABLE public.role;
+DROP TABLE public.claim;
+
+DROP SEQUENCE public.seq_data_source;
+DROP SEQUENCE public.seq_media_type;
+DROP SEQUENCE public.seq_schedule;
+DROP SEQUENCE public.seq_license;
+DROP SEQUENCE public.seq_user;
+DROP SEQUENCE public.seq_role;
+DROP SEQUENCE public.seq_claim;
+DROP SEQUENCE public.seq_file_reference;
+DROP SEQUENCE public.seq_content;
+DROP SEQUENCE public.seq_content_type;
+DROP SEQUENCE public.seq_action;
+DROP SEQUENCE public.seq_tone_pool;
+DROP SEQUENCE public.seq_category;
+
+DELETE FROM public.flyway_schema_history
+WHERE version = '1.0.0'

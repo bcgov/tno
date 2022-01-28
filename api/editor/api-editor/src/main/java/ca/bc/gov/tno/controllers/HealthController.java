@@ -13,7 +13,7 @@ import ca.bc.gov.tno.models.health.HealthReportModel;
 @RequestMapping("/health")
 public class HealthController {
 
-  @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<HealthReportModel> health() {
     return new ResponseEntity<>(new HealthReportModel("running"), HttpStatus.OK);
   }

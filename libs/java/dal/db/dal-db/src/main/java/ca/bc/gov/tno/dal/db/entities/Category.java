@@ -21,45 +21,45 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * Category class, provides a way to manage categories.
  */
 @Entity
-@Table(name = "\"Category\"")
+@Table(name = "category", schema = "public")
 public class Category extends AuditColumns {
   /**
    * Primary key to identify the category.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Category")
-  @SequenceGenerator(name = "seq_Category", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_category")
+  @SequenceGenerator(name = "seq_category", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the category.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the category.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * The order to display.
    */
-  @Column(name = "\"sortOrder\"", nullable = false)
+  @Column(name = "sort_order", nullable = false)
   private int sortOrder;
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of role categories that belong to this category.
    */
-  @JsonBackReference("contentCategories")
+  @JsonBackReference("content_categories")
   @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 

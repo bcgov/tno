@@ -16,21 +16,21 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  */
 @Entity
 @IdClass(ContentActionPK.class)
-@Table(name = "\"ContentAction\"")
+@Table(name = "content_action", schema = "public")
 public class ContentAction extends AuditColumns {
   /**
    * Primary key to identify the content action.
    * Foreign key to content.
    */
   @Id
-  @Column(name = "\"contentId\"", nullable = false)
+  @Column(name = "content_id", nullable = false)
   private int contentId;
 
   /**
    * The content reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
 
   /**
@@ -38,20 +38,20 @@ public class ContentAction extends AuditColumns {
    * Foreign key to action .
    */
   @Id
-  @Column(name = "\"actionId\"", nullable = false)
+  @Column(name = "action_id", nullable = false)
   private int actionId;
 
   /**
    * The action reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"actionId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "action_id", insertable = false, updatable = false)
   private Action action;
 
   /**
    * Value of action.
    */
-  @Column(name = "\"value\"", nullable = false)
+  @Column(name = "value", nullable = false)
   private String value;
 
   /**

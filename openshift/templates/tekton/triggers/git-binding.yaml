@@ -15,20 +15,35 @@ parameters:
     required: true
     value: tno
 
+  - name: GIT_SOURCE
+    displayName: Git Source Name
+    description: Identify the git source.
+    required: true
+    value: dev
+  - name: DEPLOY_TO
+    displayName: Deploy To
+    description: The environment to deploy to [dev, test, prod, tools]
+    required: true
+    value: dev
+
 objects:
   # Bind to the GIT repo.
   - apiVersion: triggers.tekton.dev/v1alpha1
     kind: TriggerBinding
     metadata:
-      name: git-${SOLUTION_NAME}
+      name: git-${SOLUTION_NAME}-${GIT_SOURCE}
       solution: ${SOLUTION_NAME}
     spec:
       params:
-        # - name: GIT_REF
-        #   value: $(body.head_commit.id) # The commit identify.
-        - name: GIT_REF
-          value: $(body.ref.split('/')[2])
         - name: GIT_URL
-          value: "https://github.com/$(body.repository.full_name)"
+          value: https://github.com/$(body.repository.full_name)
+        # - name: GIT_REF
+        #   value: $(body.ref.split('/')[2])
+        - name: GIT_REF
+          value: $(body.head_commit.id)
+        - name: GIT_SOURCE
+          value: ${GIT_SOURCE}
         - name: VERSION
           value: "dev" # TODO: Dynamically generate this somehow.
+        - name: DEPLOY_TO
+          value: ${DEPLOY_TO}

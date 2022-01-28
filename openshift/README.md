@@ -193,3 +193,11 @@ oc run some-pod --overrides='{"spec": {"containers": [{"command": ["/bin/bash", 
 ## Helpful Information on Docker Permissions
 
 (Documentation)[https://developers.redhat.com/blog/2020/10/26/adapting-docker-and-kubernetes-containers-to-run-on-red-hat-openshift-container-platform#executable_permissions]
+
+## Open a remote shell to containers
+
+(Documentat)[https://docs.openshift.com/container-platform/3.11/dev_guide/ssh_environment.html]
+
+```bash
+oc rsh <pod>
+```

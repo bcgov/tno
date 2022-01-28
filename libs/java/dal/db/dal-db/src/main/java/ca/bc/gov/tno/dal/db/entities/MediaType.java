@@ -22,41 +22,41 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * types.
  */
 @Entity
-@Table(name = "\"MediaType\"")
+@Table(name = "media_type", schema = "public")
 public class MediaType extends AuditColumns {
   /**
    * Primary key to identify the media type.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_MediaType")
-  @SequenceGenerator(name = "seq_MediaType", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_media_type")
+  @SequenceGenerator(name = "seq_media_type", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the media type.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the media type.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of data sources of this type.
    */
-  @JsonBackReference("dataSources")
+  @JsonBackReference("data_sources")
   @OneToMany(mappedBy = "mediaType", fetch = FetchType.LAZY)
-  private List<DataSource> dataSources = new ArrayList<>();
+  private List<DataSource> data_sources = new ArrayList<>();
 
   /**
    * Creates a new instance of a MediaType object.
@@ -134,10 +134,10 @@ public class MediaType extends AuditColumns {
   }
 
   /**
-   * @return List{DataSource} return the dataSources
+   * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return dataSources;
+    return data_sources;
   }
 
 }

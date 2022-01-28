@@ -16,21 +16,21 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  */
 @Entity
 @IdClass(ContentLinkPK.class)
-@Table(name = "\"ContentLink\"")
+@Table(name = "content_link", schema = "public")
 public class ContentLink extends AuditColumns {
   /**
    * Primary key to identify the content link.
    * Foreign key to content.
    */
   @Id
-  @Column(name = "\"contentId\"", nullable = false)
+  @Column(name = "content_id", nullable = false)
   private int contentId;
 
   /**
    * The content reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
 
   /**
@@ -38,14 +38,14 @@ public class ContentLink extends AuditColumns {
    * Foreign key to content link .
    */
   @Id
-  @Column(name = "\"linkId\"", nullable = false)
+  @Column(name = "link_id", nullable = false)
   private int linkId;
 
   /**
    * The content link reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"linkId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "link_id", insertable = false, updatable = false)
   private Content link;
 
   /**

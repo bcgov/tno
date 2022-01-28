@@ -68,7 +68,7 @@ public class ContentTagPK implements Serializable {
   public String toString() {
     final StringBuilder sb = new StringBuilder("{");
     sb.append("contentId=").append(contentId);
-    sb.append(", tagId=\"").append(tagId).append("\"");
+    sb.append(", tagId='").append(tagId).append("'");
     sb.append("}");
     return sb.toString();
   }

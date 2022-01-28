@@ -16,13 +16,13 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * UserRole class, provides a way to manage user roles.
  */
 @Entity
-@Table(name = "\"UserRole\"")
+@Table(name = "user_role", schema = "public")
 public class UserRole extends AuditColumns {
   /**
    * Primary key and foreign key to the user.
    */
   @Id
-  @Column(name = "\"userId\"", nullable = false)
+  @Column(name = "user_id", nullable = false)
   private int userId;
 
   /**
@@ -30,21 +30,21 @@ public class UserRole extends AuditColumns {
    */
   @JsonBackReference("user")
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"userId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "user_id", insertable = false, updatable = false)
   private User user;
 
   /**
    * Primary key and foreign key to the role.
    */
   @Id
-  @Column(name = "\"roleId\"", nullable = false)
+  @Column(name = "role_id", nullable = false)
   private int roleId;
 
   /**
    * The role reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"roleId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "role_id", insertable = false, updatable = false)
   private Role role;
 
   /**

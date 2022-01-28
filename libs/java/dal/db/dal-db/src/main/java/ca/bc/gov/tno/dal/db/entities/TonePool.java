@@ -23,33 +23,33 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * TonePool class, provides a way to manage tone pools.
  */
 @Entity
-@Table(name = "\"TonePool\"")
+@Table(name = "tone_pool", schema = "public")
 public class TonePool extends AuditColumns {
   /**
    * Primary key to identify the tone pool.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_TonePool")
-  @SequenceGenerator(name = "seq_TonePool", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_tone_pool")
+  @SequenceGenerator(name = "seq_tone_pool", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the tone pool.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the tone pool.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Foreign key to User who owns this tone pool.
    */
-  @Column(name = "\"ownerId\"", nullable = false)
+  @Column(name = "owner_id", nullable = false)
   private int ownerId;
 
   /**
@@ -57,31 +57,31 @@ public class TonePool extends AuditColumns {
    */
   @JsonBackReference("owner")
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"ownerId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "owner_id", insertable = false, updatable = false)
   private User owner;
 
   /**
    * The order to display.
    */
-  @Column(name = "\"sortOrder\"", nullable = false)
+  @Column(name = "sort_order", nullable = false)
   private int sortOrder;
 
   /**
    * Whether this record is visible to other users.
    */
-  @Column(name = "\"isPublic\"", nullable = false)
+  @Column(name = "is_public", nullable = false)
   private boolean shared = true;
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of role tone pools that belong to this tone pool.
    */
-  @JsonBackReference("contentTones")
+  @JsonBackReference("content_tones")
   @OneToMany(mappedBy = "tonePool", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 

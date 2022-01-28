@@ -22,39 +22,39 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * types.
  */
 @Entity
-@Table(name = "\"ContentType\"")
+@Table(name = "content_type", schema = "public")
 public class ContentType extends AuditColumns {
   /**
    * Primary key to identify the content type.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_ContentType")
-  @SequenceGenerator(name = "seq_ContentType", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_content_type")
+  @SequenceGenerator(name = "seq_content_type", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the content type.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the content type.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description;
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled;
 
   /**
    * Sort order of records.
    */
-  @Column(name = "\"sortOrder\"", nullable = false)
+  @Column(name = "sort_order", nullable = false)
   private int sortOrder;
 
   /**

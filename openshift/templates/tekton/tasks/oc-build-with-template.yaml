@@ -34,7 +34,11 @@ spec:
         "Set this to a branch name, tag or other ref of your repository if you
         are not using the default branch."
       type: string
-      default: "dev"
+      default: dev
+    - name: GIT_SOURCE
+      description: Identify the git source.
+      type: string
+      default: dev
     - name: CONTEXT_DIR
       description: Set this to use a subdirectory of the source code repository
       type: string
@@ -66,6 +70,7 @@ spec:
         APP_NAME=$(params.APP_NAME)
         GIT_URL=$(params.GIT_URL)
         GIT_REF=$(params.GIT_REF)
+        GIT_SOURCE=$(params.GIT_SOURCE)
         CONTEXT_DIR=$(params.CONTEXT_DIR)
         DOCKERFILE=$(params.DOCKERFILE)
         IMAGE_TAG=$(params.IMAGE_TAG)
@@ -81,8 +86,10 @@ spec:
       image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
       resources: {}
       script: |
-        oc start-build $(params.SOLUTION_NAME)-$(params.APP_NAME).$(params.GIT_REF) --follow --wait
+        echo "Building image"
+        oc start-build $(params.SOLUTION_NAME)-$(params.APP_NAME).$(params.GIT_SOURCE) --follow --wait
 
         if [ "$(params.IMAGE_TAG)" != "latest" ]; then
+          echo "Tagging latest image"
           oc tag $(params.SOLUTION_NAME)-$(params.APP_NAME):$(params.IMAGE_TAG) $(params.SOLUTION_NAME)-$(params.APP_NAME):latest
         fi

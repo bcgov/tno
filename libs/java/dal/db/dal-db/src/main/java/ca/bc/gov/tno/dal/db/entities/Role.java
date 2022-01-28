@@ -22,52 +22,52 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * Role class, provides a way to manage roles.
  */
 @Entity
-@Table(name = "\"Role\"")
+@Table(name = "role", schema = "public")
 public class Role extends AuditColumns {
   /**
    * Primary key to identify the role.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Role")
-  @SequenceGenerator(name = "seq_Role", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_role")
+  @SequenceGenerator(name = "seq_role", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the role.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A unique key to identify the role.
    */
-  @Column(name = "\"key\"", nullable = false)
+  @Column(name = "key", nullable = false)
   private UUID key;
 
   /**
    * A description of the role.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of user roles that belong to this role.
    */
-  @JsonBackReference("userRoles")
+  @JsonBackReference("user_roles")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<UserRole> userRoles = new ArrayList<>();
 
   /**
    * A collection of role claims that belong to this role.
    */
-  @JsonBackReference("roleClaims")
+  @JsonBackReference("role_claims")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

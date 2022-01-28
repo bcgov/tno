@@ -21,132 +21,132 @@ import org.hibernate.annotations.SourceType;
  */
 @MappedSuperclass
 public abstract class AuditColumns implements Serializable {
-    /**
-     * The uid that identifies the user who created the record.
-     */
-    @Column(name = "\"createdById\"", nullable = false)
-    private UUID createdById;
+  /**
+   * The uid that identifies the user who created the record.
+   */
+  @Column(name = "created_by_id", nullable = false)
+  private UUID createdById;
 
-    /**
-     * A name that identifies the user who created the record.
-     */
-    @Column(name = "\"createdBy\"", nullable = false)
-    private String createdBy;
+  /**
+   * A name that identifies the user who created the record.
+   */
+  @Column(name = "created_by", nullable = false)
+  private String createdBy;
 
-    /**
-     * When the record was created. Automatically set by the DB.
-     */
-    @Source(SourceType.DB)
-    @Generated(GenerationTime.ALWAYS)
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "\"createdOn\"", nullable = false)
-    private Date createdOn;
+  /**
+   * When the record was created. Automatically set by the DB.
+   */
+  @Source(SourceType.DB)
+  @Generated(GenerationTime.ALWAYS)
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "created_on", nullable = false)
+  private Date createdOn;
 
-    /**
-     * The uid that identifies the user who updated the record last.
-     */
-    @Column(name = "\"updatedById\"", nullable = false)
-    private UUID updatedById;
+  /**
+   * The uid that identifies the user who updated the record last.
+   */
+  @Column(name = "updated_by_id", nullable = false)
+  private UUID updatedById;
 
-    /**
-     * The name that identifies the user who updated the record last.
-     */
-    @Column(name = "\"updatedBy\"", nullable = false)
-    private String updatedBy;
+  /**
+   * The name that identifies the user who updated the record last.
+   */
+  @Column(name = "updated_by", nullable = false)
+  private String updatedBy;
 
-    /**
-     * When the record was last updated. Automatically set by the DB. Provides
-     * concurrency control to enforce optimistic concurrency.
-     */
-    @Version
-    @Source(SourceType.DB)
-    @Generated(GenerationTime.ALWAYS)
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "\"updatedOn\"", nullable = false)
-    private Date updatedOn;
+  /**
+   * When the record was last updated. Automatically set by the DB. Provides
+   * concurrency control to enforce optimistic concurrency.
+   */
+  @Version
+  @Source(SourceType.DB)
+  @Generated(GenerationTime.ALWAYS)
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "updated_on", nullable = false)
+  private Date updatedOn;
 
-    /**
-     * @return UUID return the createdById
-     */
-    public UUID getCreatedById() {
-        return createdById;
-    }
+  /**
+   * @return UUID return the createdById
+   */
+  public UUID getCreatedById() {
+    return createdById;
+  }
 
-    /**
-     * @param createdById the createdById to set
-     */
-    public void setCreatedById(UUID createdById) {
-        this.createdById = createdById;
-    }
+  /**
+   * @param createdById the createdById to set
+   */
+  public void setCreatedById(UUID createdById) {
+    this.createdById = createdById;
+  }
 
-    /**
-     * @return String return the createdBy
-     */
-    public String getCreatedBy() {
-        return createdBy;
-    }
+  /**
+   * @return String return the createdBy
+   */
+  public String getCreatedBy() {
+    return createdBy;
+  }
 
-    /**
-     * @param createdBy the createdBy to set
-     */
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+  /**
+   * @param createdBy the createdBy to set
+   */
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
 
-    /**
-     * @return Date return the createdOn
-     */
-    public Date getCreatedOn() {
-        return createdOn;
-    }
+  /**
+   * @return Date return the createdOn
+   */
+  public Date getCreatedOn() {
+    return createdOn;
+  }
 
-    /**
-     * @param createdOn the createdOn to set
-     */
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
+  /**
+   * @param createdOn the createdOn to set
+   */
+  public void setCreatedOn(Date createdOn) {
+    this.createdOn = createdOn;
+  }
 
-    /**
-     * @return UUID return the updatedById
-     */
-    public UUID getUpdatedById() {
-        return updatedById;
-    }
+  /**
+   * @return UUID return the updatedById
+   */
+  public UUID getUpdatedById() {
+    return updatedById;
+  }
 
-    /**
-     * @param updatedById the updatedById to set
-     */
-    public void setUpdatedById(UUID updatedById) {
-        this.updatedById = updatedById;
-    }
+  /**
+   * @param updatedById the updatedById to set
+   */
+  public void setUpdatedById(UUID updatedById) {
+    this.updatedById = updatedById;
+  }
 
-    /**
-     * @return String return the updatedBy
-     */
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
+  /**
+   * @return String return the updatedBy
+   */
+  public String getUpdatedBy() {
+    return updatedBy;
+  }
 
-    /**
-     * @param updatedBy the updatedBy to set
-     */
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
+  /**
+   * @param updatedBy the updatedBy to set
+   */
+  public void setUpdatedBy(String updatedBy) {
+    this.updatedBy = updatedBy;
+  }
 
-    /**
-     * @return Date return the updatedOn
-     */
-    public Date getUpdatedOn() {
-        return updatedOn;
-    }
+  /**
+   * @return Date return the updatedOn
+   */
+  public Date getUpdatedOn() {
+    return updatedOn;
+  }
 
-    /**
-     * @param updatedOn the updatedOn to set
-     */
-    public void setUpdatedOn(Date updatedOn) {
-        this.updatedOn = updatedOn;
-    }
+  /**
+   * @param updatedOn the updatedOn to set
+   */
+  public void setUpdatedOn(Date updatedOn) {
+    this.updatedOn = updatedOn;
+  }
 
 }
