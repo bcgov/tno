@@ -14,7 +14,7 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IActionService;
 import ca.bc.gov.tno.dal.db.entities.Action;
 
 /**
- * Endpoints to communicate with the TNO DB actions.
+ * ActionController class, provides endpoints for actions.
  */
 @RolesAllowed({ "administrator", "editor" })
 @RestController("EditorActionController")

@@ -299,26 +299,26 @@ objects:
                     secretKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
                       key: AZURE_VIDEO_ANALYZER_LOCATION
-              livenessProbe:
-                httpGet:
-                  path: '/health'
-                  port: ${{APP_PORT}}
-                  scheme: HTTP
-                initialDelaySeconds: 60
-                timeoutSeconds: 60
-                periodSeconds: 10
-                successThreshold: 1
-                failureThreshold: 3
-              readinessProbe:
-                httpGet:
-                  path: '/health'
-                  port: ${{APP_PORT}}
-                  scheme: HTTP
-                initialDelaySeconds: 60
-                timeoutSeconds: 60
-                periodSeconds: 10
-                successThreshold: 1
-                failureThreshold: 3
+              # livenessProbe:
+              #   httpGet:
+              #     path: '/health'
+              #     port: ${{APP_PORT}}
+              #     scheme: HTTP
+              #   initialDelaySeconds: 120
+              #   timeoutSeconds: 60
+              #   periodSeconds: 30
+              #   successThreshold: 1
+              #   failureThreshold: 3
+              # readinessProbe:
+              #   httpGet:
+              #     path: '/health'
+              #     port: ${{APP_PORT}}
+              #     scheme: HTTP
+              #   initialDelaySeconds: 120
+              #   timeoutSeconds: 60
+              #   periodSeconds: 30
+              #   successThreshold: 1
+              #   failureThreshold: 3
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           securityContext: {}

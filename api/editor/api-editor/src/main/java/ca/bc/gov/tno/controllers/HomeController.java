@@ -14,7 +14,7 @@ import ca.bc.gov.tno.models.home.PrincipalModel;
 @RestController
 public class HomeController {
 
-  @GetMapping("/")
+  @GetMapping(path = { "", "/" })
   public String index() {
     return "TNO API";
   }

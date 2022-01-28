@@ -16,21 +16,21 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  */
 @Entity
 @IdClass(TimeTrackingPK.class)
-@Table(name = "\"TimeTracking\"")
+@Table(name = "time_tracking", schema = "public")
 public class TimeTracking extends AuditColumns {
   /**
    * Primary key to identify the time tracking.
    * Foreign key to content.
    */
   @Id
-  @Column(name = "\"contentId\"", nullable = false)
+  @Column(name = "content_id", nullable = false)
   private int contentId;
 
   /**
    * The content reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
 
   /**
@@ -38,26 +38,26 @@ public class TimeTracking extends AuditColumns {
    * Foreign key to user.
    */
   @Id
-  @Column(name = "\"userId\"", nullable = false)
+  @Column(name = "user_id", nullable = false)
   private int userId;
 
   /**
    * The tone pool reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"userId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "user_id", insertable = false, updatable = false)
   private User user;
 
   /**
    * Effort time in minutes spent on content.
    */
-  @Column(name = "\"effort\"", nullable = false)
+  @Column(name = "effort", nullable = false)
   private float effort;
 
   /**
    * Description of activity.
    */
-  @Column(name = "\"activity\"", nullable = false)
+  @Column(name = "activity", nullable = false)
   private String activity;
 
   /**

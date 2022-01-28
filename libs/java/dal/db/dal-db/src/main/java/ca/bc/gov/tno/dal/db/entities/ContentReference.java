@@ -20,58 +20,58 @@ import ca.bc.gov.tno.dal.db.ContentStatus;
  */
 @Entity
 @IdClass(ContentReferencePK.class)
-@Table(name = "\"ContentReference\"")
+@Table(name = "content_reference", schema = "public")
 public class ContentReference extends AuditColumns {
   /**
    * The data source abbreviation.
    */
   @Id
-  @Column(name = "\"source\"", nullable = false)
+  @Column(name = "source", nullable = false)
   private String source;
 
   /**
    * The source content unique key.
    */
   @Id
-  @Column(name = "\"uid\"", nullable = false)
+  @Column(name = "u_id", nullable = false)
   private String uid;
 
   /**
    * The Kafka topic the message is stored in.
    */
-  @Column(name = "\"topic\"", nullable = false)
+  @Column(name = "topic", nullable = false)
   private String topic;
 
   /**
    * The Kafka partition the message is stored in.
    */
-  @Column(name = "\"partition\"", nullable = false)
+  @Column(name = "partition", nullable = false)
   private int partition;
 
   /**
    * The Kafka offset the message was saved.
    */
-  @Column(name = "\"offset\"", nullable = false)
+  @Column(name = "offset", nullable = false)
   private long offset;
 
   /**
    * The date and time the content was published.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "\"publishedOn\"")
+  @Column(name = "published_on")
   private Date publishedOn;
 
   /**
    * The date and time the source content was updated.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "\"sourceUpdatedOn\"")
+  @Column(name = "sourceUpdated_on")
   private Date sourceUpdatedOn;
 
   /**
    * The status of the reference in Kafka.
    */
-  @Column(name = "\"status\"", nullable = false)
+  @Column(name = "status", nullable = false)
   private ContentStatus status;
 
   /**

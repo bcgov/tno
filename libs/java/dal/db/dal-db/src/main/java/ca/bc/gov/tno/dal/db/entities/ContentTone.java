@@ -16,21 +16,21 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  */
 @Entity
 @IdClass(ContentTonePK.class)
-@Table(name = "\"ContentTone\"")
+@Table(name = "content_tone", schema = "public")
 public class ContentTone extends AuditColumns {
   /**
    * Primary key to identify the content tone.
    * Foreign key to content.
    */
   @Id
-  @Column(name = "\"contentId\"", nullable = false)
+  @Column(name = "content_id", nullable = false)
   private int contentId;
 
   /**
    * The content reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
 
   /**
@@ -38,20 +38,20 @@ public class ContentTone extends AuditColumns {
    * Foreign key to tone pool.
    */
   @Id
-  @Column(name = "\"tonePoolId\"", nullable = false)
+  @Column(name = "tone_pool_id", nullable = false)
   private int tonePoolId;
 
   /**
    * The tone pool reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"tonePoolId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "tone_pool_id", insertable = false, updatable = false)
   private TonePool tonePool;
 
   /**
    * Value of tone.
    */
-  @Column(name = "\"value\"", nullable = false)
+  @Column(name = "value", nullable = false)
   private int value;
 
   /**

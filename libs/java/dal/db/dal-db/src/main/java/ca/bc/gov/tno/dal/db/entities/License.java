@@ -21,48 +21,48 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * License class, provides a way to manage license information for data sources.
  */
 @Entity
-@Table(name = "\"License\"")
+@Table(name = "license", schema = "public")
 public class License extends AuditColumns {
   /**
    * Primary key to identify the license.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_License")
-  @SequenceGenerator(name = "seq_License", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_license")
+  @SequenceGenerator(name = "seq_license", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the license.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the license.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * The number of days content is allowed to be kept before it must be purged (0
    * = forever).
    */
-  @Column(name = "\"ttl\"", nullable = false)
+  @Column(name = "ttl", nullable = false)
   private int ttl;
 
   /**
    * A collection of data sources that belong to this license.
    */
-  @JsonBackReference("dataSources")
+  @JsonBackReference("data_sources")
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
-  private List<DataSource> dataSources = new ArrayList<>();
+  private List<DataSource> data_sources = new ArrayList<>();
 
   /**
    * A collection of content that belong to this license.
@@ -163,10 +163,10 @@ public class License extends AuditColumns {
   }
 
   /**
-   * @return List{DataSource} return the dataSources
+   * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return dataSources;
+    return data_sources;
   }
 
 }

@@ -29,28 +29,33 @@ parameters:
     displayName: "Git Repository URL"
     description: "The URL of the repository with your application source code."
     required: true
-    value: "https://github.com/bcgov/tno.git"
+    value: https://github.com/bcgov/tno.git
   - name: GIT_REF
     displayName: "Git Reference"
     description:
       "Set this to a branch name, tag or other ref of your repository if you
       are not using the default branch."
     value: dev
+  - name: GIT_SOURCE
+    displayName: Git Source Name
+    description: Identify the git source for this build.
+    required: true
+    value: dev
   - name: CONTEXT_DIR
     displayName: "Context Directory"
     description: "Set this to use a subdirectory of the source code repository"
-    value: "app/editor"
+    value: app/editor
   - name: DOCKERFILE
     displayName: "Dockerfile Name"
     description: "The Dockerfile name"
     required: true
-    value: "Dockerfile"
+    value: Dockerfile
 
   - name: IMAGE_TAG
     displayName: "Output Image Tag"
     description: "The tag given to the built image."
     required: true
-    value: "latest"
+    value: latest
 
   - name: CPU_LIMIT
     displayName: "Resources CPU Limit"
@@ -68,11 +73,11 @@ objects:
   - kind: ConfigMap
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
       annotations:
         description: Environment variable configuration
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
         app: ${APP_NAME}
         solution: ${SOLUTION_NAME}
     data:
@@ -96,11 +101,11 @@ objects:
   - kind: BuildConfig
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
       annotations:
         description: Defines how to build the image
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
         app: ${APP_NAME}
         solution: ${SOLUTION_NAME}
     spec:
@@ -116,7 +121,7 @@ objects:
         contextDir: ${CONTEXT_DIR}
         configMaps:
           - configMap:
-              name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+              name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
             destinationDir: ./
       strategy:
         type: Docker

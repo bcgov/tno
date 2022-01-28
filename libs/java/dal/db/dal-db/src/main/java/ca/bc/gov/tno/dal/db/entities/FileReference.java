@@ -17,52 +17,52 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * FileReference class, defines a reference to a file stored at some location.
  */
 @Entity
-@Table(name = "\"FileReference\"")
+@Table(name = "file_reference", schema = "public")
 public class FileReference extends AuditColumns {
   /**
    * Primary key to identify the file reference.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_FileReference")
-  @SequenceGenerator(name = "seq_FileReference", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_file_reference")
+  @SequenceGenerator(name = "seq_file_reference", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * File path and name.
    */
-  @Column(name = "\"path\"", nullable = false)
+  @Column(name = "path", nullable = false)
   private String path;
 
   /**
    * File mimetype.
    */
-  @Column(name = "\"mimeType\"", nullable = false)
+  @Column(name = "mime_type", nullable = false)
   private String mimeType;
 
   /**
    * The size of the file in bytes.
    */
-  @Column(name = "\"size\"")
+  @Column(name = "size")
   private int size;
 
   /**
    * The length of the video/audio in milliseconds.
    */
-  @Column(name = "\"length\"", nullable = false)
+  @Column(name = "length", nullable = false)
   private int length;
 
   /**
    * Foreign key to the content.
    */
-  @Column(name = "\"contentId\"", nullable = false)
+  @Column(name = "content_id", nullable = false)
   private int contentId;
 
   /**
    * The file reference content reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"contentId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
 
   /**

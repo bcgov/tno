@@ -26,99 +26,99 @@ import ca.bc.gov.tno.dal.db.converters.HashMapToStringConverter;
  * length of time it will be stored, and the Kafka topic it will be stored in.
  */
 @Entity
-@Table(name = "\"DataSource\"")
+@Table(name = "data_source", schema = "public")
 public class DataSource extends AuditColumns {
   /**
    * Primary key to identify the data source.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_DataSource")
-  @SequenceGenerator(name = "seq_DataSource", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_data_source")
+  @SequenceGenerator(name = "seq_data_source", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the data source.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A unique abbreviation to identify the data source. This is used in the
    * content reference table.
    */
-  @Column(name = "\"code\"", nullable = false)
+  @Column(name = "code", nullable = false)
   private String code;
 
   /**
    * A description of the data source.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * Foreign key to the media type.
    */
-  @Column(name = "\"mediaTypeId\"", nullable = false)
+  @Column(name = "media_type_id", nullable = false)
   private int mediaTypeId;
 
   /**
    * The media type reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"mediaTypeId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "media_type_id", insertable = false, updatable = false)
   private MediaType mediaType;
 
   /**
    * Foreign key to the license.
    */
-  @Column(name = "\"licenseId\"", nullable = false)
+  @Column(name = "license_id", nullable = false)
   private int licenseId;
 
   /**
    * The license reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"licenseId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "license_id", insertable = false, updatable = false)
   private License license;
 
   /**
    * Foreign key to the schedule.
    */
-  @Column(name = "\"scheduleId\"", nullable = false)
+  @Column(name = "schedule_id", nullable = false)
   private int scheduleId;
 
   /**
    * The schedule reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"scheduleId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
   private Schedule schedule;
 
   /**
    * The Kafka topic that content will be pushed into.
    */
-  @Column(name = "\"topic\"", nullable = false)
+  @Column(name = "topic", nullable = false)
   private String topic;
 
   /**
    * The date and time this data source was successfully ingested on.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "\"lastRanOn\"")
+  @Column(name = "last_ran_on")
   private Date lastRanOn;
 
   /**
    * JSON configuration values for the ingestion services.
    */
   @Convert(converter = HashMapToStringConverter.class)
-  @Column(name = "\"connection\"", nullable = false, columnDefinition = "text") // TODO: Switch to JSON in DB
+  @Column(name = "connection", nullable = false, columnDefinition = "text") // TODO: Switch to JSON in DB
   private Map<String, Object> connection = new HashMap<>();
 
   /**

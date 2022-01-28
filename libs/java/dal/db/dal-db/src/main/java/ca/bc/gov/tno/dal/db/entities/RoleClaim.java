@@ -16,13 +16,13 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * RoleClaim class, provides a way to manage claim roles.
  */
 @Entity
-@Table(name = "\"RoleClaim\"")
+@Table(name = "role_claim", schema = "public")
 public class RoleClaim extends AuditColumns {
   /**
    * Primary key and foreign key to the role.
    */
   @Id
-  @Column(name = "\"roleId\"", nullable = false)
+  @Column(name = "role_id", nullable = false)
   private int roleId;
 
   /**
@@ -30,21 +30,21 @@ public class RoleClaim extends AuditColumns {
    */
   @JsonBackReference("role")
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"roleId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "role_id", insertable = false, updatable = false)
   private Role role;
 
   /**
    * Primary key and foreign key to the claim.
    */
   @Id
-  @Column(name = "\"claimId\"", nullable = false)
+  @Column(name = "claim_id", nullable = false)
   private int claimId;
 
   /**
    * The claim reference.
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"claimId\"", insertable = false, updatable = false)
+  @JoinColumn(name = "claim_id", insertable = false, updatable = false)
   private Claim claim;
 
   /**

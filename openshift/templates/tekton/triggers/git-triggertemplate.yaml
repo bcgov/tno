@@ -20,12 +20,6 @@ parameters:
     required: true
     value: app-editor
 
-  - name: GIT_REF
-    displayName: GIT Branch or Refernce
-    description: The GIT branch name or reference that will start a pipeline run.
-    required: true
-    value: dev
-
   - name: TEMPLATE_NAME
     displayName: BuildConfig Template Name
     description: The BuildConfig Template name that will be used to generate a BuildConfig.
@@ -41,14 +35,10 @@ parameters:
     required: true
     value: Dockerfile.nginx
 
-  - name: DEPLOY_TO
-    displayName: Deploy To
-    description: The environment to deploy to [dev, test, prod, tools]
-    required: true
-    value: dev
   - name: WEB_APP_URL
     displayName: Web Application URL
     description: The URL to the web application that will be ZAP scanned.
+    value: https://tno-dev.apps.silver.devops.gov.bc.ca
 
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
@@ -71,11 +61,12 @@ objects:
       app: ${APP_NAME}
     spec:
       params:
-        - name: GIT_REF
-          description: The git revision
-          default: master
         - name: GIT_URL
           description: The git repository url
+        - name: GIT_REF
+          description: The git revision
+        - name: GIT_SOURCE
+          description: Identify the git source
         - name: DEPLOY_TO
           description: The environment to depoloy to
         - name: VERSION
@@ -103,6 +94,8 @@ objects:
                 value: $(tt.params.GIT_URL)
               - name: GIT_REF
                 value: $(tt.params.GIT_REF)
+              - name: GIT_SOURCE
+                value: $(tt.params.GIT_SOURCE)
               - name: CONTEXT_DIR
                 value: ${CONTEXT_DIR}
               - name: DOCKERFILE
@@ -112,40 +105,11 @@ objects:
               - name: IMAGE_TAG
                 value: $(tt.params.VERSION)
               - name: DEPLOY_TO
-                value: ${DEPLOY_TO}
+                value: $(tt.params.DEPLOY_TO)
               - name: CPU_LIMIT
                 value: ${CPU_LIMIT}
               - name: MEMORY_LIMIT
                 value: ${MEMORY_LIMIT}
-
-  # The GIT push event will generate a pipeline run.
-  - apiVersion: triggers.tekton.dev/v1alpha1
-    kind: EventListener
-    metadata:
-      name: git-${SOLUTION_NAME}-${APP_NAME}
-      solution: ${SOLUTION_NAME}
-      app: ${APP_NAME}
-    spec:
-      serviceAccountName: pipeline
-      triggers:
-        - name: github-listener
-          interceptors:
-            - github:
-                secretRef:
-                  secretName: ${SOLUTION_NAME}-webhook
-                  secretKey: webhook
-                eventTypes:
-                  - push
-            - cel:
-                filter: >-
-                  body.ref == 'refs/heads/${GIT_REF}'
-                  && (body.commits.exists(c, c.added.exists(m, m.startsWith('${CONTEXT_DIR}')))
-                    || body.commits.exists(c, c.modified.exists(m, m.startsWith('${CONTEXT_DIR}')))
-                    || body.commits.exists(c, c.removed.exists(m, m.startsWith('${CONTEXT_DIR}')))
-                    || body.head_commit.added.exists(m, m.startsWith('${CONTEXT_DIR}'))
-                    || body.head_commit.modified.exists(m, m.startsWith('${CONTEXT_DIR}'))
-                    || body.head_commit.removed.exists(m, m.startsWith('${CONTEXT_DIR}')))
-          bindings:
-            - ref: git-${SOLUTION_NAME}
-          template:
-            ref: git-${SOLUTION_NAME}-${APP_NAME}
+            workspaces:
+              - name: owasp-settings
+                emptyDir: {}

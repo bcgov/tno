@@ -23,13 +23,17 @@ spec:
     - name: GIT_URL
       description: The URL of the repository with your application source code.
       type: string
-      default: "https://github.com/bcgov/tno.git"
+      default: https://github.com/bcgov/tno.git
     - name: GIT_REF
       description:
         Set this to a branch name, tag or other ref of your repository if you
         are not using the default branch.
       type: string
-      default: "dev"
+      default: dev
+    - name: GIT_SOURCE
+      description: Identify the git source for this build.
+      type: string
+      default: dev
     - name: CONTEXT_DIR
       description: Set this to use a subdirectory of the source code repository
       type: string
@@ -37,17 +41,17 @@ spec:
     - name: DOCKERFILE
       description: The Dockerfile name
       type: string
-      default: "Dockerfile"
+      default: Dockerfile
 
     - name: IMAGE_TAG
       description: Tag to apply to the built image
       type: string
-      default: "latest"
+      default: latest
 
     - name: DEPLOY_TO
       description: The environment to deploy to [dev, test, prod, tools].
       type: string
-      default: "dev"
+      default: dev
     - name: WEB_APP_URL
       description: The URL to the web application that will be ZAP scanned.
       type: string
@@ -82,6 +86,8 @@ spec:
           value: $(params.GIT_URL)
         - name: GIT_REF
           value: $(params.GIT_REF)
+        - name: GIT_SOURCE
+          value: $(params.GIT_SOURCE)
         - name: CONTEXT_DIR
           value: $(params.CONTEXT_DIR)
         - name: DOCKERFILE

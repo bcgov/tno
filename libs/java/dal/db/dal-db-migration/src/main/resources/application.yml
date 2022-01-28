@@ -30,7 +30,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL92Dialect
-        current_session_context_class: thread
+        "[current_session_context_class]": thread
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:none}
       naming:

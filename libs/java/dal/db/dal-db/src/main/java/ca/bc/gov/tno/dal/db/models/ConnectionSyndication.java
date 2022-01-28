@@ -60,7 +60,7 @@ public class ConnectionSyndication {
     return new HashMap<String, Object>() {
       {
         put("url", url);
-        put("syndicationtype", syndicationType);
+        put("syndicationType", syndicationType);
         put("authenticationType", authenticationType);
         put("token", token);
         put("username", username);

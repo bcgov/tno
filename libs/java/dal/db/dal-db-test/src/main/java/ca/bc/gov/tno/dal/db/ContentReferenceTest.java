@@ -44,7 +44,7 @@ public class ContentReferenceTest {
       contentReferenceService.add(duplicate);
     } catch (DataIntegrityViolationException e) {
       var cause = (ConstraintViolationException) e.getCause();
-      if (!cause.getConstraintName().equals("pk_ContentReference"))
+      if (!cause.getConstraintName().equals("pk_content_reference"))
         throw new IllegalStateException("Constraint missing from table");
       System.out.println("Duplication Check Successful: " + reference.getSource());
     }

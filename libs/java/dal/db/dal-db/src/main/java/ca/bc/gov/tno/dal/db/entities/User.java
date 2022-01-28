@@ -24,70 +24,70 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * User class, provides an entity to manage users in the db.
  */
 @Entity
-@Table(name = "\"User\"")
+@Table(name = "user", schema = "public")
 public class User extends AuditColumns {
   /**
    * Primary key to identify the user.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_User")
-  @SequenceGenerator(name = "seq_User", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_user")
+  @SequenceGenerator(name = "seq_user", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the user account.
    */
-  @Column(name = "\"username\"", nullable = false)
+  @Column(name = "username", nullable = false)
   private String username;
 
   /**
    * A unique key to identify the user account.
    */
-  @Column(name = "\"key\"", nullable = false)
+  @Column(name = "key", nullable = false)
   private UUID key;
 
   /**
    * The user's email address
    */
-  @Column(name = "\"email\"", nullable = false)
+  @Column(name = "email", nullable = false)
   private String email;
 
   /**
    * The user's display name.
    */
-  @Column(name = "\"displayName\"", nullable = true)
+  @Column(name = "display_name", nullable = true)
   private String displayName = "";
 
   /**
    * The user's first name.
    */
-  @Column(name = "\"firstName\"", nullable = true)
+  @Column(name = "first_name", nullable = true)
   private String firstName = "";
 
   /**
    * The user's last name.
    */
-  @Column(name = "\"lastName\"", nullable = true)
+  @Column(name = "last_name", nullable = true)
   private String lastName = "";
 
   /**
    * Whether the user is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * Whether the email has been verified.
    */
-  @Column(name = "\"emailVerified\"", nullable = false)
+  @Column(name = "email_verified", nullable = false)
   private boolean emailVerified;
 
   /**
    * The date and time the user last logged in.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "\"lastLoginOn\"", nullable = false)
+  @Column(name = "last_login_on", nullable = false)
   private Date lastLoginOn;
 
   /**

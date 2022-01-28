@@ -22,57 +22,57 @@ import ca.bc.gov.tno.dal.db.ValueType;
  * Action class, provides a way to manage actions.
  */
 @Entity
-@Table(name = "\"Action\"")
+@Table(name = "action", schema = "public")
 public class Action extends AuditColumns {
   /**
    * Primary key to identify the action.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Action")
-  @SequenceGenerator(name = "seq_Action", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_action")
+  @SequenceGenerator(name = "seq_action", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the action.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the action.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description;
 
   /**
    * Type of value.
    */
-  @Column(name = "\"valueType\"", nullable = false)
+  @Column(name = "value_type", nullable = false)
   private ValueType valueType = ValueType.Boolean;
 
   /**
    * The label to display with the value.
    */
-  @Column(name = "\"valueLabel\"", nullable = false)
+  @Column(name = "value_label", nullable = false)
   private String valueLabel = "";
 
   /**
    * The order to display.
    */
-  @Column(name = "\"sortOrder\"", nullable = false)
+  @Column(name = "sort_order", nullable = false)
   private int sortOrder;
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of role actions that belong to this action.
    */
-  @JsonBackReference("contentActions")
+  @JsonBackReference("content_actions")
   @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 

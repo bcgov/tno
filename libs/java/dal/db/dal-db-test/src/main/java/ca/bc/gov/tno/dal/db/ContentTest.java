@@ -4,9 +4,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
@@ -65,7 +63,7 @@ public class ContentTest {
   }
 
   public Content Update(Content entity) {
-    entity.setUid("UID");
+    entity.setUid("uid");
     entity.setCreatedBy("illegal");
     entity.setCreatedById(UUID.randomUUID());
 

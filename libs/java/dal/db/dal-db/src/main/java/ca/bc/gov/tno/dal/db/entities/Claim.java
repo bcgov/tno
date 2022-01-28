@@ -22,45 +22,45 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * Claim class, provides a way to manage claims.
  */
 @Entity
-@Table(name = "\"Claim\"")
+@Table(name = "claim", schema = "public")
 public class Claim extends AuditColumns {
   /**
    * Primary key to identify the claim.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Claim")
-  @SequenceGenerator(name = "seq_Claim", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_claim")
+  @SequenceGenerator(name = "seq_claim", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private int id;
 
   /**
    * A unique name to identify the claim.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A unique key to identify the claim.
    */
-  @Column(name = "\"key\"", nullable = false)
+  @Column(name = "key", nullable = false)
   private UUID key;
 
   /**
    * A description of the claim.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of role claims that belong to this claim.
    */
-  @JsonBackReference("roleClaims")
+  @JsonBackReference("role_claims")
   @OneToMany(mappedBy = "claim", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

@@ -21,45 +21,45 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
  * Tag class, provides a way to manage tags.
  */
 @Entity
-@Table(name = "\"Tag\"")
+@Table(name = "tag", schema = "public")
 public class Tag extends AuditColumns {
   /**
    * Primary key to identify the tag.
    */
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_Tag")
-  @SequenceGenerator(name = "seq_Tag", allocationSize = 1)
-  @Column(name = "\"id\"", nullable = false)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_tag")
+  @SequenceGenerator(name = "seq_tag", allocationSize = 1)
+  @Column(name = "id", nullable = false)
   private String id;
 
   /**
    * A unique name to identify the tag.
    */
-  @Column(name = "\"name\"", nullable = false)
+  @Column(name = "name", nullable = false)
   private String name;
 
   /**
    * A description of the tag.
    */
-  @Column(name = "\"description\"")
+  @Column(name = "description")
   private String description = "";
 
   /**
    * The order to display.
    */
-  @Column(name = "\"sortOrder\"", nullable = false)
+  @Column(name = "sort_order", nullable = false)
   private int sortOrder;
 
   /**
    * Whether this record is enabled or disabled.
    */
-  @Column(name = "\"isEnabled\"", nullable = false)
+  @Column(name = "is_enabled", nullable = false)
   private boolean enabled = true;
 
   /**
    * A collection of role categories that belong to this tag.
    */
-  @JsonBackReference("contentCategories")
+  @JsonBackReference("content_categories")
   @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
   private List<ContentTag> contentCategories = new ArrayList<>();
 

@@ -23,28 +23,33 @@ parameters:
     displayName: Git Repository URL
     description: The URL of the repository with your application source code.
     required: true
-    value: "https://github.com/bcgov/tno.git"
+    value: https://github.com/bcgov/tno.git
   - name: GIT_REF
     displayName: Git Reference
     description:
       Set this to a branch name, tag or other ref of your repository if you
       are not using the default branch.
     value: dev
+  - name: GIT_SOURCE
+    displayName: Git Source Name
+    description: Identify the git source for this build.
+    required: true
+    value: dev
   - name: CONTEXT_DIR
     displayName: Context Directory
     description: Set this to use a subdirectory of the source code repository
-    value: "api/editor"
+    value: api/editor
   - name: DOCKERFILE
     displayName: Dockerfile Name
     description: The Dockerfile name
     required: true
-    value: "Dockerfile"
+    value: Dockerfile
 
   - name: IMAGE_TAG
     displayName: "Output Image Tag"
     description: "The tag given to the built image."
     required: true
-    value: "latest"
+    value: latest
 
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
@@ -74,14 +79,14 @@ objects:
   - kind: BuildConfig
     apiVersion: v1
     metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+      name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
       annotations:
         description: Build image from Dockerfile in git repo.
       labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_REF}
+        name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
         solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        branch: ${GIT_REF}
+        branch: ${GIT_SOURCE}
     spec:
       completionDeadlineSeconds: 1800
       triggers:

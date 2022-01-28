@@ -47,7 +47,8 @@ public class ContentController {
     var paged = new Paged<ContentModel>(
         results.getItems().stream().map(c -> new ContentModel(c)).toList(),
         results.getPage(),
-        results.getPage(), results.getTotal());
+        results.getQuantity(),
+        results.getTotal());
 
     return paged;
   }
