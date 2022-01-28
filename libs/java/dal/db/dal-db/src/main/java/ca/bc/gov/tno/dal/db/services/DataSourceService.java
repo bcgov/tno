@@ -52,7 +52,7 @@ public class DataSourceService implements IDataSourceService {
    * @return A new instance of the data source if it exists.
    */
   @Override
-  public Optional<DataSource> findById(Integer key) {
+  public Optional<DataSource> findById(int key) {
     var reference = repository.findById(key);
     return reference;
   }
@@ -65,11 +65,11 @@ public class DataSourceService implements IDataSourceService {
    */
   @Override
   public Optional<DataSource> findByCode(String code) {
-    var sql = "FROM DataSource ds WHERE ds.code = :code";
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
     try {
+      var sql = "FROM DataSource ds WHERE ds.code = :code";
       var query = session.createQuery(sql).setParameter("code", code).setMaxResults(1);
       var result = query.uniqueResult();
       return Optional.ofNullable((DataSource) result);

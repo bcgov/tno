@@ -28,7 +28,7 @@ public class RoleClaim extends AuditColumns {
   /**
    * The role reference.
    */
-  @JsonBackReference
+  @JsonBackReference("role")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"roleId\"", insertable = false, updatable = false)
   private Role role;

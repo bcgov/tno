@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/elastic")
 public class ElasticController {
 
-	@Autowired
-	RestHighLevelClient elasticClient;
+  @Autowired
+  RestHighLevelClient elasticClient;
 
-	/**
-	 * Request the Elasticsearch index page.
-	 *
-	 * @return
-	 * @throws IOException
-	 */
-	@GetMapping("")
-	public MainResponse index() throws IOException {
+  /**
+   * Request the Elasticsearch index page.
+   *
+   * @return
+   * @throws IOException
+   */
+  @GetMapping("")
+  public MainResponse index() throws IOException {
 
-		MainResponse response = elasticClient.info(RequestOptions.DEFAULT);
-		return response;
-	}
+    MainResponse response = elasticClient.info(RequestOptions.DEFAULT);
+    return response;
+  }
 
 }

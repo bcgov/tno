@@ -1,8 +1,21 @@
 DROP TABLE public."DataSource";
-DROP TABLE public."DataSourceType";
 DROP TABLE public."Schedule";
-DROP TABLE public."License";
 DROP TABLE public."ContentReference";
+DROP TABLE public."FileReference";
+DROP TABLE public."TimeTracking";
+DROP TABLE public."ContentAction";
+DROP TABLE public."ContentTone";
+DROP TABLE public."ContentCategory";
+DROP TABLE public."ContentTag";
+DROP TABLE public."ContentLink";
+DROP TABLE public."Content";
+DROP TABLE public."ContentType";
+DROP TABLE public."MediaType";
+DROP TABLE public."License";
+DROP TABLE public."Action";
+DROP TABLE public."TonePool";
+DROP TABLE public."Category";
+DROP TABLE public."Tag";
 DROP TABLE public."UserRole";
 DROP TABLE public."RoleClaim";
 DROP TABLE public."User";
@@ -10,12 +23,18 @@ DROP TABLE public."Role";
 DROP TABLE public."Claim";
 
 DROP SEQUENCE public.seq_DataSource;
-DROP SEQUENCE public.seq_DataSourceType;
+DROP SEQUENCE public.seq_MediaType;
 DROP SEQUENCE public.seq_Schedule;
 DROP SEQUENCE public.seq_License;
 DROP SEQUENCE public.seq_User;
 DROP SEQUENCE public.seq_Role;
 DROP SEQUENCE public.seq_Claim;
+DROP SEQUENCE public.seq_FileReference;
+DROP SEQUENCE public.seq_Content;
+DROP SEQUENCE public.seq_ContentType;
+DROP SEQUENCE public.seq_Action;
+DROP SEQUENCE public.seq_TonePool;
+DROP SEQUENCE public.seq_Category;
 
 DELETE FROM public.flyway_schema_history
 WHERE version = '1.0.0'

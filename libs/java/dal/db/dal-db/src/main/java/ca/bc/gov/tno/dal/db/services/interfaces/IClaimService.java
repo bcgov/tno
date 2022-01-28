@@ -22,7 +22,7 @@ public interface IClaimService {
    * @param key The primary key.
    * @return A new instance of the claim if it exists.
    */
-  Optional<Claim> findById(Integer key);
+  Optional<Claim> findById(int key);
 
   /**
    * Add a new claim to the data source.

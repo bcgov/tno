@@ -49,7 +49,7 @@ public class ScheduleService implements IScheduleService {
    * @return A new instance of the schedule if it exists.
    */
   @Override
-  public Optional<Schedule> findById(Integer key) {
+  public Optional<Schedule> findById(int key) {
     var schedule = repository.findById(key);
     return schedule;
   }

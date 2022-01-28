@@ -14,21 +14,21 @@ import ca.bc.gov.tno.models.home.PrincipalModel;
 @RestController
 public class HomeController {
 
-	@GetMapping("/")
-	public String index() {
-		return "TNO API";
-	}
+  @GetMapping("/")
+  public String index() {
+    return "TNO API";
+  }
 
-	@GetMapping("/test/{id}")
-	public String test(@PathVariable String id) {
-		return id;
-	}
+  @GetMapping("/test/{id}")
+  public String test(@PathVariable String id) {
+    return id;
+  }
 
-	@GetMapping(value = "/userinfo", produces = MediaType.APPLICATION_JSON_VALUE)
-	public String userinfo(Authentication authentication) throws JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
-		PrincipalModel model = new PrincipalModel(authentication);
-		return mapper.writeValueAsString(model);
-	}
+  @GetMapping(value = "/userinfo", produces = MediaType.APPLICATION_JSON_VALUE)
+  public String userinfo(Authentication authentication) throws JsonProcessingException {
+    ObjectMapper mapper = new ObjectMapper();
+    PrincipalModel model = new PrincipalModel(authentication);
+    return mapper.writeValueAsString(model);
+  }
 
 }

@@ -948,6 +948,2300 @@
 			"name": "api-editor",
 			"item": [
 				{
+					"name": "health",
+					"item": [
+						{
+							"name": "health",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/health",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"health"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "admin",
+					"item": [
+						{
+							"name": "actions",
+							"item": [
+								{
+									"name": "actions",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/actions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"actions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/actions/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"actions",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/actions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"actions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/actions/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"actions",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/actions/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"actions",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "categories",
+							"item": [
+								{
+									"name": "categories",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/categories",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"categories"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "categories/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/categories/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"categories",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "categories",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/categories",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"categories"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "categories/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/categories/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"categories",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "categories/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/categories/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"categories",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "claims",
+							"item": [
+								{
+									"name": "claims",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "claims/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"claims",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "content references",
+							"item": [
+								{
+									"name": "content/references",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source/:uid",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references",
+												":source",
+												":uid"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": null
+												},
+												{
+													"key": "uid",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source/:uid",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references",
+												":source",
+												":uid"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": null
+												},
+												{
+													"key": "uid",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source/:uid",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"references",
+												":source",
+												":uid"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": null
+												},
+												{
+													"key": "uid",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "content types",
+							"item": [
+								{
+									"name": "content/types",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/types/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/types",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/types/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/types/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"content",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "data sources",
+							"item": [
+								{
+									"name": "data/sources",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "media types",
+							"item": [
+								{
+									"name": "media/types",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/media/types",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"media",
+												"types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "media/types/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/media/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"media",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "media/types",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/media/types",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"media",
+												"types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "media/types/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/media/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"media",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "media/types/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/media/types/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"media",
+												"types",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "licenses",
+							"item": [
+								{
+									"name": "licenses",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "licenses",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "licenses/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"licenses",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "roles",
+							"item": [
+								{
+									"name": "roles",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "roles/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"roles",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "schedules",
+							"item": [
+								{
+									"name": "schedules",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "schedules/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"schedules",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "tags",
+							"item": [
+								{
+									"name": "tags",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tags",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tags"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tags/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tags/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tags",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tags",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tags",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tags"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tags/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tags/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tags",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tags/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tags/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tags",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "tone pools",
+							"item": [
+								{
+									"name": "tone/pools",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tone/pools",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tone",
+												"pools"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tone/pools/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tone/pools/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tone",
+												"pools",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tone/pools",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tone/pools",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tone",
+												"pools"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tone/pools/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tone/pools/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tone",
+												"pools",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tone/pools/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/tone/pools/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"tone",
+												"pools",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "users",
+							"item": [
+								{
+									"name": "users",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "users/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"users",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "editor",
+					"item": [
+						{
+							"name": "contents",
+							"item": [
+								{
+									"name": "find",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "quantity",
+													"value": "10",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "find/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents",
+												":id"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "quantity",
+													"value": "10",
+													"disabled": true
+												}
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "30"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "add",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 1,\r\n    \"headline\": \"Story headline\",\r\n    \"source\": \"source\",\r\n    \"licenseId\": 1,\r\n    \"mediaTypeId\": 1,\r\n    \"page\": \"page\",\r\n    \"section\": \"section\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "actions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/actions",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"actions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "content/types",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/content/types",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"content",
+										"types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/categories",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "media/types",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/media/types",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"media",
+										"types"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "tags",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/tags",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"tags"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "tone/pools",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/tone/pools",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"tone",
+										"pools"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "elastic",
 					"item": [
 						{
@@ -1194,1270 +3488,6 @@
 					]
 				},
 				{
-					"name": "admin",
-					"item": [
-						{
-							"name": "dataSources",
-							"item": [
-								{
-									"name": "data/sources",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"sources"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/sources/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"sources",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/sources",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"sources"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/sources/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"sources",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/sources/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"sources",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "contentReferences",
-							"item": [
-								{
-									"name": "content/references",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"content",
-												"references"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "content/references/:source/:uid",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"content",
-												"references",
-												":source",
-												":uid"
-											],
-											"variable": [
-												{
-													"key": "source",
-													"value": null
-												},
-												{
-													"key": "uid",
-													"value": null
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "content/references",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"content",
-												"references"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "content/references/:source/:uid",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"content",
-												"references",
-												":source",
-												":uid"
-											],
-											"variable": [
-												{
-													"key": "source",
-													"value": null
-												},
-												{
-													"key": "uid",
-													"value": null
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "content/references/:source/:uid",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"source\": \"CJN\",\r\n    \"uid\": \"01\",\r\n    \"topic\": \"test\",\r\n    \"offset\": 0,\r\n    \"status\": 0\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/references/:source/:uid",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"content",
-												"references",
-												":source",
-												":uid"
-											],
-											"variable": [
-												{
-													"key": "source",
-													"value": null
-												},
-												{
-													"key": "uid",
-													"value": null
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "dataSourceTypes",
-							"item": [
-								{
-									"name": "data/source/types",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"source",
-												"types"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/source/types/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"source",
-												"types",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/source/types",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"source",
-												"types"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/source/types/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"source",
-												"types",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/source/types/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/source/types/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"data",
-												"source",
-												"types",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": null
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "licenses",
-							"item": [
-								{
-									"name": "licenses",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"licenses"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/sources/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"licenses",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "licenses",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"licenses"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "licenses/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"licenses",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "data/sources/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"license\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/licenses/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"licenses",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "schedules",
-							"item": [
-								{
-									"name": "schedules",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"schedules"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "schedules/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"schedules",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "schedules",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"schedules"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "schedules/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"schedules",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "schedules/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"schedule\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/schedules/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"schedules",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "users",
-							"item": [
-								{
-									"name": "users",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"users"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "users/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"users",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "users",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"users"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "users/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"users",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "users/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/users/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"users",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "roles",
-							"item": [
-								{
-									"name": "roles",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"roles"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "roles/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"roles",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "roles",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"roles"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "roles/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"roles",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "roles/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/roles/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"roles",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "claims",
-							"item": [
-								{
-									"name": "claims",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"claims"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "claims/:id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"claims",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "claims",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"claims"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "claims/:id",
-									"request": {
-										"method": "PUT",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"claims",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "claims/:id",
-									"request": {
-										"method": "DELETE",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/claims/:id",
-											"protocol": "{{scheme}}",
-											"host": [
-												"{{host}}"
-											],
-											"port": "{{port}}{{root-path}}",
-											"path": [
-												"admin",
-												"claims",
-												":id"
-											],
-											"variable": [
-												{
-													"key": "id",
-													"value": "1"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						}
-					]
-				},
-				{
 					"name": "kafka",
 					"item": [
 						{
@@ -2541,30 +3571,6 @@
 					]
 				},
 				{
-					"name": "health",
-					"item": [
-						{
-							"name": "health",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/health",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"health"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
 					"name": "userinfo",
 					"request": {
 						"method": "GET",
@@ -2624,12 +3630,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/topics",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"topics"
 									]
@@ -2663,12 +3669,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/topics/:topic",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"topics",
 										":topic"
@@ -2689,12 +3695,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic/partitions",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/topics/:topic/partitions",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"topics",
 										":topic",
@@ -2716,12 +3722,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/topics/:topic/partitions/:id",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/topics/:topic/partitions/:id",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"topics",
 										":topic",
@@ -2768,12 +3774,12 @@
 									}
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name"
@@ -2822,12 +3828,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -2860,12 +3866,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/offsets",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/offsets",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -2899,12 +3905,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/offsets",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/offsets",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -2938,12 +3944,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/subscription",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/subscription",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -2977,12 +3983,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/subscription",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/subscription",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3016,12 +4022,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/subscription",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/subscription",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3055,12 +4061,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/assignments",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/assignments",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3094,12 +4100,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/assignments",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/assignments",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3133,12 +4139,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/positions",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/positions",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3172,12 +4178,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/positions/beginning",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/positions/beginning",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3212,12 +4218,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/positions/end",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/positions/end",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3252,12 +4258,12 @@
 									}
 								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/consumers/:group_name/instances/:consumer_id/records",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/consumers/:group_name/instances/:consumer_id/records",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"consumers",
 										":group_name",
@@ -3290,12 +4296,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/brokers",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/brokers",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"brokers"
 									]
@@ -3320,12 +4326,12 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id",
+													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id",
 													"protocol": "{{scheme}}",
 													"host": [
 														"{{host}}"
 													],
-													"port": "{{kafka-rest-port}}",
+													"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 													"path": [
 														"v3",
 														"clusters",
@@ -3359,12 +4365,12 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id/assignments",
+													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id/assignments",
 													"protocol": "{{scheme}}",
 													"host": [
 														"{{host}}"
 													],
-													"port": "{{kafka-rest-port}}",
+													"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 													"path": [
 														"v3",
 														"clusters",
@@ -3399,12 +4405,12 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id/assignments/:topic_name/partitions/:partition_id",
+													"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers/:consumer_id/assignments/:topic_name/partitions/:partition_id",
 													"protocol": "{{scheme}}",
 													"host": [
 														"{{host}}"
 													],
-													"port": "{{kafka-rest-port}}",
+													"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 													"path": [
 														"v3",
 														"clusters",
@@ -3452,12 +4458,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/consumer-groups",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/consumer-groups",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3480,12 +4486,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3513,12 +4519,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/consumers",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3547,12 +4553,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/lag-summary",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/lag-summary",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3581,12 +4587,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/lags",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/lags",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3615,12 +4621,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:culster_id/consumer-groups/:group_id/lags/:topic_name/partitions/:partition_id",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:culster_id/consumer-groups/:group_id/lags/:topic_name/partitions/:partition_id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3665,12 +4671,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3680,7 +4686,7 @@
 											"variable": [
 												{
 													"key": "cluster_id",
-													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+													"value": "wGfL7FzuT-6n5YpvPvHoow"
 												}
 											]
 										}
@@ -3693,12 +4699,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/:topic_name",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3735,12 +4741,12 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3772,12 +4778,12 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/:topic_name",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3805,12 +4811,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/:topic_name/partitions",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3839,12 +4845,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/:partition_id",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/:partition_id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3878,12 +4884,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/-/partitions/-/reassignment",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/-/partitions/-/reassignment",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3910,12 +4916,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/-/reassignment",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/-/reassignment",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3946,12 +4952,12 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/:partition_id/reassignment",
+											"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:cluster_id/topics/:topic_name/partitions/:partition_id/reassignment",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
 											],
-											"port": "{{kafka-rest-port}}",
+											"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 											"path": [
 												"v3",
 												"clusters",
@@ -3988,12 +4994,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"v3",
 										"clusters"
@@ -4008,12 +5014,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}/v3/clusters/:id",
+									"raw": "{{scheme}}://{{host}}:{{kafka-rest-port}}{{kafka-rest-path}}/v3/clusters/:id",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
-									"port": "{{kafka-rest-port}}",
+									"port": "{{kafka-rest-port}}{{kafka-rest-path}}",
 									"path": [
 										"v3",
 										"clusters",
@@ -4183,12 +5189,12 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{elastic-port}}/_cat/indices/*?v&s=index",
+									"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}/_cat/indices/*?v&s=index",
 									"protocol": "{{scheme}}",
 									"host": [
-										"{{host}}"
+										"{{elastic-host}}"
 									],
-									"port": "{{elastic-port}}",
+									"port": "{{elastic-port}}{{elastic-path}}",
 									"path": [
 										"_cat",
 										"indices",
@@ -4214,7 +5220,7 @@
 					"name": "indexes",
 					"item": [
 						{
-							"name": "index",
+							"name": ":id",
 							"request": {
 								"auth": {
 									"type": "basic",
@@ -4243,12 +5249,52 @@
 									}
 								},
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{elastic-port}}/:id",
+									"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}/:id",
 									"protocol": "{{scheme}}",
 									"host": [
-										"{{host}}"
+										"{{elastic-host}}"
 									],
-									"port": "{{elastic-port}}",
+									"port": "{{elastic-port}}{{elastic-path}}",
+									"path": [
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "test"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": ":id",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "password",
+											"value": "{{elastic-password}}",
+											"type": "string"
+										},
+										{
+											"key": "username",
+											"value": "{{elastic-username}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}/:id",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{elastic-host}}"
+									],
+									"port": "{{elastic-port}}{{elastic-path}}",
 									"path": [
 										":id"
 									],
@@ -4261,6 +5307,76 @@
 								}
 							},
 							"response": []
+						}
+					]
+				},
+				{
+					"name": "home",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{elastic-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{elastic-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{elastic-host}}"
+							],
+							"port": "{{elastic-port}}{{elastic-path}}"
+						}
+					},
+					"response": [
+						{
+							"name": "home",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{elastic-host}}"
+									],
+									"port": "{{elastic-port}}{{elastic-path}}"
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-elastic-product",
+									"value": "Elasticsearch"
+								},
+								{
+									"key": "content-type",
+									"value": "application/json; charset=UTF-8"
+								},
+								{
+									"key": "content-encoding",
+									"value": "gzip"
+								},
+								{
+									"key": "content-length",
+									"value": "326"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"name\": \"tno\",\n    \"cluster_name\": \"tno-es-cluster\",\n    \"cluster_uuid\": \"0WYCrEAZSg-aDYboOS2FDA\",\n    \"version\": {\n        \"number\": \"7.15.0\",\n        \"build_flavor\": \"default\",\n        \"build_type\": \"docker\",\n        \"build_hash\": \"79d65f6e357953a5b3cbcc5e2c7c21073d89aa29\",\n        \"build_date\": \"2021-09-16T03:05:29.143308416Z\",\n        \"build_snapshot\": false,\n        \"lucene_version\": \"8.9.0\",\n        \"minimum_wire_compatibility_version\": \"6.8.0\",\n        \"minimum_index_compatibility_version\": \"6.0.0-beta1\"\n    },\n    \"tagline\": \"You Know, for Search\"\n}"
 						}
 					]
 				},
@@ -4285,15 +5401,84 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{elastic-port}}/_cat/health",
+							"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}/_cat/health",
 							"protocol": "{{scheme}}",
 							"host": [
-								"{{host}}"
+								"{{elastic-host}}"
 							],
-							"port": "{{elastic-port}}",
+							"port": "{{elastic-port}}{{elastic-path}}",
 							"path": [
 								"_cat",
 								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cat",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{elastic-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{elastic-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}/_cat",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{elastic-host}}"
+							],
+							"port": "{{elastic-port}}{{elastic-path}}",
+							"path": [
+								"_cat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "nodes",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{elastic-password}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{elastic-username}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{elastic-host}}:{{elastic-port}}{{elastic-path}}/_cat/nodes",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{elastic-host}}"
+							],
+							"port": "{{elastic-port}}{{elastic-path}}",
+							"path": [
+								"_cat",
+								"nodes"
 							]
 						}
 					},

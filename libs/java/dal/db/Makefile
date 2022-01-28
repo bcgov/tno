@@ -55,7 +55,7 @@ install: ## Force install to fetch dependencies from remote repository.
 
 run: ## Manually run the test project.
 	@echo "$(P) Manually run the test project."
-	@cd dal-db-test; mvn spring-boot:run
+	@./scripts/run-test.sh
 
 ##############################################################################
 # Maven Central Repository Commands
@@ -90,11 +90,11 @@ deploy-release: ## Build and deploy the package to Maven Central and release it 
 ##############################################################################
 
 install-oc: ## Download Openshift CLI so that it can be used within the container
-	@echo "$(P) Download Openshift CLI so that it can be used within the container"
+	$(info Download Openshift CLI so that it can be used within the container)
 	@./scripts/install-oc.sh
 
 db-update: ## Run the flyway database migration update
-	@echo "$(P) Run the flyway database migration update"
+	$(info Run the flyway database migration update)
 	@./scripts/db-update.sh
 
 .PHONY: local

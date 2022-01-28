@@ -22,7 +22,7 @@ public interface IDataSourceService {
    * @param key The primary key.
    * @return A new instance of the data source if it exists.
    */
-  Optional<DataSource> findById(Integer key);
+  Optional<DataSource> findById(int key);
 
   /**
    * Find the data source for the specified code.

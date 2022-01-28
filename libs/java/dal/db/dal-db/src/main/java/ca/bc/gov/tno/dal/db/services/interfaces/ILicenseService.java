@@ -22,7 +22,7 @@ public interface ILicenseService {
    * @param key The primary key.
    * @return A new instance of the license if it exists.
    */
-  Optional<License> findById(Integer key);
+  Optional<License> findById(int key);
 
   /**
    * Add a new license to the data source.

@@ -49,7 +49,7 @@ public class UserService implements IUserService {
    * @return A new instance of the user if it exists.
    */
   @Override
-  public Optional<User> findById(Integer key) {
+  public Optional<User> findById(int key) {
     var reference = repository.findById(key);
     return reference;
   }

@@ -49,24 +49,25 @@ public class Role extends AuditColumns {
    * A description of the role.
    */
   @Column(name = "\"description\"")
-  private String description;
+  private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean enabled;
+  private boolean enabled = true;
 
   /**
    * A collection of user roles that belong to this role.
    */
-  @JsonBackReference
+  @JsonBackReference("userRoles")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<UserRole> userRoles = new ArrayList<>();
 
   /**
    * A collection of role claims that belong to this role.
    */
+  @JsonBackReference("roleClaims")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

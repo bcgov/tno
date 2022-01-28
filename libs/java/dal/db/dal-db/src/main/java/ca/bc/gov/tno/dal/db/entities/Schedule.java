@@ -51,13 +51,13 @@ public class Schedule extends AuditColumns {
    * A description of the schedule.
    */
   @Column(name = "\"description\"")
-  private String description;
+  private String description = "";
 
   /**
    * Whether this record is enabled or disabled.
    */
   @Column(name = "\"isEnabled\"", nullable = false)
-  private boolean enabled;
+  private boolean enabled = true;
 
   /**
    * The number of milliseconds the service should rest before running again.
@@ -103,7 +103,7 @@ public class Schedule extends AuditColumns {
   /**
    * A collection of data sources that belong to this schedule.
    */
-  @JsonBackReference
+  @JsonBackReference("dataSources")
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
   private List<DataSource> dataSources = new ArrayList<>();
 
