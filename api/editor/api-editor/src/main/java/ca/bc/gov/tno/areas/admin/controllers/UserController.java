@@ -58,7 +58,8 @@ public class UserController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public User add(@RequestBody User model) {
     var user = userService.add(model);
     return user;
@@ -71,7 +72,8 @@ public class UserController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public User update(@PathVariable Integer id, @RequestBody User model) {
     var user = userService.add(model);
     return user;
@@ -84,7 +86,8 @@ public class UserController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public User delete(@PathVariable Integer id, @RequestBody User model) {
     userService.delete(model);
     return model;

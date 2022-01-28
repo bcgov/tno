@@ -167,42 +167,42 @@ public class Content extends AuditColumns {
   /**
    * A collection of content actions linked to this content.
    */
-  @JsonBackReference
+  @JsonBackReference("contentActions")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content categories linked to this content.
    */
-  @JsonBackReference
+  @JsonBackReference("contentCategories")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 
   /**
    * A collection of content tags linked to this content.
    */
-  @JsonBackReference
+  @JsonBackReference("contentTags")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * A collection of content tone pools linked to this content.
    */
-  @JsonBackReference
+  @JsonBackReference("contentTones")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 
   /**
    * A collection of time tracking linked to this content.
    */
-  @JsonBackReference
+  @JsonBackReference("timeTrackings")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
-  private List<TimeTracking> timeTracking = new ArrayList<>();
+  private List<TimeTracking> timeTrackings = new ArrayList<>();
 
   /**
    * A collection of content linked to this content.
    */
-  @JsonBackReference
+  @JsonBackReference("links")
   @OneToMany(mappedBy = "link", fetch = FetchType.LAZY)
   private List<ContentLink> links = new ArrayList<>();
 
@@ -211,6 +211,74 @@ public class Content extends AuditColumns {
    */
   public Content() {
 
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   * 
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param dataSourceId  Foreign key to datasource
+   * @param ownerId       Foreign key to owning user
+   * @param status        The status
+   * @param headline      The headline
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, int dataSourceId, int ownerId,
+      ContentStatus status, String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (status == null)
+      throw new NullPointerException("Parameter 'status' cannot be null.");
+
+    this.id = id;
+    this.contentTypeId = contentTypeId;
+    this.mediaTypeId = mediaTypeId;
+    this.licenseId = licenseId;
+    this.dataSourceId = dataSourceId;
+    this.ownerId = ownerId;
+    this.status = status;
+    this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   * 
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param source        The source of the content
+   * @param ownerId       Foreign key to owning user
+   * @param status        The status
+   * @param headline      The headline
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, String source, int ownerId,
+      ContentStatus status, String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (source == null)
+      throw new NullPointerException("Parameter 'source' cannot be null.");
+    if (source.length() == 0)
+      throw new IllegalArgumentException("Parameter 'source' cannot be empty.");
+    if (status == null)
+      throw new NullPointerException("Parameter 'status' cannot be null.");
+
+    this.id = id;
+    this.contentTypeId = contentTypeId;
+    this.mediaTypeId = mediaTypeId;
+    this.licenseId = licenseId;
+    this.source = source;
+    this.ownerId = ownerId;
+    this.status = status;
+    this.headline = headline;
   }
 
   /**
@@ -695,14 +763,14 @@ public class Content extends AuditColumns {
    * @return List{TimeTracking} return the timeTracking
    */
   public List<TimeTracking> getTimeTracking() {
-    return timeTracking;
+    return timeTrackings;
   }
 
   /**
-   * @param timeTracking the timeTracking to set
+   * @param timeTrackings the timeTracking to set
    */
-  public void setTimeTracking(List<TimeTracking> timeTracking) {
-    this.timeTracking = timeTracking;
+  public void setTimeTracking(List<TimeTracking> timeTrackings) {
+    this.timeTrackings = timeTrackings;
   }
 
   /**

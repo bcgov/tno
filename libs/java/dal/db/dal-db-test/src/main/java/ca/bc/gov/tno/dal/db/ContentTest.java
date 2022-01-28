@@ -140,8 +140,16 @@ public class ContentTest {
       throw new IllegalStateException("Property 'page' should be 1");
     if (result.getQuantity() != 2)
       throw new IllegalStateException("Property 'quantity' should be 2");
-    if (result.getTotal() != 3)
-      throw new IllegalStateException("Property 'total' should be 3");
+    if (result.getTotal() == 0)
+      throw new IllegalStateException("Property 'total' should not be 0");
+    if (result.getItems().get(0).getContentType() == null)
+      throw new IllegalStateException("Property 'contentType' should not be null");
+    if (result.getItems().get(0).getLicense() == null)
+      throw new IllegalStateException("Property 'license' should not be null");
+    if (result.getItems().get(0).getMediaType() == null)
+      throw new IllegalStateException("Property 'mediaType' should not be null");
+    if (result.getItems().get(0).getOwner() == null)
+      throw new IllegalStateException("Property 'owner' should not be null");
 
     contentService.delete(c1);
     contentService.delete(c2);

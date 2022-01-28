@@ -72,7 +72,7 @@ public class Action extends AuditColumns {
   /**
    * A collection of role actions that belong to this action.
    */
-  @JsonBackReference
+  @JsonBackReference("contentActions")
   @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 

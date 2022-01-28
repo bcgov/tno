@@ -58,7 +58,8 @@ public class LicenseController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public License add(@RequestBody License model) {
     var license = licenseService.add(model);
     return license;
@@ -71,7 +72,8 @@ public class LicenseController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public License update(@PathVariable Integer id, @RequestBody License model) {
     var license = licenseService.add(model);
     return license;
@@ -84,7 +86,8 @@ public class LicenseController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public License delete(@PathVariable Integer id, @RequestBody License model) {
     licenseService.delete(model);
     return model;

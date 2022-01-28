@@ -58,7 +58,8 @@ public class DataSourceController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource add(@RequestBody DataSource model) {
     var dataSource = dataSourceService.add(model);
     return dataSource;
@@ -71,7 +72,8 @@ public class DataSourceController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource update(@PathVariable Integer id, @RequestBody DataSource model) {
     var dataSource = dataSourceService.add(model);
     return dataSource;
@@ -84,7 +86,8 @@ public class DataSourceController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource delete(@PathVariable Integer id, @RequestBody DataSource model) {
     dataSourceService.delete(model);
     return model;

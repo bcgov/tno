@@ -28,7 +28,7 @@ public class UserRole extends AuditColumns {
   /**
    * The user reference.
    */
-  @JsonBackReference
+  @JsonBackReference("user")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"userId\"", insertable = false, updatable = false)
   private User user;

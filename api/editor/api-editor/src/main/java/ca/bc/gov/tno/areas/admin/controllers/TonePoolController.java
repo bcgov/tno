@@ -61,7 +61,8 @@ public class TonePoolController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public TonePool add(@RequestBody TonePool model) {
     var tonePool = tonePoolService.add(model);
     return tonePool;
@@ -74,7 +75,8 @@ public class TonePoolController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public TonePool update(@PathVariable Integer id, @RequestBody TonePool model) {
     var tonePool = tonePoolService.add(model);
     return tonePool;
@@ -87,7 +89,8 @@ public class TonePoolController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public TonePool delete(@PathVariable Integer id, @RequestBody TonePool model) {
     tonePoolService.delete(model);
     return model;

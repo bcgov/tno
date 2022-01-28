@@ -57,7 +57,7 @@ public class MediaTypeController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
   public MediaType add(@RequestBody MediaType model) {
     var mediaType = mediaTypeService.add(model);
     return mediaType;

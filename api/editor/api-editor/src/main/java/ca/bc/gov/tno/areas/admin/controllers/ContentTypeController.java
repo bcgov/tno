@@ -61,7 +61,8 @@ public class ContentTypeController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentType add(@RequestBody ContentType model) {
     var contentType = contentTypeService.add(model);
     return contentType;
@@ -74,7 +75,8 @@ public class ContentTypeController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentType update(@PathVariable Integer id, @RequestBody ContentType model) {
     var contentType = contentTypeService.add(model);
     return contentType;
@@ -87,7 +89,8 @@ public class ContentTypeController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentType delete(@PathVariable Integer id, @RequestBody ContentType model) {
     contentTypeService.delete(model);
     return model;

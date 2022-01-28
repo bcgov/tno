@@ -61,7 +61,8 @@ public class ContentReferenceController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentReference add(@RequestBody ContentReference model) {
     var contentReference = contentReferenceService.add(model);
     return contentReference;
@@ -75,7 +76,8 @@ public class ContentReferenceController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{source}/{uid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{source}/{uid}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentReference update(@PathVariable(required = true) String source,
       @PathVariable(required = true) String uid, @RequestBody ContentReference model) {
     var contentReference = contentReferenceService.add(model);
@@ -90,7 +92,8 @@ public class ContentReferenceController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{source}/{uid}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{source}/{uid}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentReference delete(@PathVariable(required = true) String source,
       @PathVariable(required = true) String uid, @RequestBody ContentReference model) {
     contentReferenceService.delete(model);

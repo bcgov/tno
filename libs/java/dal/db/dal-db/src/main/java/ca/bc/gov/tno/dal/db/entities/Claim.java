@@ -60,7 +60,7 @@ public class Claim extends AuditColumns {
   /**
    * A collection of role claims that belong to this claim.
    */
-  @JsonBackReference
+  @JsonBackReference("roleClaims")
   @OneToMany(mappedBy = "claim", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

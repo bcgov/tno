@@ -59,7 +59,7 @@ public class Tag extends AuditColumns {
   /**
    * A collection of role categories that belong to this tag.
    */
-  @JsonBackReference
+  @JsonBackReference("contentCategories")
   @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
   private List<ContentTag> contentCategories = new ArrayList<>();
 

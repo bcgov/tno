@@ -59,7 +59,7 @@ public class Category extends AuditColumns {
   /**
    * A collection of role categories that belong to this category.
    */
-  @JsonBackReference
+  @JsonBackReference("contentCategories")
   @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 

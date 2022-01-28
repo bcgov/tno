@@ -4,6 +4,7 @@
 package ca.bc.gov.tno;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * and provides secure access to data sources and 3rd party services.
  */
 @EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.db" })
+@EnableAutoConfiguration
 @EntityScan(basePackages = { "ca.bc.gov.tno.dal.db" })
 @SpringBootApplication(scanBasePackages = {
     "ca.bc.gov.tno",
@@ -37,5 +39,4 @@ public class ApiEditor {
   public static void main(final String[] args) {
     SpringApplication.run(ApiEditor.class, args);
   }
-
 }

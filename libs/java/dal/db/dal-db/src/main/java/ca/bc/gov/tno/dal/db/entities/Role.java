@@ -60,13 +60,14 @@ public class Role extends AuditColumns {
   /**
    * A collection of user roles that belong to this role.
    */
-  @JsonBackReference
+  @JsonBackReference("userRoles")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<UserRole> userRoles = new ArrayList<>();
 
   /**
    * A collection of role claims that belong to this role.
    */
+  @JsonBackReference("roleClaims")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

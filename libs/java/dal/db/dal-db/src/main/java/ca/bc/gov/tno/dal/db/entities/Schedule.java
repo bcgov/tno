@@ -103,7 +103,7 @@ public class Schedule extends AuditColumns {
   /**
    * A collection of data sources that belong to this schedule.
    */
-  @JsonBackReference
+  @JsonBackReference("dataSources")
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
   private List<DataSource> dataSources = new ArrayList<>();
 

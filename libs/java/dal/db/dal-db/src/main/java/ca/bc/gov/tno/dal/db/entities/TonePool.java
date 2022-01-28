@@ -55,7 +55,7 @@ public class TonePool extends AuditColumns {
   /**
    * The owner reference.
    */
-  @JsonBackReference
+  @JsonBackReference("owner")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"ownerId\"", insertable = false, updatable = false)
   private User owner;
@@ -81,7 +81,7 @@ public class TonePool extends AuditColumns {
   /**
    * A collection of role tone pools that belong to this tone pool.
    */
-  @JsonBackReference
+  @JsonBackReference("contentTones")
   @OneToMany(mappedBy = "tonePool", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 

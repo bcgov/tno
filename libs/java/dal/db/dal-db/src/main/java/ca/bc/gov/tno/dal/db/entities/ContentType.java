@@ -60,7 +60,7 @@ public class ContentType extends AuditColumns {
   /**
    * A collection of content of this type.
    */
-  @JsonBackReference
+  @JsonBackReference("contents")
   @OneToMany(mappedBy = "contentType", fetch = FetchType.LAZY)
   private List<Content> contents = new ArrayList<>();
 
@@ -116,6 +116,13 @@ public class ContentType extends AuditColumns {
    */
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  /**
+   * @return boolean return the enabled
+   */
+  public boolean isEnabled() {
+    return enabled;
   }
 
   /**

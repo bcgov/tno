@@ -60,14 +60,14 @@ public class License extends AuditColumns {
   /**
    * A collection of data sources that belong to this license.
    */
-  @JsonBackReference
+  @JsonBackReference("dataSources")
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
   private List<DataSource> dataSources = new ArrayList<>();
 
   /**
    * A collection of content that belong to this license.
    */
-  @JsonBackReference
+  @JsonBackReference("contents")
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
   private List<Content> contents = new ArrayList<>();
 

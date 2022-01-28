@@ -76,7 +76,15 @@ public class ContentService implements IContentService {
 
     try {
       var order = String.join(", ", Arrays.stream(sort).map(s -> "c." + s).toArray(String[]::new));
-      var pageSql = "FROM Content c ORDER BY " + order;
+      var pageSql = """
+          SELECT DISTINCT c FROM Content c
+          JOIN FETCH c.contentType AS ct
+          JOIN FETCH c.mediaType AS mt
+          JOIN FETCH c.owner AS o
+          JOIN FETCH c.license AS l
+          LEFT JOIN FETCH c.dataSource AS ds
+          ORDER BY
+           """ + order;
       var pageQuery = session.createQuery(pageSql)
           .setFirstResult((page - 1) * quantity)
           .setMaxResults(quantity);

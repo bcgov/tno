@@ -58,7 +58,8 @@ public class ScheduleController {
    * @param model
    * @return
    */
-  @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "", "/" }, consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Schedule add(@RequestBody Schedule model) {
     var schedule = scheduleService.add(model);
     return schedule;
@@ -71,7 +72,8 @@ public class ScheduleController {
    * @param model
    * @return
    */
-  @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PutMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Schedule update(@PathVariable Integer id, @RequestBody Schedule model) {
     var schedule = scheduleService.add(model);
     return schedule;
@@ -84,7 +86,8 @@ public class ScheduleController {
    * @param model
    * @return
    */
-  @DeleteMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @DeleteMapping(path = "/{id}", consumes = {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Schedule delete(@PathVariable Integer id, @RequestBody Schedule model) {
     scheduleService.delete(model);
     return model;

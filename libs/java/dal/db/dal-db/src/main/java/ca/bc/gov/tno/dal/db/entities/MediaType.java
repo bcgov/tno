@@ -54,7 +54,7 @@ public class MediaType extends AuditColumns {
   /**
    * A collection of data sources of this type.
    */
-  @JsonBackReference
+  @JsonBackReference("dataSources")
   @OneToMany(mappedBy = "mediaType", fetch = FetchType.LAZY)
   private List<DataSource> dataSources = new ArrayList<>();
 
