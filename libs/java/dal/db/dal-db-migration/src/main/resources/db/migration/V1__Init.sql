@@ -1,20 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Grant access to the admin user
-DO
-$do$
-BEGIN
-  IF NOT EXISTS (
-      SELECT FROM pg_catalog.pg_roles 
-      WHERE rolname = 'admin') THEN
-      CREATE ROLE admin LOGIN;
-   END IF;
-END
-$do$;
-GRANT USAGE ON SCHEMA public TO admin;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO admin;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin;
-
 -- Ensure the created audit columns are not changed.
 -- Ensure the updated timestamp is updated.
 CREATE OR REPLACE FUNCTION updateAudit()
@@ -525,6 +510,21 @@ CREATE TABLE IF NOT EXISTS public.file_reference
     CONSTRAINT "fk_content_file_reference" FOREIGN KEY ("content_id") REFERENCES public.content ("id")
 );
 CREATE TRIGGER tr_auditFileReference BEFORE INSERT OR UPDATE ON public.file_reference FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+-- Grant access to the admin user
+DO
+$do$
+BEGIN
+  IF NOT EXISTS (
+      SELECT FROM pg_catalog.pg_roles
+      WHERE rolname = 'admin') THEN
+      CREATE ROLE admin LOGIN;
+   END IF;
+END
+$do$;
+GRANT USAGE ON SCHEMA public TO admin;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO admin;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin;
 
 -------------------------------------------------------------------------------
 -- Seed Data
