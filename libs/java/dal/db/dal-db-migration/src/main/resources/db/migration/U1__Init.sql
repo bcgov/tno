@@ -37,4 +37,4 @@ DROP SEQUENCE public.seq_tone_pool;
 DROP SEQUENCE public.seq_category;
 
 DELETE FROM public.flyway_schema_history
-WHERE version = '1.0.0'
+WHERE version = '1'

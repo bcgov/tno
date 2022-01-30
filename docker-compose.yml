@@ -6,9 +6,10 @@ services:
     image: tno:nginx
     profiles:
       - all
-      - app
+      - editor
+      - subscriber
       - ingest
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-nginx
     build:
       context: ./network/nginx
@@ -32,11 +33,12 @@ services:
     image: tno:database
     profiles:
       - all
-      - app
+      - editor
+      - subscriber
       - data
       - ingest
       - init
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-database
     build:
       context: ${DB_CONTEXT:-db/postgres/docker}
@@ -54,9 +56,10 @@ services:
     image: tno:keycloak
     profiles:
       - all
-      - app
+      - editor
+      - subscriber
       - init
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-keycloak
     build:
       context: ./auth/keycloak
@@ -83,12 +86,13 @@ services:
     image: tno:elastic
     profiles:
       - all
-      - app
+      - editor
+      - subscriber
       - elastic
       - utility
       - data
       - init
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-elastic
     build:
       context: db/elasticsearch
@@ -119,7 +123,7 @@ services:
       - all
       - utility
       - elastic
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-dejavu
     build:
       context: db/elasticsearch/dejavu
@@ -136,7 +140,7 @@ services:
     profiles:
       - all
       - data
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-azure-storage
     build:
       context: db/azure-storage
@@ -156,8 +160,9 @@ services:
     image: tno:api-editor
     profiles:
       - all
-      - app
-    restart: on-failure:1
+      - editor
+      - subscriber
+    restart: "no"
     container_name: tno-api-editor
     build:
       context: api/editor
@@ -182,10 +187,10 @@ services:
     image: tno:app-editor
     profiles:
       - all
-      - app
+      - editor
     stdin_open: true
     tty: true
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-app-editor
     build:
       context: app/editor
@@ -208,10 +213,10 @@ services:
     image: tno:app-subscriber
     profiles:
       - all
-      - app
+      - subscriber
     stdin_open: true
     tty: true
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-app-subscriber
     build:
       context: app/subscriber
@@ -236,7 +241,7 @@ services:
       - all
       - service
       - data
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-rss
     build:
       context: services/syndication
@@ -262,7 +267,7 @@ services:
       - all
       - service
       - data
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-atom
     build:
       context: services/syndication
@@ -288,7 +293,7 @@ services:
       - all
       - service
       - data
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-nlp
     build:
       context: services/nlp
@@ -316,7 +321,7 @@ services:
       - service
       - data
       - elastic
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-indexing
     build:
       context: services/elastic
@@ -342,7 +347,7 @@ services:
       - all
       - service
       - data
-    restart: on-failure:1
+    restart: "no"
     container_name: tno-audio
     build:
       context: services/audio
