@@ -49,12 +49,6 @@ public class ContentTag extends AuditColumns {
   private Tag tag;
 
   /**
-   * Score of tag.
-   */
-  @Column(name = "score", nullable = false)
-  private int score;
-
-  /**
    * Creates a new instance of a ContentTag object.
    */
   public ContentTag() {
@@ -68,9 +62,8 @@ public class ContentTag extends AuditColumns {
    * 
    * @param content Content object
    * @param tag     Tag object
-   * @param score   Tag score
    */
-  public ContentTag(Content content, Tag tag, int score) {
+  public ContentTag(Content content, Tag tag) {
     if (content == null)
       throw new NullPointerException("Parameter 'content' cannot be null.");
     if (tag == null)
@@ -80,7 +73,27 @@ public class ContentTag extends AuditColumns {
     this.contentId = content.getId();
     this.tag = tag;
     this.tagId = tag.getId();
-    this.score = score;
+  }
+
+  /**
+   * Creates a new instance of a ContentTag object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param content Content object
+   * @param tagId   Foreign key to Tag object
+   */
+  public ContentTag(Content content, String tagId) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+    if (tagId == null)
+      throw new NullPointerException("Parameter 'tagId' cannot be null.");
+    if (tagId.length() == 0)
+      throw new IllegalArgumentException("Parameter 'tagId' cannot be empty.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.tagId = tagId;
   }
 
   /**
@@ -138,19 +151,4 @@ public class ContentTag extends AuditColumns {
   public void setTag(Tag tag) {
     this.tag = tag;
   }
-
-  /**
-   * @return int return the score
-   */
-  public int getScore() {
-    return score;
-  }
-
-  /**
-   * @param score the score to set
-   */
-  public void setScore(int score) {
-    this.score = score;
-  }
-
 }

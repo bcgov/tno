@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.Schedule;
  */
 @RolesAllowed("administrator")
 @RestController("AdminScheduleController")
-@RequestMapping("/admin/schedules")
+@RequestMapping({ "/admin/schedules", "/api/admin/schedules" })
 public class ScheduleController {
 
   @Autowired

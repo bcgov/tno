@@ -75,6 +75,7 @@ public class DataSourceService implements IDataSourceService {
       return Optional.ofNullable((DataSource) result);
     } finally {
       ts.commit();
+      session.close();
     }
   }
 

@@ -1,17 +1,23 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
-import ca.bc.gov.tno.dal.db.ContentStatus;
+import ca.bc.gov.tno.dal.db.WorkflowStatus;
 
 /**
  * ContentReference class, provides a way to capture a reference to content from
@@ -33,7 +39,7 @@ public class ContentReference extends AuditColumns {
    * The source content unique key.
    */
   @Id
-  @Column(name = "u_id", nullable = false)
+  @Column(name = "uid", nullable = false)
   private String uid;
 
   /**
@@ -72,7 +78,14 @@ public class ContentReference extends AuditColumns {
    * The status of the reference in Kafka.
    */
   @Column(name = "status", nullable = false)
-  private ContentStatus status;
+  private WorkflowStatus status;
+
+  /**
+   * A collection of content reference logs linked to this content.
+   */
+  @JsonBackReference("logs")
+  @OneToMany(mappedBy = "contentReference", fetch = FetchType.LAZY)
+  private List<ContentReferenceLog> logs = new ArrayList<>();
 
   /**
    * Creates a new instance of a ContentReference object.
@@ -95,7 +108,7 @@ public class ContentReference extends AuditColumns {
     this.topic = topic;
     this.partition = -1;
     this.offset = -1;
-    this.status = ContentStatus.InProgress;
+    this.status = WorkflowStatus.InProgress;
   }
 
   /**
@@ -197,16 +210,16 @@ public class ContentReference extends AuditColumns {
   }
 
   /**
-   * @return KafkaMessageStatus return the status
+   * @return WorkflowStatus return the status
    */
-  public ContentStatus getStatus() {
+  public WorkflowStatus getStatus() {
     return status;
   }
 
   /**
    * @param status the status to set
    */
-  public void setStatus(ContentStatus status) {
+  public void setStatus(WorkflowStatus status) {
     this.status = status;
   }
 

@@ -1,7 +1,6 @@
 import { Menu as HMenu } from '@headlessui/react';
 import { LiHTMLAttributes } from 'react';
 import { IconType } from 'react-icons/lib';
-import { useNavigate } from 'react-router-dom';
 
 import { Claim, Role, useKeycloakWrapper } from '../../hooks';
 import { MenuStatus } from '.';
@@ -12,9 +11,9 @@ interface IMenuButtonProps extends LiHTMLAttributes<HTMLLIElement> {
    */
   label: string;
   /**
-   * The route path that will be active when the menu is clicked.
+   * Callback onClick event.
    */
-  route?: string;
+  onClick?: () => void;
   /**
    * The menu variant display option.
    */
@@ -48,7 +47,7 @@ interface IMenuButtonProps extends LiHTMLAttributes<HTMLLIElement> {
  */
 export const MenuButton: React.FC<IMenuButtonProps> = ({
   label,
-  route,
+  onClick,
   status,
   showIcon = true,
   icon,
@@ -58,7 +57,6 @@ export const MenuButton: React.FC<IMenuButtonProps> = ({
   roles,
   ...rest
 }) => {
-  const navigate = useNavigate();
   const keycloak = useKeycloakWrapper();
   const Icon = icon;
 
@@ -72,7 +70,7 @@ export const MenuButton: React.FC<IMenuButtonProps> = ({
         <div
           data-for="main-tooltip-right"
           data-tip={status === MenuStatus.narrow ? label : ''}
-          onClick={() => !!route && navigate(route)}
+          onClick={() => !!onClick && onClick()}
         >
           {showIcon && Icon && <Icon />}
           {status === MenuStatus.full && label}

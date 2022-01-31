@@ -85,6 +85,63 @@ public class ContentAction extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
+   * @param content Content object
+   * @param action  Action object
+   */
+  public ContentAction(Content content, Action action) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+    if (action == null)
+      throw new NullPointerException("Parameter 'action' cannot be null.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.action = action;
+    this.actionId = action.getId();
+    this.value = "";
+  }
+
+  /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
+   * @param content  Content object
+   * @param actionId Foreign key to Action object
+   * @param value    Action value
+   */
+  public ContentAction(Content content, int actionId, String value) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+    if (value == null)
+      throw new NullPointerException("Parameter 'value' cannot be null.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.actionId = actionId;
+    this.value = value;
+  }
+
+  /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
+   * @param content  Content object
+   * @param actionId Foreign key to Action object
+   */
+  public ContentAction(Content content, int actionId) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.actionId = actionId;
+    this.value = "";
+  }
+
+  /**
    * @return int return the contentId
    */
   public int getContentId() {

@@ -1,6 +1,6 @@
-import { Home } from 'features/home';
-import { Route, Routes } from 'react-router-dom';
-import { Claim, Login, NotFound } from 'tno-core';
+import { ContentForm, ContentListView, Login } from 'features';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { Claim, NotFound } from 'tno-core';
 
 import { PrivateRoute } from '.';
 
@@ -11,7 +11,7 @@ import { PrivateRoute } from '.';
 export const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Navigate to="/contents" />} />
       <Route path="/login" element={<Login />} />
       <Route
         path="/admin"
@@ -19,6 +19,26 @@ export const AppRouter = () => {
           <PrivateRoute redirectTo="/login" claims={Claim.administrator}>
             <p>Administration</p>
           </PrivateRoute>
+        }
+      />
+      <Route
+        path="/contents"
+        element={
+          <PrivateRoute
+            redirectTo="/login"
+            claims={Claim.editor}
+            element={<ContentListView />}
+          ></PrivateRoute>
+        }
+      />
+      <Route
+        path="/contents/:id"
+        element={
+          <PrivateRoute
+            redirectTo="/login"
+            claims={Claim.editor}
+            element={<ContentForm />}
+          ></PrivateRoute>
         }
       />
       <Route path="*" element={<NotFound />} />

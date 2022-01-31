@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.Category;
  */
 @RolesAllowed({ "administrator" })
 @RestController("AdminCategoryController")
-@RequestMapping("/admin/categories")
+@RequestMapping({ "/admin/categories", "/api/admin/categories" })
 public class CategoryController {
 
   /**

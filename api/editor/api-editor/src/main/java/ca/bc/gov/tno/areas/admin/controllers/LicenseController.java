@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.License;
  */
 @RolesAllowed("administrator")
 @RestController("AdminLicenseController")
-@RequestMapping("/admin/licenses")
+@RequestMapping({ "/admin/licenses", "/api/admin/licenses" })
 public class LicenseController {
 
   @Autowired

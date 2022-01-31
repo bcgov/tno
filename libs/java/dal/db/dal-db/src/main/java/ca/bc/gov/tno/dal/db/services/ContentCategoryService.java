@@ -2,10 +2,13 @@ package ca.bc.gov.tno.dal.db.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
 import ca.bc.gov.tno.dal.db.entities.ContentCategoryPK;
@@ -20,16 +23,19 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IContentCategoryService;
 @Service
 public class ContentCategoryService implements IContentCategoryService {
 
+  private final SessionFactory sessionFactory;
   private final IContentCategoryRepository repository;
 
   /**
    * Creates a new instance of a ContentCategoryService object, initializes with
    * specified parameters.
    * 
-   * @param repository The content category repository.
+   * @param sessionFactory The session factory.
+   * @param repository     The content category repository.
    */
   @Autowired
-  public ContentCategoryService(final IContentCategoryRepository repository) {
+  public ContentCategoryService(final SessionFactory sessionFactory, final IContentCategoryRepository repository) {
+    this.sessionFactory = sessionFactory;
     this.repository = repository;
   }
 
@@ -57,6 +63,29 @@ public class ContentCategoryService implements IContentCategoryService {
   }
 
   /**
+   * Find all content category for the specified content primary key.
+   * 
+   * @param contentId The content primary key.
+   * @return A new instance of the content category if it exists.
+   */
+  @Override
+  public List<ContentCategory> findById(int contentId) {
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var results = session
+          .createQuery("SELECT cc FROM ContentCategory cc JOIN FETCH cc.category AS c WHERE cc.contentId=:id")
+          .setParameter("id", contentId)
+          .getResultList();
+      return ListHelper.castList(ContentCategory.class, results);
+    } finally {
+      ts.commit();
+      session.close();
+    }
+  }
+
+  /**
    * Add a new content category to the data source.
    * 
    * @param entity The content category to add.
@@ -65,6 +94,19 @@ public class ContentCategoryService implements IContentCategoryService {
   @Override
   public ContentCategory add(ContentCategory entity) {
     var result = repository.save(PrincipalHelper.addAudit(entity));
+    return result;
+  }
+
+  /**
+   * Add a new content category to the data source.
+   * 
+   * @param entities An array of content category to add.
+   * @return A new instance of the content category that was added.
+   */
+  @Override
+  public Iterable<ContentCategory> add(Iterable<ContentCategory> entities) {
+    var result = repository.saveAll(
+        StreamSupport.stream(entities.spliterator(), false).map((entity) -> PrincipalHelper.addAudit(entity)).toList());
     return result;
   }
 
@@ -81,6 +123,19 @@ public class ContentCategoryService implements IContentCategoryService {
   }
 
   /**
+   * Update the specified content category in the data source.
+   * 
+   * @param entities An array of content category to update.
+   * @return A new instance of the content category that was updated.
+   */
+  @Override
+  public Iterable<ContentCategory> update(Iterable<ContentCategory> entities) {
+    var result = repository.saveAll(StreamSupport.stream(entities.spliterator(), false)
+        .map((entity) -> PrincipalHelper.updateAudit(entity)).toList());
+    return result;
+  }
+
+  /**
    * Delete the specified content category from the data source.
    * 
    * @param entity The content category to delete.
@@ -88,6 +143,16 @@ public class ContentCategoryService implements IContentCategoryService {
   @Override
   public void delete(ContentCategory entity) {
     repository.delete(entity);
+  }
+
+  /**
+   * Delete the specified content category from the data source.
+   * 
+   * @param entities An array of content category to delete.
+   */
+  @Override
+  public void delete(Iterable<ContentCategory> entities) {
+    repository.deleteAll(entities);
   }
 
 }

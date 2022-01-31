@@ -19,7 +19,8 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.ValueType;
 
 /**
- * Action class, provides a way to manage actions.
+ * Action class, provides a way to identify actions that are performed on or
+ * associated with content.
  */
 @Entity
 @Table(name = "action", schema = "public")
@@ -75,6 +76,13 @@ public class Action extends AuditColumns {
   @JsonBackReference("content_actions")
   @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
+
+  /**
+   * A collection of content types for this action.
+   */
+  @JsonBackReference("content_types")
+  @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
+  private List<ContentTypeAction> contentTypeActions = new ArrayList<>();
 
   /**
    * Creates a new instance of a Action object.
@@ -204,6 +212,13 @@ public class Action extends AuditColumns {
   }
 
   /**
+   * @return boolean return the enabled
+   */
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  /**
    * @param enabled the enabled to set
    */
   public void setEnabled(boolean enabled) {
@@ -222,6 +237,27 @@ public class Action extends AuditColumns {
    */
   public void setContentActions(List<ContentAction> contentActions) {
     this.contentActions = contentActions;
+  }
+
+  /**
+   * @param id the id to set
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  /**
+   * @return List{ContentTypeAction} return the contentTypeActions
+   */
+  public List<ContentTypeAction> getContentTypeActions() {
+    return contentTypeActions;
+  }
+
+  /**
+   * @param contentTypeActions the contentTypeActions to set
+   */
+  public void setContentTypeActions(List<ContentTypeAction> contentTypeActions) {
+    this.contentTypeActions = contentTypeActions;
   }
 
 }

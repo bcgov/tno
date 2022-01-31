@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.DataSource;
  */
 @RolesAllowed("administrator")
 @RestController("AdminDataSourceController")
-@RequestMapping("/admin/data/sources")
+@RequestMapping({ "/admin/data/sources", "/api/admin/data/sources" })
 public class DataSourceController {
 
   @Autowired

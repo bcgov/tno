@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
- * Category class, provides a way to manage categories.
+ * Category class, provides a way to identify content categories.
  */
 @Entity
 @Table(name = "category", schema = "public")
@@ -134,6 +134,13 @@ public class Category extends AuditColumns {
    */
   public void setSortOrder(int sortOrder) {
     this.sortOrder = sortOrder;
+  }
+
+  /**
+   * @return boolean return the enabled
+   */
+  public boolean isEnabled() {
+    return enabled;
   }
 
   /**

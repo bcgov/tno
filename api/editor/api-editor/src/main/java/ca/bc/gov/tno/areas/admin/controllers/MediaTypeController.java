@@ -22,7 +22,7 @@ import ca.bc.gov.tno.dal.db.entities.MediaType;
  */
 @RolesAllowed("administrator")
 @RestController("AdminMediaTypeController")
-@RequestMapping("/admin/media/types")
+@RequestMapping({ "/admin/media/types", "/api/admin/media/types" })
 public class MediaTypeController {
 
   @Autowired
@@ -57,7 +57,8 @@ public class MediaTypeController {
    * @param model
    * @return
    */
-  @PostMapping(path = { "", "/" }, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = { "",
+      "/" }, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
   public MediaType add(@RequestBody MediaType model) {
     var mediaType = mediaTypeService.add(model);
     return mediaType;

@@ -45,7 +45,6 @@ public class DataSourceTest {
     });
     add.setMediaTypeId(1);
     add.setLicenseId(1);
-    add.setScheduleId(1);
     var result = dataSourceService.add(add);
     if (result.getId() == 0)
       throw new IllegalStateException();

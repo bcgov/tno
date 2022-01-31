@@ -98,8 +98,8 @@ public class TonePool extends AuditColumns {
    * 
    * @param id     Primary key
    * @param name   Unique name
-   * @param owner  User object
-   * @param shared User object
+   * @param owner  User object who owns this tone pool
+   * @param shared Whether this tone pool is shared with everyone
    */
   public TonePool(int id, String name, User owner, boolean shared) {
     if (name == null)
@@ -113,6 +113,27 @@ public class TonePool extends AuditColumns {
     this.name = name;
     this.owner = owner;
     this.ownerId = owner.getId();
+    this.shared = shared;
+  }
+
+  /**
+   * Creates a new instance of a TonePool object, initializes with specified
+   * parameters.
+   * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param ownerId Foreign key to user who owns the tone pool
+   * @param shared  Whether this tone pool is shared with everyone
+   */
+  public TonePool(int id, String name, int ownerId, boolean shared) {
+    if (name == null)
+      throw new NullPointerException("Parameter 'name' cannot be null.");
+    if (name.length() == 0)
+      throw new IllegalArgumentException("Parameter 'name' cannot be empty.");
+
+    this.id = id;
+    this.name = name;
+    this.ownerId = ownerId;
     this.shared = shared;
   }
 
@@ -205,6 +226,13 @@ public class TonePool extends AuditColumns {
    */
   public void setShared(boolean shared) {
     this.shared = shared;
+  }
+
+  /**
+   * @return boolean return the enabled
+   */
+  public boolean isEnabled() {
+    return enabled;
   }
 
   /**

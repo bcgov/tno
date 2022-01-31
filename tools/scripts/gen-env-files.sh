@@ -212,8 +212,9 @@ else
 echo \
 "NODE_ENV=development
 CHOKIDAR_USEPOLLING=true
+WDS_SOCKET_PORT=$portNginxEditor
 #API_URL=http://api-editor:8080/
-REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://localhost:$portKeycloak/auth" >> ./app/editor/.env
+REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/editor/.env
     echo "./app/editor/.env created"
 fi
 
@@ -225,7 +226,7 @@ echo \
 "NODE_ENV=development
 CHOKIDAR_USEPOLLING=true
 #API_URL=http://api-subscriber:8080/
-REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://localhost:$portKeycloak/auth" >> ./app/subscriber/.env
+REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/subscriber/.env
     echo "./app/subscriber/.env created"
 fi
 

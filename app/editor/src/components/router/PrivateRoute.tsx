@@ -41,12 +41,10 @@ export const PrivateRoute = ({
 }: IPrivateRouteProps) => {
   const keycloak = useKeycloakWrapper();
 
-  if (
-    !keycloak.authenticated ||
-    (!!claims && !keycloak.hasClaim(claims)) ||
-    (!!roles && !keycloak.hasRole(roles))
-  ) {
+  if (!keycloak.authenticated) {
     return <Navigate to={redirectTo} />;
+  } else if ((!!claims && !keycloak.hasClaim(claims)) || (!!roles && !keycloak.hasRole(roles))) {
+    return <div>ERROR</div>;
   }
 
   return element ? element : <>{children}</>;

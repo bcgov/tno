@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.ContentType;
  */
 @RolesAllowed({ "administrator" })
 @RestController("AdminContentTypeController")
-@RequestMapping("/admin/content/types")
+@RequestMapping({ "/admin/content/types", "/api/admin/content/types" })
 public class ContentTypeController {
 
   /**

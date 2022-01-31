@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.Tag;
  */
 @RolesAllowed({ "administrator" })
 @RestController("AdminTagController")
-@RequestMapping("/admin/tags")
+@RequestMapping({ "/admin/tags", "/api/admin/tags" })
 public class TagController {
 
   /**

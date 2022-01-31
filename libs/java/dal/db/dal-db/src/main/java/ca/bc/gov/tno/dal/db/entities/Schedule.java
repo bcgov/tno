@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.Months;
+import ca.bc.gov.tno.dal.db.ScheduleType;
 import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.converters.WeekDaysAttributeConverter;
 import ca.bc.gov.tno.dal.db.converters.MonthsAttributeConverter;
@@ -60,6 +61,12 @@ public class Schedule extends AuditColumns {
   private boolean enabled = true;
 
   /**
+   * The type of schedule.
+   */
+  @Column(name = "schedule_type", nullable = false)
+  private ScheduleType scheduleType = ScheduleType.Repeating;
+
+  /**
    * The number of milliseconds the service should rest before running again.
    */
   @Column(name = "delay_ms", nullable = false)
@@ -68,20 +75,36 @@ public class Schedule extends AuditColumns {
   /**
    * The date and time the service should begin running on. This is useful if a
    * service should be delayed from running for a period of time.
+   * null = Run immediately.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "run_at")
-  private Date runAt;
+  @Column(name = "run_on")
+  private Date runOn;
 
   /**
-   * Number of times to run before waiting for next RunAt. "0" is used for
-   * continuous running.
+   * At what time the schedule should start.
+   */
+  @Temporal(TemporalType.TIME)
+  @Column(name = "start_at")
+  private Date startAt;
+
+  /**
+   * At what time the schedule should stop.
+   */
+  @Temporal(TemporalType.TIME)
+  @Column(name = "stop_at")
+  private Date stopAt;
+
+  /**
+   * Number of times to run before waiting for next RunAt.
+   * 0 = is used for continuous running.
    */
   @Column(name = "repeat", nullable = false)
   private int repeat;
 
   /**
    * Identify which week days the service should run.
+   * NA = Do not use runOnWeekDays.
    */
   @Column(name = "run_on_week_days", nullable = false)
   @Convert(converter = WeekDaysAttributeConverter.class)
@@ -89,6 +112,7 @@ public class Schedule extends AuditColumns {
 
   /**
    * Identify which months the service should run.
+   * NA = Do not use runOnMonths.
    */
   @Column(name = "run_on_months", nullable = false)
   @Convert(converter = MonthsAttributeConverter.class)
@@ -96,6 +120,7 @@ public class Schedule extends AuditColumns {
 
   /**
    * Identify the day of the month the service should run.
+   * 0 = Do not use dayOfMonth.
    */
   @Column(name = "day_of_month", nullable = false)
   private int dayOfMonth;
@@ -105,7 +130,7 @@ public class Schedule extends AuditColumns {
    */
   @JsonBackReference("data_sources")
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
-  private List<DataSource> data_sources = new ArrayList<>();
+  private List<DataSourceSchedule> dataSourceSchedules = new ArrayList<>();
 
   /**
    * Creates a new instance of a Schedule object.
@@ -197,17 +222,17 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return Date return the runAt
+   * @return Date return the runOn
    */
-  public Date getRunAt() {
-    return runAt;
+  public Date getRunOn() {
+    return runOn;
   }
 
   /**
-   * @param runAt the runAt to set
+   * @param runOn the runOn to set
    */
-  public void setRunAt(Date runAt) {
-    this.runAt = runAt;
+  public void setRunOn(Date runOn) {
+    this.runOn = runOn;
   }
 
   /**
@@ -267,10 +292,59 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return List{DataSource} return the data_sources
+   * @return ScheduleType return the scheduleType
    */
-  public List<DataSource> getDataSources() {
-    return data_sources;
+  public ScheduleType getScheduleType() {
+    return scheduleType;
+  }
+
+  /**
+   * @param scheduleType the scheduleType to set
+   */
+  public void setScheduleType(ScheduleType scheduleType) {
+    this.scheduleType = scheduleType;
+  }
+
+  /**
+   * @return Date return the startAt
+   */
+  public Date getStartAt() {
+    return startAt;
+  }
+
+  /**
+   * @param startAt the startAt to set
+   */
+  public void setStartAt(Date startAt) {
+    this.startAt = startAt;
+  }
+
+  /**
+   * @return Date return the stopAt
+   */
+  public Date getStopAt() {
+    return stopAt;
+  }
+
+  /**
+   * @param stopAt the stopAt to set
+   */
+  public void setStopAt(Date stopAt) {
+    this.stopAt = stopAt;
+  }
+
+  /**
+   * @return List{DataSourceSchedule} return the dataSourceSchedules
+   */
+  public List<DataSourceSchedule> getDataSourceSchedules() {
+    return dataSourceSchedules;
+  }
+
+  /**
+   * @param dataSourceSchedules the dataSourceSchedules to set
+   */
+  public void setDataSourceSchedules(List<DataSourceSchedule> dataSourceSchedules) {
+    this.dataSourceSchedules = dataSourceSchedules;
   }
 
 }

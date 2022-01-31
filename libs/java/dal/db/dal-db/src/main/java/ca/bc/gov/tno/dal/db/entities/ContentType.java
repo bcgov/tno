@@ -65,6 +65,13 @@ public class ContentType extends AuditColumns {
   private List<Content> contents = new ArrayList<>();
 
   /**
+   * A collection of actions of this type.
+   */
+  @JsonBackReference("content_types")
+  @OneToMany(mappedBy = "contentType", fetch = FetchType.LAZY)
+  private List<ContentTypeAction> contentTypeActions = new ArrayList<>();
+
+  /**
    * Creates a new instance of a ContentType object.
    */
   public ContentType() {
@@ -158,6 +165,20 @@ public class ContentType extends AuditColumns {
    */
   public void setContents(List<Content> contents) {
     this.contents = contents;
+  }
+
+  /**
+   * @return List{ContentTypeAction} return the contentTypeActions
+   */
+  public List<ContentTypeAction> getContentTypeActions() {
+    return contentTypeActions;
+  }
+
+  /**
+   * @param contentTypeActions the contentTypeActions to set
+   */
+  public void setContentTypeActions(List<ContentTypeAction> contentTypeActions) {
+    this.contentTypeActions = contentTypeActions;
   }
 
 }

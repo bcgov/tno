@@ -6,38 +6,29 @@ import ca.bc.gov.tno.IEnumValue;
 
 /**
  * Provides content status to determine the stage the content is in.
+ * Content status represents either what process should be performed.
  */
 public enum ContentStatus implements IEnumValue<Integer> {
   /**
-   * Content has been received from data source and is in progress of being
-   * ingested. It has not yet been added to TNO.
+   * Content will not be published.
    */
-  InProgress(0),
+  Draft(0),
   /**
-   * Content has been received by TNO, but is not searchable.
+   * Content added to queue to publish.
    */
-  Received(1),
-  /**
-   * Content has been received and transcribed in TNO but is not yet searchable.
-   */
-  Transcribed(2),
-  /**
-   * Content has been received and Natural Language Processed in TNO but is not
-   * yet searchable.
-   */
-  NLP(3),
-  /**
-   * Content has successfully been added to TNO, and is searchable.
-   */
-  Success(4),
+  Publish(1),
   /**
    * Content has been published.
    */
-  Published(5),
+  Published(2),
   /**
-   * Content has failed to be added to TNO.
+   * Content has been requested to be unpublished.
    */
-  Failed(-1);
+  Unpublish(3),
+  /**
+   * Content has been unpublished.
+   */
+  Unpublished(4);
 
   private final int value;
 

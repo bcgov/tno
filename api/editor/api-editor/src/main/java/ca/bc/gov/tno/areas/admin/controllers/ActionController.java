@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.Action;
  */
 @RolesAllowed({ "administrator" })
 @RestController("AdminActionController")
-@RequestMapping("/admin/actions")
+@RequestMapping({ "/admin/actions", "/api/admin/actions" })
 public class ActionController {
 
   /**

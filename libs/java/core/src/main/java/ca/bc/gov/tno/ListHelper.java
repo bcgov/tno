@@ -10,7 +10,7 @@ import java.util.List;
 public class ListHelper {
   /**
    * Safely casts the collection into the specified list type.
-   * 
+   *
    * @param <T>   Type of items in list.
    * @param clazz The class type of the items.
    * @param items The items to add to the list.

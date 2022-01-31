@@ -27,12 +27,28 @@ public interface ITimeTrackingService {
   Optional<TimeTracking> findById(TimeTrackingPK key);
 
   /**
+   * Find all time tracking for the specified content primary key.
+   * 
+   * @param contentId The content primary key.
+   * @return A new instance of the time tracking if it exists.
+   */
+  List<TimeTracking> findByContentId(int contentId);
+
+  /**
    * Add a new time tracking to the content.
    * 
    * @param entity The time tracking to add.
    * @return A new instance of the time tracking that was added.
    */
   TimeTracking add(TimeTracking entity);
+
+  /**
+   * Add a new time tracking to the data source.
+   * 
+   * @param entities An array of time tracking to add.
+   * @return A new instance of the time tracking that was added.
+   */
+  Iterable<TimeTracking> add(Iterable<TimeTracking> entities);
 
   /**
    * Update the specified time tracking in the content.
@@ -43,9 +59,24 @@ public interface ITimeTrackingService {
   TimeTracking update(TimeTracking entity);
 
   /**
+   * Update the specified time tracking in the data source.
+   * 
+   * @param entities An array of time tracking to update.
+   * @return A new instance of the time tracking that was updated.
+   */
+  Iterable<TimeTracking> update(Iterable<TimeTracking> entities);
+
+  /**
    * Delete the specified time tracking from the content.
    * 
    * @param entity The time tracking to delete.
    */
   void delete(TimeTracking entity);
+
+  /**
+   * Delete the specified time tracking from the data source.
+   * 
+   * @param entities An array of time tracking to delete.
+   */
+  void delete(Iterable<TimeTracking> entities);
 }

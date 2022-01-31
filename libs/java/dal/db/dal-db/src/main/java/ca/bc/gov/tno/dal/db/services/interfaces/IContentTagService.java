@@ -27,12 +27,28 @@ public interface IContentTagService {
   Optional<ContentTag> findById(ContentTagPK key);
 
   /**
+   * Find all content tag for the specified content primary key.
+   * 
+   * @param contentId The content primary key.
+   * @return A new instance of the content tag if it exists.
+   */
+  List<ContentTag> findById(int contentId);
+
+  /**
    * Add a new content tag to the content.
    * 
    * @param entity The content tag to add.
    * @return A new instance of the content tag that was added.
    */
   ContentTag add(ContentTag entity);
+
+  /**
+   * Add a new content tag to the data source.
+   * 
+   * @param entities An array of content tag to add.
+   * @return A new instance of the content tag that was added.
+   */
+  Iterable<ContentTag> add(Iterable<ContentTag> entities);
 
   /**
    * Update the specified content tag in the content.
@@ -43,9 +59,24 @@ public interface IContentTagService {
   ContentTag update(ContentTag entity);
 
   /**
+   * Update the specified content tag in the data source.
+   * 
+   * @param entities An array of content tag to update.
+   * @return A new instance of the content tag that was updated.
+   */
+  Iterable<ContentTag> update(Iterable<ContentTag> entities);
+
+  /**
    * Delete the specified content tag from the content.
    * 
    * @param entity The content tag to delete.
    */
   void delete(ContentTag entity);
+
+  /**
+   * Delete the specified content tag from the data source.
+   * 
+   * @param entities An array of content tag to delete.
+   */
+  void delete(Iterable<ContentTag> entities);
 }

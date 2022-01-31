@@ -81,6 +81,8 @@ public class TimeTracking extends AuditColumns {
       throw new NullPointerException("Parameter 'content' cannot be null.");
     if (user == null)
       throw new NullPointerException("Parameter 'user' cannot be null.");
+    if (effort < 0)
+      throw new IllegalArgumentException("Parameter 'effort' cannot be less than zero.");
     if (activity == null)
       throw new NullPointerException("Parameter 'activity' cannot be null.");
     if (activity.length() == 0)
@@ -90,6 +92,55 @@ public class TimeTracking extends AuditColumns {
     this.contentId = content.getId();
     this.user = user;
     this.userId = user.getId();
+    this.effort = effort;
+    this.activity = activity;
+  }
+
+  /**
+   * Creates a new instance of a TimeTracking object, initializes with specified
+   * parameters.
+   * 
+   * @param content  Content object
+   * @param userId   Foreign key to User object
+   * @param effort   Number of minutes
+   * @param activity Description of effort
+   */
+  public TimeTracking(Content content, int userId, float effort, String activity) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+    if (effort < 0)
+      throw new IllegalArgumentException("Parameter 'effort' cannot be less than zero.");
+    if (activity == null)
+      throw new NullPointerException("Parameter 'activity' cannot be null.");
+    if (activity.length() == 0)
+      throw new IllegalArgumentException("Parameter 'activity' cannot be empty.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.userId = userId;
+    this.effort = effort;
+    this.activity = activity;
+  }
+
+  /**
+   * Creates a new instance of a TimeTracking object, initializes with specified
+   * parameters.
+   * 
+   * @param contentId Foreign key to Content object
+   * @param userId    Foreign key to User object
+   * @param effort    Number of minutes
+   * @param activity  Description of effort
+   */
+  public TimeTracking(int contentId, int userId, float effort, String activity) {
+    if (effort < 0)
+      throw new IllegalArgumentException("Parameter 'effort' cannot be less than zero.");
+    if (activity == null)
+      throw new NullPointerException("Parameter 'activity' cannot be null.");
+    if (activity.length() == 0)
+      throw new IllegalArgumentException("Parameter 'activity' cannot be empty.");
+
+    this.contentId = contentId;
+    this.userId = userId;
     this.effort = effort;
     this.activity = activity;
   }

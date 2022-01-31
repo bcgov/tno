@@ -66,10 +66,23 @@ public class UserRole extends AuditColumns {
       throw new IllegalArgumentException("Parameter 'user' is required.");
     if (role == null)
       throw new IllegalArgumentException("Parameter 'role' is required.");
+
     this.user = user;
     this.userId = user.getId();
     this.role = role;
     this.roleId = role.getId();
+  }
+
+  /**
+   * Creates a new instance of a UserRole object, initializes with specified
+   * parameters.
+   * 
+   * @param userId Foreign key to The user.
+   * @param roleId Foreign key to The role.
+   */
+  public UserRole(int userId, int roleId) {
+    this.userId = userId;
+    this.roleId = roleId;
   }
 
   /**

@@ -37,12 +37,16 @@ export const useSummon = ({
   const state = React.useContext(SummonContext);
   let loadingToastId: React.ReactText | undefined = undefined;
 
-  const instance = axios.create({
-    baseURL,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
+  const instance = React.useMemo(
+    () =>
+      axios.create({
+        baseURL,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }),
+    [],
+  );
 
   instance.interceptors.request.use((config) => {
     config!.headers!.Authorization = `Bearer ${state.token}`;
@@ -85,7 +89,7 @@ export const useSummon = ({
     },
   );
 
-  return React.useMemo(() => instance, [instance]);
+  return instance;
 };
 
 export default useSummon;
