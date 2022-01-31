@@ -1,7 +1,7 @@
 import { Menu as HMenu } from '@headlessui/react';
 import React from 'react';
 import { FaHome, FaToolbox } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, MenuButton, MenuContext, MenuGroup, MenuStatus } from 'tno-core';
 
 interface IMenuProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -18,10 +18,16 @@ interface IMenuProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const NavMenu: React.FC<IMenuProps> = ({ showIcons = true, children, ...rest }) => {
   const { status } = React.useContext(MenuContext);
+  const navigate = useNavigate();
 
   return status !== MenuStatus.hidden ? (
     <Menu {...rest}>
-      <MenuButton label="Home" route="/" status={status} icon={FaHome}></MenuButton>
+      <MenuButton
+        label="Home"
+        onClick={() => navigate('/')}
+        status={status}
+        icon={FaHome}
+      ></MenuButton>
       <MenuGroup label="Administration" status={status} icon={FaToolbox}>
         <HMenu.Item as="div">{(props) => <Link to="/admin/users">Users</Link>}</HMenu.Item>
         <HMenu.Item as="div">{(props) => <Link to="/admin/kafka">Kafka Topics</Link>}</HMenu.Item>

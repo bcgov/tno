@@ -1,6 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-
-import { useKeycloakWrapper } from '../../hooks';
+import { Navigate } from 'react-router-dom';
+import { useKeycloakWrapper } from 'tno-core';
 
 /**
  * Login will display content for an anonymous user.
@@ -9,10 +8,9 @@ import { useKeycloakWrapper } from '../../hooks';
  */
 export const Login = () => {
   const keycloak = useKeycloakWrapper();
-  const navigate = useNavigate();
 
   if (keycloak.authenticated) {
-    navigate('/');
+    return <Navigate to="/" />;
   }
   return <div>Anonymous user</div>;
 };

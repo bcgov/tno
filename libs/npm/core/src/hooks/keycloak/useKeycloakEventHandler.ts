@@ -28,7 +28,7 @@ export const useKeycloakEventHandler = () => {
           state.setAuthReady(true);
         } else {
           //TODO: log error properly
-          console.debug(`keycloak event: ${eventType} error ${error}`);
+          console.debug(`keycloak event: ${eventType} error`, error);
         }
       };
       return keycloakEventHandler;

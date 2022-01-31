@@ -10,7 +10,7 @@ interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   name: string;
   children: {
-    menu: React.ReactNode;
+    menu?: React.ReactNode;
     router: React.ReactNode;
   };
 }
@@ -23,13 +23,14 @@ interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Layout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
   const [isLoading] = React.useState(false);
+  const showMenu = !!keycloak.authenticated && !!children.menu;
 
   return (
     <styled.Layout {...rest}>
       <MenuProvider>
         <Header name={name} />
         <div className="main-window">
-          {keycloak.authenticated && children.menu}
+          {showMenu && children.menu}
           <main>
             {children.router}
             {isLoading && <Loading />}

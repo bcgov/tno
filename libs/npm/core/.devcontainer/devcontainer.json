@@ -22,7 +22,7 @@
     "esbenp.prettier-vscode",
     "rvest.vs-code-prettier-eslint",
     "formulahendry.auto-close-tag",
-    "cssho.vscode-svgviewer",
+    "jock.svg",
     "jpoissonnier.vscode-styled-components",
     "pflannery.vscode-versionlens"
   ],
