@@ -4,8 +4,6 @@ import { useFormikContext } from 'formik';
 import * as styled from './FormikDropdownStyled';
 
 export interface IFormikDropdownProps extends IDropdownProps {
-  name: string;
-  label?: string;
   value?: string | number | readonly string[];
 }
 
@@ -25,7 +23,6 @@ export const FormikDropdown = <T,>({
   const error = (errors as any)[name] && (touched as any)[name] && (errors as any)[name];
   return (
     <styled.FormikDropdown>
-      {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
       <div>
         <Dropdown
           id={id ?? `dpn-${name}`}

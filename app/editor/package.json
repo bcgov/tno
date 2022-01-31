@@ -26,14 +26,14 @@
     "react-redux": "7.2.6",
     "react-redux-loading-bar": "5.0.2",
     "react-router-dom": "6.2.1",
-    "react-select": "5.2.2",
     "react-scripts": "5.0.0",
+    "react-select": "5.2.2",
     "react-table": "7.7.0",
     "react-toastify": "8.1.0",
     "react-tooltip": "4.2.21",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.1",
-    "tno-core": "0.0.85",
+    "tno-core": "0.0.86",
     "yup": "0.32.11"
   },
   "devDependencies": {
@@ -60,10 +60,10 @@
     "cross-env": "7.0.3",
     "customize-cra": "1.0.0",
     "eslint-config-prettier": "8.3.0",
-    "eslint-plugin-prettier": "4.0.0",
-    "eslint-plugin-simple-import-sort": "7.0.0",
     "eslint-plugin-flowtype": "8.0.3",
+    "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-react-hooks": "4.3.0",
+    "eslint-plugin-simple-import-sort": "7.0.0",
     "prettier": "2.5.1",
     "pretty": "2.0.0",
     "pretty-quick": "3.1.3",
@@ -73,12 +73,8 @@
     "sass-extract-loader": "1.1.0",
     "typescript": "4.5.4"
   },
-  "peerDependencies": {
-    "redux": "4.1.2"
-  },
-  "resolutions": {
-    "react-error-overlay": "6.0.9"
-  },
+  "peerDependencies": {},
+  "resolutions": {},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
