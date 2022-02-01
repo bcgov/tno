@@ -1,10 +1,6 @@
-@import './_variables';
 @import './_colors';
 
 :export {
-  mapfilterHeight: $mapfilter-height;
-  footerHeight: $footer-height;
-  headerHeight: $header-height;
 
   primaryColor: $primary-color;
   primaryColorRgb: $primary-color-rgb;

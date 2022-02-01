@@ -1,6 +1,7 @@
 import React, { SelectHTMLAttributes } from 'react';
 
-import { DropdownVariant, instanceOfIOption, IOption } from '.';
+import { IOption } from '..';
+import { DropdownVariant, instanceOfIOption } from '.';
 import * as styled from './DropdownStyled';
 
 export interface IDropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
@@ -42,15 +43,15 @@ export const Dropdown: React.FC<IDropdownProps> = ({
   ...rest
 }) => {
   return (
-    <>
+    <div className="frm-in">
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
       <styled.Dropdown
         variant={variant}
         name={name}
-        {...rest}
         className={`${className}`}
         data-for="main"
         data-tip={tooltip}
+        {...rest}
       >
         {options
           ? options.map((option) => {
@@ -72,6 +73,6 @@ export const Dropdown: React.FC<IDropdownProps> = ({
             })
           : children}
       </styled.Dropdown>
-    </>
+    </div>
   );
 };

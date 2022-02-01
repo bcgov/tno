@@ -1,6 +1,6 @@
 import { enumKeyValues } from 'utils';
 
-import { IOption } from '.';
+import { IOption } from '..';
 
 /**
  * Determine if the specified object is an instance of IOption.

@@ -30,5 +30,5 @@ export const enumValues = (enumObject: any) => {
 export const enumKeyValues = (enumObject: any) => {
   return Object.entries(enumObject)
     .filter(([key]) => typeof enumObject[key as any] === 'string')
-    .map(([key, value]) => ({ key: value, value: key } as IKeyValuePair));
+    .map(([key, value]) => ({ key: value, value: key } as IKeyValuePair<string>));
 };

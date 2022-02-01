@@ -4,6 +4,8 @@ import { TextVariant } from '..';
 import * as styled from './TextAreaStyled';
 
 export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
+  name: string;
+  label?: string;
   /**
    * The styled variant.
    */
@@ -15,6 +17,9 @@ export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement>
 }
 
 export const TextArea: React.FC<ITextAreaProps> = ({
+  id,
+  name,
+  label,
   variant = TextVariant.primary,
   tooltip,
   children,
@@ -22,14 +27,19 @@ export const TextArea: React.FC<ITextAreaProps> = ({
   ...rest
 }) => {
   return (
-    <styled.TextArea
-      variant={variant}
-      {...rest}
-      className={`${className}`}
-      data-for="main"
-      data-tip={tooltip}
-    >
-      {children}
-    </styled.TextArea>
+    <div className="frm-in">
+      {label && <label htmlFor={id ?? `txa-${name}`}>{label}</label>}
+      <styled.TextArea
+        id={id}
+        name={name}
+        variant={variant}
+        className={`${className}`}
+        data-for="main"
+        data-tip={tooltip}
+        {...rest}
+      >
+        {children}
+      </styled.TextArea>
+    </div>
   );
 };

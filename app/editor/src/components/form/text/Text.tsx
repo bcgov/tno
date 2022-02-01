@@ -4,6 +4,8 @@ import { TextVariant } from '.';
 import * as styled from './TextStyled';
 
 export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
+  name: string;
+  label?: string;
   /**
    * The styled variant.
    */
@@ -20,6 +22,9 @@ export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
  * @returns Text component.
  */
 export const Text: React.FC<ITextProps> = ({
+  id,
+  name,
+  label,
   type = 'text',
   variant = TextVariant.primary,
   tooltip,
@@ -28,15 +33,20 @@ export const Text: React.FC<ITextProps> = ({
   ...rest
 }) => {
   return (
-    <styled.Text
-      type={type}
-      variant={variant}
-      {...rest}
-      className={`btn ${className}`}
-      data-for="main"
-      data-tip={tooltip}
-    >
-      {children}
-    </styled.Text>
+    <div className="frm-in">
+      {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
+      <styled.Text
+        name={name}
+        id={id}
+        type={type}
+        variant={variant}
+        className={`btn ${className}`}
+        data-for="main"
+        data-tip={tooltip}
+        {...rest}
+      >
+        {children}
+      </styled.Text>
+    </div>
   );
 };

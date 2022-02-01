@@ -24,7 +24,8 @@
     "formulahendry.auto-close-tag",
     "jock.svg",
     "jpoissonnier.vscode-styled-components",
-    "pflannery.vscode-versionlens"
+    "pflannery.vscode-versionlens",
+    "styled-components.vscode-styled-components"
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

@@ -15,7 +15,7 @@ export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 /**
- * Checkbox component provides a bootstrapped styled button element.
+ * Checkbox component provides a bootstrapped styled input checkbox element.
  * @param param0 Checkbox element attributes.
  * @returns Checkbox component.
  */
