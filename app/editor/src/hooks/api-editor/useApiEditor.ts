@@ -1,9 +1,11 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 import { defaultEnvelope, LifecycleToasts, useSummon } from 'tno-core';
+import { toQueryString } from 'utils';
 
 import {
   IActionModel,
+  IContentFilter,
   IContentModel,
   IContentTypeModel,
   IMediaTypeModel,
@@ -44,10 +46,15 @@ export const useApiEditor = (
       getActions: async () => {
         return await handleRequest<IActionModel[]>(() => summon.get(`/editor/actions`));
       },
-      getContents: async (pageIndex?: number, pageSize?: number) => {
-        const page = (pageIndex ?? 0) + 1;
+      getContents: async (pageIndex?: number, pageSize?: number, filter?: IContentFilter) => {
+        const params = {
+          page: (pageIndex ?? 0) + 1,
+          quantity: pageSize,
+          ...filter,
+          actions: filter?.actions?.length ? filter.actions : undefined,
+        };
         return await handleRequest<IPaged<IContentModel>>(() =>
-          summon.get(`/editor/contents?page=${page}&quantity=${pageSize ?? 10}`),
+          summon.get(`/editor/contents?${toQueryString(params)}`),
         );
       },
       getContentTypes: async () => {

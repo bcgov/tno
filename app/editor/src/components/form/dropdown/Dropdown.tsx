@@ -1,14 +1,12 @@
-import React, { SelectHTMLAttributes } from 'react';
+import React from 'react';
+import { Props } from 'react-select';
+import Select from 'react-select';
 
 import { IOptionItem } from '..';
 import { DropdownVariant, instanceOfIOption } from '.';
 import * as styled from './DropdownStyled';
 
-export interface IDropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  /**
-   * The control name.
-   */
-  name: string;
+export interface IDropdownProps {
   /**
    * The label to include with the control.
    */
@@ -21,18 +19,16 @@ export interface IDropdownProps extends SelectHTMLAttributes<HTMLSelectElement> 
    * The tooltip to show on hover.
    */
   tooltip?: string;
-  /**
-   * An array of options.
-   */
-  options?: readonly string[] | number[] | IOptionItem[] | HTMLOptionElement[];
 }
+
+export interface ISelectProps extends IDropdownProps, Props {}
 
 /**
  * Dropdown component provides a bootstrapped styled button element.
  * @param param0 Dropdown element attributes.
  * @returns Dropdown component.
  */
-export const Dropdown: React.FC<IDropdownProps> = ({
+export const Dropdown: React.FC<ISelectProps> = ({
   name,
   label,
   variant = DropdownVariant.primary,
@@ -40,42 +36,46 @@ export const Dropdown: React.FC<IDropdownProps> = ({
   children,
   className,
   options,
+  value,
+  defaultValue,
+  onChange,
   ...rest
 }) => {
+  const [selected, setSelected] = React.useState<any | readonly any[] | undefined>();
+  const [selectedValue, setSelectedValue] = React.useState<any>();
+
+  React.useEffect(() => {
+    if (options && options.length) {
+      const results = (options as any[]).filter((option: any) => {
+        // TODO: Handle other types.
+        return instanceOfIOption(option) && (option as IOptionItem).selected;
+      });
+      if (results.length) {
+        const values = rest.isMulti ? results : results[results.length - 1];
+        setSelected(values);
+        setSelectedValue(values);
+      }
+    }
+  }, [options, rest.isMulti]);
+
   return (
-    <div className="frm-in">
+    <styled.Dropdown className="frm-in" variant={variant}>
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
-      <styled.Dropdown
-        variant={variant}
+      <Select
+        // variant={variant}
         name={name}
-        className={`${className}`}
+        className={`${className ?? ''}`}
         data-for="main"
         data-tip={tooltip}
+        value={value ?? selectedValue}
+        defaultValue={defaultValue ?? selected}
+        onChange={(newValue, actionMeta) => {
+          setSelectedValue(newValue);
+          onChange?.(newValue, actionMeta);
+        }}
+        options={options}
         {...rest}
-      >
-        {options
-          ? options.map((option) => {
-              if (instanceOfIOption(option)) {
-                const item = option as IOptionItem;
-                return (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
-                );
-              } else if (typeof option === 'object') {
-                // TODO: check if HTMLOptionElement
-                return option;
-              } else {
-                const value = option as string;
-                return (
-                  <option key={value} value={value}>
-                    {option}
-                  </option>
-                );
-              }
-            })
-          : children}
-      </styled.Dropdown>
-    </div>
+      />
+    </styled.Dropdown>
   );
 };

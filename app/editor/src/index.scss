@@ -87,6 +87,8 @@ h2 {
   }
 
   &.chk {
+    padding-bottom: 0;
+
     label:not(:first-child) {
       display: inline;
       font-weight: normal;

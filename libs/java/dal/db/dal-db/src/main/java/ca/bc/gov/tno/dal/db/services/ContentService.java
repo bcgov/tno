@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
+import ca.bc.gov.tno.dal.db.FilterCollection;
+import ca.bc.gov.tno.dal.db.FilterParam;
 import ca.bc.gov.tno.dal.db.SortDirection;
 import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.models.SortParam;
@@ -57,10 +59,11 @@ public class ContentService implements IContentService {
    * 
    * @param page     The page to pull content from.
    * @param quantity Number of items to return in a page.
+   * @param filter   An array of filter parameters.
    * @param sort     An array of sort parameters ['col1 desc', 'col2 asc']
    * @return A page of content.
    */
-  public IPaged<Content> find(int page, int quantity, SortParam[] sort) {
+  public IPaged<Content> find(int page, int quantity, FilterCollection filter, SortParam[] sort) {
     page = page < 1 ? 1 : page;
     quantity = quantity < 1 ? 10 : quantity;
 
@@ -74,17 +77,27 @@ public class ContentService implements IContentService {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
+    StringBuilder where = new StringBuilder();
+    if (filter != null && filter.getFilters().size() > 0) {
+      where.append("WHERE");
+      var filters = filter.getFilters();
+      for (Object param : filters) {
+
+      }
+    }
+
     try {
       var order = String.join(", ", Arrays.stream(sort).map(s -> "c." + s).toArray(String[]::new));
       var pageSql = """
           SELECT DISTINCT c FROM Content c
+          """ + where + """
           JOIN FETCH c.contentType AS ct
           JOIN FETCH c.mediaType AS mt
           JOIN FETCH c.license AS l
           LEFT JOIN FETCH c.owner AS o
           LEFT JOIN FETCH c.dataSource AS ds
           ORDER BY
-           """ + order;
+          """ + order;
       var pageQuery = session.createQuery(pageSql)
           .setFirstResult((page - 1) * quantity)
           .setMaxResults(quantity);

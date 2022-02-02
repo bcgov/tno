@@ -35,7 +35,7 @@ export const FormikCheckbox = <T,>({
           checked={checked}
           onChange={onChange ?? handleChange}
           onBlur={onBlur ?? handleBlur}
-          className={error ? `${className} error` : className}
+          className={error ? `${className ?? ''} error` : className}
           disabled={disabled || isSubmitting}
           {...rest}
         ></Checkbox>

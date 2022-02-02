@@ -30,7 +30,7 @@ export const FormikDropdown = <T,>({
           value={value ?? (values as any)[name] ?? ''}
           onChange={onChange ?? handleChange}
           onBlur={onBlur ?? handleBlur}
-          className={error ? `${className} error` : className}
+          className={error ? `${className ?? ''} error` : className}
           disabled={disabled || isSubmitting}
           {...rest}
         >

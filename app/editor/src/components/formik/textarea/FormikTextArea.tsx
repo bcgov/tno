@@ -26,7 +26,7 @@ export const FormikTextArea = <T,>({
         value={value ?? (values as any)[name] ?? ''}
         onChange={onChange ?? handleChange}
         onBlur={onBlur ?? handleBlur}
-        className={error ? `${className} error` : className}
+        className={error ? `${className ?? ''} error` : className}
         {...rest}
       ></TextArea>
       {error ? <p role="alert">{error}</p> : null}

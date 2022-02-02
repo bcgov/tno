@@ -1,5 +1,6 @@
 export * from './IActionModel';
 export * from './ICategoryModel';
+export * from './IContentFilter';
 export * from './IContentModel';
 export * from './IContentTypeModel';
 export * from './IMediaTypeModel';

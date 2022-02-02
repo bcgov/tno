@@ -43,7 +43,13 @@ export const RadioGroup: React.FC<IRadioGroupProps> = ({
               const item = option as IOptionItem;
               return (
                 <span key={item.value}>
-                  <Radio id={`${name}-${item.value}`} name={name} value={item.value} {...rest} />
+                  <Radio
+                    id={`${name}-${item.value}`}
+                    name={name}
+                    value={item.value}
+                    defaultChecked={item.selected}
+                    {...rest}
+                  />
                   <label htmlFor={`${name}-${item.value}`}>{item.label}</label>
                 </span>
               );
