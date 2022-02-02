@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
+import ca.bc.gov.tno.dal.db.FilterCollection;
+import ca.bc.gov.tno.dal.db.FilterParam;
 import ca.bc.gov.tno.dal.db.SortDirection;
 import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.entities.ContentAction;
@@ -91,6 +93,15 @@ public class ContentService implements IContentService {
 
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
+
+    StringBuilder where = new StringBuilder();
+    if (filter != null && filter.getFilters().size() > 0) {
+      where.append("WHERE");
+      var filters = filter.getFilters();
+      for (Object param : filters) {
+
+      }
+    }
 
     try {
       var pageQuery = session

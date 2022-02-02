@@ -36,6 +36,23 @@ export const Dropdown: React.FC<ISelectProps> = ({
   className,
   ...rest
 }) => {
+  const [selected, setSelected] = React.useState<any | readonly any[] | undefined>();
+  const [selectedValue, setSelectedValue] = React.useState<any>();
+
+  React.useEffect(() => {
+    if (options && options.length) {
+      const results = (options as any[]).filter((option: any) => {
+        // TODO: Handle other types.
+        return instanceOfIOption(option) && (option as IOptionItem).selected;
+      });
+      if (results.length) {
+        const values = rest.isMulti ? results : results[results.length - 1];
+        setSelected(values);
+        setSelectedValue(values);
+      }
+    }
+  }, [options, rest.isMulti]);
+
   return (
     <styled.Dropdown className="frm-in" variant={variant}>
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
@@ -45,6 +62,13 @@ export const Dropdown: React.FC<ISelectProps> = ({
         className={`slt ${className ?? ''}`}
         data-for="main-tooltip"
         data-tip={tooltip}
+        value={value ?? selectedValue}
+        defaultValue={defaultValue ?? selected}
+        onChange={(newValue, actionMeta) => {
+          setSelectedValue(newValue);
+          onChange?.(newValue, actionMeta);
+        }}
+        options={options}
         {...rest}
       />
     </styled.Dropdown>
