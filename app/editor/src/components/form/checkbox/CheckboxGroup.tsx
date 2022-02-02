@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes } from 'react';
 
-import { instanceOfIOption, IOption } from '..';
+import { instanceOfIOption, IOptionItem } from '..';
 import { Checkbox, CheckboxVariant } from '.';
 
 export interface ICheckboxGroupProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -19,7 +19,7 @@ export interface ICheckboxGroupProps extends InputHTMLAttributes<HTMLInputElemen
   /**
    * An array of options.
    */
-  options?: readonly string[] | number[] | IOption[];
+  options?: readonly string[] | number[] | IOptionItem[] | HTMLOptionElement[];
 }
 
 /**
@@ -40,13 +40,16 @@ export const CheckboxGroup: React.FC<ICheckboxGroupProps> = ({
       {options
         ? options.map((option) => {
             if (instanceOfIOption(option)) {
-              const item = option as IOption;
+              const item = option as IOptionItem;
               return (
                 <span key={item.value}>
                   <Checkbox id={`${name}-${item.value}`} name={name} value={item.value} {...rest} />
                   <label htmlFor={`${name}-${item.value}`}>{item.label}</label>
                 </span>
               );
+            } else if (typeof option === 'object') {
+              // TODO: Validate option is HTMLOptionElement
+              return option;
             } else {
               const value = option as string;
               return (

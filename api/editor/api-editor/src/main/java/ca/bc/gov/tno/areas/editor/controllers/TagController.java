@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.ITagService;
-import ca.bc.gov.tno.dal.db.entities.Tag;
+import ca.bc.gov.tno.areas.editor.models.TagModel;
 
 /**
  * Endpoints to communicate with the TNO DB tags.
@@ -33,9 +33,10 @@ public class TagController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<Tag> findAll() {
+  public List<TagModel> findAll() {
     var results = tagService.findAll();
-    return results;
+    var models = results.stream().map(t -> new TagModel(t)).toList();
+    return models;
   }
 
 }

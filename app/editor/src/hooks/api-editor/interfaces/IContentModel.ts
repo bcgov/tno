@@ -6,7 +6,7 @@ export interface IContentModel {
   headline: string;
   page: string;
   ownerId: number;
-  owner: IUserModel;
+  owner?: IUserModel;
   source: string;
   section: string;
   mediaTypeId: number;

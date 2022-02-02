@@ -105,7 +105,7 @@ public class Schedule extends AuditColumns {
    */
   @JsonBackReference("data_sources")
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
-  private List<DataSource> data_sources = new ArrayList<>();
+  private List<DataSource> dataSources = new ArrayList<>();
 
   /**
    * Creates a new instance of a Schedule object.
@@ -270,7 +270,14 @@ public class Schedule extends AuditColumns {
    * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return data_sources;
+    return dataSources;
+  }
+
+  /**
+   * @param dataSources the dataSources to set
+   */
+  public void setDataSources(List<DataSource> dataSources) {
+    this.dataSources = dataSources;
   }
 
 }

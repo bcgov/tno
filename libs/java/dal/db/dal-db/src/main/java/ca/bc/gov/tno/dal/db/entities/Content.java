@@ -155,7 +155,7 @@ public class Content extends AuditColumns {
    * Foreign key to the user who owns this content.
    */
   @Column(name = "owner_id", nullable = false)
-  private int ownerId;
+  private Integer ownerId;
 
   /**
    * The schedule reference.
@@ -216,7 +216,7 @@ public class Content extends AuditColumns {
   /**
    * Creates a new instance of a Content object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id            Primary key
    * @param contentTypeId Foreign key to content type
    * @param mediaTypeId   Foreign key to media type
@@ -248,7 +248,37 @@ public class Content extends AuditColumns {
   /**
    * Creates a new instance of a Content object, initializes with specified
    * parameters.
-   * 
+   *
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param dataSourceId  Foreign key to datasource
+   * @param status        The status
+   * @param headline      The headline
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, int dataSourceId,
+      ContentStatus status, String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (status == null)
+      throw new NullPointerException("Parameter 'status' cannot be null.");
+
+    this.id = id;
+    this.contentTypeId = contentTypeId;
+    this.mediaTypeId = mediaTypeId;
+    this.licenseId = licenseId;
+    this.dataSourceId = dataSourceId;
+    this.status = status;
+    this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
    * @param id            Primary key
    * @param contentTypeId Foreign key to content type
    * @param mediaTypeId   Foreign key to media type
@@ -284,7 +314,41 @@ public class Content extends AuditColumns {
   /**
    * Creates a new instance of a Content object, initializes with specified
    * parameters.
-   * 
+   *
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param source        The source of the content
+   * @param status        The status
+   * @param headline      The headline
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, String source, ContentStatus status,
+      String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (source == null)
+      throw new NullPointerException("Parameter 'source' cannot be null.");
+    if (source.length() == 0)
+      throw new IllegalArgumentException("Parameter 'source' cannot be empty.");
+    if (status == null)
+      throw new NullPointerException("Parameter 'status' cannot be null.");
+
+    this.id = id;
+    this.contentTypeId = contentTypeId;
+    this.mediaTypeId = mediaTypeId;
+    this.licenseId = licenseId;
+    this.source = source;
+    this.status = status;
+    this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
    * @param contentType Foreign key to content type
    * @param mediaType   Foreign key to media type
    * @param license     Foreign key to the license
@@ -330,7 +394,48 @@ public class Content extends AuditColumns {
   /**
    * Creates a new instance of a Content object, initializes with specified
    * parameters.
-   * 
+   *
+   * @param contentType Foreign key to content type
+   * @param mediaType   Foreign key to media type
+   * @param license     Foreign key to the license
+   * @param dataSource  Foreign key to the datasource
+   * @param status      The status
+   * @param headline    The headline
+   */
+  public Content(ContentType contentType, MediaType mediaType, License license,
+      DataSource dataSource, ContentStatus status, String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (contentType == null)
+      throw new NullPointerException("Parameter 'contentType' cannot be null.");
+    if (mediaType == null)
+      throw new NullPointerException("Parameter 'mediaType' cannot be null.");
+    if (license == null)
+      throw new NullPointerException("Parameter 'license' cannot be null.");
+    if (dataSource == null)
+      throw new NullPointerException("Parameter 'dataSource' cannot be null.");
+    if (status == null)
+      throw new NullPointerException("Parameter 'status' cannot be null.");
+
+    this.contentType = contentType;
+    this.contentTypeId = contentType.getId();
+    this.mediaType = mediaType;
+    this.mediaTypeId = mediaType.getId();
+    this.license = license;
+    this.licenseId = license.getId();
+    this.dataSource = dataSource;
+    this.dataSourceId = dataSource.getId();
+    this.source = dataSource.getCode();
+    this.status = status;
+    this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
    * @param contentType Foreign key to content type
    * @param mediaType   Foreign key to media type
    * @param license     Foreign key to the license
@@ -376,7 +481,48 @@ public class Content extends AuditColumns {
   /**
    * Creates a new instance of a Content object, initializes with specified
    * parameters.
-   * 
+   *
+   * @param contentType Foreign key to content type
+   * @param mediaType   Foreign key to media type
+   * @param license     Foreign key to the license
+   * @param source      The source of the content
+   * @param status      The status
+   * @param headline    The headline
+   */
+  public Content(ContentType contentType, MediaType mediaType, License license,
+      String source, ContentStatus status, String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (contentType == null)
+      throw new NullPointerException("Parameter 'contentType' cannot be null.");
+    if (mediaType == null)
+      throw new NullPointerException("Parameter 'mediaType' cannot be null.");
+    if (license == null)
+      throw new NullPointerException("Parameter 'license' cannot be null.");
+    if (source == null)
+      throw new NullPointerException("Parameter 'source' cannot be null.");
+    if (source.length() == 0)
+      throw new IllegalArgumentException("Parameter 'source' cannot be empty.");
+    if (status == null)
+      throw new NullPointerException("Parameter 'status' cannot be null.");
+
+    this.contentType = contentType;
+    this.contentTypeId = contentType.getId();
+    this.mediaType = mediaType;
+    this.mediaTypeId = mediaType.getId();
+    this.license = license;
+    this.licenseId = license.getId();
+    this.source = source;
+    this.status = status;
+    this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
    * @param contentType Foreign key to content type
    * @param content     Foreign key to content reference
    * @param dataSource  Foreign key to data source
@@ -413,6 +559,43 @@ public class Content extends AuditColumns {
     this.status = content.getStatus();
     this.owner = owner;
     this.ownerId = owner.getId();
+    this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param content     Foreign key to content reference
+   * @param dataSource  Foreign key to data source
+   * @param headline    The headline
+   */
+  public Content(ContentType contentType, ContentReference content, DataSource dataSource, String headline) {
+    if (headline == null)
+      throw new NullPointerException("Parameter 'headline' cannot be null.");
+    if (headline.length() == 0)
+      throw new IllegalArgumentException("Parameter 'headline' cannot be empty.");
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+    if (dataSource == null)
+      throw new NullPointerException("Parameter 'dataSource' cannot be null.");
+    if (contentType == null)
+      throw new NullPointerException("Parameter 'contentType' cannot be null.");
+    if (license == null)
+      throw new NullPointerException("Parameter 'license' cannot be null.");
+
+    this.contentType = contentType; // TODO: Determine from content reference or data source.
+    this.contentTypeId = contentType.getId();
+    this.mediaType = dataSource.getMediaType();
+    this.mediaTypeId = dataSource.getMediaTypeId();
+    this.dataSource = dataSource;
+    this.dataSourceId = dataSource.getId();
+    this.license = dataSource.getLicense();
+    this.licenseId = dataSource.getLicenseId();
+    this.source = content.getSource();
+    this.uid = content.getUid();
+    this.status = content.getStatus();
     this.headline = headline;
   }
 

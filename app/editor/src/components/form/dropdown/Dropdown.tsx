@@ -1,6 +1,6 @@
 import React, { SelectHTMLAttributes } from 'react';
 
-import { IOption } from '..';
+import { IOptionItem } from '..';
 import { DropdownVariant, instanceOfIOption } from '.';
 import * as styled from './DropdownStyled';
 
@@ -24,7 +24,7 @@ export interface IDropdownProps extends SelectHTMLAttributes<HTMLSelectElement> 
   /**
    * An array of options.
    */
-  options?: readonly string[] | number[] | IOption[];
+  options?: readonly string[] | number[] | IOptionItem[] | HTMLOptionElement[];
 }
 
 /**
@@ -56,12 +56,15 @@ export const Dropdown: React.FC<IDropdownProps> = ({
         {options
           ? options.map((option) => {
               if (instanceOfIOption(option)) {
-                const item = option as IOption;
+                const item = option as IOptionItem;
                 return (
                   <option key={item.value} value={item.value}>
                     {item.label}
                   </option>
                 );
+              } else if (typeof option === 'object') {
+                // TODO: check if HTMLOptionElement
+                return option;
               } else {
                 const value = option as string;
                 return (

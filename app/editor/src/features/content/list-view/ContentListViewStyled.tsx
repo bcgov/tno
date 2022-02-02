@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const ListView = styled.div`
+export const ContentListView = styled.div`
   display: flex;
   flex-direction: column;
 
@@ -9,7 +9,7 @@ export const ListView = styled.div`
     min-width: 15em;
   }
 
-  .filter {
+  .content-filter {
     display: flex;
     flex-direction: row;
 
@@ -32,6 +32,15 @@ export const ListView = styled.div`
         display: flex;
         flex-direction: row;
       }
+    }
+  }
+
+  .content-list {
+  }
+
+  .content-actions {
+    button {
+      display: block;
     }
   }
 `;

@@ -1,6 +1,6 @@
 import { enumKeyValues } from 'utils';
 
-import { IOption } from '..';
+import { IOptionItem } from '..';
 
 /**
  * Determine if the specified object is an instance of IOption.
@@ -8,7 +8,7 @@ import { IOption } from '..';
  * @param object Object to check.
  * @returns
  */
-export function instanceOfIOption(object: any): object is IOption {
+export function instanceOfIOption(object: any): object is IOptionItem {
   return object.discriminator === 'IOption';
 }
 
@@ -19,6 +19,6 @@ export function instanceOfIOption(object: any): object is IOption {
  */
 export const castEnumToOptions = (enumObject: any) => {
   return enumKeyValues(enumObject).map(
-    (kv) => ({ label: kv.key, value: kv.value, discriminator: 'IOption' } as IOption),
+    (kv) => ({ label: kv.key, value: kv.value, discriminator: 'IOption' } as IOptionItem),
   );
 };

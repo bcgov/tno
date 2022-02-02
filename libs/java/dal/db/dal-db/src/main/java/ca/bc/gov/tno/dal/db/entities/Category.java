@@ -137,6 +137,13 @@ public class Category extends AuditColumns {
   }
 
   /**
+   * @return boolean return the enabled
+   */
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  /**
    * @param enabled the enabled to set
    */
   public void setEnabled(boolean enabled) {

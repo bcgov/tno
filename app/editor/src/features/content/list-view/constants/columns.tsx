@@ -20,7 +20,7 @@ export const columns: Column<IContentModel>[] = [
   },
   {
     Header: 'Username',
-    accessor: (row) => row.owner.displayName,
+    accessor: (row) => row.owner?.displayName,
   },
   {
     Header: 'Status',

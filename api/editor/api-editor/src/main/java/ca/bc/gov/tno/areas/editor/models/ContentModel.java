@@ -16,15 +16,19 @@ public class ContentModel extends AuditColumnModel {
   private ContentTypeModel contentType;
   private String headline;
   private Integer dataSourceId;
+  private DataSourceModel dataSource;
   private String source;
   private String uid = "";
   private int licenseId;
+  private LicenseModel license;
   private int mediaTypeId;
+  private MediaTypeModel mediaType;
   private String page = "";
   private String section = "";
   private String summary = "";
   private String transcription = "";
   private int ownerId;
+  private UserModel owner;
   private Date publishedOn;
   private String sourceURL = "";
 
@@ -50,15 +54,19 @@ public class ContentModel extends AuditColumnModel {
       this.contentType = new ContentTypeModel(entity.getContentType());
       this.headline = entity.getHeadline();
       this.dataSourceId = entity.getDataSourceId();
+      this.dataSource = entity.getDataSource() != null ? new DataSourceModel(entity.getDataSource()) : null;
       this.source = entity.getSource();
       this.uid = entity.getUid();
       this.licenseId = entity.getLicenseId();
+      this.license = new LicenseModel(entity.getLicense());
       this.mediaTypeId = entity.getMediaTypeId();
+      this.mediaType = new MediaTypeModel(entity.getMediaType());
       this.page = entity.getPage();
       this.section = entity.getSection();
       this.summary = entity.getSummary();
       this.transcription = entity.getTranscription();
       this.ownerId = entity.getOwnerId();
+      this.owner = new UserModel(entity.getOwner());
       this.publishedOn = entity.getPublishedOn();
       this.sourceURL = entity.getSourceURL();
     }
@@ -81,6 +89,8 @@ public class ContentModel extends AuditColumnModel {
     content.setTranscription(this.transcription);
     content.setPublishedOn(this.publishedOn);
     content.setSourceURL(this.sourceURL);
+    content.setMediaTypeId(this.mediaTypeId);
+    content.setOwnerId(this.ownerId);
 
     return content;
   }
@@ -170,6 +180,20 @@ public class ContentModel extends AuditColumnModel {
   }
 
   /**
+   * @return DataSourceModel return the dataSource
+   */
+  public DataSourceModel getDataSource() {
+    return dataSource;
+  }
+
+  /**
+   * @param dataSource the dataSource to set
+   */
+  public void setDataSource(DataSourceModel dataSource) {
+    this.dataSource = dataSource;
+  }
+
+  /**
    * @return String return the source
    */
   public String getSource() {
@@ -212,6 +236,20 @@ public class ContentModel extends AuditColumnModel {
   }
 
   /**
+   * @return LicenseModel return the license
+   */
+  public LicenseModel getLicense() {
+    return license;
+  }
+
+  /**
+   * @param license the license to set
+   */
+  public void setLicense(LicenseModel license) {
+    this.license = license;
+  }
+
+  /**
    * @return int return the mediaTypeId
    */
   public int getMediaTypeId() {
@@ -223,6 +261,20 @@ public class ContentModel extends AuditColumnModel {
    */
   public void setMediaTypeId(int mediaTypeId) {
     this.mediaTypeId = mediaTypeId;
+  }
+
+  /**
+   * @return MediaTypeModel return the mediaType
+   */
+  public MediaTypeModel getMediaType() {
+    return mediaType;
+  }
+
+  /**
+   * @param mediaType the mediaType to set
+   */
+  public void setMediaType(MediaTypeModel mediaType) {
+    this.mediaType = mediaType;
   }
 
   /**
@@ -293,6 +345,20 @@ public class ContentModel extends AuditColumnModel {
    */
   public void setOwnerId(int ownerId) {
     this.ownerId = ownerId;
+  }
+
+  /**
+   * @return UserModel return the owner
+   */
+  public UserModel getOwner() {
+    return owner;
+  }
+
+  /**
+   * @param owner the owner to set
+   */
+  public void setOwner(UserModel owner) {
+    this.owner = owner;
   }
 
   /**

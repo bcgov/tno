@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import ca.bc.gov.tno.dal.db.entities.User;
+import ca.bc.gov.tno.dal.db.models.SortParam;
+import ca.bc.gov.tno.models.interfaces.IPaged;
 
 /**
  * IUserService interface, provides a way to interact with users.
@@ -23,6 +25,16 @@ public interface IUserService {
    * @return A new instance of the user if it exists.
    */
   Optional<User> findById(int key);
+
+  /**
+   * Find a page of users that match the query.
+   * 
+   * @param page     The page to pull users from.
+   * @param quantity Number of items to return in a page.
+   * @param sort     An array of sort parameters ['col1 desc', 'col2 asc']
+   * @return A page of users.
+   */
+  IPaged<User> find(int page, int quantity, SortParam[] sort);
 
   /**
    * Add a new user to the data source.

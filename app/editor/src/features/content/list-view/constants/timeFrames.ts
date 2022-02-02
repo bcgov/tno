@@ -1,8 +1,8 @@
-import { Option } from 'components';
+import { OptionItem } from 'components';
 
 export const timeFrames = [
-  Option.create('Today', 0),
-  Option.create('24hrs', 1),
-  Option.create('48hrs', 2),
-  Option.create('All', 3),
+  new OptionItem('Today', 0),
+  new OptionItem('24hrs', 1),
+  new OptionItem('48hrs', 2),
+  new OptionItem('All', 3),
 ];

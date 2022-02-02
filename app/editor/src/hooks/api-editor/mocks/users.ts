@@ -4,9 +4,9 @@ export const mockUsers: IUserModel[] = [
   {
     id: 1,
     username: 'username',
+    email: 'email',
     displayName: 'user',
     firstName: 'first',
-    middleName: 'middle',
     lastName: 'last',
   },
 ];

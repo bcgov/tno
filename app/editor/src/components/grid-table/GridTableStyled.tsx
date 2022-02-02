@@ -23,6 +23,19 @@ export const GridTable = styled.div`
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
+    border-bottom: solid 1px #efefef;
+
+    &:hover {
+      background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15));
+    }
+
+    &:nth-child(even) {
+      background-color: ${(props) => props.theme.css.tableEvenRowColor ?? '#fff'};
+    }
+
+    &:nth-child(odd) {
+      background-color: ${(props) => props.theme.css.tableOddRowColor ?? '#fff'};
+    }
   }
 
   div[role='columnheader'] {

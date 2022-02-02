@@ -22,7 +22,7 @@ services:
     depends_on:
       - api-editor
       - app-editor
-      - app-subscriber
+      # - app-subscriber
     networks:
       - tno
 

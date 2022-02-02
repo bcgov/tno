@@ -1,6 +1,18 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, LifecycleToasts, useSummon } from 'tno-core';
 
-import { Settings } from '.';
+import {
+  IActionModel,
+  IContentModel,
+  IContentTypeModel,
+  IMediaTypeModel,
+  IPaged,
+  ITagModel,
+  ITonePoolModel,
+  IUserModel,
+  Settings,
+} from '.';
 
 /**
  * Common hook to make requests to the PIMS APi.
@@ -15,7 +27,47 @@ export const useApiEditor = (
   } = {},
 ) => {
   const summon = useSummon({ ...options, baseURL: options.baseURL ?? Settings.ApiPath });
-  return summon;
+
+  const handleRequest = async <T>(request: () => Promise<AxiosResponse<T, T>>) => {
+    try {
+      const res = await request();
+      return res.data as T;
+    } catch (error) {
+      // TODO: Handle errors.
+      console.error(error);
+      throw error;
+    }
+  };
+
+  return React.useMemo(
+    () => ({
+      getActions: async () => {
+        return await handleRequest<IActionModel[]>(() => summon.get(`/editor/actions`));
+      },
+      getContents: async (pageIndex?: number, pageSize?: number) => {
+        const page = (pageIndex ?? 0) + 1;
+        return await handleRequest<IPaged<IContentModel>>(() =>
+          summon.get(`/editor/contents?page=${page}&quantity=${pageSize ?? 10}`),
+        );
+      },
+      getContentTypes: async () => {
+        return await handleRequest<IContentTypeModel[]>(() => summon.get(`/editor/content/types`));
+      },
+      getMediaTypes: async () => {
+        return await handleRequest<IMediaTypeModel[]>(() => summon.get(`/editor/media/types`));
+      },
+      getTags: async () => {
+        return await handleRequest<ITagModel[]>(() => summon.get(`/editor/tags`));
+      },
+      getTonePools: async () => {
+        return await handleRequest<ITonePoolModel[]>(() => summon.get(`/editor/tone/pools`));
+      },
+      getUsers: async () => {
+        return await handleRequest<IUserModel[]>(() => summon.get(`/editor/users`));
+      },
+    }),
+    [summon],
+  );
 };
 
 export default useApiEditor;

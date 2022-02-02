@@ -1,6 +1,6 @@
 import React, { InputHTMLAttributes } from 'react';
 
-import { instanceOfIOption, IOption } from '..';
+import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
 
 export interface IRadioGroupProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -19,7 +19,7 @@ export interface IRadioGroupProps extends InputHTMLAttributes<HTMLInputElement> 
   /**
    * An array of options.
    */
-  options?: readonly string[] | number[] | IOption[];
+  options?: readonly string[] | number[] | IOptionItem[] | HTMLOptionElement[];
 }
 
 /**
@@ -40,13 +40,16 @@ export const RadioGroup: React.FC<IRadioGroupProps> = ({
       {options
         ? options.map((option) => {
             if (instanceOfIOption(option)) {
-              const item = option as IOption;
+              const item = option as IOptionItem;
               return (
                 <span key={item.value}>
                   <Radio id={`${name}-${item.value}`} name={name} value={item.value} {...rest} />
                   <label htmlFor={`${name}-${item.value}`}>{item.label}</label>
                 </span>
               );
+            } else if (typeof option === 'object') {
+              // TODO: Validate option is HTMLOptionElement
+              return option;
             } else {
               const value = option as string;
               return (

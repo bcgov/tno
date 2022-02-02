@@ -362,7 +362,7 @@ CREATE TABLE IF NOT EXISTS public.content
     "summary" TEXT NOT NULL DEFAULT '',
     "source_url" VARCHAR(500) NOT NULL DEFAULT '',
     "transcription" TEXT NOT NULL DEFAULT '',
-    "owner_id" INT NOT NULL,
+    "owner_id" INT,
     -- Audit Columns
     "created_by_id" UUID NOT NULL,
     "created_by" VARCHAR(50) NOT NULL,

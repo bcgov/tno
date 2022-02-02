@@ -32,13 +32,13 @@ public class ContentService implements IContentService {
    * Creates a new instance of a ContentService object, initializes with
    * specified parameters.
    * 
-   * @param repository     The content repository.
    * @param sessionFactory The session factory.
+   * @param repository     The content repository.
    */
   @Autowired
-  public ContentService(final IContentRepository repository, final SessionFactory sessionFactory) {
-    this.repository = repository;
+  public ContentService(final SessionFactory sessionFactory, final IContentRepository repository) {
     this.sessionFactory = sessionFactory;
+    this.repository = repository;
   }
 
   /**
@@ -80,8 +80,8 @@ public class ContentService implements IContentService {
           SELECT DISTINCT c FROM Content c
           JOIN FETCH c.contentType AS ct
           JOIN FETCH c.mediaType AS mt
-          JOIN FETCH c.owner AS o
           JOIN FETCH c.license AS l
+          LEFT JOIN FETCH c.owner AS o
           LEFT JOIN FETCH c.dataSource AS ds
           ORDER BY
            """ + order;
