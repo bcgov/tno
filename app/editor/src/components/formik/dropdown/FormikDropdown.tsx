@@ -1,9 +1,10 @@
-import { Dropdown, IDropdownProps } from 'components/form';
+import { Dropdown, ISelectProps } from 'components/form';
 import { useFormikContext } from 'formik';
 
 import * as styled from './FormikDropdownStyled';
 
-export interface IFormikDropdownProps extends IDropdownProps {
+export interface IFormikDropdownProps extends ISelectProps {
+  name: string;
   value?: string | number | readonly string[];
 }
 
@@ -12,9 +13,8 @@ export const FormikDropdown = <T,>({
   name,
   label,
   value,
-  children,
   className,
-  disabled,
+  isDisabled,
   onChange,
   onBlur,
   ...rest
@@ -31,11 +31,9 @@ export const FormikDropdown = <T,>({
           onChange={onChange ?? handleChange}
           onBlur={onBlur ?? handleBlur}
           className={error ? `${className ?? ''} error` : className}
-          disabled={disabled || isSubmitting}
+          isDisabled={isDisabled || isSubmitting}
           {...rest}
-        >
-          {children}
-        </Dropdown>
+        ></Dropdown>
         {error ? <p role="alert">{error}</p> : null}
       </div>
     </styled.FormikDropdown>

@@ -62,7 +62,7 @@ export const CheckboxGroup = <CT extends string | number | IOptionItem | HTMLOpt
   };
 
   return (
-    <div className="frm-in chk">
+    <div className="frm-in chg">
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
       {options
         ? options.map((option, i) => {
@@ -75,7 +75,6 @@ export const CheckboxGroup = <CT extends string | number | IOptionItem | HTMLOpt
                     name={name}
                     label={item.label}
                     value={item.value}
-                    defaultChecked={option.selected}
                     onChange={handleChange}
                     {...rest}
                   />

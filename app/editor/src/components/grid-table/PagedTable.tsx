@@ -35,7 +35,6 @@ export const PagedTable = <CT extends object>({
 
   React.useEffect(() => {
     const fetch = async (pageIndex: number, pageSize?: number) => {
-      console.debug('pagedTable fetch');
       return await onFetch(pageIndex, pageSize);
     };
     fetch(pageIndex, pageSize)

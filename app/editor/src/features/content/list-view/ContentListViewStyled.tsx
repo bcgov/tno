@@ -35,6 +35,9 @@ export const ContentListView = styled.div`
         flex-direction: row;
       }
     }
+
+    .dateRange {
+    }
   }
 
   .content-list {
@@ -45,6 +48,10 @@ export const ContentListView = styled.div`
 
     button {
       display: block;
+    }
+
+    .addition-actions {
+      margin-top: 1em;
     }
   }
 `;

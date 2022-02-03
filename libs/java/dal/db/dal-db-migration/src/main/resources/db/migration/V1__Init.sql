@@ -707,7 +707,7 @@ INSERT INTO public.user (
     , '00000000-0000-0000-0000-000000000000'
     , ''
 ), (
-    'Editor' -- name
+    'editor' -- name
     , '1057697d-5cd0-4b00-97f3-df0f13849217' -- key
     , 'editor@local.com' -- email
     , 'Editor' -- displayName
@@ -718,7 +718,7 @@ INSERT INTO public.user (
     , '00000000-0000-0000-0000-000000000000'
     , ''
 ), (
-    'Subscriber' -- name
+    'subscriber' -- name
     , 'e9b0ec48-c4c2-4c73-80a6-5c03da70261d' -- key
     , 'subscriber@local.com' -- email
     , 'Subscriber' -- displayName

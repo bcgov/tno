@@ -1,5 +1,8 @@
 package ca.bc.gov.tno.dal.db.models;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * FilterParam class, provides a way to filter on a property and value.
  */
@@ -130,6 +133,23 @@ public class FilterParam<T> {
         return String.format("%s%s<='%s'", getTableName(defaultTable), this.column, this.value);
       else
         return String.format("%s%s='%s'", getTableName(defaultTable), this.column, this.value);
+    }
+
+    if (this.type == Date.class) {
+      var dFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+      var date = dFormat.format((Date) this.value);
+      if (this.logicalOperator == LogicalOperators.NotEqual)
+        return String.format("%s%s!='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThan)
+        return String.format("%s%s>'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThanOrEqual)
+        return String.format("%s%s>='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThan)
+        return String.format("%s%s<'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThanOrEqual)
+        return String.format("%s%s<='%s'", getTableName(defaultTable), this.column, date);
+      else
+        return String.format("%s%s='%s'", getTableName(defaultTable), this.column, date);
     }
 
     if (this.logicalOperator == LogicalOperators.NotEqual)

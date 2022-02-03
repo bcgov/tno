@@ -1953,6 +1953,16 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
+"@types/react-datepicker@4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@types/react-datepicker/-/react-datepicker-4.3.4.tgz#1cccf5acfb8672fce08940d1cf69e664500ea63d"
+  integrity sha512-5nTTz37KdTUgMZ1AAxztMWNtEnIMVRo8oCAEhIv0a6uUqDjvSKaMyPRpBV+8chi6f/A8wlTKJIpojpXca2dx3A==
+  dependencies:
+    "@popperjs/core" "^2.9.2"
+    "@types/react" "*"
+    date-fns "^2.0.1"
+    react-popper "^2.2.5"
+
 "@types/react-dom@17.0.11":
   version "17.0.11"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.11.tgz#e1eadc3c5e86bdb5f7684e00274ae228e7bcc466"
@@ -3736,7 +3746,7 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
-date-fns@^2.24.0:
+date-fns@^2.0.1, date-fns@^2.24.0:
   version "2.28.0"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
   integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==
@@ -9032,10 +9042,10 @@ tmpl@1.0.5:
   resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.5.tgz#8683e0b902bb9c20c4f726e3c0b69f36518c07cc"
   integrity sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==
 
-tno-core@0.0.86:
-  version "0.0.86"
-  resolved "https://registry.yarnpkg.com/tno-core/-/tno-core-0.0.86.tgz#d50ca887b570af4cf203477b3483de12febd3194"
-  integrity sha512-41bMgg4KO9ul6TJNF11LAVUBbEVNsJGo13UtVrlIBLCcudcOFlriY6cjZRIka+3iE/H0ptrIgY+GzgZuazl55Q==
+tno-core@0.0.87:
+  version "0.0.87"
+  resolved "https://registry.yarnpkg.com/tno-core/-/tno-core-0.0.87.tgz#632e72edb4bb3b7ada699b86698c1cbd41cd19d4"
+  integrity sha512-wNzSlMB1lNieS85Wq5NiR4pI6VOgGK357iPU8tylRqP8Ek54ayVABdnJ0f0AWkthNRMiBvQM/SKz7P7k2Fi2vw==
   dependencies:
     "@headlessui/react" "1.4.3"
     "@react-keycloak/web" "3.4.0"

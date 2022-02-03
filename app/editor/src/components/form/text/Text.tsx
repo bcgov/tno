@@ -40,8 +40,8 @@ export const Text: React.FC<ITextProps> = ({
         id={id}
         type={type}
         variant={variant}
-        className={`btn ${className ?? ''}`}
-        data-for="main"
+        className={`txt ${className ?? ''}`}
+        data-for="main-tooltip"
         data-tip={tooltip}
         {...rest}
       >

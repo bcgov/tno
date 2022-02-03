@@ -32,7 +32,7 @@ export const Button: React.FC<IButtonProps> = ({
       type={type}
       variant={variant}
       className={`btn ${className ?? ''}`}
-      data-for="main"
+      data-for="main-tooltip"
       data-tip={tooltip}
       {...rest}
     >

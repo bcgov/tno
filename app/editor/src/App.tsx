@@ -31,10 +31,10 @@ function App() {
     >
       <BrowserRouter>
         <Layout name={name}>{{ menu: <NavMenu />, router: <AppRouter /> }}</Layout>
-      </BrowserRouter>
 
-      <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
-      <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
+        <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
+        <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
+      </BrowserRouter>
     </ReactKeycloakProvider>
   ) : (
     <LayoutAnonymous name={name}>

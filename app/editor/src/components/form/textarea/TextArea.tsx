@@ -33,8 +33,8 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         id={id}
         name={name}
         variant={variant}
-        className={`${className ?? ''}`}
-        data-for="main"
+        className={`txa ${className ?? ''}`}
+        data-for="main-tooltip"
         data-tip={tooltip}
         {...rest}
       >

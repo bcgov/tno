@@ -67,7 +67,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
   };
 
   return (
-    <div className="frm-in rad">
+    <div className="frm-in rag">
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
       {options
         ? options.map((option) => {

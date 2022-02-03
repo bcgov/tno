@@ -35,7 +35,6 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
   variant = CheckboxVariant.primary,
   tooltip,
   children,
-  className,
   ref,
   ...rest
 }) => {
@@ -48,8 +47,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
         ref={ref}
         type={type}
         variant={variant}
-        className={`${className ?? ''}`}
-        data-for="main"
+        data-for="main-tooltip"
         data-tip={tooltip}
         {...rest}
       >

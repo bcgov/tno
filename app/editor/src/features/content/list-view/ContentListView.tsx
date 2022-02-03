@@ -8,12 +8,14 @@ import {
   Page,
   PagedTable,
   RadioGroup,
+  SelectDate,
   Text,
 } from 'components';
-import { IContentFilter, useApiEditor } from 'hooks';
+import { IContentFilter, LogicalOperator, useApiEditor } from 'hooks';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useKeycloakWrapper } from 'tno-core';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
@@ -23,22 +25,36 @@ const defaultFilter: IContentFilter = {
 };
 
 export const ContentListView: React.FC = () => {
+  const [pageIndex, setPageIndex] = React.useState(0);
+  const [pageSize, setPageSize] = React.useState<number | undefined>(10);
   const [mediaTypes, setMediaTypes] = React.useState<IOptionItem[]>([]);
   const [users, setUsers] = React.useState<IOptionItem[]>([]);
+  const [currentUserId, setCurrentUserId] = React.useState<number>();
   const [timeFrame, setTimeFrame] = React.useState(timeFrames[0]);
   const [fieldType, setFieldType] = React.useState(fieldTypes[0]);
   const [logicalOperator, setLogicalOperator] = React.useState(logicalOperators[0]);
-  const [pageIndex, setPageIndex] = React.useState(0);
-  const [pageSize, setPageSize] = React.useState<number | undefined>(10);
+  const [searchTerm, setSearchTerm] = React.useState<string>('');
+  const [startDate, setStartDate] = React.useState<Date | null>();
+  const [endDate, setEndDate] = React.useState<Date | null>();
   const [filter, setFilter] = React.useState<IContentFilter>(defaultFilter);
+  const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
   const api = useApiEditor();
 
+  const username = keycloak.instance.tokenParsed.username;
+
   React.useEffect(() => {
     api.getUsers().then((data) => {
-      setUsers(data.map((u) => new OptionItem(u.displayName, u.id)));
+      setUsers(
+        [new OptionItem('All Users', 0)].concat(
+          data.map((u) => new OptionItem(u.displayName, u.id)),
+        ),
+      );
+      const currentUserId = data.find((u) => u.username === username)?.id ?? 0;
+      setCurrentUserId(currentUserId);
+      setFilter((filter) => ({ ...filter, ownerId: currentUserId }));
     });
-  }, [api]);
+  }, [api, username]);
 
   React.useEffect(() => {
     api.getMediaTypes().then((data) => {
@@ -51,8 +67,11 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (pageIndex: number, pageSize?: number, filter?: IContentFilter) => {
       try {
-        console.debug('contentListView fetch');
-        const data = await api.getContents(pageIndex, pageSize, filter);
+        const cleanFilter = {
+          ...filter,
+          mediaTypeId: filter?.mediaTypeId === 0 ? undefined : filter?.mediaTypeId,
+        };
+        const data = await api.getContents(pageIndex, pageSize, cleanFilter);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -69,10 +88,10 @@ export const ContentListView: React.FC = () => {
 
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = +e.target.value;
-    let createdStartOn: Date | undefined;
-    if (value === 0) createdStartOn = moment().startOf('day').toDate();
-    else if (value === 1) createdStartOn = moment().add(-24, 'hours').toDate();
-    else if (value === 2) createdStartOn = moment().add(-48, 'hours').toDate();
+    let createdStartOn: string | undefined;
+    if (value === 0) createdStartOn = moment().startOf('day').toISOString();
+    else if (value === 1) createdStartOn = moment().add(-24, 'hours').toISOString();
+    else if (value === 2) createdStartOn = moment().add(-48, 'hours').toISOString();
     else createdStartOn = undefined;
     setFilter({ ...filter, createdStartOn });
   };
@@ -125,7 +144,7 @@ export const ContentListView: React.FC = () => {
             options={timeFrames}
             onChange={handleTimeChange}
           />
-          <div className="frm-in">
+          <div className="frm-in chg">
             <label>Filters</label>
             <Checkbox
               name="newspaper"
@@ -187,18 +206,60 @@ export const ContentListView: React.FC = () => {
                 setLogicalOperator(newValue as OptionItem);
               }}
             />
-            <Text name="searchTerm" label="Search Terms"></Text>
+            <Text
+              name="searchTerm"
+              label="Search Terms"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+            ></Text>
           </div>
-          <Text name="dateRange" label="Date Range"></Text>
-          <Button name="search">Search</Button>
+          <div className="dateRange">
+            <label>Date Range</label>
+            <div>
+              <SelectDate
+                name="startDate"
+                selected={startDate}
+                showTimeSelect
+                dateFormat="Pp"
+                onChange={(date) => setStartDate(date)}
+              />
+              <SelectDate
+                name="endDate"
+                selected={endDate}
+                showTimeSelect
+                dateFormat="Pp"
+                onChange={(date) => setEndDate(date)}
+              />
+            </div>
+          </div>
+          <Button
+            name="search"
+            onClick={() => {
+              setFilter({
+                ...filter,
+                [fieldType.value]: searchTerm.trim() === '' ? undefined : searchTerm,
+                createdStartOn: !!startDate ? moment(startDate).toISOString() : undefined,
+                createdEndOn: !!endDate ? moment(endDate).toISOString() : undefined,
+                logicalOperator:
+                  searchTerm.trim() === '' ? undefined : (logicalOperator.value as LogicalOperator),
+              });
+            }}
+          >
+            Search
+          </Button>
           <Button
             name="clear"
             variant={ButtonVariant.secondary}
             onClick={() => {
-              setFilter(defaultFilter);
+              setFilter({ ...defaultFilter, ownerId: currentUserId });
               setTimeFrame(timeFrames[0]);
               setFieldType(fieldTypes[0]);
               setLogicalOperator(logicalOperators[0]);
+              setSearchTerm('');
+              setStartDate(null);
+              setEndDate(null);
             }}
           >
             Clear
@@ -217,15 +278,32 @@ export const ContentListView: React.FC = () => {
         <Button name="create" onClick={() => navigate('/contents/0')}>
           Create Snippet
         </Button>
-        <Button name="create" variant={ButtonVariant.secondary}>
-          Send Lois Front Pages
-        </Button>
-        <Button name="create" variant={ButtonVariant.secondary}>
-          Send Top Stories
-        </Button>
-        <Button name="create" variant={ButtonVariant.secondary}>
-          Send Send Lois to Commentary
-        </Button>
+        <div className="addition-actions">
+          <Button
+            name="create"
+            variant={ButtonVariant.secondary}
+            disabled={true}
+            tooltip="Under Construction"
+          >
+            Send Lois Front Pages
+          </Button>
+          <Button
+            name="create"
+            variant={ButtonVariant.secondary}
+            disabled={true}
+            tooltip="Under Construction"
+          >
+            Send Top Stories
+          </Button>
+          <Button
+            name="create"
+            variant={ButtonVariant.secondary}
+            disabled={true}
+            tooltip="Under Construction"
+          >
+            Send Send Lois to Commentary
+          </Button>
+        </div>
       </div>
     </styled.ContentListView>
   );

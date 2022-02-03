@@ -1,9 +1,9 @@
 export enum LogicalOperator {
-  Contains = 0,
-  Equals = 1,
-  NotEqual = 2,
-  GreaterThan = 3,
-  GreaterThanOrEqual = 4,
-  LessThan = 5,
-  LessThanOrEqual = 6,
+  Contains = 'Contains',
+  Equals = 'Equals',
+  NotEqual = 'NotEqual',
+  GreaterThan = 'GreaterThan',
+  GreaterThanOrEqual = 'GreaterThanOrEqual',
+  LessThan = 'LessThan',
+  LessThanOrEqual = 'LessThanOrEqual',
 }

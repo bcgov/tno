@@ -1,11 +1,10 @@
 import styled from 'styled-components';
 
-import { CheckboxVariant, ICheckboxProps } from '.';
+import { ISelectDateProps, SelectDateVariant } from '.';
 
-export const Checkbox = styled.input<ICheckboxProps>`
-  cursor: pointer;
+export const SelectDate = styled.span<ISelectDateProps>`
   margin: 1px 2px 1px 2px;
-  text-decoration: ${(props) => (props.variant === CheckboxVariant.link ? 'underline' : 'none')};
+  text-decoration: ${(props) => (props.variant === SelectDateVariant.link ? 'underline' : 'none')};
   display: inline-block;
   font-weight: 400;
   text-align: left;
@@ -22,10 +21,10 @@ export const Checkbox = styled.input<ICheckboxProps>`
   text-transform: none;
   color: ${(props) => {
     switch (props.variant) {
-      case CheckboxVariant.warning:
-      case CheckboxVariant.danger:
+      case SelectDateVariant.warning:
+      case SelectDateVariant.danger:
         return '#212529';
-      case CheckboxVariant.link:
+      case SelectDateVariant.link:
         return '#1a5a96';
       default:
         return props.theme.css.primaryColor;
@@ -33,19 +32,19 @@ export const Checkbox = styled.input<ICheckboxProps>`
   }};
   background-color: ${(props) => {
     switch (props.variant) {
-      case CheckboxVariant.primary:
+      case SelectDateVariant.primary:
         return props.theme.css.inputBackgroundColor;
-      case CheckboxVariant.secondary:
+      case SelectDateVariant.secondary:
         return '#6c757d';
-      case CheckboxVariant.success:
+      case SelectDateVariant.success:
         return '#43893e';
-      case CheckboxVariant.info:
+      case SelectDateVariant.info:
         return '#96c0e6';
-      case CheckboxVariant.warning:
+      case SelectDateVariant.warning:
         return '#f9ca54';
-      case CheckboxVariant.danger:
+      case SelectDateVariant.danger:
         return '#d93e45';
-      case CheckboxVariant.link:
+      case SelectDateVariant.link:
         return 'transparent';
       default:
         return '#38598a';
@@ -53,19 +52,19 @@ export const Checkbox = styled.input<ICheckboxProps>`
   }};
   border-color: ${(props) => {
     switch (props.variant) {
-      case CheckboxVariant.primary:
+      case SelectDateVariant.primary:
         return '#38598a';
-      case CheckboxVariant.secondary:
+      case SelectDateVariant.secondary:
         return '#6c757d';
-      case CheckboxVariant.success:
+      case SelectDateVariant.success:
         return '#43893e';
-      case CheckboxVariant.info:
+      case SelectDateVariant.info:
         return '#96c0e6';
-      case CheckboxVariant.warning:
+      case SelectDateVariant.warning:
         return '#f9ca54';
-      case CheckboxVariant.danger:
+      case SelectDateVariant.danger:
         return '#d93e45';
-      case CheckboxVariant.link:
+      case SelectDateVariant.link:
         return 'transparent';
       default:
         return '#38598a';
@@ -75,10 +74,10 @@ export const Checkbox = styled.input<ICheckboxProps>`
   &:hover {
     color: ${(props) => {
       switch (props.variant) {
-        case CheckboxVariant.warning:
-        case CheckboxVariant.danger:
+        case SelectDateVariant.warning:
+        case SelectDateVariant.danger:
           return '#212529';
-        case CheckboxVariant.link:
+        case SelectDateVariant.link:
           return '#0631f3';
         default:
           return props.theme.css.primaryColor;
@@ -86,19 +85,19 @@ export const Checkbox = styled.input<ICheckboxProps>`
     }};
     border-color: ${(props) => {
       switch (props.variant) {
-        case CheckboxVariant.primary:
+        case SelectDateVariant.primary:
           return '#294266';
-        case CheckboxVariant.secondary:
+        case SelectDateVariant.secondary:
           return '#545b62';
-        case CheckboxVariant.success:
+        case SelectDateVariant.success:
           return '#32662e';
-        case CheckboxVariant.info:
+        case SelectDateVariant.info:
           return '#6da7dc';
-        case CheckboxVariant.warning:
+        case SelectDateVariant.warning:
           return '#f7bb23';
-        case CheckboxVariant.danger:
+        case SelectDateVariant.danger:
           return '#be262c';
-        case CheckboxVariant.link:
+        case SelectDateVariant.link:
           return 'transparent';
         default:
           return '#fff';
@@ -110,19 +109,19 @@ export const Checkbox = styled.input<ICheckboxProps>`
     outline: 0;
     box-shadow: ${(props) => {
       switch (props.variant) {
-        case CheckboxVariant.primary:
+        case SelectDateVariant.primary:
           return '0 0 0 0.2rem rgb(86 114 156 / 50%)';
-        case CheckboxVariant.secondary:
+        case SelectDateVariant.secondary:
           return '0 0 0 0.2rem rgb(130 138 145 / 50%)';
-        case CheckboxVariant.success:
+        case SelectDateVariant.success:
           return '0 0 0 0.2rem rgb(95 155 91 / 50%)';
-        case CheckboxVariant.info:
+        case SelectDateVariant.info:
           return '0 0 0 0.2rem rgb(132 169 202 / 50%)';
-        case CheckboxVariant.warning:
+        case SelectDateVariant.warning:
           return '0 0 0 0.2rem rgb(217 177 78 / 50%)';
-        case CheckboxVariant.danger:
+        case SelectDateVariant.danger:
           return '0 0 0 0.2rem rgb(223 91 97 / 50%)';
-        case CheckboxVariant.link:
+        case SelectDateVariant.link:
           return '0 0 0 0.2rem rgb(56 89 138 / 50%)';
         default:
           return 'none';
@@ -130,11 +129,11 @@ export const Checkbox = styled.input<ICheckboxProps>`
     }};
     color: ${(props) => {
       switch (props.variant) {
-        case CheckboxVariant.link:
+        case SelectDateVariant.link:
           return '#0631f3';
       }
     }};
   }
 `;
 
-export default Checkbox;
+export default SelectDate;

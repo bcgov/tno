@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,15 +58,15 @@ public class ContentController {
       @RequestParam(required = false) Integer dataSourceId,
       @RequestParam(required = false) Integer ownerId,
       @RequestParam(required = false) ContentStatus status,
-      @RequestParam(required = false) Date createdOn,
-      @RequestParam(required = false) Date createdStartOn,
-      @RequestParam(required = false) Date createdEndOn,
-      @RequestParam(required = false) Date updatedOn,
-      @RequestParam(required = false) Date updatedStartOn,
-      @RequestParam(required = false) Date updatedEndOn,
-      @RequestParam(required = false) Date publishedOn,
-      @RequestParam(required = false) Date publishedStartOn,
-      @RequestParam(required = false) Date publishedEndOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date createdOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date createdStartOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date createdEndOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date updatedOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date updatedStartOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date updatedEndOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date publishedOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date publishedStartOn,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date publishedEndOn,
       @RequestParam(required = false) Boolean hasPage,
       @RequestParam(required = false) String actions,
       @RequestParam(required = false) LogicalOperators logicalOperator) {

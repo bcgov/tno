@@ -42,8 +42,8 @@ export const Dropdown: React.FC<ISelectProps> = ({
       <Select
         // variant={variant}
         name={name}
-        className={`${className ?? ''}`}
-        data-for="main"
+        className={`slt ${className ?? ''}`}
+        data-for="main-tooltip"
         data-tip={tooltip}
         {...rest}
       />

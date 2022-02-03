@@ -78,7 +78,7 @@ h2 {
 // *************************************************
 
 .frm-in {
-  padding-bottom: 1em;
+  padding-bottom: 0.5em;
   
   label {
     padding-right: 1em;
@@ -87,6 +87,14 @@ h2 {
   }
 
   &.chk {
+    padding-bottom: 0em;
+
+    label {
+      cursor: pointer;
+    }
+  }
+
+  &.chg {
     padding-bottom: 0;
 
     label:not(:first-child) {
@@ -95,7 +103,7 @@ h2 {
     }
   }
   
-  &.rad {
+  &.rag {
     label:not(:first-child) {
       display: inline;
       font-weight: normal;

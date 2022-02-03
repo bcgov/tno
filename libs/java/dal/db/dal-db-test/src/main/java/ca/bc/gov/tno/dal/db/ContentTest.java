@@ -158,6 +158,7 @@ public class ContentTest {
     filter.addFilter("headline", LogicalOperators.Contains, "head");
     filter.addFilter("source", LogicalOperators.Contains, "S");
     filter.addFilter("mediaTypeId", LogicalOperators.Equals, 3);
+    filter.addFilter("createdOn", LogicalOperators.LessThanOrEqual, new Date());
     var sort = new SortParam[] { new SortParam("id", SortDirection.Descending) };
     result = contentService.find(1, 10, filter, sort);
 
