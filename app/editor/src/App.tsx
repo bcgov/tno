@@ -1,11 +1,12 @@
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { NavMenu } from 'components';
+import { Layout } from 'components/layout';
 import { AppRouter } from 'components/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { Layout, LayoutAnonymous, Loading, useKeycloakEventHandler } from 'tno-core';
+import { LayoutAnonymous, Loading, useKeycloakEventHandler } from 'tno-core';
 import { createKeycloakInstance } from 'utils';
 
 function App() {
