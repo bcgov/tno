@@ -28,7 +28,7 @@ export const Layout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
   const [isLoading] = React.useState(false);
   const showMenu = !!keycloak.authenticated && !!children.menu;
-  const [active, setActive] = React.useState('');
+  const [active, setActive] = React.useState('snippets');
   const navigate = useNavigate();
 
   return keycloak.authenticated ? (
