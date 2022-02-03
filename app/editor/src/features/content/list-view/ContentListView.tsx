@@ -31,8 +31,17 @@ const defaultPage: IPage<IContentModel> = {
   items: [],
 };
 
-const defaultFilter: IContentFilter = {
+const defaultListFilter: IContentListFilter = {
   mediaTypeId: 0,
+  ownerId: '',
+  newspaper: false,
+  included: false,
+  onTicker: false,
+  commentary: false,
+  topStory: false,
+  fieldType: 'headline',
+  logicalOperator: LogicalOperator.Contains,
+  searchTerm: '',
 };
 
 export const ContentListView: React.FC = () => {
