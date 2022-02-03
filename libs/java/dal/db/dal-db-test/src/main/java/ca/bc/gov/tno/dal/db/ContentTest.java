@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.dal.db;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,12 +10,16 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 import ca.bc.gov.tno.dal.db.entities.Content;
+import ca.bc.gov.tno.dal.db.models.FilterCollection;
+import ca.bc.gov.tno.dal.db.models.LogicalOperators;
+import ca.bc.gov.tno.dal.db.models.SortParam;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTypeService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
+import net.bytebuddy.TypeCache.Sort;
 
 @Component
 public class ContentTest {
@@ -130,7 +135,7 @@ public class ContentTest {
     var c3 = contentService
         .add(new Content(contentType, mediaType, license, "S2", user, ContentStatus.InProgress, "another title 3"));
 
-    var result = contentService.find(1, 2, null);
+    var result = contentService.find(1, 2, null, null);
 
     if (result.getItems().size() != 2)
       throw new IllegalStateException("Result should return 2 items");
@@ -148,6 +153,20 @@ public class ContentTest {
       throw new IllegalStateException("Property 'mediaType' should not be null");
     if (result.getItems().get(0).getOwner() == null)
       throw new IllegalStateException("Property 'owner' should not be null");
+
+    var filter = new FilterCollection();
+    filter.addFilter("headline", LogicalOperators.Contains, "head");
+    filter.addFilter("source", LogicalOperators.Contains, "S");
+    filter.addFilter("mediaTypeId", LogicalOperators.Equals, 3);
+    var sort = new SortParam[] { new SortParam("id", SortDirection.Descending) };
+    result = contentService.find(1, 10, filter, sort);
+
+    if (result.getItems().size() != 2)
+      throw new IllegalStateException("Result should return 2 items");
+    if (result.getTotal() != 2)
+      throw new IllegalStateException("Property 'total' should be 2");
+    if (result.getItems().get(0).getId() > result.getItems().get(1).getId())
+      throw new IllegalStateException("Sort should be descending on 'id'");
 
     contentService.delete(c1);
     contentService.delete(c2);

@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
-import ca.bc.gov.tno.dal.db.FilterCollection;
-import ca.bc.gov.tno.dal.db.FilterParam;
 import ca.bc.gov.tno.dal.db.SortDirection;
 import ca.bc.gov.tno.dal.db.entities.Content;
+import ca.bc.gov.tno.dal.db.models.FilterCollection;
+import ca.bc.gov.tno.dal.db.models.FilterParam;
 import ca.bc.gov.tno.dal.db.models.SortParam;
 import ca.bc.gov.tno.dal.db.repositories.IContentRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
@@ -69,41 +69,43 @@ public class ContentService implements IContentService {
 
     if (sort == null || sort.length == 0)
       sort = new SortParam[] {
-          new SortParam("createdOn", SortDirection.Descending),
-          new SortParam("updatedOn", SortDirection.Descending),
-          new SortParam("source", SortDirection.Ascending),
-          new SortParam("headline", SortDirection.Ascending) };
+          new SortParam("content", "createdOn", SortDirection.Descending),
+          new SortParam("content", "updatedOn", SortDirection.Descending),
+          new SortParam("content", "source", SortDirection.Ascending),
+          new SortParam("content", "headline", SortDirection.Ascending) };
 
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
     StringBuilder where = new StringBuilder();
     if (filter != null && filter.getFilters().size() > 0) {
-      where.append("WHERE");
+      where.append(" WHERE");
       var filters = filter.getFilters();
-      for (Object param : filters) {
-
+      var first = true;
+      for (Object op : filters) {
+        var param = (FilterParam<?>) op;
+        where.append(String.format("%s %s", (!first ? " AND" : ""), param.toString("content")));
+        first = false;
       }
     }
 
     try {
-      var order = String.join(", ", Arrays.stream(sort).map(s -> "c." + s).toArray(String[]::new));
+      var order = " ORDER BY "
+          + String.join(", ", Arrays.stream(sort).map(s -> s.toString("content")).toArray(String[]::new));
       var pageSql = """
-          SELECT DISTINCT c FROM Content c
-          """ + where + """
-          JOIN FETCH c.contentType AS ct
-          JOIN FETCH c.mediaType AS mt
-          JOIN FETCH c.license AS l
-          LEFT JOIN FETCH c.owner AS o
-          LEFT JOIN FETCH c.dataSource AS ds
-          ORDER BY
-          """ + order;
+          SELECT DISTINCT content FROM Content content
+          JOIN FETCH content.contentType AS contentType
+          JOIN FETCH content.mediaType AS mediaType
+          JOIN FETCH content.license AS license
+          LEFT JOIN FETCH content.owner AS owner
+          LEFT JOIN FETCH content.dataSource AS dataSource
+          """ + where.toString() + order;
       var pageQuery = session.createQuery(pageSql)
           .setFirstResult((page - 1) * quantity)
           .setMaxResults(quantity);
       var items = pageQuery.getResultList();
 
-      var totalSql = "SELECT COUNT(*) FROM Content";
+      var totalSql = "SELECT COUNT(*) FROM Content content" + where.toString();
       var totalQuery = session.createQuery(totalSql);
       var total = (long) totalQuery.uniqueResult();
 

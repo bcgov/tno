@@ -3,8 +3,8 @@ package ca.bc.gov.tno.dal.db.services.interfaces;
 import java.util.List;
 import java.util.Optional;
 
-import ca.bc.gov.tno.dal.db.FilterCollection;
 import ca.bc.gov.tno.dal.db.entities.Content;
+import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.SortParam;
 import ca.bc.gov.tno.models.interfaces.IPaged;
 

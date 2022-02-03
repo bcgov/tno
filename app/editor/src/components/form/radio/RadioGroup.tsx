@@ -3,7 +3,8 @@ import React, { InputHTMLAttributes } from 'react';
 import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
 
-export interface IRadioGroupProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface IRadioGroupProps<OT extends string | number | IOptionItem | HTMLOptionElement>
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   /**
    * The control name.
    */
@@ -19,7 +20,15 @@ export interface IRadioGroupProps extends InputHTMLAttributes<HTMLInputElement> 
   /**
    * An array of options.
    */
-  options?: readonly string[] | number[] | IOptionItem[] | HTMLOptionElement[];
+  options?: readonly OT[];
+  /**
+   * The current value.
+   */
+  value?: OT;
+  /**
+   * OnChange event
+   */
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>, values: OT | undefined) => void;
 }
 
 /**
@@ -27,13 +36,36 @@ export interface IRadioGroupProps extends InputHTMLAttributes<HTMLInputElement> 
  * @param param0 RadioGroup element attributes.
  * @returns RadioGroup component.
  */
-export const RadioGroup: React.FC<IRadioGroupProps> = ({
+export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOptionElement>({
   name,
   label,
   children,
   options,
+  value,
+  onChange,
   ...rest
-}) => {
+}: IRadioGroupProps<OT>) => {
+  const [selected, setSelected] = React.useState<OT | undefined>(value);
+
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const value = e.target.value;
+    const isChecked = e.target.checked;
+
+    if (isChecked) {
+      const found: OT = (options as any)?.find((option: any) => {
+        if (typeof option === 'string') return option === value;
+        if (typeof option === 'number') return option === +value;
+        if (instanceOfIOption(option)) return `${option.value}` === value;
+        return option === value;
+      });
+      if (found) setSelected(found);
+      onChange?.(e, found);
+    } else {
+      setSelected(undefined);
+      onChange?.(e, undefined);
+    }
+  };
+
   return (
     <div className="frm-in rad">
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
@@ -47,7 +79,8 @@ export const RadioGroup: React.FC<IRadioGroupProps> = ({
                     id={`${name}-${item.value}`}
                     name={name}
                     value={item.value}
-                    defaultChecked={item.selected}
+                    checked={item.value === (selected as IOptionItem)?.value}
+                    onChange={handleChange}
                     {...rest}
                   />
                   <label htmlFor={`${name}-${item.value}`}>{item.label}</label>
@@ -56,11 +89,33 @@ export const RadioGroup: React.FC<IRadioGroupProps> = ({
             } else if (typeof option === 'object') {
               // TODO: Validate option is HTMLOptionElement
               return option;
+            } else if (typeof option === 'number') {
+              const value = option as number;
+              return (
+                <span key={value}>
+                  <Radio
+                    id={`${name}-${value}`}
+                    name={name}
+                    value={value}
+                    checked={value === selected}
+                    {...rest}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor={`${name}-${value}`}>{value}</label>
+                </span>
+              );
             } else {
               const value = option as string;
               return (
                 <span key={value}>
-                  <Radio id={`${name}-${value}`} name={name} value={value} {...rest} />
+                  <Radio
+                    id={`${name}-${value}`}
+                    name={name}
+                    value={value}
+                    checked={value === selected}
+                    {...rest}
+                    onChange={handleChange}
+                  />
                   <label htmlFor={`${name}-${value}`}>{value}</label>
                 </span>
               );

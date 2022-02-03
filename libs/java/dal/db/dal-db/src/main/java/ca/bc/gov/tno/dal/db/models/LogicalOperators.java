@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.dal.db;
+package ca.bc.gov.tno.dal.db.models;
 
 import java.util.EnumSet;
 
@@ -13,7 +13,15 @@ public enum LogicalOperators implements IEnumValue<Integer> {
   /** Equal */
   Equals(1),
   /** Not equal */
-  NotEqual(2);
+  NotEqual(2),
+  /** Greater than */
+  GreaterThan(3),
+  /** Greater than or equal */
+  GreaterThanOrEqual(4),
+  /** Less than */
+  LessThan(5),
+  /** Less than or equal */
+  LessThanOrEqual(6);
 
   private final int value;
 

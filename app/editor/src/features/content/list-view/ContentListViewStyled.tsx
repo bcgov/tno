@@ -12,6 +12,7 @@ export const ContentListView = styled.div`
   .content-filter {
     display: flex;
     flex-direction: row;
+    margin-bottom: 1em;
 
     h2 {
       border: 0;
@@ -23,6 +24,7 @@ export const ContentListView = styled.div`
 
     & > div:first-child {
       max-width: 20em;
+      margin-right: 1em;
     }
 
     & > div:nth-child(2) {
@@ -39,6 +41,8 @@ export const ContentListView = styled.div`
   }
 
   .content-actions {
+    margin-top: 1em;
+
     button {
       display: block;
     }

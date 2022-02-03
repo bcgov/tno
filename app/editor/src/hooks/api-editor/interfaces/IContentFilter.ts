@@ -4,9 +4,9 @@ export interface IContentFilter {
   mediaTypeId?: number;
   contentTypeId?: number;
   source?: string;
-  sourceId?: number;
+  dataSourceId?: number;
   ownerId?: number;
-  page?: string;
+  pageName?: string;
   section?: string;
   status?: ContentStatus;
   createdOn?: Date;

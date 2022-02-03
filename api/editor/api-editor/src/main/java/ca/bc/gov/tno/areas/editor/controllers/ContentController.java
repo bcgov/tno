@@ -1,5 +1,7 @@
 package ca.bc.gov.tno.areas.editor.controllers;
 
+import java.util.Date;
+
 import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.areas.editor.models.ContentModel;
+import ca.bc.gov.tno.dal.db.ContentStatus;
 import ca.bc.gov.tno.dal.db.entities.Content;
+import ca.bc.gov.tno.dal.db.models.FilterCollection;
+import ca.bc.gov.tno.dal.db.models.LogicalOperators;
 import ca.bc.gov.tno.models.Paged;
 import ca.bc.gov.tno.models.interfaces.IPaged;
 
@@ -42,8 +47,70 @@ public class ContentController {
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
   public IPaged<ContentModel> findAll(
       @RequestParam(required = false) Integer page,
-      @RequestParam(required = false) Integer quantity) {
-    var results = contentService.find(page == null ? 1 : page, quantity == null ? 10 : quantity, null);
+      @RequestParam(required = false) Integer quantity,
+      @RequestParam(required = false) String pageName,
+      @RequestParam(required = false) String section,
+      @RequestParam(required = false) String headline,
+      @RequestParam(required = false) Integer mediaTypeId,
+      @RequestParam(required = false) Integer contentTypeId,
+      @RequestParam(required = false) String source,
+      @RequestParam(required = false) Integer dataSourceId,
+      @RequestParam(required = false) Integer ownerId,
+      @RequestParam(required = false) ContentStatus status,
+      @RequestParam(required = false) Date createdOn,
+      @RequestParam(required = false) Date createdStartOn,
+      @RequestParam(required = false) Date createdEndOn,
+      @RequestParam(required = false) Date updatedOn,
+      @RequestParam(required = false) Date updatedStartOn,
+      @RequestParam(required = false) Date updatedEndOn,
+      @RequestParam(required = false) Date publishedOn,
+      @RequestParam(required = false) Date publishedStartOn,
+      @RequestParam(required = false) Date publishedEndOn,
+      @RequestParam(required = false) Boolean hasPage,
+      @RequestParam(required = false) String actions,
+      @RequestParam(required = false) LogicalOperators logicalOperator) {
+
+    var filter = new FilterCollection();
+    if (hasPage != null && hasPage == true)
+      filter.addFilter("page", LogicalOperators.NotEqual, "");
+    if (pageName != null)
+      filter.addFilter("page", logicalOperator, pageName);
+    if (section != null)
+      filter.addFilter("section", logicalOperator, section);
+    if (headline != null)
+      filter.addFilter("headline", logicalOperator, headline);
+    if (mediaTypeId != null)
+      filter.addFilter("mediaTypeId", logicalOperator, mediaTypeId);
+    if (contentTypeId != null)
+      filter.addFilter("contentTypeId", logicalOperator, contentTypeId);
+    if (source != null)
+      filter.addFilter("source", logicalOperator, source);
+    if (dataSourceId != null)
+      filter.addFilter("dataSourceId", logicalOperator, dataSourceId);
+    if (ownerId != null)
+      filter.addFilter("ownerId", logicalOperator, ownerId);
+    if (status != null)
+      filter.addFilter("status", logicalOperator, status.getValue());
+    if (createdOn != null)
+      filter.addFilter("createdOn", logicalOperator, createdOn);
+    if (createdStartOn != null)
+      filter.addFilter("createdOn", LogicalOperators.GreaterThanOrEqual, createdStartOn);
+    if (createdEndOn != null)
+      filter.addFilter("createdOn", LogicalOperators.LessThanOrEqual, createdEndOn);
+    if (updatedOn != null)
+      filter.addFilter("updatedOn", logicalOperator, updatedOn);
+    if (updatedStartOn != null)
+      filter.addFilter("updatedOn", LogicalOperators.GreaterThanOrEqual, updatedStartOn);
+    if (updatedEndOn != null)
+      filter.addFilter("updatedOn", LogicalOperators.LessThanOrEqual, updatedEndOn);
+    if (publishedOn != null)
+      filter.addFilter("publishedOn", logicalOperator, publishedOn);
+    if (publishedStartOn != null)
+      filter.addFilter("publishedOn", LogicalOperators.GreaterThanOrEqual, publishedStartOn);
+    if (publishedEndOn != null)
+      filter.addFilter("publishedOn", LogicalOperators.LessThanOrEqual, publishedEndOn);
+
+    var results = contentService.find(page == null ? 1 : page, quantity == null ? 10 : quantity, filter, null);
     var paged = new Paged<ContentModel>(
         results.getItems().stream().map(c -> new ContentModel(c)).toList(),
         results.getPage(),

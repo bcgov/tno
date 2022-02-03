@@ -18,12 +18,19 @@ import { useNavigate } from 'react-router-dom';
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
 
+const defaultFilter: IContentFilter = {
+  mediaTypeId: 0,
+};
+
 export const ContentListView: React.FC = () => {
   const [mediaTypes, setMediaTypes] = React.useState<IOptionItem[]>([]);
   const [users, setUsers] = React.useState<IOptionItem[]>([]);
+  const [timeFrame, setTimeFrame] = React.useState(timeFrames[0]);
+  const [fieldType, setFieldType] = React.useState(fieldTypes[0]);
+  const [logicalOperator, setLogicalOperator] = React.useState(logicalOperators[0]);
   const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState<number | undefined>(10);
-  const [filter, setFilter] = React.useState<IContentFilter>({});
+  const [filter, setFilter] = React.useState<IContentFilter>(defaultFilter);
   const navigate = useNavigate();
   const api = useApiEditor();
 
@@ -36,9 +43,7 @@ export const ContentListView: React.FC = () => {
   React.useEffect(() => {
     api.getMediaTypes().then((data) => {
       setMediaTypes(
-        [new OptionItem('All Media', 0, true)].concat(
-          data.map((m) => new OptionItem(m.name, m.id)),
-        ),
+        [new OptionItem('All Media', 0)].concat(data.map((m) => new OptionItem(m.name, m.id))),
       );
     });
   }, [api]);
@@ -46,6 +51,7 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (pageIndex: number, pageSize?: number, filter?: IContentFilter) => {
       try {
+        console.debug('contentListView fetch');
         const data = await api.getContents(pageIndex, pageSize, filter);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
@@ -62,7 +68,6 @@ export const ContentListView: React.FC = () => {
   };
 
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    console.debug(e.target.value);
     const value = +e.target.value;
     let createdStartOn: Date | undefined;
     if (value === 0) createdStartOn = moment().startOf('day').toDate();
@@ -96,6 +101,8 @@ export const ContentListView: React.FC = () => {
             name="mediaType"
             label="Media Type"
             options={mediaTypes}
+            value={mediaTypes.find((mt) => mt.value === filter.mediaTypeId)}
+            defaultValue={mediaTypes[0]}
             onChange={(newValue) => {
               var mediaTypeId = (newValue as IOptionItem).value as number;
               setFilter({ ...filter, mediaTypeId: mediaTypeId > 0 ? mediaTypeId : undefined });
@@ -105,6 +112,7 @@ export const ContentListView: React.FC = () => {
             name="user"
             label="User"
             options={users}
+            value={users.find((u) => u.value === filter.ownerId)}
             onChange={(newValue) => {
               var ownerId = (newValue as IOptionItem).value as number;
               setFilter({ ...filter, ownerId: ownerId > 0 ? ownerId : undefined });
@@ -113,6 +121,7 @@ export const ContentListView: React.FC = () => {
           <RadioGroup
             name="timeFrame"
             label="Time Frame"
+            value={timeFrame}
             options={timeFrames}
             onChange={handleTimeChange}
           />
@@ -122,6 +131,7 @@ export const ContentListView: React.FC = () => {
               name="newspaper"
               label="Lois"
               value="hasPage"
+              checked={filter.hasPage}
               onChange={(e) => {
                 setFilter({ ...filter, hasPage: e.target.checked ? true : undefined });
               }}
@@ -130,24 +140,28 @@ export const ContentListView: React.FC = () => {
               name="included"
               label="Included"
               value="included"
+              checked={filter.actions?.find((a) => a === 'included') !== undefined}
               onChange={handleActionFilterChange}
             />
             <Checkbox
               name="ticker"
               label="On Ticker"
               value="ticker"
+              checked={filter.actions?.find((a) => a === 'ticker') !== undefined}
               onChange={handleActionFilterChange}
             />
             <Checkbox
               name="commentary"
               label="Commentary"
               value="commentary"
+              checked={filter.actions?.find((a) => a === 'commentary') !== undefined}
               onChange={handleActionFilterChange}
             />
             <Checkbox
               name="topStory"
               label="Top Story"
               value="topStory"
+              checked={filter.actions?.find((a) => a === 'topStory') !== undefined}
               onChange={handleActionFilterChange}
             />
           </div>
@@ -155,13 +169,38 @@ export const ContentListView: React.FC = () => {
         <div className="box">
           <h2 className="caps">Advanced Search</h2>
           <div>
-            <Dropdown name="fieldType" label="Field Type" options={fieldTypes} />
-            <Dropdown name="logicalOperator" label="Logical Operator" options={logicalOperators} />
+            <Dropdown
+              name="fieldType"
+              label="Field Type"
+              options={fieldTypes}
+              value={fieldType}
+              onChange={(newValue) => {
+                setFieldType(newValue as OptionItem);
+              }}
+            />
+            <Dropdown
+              name="logicalOperator"
+              label="Logical Operator"
+              options={logicalOperators}
+              value={logicalOperator}
+              onChange={(newValue) => {
+                setLogicalOperator(newValue as OptionItem);
+              }}
+            />
             <Text name="searchTerm" label="Search Terms"></Text>
           </div>
           <Text name="dateRange" label="Date Range"></Text>
           <Button name="search">Search</Button>
-          <Button name="clear" variant={ButtonVariant.secondary}>
+          <Button
+            name="clear"
+            variant={ButtonVariant.secondary}
+            onClick={() => {
+              setFilter(defaultFilter);
+              setTimeFrame(timeFrames[0]);
+              setFieldType(fieldTypes[0]);
+              setLogicalOperator(logicalOperators[0]);
+            }}
+          >
             Clear
           </Button>
         </div>
@@ -169,7 +208,7 @@ export const ContentListView: React.FC = () => {
       <div className="content-list">
         <PagedTable
           columns={columns}
-          fetchData={(pageIndex, pageSize) => fetch(pageIndex, pageSize, filter)}
+          onFetch={(pageIndex, pageSize) => fetch(pageIndex, pageSize, filter)}
           onRowClick={(row) => navigate(`/contents/${row.id}`)}
           onPageChange={handlePageChange}
         />

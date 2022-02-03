@@ -2,8 +2,7 @@ import React from 'react';
 import { Props } from 'react-select';
 import Select from 'react-select';
 
-import { IOptionItem } from '..';
-import { DropdownVariant, instanceOfIOption } from '.';
+import { DropdownVariant } from '.';
 import * as styled from './DropdownStyled';
 
 export interface IDropdownProps {
@@ -35,29 +34,8 @@ export const Dropdown: React.FC<ISelectProps> = ({
   tooltip,
   children,
   className,
-  options,
-  value,
-  defaultValue,
-  onChange,
   ...rest
 }) => {
-  const [selected, setSelected] = React.useState<any | readonly any[] | undefined>();
-  const [selectedValue, setSelectedValue] = React.useState<any>();
-
-  React.useEffect(() => {
-    if (options && options.length) {
-      const results = (options as any[]).filter((option: any) => {
-        // TODO: Handle other types.
-        return instanceOfIOption(option) && (option as IOptionItem).selected;
-      });
-      if (results.length) {
-        const values = rest.isMulti ? results : results[results.length - 1];
-        setSelected(values);
-        setSelectedValue(values);
-      }
-    }
-  }, [options, rest.isMulti]);
-
   return (
     <styled.Dropdown className="frm-in" variant={variant}>
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
@@ -67,13 +45,6 @@ export const Dropdown: React.FC<ISelectProps> = ({
         className={`${className ?? ''}`}
         data-for="main"
         data-tip={tooltip}
-        value={value ?? selectedValue}
-        defaultValue={defaultValue ?? selected}
-        onChange={(newValue, actionMeta) => {
-          setSelectedValue(newValue);
-          onChange?.(newValue, actionMeta);
-        }}
-        options={options}
         {...rest}
       />
     </styled.Dropdown>

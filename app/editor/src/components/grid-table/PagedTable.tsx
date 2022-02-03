@@ -15,7 +15,7 @@ export interface IPagedTableProps<CT extends object = {}> {
   /**
    * Method to fetch data.
    */
-  fetchData: (pageIndex: number, pageSize?: number) => Promise<IPage<CT>>;
+  onFetch: (pageIndex: number, pageSize?: number) => Promise<IPage<CT>>;
   /**
    * Event fires when pageIndex or pageSize changes.
    */
@@ -25,7 +25,7 @@ export interface IPagedTableProps<CT extends object = {}> {
 export const PagedTable = <CT extends object>({
   columns,
   onRowClick,
-  fetchData,
+  onFetch,
   onPageChange,
 }: IPagedTableProps<CT>) => {
   const [pageIndex, setPageIndex] = React.useState(0);
@@ -35,7 +35,8 @@ export const PagedTable = <CT extends object>({
 
   React.useEffect(() => {
     const fetch = async (pageIndex: number, pageSize?: number) => {
-      return await fetchData(pageIndex, pageSize);
+      console.debug('pagedTable fetch');
+      return await onFetch(pageIndex, pageSize);
     };
     fetch(pageIndex, pageSize)
       .then((page) => {
@@ -47,7 +48,7 @@ export const PagedTable = <CT extends object>({
       .catch((error) => {
         // TODO: Handle error.
       });
-  }, [fetchData, pageIndex, pageSize]);
+  }, [onFetch, pageIndex, pageSize]);
 
   const handlePageChange = React.useCallback(
     (pageIndex: number, pageSize?: number) => {

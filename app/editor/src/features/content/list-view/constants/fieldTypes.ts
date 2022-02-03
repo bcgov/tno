@@ -1,7 +1,7 @@
 import { OptionItem } from 'components';
 
 export const fieldTypes = [
-  new OptionItem('Headline', 'headline', true),
+  new OptionItem('Headline', 'headline'),
   new OptionItem('Page', 'page'),
   new OptionItem('Username', 'ownerId'),
   new OptionItem('Status', 'status'),
