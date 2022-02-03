@@ -9,33 +9,37 @@ export const Header = styled.header`
 
   border-bottom: 2px solid #fcba19;
 
-  div:first-child {
+  & > div:first-child {
+    margin-left: 5em;
     align-self: flex-end;
+
+    img {
+      width: 175px;
+    }
   }
 
-  div:nth-child(2):nth-last-child(2) {
-    margin-left: 20px;
-  }
-
-  img {
-    width: 175px;
-  }
-
-  div:last-child {
+  & > div:last-child {
     display: flex;
-    flex-grow: 1;
-    justify-content: flex-end;
-    align-self: center;
+    flex-direction: row;
+    align-items: stretch;
+    margin-left: 2em;
+    width: 100%;
 
-    div.title {
+    .title {
+      flex-grow: 1;
       font-size: 1.25rem;
       font-family: BCSans, 'Noto Sans', Verdana, Arial, sans serif;
       justify-content: flex-start;
-      margin-left: 50px;
+      margin-top: auto;
+      margin-bottom: auto;
     }
 
-    div div:last-child {
-      margin-right: 10px;
+    .user {
+      flex-shrink: 1;
+      margin-right: 5em;
+      margin-top: auto;
+      margin-bottom: auto;
+      text-align: center;
     }
   }
 `;

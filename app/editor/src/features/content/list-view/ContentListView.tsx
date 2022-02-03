@@ -19,9 +19,19 @@ import { useKeycloakWrapper } from 'tno-core';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
+import { IContentListFilter } from './interfaces';
 
-const defaultFilter: IContentFilter = {
+const defaultListFilter: IContentListFilter = {
   mediaTypeId: 0,
+  ownerId: '',
+  newspaper: false,
+  included: false,
+  onTicker: false,
+  commentary: false,
+  topStory: false,
+  fieldType: 'headline',
+  logicalOperator: LogicalOperator.Contains,
+  searchTerm: '',
 };
 
 export const ContentListView: React.FC = () => {
@@ -32,11 +42,7 @@ export const ContentListView: React.FC = () => {
   const [currentUserId, setCurrentUserId] = React.useState<number>();
   const [timeFrame, setTimeFrame] = React.useState(timeFrames[0]);
   const [fieldType, setFieldType] = React.useState(fieldTypes[0]);
-  const [logicalOperator, setLogicalOperator] = React.useState(logicalOperators[0]);
-  const [searchTerm, setSearchTerm] = React.useState<string>('');
-  const [startDate, setStartDate] = React.useState<Date | null>();
-  const [endDate, setEndDate] = React.useState<Date | null>();
-  const [filter, setFilter] = React.useState<IContentFilter>(defaultFilter);
+  const [listFilter, setListFilter] = React.useState(defaultListFilter);
   const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
   const api = useApiEditor();
@@ -52,7 +58,7 @@ export const ContentListView: React.FC = () => {
       );
       const currentUserId = data.find((u) => u.username === username)?.id ?? 0;
       setCurrentUserId(currentUserId);
-      setFilter((filter) => ({ ...filter, ownerId: currentUserId }));
+      setListFilter((filter) => ({ ...filter, ownerId: currentUserId }));
     });
   }, [api, username]);
 
@@ -64,14 +70,22 @@ export const ContentListView: React.FC = () => {
     });
   }, [api]);
 
+  const makeFilter = (filter: IContentListFilter): IContentFilter => ({
+    mediaTypeId: +filter.mediaTypeId > 0 ? +filter.mediaTypeId : undefined,
+    ownerId: +filter.ownerId > 0 ? +filter.ownerId : undefined,
+    hasPage: filter.newspaper === true ? true : undefined,
+    createdStartOn: filter.createdStartOn ? filter.createdStartOn.toISOString() : undefined,
+    createdEndOn: filter.createdEndOn ? filter.createdEndOn.toISOString() : undefined,
+  });
+
   const fetch = React.useCallback(
-    async (pageIndex: number, pageSize?: number, filter?: IContentFilter) => {
+    async (
+      pageIndex: number,
+      pageSize?: number,
+      filter: IContentListFilter = defaultListFilter,
+    ) => {
       try {
-        const cleanFilter = {
-          ...filter,
-          mediaTypeId: filter?.mediaTypeId === 0 ? undefined : filter?.mediaTypeId,
-        };
-        const data = await api.getContents(pageIndex, pageSize, cleanFilter);
+        const data = await api.getContents(pageIndex, pageSize, makeFilter(filter));
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -88,28 +102,12 @@ export const ContentListView: React.FC = () => {
 
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = +e.target.value;
-    let createdStartOn: string | undefined;
-    if (value === 0) createdStartOn = moment().startOf('day').toISOString();
-    else if (value === 1) createdStartOn = moment().add(-24, 'hours').toISOString();
-    else if (value === 2) createdStartOn = moment().add(-48, 'hours').toISOString();
+    let createdStartOn: Date | undefined;
+    if (value === 0) createdStartOn = moment().startOf('day').toDate();
+    else if (value === 1) createdStartOn = moment().add(-24, 'hours').toDate();
+    else if (value === 2) createdStartOn = moment().add(-48, 'hours').toDate();
     else createdStartOn = undefined;
-    setFilter({ ...filter, createdStartOn });
-  };
-
-  const handleActionFilterChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = e.target.value;
-    if (e.target.checked) {
-      const values = (filter.actions ?? []).concat([value]);
-      setFilter({
-        ...filter,
-        actions: [...values.filter((v, i, a) => a.indexOf(v) === i)],
-      });
-    } else {
-      setFilter({
-        ...filter,
-        actions: filter.actions?.filter((a) => a === value),
-      });
-    }
+    setListFilter((filter) => ({ ...filter, createdStartOn }));
   };
 
   return (
@@ -120,21 +118,24 @@ export const ContentListView: React.FC = () => {
             name="mediaType"
             label="Media Type"
             options={mediaTypes}
-            value={mediaTypes.find((mt) => mt.value === filter.mediaTypeId)}
+            value={mediaTypes.find((mt) => mt.value === listFilter.mediaTypeId)}
             defaultValue={mediaTypes[0]}
             onChange={(newValue) => {
-              var mediaTypeId = (newValue as IOptionItem).value as number;
-              setFilter({ ...filter, mediaTypeId: mediaTypeId > 0 ? mediaTypeId : undefined });
+              var mediaTypeId = (newValue as IOptionItem).value ?? '';
+              setListFilter({
+                ...listFilter,
+                mediaTypeId: typeof mediaTypeId === 'string' ? '' : mediaTypeId,
+              });
             }}
           />
           <Dropdown
             name="user"
             label="User"
             options={users}
-            value={users.find((u) => u.value === filter.ownerId)}
+            value={users.find((u) => u.value === listFilter.ownerId)}
             onChange={(newValue) => {
-              var ownerId = (newValue as IOptionItem).value as number;
-              setFilter({ ...filter, ownerId: ownerId > 0 ? ownerId : undefined });
+              var ownerId = (newValue as IOptionItem).value ?? '';
+              setListFilter({ ...listFilter, ownerId: typeof ownerId === 'string' ? '' : ownerId });
             }}
           />
           <RadioGroup
@@ -149,39 +150,39 @@ export const ContentListView: React.FC = () => {
             <Checkbox
               name="newspaper"
               label="Lois"
-              value="hasPage"
-              checked={filter.hasPage}
+              value="newspaper"
+              checked={listFilter.newspaper}
               onChange={(e) => {
-                setFilter({ ...filter, hasPage: e.target.checked ? true : undefined });
+                setListFilter({ ...listFilter, newspaper: e.target.checked });
               }}
             />
             <Checkbox
               name="included"
               label="Included"
               value="included"
-              checked={filter.actions?.find((a) => a === 'included') !== undefined}
-              onChange={handleActionFilterChange}
+              checked={listFilter.included}
+              onChange={() => setListFilter({ ...listFilter, included: !listFilter.included })}
             />
             <Checkbox
               name="ticker"
               label="On Ticker"
               value="ticker"
-              checked={filter.actions?.find((a) => a === 'ticker') !== undefined}
-              onChange={handleActionFilterChange}
+              checked={listFilter.onTicker}
+              onChange={() => setListFilter({ ...listFilter, onTicker: !listFilter.onTicker })}
             />
             <Checkbox
               name="commentary"
               label="Commentary"
               value="commentary"
-              checked={filter.actions?.find((a) => a === 'commentary') !== undefined}
-              onChange={handleActionFilterChange}
+              checked={listFilter.commentary}
+              onChange={() => setListFilter({ ...listFilter, commentary: !listFilter.commentary })}
             />
             <Checkbox
               name="topStory"
               label="Top Story"
               value="topStory"
-              checked={filter.actions?.find((a) => a === 'topStory') !== undefined}
-              onChange={handleActionFilterChange}
+              checked={listFilter.topStory}
+              onChange={() => setListFilter({ ...listFilter, topStory: !listFilter.topStory })}
             />
           </div>
         </div>
@@ -201,17 +202,20 @@ export const ContentListView: React.FC = () => {
               name="logicalOperator"
               label="Logical Operator"
               options={logicalOperators}
-              value={logicalOperator}
+              value={logicalOperators.find(
+                (lo) => (LogicalOperator as any)[lo.value] === listFilter.logicalOperator,
+              )}
               onChange={(newValue) => {
-                setLogicalOperator(newValue as OptionItem);
+                const logicalOperator = (LogicalOperator as any)[(newValue as OptionItem).value];
+                setListFilter({ ...listFilter, logicalOperator });
               }}
             />
             <Text
               name="searchTerm"
               label="Search Terms"
-              value={searchTerm}
+              value={listFilter.searchTerm}
               onChange={(e) => {
-                setSearchTerm(e.target.value);
+                setListFilter({ ...listFilter, searchTerm: e.target.value.trim() });
               }}
             ></Text>
           </div>
@@ -220,31 +224,33 @@ export const ContentListView: React.FC = () => {
             <div>
               <SelectDate
                 name="startDate"
-                selected={startDate}
+                placeholderText="YYYY MM DD"
+                selected={listFilter.createdStartOn}
                 showTimeSelect
                 dateFormat="Pp"
-                onChange={(date) => setStartDate(date)}
+                onChange={(date) => setListFilter({ ...listFilter, createdStartOn: date })}
               />
               <SelectDate
                 name="endDate"
-                selected={endDate}
+                placeholderText="YYYY MM DD"
+                selected={listFilter.createdEndOn}
                 showTimeSelect
                 dateFormat="Pp"
-                onChange={(date) => setEndDate(date)}
+                onChange={(date) => setListFilter({ ...listFilter, createdEndOn: date })}
               />
             </div>
           </div>
           <Button
             name="search"
             onClick={() => {
-              setFilter({
-                ...filter,
-                [fieldType.value]: searchTerm.trim() === '' ? undefined : searchTerm,
-                createdStartOn: !!startDate ? moment(startDate).toISOString() : undefined,
-                createdEndOn: !!endDate ? moment(endDate).toISOString() : undefined,
-                logicalOperator:
-                  searchTerm.trim() === '' ? undefined : (logicalOperator.value as LogicalOperator),
-              });
+              // setListFilter({
+              //   ...listFilter,
+              //   [fieldType.value]: searchTerm.trim() === '' ? undefined : searchTerm,
+              //   createdStartOn: !!startDate ? moment(startDate).toISOString() : undefined,
+              //   createdEndOn: !!endDate ? moment(endDate).toISOString() : undefined,
+              //   logicalOperator:
+              //     searchTerm.trim() === '' ? undefined : (logicalOperator.value as LogicalOperator),
+              // });
             }}
           >
             Search
@@ -253,13 +259,9 @@ export const ContentListView: React.FC = () => {
             name="clear"
             variant={ButtonVariant.secondary}
             onClick={() => {
-              setFilter({ ...defaultFilter, ownerId: currentUserId });
+              setListFilter({ ...defaultListFilter, ownerId: currentUserId ?? '' });
               setTimeFrame(timeFrames[0]);
               setFieldType(fieldTypes[0]);
-              setLogicalOperator(logicalOperators[0]);
-              setSearchTerm('');
-              setStartDate(null);
-              setEndDate(null);
             }}
           >
             Clear
@@ -269,7 +271,7 @@ export const ContentListView: React.FC = () => {
       <div className="content-list">
         <PagedTable
           columns={columns}
-          onFetch={(pageIndex, pageSize) => fetch(pageIndex, pageSize, filter)}
+          onFetch={(pageIndex, pageSize) => fetch(pageIndex, pageSize, listFilter)}
           onRowClick={(row) => navigate(`/contents/${row.id}`)}
           onPageChange={handlePageChange}
         />

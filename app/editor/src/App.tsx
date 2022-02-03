@@ -12,7 +12,7 @@ import { createKeycloakInstance } from 'utils';
 function App() {
   const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();
   const keycloakEventHandler = useKeycloakEventHandler();
-  const name = "Today's News Online (Editor)";
+  const name = 'TNO News Service';
 
   React.useEffect(() => {
     createKeycloakInstance().then((result) => {

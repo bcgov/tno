@@ -20,7 +20,7 @@ export const LayoutAnonymous: React.FC<ILayoutAnonymousProps> = ({ name, childre
 
   return (
     <styled.Layout {...rest}>
-      <Header authReady={false} name={name} />
+      <Header name={name} />
       <div className="main-window">
         <main>
           {children}

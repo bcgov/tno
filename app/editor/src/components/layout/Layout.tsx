@@ -1,9 +1,8 @@
 import { NavBarItem } from 'components/navbar/NavBarItemStyled';
 import { NavBar } from 'components/navbar/NavBarStyled';
 import { Home } from 'features';
-import { useNavState } from 'hooks';
 import React from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Footer, Header, Loading, MenuProvider, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './LayoutStyled';

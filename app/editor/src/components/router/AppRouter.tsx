@@ -1,5 +1,5 @@
 import { ContentForm, ContentListView, Login } from 'features';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Claim, NotFound } from 'tno-core';
 
 import { PrivateRoute } from '.';
@@ -11,9 +11,8 @@ import { PrivateRoute } from '.';
 export const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={<p>LIST VIEW GOES HERE :)</p>} />
+      <Route path="/" element={<Navigate to="/contents" />} />
       <Route path="/login" element={<Login />} />
-      {/* <Route path="/snippetview" element={<SnippetView />} /> */}
       <Route
         path="/admin"
         element={
