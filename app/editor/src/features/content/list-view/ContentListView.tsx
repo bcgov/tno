@@ -31,6 +31,10 @@ const defaultPage: IPage<IContentModel> = {
   items: [],
 };
 
+const defaultFilter: IContentFilter = {
+  mediaTypeId: 0,
+};
+
 export const ContentListView: React.FC = () => {
   const {
     storeContentTypes,
