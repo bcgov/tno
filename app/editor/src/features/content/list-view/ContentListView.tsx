@@ -32,14 +32,17 @@ const defaultPage: IPage<IContentModel> = {
 };
 
 const defaultListFilter: IContentListFilter = {
+  pageIndex: 0,
+  pageSize: 10,
   mediaTypeId: 0,
   ownerId: '',
+  timeFrame: timeFrames[0],
   newspaper: false,
   included: false,
   onTicker: false,
   commentary: false,
   topStory: false,
-  fieldType: 'headline',
+  fieldType: fieldTypes[0],
   logicalOperator: LogicalOperator.Contains,
   searchTerm: '',
 };

@@ -19,6 +19,8 @@ import ca.bc.gov.tno.dal.db.entities.ContentTone;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.FilterParam;
 import ca.bc.gov.tno.dal.db.models.SortParam;
+import ca.bc.gov.tno.dal.db.repositories.IContentActionRepository;
+import ca.bc.gov.tno.dal.db.repositories.IContentCategoryRepository;
 import ca.bc.gov.tno.dal.db.repositories.IContentRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentActionService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentCategoryService;
@@ -92,6 +94,7 @@ public class ContentService implements IContentService {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
+    // TODO: Switch to parameters.
     StringBuilder where = new StringBuilder();
     if (filter != null && filter.getFilters().size() > 0) {
       where.append(" WHERE");

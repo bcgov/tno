@@ -3,6 +3,8 @@ import { Column, Row, SortingRule } from 'react-table';
 import { GridTable, IPage } from '.';
 
 export interface IPagedTableProps<CT extends object = {}> {
+  pageIndex?: number;
+  pageSize?: number;
   /**
    * An array of column definitions.
    */

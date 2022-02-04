@@ -1,6 +1,5 @@
 package ca.bc.gov.tno.dal.db;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
+import ca.bc.gov.tno.dal.db.entities.Category;
 import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.entities.ContentAction;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
@@ -26,7 +26,6 @@ import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
 import ca.bc.gov.tno.dal.db.services.interfaces.ITimeTrackingService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
-import net.bytebuddy.TypeCache.Sort;
 
 @Component
 public class ContentTest {
