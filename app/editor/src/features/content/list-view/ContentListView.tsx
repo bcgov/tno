@@ -21,8 +21,8 @@ import { useKeycloakWrapper } from 'tno-core';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
-import { IContentListFilter } from './interfaces';
-import { makeFilter } from './makeFilter';
+import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
+import { IFilter, makeFilter } from './makeFilter';
 
 const defaultPage: IPage<IContentModel> = {
   pageIndex: 0,
@@ -36,15 +36,26 @@ const defaultListFilter: IContentListFilter = {
   pageSize: 10,
   mediaTypeId: 0,
   ownerId: '',
+  userId: '',
   timeFrame: timeFrames[0],
-  newspaper: false,
+  isPrintContent: false,
   included: false,
   onTicker: false,
   commentary: false,
   topStory: false,
+};
+
+const defaultListAdvancedFilter: IContentListAdvancedFilter = {
   fieldType: fieldTypes[0],
   logicalOperator: LogicalOperator.Contains,
   searchTerm: '',
+};
+
+const defaultPage: IPage<IContentModel> = {
+  pageIndex: 0,
+  pageSize: 10,
+  pageCount: -1,
+  items: [],
 };
 
 export const ContentListView: React.FC = () => {

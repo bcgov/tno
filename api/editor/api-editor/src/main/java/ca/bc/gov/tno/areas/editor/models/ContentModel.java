@@ -7,7 +7,6 @@ import java.util.List;
 import javax.persistence.Persistence;
 
 import ca.bc.gov.tno.dal.db.ContentStatus;
-import ca.bc.gov.tno.dal.db.entities.Category;
 import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
