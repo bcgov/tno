@@ -1,5 +1,5 @@
 import { Checkbox } from 'components';
-import { ContentStatus, IContentModel, IPrintContentModel } from 'hooks/api-editor';
+import { ContentStatus, IContentModel } from 'hooks/api-editor';
 import moment from 'moment';
 import { Column, UseSortByColumnOptions } from 'react-table';
 
