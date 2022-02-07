@@ -35,14 +35,14 @@ const defaultListFilter: IContentListFilter = {
   pageIndex: 0,
   pageSize: 10,
   mediaTypeId: 0,
+  contentTypeId: 0,
   ownerId: '',
   userId: '',
   timeFrame: timeFrames[0],
-  isPrintContent: false,
-  included: false,
-  onTicker: false,
-  commentary: false,
-  topStory: false,
+  included: '',
+  onTicker: '',
+  commentary: '',
+  topStory: '',
 };
 
 const defaultListAdvancedFilter: IContentListAdvancedFilter = {

@@ -15,6 +15,11 @@ export const makeFilter = (
     IContentListAdvancedFilter & { sortBy?: { id: string; desc: boolean }[] },
 ): IContentFilter => {
   const advanced = filter as IContentListAdvancedFilter;
+  const actions = [];
+  if (filter.included) actions.push('Included');
+  if (filter.onTicker) actions.push('On Ticker');
+  if (filter.commentary) actions.push('Commentary');
+  if (filter.topStory) actions.push('Top Story');
   return {
     mediaTypeId: +filter.mediaTypeId > 0 ? +filter.mediaTypeId : undefined,
     ownerId: +filter.ownerId > 0 ? +filter.ownerId : undefined,

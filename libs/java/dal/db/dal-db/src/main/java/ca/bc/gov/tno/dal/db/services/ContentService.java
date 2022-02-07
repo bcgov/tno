@@ -92,32 +92,6 @@ public class ContentService implements IContentService {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
-    // var userFilter = filter != null ? (FilterParam<?>)
-    // filter.getFilters().stream()
-    // .filter((f) -> ((FilterParam<?>)
-    // f).getColumn().equals("userId")).findAny().orElse(null) : null;
-
-    // TODO: Switch to parameters.
-    StringBuilder where = new StringBuilder();
-    if (filter != null && filter.getFilters().size() > 0) {
-      where.append(" WHERE");
-      var filters = filter.getFilters();
-      var first = true;
-      for (Object op : filters) {
-        var param = (FilterParam<?>) op;
-
-        // Filter 'userId' is a special use-case. It will look for content the user
-        // owns, created, or edited.
-        if (param.getColumn().equals("userId")) {
-          where
-              .append(String.format("%s %s", (!first ? " AND" : ""), "content.ownerId=" + param.getValue().toString()));
-        } else {
-          where.append(String.format("%s %s", (!first ? " AND" : ""), param.toString("content")));
-        }
-        first = false;
-      }
-    }
-
     try {
       var pageQuery = session
           .createQuery(generateFindHsql("DISTINCT content", filter, sort, true))
