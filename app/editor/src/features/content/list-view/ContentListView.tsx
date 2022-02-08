@@ -21,7 +21,7 @@ import { useKeycloakWrapper } from 'tno-core';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
-import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
+import { IContentListFilter } from './interfaces';
 import { makeFilter } from './makeFilter';
 
 const defaultPage: IPage<IContentModel> = {
