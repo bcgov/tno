@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.User;
  */
 @RolesAllowed("administrator")
 @RestController("AdminUserController")
-@RequestMapping("/admin/users")
+@RequestMapping({ "/admin/users", "/api/admin/users" })
 public class UserController {
 
   @Autowired

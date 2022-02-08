@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.Role;
  */
 @RolesAllowed("administrator")
 @RestController("AdminRoleController")
-@RequestMapping("/admin/roles")
+@RequestMapping({ "/admin/roles", "/api/admin/roles" })
 public class RoleController {
 
   @Autowired

@@ -256,7 +256,7 @@ public class User extends AuditColumns {
   /**
    * @return Date return the lastLoginOn
    */
-  public Date isLastLoginOn() {
+  public Date getLastLoginOn() {
     return lastLoginOn;
   }
 

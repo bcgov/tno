@@ -24,7 +24,7 @@ import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
  */
 @RolesAllowed("administrator")
 @RestController("AdminContentReferenceController")
-@RequestMapping("/admin/content/references")
+@RequestMapping({ "/admin/content/references", "/api/admin/content/references" })
 public class ContentReferenceController {
 
   @Autowired

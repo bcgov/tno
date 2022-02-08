@@ -26,12 +26,28 @@ public interface IFileReferenceService {
   Optional<FileReference> findById(int key);
 
   /**
+   * Find all file reference for the specified content primary key.
+   * 
+   * @param contentId The content primary key.
+   * @return A new instance of the file reference if it exists.
+   */
+  List<FileReference> findByContentId(int contentId);
+
+  /**
    * Add a new file reference to the data source.
    * 
    * @param entity The file reference to add.
    * @return A new instance of the file reference that was added.
    */
   FileReference add(FileReference entity);
+
+  /**
+   * Add a new file reference to the data source.
+   * 
+   * @param entities An array of file reference to add.
+   * @return A new instance of the file reference that was added.
+   */
+  Iterable<FileReference> add(Iterable<FileReference> entities);
 
   /**
    * Update the specified file reference in the data source.
@@ -42,9 +58,24 @@ public interface IFileReferenceService {
   FileReference update(FileReference entity);
 
   /**
+   * Update the specified file reference in the data source.
+   * 
+   * @param entities An array of file reference to update.
+   * @return A new instance of the file reference that was updated.
+   */
+  Iterable<FileReference> update(Iterable<FileReference> entities);
+
+  /**
    * Delete the specified file reference from the data source.
    * 
    * @param entity The file reference to delete.
    */
   void delete(FileReference entity);
+
+  /**
+   * Delete the specified file reference from the data source.
+   * 
+   * @param entities An array of file reference to delete.
+   */
+  void delete(Iterable<FileReference> entities);
 }

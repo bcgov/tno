@@ -52,6 +52,11 @@ public class App implements CommandLineRunner {
     var authentication = authProvider.authenticate(authReq);
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
+    // TODO: Authenticate with Keycloak account and set username.
+    // var principal = authentication.getPrincipal();
+    // var roles = AdapterUtils.getRolesFromSecurityContext(principal);
+    // var keycloakAccount = new SimpleKeycloakAccount(principal, roles, context)
+
     // userTest.Run();
     // dataSourceTest.Run();
     // licenseTest.Run();

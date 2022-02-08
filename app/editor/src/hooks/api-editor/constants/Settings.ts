@@ -1,3 +1,3 @@
 export const Settings = {
-  ApiPath: 'api/',
+  ApiPath: process.env.API_URL ?? 'api/',
 };

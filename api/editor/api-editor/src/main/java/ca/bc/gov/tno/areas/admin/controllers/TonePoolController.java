@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.TonePool;
  */
 @RolesAllowed({ "administrator" })
 @RestController("AdminTonePoolController")
-@RequestMapping("/admin/tone/pools")
+@RequestMapping({ "/admin/tone/pools", "/api/admin/tone/pools" })
 public class TonePoolController {
 
   /**

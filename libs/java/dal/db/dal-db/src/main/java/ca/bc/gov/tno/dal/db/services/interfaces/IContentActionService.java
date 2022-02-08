@@ -27,12 +27,28 @@ public interface IContentActionService {
   Optional<ContentAction> findById(ContentActionPK key);
 
   /**
+   * Find all content action for the specified content primary key.
+   * 
+   * @param contentId The content primary key.
+   * @return A new instance of the content action if it exists.
+   */
+  List<ContentAction> findById(int contentId);
+
+  /**
    * Add a new content action to the content.
    * 
    * @param entity The content action to add.
    * @return A new instance of the content action that was added.
    */
   ContentAction add(ContentAction entity);
+
+  /**
+   * Add a new content action to the data source.
+   * 
+   * @param entities An array of content action to add.
+   * @return A new instance of the content action that was added.
+   */
+  Iterable<ContentAction> add(Iterable<ContentAction> entities);
 
   /**
    * Update the specified content action in the content.
@@ -43,9 +59,24 @@ public interface IContentActionService {
   ContentAction update(ContentAction entity);
 
   /**
+   * Update the specified content action in the data source.
+   * 
+   * @param entities An array of content action to update.
+   * @return A new instance of the content action that was updated.
+   */
+  Iterable<ContentAction> update(Iterable<ContentAction> entities);
+
+  /**
    * Delete the specified content action from the content.
    * 
    * @param entity The content action to delete.
    */
   void delete(ContentAction entity);
+
+  /**
+   * Delete the specified content action from the data source.
+   * 
+   * @param entities An array of content action to delete.
+   */
+  void delete(Iterable<ContentAction> entities);
 }

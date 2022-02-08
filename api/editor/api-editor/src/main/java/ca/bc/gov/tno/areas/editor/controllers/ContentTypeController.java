@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTypeService;
-import ca.bc.gov.tno.dal.db.entities.ContentType;
+import ca.bc.gov.tno.areas.editor.models.ContentTypeModel;
 
 /**
  * Endpoints to communicate with the TNO DB content types.
  */
 @RolesAllowed({ "administrator", "editor" })
 @RestController("EditorContentTypeController")
-@RequestMapping("/editor/content/types")
+@RequestMapping({ "/editor/content/types", "/api/editor/content/types" })
 public class ContentTypeController {
 
   /**
@@ -33,9 +33,10 @@ public class ContentTypeController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<ContentType> findAll() {
+  public List<ContentTypeModel> findAll() {
     var results = contentTypeService.findAll();
-    return results;
+    var models = results.stream().map(c -> new ContentTypeModel(c)).toList();
+    return models;
   }
 
 }

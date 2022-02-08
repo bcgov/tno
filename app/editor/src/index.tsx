@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { store } from 'store';
 import { ThemeProvider } from 'styled-components';
+import { SummonProvider } from 'tno-core';
 
 import App from './App';
 import css from './css/_variables.module.scss';
@@ -16,7 +17,9 @@ const Index = () => {
     <React.StrictMode>
       <ThemeProvider theme={{ css }}>
         <Provider store={store}>
-          <App />
+          <SummonProvider>
+            <App />
+          </SummonProvider>
         </Provider>
       </ThemeProvider>
     </React.StrictMode>

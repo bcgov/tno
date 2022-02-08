@@ -1,7 +1,9 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -13,10 +15,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.converters.HashMapToStringConverter;
@@ -89,19 +94,6 @@ public class DataSource extends AuditColumns {
   private License license;
 
   /**
-   * Foreign key to the schedule.
-   */
-  @Column(name = "schedule_id", nullable = false)
-  private int scheduleId;
-
-  /**
-   * The schedule reference.
-   */
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
-  private Schedule schedule;
-
-  /**
    * The Kafka topic that content will be pushed into.
    */
   @Column(name = "topic", nullable = false)
@@ -122,6 +114,26 @@ public class DataSource extends AuditColumns {
   private Map<String, Object> connection = new HashMap<>();
 
   /**
+   * Foreign key to parent data source.
+   */
+  @Column(name = "parent_id", nullable = true)
+  private Integer parentId;
+
+  /**
+   * Reference to the parent data source.
+   */
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "parent_id", insertable = false, updatable = false)
+  private DataSource parent;
+
+  /**
+   * A collection of data source schedules linked to this data source.
+   */
+  @JsonBackReference("data_source_schedules")
+  @OneToMany(mappedBy = "dataSource", fetch = FetchType.LAZY)
+  private List<DataSourceSchedule> dataSourceSchedules = new ArrayList<>();
+
+  /**
    * Creates a new instance of a DataSource object.
    */
   public DataSource() {
@@ -136,11 +148,10 @@ public class DataSource extends AuditColumns {
    * @param abbr       The unique abbreviation
    * @param mediaType  Foreign key to the media type
    * @param license    Foreign key to the license
-   * @param schedule   Foreign key to the schedule
    * @param topic      The Kafka topic
    * @param connection The connection information
    */
-  public DataSource(int id, String name, String abbr, MediaType mediaType, License license, Schedule schedule,
+  public DataSource(int id, String name, String abbr, MediaType mediaType, License license,
       String topic, Map<String, Object> connection) {
     if (name == null)
       throw new NullPointerException("Parameter 'name' cannot be null.");
@@ -154,8 +165,6 @@ public class DataSource extends AuditColumns {
       throw new NullPointerException("Parameter 'mediaType' cannot be null.");
     if (license == null)
       throw new NullPointerException("Parameter 'license' cannot be null.");
-    if (schedule == null)
-      throw new NullPointerException("Parameter 'schedule' cannot be null.");
     if (topic == null)
       throw new NullPointerException("Parameter 'topic' cannot be null.");
     if (topic.length() == 0)
@@ -169,8 +178,6 @@ public class DataSource extends AuditColumns {
     this.mediaTypeId = mediaType.getId();
     this.license = license;
     this.licenseId = license.getId();
-    this.schedule = schedule;
-    this.scheduleId = schedule.getId();
     this.topic = topic;
     this.connection = connection;
   }
@@ -302,20 +309,6 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return Schedule return the schedule
-   */
-  public Schedule getSchedule() {
-    return schedule;
-  }
-
-  /**
-   * @param schedule the schedule to set
-   */
-  public void setSchedule(Schedule schedule) {
-    this.schedule = schedule;
-  }
-
-  /**
    * @return int return the mediaTypeId
    */
   public int getMediaTypeId() {
@@ -344,20 +337,6 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return int return the scheduleId
-   */
-  public int getScheduleId() {
-    return scheduleId;
-  }
-
-  /**
-   * @param scheduleId the scheduleId to set
-   */
-  public void setScheduleId(int scheduleId) {
-    this.scheduleId = scheduleId;
-  }
-
-  /**
    * @return Map{String, Object} return the connection
    */
   public Map<String, Object> getConnection() {
@@ -370,4 +349,47 @@ public class DataSource extends AuditColumns {
   public void setConnection(Map<String, Object> connection) {
     this.connection = connection;
   }
+
+  /**
+   * @return List{DataSourceSchedule} return the dataSourceSchedules
+   */
+  public List<DataSourceSchedule> getDataSourceSchedules() {
+    return dataSourceSchedules;
+  }
+
+  /**
+   * @param dataSourceSchedules the dataSourceSchedules to set
+   */
+  public void setDataSourceSchedules(List<DataSourceSchedule> dataSourceSchedules) {
+    this.dataSourceSchedules = dataSourceSchedules;
+  }
+
+  /**
+   * @return Integer return the parentId
+   */
+  public Integer getParentId() {
+    return parentId;
+  }
+
+  /**
+   * @param parentId the parentId to set
+   */
+  public void setParentId(Integer parentId) {
+    this.parentId = parentId;
+  }
+
+  /**
+   * @return DataSource return the parent
+   */
+  public DataSource getParent() {
+    return parent;
+  }
+
+  /**
+   * @param parent the parent to set
+   */
+  public void setParent(DataSource parent) {
+    this.parent = parent;
+  }
+
 }

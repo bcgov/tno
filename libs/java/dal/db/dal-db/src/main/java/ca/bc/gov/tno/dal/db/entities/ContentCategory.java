@@ -84,6 +84,25 @@ public class ContentCategory extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a ContentCategory object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param content    Content object
+   * @param categoryId Foreign key to Category object
+   * @param score      Category score
+   */
+  public ContentCategory(Content content, int categoryId, int score) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.categoryId = categoryId;
+    this.score = score;
+  }
+
+  /**
    * @return int return the contentId
    */
   public int getContentId() {

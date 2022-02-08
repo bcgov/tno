@@ -83,6 +83,24 @@ public class ContentTone extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a ContentTone object, initializes with specified
+   * parameters.
+   * 
+   * @param content    Content object
+   * @param tonePoolId Foreign key to TonePool object
+   * @param value      Tone value
+   */
+  public ContentTone(Content content, int tonePoolId, int value) {
+    if (content == null)
+      throw new NullPointerException("Parameter 'content' cannot be null.");
+
+    this.content = content;
+    this.contentId = content.getId();
+    this.tonePoolId = tonePoolId;
+    this.value = value;
+  }
+
+  /**
    * @return int return the contentId
    */
   public int getContentId() {

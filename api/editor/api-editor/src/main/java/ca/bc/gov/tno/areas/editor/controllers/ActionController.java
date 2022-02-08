@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IActionService;
-import ca.bc.gov.tno.dal.db.entities.Action;
+import ca.bc.gov.tno.areas.editor.models.ActionModel;
 
 /**
  * ActionController class, provides endpoints for actions.
  */
 @RolesAllowed({ "administrator", "editor" })
 @RestController("EditorActionController")
-@RequestMapping("/editor/actions")
+@RequestMapping({ "/editor/actions", "/api/editor/actions" })
 public class ActionController {
 
   /**
@@ -33,9 +33,10 @@ public class ActionController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<Action> findAll() {
+  public List<ActionModel> findAll() {
     var results = actionService.findAll();
-    return results;
+    var models = results.stream().map(a -> new ActionModel(a)).toList();
+    return models;
   }
 
 }

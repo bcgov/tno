@@ -18,7 +18,7 @@ import ca.bc.gov.tno.dal.db.entities.Category;
  */
 @RolesAllowed({ "administrator", "editor" })
 @RestController("EditorCategoryController")
-@RequestMapping("/editor/categories")
+@RequestMapping({ "/editor/categories", "/api/editor/categories" })
 public class CategoryController {
 
   /**

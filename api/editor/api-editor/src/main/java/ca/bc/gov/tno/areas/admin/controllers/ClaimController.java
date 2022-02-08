@@ -23,7 +23,7 @@ import ca.bc.gov.tno.dal.db.entities.Claim;
  */
 @RolesAllowed("administrator")
 @RestController("AdminClaimController")
-@RequestMapping("/admin/claims")
+@RequestMapping({ "/admin/claims", "/api/admin/claims" })
 public class ClaimController {
 
   /**

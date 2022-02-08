@@ -1,6 +1,5 @@
 package ca.bc.gov.tno.auth;
 
-import java.util.Date;
 import java.util.UUID;
 
 import org.keycloak.adapters.springsecurity.account.SimpleKeycloakAccount;

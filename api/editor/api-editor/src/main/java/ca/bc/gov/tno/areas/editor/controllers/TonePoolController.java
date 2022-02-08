@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.ITonePoolService;
-import ca.bc.gov.tno.dal.db.entities.TonePool;
+import ca.bc.gov.tno.areas.editor.models.TonePoolModel;
 
 /**
  * Endpoints to communicate with the TNO DB tone pools.
  */
 @RolesAllowed({ "administrator", "editor" })
 @RestController("EditorTonePoolController")
-@RequestMapping("/editor/tone/pools")
+@RequestMapping({ "/editor/tone/pools", "/api/editor/tone/pools" })
 public class TonePoolController {
 
   /**
@@ -33,9 +33,10 @@ public class TonePoolController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<TonePool> findAll() {
+  public List<TonePoolModel> findAll() {
     var results = tonePoolService.findAll();
-    return results;
+    var models = results.stream().map(t -> new TonePoolModel(t)).toList();
+    return models;
   }
 
 }
