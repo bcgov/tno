@@ -8,7 +8,7 @@ COPY package*.json yarn.lock ./
 RUN yarn
 COPY . ./
 
-RUN chmod 777 /usr/src/app/nginx/default.conf
+RUN chmod 777 /usr/src/app/nginx/local.conf
 
 # For some reason a ConfigMap can't create the `.env` file.
 # So we using a `environment.env` file instead.

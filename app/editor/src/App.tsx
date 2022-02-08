@@ -1,5 +1,6 @@
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { Layout } from 'components/layout';
+import { NavBar } from 'components/navbar/NavBarStyled';
 import { AppRouter } from 'components/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
@@ -30,7 +31,7 @@ function App() {
       onEvent={keycloakEventHandler(keycloak)}
     >
       <BrowserRouter>
-        <Layout name={name}>{{ menu: null, router: <AppRouter /> }}</Layout>
+        <Layout name={name}>{{ menu: <NavBar />, router: <AppRouter /> }}</Layout>
 
         <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
         <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
