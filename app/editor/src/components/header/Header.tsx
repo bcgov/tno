@@ -1,6 +1,6 @@
 import { useKeycloakWrapper } from 'tno-core';
-import { Button } from '..';
 
+import { Button } from '..';
 import * as styled from './HeaderStyled';
 
 interface IHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -27,7 +27,9 @@ export const Header: React.FC<IHeaderProps> = ({ name, children, ...rest }) => {
       <div>
         <div className="title">{name}</div>
         <div className="user">
-          <Button onClick={()=>keycloak.instance.logout()} name="signOut">Sign Out</Button>
+          <Button onClick={() => keycloak.instance.logout()} name="signOut">
+            Sign Out
+          </Button>
         </div>
       </div>
     </styled.Header>

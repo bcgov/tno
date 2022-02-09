@@ -1,8 +1,9 @@
 import React from 'react';
 import { CSSProperties } from 'styled-components';
+
 import * as styled from './RowStyled';
 
-export interface IRowProps {
+export interface IRowProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * place desired nodes in row
    */
