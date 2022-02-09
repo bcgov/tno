@@ -1,12 +1,9 @@
 import styled from 'styled-components';
 
-import { INaVBarProps } from '.';
+import { INaVBarGroupProps } from '.';
 
-export const NavBar = styled.div<INaVBarProps>`
+export const NavBarGroup = styled.div<INaVBarGroupProps>`
   width: 100%;
   height: 40px;
   background-color: #38598a;
-  .item:hover {
-    cursor: pointer;
-  }
 `;

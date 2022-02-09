@@ -31,33 +31,6 @@ const defaultPage: IPage<IContentModel> = {
   items: [],
 };
 
-const defaultListFilter: IContentListFilter = {
-  pageIndex: 0,
-  pageSize: 10,
-  mediaTypeId: 0,
-  contentTypeId: 0,
-  ownerId: '',
-  userId: '',
-  timeFrame: timeFrames[0],
-  included: '',
-  onTicker: '',
-  commentary: '',
-  topStory: '',
-};
-
-const defaultListAdvancedFilter: IContentListAdvancedFilter = {
-  fieldType: fieldTypes[0],
-  logicalOperator: LogicalOperator.Contains,
-  searchTerm: '',
-};
-
-const defaultPage: IPage<IContentModel> = {
-  pageIndex: 0,
-  pageSize: 10,
-  pageCount: -1,
-  items: [],
-};
-
 export const ContentListView: React.FC = () => {
   const {
     storeContentTypes,

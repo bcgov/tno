@@ -1,10 +1,12 @@
-import * as styled from './NavBarStyled';
+import { NavBarGroup, NavBarItem, Row } from 'components';
 
-export interface INaVBarProps {
-  backgroundColor?: string;
-  children?: React.ReactNode;
-}
-
-export const NavBar: React.FC<INaVBarProps> = ({ children }) => {
-  return <styled.NavBar>{children}</styled.NavBar>;
+export const NavBar: React.FC = () => {
+  return (
+    <NavBarGroup>
+      <Row style={{ marginLeft: '5em' }}>
+        <NavBarItem navigateTo="/contents" label="Snippets" />
+        <NavBarItem navigateTo="/admin" label="Admin" />
+      </Row>
+    </NavBarGroup>
+  );
 };

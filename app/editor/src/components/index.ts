@@ -6,3 +6,7 @@ export * from './home';
 export * from './router';
 export * from './tabs';
 export * from './text-box';
+export * from './header';
+export * from './navbar';
+export * from './row';
+export * from './col';
