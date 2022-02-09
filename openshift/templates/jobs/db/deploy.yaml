@@ -10,16 +10,17 @@ metadata:
     tags: postgresql,database,flyway,migration
 
 parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
+    required: true
+    value: tno
   - name: APP_NAME
-    displayName: 'Application Name'
-    description: 'The name of the application.'
+    displayName: Application Name
+    description: The name of the application (e.g. app-editor).
     required: true
-    value: 'tno'
-  - name: GROUP_NAME
-    displayName: 'Component Group Name'
-    description: 'The name of the application component group'
-    required: true
-    value: 'db-migration'
+    value: db-migration
+
   - name: PROJECT_NAMESPACE
     displayName: 'OpenShift Project Namespace'
     description: 'The namespace of the OpenShift project containing the application.'
@@ -30,10 +31,6 @@ parameters:
     description: 'The name for this environment [dev, test, prod]'
     required: true
     value: 'dev'
-  - name: INSTANCE
-    displayName: 'Unique Identifier'
-    description: "A unique identifier to allow for multiple instances (i.e. '-dev')."
-    value: ''
 
   - name: IMAGE_TAG
     displayName: 'Image Tag'
@@ -82,27 +79,28 @@ objects:
   - apiVersion: batch/v1
     kind: Job
     metadata:
-      name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}-${IMAGE_TAG}
+      name: ${SOLUTION_NAME}-${APP_NAME}-${IMAGE_TAG}
       namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
       labels:
-        name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+        name: ${SOLUTION_NAME}-${APP_NAME}-${IMAGE_TAG}
+        solution: ${SOLUTION_NAME}
         app: ${APP_NAME}
-        group: ${GROUP_NAME}
+        version: ${IMAGE_TAG}
     spec:
       backoffLimit: 5
-      activeDeadlineSeconds: 100
+      activeDeadlineSeconds: 300
       template:
         metadata:
-          name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+          name: ${SOLUTION_NAME}-${APP_NAME}
           labels:
-            name: ${APP_NAME}-${GROUP_NAME}${INSTANCE}
+            name: ${SOLUTION_NAME}-${APP_NAME}
+            solution: ${SOLUTION_NAME}
             app: ${APP_NAME}
-            group: ${GROUP_NAME}
         spec:
           restartPolicy: Never
           containers:
-            - name: ${APP_NAME}-${GROUP_NAME}
-              image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAMESPACE}-tools/${APP_NAME}-${GROUP_NAME}:${IMAGE_TAG}
+            - name: ${SOLUTION_NAME}-${APP_NAME}
+              image: image-registry.openshift-image-registry.svc:5000/${PROJECT_NAMESPACE}-tools/${SOLUTION_NAME}-${APP_NAME}:${IMAGE_TAG}
               env:
                 - name: DB_USERNAME
                   valueFrom:

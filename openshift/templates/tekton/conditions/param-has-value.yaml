@@ -1,14 +1,15 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Condition
 metadata:
-  name: run-owasp
+  name: param-has-value
 spec:
   params:
-    - name: TARGET_URL
+    - name: VALUE
+      description: A value to test if it has been set.
       type: string
   check:
     image: alpine
     script: |
-      if [ -z "$(params.TARGET_URL)" ]; then
+      if [ -z "$(params.VALUE)" ]; then
         exit 1
       fi

@@ -20,37 +20,6 @@ parameters:
     required: true
     value: app-editor
 
-  - name: TEMPLATE_NAME
-    displayName: BuildConfig Template Name
-    description: The BuildConfig Template name that will be used to generate a BuildConfig.
-    required: true
-    value: react-nginx-build
-  - name: CONTEXT_DIR
-    displayName: Context Directory
-    description: Set this to use a subdirectory of the source code repository
-    value: app/editor
-  - name: DOCKERFILE
-    displayName: Dockerfile Name
-    description: The Dockerfile name
-    required: true
-    value: Dockerfile.nginx
-
-  - name: WEB_APP_URL
-    displayName: Web Application URL
-    description: The URL to the web application that will be ZAP scanned.
-    value: https://tno-dev.apps.silver.devops.gov.bc.ca
-
-  - name: CPU_LIMIT
-    displayName: Resources CPU Limit
-    description: The resources CPU limit (in cores) for this build.
-    required: true
-    value: 2000m
-  - name: MEMORY_LIMIT
-    displayName: Memory Limit
-    description: Maximum amount of memory the container can use.
-    required: true
-    value: 2Gi
-
 objects:
   # Create a pipeline run object.
   - apiVersion: triggers.tekton.dev/v1alpha1
@@ -61,55 +30,35 @@ objects:
       app: ${APP_NAME}
     spec:
       params:
-        - name: GIT_URL
-          description: The git repository url
-        - name: GIT_REF
-          description: The git revision
         - name: GIT_SOURCE
           description: Identify the git source
-        - name: DEPLOY_TO
-          description: The environment to depoloy to
         - name: VERSION
           description: The version to tag the image with
+        - name: DEPLOY_TO
+          description: The environment to depoloy to
       resourcetemplates:
         - apiVersion: tekton.dev/v1beta1
           kind: PipelineRun
           metadata:
-            generateName: ${APP_NAME}-
+            generateName: ${SOLUTION_NAME}-${APP_NAME}-$(tt.params.VERSION)-
             labels:
-              tekton.dev/pipeline: build-deploy-with-template
+              name: ${SOLUTION_NAME}-${APP_NAME}-$(tt.params.VERSION)
+              solution: ${SOLUTION_NAME}
+              app: ${APP_NAME}
+              version: $(tt.params.VERSION)
+              tekton.dev/pipeline: tno-pipeline
           spec:
             pipelineRef:
-              name: build-deploy-with-template
+              name: tno-pipeline
             serviceAccountName: pipeline
-            timeout: 1h0m0s
+            timeout: 0h45m0s
             params:
-              - name: SOLUTION_NAME
-                value: ${SOLUTION_NAME}
-              - name: APP_NAME
-                value: ${APP_NAME}
-              - name: TEMPLATE_NAME
-                value: ${TEMPLATE_NAME}
-              - name: GIT_URL
-                value: $(tt.params.GIT_URL)
-              - name: GIT_REF
-                value: $(tt.params.GIT_REF)
               - name: GIT_SOURCE
                 value: $(tt.params.GIT_SOURCE)
-              - name: CONTEXT_DIR
-                value: ${CONTEXT_DIR}
-              - name: DOCKERFILE
-                value: ${DOCKERFILE}
-              - name: WEB_APP_URL
-                value: ${WEB_APP_URL}
               - name: IMAGE_TAG
                 value: $(tt.params.VERSION)
               - name: DEPLOY_TO
                 value: $(tt.params.DEPLOY_TO)
-              - name: CPU_LIMIT
-                value: ${CPU_LIMIT}
-              - name: MEMORY_LIMIT
-                value: ${MEMORY_LIMIT}
             workspaces:
               - name: owasp-settings
                 emptyDir: {}
