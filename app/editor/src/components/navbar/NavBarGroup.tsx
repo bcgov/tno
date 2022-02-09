@@ -1,6 +1,6 @@
 import * as styled from './NavBarStyled';
 
-export interface INaVBarGroupProps {
+export interface INavBarGroupProps {
   /**
    * choose a background colour for the navigation bar
    */
@@ -11,6 +11,6 @@ export interface INaVBarGroupProps {
   children?: React.ReactNode;
 }
 
-export const NavBarGroup: React.FC<INaVBarGroupProps> = ({ children }) => {
+export const NavBarGroup: React.FC<INavBarGroupProps> = ({ children }) => {
   return <styled.NavBarGroup>{children}</styled.NavBarGroup>;
 };

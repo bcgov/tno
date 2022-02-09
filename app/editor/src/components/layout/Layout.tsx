@@ -31,9 +31,7 @@ export const Layout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
       <MenuProvider>
         <Header name={name} />
         <div className="main-window">
-          {showMenu && (
-            <NavBar />
-          )}
+          {showMenu && children.menu}
           <main style={{ backgroundColor: '#f2f2f2', margin: '0px' }}>
             {children.router}
             {isLoading && <Loading />}
