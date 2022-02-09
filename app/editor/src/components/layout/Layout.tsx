@@ -1,4 +1,4 @@
-import { Header, NavBar } from 'components';
+import { Header } from 'components';
 import { Home } from 'features';
 import React from 'react';
 import { Footer, Loading, MenuProvider, useKeycloakWrapper } from 'tno-core';
