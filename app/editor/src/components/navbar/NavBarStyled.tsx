@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
-import { INavBarGroupProps } from '.';
-
-export const NavBarGroup = styled.div<INavBarGroupProps>`
+export const NavBarGroup = styled.div`
   width: 100%;
   height: 40px;
   background-color: ${(props) => props.theme.css.primaryLightColor};
