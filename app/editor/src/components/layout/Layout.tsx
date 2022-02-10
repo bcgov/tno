@@ -1,9 +1,7 @@
-import { NavBarItem } from 'components/navbar/NavBarItemStyled';
-import { NavBar } from 'components/navbar/NavBarStyled';
+import { Header } from 'components';
 import { Home } from 'features';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Footer, Header, Loading, MenuProvider, useKeycloakWrapper } from 'tno-core';
+import { Footer, Loading, MenuProvider, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './LayoutStyled';
 
@@ -27,40 +25,13 @@ export const Layout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
   const [isLoading] = React.useState(false);
   const showMenu = !!keycloak.authenticated && !!children.menu;
-  const [active, setActive] = React.useState('snippets');
-  const navigate = useNavigate();
 
   return keycloak.authenticated ? (
     <styled.Layout {...rest}>
       <MenuProvider>
         <Header name={name} />
         <div className="main-window">
-          {showMenu && (
-            <NavBar>
-              <div style={{ display: 'flex', flexDirection: 'row', marginLeft: '3.5%' }}>
-                <NavBarItem
-                  active={active === 'snippets'}
-                  onClick={() => {
-                    setActive('snippets');
-                    navigate('/');
-                  }}
-                  className="item"
-                >
-                  Snippets
-                </NavBarItem>
-                <NavBarItem
-                  className="item"
-                  active={active === 'admin'}
-                  onClick={() => {
-                    setActive('admin');
-                    navigate('/admin');
-                  }}
-                >
-                  Admin
-                </NavBarItem>
-              </div>
-            </NavBar>
-          )}
+          {showMenu && children.menu}
           <main style={{ backgroundColor: '#f2f2f2', margin: '0px' }}>
             {children.router}
             {isLoading && <Loading />}

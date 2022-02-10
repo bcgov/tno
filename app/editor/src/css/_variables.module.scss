@@ -1,7 +1,7 @@
 @import './_colors';
+@import './fonts';
 
 :export {
-
   primaryColor: $primary-color;
   primaryColorRgb: $primary-color-rgb;
   primaryLightColor: $primary-light-color;
@@ -46,4 +46,6 @@
   whiteRgb: $bs-white-rgb;
   blackRgb: $bs-black-rgb;
   textOpacity: $bs-text-opacity;
+
+  bcSans: $bc-sans;
 }

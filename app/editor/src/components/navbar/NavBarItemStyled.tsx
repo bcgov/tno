@@ -10,7 +10,5 @@ export const NavBarItem = styled.div<INavBarItemProps>`
   font-weight: 500;
   padding-top: 0.5rem;
   text-align: center;
-  &:hover {
-    curosr: pointer;
-  }
+  cursor: pointer;
 `;
