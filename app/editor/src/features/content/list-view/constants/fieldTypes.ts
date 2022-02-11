@@ -4,7 +4,7 @@ export const fieldTypes = [
   new OptionItem('Headline', 'headline'),
   new OptionItem('Page', 'pageName'),
   new OptionItem('Status', 'status'),
-  new OptionItem('WorkflowStatus', 'workflowStatus'),
+  new OptionItem('Workflow Status', 'workflowStatus'),
   new OptionItem('Source', 'source'),
   new OptionItem('Section', 'section'),
   new OptionItem('Media Type', 'mediaTypeId'),
