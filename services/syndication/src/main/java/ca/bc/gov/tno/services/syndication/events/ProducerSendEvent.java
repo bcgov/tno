@@ -5,18 +5,24 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.scheduling.annotation.Async;
 
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.syndication.config.SyndicationConfig;
 
 /**
- * SendToKafkaEvent class, provides an event to indicate the syndication feed
+ * ProducerSendEvent class, provides an event to indicate the syndication feed
  * has been loaded.
  */
 @Async
 public class ProducerSendEvent extends ApplicationEvent {
   /**
-   * The data source config.
+   * The data source configuration.
    */
-  private final SyndicationConfig config;
+  private final SyndicationConfig dataSource;
+
+  /**
+   * The schedule configuration.
+   */
+  private final ScheduleConfig schedule;
 
   /**
    * The data to send to Kafka.
@@ -27,13 +33,16 @@ public class ProducerSendEvent extends ApplicationEvent {
    * Creates a new instance of an SendToKafkaEvent, initializes with specified
    * parameters.
    * 
-   * @param source
-   * @param config
-   * @param data
+   * @param source     The source of this event.
+   * @param dataSource The data source config.
+   * @param schedule   The schedule config.
+   * @param data       The syndication feed.
    */
-  public ProducerSendEvent(final Object source, final SyndicationConfig config, final SyndFeed data) {
+  public ProducerSendEvent(final Object source, final SyndicationConfig dataSource, final ScheduleConfig schedule,
+      final SyndFeed data) {
     super(source);
-    this.config = config;
+    this.dataSource = dataSource;
+    this.schedule = schedule;
     this.data = data;
   }
 
@@ -42,8 +51,17 @@ public class ProducerSendEvent extends ApplicationEvent {
    * 
    * @return The data source config.
    */
-  public SyndicationConfig getConfig() {
-    return config;
+  public SyndicationConfig getDataSource() {
+    return dataSource;
+  }
+
+  /**
+   * Get the schedule configuration.
+   * 
+   * @return The schedule config.
+   */
+  public ScheduleConfig getSchedule() {
+    return schedule;
   }
 
   /**

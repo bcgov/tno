@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS public.content_reference
     "offset" BIGINT NOT NULL DEFAULT -1,
     "status" INT NOT NULL DEFAULT 0,
     "published_on" TIMESTAMP WITH TIME ZONE,
-    "sourceUpdated_on" TIMESTAMP WITH TIME ZONE,
+    "source_updated_on" TIMESTAMP WITH TIME ZONE,
     -- Audit Columns
     "created_by_id" UUID NOT NULL,
     "created_by" VARCHAR(50) NOT NULL,
@@ -561,7 +561,7 @@ BEGIN
       NEW."id"
       , NEW."status"
       , NEW."workflow_status"
-      , 'status: [' || CAST(OLD."status" AS VARCHAR) || ':' || CAST(NEW."status" AS VARCHAR) || 
+      , 'status: [' || CAST(OLD."status" AS VARCHAR) || ':' || CAST(NEW."status" AS VARCHAR) ||
         '], workflow_status: [' || CAST(OLD."workflow_status" AS VARCHAR) || ':' || CAST(NEW."workflow_status" AS VARCHAR) || ']'
       , NEW."created_by_id"
       , NEW."created_by"

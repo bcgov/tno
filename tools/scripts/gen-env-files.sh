@@ -444,15 +444,15 @@ if test -f "./services/audio/audio.env"; then
     echo "./services/audio/atom.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:40001/auth/
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
 
-DB_URL=jdbc:postgresql://host.docker.internal:40000/tno
-DB_USERNAME=stuartm
-DB_PASSWORD=YTc0YjE3ZGU3N2Q4OTkyZDc3OWEwNA8!
+DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
+DB_USERNAME=$dbUser
+DB_PASSWORD=$password
 
 KAFKA_LOGS_TOPIC=logs-audio
 
-KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:40102
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 KAFKA_CLIENT_ID=audio-capture-01
 
 MAX_FAILED_ATTEMPTS=5

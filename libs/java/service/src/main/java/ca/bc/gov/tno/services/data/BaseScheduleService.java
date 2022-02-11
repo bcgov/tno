@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.EventListener;
@@ -15,8 +16,8 @@ import ca.bc.gov.tno.services.ServiceStatus;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.events.ServiceStartEvent;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
-import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
 
 /**
@@ -83,17 +84,18 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
    * @param event The event.
    */
   @EventListener
-  public void handleTransactionCompleteEvent(TransactionCompleteEvent<C> event) {
+  public void handleTransactionCompleteEvent(TransactionCompleteEvent event) {
     var source = event.getSource();
     if (ScheduleHelper.isSchedule(source)) {
       @SuppressWarnings("unchecked")
       var caller = (BaseScheduleService<C, CA>) event.getSource();
       if (caller.getId() == this.uid) {
         logger.info("Transaction complete event.");
-        var config = event.getConfig();
+        var dataSource = event.getDataSource();
+        var schedule = event.getSchedule();
 
         try {
-          updateConfig(config, new Date(System.currentTimeMillis()));
+          updateDataSource(dataSource, schedule, new Date(System.currentTimeMillis()));
           // Reset failures as the source has been completed 'successfully'.
           state.setFailedAttempts(0);
         } catch (Exception ex) {
@@ -110,8 +112,9 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
   }
 
   /**
-   * When the start even occurs run the scheduler. Based on the schedule keep
-   * checking for new content from the data source.
+   * When the start event occurs run the scheduler.
+   * Based on the schedule keep checking for new content
+   * from the data source.
    * 
    * @param event The event.
    */
@@ -140,24 +143,27 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
           if (index == sourceConfigs.getSources().size())
             index = 0;
 
-          var config = (C) sourceConfigs.getSources().get(index);
+          var dataSource = (C) sourceConfigs.getSources().get(index);
           // Make request to TNO DB for data source configuration settings.
-          config = fetchConfig(config);
+          dataSource = fetchDataSource(dataSource);
 
           // Determine if the data source should be imported based on the configured
           // schedule.
-          if (ScheduleHelper.verifySchedule(new Date(System.currentTimeMillis()), config)) {
-            logger.debug(String.format("Data source start: %s", config.getId()));
-            var beginEvent = new TransactionBeginEvent<C>(this, config);
-            eventPublisher.publishEvent(beginEvent);
+          for (ScheduleConfig schedule : dataSource.getSchedules()) {
+            if (ScheduleHelper.verifySchedule(new Date(System.currentTimeMillis()), dataSource, schedule)) {
+              logger.debug(String.format("Data source start: %s", dataSource.getId()));
+              var beginEvent = createEvent(this, dataSource, schedule);
+              // var beginEvent = new TransactionBeginEvent<C>(this, dataSource, schedule);
+              eventPublisher.publishEvent(beginEvent);
 
-            // TODO: Remove synchronous limitations.
-            // Wait until the SourceCompleteEvent is received.
-            synchronized (this) {
-              wait();
+              // TODO: Remove synchronous limitations.
+              // Wait until the SourceCompleteEvent is received.
+              synchronized (this) {
+                wait();
+              }
+            } else {
+              logger.debug(String.format("Data source skipped: %s", dataSource.getId()));
             }
-          } else {
-            logger.debug(String.format("Data source skipped: %s", config.getId()));
           }
 
           index++;
@@ -175,6 +181,16 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
   }
 
   /**
+   * Create the event that the scheduler will publish.
+   * 
+   * @param source     The source of the event.
+   * @param dataSource The data source config.
+   * @param schedule   The schedule config.
+   * @return A new application event.
+   */
+  protected abstract ApplicationEvent createEvent(Object source, C dataSource, ScheduleConfig schedule);
+
+  /**
    * Initialize the data source configurations.
    */
   protected void initConfigs() {
@@ -184,25 +200,28 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
    * 
-   * @param config The data source config.
+   * @param dataSource The data source config.
    * @return The data source config.
    */
-  protected C fetchConfig(C config) {
-    return config;
+  protected C fetchDataSource(C dataSource) {
+    return dataSource;
   }
 
   /**
    * Update the data source with the current ranAt date and time.
    * 
-   * @param config The data source config.
-   * @param ranAt  The date and time the transaction ran.
+   * @param dataSource The data source config.
+   * @param schedule   The schedule config.
+   * @param ranOn      The date and time the transaction ran.
    */
-  protected void updateConfig(C config, Date ranAt) {
-    if (config == null)
-      throw new IllegalArgumentException("Parameter 'config' is required.");
+  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, Date ranOn) {
+    if (dataSource == null)
+      throw new IllegalArgumentException("Parameter 'dataSource' is required.");
+    if (schedule == null)
+      throw new IllegalArgumentException("Parameter 'schedule' is required.");
 
-    if (config.getRepeat() > 0)
-      config.setRanCounter(config.getRanCounter() + 1);
-    config.setLastRanOn(ranAt);
+    if (schedule.getRepeat() > 0)
+      dataSource.setRanCounter(dataSource.getRanCounter() + 1);
+    dataSource.setLastRanOn(ranOn);
   }
 }

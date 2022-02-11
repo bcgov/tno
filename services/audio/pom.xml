@@ -20,6 +20,11 @@
   </licenses>
   <developers>
     <developer>
+      <name>Jeremy Foster</name>
+      <email>jeremy.foster@fosol.ca</email>
+      <organization>Quartech</organization>
+    </developer>
+    <developer>
       <name>Stuart Morse</name>
       <email>stuart.morse@quartech.com</email>
       <organization>Quartech</organization>

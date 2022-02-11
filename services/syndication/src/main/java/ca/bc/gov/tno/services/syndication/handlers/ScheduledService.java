@@ -3,6 +3,7 @@ package ca.bc.gov.tno.services.syndication.handlers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,8 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.data.BaseDbScheduleService;
 import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
+import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.syndication.config.SyndicationConfig;
 import ca.bc.gov.tno.services.syndication.config.SyndicationCollectionConfig;
 
@@ -54,30 +57,42 @@ public class ScheduledService
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
    * 
-   * @param config The data source config.
+   * @param dataSource The data source config.
    * @return The data source config.
    */
   @Override
-  protected SyndicationConfig fetchConfig(SyndicationConfig config) {
-    if (config == null)
-      throw new IllegalArgumentException("Parameter 'config' is required.");
+  protected SyndicationConfig fetchDataSource(SyndicationConfig dataSource) {
+    if (dataSource == null)
+      throw new IllegalArgumentException("Parameter 'dataSource' is required.");
 
-    var result = dataSourceService.findByCode(config.getId());
+    var result = dataSourceService.findByCode(dataSource.getId());
 
     // If the database does not have a config for this source, then log warning.
     if (result.isEmpty()) {
-      logger.warn(String.format("Data source '%s' does not exist in database", config.getId()));
-      return config;
+      logger.warn(String.format("Data source '%s' does not exist in database", dataSource.getId()));
+      return dataSource;
     }
 
     var newConfig = new SyndicationConfig(result.get());
 
     // TODO: Check for all conditions.
-    if (config.isEnabled() != newConfig.isEnabled() || !config.getTopic().equals(newConfig.getTopic())
-        || !config.getType().equals(newConfig.getType()) || config.getDelay() != newConfig.getDelay()
-        || !config.getRunAt().equals(newConfig.getRunAt()) || config.getRepeat() != newConfig.getRepeat())
-      logger.warn(String.format("Configuration has been changed for data source '%s'", config.getId()));
+    if (dataSource.isEnabled() != newConfig.isEnabled()
+        || !dataSource.getTopic().equals(newConfig.getTopic())
+        || !dataSource.getMediaType().equals(newConfig.getMediaType()))
+      logger.warn(String.format("Configuration has been changed for data source '%s'", dataSource.getId()));
 
     return newConfig;
+  }
+
+  /**
+   * Create the event that the scheduler will publish.
+   * 
+   * @param dataSource The data source config.
+   * @param schedule   The schedule config.
+   * @return A new application event.
+   */
+  @Override
+  protected ApplicationEvent createEvent(Object source, SyndicationConfig dataSource, ScheduleConfig schedule) {
+    return new TransactionBeginEvent(source, dataSource, schedule);
   }
 }

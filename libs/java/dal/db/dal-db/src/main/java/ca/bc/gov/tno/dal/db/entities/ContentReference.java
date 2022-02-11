@@ -51,13 +51,13 @@ public class ContentReference extends AuditColumns {
   /**
    * The Kafka partition the message is stored in.
    */
-  @Column(name = "partition", nullable = false)
+  @Column(name = "\"partition\"", nullable = false)
   private int partition;
 
   /**
    * The Kafka offset the message was saved.
    */
-  @Column(name = "offset", nullable = false)
+  @Column(name = "\"offset\"", nullable = false)
   private long offset;
 
   /**
@@ -71,7 +71,7 @@ public class ContentReference extends AuditColumns {
    * The date and time the source content was updated.
    */
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "sourceUpdated_on")
+  @Column(name = "source_updated_on")
   private Date sourceUpdatedOn;
 
   /**

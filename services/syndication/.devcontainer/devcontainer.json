@@ -18,7 +18,7 @@
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
-		"java.home": "/docker-java-home",
+		"java.jdt.ls.java.home": "/docker-java-home",
 		"maven.executable.path": "/usr/local/sdkman/candidates/maven/current/bin/mvn"
 	},
 
@@ -40,7 +40,8 @@
 		"pflannery.vscode-versionlens",
 		"youmaycallmev.vscode-java-saber",
 		"ckolkman.vscode-postgres",
-		"streetsidesoftware.code-spell-checker"
+		"streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

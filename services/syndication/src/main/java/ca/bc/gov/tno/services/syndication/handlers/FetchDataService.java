@@ -19,6 +19,7 @@ import org.springframework.http.converter.feed.RssChannelHttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.syndication.config.SyndicationConfig;
@@ -37,7 +38,7 @@ import com.rometools.rome.feed.synd.SyndFeedImpl;
  */
 @Async
 @Component
-public class FetchDataService implements ApplicationListener<TransactionBeginEvent<SyndicationConfig>> {
+public class FetchDataService implements ApplicationListener<TransactionBeginEvent> {
   private static final Logger logger = LogManager.getLogger(FetchDataService.class);
 
   private final ApplicationEventPublisher eventPublisher;
@@ -45,7 +46,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private final RestTemplate rest;
 
   private Object caller;
-  private SyndicationConfig syndicationConfig;
+  private SyndicationConfig dataSource;
+  private ScheduleConfig schedule;
 
   /**
    * Create a new instance of a FetchDataService object.
@@ -74,19 +76,21 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
    * the content to a topic.
    */
   @Override
-  public void onApplicationEvent(TransactionBeginEvent<SyndicationConfig> event) {
+  public void onApplicationEvent(TransactionBeginEvent event) {
     try {
       caller = event.getSource();
-      syndicationConfig = event.getConfig();
-      var url = syndicationConfig.getUrl();
+      dataSource = (SyndicationConfig) event.getDataSource();
+      schedule = event.getSchedule();
+
+      var url = dataSource.getUrl();
       logger.info(String.format("Syndication fetch request started - %s", url));
 
-      var response = syndicationConfig.getType().equalsIgnoreCase("ATOM") ? runAtom(url) : runRss(url);
+      var response = dataSource.getMediaType().equalsIgnoreCase("ATOM") ? runAtom(url) : runRss(url);
       var status = response.getStatusCode();
 
       if (status.series() == HttpStatus.Series.SUCCESSFUL) {
         logger.info(String.format("Syndication fetch response - %s %s", url, status));
-        var readyEvent = new ProducerSendEvent(caller, syndicationConfig, new SyndFeedImpl(response.getBody()));
+        var readyEvent = new ProducerSendEvent(caller, dataSource, schedule, new SyndFeedImpl(response.getBody()));
         eventPublisher.publishEvent(readyEvent);
 
       } else if (status.series() == HttpStatus.Series.SERVER_ERROR

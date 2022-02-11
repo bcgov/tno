@@ -67,7 +67,7 @@ project: ## Switch to TNO project namespace within Openshift: 9b301c
 	@oc project 9b301c-tools
 
 switch: ## Switch to the specified oc project (n=environment)
-	$(info Switch to the specified oc project n=$(n))
+	$(info Switch to the specified oc project n=$(if $(n),$(n),tools))
 	@./tools/scripts/switch-project.sh $(n)
 
 ##############################################################################
@@ -76,19 +76,44 @@ switch: ## Switch to the specified oc project (n=environment)
 
 build: ## Builds all containers or the one specified (args: n={service name}, p={profile name, [all,editor,subscriber,kafka,service,utility,ingest]})
 	$(info Builds all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) build --no-cache $(n)
+	@docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.override.yml \
+		-f ./db/kafka/docker-compose.yml \
+		-f ./services/docker-compose.yml \
+		--profile $(if $(p),$(p),all) \
+		build --no-cache $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Starts all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
-	@docker-compose --env-file .env -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) up -d $(n)
+	@docker-compose \
+		--env-file .env \
+		-f docker-compose.yml \
+		-f docker-compose.override.yml \
+		-f ./db/kafka/docker-compose.yml \
+		-f ./services/docker-compose.yml \
+		--profile $(if $(p),$(p),all) \
+		up -d $(n)
 
 stop: ## Stops all containers or the one specified (args: n={service name}, p={profile name, [all,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Stops all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) stop $(n)
+	@docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.override.yml \
+		-f ./db/kafka/docker-compose.yml \
+		-f ./services/docker-compose.yml \
+		--profile $(if $(p),$(p),all) \
+		stop $(n)
 
 down: ## Stops all containers and removes them (p={profile name, [all,editor,subscriber,kafka,service,utility,ingest]})))
 	$(info Stops all containers and removes them (p=$(if $(p),$(p),all)))
-	@docker-compose -f docker-compose.yml -f docker-compose.override.yml -f ./db/kafka/docker-compose.yml --profile $(if $(p),$(p),all) down -v
+	@docker-compose \
+		-f docker-compose.yml \
+		-f docker-compose.override.yml \
+		-f ./db/kafka/docker-compose.yml \
+		-f ./services/docker-compose.yml \
+		--profile $(if $(p),$(p),all) \
+		down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Restart all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))

@@ -56,7 +56,7 @@ spec:
           --rm \
           --labels='role=migration,solution=tno,app=database' \
           --restart=Never \
-          --env=DB_URL=$DB_URL \
-          --env=DB_USERNAME=$DB_USERNAME \
-          --env=DB_PASSWORD=$DB_PASSWORD \
+          --env=DB_URL="$DB_URL" \
+          --env=DB_USERNAME="$DB_USERNAME" \
+          --env=DB_PASSWORD="$DB_PASSWORD" \
           --timeout=10m

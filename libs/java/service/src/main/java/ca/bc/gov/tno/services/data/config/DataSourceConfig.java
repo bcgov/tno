@@ -1,13 +1,12 @@
 package ca.bc.gov.tno.services.data.config;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumSet;
+import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import ca.bc.gov.tno.dal.db.Months;
-import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
 
 /**
@@ -24,12 +23,7 @@ public class DataSourceConfig {
   /**
    * The data source type (i.e. RSS, ATOM, Newspaper, Radio News, ...).
    */
-  private String type;
-
-  /**
-   * Millisecond delay between each request.
-   */
-  private int delay;
+  private String mediaType;
 
   /**
    * Whether the data source is enabled.
@@ -42,31 +36,6 @@ public class DataSourceConfig {
   private String topic;
 
   /**
-   * Date and time to run the service on.
-   */
-  private Date runAt;
-
-  /**
-   * Number of time to run.
-   */
-  private int repeat;
-
-  /**
-   * Days of week to run on.
-   */
-  private EnumSet<WeekDays> runOnWeekDays;
-
-  /**
-   * Months to run on.
-   */
-  private EnumSet<Months> runOnMonths;
-
-  /**
-   * Day of month to run on.
-   */
-  private int dayOfMonth;
-
-  /**
    * Date when the data source was last run.
    */
   private Date lastRanOn;
@@ -76,6 +45,11 @@ public class DataSourceConfig {
    * 'repeat' configuration.
    */
   private int ranCounter;
+
+  /**
+   * An array of schedules for this data source.
+   */
+  private List<ScheduleConfig> schedules = new ArrayList<>();
 
   /**
    * Creates a new instance of a DataSourceConfig object.
@@ -98,19 +72,14 @@ public class DataSourceConfig {
     setTopic(dataSource.getTopic());
     setLastRanOn(dataSource.getLastRanOn());
 
-    var type = dataSource.getType();
-    setType(type.getName());
+    var type = dataSource.getMediaType();
+    setMediaType(type.getName());
 
-    var schedule = dataSource.getSchedule();
-    setDelay(schedule.getDelayMS());
-    setRunAt(schedule.getRunAt());
-    setRepeat(schedule.getRepeat());
-    setRunOnWeekDays(schedule.getRunOnWeekDays());
-    setRunOnMonths(schedule.getRunOnMonths());
-    setDayOfMonth(schedule.getDayOfMonth());
+    schedules.addAll(
+        dataSource.getDataSourceSchedules().stream().map((dss) -> new ScheduleConfig(dss.getSchedule())).toList());
 
     var license = dataSource.getLicense();
-    setEnabled(dataSource.isEnabled() && schedule.isEnabled() && type.isEnabled() && license.isEnabled());
+    setEnabled(dataSource.isEnabled() && type.isEnabled() && license.isEnabled());
   }
 
   /**
@@ -128,31 +97,17 @@ public class DataSourceConfig {
   }
 
   /**
-   * @return String return the type
+   * @return String return the media type
    */
-  public String getType() {
-    return type;
+  public String getMediaType() {
+    return mediaType;
   }
 
   /**
-   * @param type the type to set
+   * @param mediaType the mediaType to set
    */
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  /**
-   * @return int return the delay
-   */
-  public int getDelay() {
-    return delay;
-  }
-
-  /**
-   * @param delay the delay to set
-   */
-  public void setDelay(int delay) {
-    this.delay = delay;
+  public void setMediaType(String mediaType) {
+    this.mediaType = mediaType;
   }
 
   /**
@@ -184,76 +139,6 @@ public class DataSourceConfig {
   }
 
   /**
-   * @return Date return the runAt
-   */
-  public Date getRunAt() {
-    return runAt;
-  }
-
-  /**
-   * @param runAt the runAt to set
-   */
-  public void setRunAt(Date runAt) {
-    this.runAt = runAt;
-  }
-
-  /**
-   * @return EnumSet{WeekDays} return the runOnWeekDays
-   */
-  public EnumSet<WeekDays> getRunOnWeekDays() {
-    return runOnWeekDays;
-  }
-
-  /**
-   * @param runOnWeekDays the runOnWeekDays to set
-   */
-  public void setRunOnWeekDays(EnumSet<WeekDays> runOnWeekDays) {
-    this.runOnWeekDays = runOnWeekDays;
-  }
-
-  /**
-   * @return EnumSet{Months} return the runOnMonths
-   */
-  public EnumSet<Months> getRunOnMonths() {
-    return runOnMonths;
-  }
-
-  /**
-   * @param runOnMonths the runOnMonths to set
-   */
-  public void setRunOnMonths(EnumSet<Months> runOnMonths) {
-    this.runOnMonths = runOnMonths;
-  }
-
-  /**
-   * @return int return the dayOfMonth
-   */
-  public int getDayOfMonth() {
-    return dayOfMonth;
-  }
-
-  /**
-   * @param dayOfMonth the dayOfMonth to set
-   */
-  public void setDayOfMonth(int dayOfMonth) {
-    this.dayOfMonth = dayOfMonth;
-  }
-
-  /**
-   * @return int return the repeat
-   */
-  public int getRepeat() {
-    return repeat;
-  }
-
-  /**
-   * @param repeat the repeat to set
-   */
-  public void setRepeat(int repeat) {
-    this.repeat = repeat;
-  }
-
-  /**
    * @return Date return the lastRanOn
    */
   public Date getLastRanOn() {
@@ -279,6 +164,20 @@ public class DataSourceConfig {
    */
   public void setRanCounter(int ranCounter) {
     this.ranCounter = ranCounter;
+  }
+
+  /**
+   * @return List{ScheduleConfig} return the schedules
+   */
+  public List<ScheduleConfig> getSchedules() {
+    return schedules;
+  }
+
+  /**
+   * @param schedules the schedules to set
+   */
+  public void setSchedules(List<ScheduleConfig> schedules) {
+    this.schedules = schedules;
   }
 
 }

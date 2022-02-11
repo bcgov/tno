@@ -23,7 +23,9 @@ import ca.bc.gov.tno.services.events.ServiceStartEvent;
 @Service
 @EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.db" })
 @EntityScan(basePackages = { "ca.bc.gov.tno.dal.db" })
-@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno.services.syndication", "ca.bc.gov.tno.dal.db",
+@SpringBootApplication(scanBasePackages = {
+    "ca.bc.gov.tno.services.syndication",
+    "ca.bc.gov.tno.dal.db",
     "ca.bc.gov.tno.services" })
 public class SyndicationServiceApp implements ApplicationRunner {
   private static final Logger logger = LogManager.getLogger(SyndicationServiceApp.class);
