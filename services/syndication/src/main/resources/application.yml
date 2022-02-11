@@ -13,6 +13,9 @@ spring:
   main:
     banner-mode: 'off'
 
+  profiles:
+    active: @spring.profiles.active@
+
   h2:
     console:
       enabled: false
@@ -31,15 +34,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL92Dialect
-        current_session_context_class: thread
+        "[current_session_context_class]": thread
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:none}
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 kafka:
-  bootstrap-servers2: ${KAFKA_BOOTSTRAP_SERVERS:test.com}
-  bootstrap-servers: test.com
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   producer:
     client-id: ${KAFKA_CLIENT_ID}
 
@@ -50,7 +52,9 @@ service:
 data:
   sources:
     - id: ${DATA_SOURCE_ID}
-      type: ${DATA_SOURCE_TYPE:RSS}
+      mediaType: ${DATA_SOURCE_TYPE:RSS}
       url: ${DATA_SOURCE_URL}
-      delay: ${DATA_SOURCE_DELAY:5000}
       topic: ${DATA_SOURCE_TOPIC}
+      schedules: 
+        - name: example
+          delayMS: ${DATA_SOURCE_DELAY:5000}

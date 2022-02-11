@@ -39,7 +39,8 @@
 		"dhruv.maven-dependency-explorer",
 		"pflannery.vscode-versionlens",
 		"youmaycallmev.vscode-java-saber",
-    "streetsidesoftware.code-spell-checker"
+    "streetsidesoftware.code-spell-checker",
+    "eamodio.gitlens"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

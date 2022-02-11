@@ -10,8 +10,6 @@ services:
       - data
       - utility
       - ingest
-      - editor
-      - subscriber
       - init
     restart: "no"
     hostname: zookeeper
@@ -38,8 +36,6 @@ services:
       - data
       - utility
       - ingest
-      - editor
-      - subscriber
       - init
     restart: "no"
     hostname: broker
@@ -91,8 +87,6 @@ services:
       - service
       - data
       - utility
-      - editor
-      - subscriber
     restart: "no"
     hostname: rest-proxy
     container_name: tno-rest-proxy

@@ -71,9 +71,7 @@ Enable the **Service Account** to pull images from external sources.
 
 ```bash
 oc policy add-role-to-user system:image-puller system:serviceaccount:$(oc project --short):default -n 9b301c-tools
-
 oc policy add-role-to-user system:image-puller system:serviceaccount:$(oc project --short):default -n 9b301c-tools
-
 oc policy add-role-to-user system:image-puller system:serviceaccount:$(oc project --short):default -n 9b301c-tools
 ```
 

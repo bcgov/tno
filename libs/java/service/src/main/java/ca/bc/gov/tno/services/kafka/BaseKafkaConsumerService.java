@@ -80,6 +80,8 @@ public abstract class BaseKafkaConsumerService<K, R> implements ApplicationListe
 
   /**
    * Initialize the Kafka consumer. This is called in the constructor.
+   * 
+   * @return KafkaConsumer
    */
   protected abstract KafkaConsumer<K, R> initConsumer();
 

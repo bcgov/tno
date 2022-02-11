@@ -4,39 +4,54 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.scheduling.annotation.Async;
 
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 
 /**
  * TransactionCompleteEvent class, provides an event to indicate the source has
  * completed processing.
- * 
- * @param <T> The data source config type.
  */
 @Async
-public class TransactionCompleteEvent<T extends DataSourceConfig> extends ApplicationEvent {
+public class TransactionCompleteEvent extends ApplicationEvent {
 
   /**
    * The data source configuration.
    */
-  private T config;
+  private DataSourceConfig dataSource;
 
   /**
-   * Creates a new instance of an TransactionCompleteEvent, initializes with
+   * The schedule configuration.
+   */
+  private ScheduleConfig schedule;
+
+  /**
+   * Creates a new instance of an TransactionBeginEvent, initializes with
    * specified parameters.
    * 
-   * @param source The source of the event.
-   * @param config The data source config.
+   * @param source     The source of the event.
+   * @param dataSource Data source configuration
+   * @param schedule   Schedule configuration
    */
-  public TransactionCompleteEvent(Object source, T config) {
+  public TransactionCompleteEvent(Object source, DataSourceConfig dataSource, ScheduleConfig schedule) {
     super(source);
-    this.config = config;
+    this.dataSource = dataSource;
+    this.schedule = schedule;
   }
 
   /**
-   * Get the config;
+   * Get the dataSource;
    * 
-   * @return The data source config.
+   * @return The data source dataSource.
    */
-  public T getConfig() {
-    return config;
+  public DataSourceConfig getDataSource() {
+    return dataSource;
+  }
+
+  /**
+   * Get the schedule;
+   * 
+   * @return The data source schedule.
+   */
+  public ScheduleConfig getSchedule() {
+    return schedule;
   }
 }

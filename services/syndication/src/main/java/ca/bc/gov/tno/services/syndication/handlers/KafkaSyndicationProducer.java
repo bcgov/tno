@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.services.syndication.kafka;
+package ca.bc.gov.tno.services.syndication.handlers;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,7 +25,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import ca.bc.gov.tno.dal.db.KafkaMessageStatus;
+import ca.bc.gov.tno.dal.db.WorkflowStatus;
 import ca.bc.gov.tno.dal.db.entities.ContentReference;
 import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
@@ -83,10 +83,11 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
   @Override
   public void onApplicationEvent(ProducerSendEvent event) {
     try {
-      var config = event.getConfig();
+      var dataSource = event.getDataSource();
+      var schedule = event.getSchedule();
       send(event);
 
-      var doneEvent = new TransactionCompleteEvent<>(event.getSource(), config);
+      var doneEvent = new TransactionCompleteEvent(event.getSource(), dataSource, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
       var errorEvent = new ErrorEvent(this, ex);
@@ -129,10 +130,10 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
 
         // Only update the content reference if it was in progress.
         // An update won't change the status.
-        if (content.getStatus() == KafkaMessageStatus.InProgress) {
+        if (content.getStatus() == WorkflowStatus.InProgress) {
           content.setPartition(record.partition());
           content.setOffset(record.offset());
-          content.setStatus(KafkaMessageStatus.Received);
+          content.setStatus(WorkflowStatus.Received);
           contentReferenceService.update(content);
         }
       } catch (Exception ex) {
@@ -156,9 +157,9 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
    * @return A new PublishRecord object or null to stop duplication.
    */
   private PublishedRecord handleDuplication(ProducerSendEvent event, SyndEntry entry) {
-    var config = event.getConfig();
-    var source = config.getId();
-    var topic = config.getTopic();
+    var dataSource = event.getDataSource();
+    var source = dataSource.getId();
+    var topic = dataSource.getTopic();
     var uid = entry.getUri();
 
     try {
@@ -174,7 +175,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
         // If another process has it in progress only attempt to do an import if it's
         // more than an hour old.
         // Assumption is that it is stuck.
-        if (contentReference.getStatus() == KafkaMessageStatus.InProgress) {
+        if (contentReference.getStatus() == WorkflowStatus.InProgress) {
           var diffMinutes = new Date(System.currentTimeMillis()).getTime() - contentReference.getUpdatedOn().getTime();
           var diff = TimeUnit.MINUTES.convert(diffMinutes, TimeUnit.MINUTES);
           if (diff >= 60) {
@@ -233,8 +234,8 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
    */
   private Future<RecordMetadata> publishEntry(ProducerSendEvent event, SyndEntry entry) {
     try {
-      var config = event.getConfig();
-      var topic = config.getTopic();
+      var dataSource = event.getDataSource();
+      var topic = dataSource.getTopic();
       var content = generateContent(event, entry);
       var key = String.format("%s-%s", content.getSource(), content.getUid());
       logger.info(String.format("Sending content: '%s', topic: %s", key, topic));
@@ -255,11 +256,11 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
    */
   private SourceContent generateContent(ProducerSendEvent event, SyndEntry entry) {
     var feed = event.getData();
-    var config = event.getConfig();
+    var dataSource = event.getDataSource();
     var source = entry.getSource() != null ? entry.getSource() : feed;
 
     var content = new SourceContent();
-    content.setSource(config.getId());
+    content.setSource(dataSource.getId());
     content.setUid(entry.getUri());
     content.setLink(entry.getLink());
     content.setTitle(entry.getTitle());
