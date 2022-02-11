@@ -17,7 +17,7 @@ public class DataSourceSchedulePK implements Serializable {
    * The content tag unique key.
    * Foreign key to schedule.
    */
-  private String scheduleId;
+  private int scheduleId;
 
   /**
    * Creates a new instance of a DataSourceSchedulePK object.
@@ -33,7 +33,7 @@ public class DataSourceSchedulePK implements Serializable {
    * @param dataSourceId Foreign key to data source.
    * @param scheduleId   Foreign key to schedule.
    */
-  public DataSourceSchedulePK(int dataSourceId, String scheduleId) {
+  public DataSourceSchedulePK(int dataSourceId, int scheduleId) {
     this.dataSourceId = dataSourceId;
     this.scheduleId = scheduleId;
   }
@@ -88,16 +88,16 @@ public class DataSourceSchedulePK implements Serializable {
   }
 
   /**
-   * @return String return the scheduleId
+   * @return int return the scheduleId
    */
-  public String getScheduleId() {
+  public int getScheduleId() {
     return scheduleId;
   }
 
   /**
    * @param scheduleId the scheduleId to set
    */
-  public void setScheduleId(String scheduleId) {
+  public void setScheduleId(int scheduleId) {
     this.scheduleId = scheduleId;
   }
 
