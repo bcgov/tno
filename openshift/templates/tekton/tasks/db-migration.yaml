@@ -1,0 +1,62 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: db-migration
+  annotations:
+    tekton.dev/displayName: Run Database Migration
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: docker
+spec:
+  description: >-
+    This task runs the database migration.
+  params:
+    - name: MIGRATION_IMAGE
+      description: The name of the database migration image.
+      type: string
+      default: tno-db-migration
+    - name: DB_APP_NAME
+      description: The name of the database.
+      type: string
+      default: tno-database
+    - name: PROJECT_SHORTNAME
+      description: The shortname of the project namespace.
+      type: string
+      default: 9b301c
+
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+
+    - name: DEPLOY_TO
+      description: Which environment to deploy to
+      type: string
+      default: dev
+
+  steps:
+    - name: run
+      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      resources: {}
+      script: |
+        #!/usr/bin/env bash
+        echo "Fetching connection information"
+
+        PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        IMAGE=image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.MIGRATION_IMAGE):$(params.IMAGE_TAG)
+        DB_URL=$(oc -n $PROJECT get secret $(params.DB_APP_NAME) -o jsonpath='{.data.POSTGRESQL_URL}' | base64 -d)
+        DB_USERNAME=$(oc -n $PROJECT get secret $(params.DB_APP_NAME) -o jsonpath='{.data.PATRONI_SUPERUSER_USERNAME}' | base64 -d)
+        DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_APP_NAME) -o jsonpath='{.data.PATRONI_SUPERUSER_PASSWORD}' | base64 -d)
+
+        echo "Running database migration in $PROJECT"
+        oc run $(params.MIGRATION_IMAGE) \
+          -n $PROJECT \
+          --image=$IMAGE \
+          --image-pull-policy=Always \
+          --attach \
+          --rm \
+          --labels='role=migration,solution=tno,app=database' \
+          --restart=Never \
+          --env=DB_URL=$DB_URL \
+          --env=DB_USERNAME=$DB_USERNAME \
+          --env=DB_PASSWORD=$DB_PASSWORD \
+          --timeout=10m

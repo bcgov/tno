@@ -13,18 +13,18 @@ parameters:
     displayName: Service Account Name
     description: The name of the service-account
     required: true
-    value: "pipeline"
+    value: pipeline
 
   - name: PROJECT_NAMESPACE
-    displayName: "OpenShift Project Namespace"
-    description: "The namespace of the OpenShift project containing the application."
+    displayName: OpenShift Project Namespace
+    description: The namespace of the OpenShift project containing the application.
     required: true
-    value: "9b301c"
+    value: 9b301c
   - name: ENV_NAME
-    displayName: "Environment name"
-    description: "The name for this environment [dev, test, prod]"
+    displayName: Environment name
+    description: The name for this environment [dev, test, prod]
     required: true
-    value: "dev"
+    value: dev
 
 objects:
   - apiVersion: rbac.authorization.k8s.io/v1
@@ -60,9 +60,9 @@ objects:
           - watch
           - delete
       - apiGroups:
-          - ""
+          - batch
         resources:
-          - services
+          - jobs
         verbs:
           - create
           - get
@@ -74,7 +74,12 @@ objects:
       - apiGroups:
           - ""
         resources:
+          - services
           - configmaps
+          - secrets
+          - pods
+          - pods/attach
+          - pods/exec
         verbs:
           - create
           - get
@@ -104,6 +109,15 @@ objects:
           - list
           - patch
           - update
+          - watch
+      - apiGroups:
+          - route.openshift.io
+        resources:
+          - routes
+        verbs:
+          - get
+          - update
+          - patch
           - watch
 
   - apiVersion: rbac.authorization.k8s.io/v1

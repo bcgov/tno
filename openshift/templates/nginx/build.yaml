@@ -1,11 +1,12 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: java-flyway-build
+  name: nginx-build
   annotations:
-    openshift.io/display-name: Java flyway migration image
-    description: Build an image containing the Java flyway migration application.
-    tags: database,postgres,flyway,java
+    openshift.io/display-name: Nginx Image
+    description: Build an image containing Nginx.
+    tags: nginx
+
 parameters:
   - name: SOLUTION_NAME
     displayName: Solution Group Name
@@ -14,9 +15,9 @@ parameters:
     value: tno
   - name: APP_NAME
     displayName: Application Name
-    description: The name of the application (e.g. app-editor).
+    description: The name of the application (e.g. api-editor).
     required: true
-    value: db-migration
+    value: nginx
 
   - name: GIT_SOURCE
     displayName: Git Source Identifier
@@ -30,18 +31,19 @@ parameters:
     value: https://github.com/bcgov/tno.git
   - name: GIT_REF
     displayName: Git Reference
-    description: Set this to a branch name, tag or other ref of your repository if you
+    description:
+      Set this to a branch name, tag or other ref of your repository if you
       are not using the default branch.
     value: dev
   - name: CONTEXT_DIR
     displayName: Context Directory
     description: Set this to use a subdirectory of the source code repository
-    value: libs/java/dal/db/dal-db-migration
+    value: network/nginx
   - name: DOCKERFILE
     displayName: Dockerfile Name
     description: The Dockerfile name
     required: true
-    value: Dockerfile
+    value: Dockerfile.maintenance
 
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag
@@ -49,16 +51,27 @@ parameters:
     required: true
     value: latest
 
+  - name: CPU_REQUEST
+    displayName: Requested Minimum Resources CPU Limit
+    description: The requested minimum resources CPU limit (in cores) for this build.
+    required: true
+    value: 20m
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.
     required: true
-    value: 500m
+    value: 100m
+  - name: MEMORY_REQUEST
+    displayName: Requested Minimum Memory Limit
+    description: Minimum requested amount of memory the container can use.
+    required: true
+    value: 100Mi
   - name: MEMORY_LIMIT
     displayName: Memory Limit
     description: Maximum amount of memory the container can use.
     required: true
-    value: 500Mi
+    value: 1Gi
+
 objects:
   # The final build image.
   - kind: ImageStream
@@ -66,10 +79,11 @@ objects:
     metadata:
       name: ${SOLUTION_NAME}-${APP_NAME}
       annotations:
-        description: Keeps track of changes in the image
+        description: Destination for built images.
       labels:
-        app: ${SOLUTION_NAME}
-        group: ${APP_NAME}
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
 
   # The build config that will be created will be named for the branch you created it for.
   - kind: BuildConfig
@@ -77,11 +91,11 @@ objects:
     metadata:
       name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
       annotations:
-        description: Defines how to build the image
+        description: Build image from Dockerfile in git repo.
       labels:
         name: ${SOLUTION_NAME}-${APP_NAME}.${GIT_SOURCE}
-        app: ${SOLUTION_NAME}
-        group: ${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
         branch: ${GIT_REF}
     spec:
       completionDeadlineSeconds: 1800
@@ -95,15 +109,18 @@ objects:
           ref: ${GIT_REF}
         contextDir: ${CONTEXT_DIR}
       strategy:
+        type: Docker
         dockerStrategy:
           imageOptimizationPolicy: SkipLayers
           dockerfilePath: ${DOCKERFILE}
-        type: Docker
       output:
         to:
           kind: ImageStreamTag
           name: ${SOLUTION_NAME}-${APP_NAME}:${OUTPUT_IMAGE_TAG}
       resources:
+        requests:
+          cpu: ${CPU_REQUEST}
+          memory: ${MEMORY_REQUEST}
         limits:
           cpu: ${CPU_LIMIT}
           memory: ${MEMORY_LIMIT}
