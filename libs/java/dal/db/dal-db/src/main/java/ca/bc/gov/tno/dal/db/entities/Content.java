@@ -20,6 +20,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.ContentStatus;
@@ -61,6 +63,7 @@ public class Content extends AuditColumns {
   /**
    * The content type reference.
    */
+  @JsonBackReference("contentType")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "content_type_id", insertable = false, updatable = false)
   private ContentType contentType;
@@ -89,6 +92,7 @@ public class Content extends AuditColumns {
    * The content type reference.
    * This can be used to find the ContentReference.
    */
+  @JsonBackReference("dataSource")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id", insertable = false, updatable = false)
   private DataSource dataSource;
@@ -116,6 +120,7 @@ public class Content extends AuditColumns {
   /**
    * The license reference.
    */
+  @JsonBackReference("license")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "license_id", insertable = false, updatable = false)
   private License license;
@@ -129,6 +134,7 @@ public class Content extends AuditColumns {
   /**
    * The media type reference.
    */
+  @JsonBackReference("mediaType")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "media_type_id", insertable = false, updatable = false)
   private MediaType mediaType;
@@ -142,6 +148,7 @@ public class Content extends AuditColumns {
   /**
    * The series reference.
    */
+  @JsonBackReference("series")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "series_id", insertable = false, updatable = false)
   private Series series;
@@ -159,6 +166,7 @@ public class Content extends AuditColumns {
    * For Snippets - set by Editor.
    * All other content - the date is managed by ingestion services.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "published_on")
   private Date publishedOn;
@@ -190,6 +198,7 @@ public class Content extends AuditColumns {
   /**
    * The schedule reference.
    */
+  @JsonBackReference("owner")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "owner_id", insertable = false, updatable = false)
   private User owner;
@@ -197,49 +206,49 @@ public class Content extends AuditColumns {
   /**
    * A collection of content actions linked to this content.
    */
-  @JsonBackReference("content_actions")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content categories linked to this content.
    */
-  @JsonBackReference("content_categories")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 
   /**
    * A collection of content tags linked to this content.
    */
-  @JsonBackReference("content_tags")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * A collection of content tone pools linked to this content.
    */
-  @JsonBackReference("content_tones")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 
   /**
    * A collection of time tracking linked to this content.
    */
-  @JsonBackReference("time_trackings")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<TimeTracking> timeTrackings = new ArrayList<>();
 
   /**
    * A collection of content linked to this content.
    */
-  @JsonBackReference("links")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "link", fetch = FetchType.LAZY)
   private List<ContentLink> links = new ArrayList<>();
 
   /**
    * A collection of content logs linked to this content.
    */
-  @JsonBackReference("logs")
+  @JsonManagedReference("content")
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentLog> logs = new ArrayList<>();
 

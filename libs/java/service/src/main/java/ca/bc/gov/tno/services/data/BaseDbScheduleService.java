@@ -47,16 +47,6 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
   }
 
   /**
-   * Initialize the data source configurations.
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  protected void initConfigs() {
-    var dataSources = dataSourceService.findAll();
-    dataSources.forEach(ds -> sourceConfigs.getSources().add((C) new DataSourceConfig(ds)));
-  }
-
-  /**
    * Update the data source with the current ranAt date and time.
    * 
    * @param dataSource The data source config.
@@ -79,30 +69,30 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
    * 
-   * @param dataSource The data source config.
+   * @param dataSourceConfig The data source config.
    * @return The data source config.
    */
   @Override
-  protected C fetchDataSource(C dataSource) {
-    if (dataSource == null)
+  protected C fetchDataSource(C dataSourceConfig) {
+    if (dataSourceConfig == null)
       throw new IllegalArgumentException("Parameter 'dataSource' is required.");
 
-    var result = dataSourceService.findByCode(dataSource.getId());
+    var result = dataSourceService.findByCode(dataSourceConfig.getId());
 
     // If the database does not have a config for this source, then log warning.
     if (result.isEmpty()) {
-      logger.warn(String.format("Data source '%s' does not exist in database", dataSource.getId()));
-      return dataSource;
+      logger.warn(String.format("Data source '%s' does not exist in database", dataSourceConfig.getId()));
+      return dataSourceConfig;
     }
 
     @SuppressWarnings("unchecked")
     var newConfig = (C) new DataSourceConfig(result.get());
 
     // TODO: Check for all conditions.
-    if (dataSource.isEnabled() != newConfig.isEnabled()
-        || !dataSource.getTopic().equals(newConfig.getTopic())
-        || !dataSource.getMediaType().equals(newConfig.getMediaType()))
-      logger.warn(String.format("Configuration has been changed for data source '%s'", dataSource.getId()));
+    if (dataSourceConfig.isEnabled() != newConfig.isEnabled()
+        || !dataSourceConfig.getTopic().equals(newConfig.getTopic())
+        || !dataSourceConfig.getMediaType().equals(newConfig.getMediaType()))
+      logger.warn(String.format("Configuration has been changed for data source '%s'", dataSourceConfig.getId()));
 
     return newConfig;
   }

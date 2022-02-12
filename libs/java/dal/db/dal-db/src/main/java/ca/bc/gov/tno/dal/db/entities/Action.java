@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.ValueType;
@@ -73,14 +73,14 @@ public class Action extends AuditColumns {
   /**
    * A collection of role actions that belong to this action.
    */
-  @JsonBackReference("content_actions")
+  @JsonManagedReference("action")
   @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content types for this action.
    */
-  @JsonBackReference("content_types")
+  @JsonManagedReference("action")
   @OneToMany(mappedBy = "action", fetch = FetchType.LAZY)
   private List<ContentTypeAction> contentTypeActions = new ArrayList<>();
 

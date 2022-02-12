@@ -75,7 +75,7 @@ public class LicenseController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public License update(@PathVariable Integer id, @RequestBody License model) {
-    var license = licenseService.add(model);
+    var license = licenseService.update(model);
     return license;
   }
 

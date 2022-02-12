@@ -161,8 +161,6 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
               synchronized (this) {
                 wait();
               }
-            } else {
-              logger.debug(String.format("Data source skipped: %s", dataSource.getId()));
             }
           }
 

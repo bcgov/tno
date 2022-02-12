@@ -75,7 +75,7 @@ public class RoleController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Role update(@PathVariable Integer id, @RequestBody Role model) {
-    var role = roleService.add(model);
+    var role = roleService.update(model);
     return role;
   }
 

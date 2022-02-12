@@ -105,7 +105,7 @@ public class ContentTest {
     var updatedOn = updated.getUpdatedOn();
     try {
       // Test for optimistic concurrency.
-      updated.setUpdatedOn(new Date());
+      updated.setUpdatedOn(new Date(System.currentTimeMillis()));
       contentService.update(updated);
       updated.setUpdatedOn(updatedOn);
       throw new IllegalStateException("Concurrency Failed");
@@ -200,7 +200,7 @@ public class ContentTest {
       filter.addFilter("headline", LogicalOperators.Contains, "head");
       filter.addFilter("source", LogicalOperators.Contains, "S");
       filter.addFilter("mediaTypeId", LogicalOperators.Equals, 3);
-      filter.addFilter("createdOn", LogicalOperators.LessThanOrEqual, new Date());
+      filter.addFilter("createdOn", LogicalOperators.LessThanOrEqual, new Date(System.currentTimeMillis()));
       result = contentService.find(1, 10, filter, new SortParam[] { new SortParam("id", SortDirection.Descending) });
       if (result.getItems().size() != 2)
         throw new IllegalStateException("Result should return 2 items");

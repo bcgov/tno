@@ -9,6 +9,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
@@ -29,6 +32,7 @@ public class ContentTone extends AuditColumns {
   /**
    * The content reference.
    */
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;
@@ -44,6 +48,7 @@ public class ContentTone extends AuditColumns {
   /**
    * The tone pool reference.
    */
+  @JsonBackReference("tonePool")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "tone_pool_id", insertable = false, updatable = false)
   private TonePool tonePool;

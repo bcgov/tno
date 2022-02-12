@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -59,7 +59,7 @@ public class Category extends AuditColumns {
   /**
    * A collection of role categories that belong to this category.
    */
-  @JsonBackReference("content_categories")
+  @JsonManagedReference("category")
   @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 

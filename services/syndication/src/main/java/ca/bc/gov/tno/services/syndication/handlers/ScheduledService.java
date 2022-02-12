@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
+import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
 import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.data.BaseDbScheduleService;
 import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
@@ -27,29 +28,59 @@ import ca.bc.gov.tno.services.syndication.config.SyndicationCollectionConfig;
 public class ScheduledService
     extends BaseDbScheduleService<SyndicationConfig, DataSourceCollectionConfig<SyndicationConfig>> {
   private static final Logger logger = LogManager.getLogger(ScheduledService.class);
+  private final SyndicationConfig mediaConfig;
+  private final IMediaTypeService mediaTypeService;
 
   /**
    * Creates a new instance of a ScheduledService object, initializes with
    * specified parameters.
    * 
    * @param state             Service state.
+   * @param mediaConfig       Syndication media type config.
    * @param config            Syndication config.
    * @param dataSourceService DAL DB data source service.
+   * @param mediaTypeService  DAL DB media type service.
    * @param eventPublisher    Application event publisher.
    */
   @Autowired
-  public ScheduledService(final ServiceState state, final SyndicationCollectionConfig config,
-      final IDataSourceService dataSourceService, final ApplicationEventPublisher eventPublisher) {
+  public ScheduledService(final ServiceState state,
+      final SyndicationConfig mediaConfig,
+      final SyndicationCollectionConfig config,
+      final IDataSourceService dataSourceService,
+      final IMediaTypeService mediaTypeService,
+      final ApplicationEventPublisher eventPublisher) {
     super(state, config, dataSourceService, eventPublisher);
+    this.mediaConfig = mediaConfig;
+    this.mediaTypeService = mediaTypeService;
   }
 
   /**
    * Initialize the data source configurations.
+   * There was no configuration provided, use the default for syndication
+   * services.
    */
   @Override
   protected void initConfigs() {
-    // TODO: Fetch syndication sources from database.
-    var dataSources = dataSourceService.findAll();
+    if (mediaConfig == null)
+      throw new IllegalArgumentException(
+          "Argument 'mediaConfig' in constructor is required and cannot be null.");
+
+    var mediaTypeName = mediaConfig.getMediaType();
+    if (mediaTypeName == null || mediaTypeName.length() == 0)
+      throw new IllegalArgumentException(
+          "Argument 'mediaConfig.mediaType' in constructor is required and cannot be null or empty.");
+
+    if (mediaTypeService == null)
+      throw new IllegalArgumentException("Argument 'mediaTypeService' in constructor is required and cannot be null.");
+
+    var mediaType = mediaTypeService.findByName(mediaTypeName);
+
+    if (!mediaType.isPresent())
+      throw new IllegalArgumentException(
+          String.format("Argument 'mediaConfig.mediaType'='%s' does not exist in the data source.", mediaTypeName));
+
+    // Fetch all data sources with the specified media type.
+    var dataSources = dataSourceService.findByMediaTypeId(mediaType.get().getId());
     dataSources.forEach(ds -> sourceConfigs.getSources().add(new SyndicationConfig(ds)));
   }
 

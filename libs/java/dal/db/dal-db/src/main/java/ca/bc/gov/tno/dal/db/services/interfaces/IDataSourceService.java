@@ -17,6 +17,14 @@ public interface IDataSourceService {
   List<DataSource> findAll();
 
   /**
+   * Find the data source for the specified media type.
+   * 
+   * @param mediaTypeId Foreign key to media type.
+   * @return A new instance of the data source if it exists.
+   */
+  List<DataSource> findByMediaTypeId(int mediaTypeId);
+
+  /**
    * Find the data source for the specified primary key.
    * 
    * @param key The primary key.

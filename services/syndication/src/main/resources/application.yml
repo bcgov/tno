@@ -49,12 +49,16 @@ service:
   max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
   failed-delay: ${FAILED_DELAY:5000}
 
+# data:
+#   sources:
+#     - mediaType: ${DATA_SOURCE_MEDIA_TYPE:RSS}
+      # id: ${DATA_SOURCE_ID}
+      # url: ${DATA_SOURCE_URL}
+      # topic: ${DATA_SOURCE_TOPIC}
+      # schedules: 
+      #   - name: example
+      #     delayMS: ${DATA_SOURCE_DELAY:5000}
+
 data:
-  sources:
-    - id: ${DATA_SOURCE_ID}
-      mediaType: ${DATA_SOURCE_TYPE:RSS}
-      url: ${DATA_SOURCE_URL}
-      topic: ${DATA_SOURCE_TOPIC}
-      schedules: 
-        - name: example
-          delayMS: ${DATA_SOURCE_DELAY:5000}
+  source:
+    mediaType: ${DATA_SOURCE_MEDIA_TYPE:RSS}

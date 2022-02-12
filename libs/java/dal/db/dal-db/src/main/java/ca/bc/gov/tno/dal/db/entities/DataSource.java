@@ -22,6 +22,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.converters.HashMapToStringConverter;
@@ -76,6 +77,7 @@ public class DataSource extends AuditColumns {
   /**
    * The media type reference.
    */
+  @JsonBackReference("mediaType")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "media_type_id", insertable = false, updatable = false)
   private MediaType mediaType;
@@ -89,6 +91,7 @@ public class DataSource extends AuditColumns {
   /**
    * The license reference.
    */
+  @JsonBackReference("license")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "license_id", insertable = false, updatable = false)
   private License license;
@@ -102,6 +105,7 @@ public class DataSource extends AuditColumns {
   /**
    * The date and time this data source was successfully ingested on.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "last_ran_on")
   private Date lastRanOn;
@@ -122,6 +126,7 @@ public class DataSource extends AuditColumns {
   /**
    * Reference to the parent data source.
    */
+  @JsonBackReference("parent")
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private DataSource parent;
@@ -129,7 +134,6 @@ public class DataSource extends AuditColumns {
   /**
    * A collection of data source schedules linked to this data source.
    */
-  @JsonBackReference("data_source_schedules")
   @OneToMany(mappedBy = "dataSource", fetch = FetchType.LAZY)
   private List<DataSourceSchedule> dataSourceSchedules = new ArrayList<>();
 

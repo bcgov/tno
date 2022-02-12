@@ -75,7 +75,7 @@ public class UserController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public User update(@PathVariable Integer id, @RequestBody User model) {
-    var user = userService.add(model);
+    var user = userService.update(model);
     return user;
   }
 

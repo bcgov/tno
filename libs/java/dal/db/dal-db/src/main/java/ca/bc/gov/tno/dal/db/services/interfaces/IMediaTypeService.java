@@ -21,15 +21,23 @@ public interface IMediaTypeService {
    * Find the media type for the specified primary key.
    * 
    * @param key The primary key.
-   * @return A new instance of the media type if it exists.
+   * @return An instance of the media type if it exists.
    */
   Optional<MediaType> findById(int key);
+
+  /**
+   * Find the media type for the specified primary key.
+   * 
+   * @param name The name of the media type.
+   * @return An instance of the media type if it exists.
+   */
+  Optional<MediaType> findByName(String name);
 
   /**
    * Add a new media type to the media.
    * 
    * @param entity The media type to add.
-   * @return A new instance of the media type that was added.
+   * @return An instance of the media type that was added.
    */
   MediaType add(MediaType entity);
 
@@ -37,7 +45,7 @@ public interface IMediaTypeService {
    * Update the specified media type in the media.
    * 
    * @param entity The media type to update.
-   * @return A new instance of the media type that was updated.
+   * @return An instance of the media type that was updated.
    */
   MediaType update(MediaType entity);
 

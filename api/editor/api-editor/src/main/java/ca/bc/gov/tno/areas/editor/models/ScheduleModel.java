@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.areas.editor.models;
 
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.EnumSet;
 
@@ -48,12 +49,12 @@ public class ScheduleModel {
   /**
    * The time to start.
    */
-  private Date startAt;
+  private LocalTime startAt;
 
   /**
    * The time to stop.
    */
-  private Date stopAt;
+  private LocalTime stopAt;
 
   /**
    * Number of times to run before waiting for next RunAt. "0" is used for
@@ -255,30 +256,30 @@ public class ScheduleModel {
   }
 
   /**
-   * @return Date return the startAt
+   * @return LocalTime return the startAt
    */
-  public Date getStartAt() {
+  public LocalTime getStartAt() {
     return startAt;
   }
 
   /**
    * @param startAt the startAt to set
    */
-  public void setStartAt(Date startAt) {
+  public void setStartAt(LocalTime startAt) {
     this.startAt = startAt;
   }
 
   /**
-   * @return Date return the stopAt
+   * @return LocalTime return the stopAt
    */
-  public Date getStopAt() {
+  public LocalTime getStopAt() {
     return stopAt;
   }
 
   /**
    * @param stopAt the stopAt to set
    */
-  public void setStopAt(Date stopAt) {
+  public void setStopAt(LocalTime stopAt) {
     this.stopAt = stopAt;
   }
 

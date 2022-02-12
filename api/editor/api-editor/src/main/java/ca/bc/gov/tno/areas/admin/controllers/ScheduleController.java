@@ -75,7 +75,7 @@ public class ScheduleController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Schedule update(@PathVariable Integer id, @RequestBody Schedule model) {
-    var schedule = scheduleService.add(model);
+    var schedule = scheduleService.update(model);
     return schedule;
   }
 

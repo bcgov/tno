@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
 import ca.bc.gov.tno.dal.db.repositories.IDataSourceRepository;
@@ -25,13 +26,13 @@ public class DataSourceService implements IDataSourceService {
    * Creates a new instance of a DataSourceService object, initializes with
    * specified parameters.
    * 
-   * @param repository     The data source repository.
    * @param sessionFactory The session factory.
+   * @param repository     The data source repository.
    */
   @Autowired
-  public DataSourceService(final IDataSourceRepository repository, final SessionFactory sessionFactory) {
-    this.repository = repository;
+  public DataSourceService(final SessionFactory sessionFactory, final IDataSourceRepository repository) {
     this.sessionFactory = sessionFactory;
+    this.repository = repository;
   }
 
   /**
@@ -46,10 +47,39 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
+   * Find the data source for the specified media type.
+   * 
+   * @param mediaTypeId Foreign key to media type.
+   * @return A new instance of the data source if it exists.
+   */
+  @Override
+  public List<DataSource> findByMediaTypeId(int mediaTypeId) {
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var sql = """
+          FROM DataSource ds
+          JOIN FETCH ds.mediaType mt
+          JOIN FETCH ds.license l
+          LEFT JOIN FETCH ds.parent p
+          LEFT JOIN FETCH ds.dataSourceSchedules dss
+          LEFT JOIN FETCH dss.schedule
+          WHERE ds.mediaTypeId = :mediaTypeId
+          """;
+      var query = session.createQuery(sql).setParameter("mediaTypeId", mediaTypeId).setMaxResults(1);
+      return ListHelper.castList(DataSource.class, query.list());
+    } finally {
+      ts.commit();
+      session.close();
+    }
+  }
+
+  /**
    * Find the data source for the specified primary key.
    * 
    * @param key The primary key.
-   * @return A new instance of the data source if it exists.
+   * @return An instance of the data source if it exists.
    */
   @Override
   public Optional<DataSource> findById(int key) {
@@ -61,7 +91,7 @@ public class DataSourceService implements IDataSourceService {
    * Find the data source for the specified code.
    * 
    * @param code The unique code.
-   * @return A new instance of the data source if it exists.
+   * @return An instance of the data source if it exists.
    */
   @Override
   public Optional<DataSource> findByCode(String code) {
@@ -69,7 +99,15 @@ public class DataSourceService implements IDataSourceService {
     var ts = session.beginTransaction();
 
     try {
-      var sql = "FROM DataSource ds WHERE ds.code = :code";
+      var sql = """
+          FROM DataSource ds
+          JOIN FETCH ds.mediaType mt
+          JOIN FETCH ds.license l
+          LEFT JOIN FETCH ds.parent p
+          LEFT JOIN FETCH ds.dataSourceSchedules dss
+          LEFT JOIN FETCH dss.schedule
+          WHERE ds.code = :code
+          """;
       var query = session.createQuery(sql).setParameter("code", code).setMaxResults(1);
       var result = query.uniqueResult();
       return Optional.ofNullable((DataSource) result);

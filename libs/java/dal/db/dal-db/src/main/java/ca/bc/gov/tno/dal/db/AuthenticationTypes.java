@@ -2,6 +2,8 @@ package ca.bc.gov.tno.dal.db;
 
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import ca.bc.gov.tno.IEnumValue;
 
 /**
@@ -30,6 +32,7 @@ public enum AuthenticationTypes implements IEnumValue<Integer> {
   /**
    * Get the value of the current enum.
    */
+  @JsonValue
   public Integer getValue() {
     return value;
   }

@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
@@ -18,7 +19,10 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.Months;
@@ -77,6 +81,7 @@ public class Schedule extends AuditColumns {
    * service should be delayed from running for a period of time.
    * null = Run immediately.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "run_on")
   private Date runOn;
@@ -84,16 +89,18 @@ public class Schedule extends AuditColumns {
   /**
    * At what time the schedule should start.
    */
-  @Temporal(TemporalType.TIME)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ", timezone = "UTC")
+  @DateTimeFormat(pattern = "HH:mm:ss.SSSZ")
   @Column(name = "start_at")
-  private Date startAt;
+  private LocalTime startAt;
 
   /**
    * At what time the schedule should stop.
    */
-  @Temporal(TemporalType.TIME)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ", timezone = "UTC")
+  @DateTimeFormat(pattern = "HH:mm:ss.SSSZ")
   @Column(name = "stop_at")
-  private Date stopAt;
+  private LocalTime stopAt;
 
   /**
    * Number of times to run before waiting for next RunAt.
@@ -128,7 +135,7 @@ public class Schedule extends AuditColumns {
   /**
    * A collection of data sources that belong to this schedule.
    */
-  @JsonBackReference("data_sources")
+  @JsonIgnore
   @OneToMany(mappedBy = "schedule", fetch = FetchType.LAZY)
   private List<DataSourceSchedule> dataSourceSchedules = new ArrayList<>();
 
@@ -306,30 +313,30 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return Date return the startAt
+   * @return LocalTime return the startAt
    */
-  public Date getStartAt() {
+  public LocalTime getStartAt() {
     return startAt;
   }
 
   /**
    * @param startAt the startAt to set
    */
-  public void setStartAt(Date startAt) {
+  public void setStartAt(LocalTime startAt) {
     this.startAt = startAt;
   }
 
   /**
-   * @return Date return the stopAt
+   * @return LocalTime return the stopAt
    */
-  public Date getStopAt() {
+  public LocalTime getStopAt() {
     return stopAt;
   }
 
   /**
    * @param stopAt the stopAt to set
    */
-  public void setStopAt(Date stopAt) {
+  public void setStopAt(LocalTime stopAt) {
     this.stopAt = stopAt;
   }
 

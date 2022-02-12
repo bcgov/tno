@@ -14,7 +14,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
@@ -63,6 +64,7 @@ public class ContentReference extends AuditColumns {
   /**
    * The date and time the content was published.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "published_on")
   private Date publishedOn;
@@ -70,6 +72,7 @@ public class ContentReference extends AuditColumns {
   /**
    * The date and time the source content was updated.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "source_updated_on")
   private Date sourceUpdatedOn;
@@ -83,7 +86,7 @@ public class ContentReference extends AuditColumns {
   /**
    * A collection of content reference logs linked to this content.
    */
-  @JsonBackReference("logs")
+  @JsonManagedReference("contentReference")
   @OneToMany(mappedBy = "contentReference", fetch = FetchType.LAZY)
   private List<ContentReferenceLog> logs = new ArrayList<>();
 

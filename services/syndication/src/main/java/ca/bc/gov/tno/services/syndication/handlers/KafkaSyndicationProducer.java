@@ -109,6 +109,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
 
     for (var entry : feed.getEntries()) {
       var record = handleDuplication(event, entry);
+      // TODO: Handle failures early instead of waiting for the next loop.
       if (record != null)
         responses.add(record);
     }
@@ -117,18 +118,18 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
 
     // TODO: Handle errors that occur on send.
     while (futureIter.hasNext()) {
-      var future = futureIter.next();
-      var record = future.getFutureRecordMetadata().get();
-      var content = future.getContentReference();
-
-      logger.info(String.format("Syndication content added: '%s', topic: %s, partition: %s, offset: %s",
-          content.getUid(), record.topic(), record.partition(), record.offset()));
-
       try {
+        var future = futureIter.next();
+        var record = future.getFutureRecordMetadata().get();
+        var content = future.getContentReference();
+
+        logger.info(String.format("Syndication content added: '%s', topic: %s, partition: %s, offset: %s",
+            content.getUid(), record.topic(), record.partition(), record.offset()));
+
         // TODO: It's possible a failure here will result in the record being stuck "In
         // Progress". This needs to be resolved.
 
-        // Only update the content reference if it was in progress.
+        // Only update the content reference if it was in progress.f
         // An update won't change the status.
         if (content.getStatus() == WorkflowStatus.InProgress) {
           content.setPartition(record.partition());
