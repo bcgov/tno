@@ -1,14 +1,15 @@
 package ca.bc.gov.tno.areas.editor.models;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.models.AuditColumnModel;
 
-public class DataSourceModel {
+public class DataSourceModel extends AuditColumnModel {
   /**
    * Primary key to identify the data source.
    */
@@ -73,7 +74,7 @@ public class DataSourceModel {
   /**
    * The date and time this data source was successfully ingested on.
    */
-  private Date lastRanOn;
+  private ZonedDateTime lastRanOn;
 
   /**
    * JSON configuration values for the ingestion services.
@@ -274,16 +275,16 @@ public class DataSourceModel {
   }
 
   /**
-   * @return Date return the lastRanOn
+   * @return ZonedDateTime return the lastRanOn
    */
-  public Date getLastRanOn() {
+  public ZonedDateTime getLastRanOn() {
     return lastRanOn;
   }
 
   /**
    * @param lastRanOn the lastRanOn to set
    */
-  public void setLastRanOn(Date lastRanOn) {
+  public void setLastRanOn(ZonedDateTime lastRanOn) {
     this.lastRanOn = lastRanOn;
   }
 

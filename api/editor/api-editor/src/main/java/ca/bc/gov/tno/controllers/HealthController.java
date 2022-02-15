@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.bc.gov.tno.models.health.HealthReportModel;
 
 @RestController
-@RequestMapping("/health")
+@RequestMapping({ "/health", "/api/health" })
 public class HealthController {
 
   @GetMapping(value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)

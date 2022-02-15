@@ -28,6 +28,9 @@ public class App implements CommandLineRunner {
   DataSourceTest dataSourceTest;
 
   @Autowired
+  ScheduleTest scheduleTest;
+
+  @Autowired
   LicenseTest licenseTest;
 
   @Autowired
@@ -58,7 +61,8 @@ public class App implements CommandLineRunner {
     // var keycloakAccount = new SimpleKeycloakAccount(principal, roles, context)
 
     // userTest.Run();
-    dataSourceTest.Run();
+    // dataSourceTest.Run();
+    scheduleTest.Run();
     // licenseTest.Run();
     // contentReferenceTest.Run();
     // contentTest.Run();

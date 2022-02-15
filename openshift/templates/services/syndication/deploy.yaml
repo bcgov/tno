@@ -253,26 +253,26 @@ objects:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
                       key: DATA_SOURCE_MEDIA_TYPE
-              livenessProbe:
-                httpGet:
-                  path: '/health'
-                  port: ${{APP_PORT}}
-                  scheme: HTTP
-                initialDelaySeconds: 120
-                timeoutSeconds: 60
-                periodSeconds: 30
-                successThreshold: 1
-                failureThreshold: 3
-              readinessProbe:
-                httpGet:
-                  path: '/health'
-                  port: ${{APP_PORT}}
-                  scheme: HTTP
-                initialDelaySeconds: 120
-                timeoutSeconds: 60
-                periodSeconds: 30
-                successThreshold: 1
-                failureThreshold: 3
+              # livenessProbe:
+              #   httpGet:
+              #     path: '/health'
+              #     port: ${{APP_PORT}}
+              #     scheme: HTTP
+              #   initialDelaySeconds: 120
+              #   timeoutSeconds: 60
+              #   periodSeconds: 30
+              #   successThreshold: 1
+              #   failureThreshold: 3
+              # readinessProbe:
+              #   httpGet:
+              #     path: '/health'
+              #     port: ${{APP_PORT}}
+              #     scheme: HTTP
+              #   initialDelaySeconds: 120
+              #   timeoutSeconds: 60
+              #   periodSeconds: 30
+              #   successThreshold: 1
+              #   failureThreshold: 3
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           securityContext: {}

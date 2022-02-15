@@ -1,8 +1,9 @@
 package ca.bc.gov.tno.areas.editor.models;
 
 import ca.bc.gov.tno.dal.db.entities.License;
+import ca.bc.gov.tno.models.AuditColumnModel;
 
-public class LicenseModel {
+public class LicenseModel extends AuditColumnModel {
   /**
    * Primary key to identify the license.
    */

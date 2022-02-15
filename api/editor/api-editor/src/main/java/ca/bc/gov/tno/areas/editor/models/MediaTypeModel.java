@@ -1,8 +1,9 @@
 package ca.bc.gov.tno.areas.editor.models;
 
 import ca.bc.gov.tno.dal.db.entities.MediaType;
+import ca.bc.gov.tno.models.AuditColumnModel;
 
-public class MediaTypeModel {
+public class MediaTypeModel extends AuditColumnModel {
 
   /**
    * Primary key to identify the media type.

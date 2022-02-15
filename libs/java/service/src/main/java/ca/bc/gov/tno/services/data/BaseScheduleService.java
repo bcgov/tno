@@ -1,6 +1,6 @@
 package ca.bc.gov.tno.services.data;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
@@ -95,7 +95,7 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
         var schedule = event.getSchedule();
 
         try {
-          updateDataSource(dataSource, schedule, new Date(System.currentTimeMillis()));
+          updateDataSource(dataSource, schedule, ZonedDateTime.now());
           // Reset failures as the source has been completed 'successfully'.
           state.setFailedAttempts(0);
         } catch (Exception ex) {
@@ -157,7 +157,7 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
           // Determine if the data source should be imported based on the configured
           // schedule.
           for (ScheduleConfig schedule : dataSource.getSchedules()) {
-            if (ScheduleHelper.verifySchedule(new Date(System.currentTimeMillis()), dataSource, schedule)) {
+            if (ScheduleHelper.verifySchedule(ZonedDateTime.now(), dataSource, schedule)) {
               logger.debug(String.format("Data source start: %s", dataSource.getId()));
               var beginEvent = createEvent(this, dataSource, schedule);
               // var beginEvent = new TransactionBeginEvent<C>(this, dataSource, schedule);
@@ -219,7 +219,7 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
    * @param schedule   The schedule config.
    * @param ranOn      The date and time the transaction ran.
    */
-  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, Date ranOn) {
+  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
     if (dataSource == null)
       throw new IllegalArgumentException("Parameter 'dataSource' is required.");
     if (schedule == null)

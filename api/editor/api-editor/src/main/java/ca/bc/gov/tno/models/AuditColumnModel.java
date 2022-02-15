@@ -1,6 +1,6 @@
 package ca.bc.gov.tno.models;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
@@ -8,10 +8,11 @@ import ca.bc.gov.tno.dal.db.AuditColumns;
 public abstract class AuditColumnModel {
   private UUID createdById;
   private String createdBy;
-  private Date createdOn;
+  private ZonedDateTime createdOn;
   private UUID updatedById;
   private String updatedBy;
-  private Date updatedOn;
+  private ZonedDateTime updatedOn;
+  private long version;
 
   public AuditColumnModel() {
   }
@@ -24,6 +25,7 @@ public abstract class AuditColumnModel {
       this.updatedById = entity.getUpdatedById();
       this.updatedBy = entity.getUpdatedBy();
       this.updatedOn = entity.getUpdatedOn();
+      this.version = entity.getVersion();
     }
   }
 
@@ -56,16 +58,16 @@ public abstract class AuditColumnModel {
   }
 
   /**
-   * @return Date return the createdOn
+   * @return ZonedDateTime return the createdOn
    */
-  public Date getCreatedOn() {
+  public ZonedDateTime getCreatedOn() {
     return createdOn;
   }
 
   /**
    * @param createdOn the createdOn to set
    */
-  public void setCreatedOn(Date createdOn) {
+  public void setCreatedOn(ZonedDateTime createdOn) {
     this.createdOn = createdOn;
   }
 
@@ -98,17 +100,31 @@ public abstract class AuditColumnModel {
   }
 
   /**
-   * @return Date return the updatedOn
+   * @return ZonedDateTime return the updatedOn
    */
-  public Date getUpdatedOn() {
+  public ZonedDateTime getUpdatedOn() {
     return updatedOn;
   }
 
   /**
    * @param updatedOn the updatedOn to set
    */
-  public void setUpdatedOn(Date updatedOn) {
+  public void setUpdatedOn(ZonedDateTime updatedOn) {
     this.updatedOn = updatedOn;
+  }
+
+  /**
+   * @return long return the version
+   */
+  public long getVersion() {
+    return version;
+  }
+
+  /**
+   * @param version the version to set
+   */
+  public void setVersion(long version) {
+    this.version = version;
   }
 
 }

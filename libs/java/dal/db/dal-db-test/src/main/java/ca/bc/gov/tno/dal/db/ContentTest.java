@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.dal.db;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -105,7 +106,7 @@ public class ContentTest {
     var updatedOn = updated.getUpdatedOn();
     try {
       // Test for optimistic concurrency.
-      updated.setUpdatedOn(new Date(System.currentTimeMillis()));
+      updated.setUpdatedOn(ZonedDateTime.now());
       contentService.update(updated);
       updated.setUpdatedOn(updatedOn);
       throw new IllegalStateException("Concurrency Failed");

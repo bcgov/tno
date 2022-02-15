@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.areas.editor.models.ContentModel;
 import ca.bc.gov.tno.dal.db.ContentStatus;
-import ca.bc.gov.tno.dal.db.SortDirection;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
 import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;

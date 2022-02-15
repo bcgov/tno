@@ -1,7 +1,7 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -15,13 +15,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
+import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
  * User class, provides an entity to manage users in the db.
@@ -89,10 +88,9 @@ public class User extends AuditColumns {
   /**
    * The date and time the user last logged in.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Column(name = "last_login_on", nullable = false)
-  private Date lastLoginOn;
+  private ZonedDateTime lastLoginOn;
 
   /**
    * A collection of user roles that belong to this user.
@@ -266,16 +264,16 @@ public class User extends AuditColumns {
   }
 
   /**
-   * @return Date return the lastLoginOn
+   * @return ZonedDateTime return the lastLoginOn
    */
-  public Date getLastLoginOn() {
+  public ZonedDateTime getLastLoginOn() {
     return lastLoginOn;
   }
 
   /**
    * @param lastLoginOn the lastLoginOn to set
    */
-  public void setLastLoginOn(Date lastLoginOn) {
+  public void setLastLoginOn(ZonedDateTime lastLoginOn) {
     this.lastLoginOn = lastLoginOn;
   }
 

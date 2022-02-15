@@ -48,7 +48,7 @@ public class ScheduleController {
    */
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Schedule findById(@PathVariable(required = true) Integer id) {
-    var schedule = scheduleService.findById(id).orElse(null);
+    var schedule = scheduleService.findById(id).orElse(null); // TODO: Return NoContent
     return schedule;
   }
 

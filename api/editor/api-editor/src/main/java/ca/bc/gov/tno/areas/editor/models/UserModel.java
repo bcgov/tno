@@ -1,11 +1,12 @@
 package ca.bc.gov.tno.areas.editor.models;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import ca.bc.gov.tno.dal.db.entities.User;
+import ca.bc.gov.tno.models.AuditColumnModel;
 
-public class UserModel {
+public class UserModel extends AuditColumnModel {
 
   /**
    * Primary key to identify the user.
@@ -55,7 +56,7 @@ public class UserModel {
   /**
    * The date and time the user last logged in.
    */
-  private Date lastLoginOn;
+  private ZonedDateTime lastLoginOn;
 
   /**
    * A collection of user roles that belong to this role.
@@ -205,16 +206,16 @@ public class UserModel {
   }
 
   /**
-   * @return Date return the lastLoginOn
+   * @return ZonedDateTime return the lastLoginOn
    */
-  public Date getLastLoginOn() {
+  public ZonedDateTime getLastLoginOn() {
     return lastLoginOn;
   }
 
   /**
    * @param lastLoginOn the lastLoginOn to set
    */
-  public void setLastLoginOn(Date lastLoginOn) {
+  public void setLastLoginOn(ZonedDateTime lastLoginOn) {
     this.lastLoginOn = lastLoginOn;
   }
 

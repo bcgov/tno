@@ -1,7 +1,7 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -11,14 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
+import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
  * ContentReference class, provides a way to capture a reference to content from
@@ -64,18 +63,16 @@ public class ContentReference extends AuditColumns {
   /**
    * The date and time the content was published.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Column(name = "published_on")
-  private Date publishedOn;
+  private ZonedDateTime publishedOn;
 
   /**
    * The date and time the source content was updated.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Column(name = "source_updated_on")
-  private Date sourceUpdatedOn;
+  private ZonedDateTime sourceUpdatedOn;
 
   /**
    * The status of the reference in Kafka.
@@ -185,30 +182,30 @@ public class ContentReference extends AuditColumns {
   }
 
   /**
-   * @return Date return the publishedOn
+   * @return ZonedDateTime return the publishedOn
    */
-  public Date getPublishedOn() {
+  public ZonedDateTime getPublishedOn() {
     return publishedOn;
   }
 
   /**
    * @param publishedOn the publishedOn to set
    */
-  public void setPublishedOn(Date publishedOn) {
+  public void setPublishedOn(ZonedDateTime publishedOn) {
     this.publishedOn = publishedOn;
   }
 
   /**
-   * @return Date return the sourceUpdatedOn
+   * @return ZonedDateTime return the sourceUpdatedOn
    */
-  public Date getSourceUpdatedOn() {
+  public ZonedDateTime getSourceUpdatedOn() {
     return sourceUpdatedOn;
   }
 
   /**
    * @param sourceUpdatedOn the sourceUpdatedOn to set
    */
-  public void setSourceUpdatedOn(Date sourceUpdatedOn) {
+  public void setSourceUpdatedOn(ZonedDateTime sourceUpdatedOn) {
     this.sourceUpdatedOn = sourceUpdatedOn;
   }
 

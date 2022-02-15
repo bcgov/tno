@@ -66,7 +66,7 @@ public class TimeTrackingPK implements Serializable {
   public String toString() {
     final StringBuilder sb = new StringBuilder("{");
     sb.append("contentId=").append(contentId);
-    sb.append(", uid=").append(userId);
+    sb.append(", userId=").append(userId);
     sb.append("}");
     return sb.toString();
   }

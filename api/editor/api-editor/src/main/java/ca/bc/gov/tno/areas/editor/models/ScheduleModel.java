@@ -1,15 +1,16 @@
 package ca.bc.gov.tno.areas.editor.models;
 
 import java.time.LocalTime;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.EnumSet;
 
 import ca.bc.gov.tno.dal.db.Months;
 import ca.bc.gov.tno.dal.db.ScheduleType;
 import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.entities.Schedule;
+import ca.bc.gov.tno.models.AuditColumnModel;
 
-public class ScheduleModel {
+public class ScheduleModel extends AuditColumnModel {
   /**
    * Primary key to identify the schedule.
    */
@@ -44,7 +45,7 @@ public class ScheduleModel {
    * The date and time the service should begin running on. This is useful if a
    * service should be delayed from running for a period of time.
    */
-  private Date runOn;
+  private ZonedDateTime runOn;
 
   /**
    * The time to start.
@@ -172,16 +173,16 @@ public class ScheduleModel {
   }
 
   /**
-   * @return Date return the runOn
+   * @return ZonedDateTime return the runOn
    */
-  public Date getRunOn() {
+  public ZonedDateTime getRunOn() {
     return runOn;
   }
 
   /**
    * @param runOn the runOn to set
    */
-  public void setRunOn(Date runOn) {
+  public void setRunOn(ZonedDateTime runOn) {
     this.runOn = runOn;
   }
 

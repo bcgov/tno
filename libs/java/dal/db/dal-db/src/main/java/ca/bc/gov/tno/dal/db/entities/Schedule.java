@@ -1,8 +1,8 @@
 package ca.bc.gov.tno.dal.db.entities;
 
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -16,8 +16,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,6 +27,7 @@ import ca.bc.gov.tno.dal.db.Months;
 import ca.bc.gov.tno.dal.db.ScheduleType;
 import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.converters.WeekDaysAttributeConverter;
+import ca.bc.gov.tno.dal.db.services.Settings;
 import ca.bc.gov.tno.dal.db.converters.MonthsAttributeConverter;
 
 /**
@@ -81,15 +80,14 @@ public class Schedule extends AuditColumns {
    * service should be delayed from running for a period of time.
    * null = Run immediately.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Column(name = "run_on")
-  private Date runOn;
+  private ZonedDateTime runOn;
 
   /**
    * At what time the schedule should start.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ", timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ")
   @DateTimeFormat(pattern = "HH:mm:ss.SSSZ")
   @Column(name = "start_at")
   private LocalTime startAt;
@@ -97,7 +95,7 @@ public class Schedule extends AuditColumns {
   /**
    * At what time the schedule should stop.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ", timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ")
   @DateTimeFormat(pattern = "HH:mm:ss.SSSZ")
   @Column(name = "stop_at")
   private LocalTime stopAt;
@@ -115,7 +113,7 @@ public class Schedule extends AuditColumns {
    */
   @Column(name = "run_on_week_days", nullable = false)
   @Convert(converter = WeekDaysAttributeConverter.class)
-  private EnumSet<WeekDays> runOnWeekDays;
+  private EnumSet<WeekDays> runOnWeekDays = EnumSet.of(WeekDays.NA);
 
   /**
    * Identify which months the service should run.
@@ -123,7 +121,7 @@ public class Schedule extends AuditColumns {
    */
   @Column(name = "run_on_months", nullable = false)
   @Convert(converter = MonthsAttributeConverter.class)
-  private EnumSet<Months> runOnMonths;
+  private EnumSet<Months> runOnMonths = EnumSet.of(Months.NA);
 
   /**
    * Identify the day of the month the service should run.
@@ -229,16 +227,16 @@ public class Schedule extends AuditColumns {
   }
 
   /**
-   * @return Date return the runOn
+   * @return ZonedDateTime return the runOn
    */
-  public Date getRunOn() {
+  public ZonedDateTime getRunOn() {
     return runOn;
   }
 
   /**
    * @param runOn the runOn to set
    */
-  public void setRunOn(Date runOn) {
+  public void setRunOn(ZonedDateTime runOn) {
     this.runOn = runOn;
   }
 

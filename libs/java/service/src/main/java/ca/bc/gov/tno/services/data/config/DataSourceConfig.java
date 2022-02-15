@@ -1,7 +1,7 @@
 package ca.bc.gov.tno.services.data.config;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -38,7 +38,7 @@ public class DataSourceConfig {
   /**
    * Date when the data source was last run.
    */
-  private Date lastRanOn;
+  private ZonedDateTime lastRanOn;
 
   /**
    * Number of times this data source has been run. This value is compared to the
@@ -139,16 +139,16 @@ public class DataSourceConfig {
   }
 
   /**
-   * @return Date return the lastRanOn
+   * @return ZonedDateTime return the lastRanOn
    */
-  public Date getLastRanOn() {
+  public ZonedDateTime getLastRanOn() {
     return lastRanOn;
   }
 
   /**
    * @param lastRanOn the lastRanOn to set
    */
-  public void setLastRanOn(Date lastRanOn) {
+  public void setLastRanOn(ZonedDateTime lastRanOn) {
     this.lastRanOn = lastRanOn;
   }
 
