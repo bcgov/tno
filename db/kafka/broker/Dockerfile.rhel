@@ -9,3 +9,7 @@ RUN chgrp -R root /var/log/kafka && \
 RUN chown -R appuser:root /var/log/kafka /var/log/confluent
 
 USER appuser
+
+COPY ./scripts /home/scripts
+
+CMD [ "/home/scripts/init.sh" ]

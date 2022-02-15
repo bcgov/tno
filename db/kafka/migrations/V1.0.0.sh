@@ -3,8 +3,7 @@
 # Logging topics
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-nlp --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-elastic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-rss --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-atom --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-syndication --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-audio --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-video --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 

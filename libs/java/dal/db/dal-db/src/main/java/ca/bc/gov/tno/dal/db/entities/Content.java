@@ -21,6 +21,7 @@ import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
@@ -248,7 +249,7 @@ public class Content extends AuditColumns {
   /**
    * A collection of content logs linked to this content.
    */
-  @JsonManagedReference("content")
+  @JsonIgnore
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentLog> logs = new ArrayList<>();
 
@@ -682,6 +683,13 @@ public class Content extends AuditColumns {
   }
 
   /**
+   * @param id the id to set
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  /**
    * @return ContentStatus return the status
    */
   public ContentStatus getStatus() {
@@ -1099,6 +1107,20 @@ public class Content extends AuditColumns {
    */
   public void setSeries(Series series) {
     this.series = series;
+  }
+
+  /**
+   * @return List{ContentLog} return the logs
+   */
+  public List<ContentLog> getLogs() {
+    return logs;
+  }
+
+  /**
+   * @param logs the logs to set
+   */
+  public void setLogs(List<ContentLog> logs) {
+    this.logs = logs;
   }
 
 }

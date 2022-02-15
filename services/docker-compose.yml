@@ -2,46 +2,20 @@ version: '3.5'
 
 services:
   ####################### Ingestion Services #######################
-  rss:
-    image: tno:rss
+  syndication:
+    image: tno:syndication
     profiles:
       - all
       - service
       - data
     restart: "no"
-    container_name: tno-rss
+    container_name: tno-syndication
     build:
       context: services/syndication
     env_file:
-      - services/syndication/rss.env
+      - services/syndication/.env
     ports:
-      - ${SYNDICATION_RSS_PORT:-40020}:8080
-    depends_on:
-      - database
-      - broker
-    networks:
-      - tno
-    healthcheck:
-      test: curl -s -f http://localhost:8080/health || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  atom:
-    image: tno:atom
-    profiles:
-      - all
-      - service
-      - data
-    restart: "no"
-    container_name: tno-atom
-    build:
-      context: services/syndication
-    env_file:
-      - services/syndication/atom.env
-    ports:
-      - ${SYNDICATION_ATOM_PORT:-40021}:8080
+      - ${SYNDICATION_PORT:-40020}:8080
     depends_on:
       - database
       - broker

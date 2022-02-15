@@ -58,8 +58,7 @@ APP_SUBSCRIBER_HTTPS_PORT=$portAppSubscriberHttps
 # Services
 #############################
 
-SYNDICATION_RSS_PORT=$portSyndicationRss
-SYNDICATION_ATOM_PORT=$portSyndicationAtom
+SYNDICATION_PORT=$portSyndication
 NLP_PORT=$portNlp
 INDEXING_PORT=$portIndexing
 AUDIO_PORT=$portAudio
@@ -389,9 +388,9 @@ fi
 # Services Configuration
 ###########################################################################
 
-## Syndication - ATOM Producer
-if test -f "./services/syndication/atom.env"; then
-    echo "./services/syndication/atom.env exists"
+## Syndication Producer
+if test -f "./services/syndication/.env"; then
+    echo "./services/syndication/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
@@ -400,50 +399,23 @@ DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
 DB_USERNAME=$dbUser
 DB_PASSWORD=$password
 
-KAFKA_LOGS_TOPIC=logs-atom
+KAFKA_LOGS_TOPIC=logs-syndication
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
-KAFKA_CLIENT_ID=atom-01
+KAFKA_CLIENT_ID=syndication-01
 
 MAX_FAILED_ATTEMPTS=5
 
-DATA_SOURCE_MEDIA_TYPE=1
+DATA_SOURCE_MEDIA_TYPE=Syndication
 # DATA_SOURCE_ID=GHI
-# DATA_SOURCE_MEDIA_TYPE=ATOM
 # DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
-# DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/atom.env
-    echo "./services/syndication/atom.env created"
-fi
-
-## Syndication - RSS Producer
-if test -f "./services/syndication/rss.env"; then
-    echo "./services/syndication/rss.env exists"
-else
-echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
-
-DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
-DB_USERNAME=$dbUser
-DB_PASSWORD=$password
-
-KAFKA_LOGS_TOPIC=logs-rss
-
-KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
-KAFKA_CLIENT_ID=rss-01
-
-MAX_FAILED_ATTEMPTS=5
-
-DATA_SOURCE_MEDIA_TYPE=1
-# DATA_SOURCE_ID=HTH
-# DATA_SOURCE_MEDIA_TYPE=RSS
-# DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
-# DATA_SOURCE_TOPIC=news-hth" >> ./services/syndication/rss.env
-    echo "./services/syndication/rss.env created"
+# DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/.env
+    echo "./services/syndication/.env created"
 fi
 
 ## Audio - Clip Producer
 if test -f "./services/audio/audio.env"; then
-    echo "./services/audio/atom.env exists"
+    echo "./services/audio/audio.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/

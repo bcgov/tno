@@ -15,7 +15,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
@@ -86,7 +86,7 @@ public class ContentReference extends AuditColumns {
   /**
    * A collection of content reference logs linked to this content.
    */
-  @JsonManagedReference("contentReference")
+  @JsonIgnore
   @OneToMany(mappedBy = "contentReference", fetch = FetchType.LAZY)
   private List<ContentReferenceLog> logs = new ArrayList<>();
 

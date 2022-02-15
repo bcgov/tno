@@ -143,6 +143,13 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
           if (index == sourceConfigs.getSources().size())
             index = 0;
 
+          if (sourceConfigs.getSources().size() == 0) {
+            state.setStatus(ServiceStatus.sleeping);
+            var errorEvent = new ErrorEvent(this, new Exception("There are no configured data sources"));
+            eventPublisher.publishEvent(errorEvent);
+            continue;
+          }
+
           var dataSource = (C) sourceConfigs.getSources().get(index);
           // Make request to TNO DB for data source configuration settings.
           dataSource = fetchDataSource(dataSource);
