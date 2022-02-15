@@ -148,8 +148,7 @@ export portAppEditorHttps=40444
 export portAppSubscriber=40083
 export portAppSubscriberHttps=40445
 
-export portSyndicationRss=40020
-export portSyndicationAtom=40021
+export portSyndication=40020
 export portNlp=40022
 export portIndexing=40023
 export portAudio=40024

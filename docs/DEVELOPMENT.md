@@ -153,12 +153,11 @@ make up p=service
 
 Below is a list of all the additional services and utilities.
 
-| Container  |  Port | Description                                                    |
-| ---------- | ----: | -------------------------------------------------------------- |
-| kowl       | 40180 | Kafka UI to view cluster                                       |
-| dejavu     | 40005 | Elasticsearch UI to view cluster                               |
-| rss        | 40020 | Kafka Producer to ingest syndication RSS feeds                 |
-| atom       | 40021 | Kafka Producer to ingest syndication ATOM feeds                |
-| nlp        | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
-| indexing   | 40023 | Kafka Consumer to index content for search                     |
-| transcribe |       | Kafka Consumer/Producer to transcribe audio/video content      |
+| Container   |  Port | Description                                                    |
+| ----------- | ----: | -------------------------------------------------------------- |
+| kowl        | 40180 | Kafka UI to view cluster                                       |
+| dejavu      | 40005 | Elasticsearch UI to view cluster                               |
+| syndication | 40020 | Kafka Producer to ingest syndication feeds                     |
+| nlp         | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
+| indexing    | 40023 | Kafka Consumer to index content for search                     |
+| transcribe  |       | Kafka Consumer/Producer to transcribe audio/video content      |

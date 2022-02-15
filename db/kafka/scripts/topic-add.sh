@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=t:b:p:r:
-LONGOPTS=topic:,bootstrap:,partitions:,replication:
+OPTIONS=e:t:b:p:r:
+LONGOPTS=environment:,topic:,bootstrap:,partitions:,replication:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -33,10 +33,16 @@ fi
 # read getopt’s output this way to handle the quoting right:
 eval set -- "$PARSED"
 
-bootstrap=${BOOTSTRAP:-broker:29092} partitions=1 replication=1
+# Default values.
+environment=local bootstrap=${BOOTSTRAP:-tno-kafka-broker:29094} partitions=3 replication=3
+
 # now enjoy the options in order and nicely split until we see --
 while true; do
   case "$1" in
+    -e|--environment)
+      environment="$2"
+      shift 2
+      ;;
     -t|--topic)
       topic="$2"
       shift 2
@@ -64,6 +70,10 @@ while true; do
   esac
 done
 
+if [ "$environment" = "local" ]; then
+  bootstrap=${BOOTSTRAP:-broker:29092} partitions=1 replication=1
+fi
+
 if [ -z "$topic" ]; then
     echo "Enter a topic name."
     read -p 'Topic: ' topic
@@ -74,9 +84,10 @@ if [ -z "$bootstrap" ]; then
     read -p 'Host and Port: ' bootstrap
 fi
 
-echo "topic: $topic, bootstrap: $bootstrap, partitions: $partitions, replication: $replication"
+echo "environment: $environment, topic: $topic, bootstrap: $bootstrap, partitions: $partitions, replication: $replication"
 
 # Make variables available scripts.
+export environment
 export topic
 export bootstrap
 export partitions
@@ -86,4 +97,8 @@ export replication
 # Work
 #################################################
 
-docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+if [ "$environment" = "local" ]; then
+  docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+else
+  oc rsh -n 9b301c-$environment tno-kafka-broker-0 bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+fi

@@ -2,7 +2,7 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Spring Boot - Run Application (ATOM)",
+      "name": "Spring Boot - Run Application",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "console": "internalConsole",
@@ -10,19 +10,7 @@
       "projectName": "syndication",
       "preLaunchTask": "package",
       "args": "",
-      "envFile": "${workspaceFolder}/atom.env"
-    },
-    {
-      "type": "java",
-      "name": "Spring Boot - Run Application (RSS)",
-      "request": "launch",
-      "cwd": "${workspaceFolder}",
-      "console": "internalConsole",
-      "mainClass": "ca.bc.gov.tno.services.syndication.SyndicationServiceApp",
-      "projectName": "syndication",
-      "preLaunchTask": "package",
-      "args": "",
-      "envFile": "${workspaceFolder}/rss.env"
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

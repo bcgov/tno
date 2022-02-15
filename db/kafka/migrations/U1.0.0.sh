@@ -3,8 +3,7 @@
 # Logging topics
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-nlp --bootstrap-server $bootstrap"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-elastic --bootstrap-server $bootstrap"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-rss --bootstrap-server $bootstrap"
-docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-atom --bootstrap-server $bootstrap"
+docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-syndication --bootstrap-server $bootstrap"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-audio --bootstrap-server $bootstrap"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --delete --topic logs-video --bootstrap-server $bootstrap"
 
