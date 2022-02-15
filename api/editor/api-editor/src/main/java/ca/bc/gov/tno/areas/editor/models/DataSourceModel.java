@@ -218,6 +218,13 @@ public class DataSourceModel {
   }
 
   /**
+   * @return LicenseModel return the license
+   */
+  public LicenseModel getLicense() {
+    return license;
+  }
+
+  /**
    * @param license the license to set
    */
   public void setLicense(LicenseModel license) {
@@ -239,10 +246,24 @@ public class DataSourceModel {
   }
 
   /**
+   * @return ScheduleModel return the schedule
+   */
+  public ScheduleModel getSchedule() {
+    return schedule;
+  }
+
+  /**
    * @param schedule the schedule to set
    */
   public void setSchedule(ScheduleModel schedule) {
     this.schedule = schedule;
+  }
+
+  /**
+   * @return String return the topic
+   */
+  public String getTopic() {
+    return topic;
   }
 
   /**
@@ -253,10 +274,24 @@ public class DataSourceModel {
   }
 
   /**
+   * @return Date return the lastRanOn
+   */
+  public Date getLastRanOn() {
+    return lastRanOn;
+  }
+
+  /**
    * @param lastRanOn the lastRanOn to set
    */
   public void setLastRanOn(Date lastRanOn) {
     this.lastRanOn = lastRanOn;
+  }
+
+  /**
+   * @return Map<String, Object> return the connection
+   */
+  public Map<String, Object> getConnection() {
+    return connection;
   }
 
   /**

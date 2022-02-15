@@ -70,7 +70,7 @@ public class ContentReferenceTest {
     var updatedOn = updated.getUpdatedOn();
     try {
       // Test for optimistic concurrency.
-      updated.setUpdatedOn(new Date());
+      updated.setUpdatedOn(new Date(System.currentTimeMillis()));
       contentReferenceService.update(updated);
       updated.setUpdatedOn(updatedOn);
       throw new IllegalStateException("Concurrency Failed");

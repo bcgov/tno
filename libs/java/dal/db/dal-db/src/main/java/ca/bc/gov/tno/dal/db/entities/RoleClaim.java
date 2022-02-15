@@ -9,6 +9,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -28,7 +29,7 @@ public class RoleClaim extends AuditColumns {
   /**
    * The role reference.
    */
-  @JsonBackReference("role")
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "role_id", insertable = false, updatable = false)
   private Role role;
@@ -43,6 +44,7 @@ public class RoleClaim extends AuditColumns {
   /**
    * The claim reference.
    */
+  @JsonBackReference("claim")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "claim_id", insertable = false, updatable = false)
   private Claim claim;

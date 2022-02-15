@@ -78,7 +78,7 @@ public class ContentTypeController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentType update(@PathVariable Integer id, @RequestBody ContentType model) {
-    var contentType = contentTypeService.add(model);
+    var contentType = contentTypeService.update(model);
     return contentType;
   }
 

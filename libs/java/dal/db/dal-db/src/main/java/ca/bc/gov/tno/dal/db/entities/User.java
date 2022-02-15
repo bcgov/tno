@@ -18,6 +18,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
@@ -86,15 +89,24 @@ public class User extends AuditColumns {
   /**
    * The date and time the user last logged in.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "last_login_on", nullable = false)
   private Date lastLoginOn;
 
   /**
-   * A collection of user roles that belong to this role.
+   * A collection of user roles that belong to this user.
    */
+  @JsonManagedReference("user")
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private List<UserRole> userRoles = new ArrayList<>();
+
+  /**
+   * A collection of time tracking that belong to this user.
+   */
+  @JsonManagedReference("timeTracking")
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+  private List<TimeTracking> timeTrackings = new ArrayList<>();
 
   /**
    * Creates a new instance of a user object.

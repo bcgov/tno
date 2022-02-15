@@ -80,7 +80,7 @@ public class ContentReferenceController {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentReference update(@PathVariable(required = true) String source,
       @PathVariable(required = true) String uid, @RequestBody ContentReference model) {
-    var contentReference = contentReferenceService.add(model);
+    var contentReference = contentReferenceService.update(model);
     return contentReference;
   }
 

@@ -58,10 +58,10 @@ public class App implements CommandLineRunner {
     // var keycloakAccount = new SimpleKeycloakAccount(principal, roles, context)
 
     // userTest.Run();
-    // dataSourceTest.Run();
+    dataSourceTest.Run();
     // licenseTest.Run();
     // contentReferenceTest.Run();
-    contentTest.Run();
+    // contentTest.Run();
   }
 
 }

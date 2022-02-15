@@ -1,19 +1,22 @@
 package ca.bc.gov.tno.services.syndication.handlers;
 
+import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.http.HttpException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.feed.AtomFeedHttpMessageConverter;
 import org.springframework.http.converter.feed.RssChannelHttpMessageConverter;
 import org.springframework.web.client.RestClientException;
@@ -28,9 +31,10 @@ import ca.bc.gov.tno.services.syndication.events.ProducerSendEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.rometools.rome.feed.atom.Feed;
-import com.rometools.rome.feed.rss.Channel;
-import com.rometools.rome.feed.synd.SyndFeedImpl;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.FeedException;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
 
 /**
  * FetchDataService class, provides an event handler that will make requests for
@@ -67,7 +71,11 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
     var rss = new RssChannelHttpMessageConverter();
     rss.setSupportedMediaTypes(Arrays
         .asList(new MediaType[] { MediaType.APPLICATION_RSS_XML, MediaType.APPLICATION_XML, MediaType.TEXT_XML }));
-    rest.setMessageConverters(Arrays.asList(new HttpMessageConverter<?>[] { atom, rss }));
+    var xml = new ResourceHttpMessageConverter();
+    xml.setSupportedMediaTypes(Arrays
+        .asList(new MediaType[] { MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_RSS_XML,
+            MediaType.APPLICATION_XML, MediaType.TEXT_XML }));
+    rest.setMessageConverters(Arrays.asList(new HttpMessageConverter<?>[] { atom, rss, xml }));
   }
 
   /**
@@ -85,38 +93,37 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       var url = dataSource.getUrl();
       logger.info(String.format("Syndication fetch request started - %s", url));
 
-      var response = dataSource.getMediaType().equalsIgnoreCase("ATOM") ? runAtom(url) : runRss(url);
+      var entity = new HttpEntity<Resource>(headers);
+      var response = rest.exchange(url, HttpMethod.GET, entity, Resource.class);
       var status = response.getStatusCode();
 
       if (status.series() == HttpStatus.Series.SUCCESSFUL) {
         logger.info(String.format("Syndication fetch response - %s %s", url, status));
-        var readyEvent = new ProducerSendEvent(caller, dataSource, schedule, new SyndFeedImpl(response.getBody()));
+        var input = new SyndFeedInput();
+        var reader = new XmlReader(response.getBody().getInputStream());
+        SyndFeed feed = input.build(reader);
+        var readyEvent = new ProducerSendEvent(caller, dataSource, schedule, feed);
         eventPublisher.publishEvent(readyEvent);
 
       } else if (status.series() == HttpStatus.Series.SERVER_ERROR
           || status.series() == HttpStatus.Series.CLIENT_ERROR) {
-        logger.error(String.format("Syndication fetch response - %s %s", url, status));
+        var errorEvent = new ErrorEvent(this,
+            new HttpException(String.format("Syndication fetch response - %s %s", url, status)));
+        eventPublisher.publishEvent(errorEvent);
       }
 
     } catch (RestClientException ex) {
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
+    } catch (IOException ex) {
+      var errorEvent = new ErrorEvent(this, ex);
+      eventPublisher.publishEvent(errorEvent);
+    } catch (IllegalArgumentException ex) {
+      var errorEvent = new ErrorEvent(this, ex);
+      eventPublisher.publishEvent(errorEvent);
+    } catch (FeedException ex) {
+      var errorEvent = new ErrorEvent(this, ex);
+      eventPublisher.publishEvent(errorEvent);
     }
-  }
-
-  /**
-   * Fetch the ATOM feed.
-   */
-  private ResponseEntity<Feed> runAtom(String url) {
-    var requestEntity = new HttpEntity<Feed>(headers);
-    return rest.exchange(url, HttpMethod.GET, requestEntity, Feed.class);
-  }
-
-  /**
-   * Fetch the RSS feed.
-   */
-  private ResponseEntity<Channel> runRss(String url) {
-    var requestEntity = new HttpEntity<Channel>(headers);
-    return rest.exchange(url, HttpMethod.GET, requestEntity, Channel.class);
   }
 }

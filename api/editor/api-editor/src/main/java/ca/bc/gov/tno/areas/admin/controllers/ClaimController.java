@@ -87,7 +87,7 @@ public class ClaimController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Claim update(@PathVariable final Integer id, @RequestBody final Claim model) {
-    var claim = claimService.add(model);
+    var claim = claimService.update(model);
     return claim;
   }
 

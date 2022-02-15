@@ -78,7 +78,7 @@ public class TagController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Tag update(@PathVariable Integer id, @RequestBody Tag model) {
-    var tag = tagService.add(model);
+    var tag = tagService.update(model);
     return tag;
   }
 

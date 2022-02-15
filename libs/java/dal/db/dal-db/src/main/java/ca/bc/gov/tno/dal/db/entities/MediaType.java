@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -54,9 +54,9 @@ public class MediaType extends AuditColumns {
   /**
    * A collection of data sources of this type.
    */
-  @JsonBackReference("data_sources")
+  @JsonIgnore
   @OneToMany(mappedBy = "mediaType", fetch = FetchType.LAZY)
-  private List<DataSource> data_sources = new ArrayList<>();
+  private List<DataSource> dataSources = new ArrayList<>();
 
   /**
    * Creates a new instance of a MediaType object.
@@ -137,7 +137,14 @@ public class MediaType extends AuditColumns {
    * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return data_sources;
+    return dataSources;
+  }
+
+  /**
+   * @param dataSources the dataSources to set
+   */
+  public void setDataSources(List<DataSource> dataSources) {
+    this.dataSources = dataSources;
   }
 
 }

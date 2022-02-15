@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
@@ -61,6 +63,7 @@ public class FileReference extends AuditColumns {
   /**
    * The file reference content reference.
    */
+  @JsonBackReference("content")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "content_id", insertable = false, updatable = false)
   private Content content;

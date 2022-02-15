@@ -74,6 +74,11 @@ public class ScheduleService implements IScheduleService {
    */
   @Override
   public Schedule update(Schedule entity) {
+    var find = repository.findById(entity.getId());
+
+    if (!find.isPresent())
+      throw new IllegalArgumentException("Schedule not found");
+
     var result = repository.save(PrincipalHelper.updateAudit(entity));
     return result;
   }

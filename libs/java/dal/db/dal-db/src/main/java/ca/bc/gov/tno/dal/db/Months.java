@@ -2,6 +2,8 @@ package ca.bc.gov.tno.dal.db;
 
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import ca.bc.gov.tno.IEnumValue;
 
 /**
@@ -49,6 +51,7 @@ public enum Months implements IEnumValue<Integer> {
   /**
    * Get the current enum value.
    */
+  @JsonValue
   public Integer getValue() {
     return value;
   }

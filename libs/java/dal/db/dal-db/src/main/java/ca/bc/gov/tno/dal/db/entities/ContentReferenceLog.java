@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
 
@@ -45,6 +47,7 @@ public class ContentReferenceLog extends AuditColumns {
   /**
    * The content reference.
    */
+  @JsonBackReference("contentReference")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumns({
       @JoinColumn(name = "source", referencedColumnName = "source", insertable = false, updatable = false),

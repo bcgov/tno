@@ -78,7 +78,7 @@ public class TonePoolController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public TonePool update(@PathVariable Integer id, @RequestBody TonePool model) {
-    var tonePool = tonePoolService.add(model);
+    var tonePool = tonePoolService.update(model);
     return tonePool;
   }
 

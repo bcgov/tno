@@ -9,6 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
@@ -29,6 +31,7 @@ public class DataSourceSchedule extends AuditColumns {
   /**
    * The data source reference.
    */
+  @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "data_source_id", insertable = false, updatable = false)
   private DataSource dataSource;

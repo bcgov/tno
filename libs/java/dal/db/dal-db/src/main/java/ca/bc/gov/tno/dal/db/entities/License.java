@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -60,14 +60,14 @@ public class License extends AuditColumns {
   /**
    * A collection of data sources that belong to this license.
    */
-  @JsonBackReference("data_sources")
+  @JsonIgnore
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
-  private List<DataSource> data_sources = new ArrayList<>();
+  private List<DataSource> dataSources = new ArrayList<>();
 
   /**
    * A collection of content that belong to this license.
    */
-  @JsonBackReference("contents")
+  @JsonIgnore
   @OneToMany(mappedBy = "license", fetch = FetchType.LAZY)
   private List<Content> contents = new ArrayList<>();
 
@@ -166,7 +166,14 @@ public class License extends AuditColumns {
    * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return data_sources;
+    return dataSources;
+  }
+
+  /**
+   * @param dataSources the dataSources to set
+   */
+  public void setDataSources(List<DataSource> dataSources) {
+    this.dataSources = dataSources;
   }
 
 }

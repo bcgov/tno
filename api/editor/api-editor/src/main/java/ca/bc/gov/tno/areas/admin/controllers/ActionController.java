@@ -78,7 +78,7 @@ public class ActionController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Action update(@PathVariable Integer id, @RequestBody Action model) {
-    var action = actionService.add(model);
+    var action = actionService.update(model);
     return action;
   }
 

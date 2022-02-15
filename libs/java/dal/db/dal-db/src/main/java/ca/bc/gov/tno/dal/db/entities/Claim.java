@@ -14,7 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -60,7 +60,7 @@ public class Claim extends AuditColumns {
   /**
    * A collection of role claims that belong to this claim.
    */
-  @JsonBackReference("role_claims")
+  @JsonManagedReference("claim")
   @OneToMany(mappedBy = "claim", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

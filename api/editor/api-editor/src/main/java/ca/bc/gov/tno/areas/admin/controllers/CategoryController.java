@@ -78,7 +78,7 @@ public class CategoryController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public Category update(@PathVariable Integer id, @RequestBody Category model) {
-    var category = categoryService.add(model);
+    var category = categoryService.update(model);
     return category;
   }
 

@@ -8,7 +8,9 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
+// import javax.persistence.Version;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -36,9 +38,10 @@ public abstract class AuditColumns implements Serializable {
   /**
    * When the record was created. Automatically set by the DB.
    */
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
+  @Temporal(TemporalType.TIMESTAMP)
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created_on", nullable = false)
   private Date createdOn;
 
@@ -58,10 +61,11 @@ public abstract class AuditColumns implements Serializable {
    * When the record was last updated. Automatically set by the DB. Provides
    * concurrency control to enforce optimistic concurrency.
    */
-  @Version
+  // @Version
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
+  @Temporal(TemporalType.TIMESTAMP)
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
-  @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated_on", nullable = false)
   private Date updatedOn;
 

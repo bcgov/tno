@@ -73,7 +73,7 @@ public class MediaTypeController {
    */
   @PutMapping(path = "/{id}", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
   public MediaType update(@PathVariable Integer id, @RequestBody MediaType model) {
-    var mediaType = mediaTypeService.add(model);
+    var mediaType = mediaTypeService.update(model);
     return mediaType;
   }
 

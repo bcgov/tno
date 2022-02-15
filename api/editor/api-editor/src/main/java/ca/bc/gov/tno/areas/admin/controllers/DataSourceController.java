@@ -75,7 +75,7 @@ public class DataSourceController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource update(@PathVariable Integer id, @RequestBody DataSource model) {
-    var dataSource = dataSourceService.add(model);
+    var dataSource = dataSourceService.update(model);
     return dataSource;
   }
 

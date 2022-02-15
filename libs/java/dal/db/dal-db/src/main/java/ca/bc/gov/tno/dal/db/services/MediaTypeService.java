@@ -3,9 +3,11 @@ package ca.bc.gov.tno.dal.db.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.MediaType;
 import ca.bc.gov.tno.dal.db.repositories.IMediaTypeRepository;
@@ -17,17 +19,19 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
  */
 @Service
 public class MediaTypeService implements IMediaTypeService {
-
+  private final SessionFactory sessionFactory;
   private final IMediaTypeRepository repository;
 
   /**
    * Creates a new instance of a MediaTypeService object, initializes with
    * specified parameters.
    * 
-   * @param repository The media type repository.
+   * @param sessionFactory The session factory.
+   * @param repository     The media type repository.
    */
   @Autowired
-  public MediaTypeService(final IMediaTypeRepository repository) {
+  public MediaTypeService(final SessionFactory sessionFactory, final IMediaTypeRepository repository) {
+    this.sessionFactory = sessionFactory;
     this.repository = repository;
   }
 
@@ -46,7 +50,7 @@ public class MediaTypeService implements IMediaTypeService {
    * Find the media type for the specified primary key.
    * 
    * @param key The primary key.
-   * @return A new instance of the media type if it exists.
+   * @return An instance of the media type if it exists.
    */
   @Override
   public Optional<MediaType> findById(int key) {
@@ -55,10 +59,34 @@ public class MediaTypeService implements IMediaTypeService {
   }
 
   /**
+   * Find the media type for the specified primary key.
+   * 
+   * @param name The name of the media type.
+   * @return An instance of the media type if it exists.
+   */
+  @Override
+  public Optional<MediaType> findByName(String name) {
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var sql = """
+          FROM MediaType mt
+          WHERE mt.name = :name
+          """;
+      var query = session.createQuery(sql).setParameter("name", name).setMaxResults(1);
+      return ListHelper.castList(MediaType.class, query.getResultList()).stream().findFirst();
+    } finally {
+      ts.commit();
+      session.close();
+    }
+  }
+
+  /**
    * Add a new media type to the data source.
    * 
    * @param entity The media type to add.
-   * @return A new instance of the media type that was added.
+   * @return An instance of the media type that was added.
    */
   @Override
   public MediaType add(MediaType entity) {
@@ -70,7 +98,7 @@ public class MediaTypeService implements IMediaTypeService {
    * Update the specified media type in the data source.
    * 
    * @param entity The media type to update.
-   * @return A new instance of the media type that was updated.
+   * @return An instance of the media type that was updated.
    */
   @Override
   public MediaType update(MediaType entity) {

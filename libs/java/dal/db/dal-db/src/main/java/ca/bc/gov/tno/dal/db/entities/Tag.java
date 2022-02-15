@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -57,11 +57,11 @@ public class Tag extends AuditColumns {
   private boolean enabled = true;
 
   /**
-   * A collection of role categories that belong to this tag.
+   * A collection of content tags that belong to this tag.
    */
-  @JsonBackReference("content_categories")
+  @JsonManagedReference("tag")
   @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
-  private List<ContentTag> contentCategories = new ArrayList<>();
+  private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * Creates a new instance of a Tag object.
@@ -155,17 +155,17 @@ public class Tag extends AuditColumns {
   }
 
   /**
-   * @return List{ContentTag} return the contentCategories
+   * @return List{ContentTag} return the contentTags
    */
-  public List<ContentTag> getContentCategories() {
-    return contentCategories;
+  public List<ContentTag> getContentTags() {
+    return contentTags;
   }
 
   /**
-   * @param contentCategories the contentCategories to set
+   * @param contentTags the contentTags to set
    */
-  public void setContentCategories(List<ContentTag> contentCategories) {
-    this.contentCategories = contentCategories;
+  public void setContentTags(List<ContentTag> contentTags) {
+    this.contentTags = contentTags;
   }
 
 }

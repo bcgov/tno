@@ -407,10 +407,11 @@ KAFKA_CLIENT_ID=atom-01
 
 MAX_FAILED_ATTEMPTS=5
 
-DATA_SOURCE_ID=GHI
-DATA_SOURCE_TYPE=ATOM
-DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
-DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/atom.env
+DATA_SOURCE_MEDIA_TYPE=1
+# DATA_SOURCE_ID=GHI
+# DATA_SOURCE_MEDIA_TYPE=ATOM
+# DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
+# DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/atom.env
     echo "./services/syndication/atom.env created"
 fi
 
@@ -432,10 +433,11 @@ KAFKA_CLIENT_ID=rss-01
 
 MAX_FAILED_ATTEMPTS=5
 
-DATA_SOURCE_ID=HTH
-DATA_SOURCE_TYPE=RSS
-DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
-DATA_SOURCE_TOPIC=news-hth" >> ./services/syndication/rss.env
+DATA_SOURCE_MEDIA_TYPE=1
+# DATA_SOURCE_ID=HTH
+# DATA_SOURCE_MEDIA_TYPE=RSS
+# DATA_SOURCE_URL=https://www.howtohaven.com/howtohaven.xml
+# DATA_SOURCE_TOPIC=news-hth" >> ./services/syndication/rss.env
     echo "./services/syndication/rss.env created"
 fi
 
@@ -457,8 +459,8 @@ KAFKA_CLIENT_ID=audio-capture-01
 
 MAX_FAILED_ATTEMPTS=5
 
+DATA_SOURCE_MEDIA_TYPE=CLIP
 DATA_SOURCE_ID=CBCKAM
-DATA_SOURCE_TYPE=CLIP
 DATA_SOURCE_DELAY=60000
 DATA_SOURCE_TOPIC=media-cbckam
 DATA_SOURCE_URL=http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_kam
