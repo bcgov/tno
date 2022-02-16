@@ -1,7 +1,9 @@
 package ca.bc.gov.tno.services.data;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import ca.bc.gov.tno.dal.db.Months;
 import ca.bc.gov.tno.dal.db.WeekDays;
@@ -35,8 +37,7 @@ public final class ScheduleHelper {
     if (runAt == null)
       return 0;
 
-    var runAtCal = Calendar.getInstance();
-    runAtCal.setTime(runAt);
+    var runAtCal = GregorianCalendar.from(runAt);
     var runAtHour = runAtCal.get(Calendar.HOUR_OF_DAY);
     var runAtMinute = runAtCal.get(Calendar.MINUTE);
     runAtCal.add(Calendar.DATE, 1);
@@ -60,9 +61,8 @@ public final class ScheduleHelper {
    * @param schedule   The schedule config.
    * @return Whether the process should be run.
    */
-  public static boolean verifySchedule(Date now, DataSourceConfig dataSource, ScheduleConfig schedule) {
-    var cal = Calendar.getInstance();
-    cal.setTime(now);
+  public static boolean verifySchedule(ZonedDateTime now, DataSourceConfig dataSource, ScheduleConfig schedule) {
+    var cal = GregorianCalendar.from(now);
 
     var isEnabled = dataSource.isEnabled();
     var isRun = verifyDelay(cal, dataSource, schedule);
@@ -89,8 +89,7 @@ public final class ScheduleHelper {
       return true;
 
     // Add the delay to the last ran on to determine if it should run again.
-    var next = Calendar.getInstance();
-    next.setTime(dataSource.getLastRanOn());
+    var next = GregorianCalendar.from(dataSource.getLastRanOn());
     next.add(Calendar.MILLISECOND, delay);
 
     return next.before(now);
@@ -110,15 +109,14 @@ public final class ScheduleHelper {
     // TODO: Make this work across multiple instances.
     // If the data source has been run its max repeat limit, don't run again.
     if (schedule.getRepeat() > 0 && dataSource.getRanCounter() >= schedule.getRepeat()
-        && (runOn == null || dataSource.getLastRanOn().after(runOn)))
+        && (runOn == null || dataSource.getLastRanOn().isAfter(runOn)))
       return false;
 
     // No limitation imposed by runOn, so always run.
     if (runOn == null)
       return true;
 
-    var runOnCal = Calendar.getInstance();
-    runOnCal.setTime(runOn);
+    var runOnCal = GregorianCalendar.from(runOn);
 
     // If runOn is in the future don't run.
     if (runOnCal.after(now))

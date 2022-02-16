@@ -1,7 +1,8 @@
 package ca.bc.gov.tno.services.syndication.handlers;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -162,6 +163,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
     var source = dataSource.getId();
     var topic = dataSource.getTopic();
     var uid = entry.getUri();
+    var entryUpdatedOn = entry.getUpdatedDate();
 
     try {
       // Ensure no duplicates are imported.
@@ -177,12 +179,13 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
         // more than an hour old.
         // Assumption is that it is stuck.
         if (contentReference.getStatus() == WorkflowStatus.InProgress) {
-          var diffMinutes = new Date(System.currentTimeMillis()).getTime() - contentReference.getUpdatedOn().getTime();
+          var diffMinutes = ZonedDateTime.now().toEpochSecond() - contentReference.getUpdatedOn().toEpochSecond();
           var diff = TimeUnit.MINUTES.convert(diffMinutes, TimeUnit.MINUTES);
           if (diff >= 60) {
             logger.warn(String.format("Stuck content identified: '%s', topic: %s", uid, topic));
-            contentReference.setPublishedOn(entry.getPublishedDate());
-            contentReference.setSourceUpdatedOn(entry.getUpdatedDate());
+            contentReference.setPublishedOn(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()));
+            if (entryUpdatedOn != null)
+              contentReference.setSourceUpdatedOn(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault()));
             contentReference = contentReferenceService.update(contentReference);
             return new PublishedRecord(publishEntry(event, entry), contentReference);
           }
@@ -191,12 +194,16 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
           var publishedOn = contentReference.getPublishedOn();
           // If the source feed entry has been updated or republished it will need to get
           // pushed to Kafka and the reference will need to be updated.
-          if ((updatedOn != null && updatedOn.before(entry.getUpdatedDate()))
-              || (publishedOn != null && publishedOn.before(entry.getPublishedDate()))) {
+          if ((updatedOn != null
+              && entryUpdatedOn != null
+              && updatedOn.isBefore(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault())))
+              || (publishedOn != null
+                  && publishedOn.isBefore(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault())))) {
             logger.info(String.format("Updated content identified: '%s', topic: %s, partition: %s, offset: %s", uid,
                 topic, contentReference.getPartition(), contentReference.getOffset()));
             contentReference.setPublishedOn(publishedOn);
-            contentReference.setSourceUpdatedOn(entry.getUpdatedDate());
+            if (entryUpdatedOn != null)
+              contentReference.setSourceUpdatedOn(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault()));
             contentReference = contentReferenceService.update(contentReference);
             return new PublishedRecord(publishEntry(event, entry), contentReference);
           }
@@ -210,8 +217,9 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
         // publish the same content.
         logger.info(String.format("New content identified: '%s', topic: %s", uid, topic));
         var contentReference = new ContentReference(source, uid, topic);
-        contentReference.setPublishedOn(entry.getPublishedDate());
-        contentReference.setSourceUpdatedOn(entry.getUpdatedDate());
+        contentReference.setPublishedOn(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()));
+        if (entryUpdatedOn != null)
+          contentReference.setSourceUpdatedOn(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault()));
         contentReference = contentReferenceService.add(contentReference);
         return new PublishedRecord(publishEntry(event, entry), contentReference);
       }

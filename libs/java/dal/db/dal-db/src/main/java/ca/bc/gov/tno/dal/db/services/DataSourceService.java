@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.dal.db.entities.DataSourceSchedule;
 import ca.bc.gov.tno.dal.db.repositories.IDataSourceRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 
@@ -30,7 +31,8 @@ public class DataSourceService implements IDataSourceService {
    * @param repository     The data source repository.
    */
   @Autowired
-  public DataSourceService(final SessionFactory sessionFactory, final IDataSourceRepository repository) {
+  public DataSourceService(final SessionFactory sessionFactory,
+      final IDataSourceRepository repository) {
     this.sessionFactory = sessionFactory;
     this.repository = repository;
   }
@@ -125,6 +127,9 @@ public class DataSourceService implements IDataSourceService {
    */
   @Override
   public DataSource add(DataSource entity) {
+    for (DataSourceSchedule dss : entity.getDataSourceSchedules()) {
+      PrincipalHelper.addAudit(dss);
+    }
     var result = repository.save(PrincipalHelper.addAudit(entity));
     return result;
   }
@@ -137,6 +142,9 @@ public class DataSourceService implements IDataSourceService {
    */
   @Override
   public DataSource update(DataSource entity) {
+    for (DataSourceSchedule dss : entity.getDataSourceSchedules()) {
+      PrincipalHelper.addAudit(dss);
+    }
     var result = repository.save(PrincipalHelper.updateAudit(entity));
     return result;
   }

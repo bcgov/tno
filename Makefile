@@ -188,9 +188,9 @@ kafka-update: ## Run the kafka migration (n=migration name, r=rollback, b=bootst
 	$(info Run the kafka migration (n=$(n)))
 	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(b),-b $(b),"")
 
-kafka-topic-add: ## Add a new kafka topic (e=environment, t=topic, b=bootstrap server, p=partitions, r=replications)
+kafka-topic-add: ## Add a new kafka topic (e=environment, t=topic, b=bootstrap server, p=partitions, r=replications, i=index)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),"") $(if $(t),-t $(t),"") $(if $(b),-b $(b),"") $(if $(p),-p $(p),"") $(if $(r),-r $(r),"")
+	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),"") $(if $(t),-t $(t),"") $(if $(b),-b $(b),"") $(if $(p),-p $(p),"") $(if $(r),-r $(r),"") $(if $(i),-i $(i),"")
 
 kafka-topic-delete: ## Delete a kafka topic (t=topic, b=bootstrap server)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))

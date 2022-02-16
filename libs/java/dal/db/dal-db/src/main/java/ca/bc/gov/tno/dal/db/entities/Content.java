@@ -1,7 +1,7 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -16,8 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.ContentStatus;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
+import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
  * Content class, provides a way to store content.
@@ -167,10 +166,9 @@ public class Content extends AuditColumns {
    * For Snippets - set by Editor.
    * All other content - the date is managed by ingestion services.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Column(name = "published_on")
-  private Date publishedOn;
+  private ZonedDateTime publishedOn;
 
   /**
    * The content summary.
@@ -886,16 +884,16 @@ public class Content extends AuditColumns {
   }
 
   /**
-   * @return Date return the publishedOn
+   * @return ZonedDateTime return the publishedOn
    */
-  public Date getPublishedOn() {
+  public ZonedDateTime getPublishedOn() {
     return publishedOn;
   }
 
   /**
    * @param publishedOn the publishedOn to set
    */
-  public void setPublishedOn(Date publishedOn) {
+  public void setPublishedOn(ZonedDateTime publishedOn) {
     this.publishedOn = publishedOn;
   }
 

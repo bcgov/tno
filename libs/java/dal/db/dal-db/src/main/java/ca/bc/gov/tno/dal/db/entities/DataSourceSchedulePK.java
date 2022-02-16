@@ -68,7 +68,7 @@ public class DataSourceSchedulePK implements Serializable {
   public String toString() {
     final StringBuilder sb = new StringBuilder("{");
     sb.append("dataSourceId=").append(dataSourceId);
-    sb.append(", scheduleId='").append(scheduleId).append("'");
+    sb.append(", scheduleId=").append(scheduleId);
     sb.append("}");
     return sb.toString();
   }

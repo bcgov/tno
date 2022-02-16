@@ -1,7 +1,7 @@
 package ca.bc.gov.tno.services.data.config;
 
 import java.time.LocalTime;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.EnumSet;
 
 import ca.bc.gov.tno.dal.db.Months;
@@ -41,7 +41,7 @@ public class ScheduleConfig {
   /**
    * Date and time to run the service on.
    */
-  private Date runOn;
+  private ZonedDateTime runOn;
 
   /**
    * Date and time to start the service at.
@@ -174,16 +174,16 @@ public class ScheduleConfig {
   }
 
   /**
-   * @return Date return the runOn
+   * @return ZonedDateTime return the runOn
    */
-  public Date getRunOn() {
+  public ZonedDateTime getRunOn() {
     return runOn;
   }
 
   /**
    * @param runOn the runOn to set
    */
-  public void setRunOn(Date runOn) {
+  public void setRunOn(ZonedDateTime runOn) {
     this.runOn = runOn;
   }
 

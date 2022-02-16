@@ -17,8 +17,8 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
     exit 1
 fi
 
-OPTIONS=e:t:b:p:r:
-LONGOPTS=environment:,topic:,bootstrap:,partitions:,replication:
+OPTIONS=e:t:b:p:r:i:
+LONGOPTS=environment:,topic:,bootstrap:,partitions:,replication:,index:
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -34,7 +34,7 @@ fi
 eval set -- "$PARSED"
 
 # Default values.
-environment=local bootstrap=${BOOTSTRAP:-tno-kafka-broker:29094} partitions=3 replication=3
+environment=local bootstrap=${BOOTSTRAP:-tno-kafka-broker:29094} partitions=3 replication=3 index=0
 
 # now enjoy the options in order and nicely split until we see --
 while true; do
@@ -57,6 +57,10 @@ while true; do
       ;;
     -r|--replication)
       replication="$2"
+      shift 2
+      ;;
+    -i|--index)
+      index="$2"
       shift 2
       ;;
     --)
@@ -84,7 +88,7 @@ if [ -z "$bootstrap" ]; then
     read -p 'Host and Port: ' bootstrap
 fi
 
-echo "environment: $environment, topic: $topic, bootstrap: $bootstrap, partitions: $partitions, replication: $replication"
+echo "environment: $environment, topic: $topic, bootstrap: $bootstrap, partitions: $partitions, replication: $replication, index: $index"
 
 # Make variables available scripts.
 export environment
@@ -92,6 +96,7 @@ export topic
 export bootstrap
 export partitions
 export replication
+export index
 
 #################################################
 # Work
@@ -100,5 +105,5 @@ export replication
 if [ "$environment" = "local" ]; then
   docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 else
-  oc rsh -n 9b301c-$environment tno-kafka-broker-0 bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+  oc rsh -n 9b301c-$environment tno-kafka-broker-$index bash -c "/bin/kafka-topics --create --topic $topic --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 fi

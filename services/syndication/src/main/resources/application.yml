@@ -61,4 +61,4 @@ service:
 
 data:
   source:
-    mediaType: ${DATA_SOURCE_MEDIA_TYPE:RSS}
+    mediaType: ${DATA_SOURCE_MEDIA_TYPE:Syndication}

@@ -1,6 +1,6 @@
 package ca.bc.gov.tno.services.data;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +54,7 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
    * @param ranOn      The date and time the transaction ran at.
    */
   @Override
-  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, Date ranOn) {
+  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
     super.updateDataSource(dataSource, schedule, ranOn);
 
     var result = dataSourceService.findByCode(dataSource.getId());

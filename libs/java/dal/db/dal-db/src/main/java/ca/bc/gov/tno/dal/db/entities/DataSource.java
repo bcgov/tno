@@ -1,11 +1,12 @@
 package ca.bc.gov.tno.dal.db.entities;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -18,14 +19,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.converters.HashMapToStringConverter;
+import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
  * DataSource class, defines a set of data, how often it is requested, the
@@ -105,10 +105,9 @@ public class DataSource extends AuditColumns {
   /**
    * The date and time this data source was successfully ingested on.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Column(name = "last_ran_on")
-  private Date lastRanOn;
+  private ZonedDateTime lastRanOn;
 
   /**
    * JSON configuration values for the ingestion services.
@@ -134,7 +133,7 @@ public class DataSource extends AuditColumns {
   /**
    * A collection of data source schedules linked to this data source.
    */
-  @OneToMany(mappedBy = "dataSource", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "dataSource", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<DataSourceSchedule> dataSourceSchedules = new ArrayList<>();
 
   /**
@@ -257,16 +256,16 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return Date return the lastRanOn
+   * @return ZonedDateTime return the lastRanOn
    */
-  public Date getLastRanOn() {
+  public ZonedDateTime getLastRanOn() {
     return lastRanOn;
   }
 
   /**
    * @param lastRanOn the lastRanOn to set
    */
-  public void setLastRanOn(Date lastRanOn) {
+  public void setLastRanOn(ZonedDateTime lastRanOn) {
     this.lastRanOn = lastRanOn;
   }
 

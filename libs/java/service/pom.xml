@@ -6,7 +6,7 @@
 
   <groupId>ca.bc.gov.tno</groupId>
   <artifactId>service</artifactId>
-  <version>0.0.8-SNAPSHOT</version>
+  <version>0.0.9-SNAPSHOT</version>
 
   <name>service</name>
   <description>TNO Core Service library</description>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>ca.bc.gov.tno</groupId>
       <artifactId>dal-db</artifactId>
-      <version>0.0.19-SNAPSHOT</version>
+      <version>0.0.20-SNAPSHOT</version>
     </dependency>
 
     <dependency>

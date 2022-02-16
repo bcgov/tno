@@ -1,14 +1,12 @@
 package ca.bc.gov.tno.dal.db;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-// import javax.persistence.Version;
+import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -16,6 +14,8 @@ import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Source;
 import org.hibernate.annotations.SourceType;
+
+import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
  * AuditColumns abstract class, provides standardized audit columns for entities
@@ -36,14 +36,14 @@ public abstract class AuditColumns implements Serializable {
   private String createdBy;
 
   /**
-   * When the record was created. Automatically set by the DB.
+   * When the record was created.
+   * Automatically set by the DB.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
   @Column(name = "created_on", nullable = false)
-  private Date createdOn;
+  private ZonedDateTime createdOn;
 
   /**
    * The uid that identifies the user who updated the record last.
@@ -58,16 +58,22 @@ public abstract class AuditColumns implements Serializable {
   private String updatedBy;
 
   /**
-   * When the record was last updated. Automatically set by the DB. Provides
-   * concurrency control to enforce optimistic concurrency.
+   * When the record was last updated.
+   * Automatically set by the DB.
    */
-  // @Version
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss.SSSZ", timezone = "UTC")
-  @Temporal(TemporalType.TIMESTAMP)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
   @Column(name = "updated_on", nullable = false)
-  private Date updatedOn;
+  private ZonedDateTime updatedOn;
+
+  /**
+   * Provides concurrency control to enforce optimistic concurrency.
+   * Automatically set by the DB.
+   */
+  @Version
+  @Column(name = "version", nullable = false)
+  private long version;
 
   /**
    * @return UUID return the createdById
@@ -98,16 +104,16 @@ public abstract class AuditColumns implements Serializable {
   }
 
   /**
-   * @return Date return the createdOn
+   * @return ZonedDateTime return the createdOn
    */
-  public Date getCreatedOn() {
+  public ZonedDateTime getCreatedOn() {
     return createdOn;
   }
 
   /**
    * @param createdOn the createdOn to set
    */
-  public void setCreatedOn(Date createdOn) {
+  public void setCreatedOn(ZonedDateTime createdOn) {
     this.createdOn = createdOn;
   }
 
@@ -140,17 +146,31 @@ public abstract class AuditColumns implements Serializable {
   }
 
   /**
-   * @return Date return the updatedOn
+   * @return ZonedDateTime return the updatedOn
    */
-  public Date getUpdatedOn() {
+  public ZonedDateTime getUpdatedOn() {
     return updatedOn;
   }
 
   /**
    * @param updatedOn the updatedOn to set
    */
-  public void setUpdatedOn(Date updatedOn) {
+  public void setUpdatedOn(ZonedDateTime updatedOn) {
     this.updatedOn = updatedOn;
+  }
+
+  /**
+   * @return long return the version
+   */
+  public long getVersion() {
+    return version;
+  }
+
+  /**
+   * @param version the version to set
+   */
+  public void setVersion(long version) {
+    this.version = version;
   }
 
 }

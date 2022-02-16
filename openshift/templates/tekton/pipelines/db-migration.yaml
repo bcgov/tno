@@ -1,0 +1,58 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: database-migration
+  annotations:
+    description: >-
+      Run the database migration.
+    tags: oc,flyway,database,migration
+spec:
+  params:
+    - name: GIT_SOURCE
+      description: >-
+        Identify the git source for this build.
+        A git source name is applied to the end of a BuildConfig to
+        identify the source (i.e. tno-app-editor.{GIT_SOURCE}).
+      type: string
+
+    - name: IMAGE_TAG
+      description: >-
+        The tag given to the built images.
+        Use this to create versioned images.
+      type: string
+
+    - name: DEPLOY_TO
+      description: >-
+        Identify the environment to deploy the solution to [dev,test,prod,tools].
+      type: string
+
+  tasks:
+    - name: build-db-migration
+      taskRef:
+        name: oc-build
+        kind: Task
+      params:
+        - name: SOLUTION_NAME
+          value: tno
+        - name: APP_NAME
+          value: db-migration
+        - name: GIT_SOURCE
+          value: $(params.GIT_SOURCE)
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+
+    - name: run-db-migration
+      runAfter:
+        - build-db-migration
+      taskRef:
+        name: db-migration
+        kind: Task
+      params:
+        - name: MIGRATION_IMAGE
+          value: tno-db-migration
+        - name: DB_APP_NAME
+          value: tno-database
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)

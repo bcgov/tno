@@ -46,6 +46,8 @@ spring:
     serialization:
       fail-on-empty-beans: false
       write-dates-as-timestamps : false
+    # deserialization:
+    #   adjust-dates-to-context-time-zone: false
 
   elasticsearch:
     uris: ${ELASTIC_URIS}

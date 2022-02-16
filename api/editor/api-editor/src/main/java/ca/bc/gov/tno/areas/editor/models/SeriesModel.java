@@ -1,8 +1,9 @@
 package ca.bc.gov.tno.areas.editor.models;
 
 import ca.bc.gov.tno.dal.db.entities.Series;
+import ca.bc.gov.tno.models.AuditColumnModel;
 
-public class SeriesModel {
+public class SeriesModel extends AuditColumnModel {
 
   /**
    * Primary key to identify the series.

@@ -1,7 +1,7 @@
 package ca.bc.gov.tno.areas.editor.models;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Persistence;
@@ -40,7 +40,7 @@ public class ContentModel extends AuditColumnModel {
   private String page = "";
   private String summary = "";
   private String transcription = "";
-  private Date publishedOn;
+  private ZonedDateTime publishedOn;
   private String sourceURL = "";
   private List<CategoryModel> categories = new ArrayList<CategoryModel>();
   private List<TagModel> tags = new ArrayList<TagModel>();
@@ -455,16 +455,16 @@ public class ContentModel extends AuditColumnModel {
   }
 
   /**
-   * @return Date return the publishedOn
+   * @return ZonedDateTime return the publishedOn
    */
-  public Date getPublishedOn() {
+  public ZonedDateTime getPublishedOn() {
     return publishedOn;
   }
 
   /**
    * @param publishedOn the publishedOn to set
    */
-  public void setPublishedOn(Date publishedOn) {
+  public void setPublishedOn(ZonedDateTime publishedOn) {
     this.publishedOn = publishedOn;
   }
 
