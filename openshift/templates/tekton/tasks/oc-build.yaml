@@ -40,5 +40,5 @@ spec:
 
         if [ "$(params.IMAGE_TAG)" != "latest" ]; then
           echo "Tagging latest image"
-          oc tag $(params.SOLUTION_NAME)-$(params.APP_NAME):$(params.IMAGE_TAG) $(params.SOLUTION_NAME)-$(params.APP_NAME):latest
+          oc tag $(params.SOLUTION_NAME)-$(params.APP_NAME):latest $(params.SOLUTION_NAME)-$(params.APP_NAME):$(params.IMAGE_TAG)
         fi
