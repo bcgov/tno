@@ -45,7 +45,8 @@ export const useSummon = ({
           'Access-Control-Allow-Origin': '*',
         },
       }),
-    [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [baseURL, state],
   );
 
   instance.interceptors.request.use((config) => {

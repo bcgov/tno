@@ -21,7 +21,7 @@ import { useKeycloakWrapper } from 'tno-core';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
-import { IContentListFilter } from './interfaces';
+import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
 
 const defaultPage: IPage<IContentModel> = {
@@ -106,9 +106,13 @@ export const ContentListView: React.FC = () => {
   }, [contentTypes, mediaTypes, users]);
 
   const fetch = React.useCallback(
-    async (filter) => {
+    async (filter: IContentListFilter, sortBy: ISortBy[]) => {
       try {
-        const data = await api.getContents(filter.pageIndex, filter.pageSize, makeFilter(filter));
+        const data = await api.getContents(
+          filter.pageIndex,
+          filter.pageSize,
+          makeFilter({ ...filter, ...filterAdvanced, sortBy }),
+        );
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
         setPage(page);
         return page;
@@ -117,14 +121,13 @@ export const ContentListView: React.FC = () => {
         throw error;
       }
     },
-    [api],
+    [api, filterAdvanced],
   );
 
   React.useEffect(() => {
-    fetch({ ...filter, ...filterAdvanced, sortBy });
-    // We don't want a render when the advanced filter changes.
+    fetch(filter, sortBy);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetch, filter, sortBy]);
+  }, [filter, sortBy]);
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
@@ -346,7 +349,7 @@ export const ContentListView: React.FC = () => {
           </div>
           <Button
             name="search"
-            onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced })}
+            onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced }, sortBy)}
           >
             Search
           </Button>
