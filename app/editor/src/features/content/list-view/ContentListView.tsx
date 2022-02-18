@@ -188,6 +188,7 @@ export const ContentListView: React.FC = () => {
           <RadioGroup
             name="timeFrame"
             label="Time Frame"
+            direction="row"
             tooltip="Date created"
             value={filter.timeFrame}
             options={timeFrames}
@@ -272,9 +273,10 @@ export const ContentListView: React.FC = () => {
         </div>
         <div className="box">
           <h2 className="caps">Advanced Search</h2>
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
             <Dropdown
               name="fieldType"
+              className="test"
               label="Field Type"
               options={fieldTypes}
               value={filterAdvanced.fieldType}
@@ -283,6 +285,7 @@ export const ContentListView: React.FC = () => {
               }}
             />
             <Dropdown
+              className="test"
               name="logicalOperator"
               label="Logical Operator"
               options={logicalOperators}
@@ -297,6 +300,7 @@ export const ContentListView: React.FC = () => {
               }}
             />
             <Text
+              className="test"
               name="searchTerm"
               label="Search Terms"
               value={filterAdvanced.searchTerm}
@@ -348,7 +352,7 @@ export const ContentListView: React.FC = () => {
           </Button>
           <Button
             name="clear"
-            variant={ButtonVariant.secondary}
+            variant={ButtonVariant.action}
             onClick={() => {
               storeFilterAdvanced({
                 ...initialContentState.filterAdvanced,
@@ -365,7 +369,7 @@ export const ContentListView: React.FC = () => {
           columns={columns}
           page={page}
           sortBy={sortBy}
-          onRowClick={(row) => navigate(`/contents/${row.id}`)}
+          onRowClick={(row) => navigate(`/contents/${row.values.createdOn.id}`)}
           onChangePage={handleChangePage}
           onChangeSort={handleChangeSort}
         ></PagedTable>
@@ -374,27 +378,27 @@ export const ContentListView: React.FC = () => {
         <Button name="create" onClick={() => navigate('/contents/0')}>
           Create Snippet
         </Button>
-        <div className="addition-actions">
+        <div style={{ marginTop: '2%' }} className="addition-actions">
           <Button
             name="create"
-            variant={ButtonVariant.secondary}
-            disabled={true}
+            variant={ButtonVariant.action}
+            disabled
             tooltip="Under Construction"
           >
             Send Lois Front Pages
           </Button>
           <Button
             name="create"
-            variant={ButtonVariant.secondary}
-            disabled={true}
+            variant={ButtonVariant.action}
+            disabled
             tooltip="Under Construction"
           >
             Send Top Stories
           </Button>
           <Button
             name="create"
-            variant={ButtonVariant.secondary}
-            disabled={true}
+            variant={ButtonVariant.action}
+            disabled
             tooltip="Under Construction"
           >
             Send Send Lois to Commentary

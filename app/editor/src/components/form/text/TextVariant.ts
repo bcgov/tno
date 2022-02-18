@@ -6,4 +6,5 @@ export enum TextVariant {
   warning = 'warning',
   danger = 'danger',
   link = 'link',
+  disabled = 'disabled',
 }

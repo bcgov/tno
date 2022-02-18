@@ -15,6 +15,8 @@ export const Checkbox = styled.input<ICheckboxProps>`
   padding: 0.375rem 0.75rem;
   font-size: 1rem;
   line-height: 1.6;
+  height: 20px;
+  width: 20px;
   border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;

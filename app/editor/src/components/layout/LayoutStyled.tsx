@@ -11,13 +11,15 @@ export const Layout = styled.div`
     flex-direction: column;
     align-items: stretch;
     flex-grow: 1;
+    overflow: hidden;
   }
 
   main {
     flex-grow: 1;
     padding: 10px;
-    overflow: auto;
     position: relative;
+    overflow-y: auto;
+    height: calc(100% - 100px);
   }
 `;
 

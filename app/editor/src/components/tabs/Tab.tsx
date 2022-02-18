@@ -8,6 +8,10 @@ export interface ITabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    */
   active?: boolean;
   /**
+   * The text to display on the tab
+   */
+  label?: string;
+  /**
    * The tooltip to show on hover.
    */
   tooltip?: string;
@@ -18,6 +22,7 @@ export const Tab: React.FC<ITabProps> = ({
   tooltip,
   className,
   children,
+  label,
   ...rest
 }) => {
   return (
@@ -28,7 +33,7 @@ export const Tab: React.FC<ITabProps> = ({
       data-tip={tooltip}
       {...rest}
     >
-      {children}
+      {label}
     </styled.Tab>
   );
 };

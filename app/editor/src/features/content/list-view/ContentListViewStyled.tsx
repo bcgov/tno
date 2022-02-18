@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 
 export const ContentListView = styled.div`
-  display: flex;
-  flex-direction: column;
-
+  background-color: white;
+  max-width: fit-content;
+  height: 100%;
+  padding: 5%;
   input[type='text'],
   select {
     min-width: 15em;
@@ -46,6 +47,10 @@ export const ContentListView = styled.div`
   }
 
   .content-list {
+    max-width: fit-content;
+    table {
+      background: transparent;
+    }
   }
 
   .content-actions {
@@ -57,6 +62,9 @@ export const ContentListView = styled.div`
 
     .addition-actions {
       margin-top: 1em;
+      button {
+        margin-bottom: 0.5em;
+      }
     }
   }
 `;

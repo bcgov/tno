@@ -8,6 +8,14 @@ export const FormikCheckbox = styled.div`
     color: ${(props) => props.theme.css.dangerColor};
   }
 
+  .rightHandLabel {
+    display: flex;
+    flex-direction: row;
+  }
+
+  // diplay: flex;
+  // flex-direction: row;
+
   input.error {
     border-color: ${(props) => props.theme.css.dangerColor};
     filter: grayscale(100%) brightness(65%) sepia(25%) hue-rotate(-50deg) saturate(600%)

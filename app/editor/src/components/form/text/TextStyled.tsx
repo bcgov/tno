@@ -46,6 +46,8 @@ export const Text = styled.input<ITextProps>`
         return '#d93e45';
       case TextVariant.link:
         return 'transparent';
+      case TextVariant.disabled:
+        return '#F0F0F0';
       default:
         return '#38598a';
     }
@@ -53,7 +55,7 @@ export const Text = styled.input<ITextProps>`
   border-color: ${(props) => {
     switch (props.variant) {
       case TextVariant.primary:
-        return '#38598a';
+        return '#606060';
       case TextVariant.secondary:
         return '#6c757d';
       case TextVariant.success:
@@ -66,6 +68,8 @@ export const Text = styled.input<ITextProps>`
         return '#d93e45';
       case TextVariant.link:
         return 'transparent';
+      case TextVariant.disabled:
+        return '#606060';
       default:
         return '#38598a';
     }
@@ -83,6 +87,7 @@ export const Text = styled.input<ITextProps>`
           return props.theme.css.primaryColor;
       }
     }};
+    cursor: ${(props) => props.variant === TextVariant.disabled && 'not-allowed'};
     border-color: ${(props) => {
       switch (props.variant) {
         case TextVariant.primary:
@@ -99,6 +104,8 @@ export const Text = styled.input<ITextProps>`
           return '#be262c';
         case TextVariant.link:
           return 'transparent';
+        case TextVariant.disabled:
+          return '#606060';
         default:
           return '#fff';
       }

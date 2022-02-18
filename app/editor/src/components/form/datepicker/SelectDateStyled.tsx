@@ -3,22 +3,25 @@ import styled from 'styled-components';
 import { ISelectDateProps, SelectDateVariant } from '.';
 
 export const SelectDate = styled.span<ISelectDateProps>`
-  margin: 1px 2px 1px 2px;
   text-decoration: ${(props) => (props.variant === SelectDateVariant.link ? 'underline' : 'none')};
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
   font-weight: 400;
   text-align: left;
   vertical-align: middle;
   user-select: text;
   border: 1px solid transparent;
-  padding: 0.375rem 0.75rem;
   font-size: 1rem;
   line-height: 1.6;
-  border-radius: 0.25rem;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   overflow: visible;
   text-transform: none;
+  .react-datepicker-wrapper {
+    input {
+      border-radius: 4px;
+    }
+  }
   color: ${(props) => {
     switch (props.variant) {
       case SelectDateVariant.warning:
@@ -27,7 +30,7 @@ export const SelectDate = styled.span<ISelectDateProps>`
       case SelectDateVariant.link:
         return '#1a5a96';
       default:
-        return props.theme.css.primaryColor;
+        return '#000000';
     }
   }};
   /* background-color: ${(props) => {
@@ -50,25 +53,7 @@ export const SelectDate = styled.span<ISelectDateProps>`
         return '#38598a';
     }
   }}; */
-  border-color: ${(props) => {
-    switch (props.variant) {
-      case SelectDateVariant.primary:
-        return '#38598a';
-      case SelectDateVariant.secondary:
-        return '#6c757d';
-      case SelectDateVariant.success:
-        return '#43893e';
-      case SelectDateVariant.info:
-        return '#96c0e6';
-      case SelectDateVariant.warning:
-        return '#f9ca54';
-      case SelectDateVariant.danger:
-        return '#d93e45';
-      case SelectDateVariant.link:
-        return 'transparent';
-      default:
-        return '#38598a';
-    }
+
   }};
 
   &:hover {

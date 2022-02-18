@@ -36,12 +36,19 @@ export const Dropdown: React.FC<ISelectProps> = ({
   className,
   ...rest
 }) => {
+  const customStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      border: '2px solid #606060',
+    }),
+  };
   return (
     <styled.Dropdown className="frm-in" variant={variant}>
       {label && <label htmlFor={`dpn-${name}`}>{label}</label>}
       <Select
         // variant={variant}
         name={name}
+        styles={customStyles}
         className={`slt ${className ?? ''}`}
         data-for="main-tooltip"
         data-tip={tooltip}
