@@ -1,6 +1,6 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 
 import { SelectDateVariant } from '.';
