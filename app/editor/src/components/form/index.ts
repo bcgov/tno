@@ -1,3 +1,4 @@
+export * from './area';
 export * from './checkbox';
 export * from './datepicker';
 export * from './dropdown';

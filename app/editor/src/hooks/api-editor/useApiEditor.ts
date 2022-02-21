@@ -5,6 +5,7 @@ import { toQueryString } from 'utils';
 
 import {
   IActionModel,
+  IContentApi,
   IContentFilter,
   IContentModel,
   IContentTypeModel,
@@ -29,7 +30,6 @@ export const useApiEditor = (
   } = {},
 ) => {
   const summon = useSummon({ ...options, baseURL: options.baseURL ?? Settings.ApiPath });
-
   const handleRequest = async <T>(request: () => Promise<AxiosResponse<T, T>>) => {
     try {
       const res = await request();
@@ -71,6 +71,18 @@ export const useApiEditor = (
       },
       getUsers: async () => {
         return await handleRequest<IUserModel[]>(() => summon.get(`/editor/users`));
+      },
+      addContent: async (content: IContentApi) => {
+        return await handleRequest<IContentApi>(() => summon.post('/', content));
+      },
+      updateContent: async (content: IContentApi, id: number) => {
+        return await handleRequest<IContentApi>(() => summon.put(`${id}`, content));
+      },
+      findContent: async (id: number) => {
+        return await handleRequest<any>(() => summon.get(`${id}`));
+      },
+      getSeries: async () => {
+        return await handleRequest<any>(() => summon.get(`/editor/series`));
       },
     }),
     [summon],

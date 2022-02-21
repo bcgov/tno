@@ -11,7 +11,7 @@ export const Dropdown = styled.div<IDropdownProps>`
     text-align: left;
     vertical-align: middle;
     user-select: text;
-    border: 1px solid transparent;
+    border: 1px solid #606060;
     padding: 0.375rem 0.75rem;
     font-size: 1rem;
     line-height: 1.6;
@@ -108,26 +108,6 @@ export const Dropdown = styled.div<IDropdownProps>`
 
     &:focus {
       outline: 0;
-      box-shadow: ${(props) => {
-        switch (props.variant) {
-          case DropdownVariant.primary:
-            return '0 0 0 0.2rem rgb(86 114 156 / 50%)';
-          case DropdownVariant.secondary:
-            return '0 0 0 0.2rem rgb(130 138 145 / 50%)';
-          case DropdownVariant.success:
-            return '0 0 0 0.2rem rgb(95 155 91 / 50%)';
-          case DropdownVariant.info:
-            return '0 0 0 0.2rem rgb(132 169 202 / 50%)';
-          case DropdownVariant.warning:
-            return '0 0 0 0.2rem rgb(217 177 78 / 50%)';
-          case DropdownVariant.danger:
-            return '0 0 0 0.2rem rgb(223 91 97 / 50%)';
-          case DropdownVariant.link:
-            return '0 0 0 0.2rem rgb(56 89 138 / 50%)';
-          default:
-            return 'none';
-        }
-      }};
       color: ${(props) => {
         switch (props.variant) {
           case DropdownVariant.link:

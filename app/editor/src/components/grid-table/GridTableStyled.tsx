@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const GridTable = styled.div`
   display: grid;
-  background: ${(props) => props.theme.css.tableColor};
   padding: 5px;
   border-radius: 0.25em;
   grid-auto-rows: auto;
@@ -10,14 +9,10 @@ export const GridTable = styled.div`
 
   div[role='rowheader'] {
     div[role='row'] {
-      border-top-left-radius: 0.25em;
-      border-top-right-radius: 0.25em;
-
       &:first-child {
-        background-color: ${(props) => props.theme.css.tableHeaderColor};
-      }
-      &:hover {
-        background-color: ${(props) => props.theme.css.tableHeaderColor};
+        background-color: transparent;
+        border-top: 2px solid #606060;
+        border-bottom: 2px solid #606060;
       }
     }
   }

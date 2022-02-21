@@ -1,3 +1,4 @@
+import { TextVariant } from 'components';
 import { ITextProps, Text } from 'components/form';
 import { useFormikContext } from 'formik';
 
@@ -29,6 +30,7 @@ export const FormikText = <T,>({
         onBlur={onBlur ?? handleBlur}
         className={error ? `${className ?? ''} error` : className}
         disabled={disabled || isSubmitting}
+        variant={disabled ? TextVariant.disabled : TextVariant.primary}
         {...rest}
       ></Text>
       {error ? <p role="alert">{error}</p> : null}

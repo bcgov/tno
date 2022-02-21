@@ -1,6 +1,7 @@
 export * from './IActionModel';
 export * from './IAuditColumnsModel';
 export * from './ICategoryModel';
+export * from './IContentApi';
 export * from './IContentFilter';
 export * from './IContentModel';
 export * from './IContentTypeModel';
