@@ -6,8 +6,12 @@ import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { LayoutAnonymous, Loading, useKeycloakEventHandler } from 'tno-core';
-import { createKeycloakInstance } from 'utils';
+import {
+  createKeycloakInstance,
+  LayoutAnonymous,
+  Loading,
+  useKeycloakEventHandler,
+} from 'tno-core';
 
 function App() {
   const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();

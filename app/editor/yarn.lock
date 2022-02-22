@@ -9047,10 +9047,10 @@ tmpl@1.0.5:
   resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.5.tgz#8683e0b902bb9c20c4f726e3c0b69f36518c07cc"
   integrity sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==
 
-tno-core@0.0.89:
-  version "0.0.89"
-  resolved "https://registry.yarnpkg.com/tno-core/-/tno-core-0.0.89.tgz#8305c65b3b6707bfcb96723741ec52707af91d02"
-  integrity sha512-zbyX8Pnod78GvQZIWHHZKMVDYlD+8VElfTrKaNoUHecR1L521gS1pWRoMT7Ze89zQX3NwWLLkU8RFuh5bCNI8Q==
+tno-core@0.0.92:
+  version "0.0.92"
+  resolved "https://registry.yarnpkg.com/tno-core/-/tno-core-0.0.92.tgz#90da2aae2eecb87add0bdd0c7e1485ad5e7c4795"
+  integrity sha512-cDOwchlEZFZr6Fk3XVwxG2q+oSZ/l6dVx3wiiSsHZCUIcE5PivI0tjxVDDjYeFMf06PIiIW/g/MPVGm3FZUyTQ==
   dependencies:
     "@headlessui/react" "1.4.3"
     "@react-keycloak/web" "3.4.0"

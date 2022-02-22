@@ -15,9 +15,9 @@ export const useKeycloakEventHandler = () => {
   return (keycloak: KeycloakInstance) =>
     (eventType: AuthClientEvent, error?: AuthClientError | undefined) => {
       if (eventType === 'onAuthSuccess') {
-        state.setToken(keycloak.token!);
+        state.setToken(keycloak.token);
       } else if (eventType === 'onAuthRefreshSuccess') {
-        state.setToken(keycloak.token!);
+        state.setToken(keycloak.token);
       } else if (eventType === 'onAuthLogout' || eventType === 'onTokenExpired') {
         state.setToken(null);
       } else if (eventType === 'onReady') {

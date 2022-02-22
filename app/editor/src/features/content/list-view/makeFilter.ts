@@ -1,7 +1,7 @@
 import { IContentFilter } from 'hooks';
 import moment from 'moment';
 
-import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
+import { IContentListAdvancedFilter, IContentListFilter, ISortBy } from './interfaces';
 import { setTimeFrame } from './setTimeFrame';
 
 /**
@@ -11,8 +11,7 @@ import { setTimeFrame } from './setTimeFrame';
  * @returns new IContentFilter object.
  */
 export const makeFilter = (
-  filter: IContentListFilter &
-    IContentListAdvancedFilter & { sortBy?: { id: string; desc: boolean }[] },
+  filter: IContentListFilter & IContentListAdvancedFilter & { sortBy?: ISortBy[] },
 ): IContentFilter => {
   const advanced = filter as IContentListAdvancedFilter;
   return {
@@ -56,7 +55,7 @@ const applyActions = (filter: IContentListFilter) => {
  * @param sortBy An array of sort objects.
  * @returns An array of sort parameters.
  */
-const applySortBy = (sortBy?: { id: string; desc: boolean }[]) => {
+const applySortBy = (sortBy?: ISortBy[]) => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
   var sort: string[] = [];
