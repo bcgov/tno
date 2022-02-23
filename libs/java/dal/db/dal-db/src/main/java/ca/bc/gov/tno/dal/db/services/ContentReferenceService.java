@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentReference;
 import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
-import ca.bc.gov.tno.dal.db.repositories.IContentReferenceRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentReferenceRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
 
 /**
@@ -39,8 +39,8 @@ public class ContentReferenceService implements IContentReferenceService {
    */
   @Override
   public List<ContentReference> findAll() {
-    var references = (List<ContentReference>) repository.findAll();
-    return references;
+    var result = (List<ContentReference>) repository.findAll();
+    return result;
   }
 
   /**
@@ -51,8 +51,8 @@ public class ContentReferenceService implements IContentReferenceService {
    */
   @Override
   public Optional<ContentReference> findById(ContentReferencePK key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

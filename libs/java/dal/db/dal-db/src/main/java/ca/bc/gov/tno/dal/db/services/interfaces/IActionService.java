@@ -26,6 +26,14 @@ public interface IActionService {
   Optional<Action> findById(int key);
 
   /**
+   * Find the action for the specified primary key.
+   * 
+   * @param name The name of the action.
+   * @return A new instance of the action if it exists.
+   */
+  Optional<Action> findByName(String name);
+
+  /**
    * Add a new action to the content.
    * 
    * @param entity The action to add.

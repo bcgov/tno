@@ -1,6 +1,6 @@
-package ca.bc.gov.tno.dal.db.repositories;
+package ca.bc.gov.tno.dal.db.repositories.interfaces;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ca.bc.gov.tno.dal.db.entities.Claim;
@@ -10,6 +10,6 @@ import ca.bc.gov.tno.dal.db.entities.Claim;
  * repository.
  */
 @Repository
-public interface IClaimRepository extends CrudRepository<Claim, Integer> {
+public interface IClaimRepository extends JpaRepository<Claim, Integer> {
 
 }

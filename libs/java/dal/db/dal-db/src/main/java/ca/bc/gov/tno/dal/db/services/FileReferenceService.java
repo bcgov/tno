@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.FileReference;
-import ca.bc.gov.tno.dal.db.repositories.IFileReferenceRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IFileReferenceRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IFileReferenceService;
 
 /**
@@ -44,8 +44,8 @@ public class FileReferenceService implements IFileReferenceService {
    */
   @Override
   public List<FileReference> findAll() {
-    var FileReferences = (List<FileReference>) repository.findAll();
-    return FileReferences;
+    var result = (List<FileReference>) repository.findAll();
+    return result;
   }
 
   /**
@@ -56,8 +56,8 @@ public class FileReferenceService implements IFileReferenceService {
    */
   @Override
   public Optional<FileReference> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

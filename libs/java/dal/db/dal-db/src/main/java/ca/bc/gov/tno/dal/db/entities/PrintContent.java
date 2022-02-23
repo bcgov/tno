@@ -8,8 +8,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
@@ -29,7 +27,6 @@ public class PrintContent extends AuditColumns {
   /**
    * The content this print belongs to.
    */
-  @JsonBackReference
   @OneToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "content_id", referencedColumnName = "id", insertable = true, updatable = true, nullable = false)
   private Content content;

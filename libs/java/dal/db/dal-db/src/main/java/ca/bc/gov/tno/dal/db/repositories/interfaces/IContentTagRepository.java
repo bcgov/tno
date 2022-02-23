@@ -1,6 +1,6 @@
-package ca.bc.gov.tno.dal.db.repositories;
+package ca.bc.gov.tno.dal.db.repositories.interfaces;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
@@ -11,6 +11,6 @@ import ca.bc.gov.tno.dal.db.entities.ContentTagPK;
  * ContentTag repository.
  */
 @Repository
-public interface IContentTagRepository extends CrudRepository<ContentTag, ContentTagPK> {
+public interface IContentTagRepository extends JpaRepository<ContentTag, ContentTagPK> {
 
 }

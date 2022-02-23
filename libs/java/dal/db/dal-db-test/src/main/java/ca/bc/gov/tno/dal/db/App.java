@@ -62,10 +62,10 @@ public class App implements CommandLineRunner {
 
     // userTest.Run();
     // dataSourceTest.Run();
-    scheduleTest.Run();
+    // scheduleTest.Run();
     // licenseTest.Run();
     // contentReferenceTest.Run();
-    // contentTest.Run();
+    contentTest.Run();
   }
 
 }

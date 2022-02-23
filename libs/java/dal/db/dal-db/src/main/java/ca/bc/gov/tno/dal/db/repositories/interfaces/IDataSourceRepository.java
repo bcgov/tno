@@ -1,6 +1,6 @@
-package ca.bc.gov.tno.dal.db.repositories;
+package ca.bc.gov.tno.dal.db.repositories.interfaces;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ca.bc.gov.tno.dal.db.entities.DataSource;
@@ -10,6 +10,6 @@ import ca.bc.gov.tno.dal.db.entities.DataSource;
  * DataSource repository.
  */
 @Repository
-public interface IDataSourceRepository extends CrudRepository<DataSource, Integer> {
+public interface IDataSourceRepository extends JpaRepository<DataSource, Integer> {
 
 }

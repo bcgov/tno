@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import ca.bc.gov.tno.dal.db.entities.TimeTracking;
 import ca.bc.gov.tno.dal.db.entities.TimeTrackingPK;
+import ca.bc.gov.tno.dal.db.models.FilterCollection;
+import ca.bc.gov.tno.dal.db.models.SortParam;
+import ca.bc.gov.tno.models.interfaces.IPaged;
 
 /**
  * ITimeTrackingService interface, provides a way to interact with content
@@ -33,6 +36,17 @@ public interface ITimeTrackingService {
    * @return A new instance of the time tracking if it exists.
    */
   List<TimeTracking> findByContentId(int contentId);
+
+  /**
+   * Find a page of TimeTracking that match the query.
+   * 
+   * @param page     The page to pull TimeTracking from.
+   * @param quantity Number of items to return in a page.
+   * @param filter   An array of filter parameters.
+   * @param sort     An array of sort parameters ['col1 desc', 'col2 asc']
+   * @return A page of TimeTracking.
+   */
+  IPaged<TimeTracking> find(int page, int quantity, FilterCollection filter, SortParam[] sort);
 
   /**
    * Add a new time tracking to the content.

@@ -67,16 +67,20 @@ public class UserModel extends AuditColumnModel {
   }
 
   public UserModel(User entity) {
-    this.id = entity.getId();
-    this.key = entity.getKey();
-    this.username = entity.getUsername();
-    this.email = entity.getEmail();
-    this.displayName = entity.getDisplayName();
-    this.firstName = entity.getFirstName();
-    this.lastName = entity.getLastName();
-    this.enabled = entity.isEnabled();
-    this.emailVerified = entity.isEmailVerified();
-    this.lastLoginOn = entity.getLastLoginOn();
+    super(entity);
+
+    if (entity != null) {
+      this.id = entity.getId();
+      this.key = entity.getKey();
+      this.username = entity.getUsername();
+      this.email = entity.getEmail();
+      this.displayName = entity.getDisplayName();
+      this.firstName = entity.getFirstName();
+      this.lastName = entity.getLastName();
+      this.enabled = entity.isEnabled();
+      this.emailVerified = entity.isEmailVerified();
+      this.lastLoginOn = entity.getLastLoginOn();
+    }
   }
 
   /**

@@ -1,6 +1,11 @@
 package ca.bc.gov.tno.dal.db.models;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -137,6 +142,74 @@ public class FilterParam<T> {
     if (this.type == Date.class) {
       var dFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
       var date = dFormat.format((Date) this.value);
+      if (this.logicalOperator == LogicalOperators.NotEqual)
+        return String.format("%s%s!='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThan)
+        return String.format("%s%s>'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThanOrEqual)
+        return String.format("%s%s>='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThan)
+        return String.format("%s%s<'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThanOrEqual)
+        return String.format("%s%s<='%s'", getTableName(defaultTable), this.column, date);
+      else
+        return String.format("%s%s='%s'", getTableName(defaultTable), this.column, date);
+    }
+
+    if (this.type == LocalDate.class) {
+      var dFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+      var date = dFormat.format((LocalDate) this.value);
+      if (this.logicalOperator == LogicalOperators.NotEqual)
+        return String.format("%s%s!='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThan)
+        return String.format("%s%s>'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThanOrEqual)
+        return String.format("%s%s>='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThan)
+        return String.format("%s%s<'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThanOrEqual)
+        return String.format("%s%s<='%s'", getTableName(defaultTable), this.column, date);
+      else
+        return String.format("%s%s='%s'", getTableName(defaultTable), this.column, date);
+    }
+
+    if (this.type == LocalTime.class) {
+      var dFormat = DateTimeFormatter.ofPattern("HH:mm:ss");
+      var date = dFormat.format((LocalTime) this.value);
+      if (this.logicalOperator == LogicalOperators.NotEqual)
+        return String.format("%s%s!='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThan)
+        return String.format("%s%s>'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThanOrEqual)
+        return String.format("%s%s>='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThan)
+        return String.format("%s%s<'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThanOrEqual)
+        return String.format("%s%s<='%s'", getTableName(defaultTable), this.column, date);
+      else
+        return String.format("%s%s='%s'", getTableName(defaultTable), this.column, date);
+    }
+
+    if (this.type == LocalDateTime.class) {
+      var dFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+      var date = dFormat.format((LocalDateTime) this.value);
+      if (this.logicalOperator == LogicalOperators.NotEqual)
+        return String.format("%s%s!='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThan)
+        return String.format("%s%s>'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.GreaterThanOrEqual)
+        return String.format("%s%s>='%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThan)
+        return String.format("%s%s<'%s'", getTableName(defaultTable), this.column, date);
+      else if (this.logicalOperator == LogicalOperators.LessThanOrEqual)
+        return String.format("%s%s<='%s'", getTableName(defaultTable), this.column, date);
+      else
+        return String.format("%s%s='%s'", getTableName(defaultTable), this.column, date);
+    }
+
+    if (this.type == ZonedDateTime.class) {
+      var dFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+      var date = dFormat.format((ZonedDateTime) this.value);
       if (this.logicalOperator == LogicalOperators.NotEqual)
         return String.format("%s%s!='%s'", getTableName(defaultTable), this.column, date);
       else if (this.logicalOperator == LogicalOperators.GreaterThan)

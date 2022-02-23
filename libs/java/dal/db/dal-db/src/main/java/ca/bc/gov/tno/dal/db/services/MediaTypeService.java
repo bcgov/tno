@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.MediaType;
-import ca.bc.gov.tno.dal.db.repositories.IMediaTypeRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IMediaTypeRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
 
 /**
@@ -42,8 +42,8 @@ public class MediaTypeService implements IMediaTypeService {
    */
   @Override
   public List<MediaType> findAll() {
-    var MediaTypes = (List<MediaType>) repository.findAll();
-    return MediaTypes;
+    var result = (List<MediaType>) repository.findAll();
+    return result;
   }
 
   /**
@@ -54,8 +54,8 @@ public class MediaTypeService implements IMediaTypeService {
    */
   @Override
   public Optional<MediaType> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

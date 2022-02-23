@@ -6,6 +6,7 @@ services:
     image: tno:nginx
     profiles:
       - all
+      - api
       - editor
       - subscriber
       - ingest
@@ -33,6 +34,7 @@ services:
     image: tno:database
     profiles:
       - all
+      - api
       - editor
       - subscriber
       - data
@@ -56,6 +58,7 @@ services:
     image: tno:keycloak
     profiles:
       - all
+      - api
       - editor
       - subscriber
       - init
@@ -160,6 +163,7 @@ services:
     image: tno:api-editor
     profiles:
       - all
+      - api
       - editor
       - subscriber
     restart: "no"

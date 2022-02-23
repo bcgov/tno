@@ -12,7 +12,7 @@ import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentAction;
 import ca.bc.gov.tno.dal.db.entities.ContentActionPK;
-import ca.bc.gov.tno.dal.db.repositories.IContentActionRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentActionRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentActionService;
 
 /**

@@ -95,7 +95,6 @@ public class User extends AuditColumns {
   /**
    * A collection of user roles that belong to this user.
    */
-  @JsonManagedReference("user")
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
   private List<UserRole> userRoles = new ArrayList<>();
 

@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -59,7 +59,7 @@ public class Tag extends AuditColumns {
   /**
    * A collection of content tags that belong to this tag.
    */
-  @JsonManagedReference("tag")
+  @JsonIgnore
   @OneToMany(mappedBy = "tag", fetch = FetchType.LAZY)
   private List<ContentTag> contentTags = new ArrayList<>();
 

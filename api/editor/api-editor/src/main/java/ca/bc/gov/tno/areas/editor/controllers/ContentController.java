@@ -23,7 +23,6 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.areas.editor.models.ContentModel;
 import ca.bc.gov.tno.dal.db.ContentStatus;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
-import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.LogicalOperators;
 import ca.bc.gov.tno.dal.db.models.SortParam;
@@ -171,9 +170,9 @@ public class ContentController {
    * @return
    */
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Content findById(@PathVariable(required = true) Integer id) {
-    var Content = contentService.findById(id).orElse(null);
-    return Content;
+  public ContentModel findById(@PathVariable(required = true) Integer id) {
+    var content = contentService.findById(id).orElse(null);
+    return new ContentModel(content);
   }
 
   /**
@@ -183,12 +182,10 @@ public class ContentController {
    * @return
    */
   @PostMapping(path = { "", "/" }, consumes = {
-      MediaType.APPLICATION_JSON_VALUE,
-      MediaType.APPLICATION_ATOM_XML_VALUE,
-      MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Content add(@RequestBody ContentModel model) {
+      MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ContentModel add(@RequestBody ContentModel model) {
     var content = contentService.add(model.ToContent());
-    return content;
+    return new ContentModel(content);
   }
 
   /**
@@ -200,9 +197,9 @@ public class ContentController {
    */
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Content update(@PathVariable Integer id, @RequestBody Content model) {
-    var content = contentService.add(model);
-    return content;
+  public ContentModel update(@PathVariable Integer id, @RequestBody ContentModel model) {
+    var content = contentService.add(model.ToContent());
+    return new ContentModel(content);
   }
 
   /**
@@ -214,8 +211,8 @@ public class ContentController {
    */
   @DeleteMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Content delete(@PathVariable Integer id, @RequestBody Content model) {
-    contentService.delete(model);
+  public ContentModel delete(@PathVariable Integer id, @RequestBody ContentModel model) {
+    contentService.delete(model.ToContent());
     return model;
   }
 

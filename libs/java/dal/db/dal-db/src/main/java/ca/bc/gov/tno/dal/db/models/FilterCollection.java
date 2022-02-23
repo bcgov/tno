@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.dal.db.models;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -260,6 +261,31 @@ public class FilterCollection {
    */
   public List<Object> addFilter(String table, String name, LogicalOperators logicalOperator, ZonedDateTime value) {
     return addFilter(new FilterParam<ZonedDateTime>(ZonedDateTime.class, table, name, logicalOperator, value));
+  }
+
+  /**
+   * Add a filter to the collection.
+   * 
+   * @param name            The property name to filter on.
+   * @param logicalOperator The logical operator to compare the value.
+   * @param value           The value of the property.
+   * @return The list of filter parameters.
+   */
+  public List<Object> addFilter(String name, LogicalOperators logicalOperator, LocalDateTime value) {
+    return addFilter(new FilterParam<LocalDateTime>(LocalDateTime.class, name, logicalOperator, value));
+  }
+
+  /**
+   * Add a filter to the collection.
+   * 
+   * @param table           The table name to filter on.
+   * @param name            The property name to filter on.
+   * @param logicalOperator The logical operator to compare the value.
+   * @param value           The value of the property.
+   * @return The list of filter parameters.
+   */
+  public List<Object> addFilter(String table, String name, LogicalOperators logicalOperator, LocalDateTime value) {
+    return addFilter(new FilterParam<LocalDateTime>(LocalDateTime.class, table, name, logicalOperator, value));
   }
 
 }

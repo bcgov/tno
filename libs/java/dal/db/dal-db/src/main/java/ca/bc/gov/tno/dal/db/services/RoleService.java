@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Role;
-import ca.bc.gov.tno.dal.db.repositories.IRoleRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IRoleRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IRoleService;
 
 /**
@@ -38,8 +38,8 @@ public class RoleService implements IRoleService {
    */
   @Override
   public List<Role> findAll() {
-    var roles = (List<Role>) repository.findAll();
-    return roles;
+    var result = (List<Role>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class RoleService implements IRoleService {
    */
   @Override
   public Optional<Role> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

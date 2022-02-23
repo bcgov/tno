@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.License;
-import ca.bc.gov.tno.dal.db.repositories.ILicenseRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.ILicenseRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ILicenseService;
 
 /**
@@ -38,8 +38,8 @@ public class LicenseService implements ILicenseService {
    */
   @Override
   public List<License> findAll() {
-    var licenses = (List<License>) repository.findAll();
-    return licenses;
+    var result = (List<License>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class LicenseService implements ILicenseService {
    */
   @Override
   public Optional<License> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

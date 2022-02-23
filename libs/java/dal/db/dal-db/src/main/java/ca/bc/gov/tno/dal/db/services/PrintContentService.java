@@ -19,7 +19,7 @@ import ca.bc.gov.tno.dal.db.entities.PrintContent;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.FilterParam;
 import ca.bc.gov.tno.dal.db.models.SortParam;
-import ca.bc.gov.tno.dal.db.repositories.IPrintContentRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IPrintContentRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IPrintContentService;
 import ca.bc.gov.tno.models.Paged;
@@ -59,8 +59,8 @@ public class PrintContentService implements IPrintContentService {
    */
   @Override
   public List<PrintContent> findAll() {
-    var items = (List<PrintContent>) repository.findAll();
-    return items;
+    var result = (List<PrintContent>) repository.findAll();
+    return result;
   }
 
   /**
@@ -135,8 +135,8 @@ public class PrintContentService implements IPrintContentService {
    */
   @Override
   public Optional<PrintContent> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

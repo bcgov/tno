@@ -800,7 +800,7 @@ CREATE TABLE IF NOT EXISTS public.file_reference
   "mime_type" VARCHAR(100) NOT NULL,
   "path" VARCHAR(500) NOT NULL,
   "size" INT NOT NULL,
-  "length" INT NOT NULL,
+  "running_time" INT NOT NULL DEFAULT 0,
   -- Audit Columns
   "created_by_id" UUID NOT NULL,
   "created_by" VARCHAR(50) NOT NULL,
@@ -846,13 +846,19 @@ INSERT INTO public.media_type (
     , '00000000-0000-0000-0000-000000000000'
     , ''
 ), (
-    'TV'
+    'Television'
     , '00000000-0000-0000-0000-000000000000'
     , ''
     , '00000000-0000-0000-0000-000000000000'
     , ''
 ), (
-    'Radio'
+    'Talk Radio'
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+    , '00000000-0000-0000-0000-000000000000'
+    , ''
+), (
+    'News Radio'
     , '00000000-0000-0000-0000-000000000000'
     , ''
     , '00000000-0000-0000-0000-000000000000'

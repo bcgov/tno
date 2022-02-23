@@ -1,8 +1,11 @@
 package ca.bc.gov.tno.dal.db.services.interfaces;
 
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import ca.bc.gov.tno.dal.db.entities.TimeTracking;
 import ca.bc.gov.tno.dal.db.entities.User;
 import ca.bc.gov.tno.dal.db.models.SortParam;
 import ca.bc.gov.tno.models.interfaces.IPaged;
@@ -35,6 +38,16 @@ public interface IUserService {
    * @return A page of users.
    */
   IPaged<User> find(int page, int quantity, SortParam[] sort);
+
+  /**
+   * Find all time tracking for the specified time period, grouped by user.
+   * 
+   * @param from Content updatedOn 'from' filter.
+   * @param to   Content updatedOn 'to' filter.
+   * @return A map of all users who updated content within the filter and their
+   *         time tracking.
+   */
+  Map<User, List<TimeTracking>> getTimeTracking(ZonedDateTime from, ZonedDateTime to);
 
   /**
    * Add a new user to the data source.

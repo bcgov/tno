@@ -12,7 +12,7 @@ import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
 import ca.bc.gov.tno.dal.db.entities.ContentCategoryPK;
-import ca.bc.gov.tno.dal.db.repositories.IContentCategoryRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentCategoryRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentCategoryService;
 
 /**
@@ -46,8 +46,8 @@ public class ContentCategoryService implements IContentCategoryService {
    */
   @Override
   public List<ContentCategory> findAll() {
-    var ContentCategorys = (List<ContentCategory>) repository.findAll();
-    return ContentCategorys;
+    var result = (List<ContentCategory>) repository.findAll();
+    return result;
   }
 
   /**
@@ -58,8 +58,8 @@ public class ContentCategoryService implements IContentCategoryService {
    */
   @Override
   public Optional<ContentCategory> findById(ContentCategoryPK key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

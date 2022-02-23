@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Schedule;
-import ca.bc.gov.tno.dal.db.repositories.IScheduleRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IScheduleRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IScheduleService;
 
 /**
@@ -38,8 +38,8 @@ public class ScheduleService implements IScheduleService {
    */
   @Override
   public List<Schedule> findAll() {
-    var schedules = (List<Schedule>) repository.findAll();
-    return schedules;
+    var result = (List<Schedule>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class ScheduleService implements IScheduleService {
    */
   @Override
   public Optional<Schedule> findById(int key) {
-    var schedule = repository.findById(key);
-    return schedule;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

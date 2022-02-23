@@ -9,7 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
@@ -48,7 +47,6 @@ public class ContentLink extends AuditColumns {
   /**
    * The content link reference.
    */
-  @JsonBackReference("content")
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "link_id", insertable = false, updatable = false)
   private Content link;

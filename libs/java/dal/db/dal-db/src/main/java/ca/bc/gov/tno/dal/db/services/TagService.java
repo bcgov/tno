@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Tag;
-import ca.bc.gov.tno.dal.db.repositories.ITagRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.ITagRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ITagService;
 
 /**
@@ -38,8 +38,8 @@ public class TagService implements ITagService {
    */
   @Override
   public List<Tag> findAll() {
-    var Tags = (List<Tag>) repository.findAll();
-    return Tags;
+    var result = (List<Tag>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class TagService implements ITagService {
    */
   @Override
   public Optional<Tag> findById(String key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

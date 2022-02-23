@@ -1,6 +1,6 @@
-package ca.bc.gov.tno.dal.db.repositories;
+package ca.bc.gov.tno.dal.db.repositories.interfaces;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ca.bc.gov.tno.dal.db.entities.TimeTracking;
@@ -11,6 +11,6 @@ import ca.bc.gov.tno.dal.db.entities.TimeTrackingPK;
  * TimeTracking repository.
  */
 @Repository
-public interface ITimeTrackingRepository extends CrudRepository<TimeTracking, TimeTrackingPK> {
+public interface ITimeTrackingRepository extends JpaRepository<TimeTracking, TimeTrackingPK> {
 
 }

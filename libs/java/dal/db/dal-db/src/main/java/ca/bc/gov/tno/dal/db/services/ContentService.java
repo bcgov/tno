@@ -16,15 +16,17 @@ import ca.bc.gov.tno.dal.db.entities.ContentAction;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
 import ca.bc.gov.tno.dal.db.entities.ContentTone;
+import ca.bc.gov.tno.dal.db.entities.FileReference;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.FilterParam;
 import ca.bc.gov.tno.dal.db.models.SortParam;
-import ca.bc.gov.tno.dal.db.repositories.IContentRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentActionService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentCategoryService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTagService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentToneService;
+import ca.bc.gov.tno.dal.db.services.interfaces.IFileReferenceService;
 import ca.bc.gov.tno.models.Paged;
 import ca.bc.gov.tno.models.interfaces.IPaged;
 
@@ -41,6 +43,7 @@ public class ContentService implements IContentService {
   private final IContentTagService contentTagService;
   private final IContentCategoryService contentCategoryService;
   private final IContentToneService contentToneService;
+  private final IFileReferenceService fileReferenceService;
 
   /**
    * Creates a new instance of a ContentService object, initializes with
@@ -52,17 +55,20 @@ public class ContentService implements IContentService {
    * @param contentTagService      The content tag service.
    * @param contentCategoryService The content category service.
    * @param contentToneService     The content tone pool service.
+   * @param fileReferenceService   The file reference service.
    */
   @Autowired
   public ContentService(final SessionFactory sessionFactory, final IContentRepository repository,
       final IContentActionService contentActionService, final IContentTagService contentTagService,
-      final IContentCategoryService contentCategoryService, final IContentToneService contentToneService) {
+      final IContentCategoryService contentCategoryService, final IContentToneService contentToneService,
+      final IFileReferenceService fileReferenceService) {
     this.sessionFactory = sessionFactory;
     this.repository = repository;
     this.contentActionService = contentActionService;
     this.contentTagService = contentTagService;
     this.contentCategoryService = contentCategoryService;
     this.contentToneService = contentToneService;
+    this.fileReferenceService = fileReferenceService;
   }
 
   /**
@@ -72,8 +78,8 @@ public class ContentService implements IContentService {
    */
   @Override
   public List<Content> findAll() {
-    var items = (List<Content>) repository.findAll();
-    return items;
+    var result = (List<Content>) repository.findAll();
+    return result;
   }
 
   /**
@@ -165,10 +171,15 @@ public class ContentService implements IContentService {
     hsql.append(String.format("JOIN%s content.license AS license\n", doFetch ? " FETCH" : ""));
     hsql.append(String.format("LEFT JOIN%s content.printContent AS print\n", doFetch ? " FETCH" : ""));
     hsql.append(String.format("LEFT JOIN%s content.owner AS owner\n", doFetch ? " FETCH" : ""));
+    hsql.append(String.format("LEFT JOIN%s content.series AS series\n", doFetch ? " FETCH" : ""));
     hsql.append(String.format("LEFT JOIN%s content.dataSource AS dataSource\n", doFetch ? " FETCH" : ""));
 
+    // Can only eager load one collection in hibernate...
     if (hasUser)
       hsql.append("LEFT JOIN content.timeTrackings as timeTracking\n");
+    else
+      hsql.append(String.format("LEFT JOIN%s content.fileReferences AS fileReferences\n", doFetch ? " FETCH" : ""));
+
     if (hasActions)
       hsql.append("""
           LEFT JOIN content.contentActions as contentActions
@@ -190,8 +201,8 @@ public class ContentService implements IContentService {
    */
   @Override
   public Optional<Content> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**
@@ -224,6 +235,12 @@ public class ContentService implements IContentService {
         var result = Optional.ofNullable((Content) find.uniqueResult());
 
         if (result.isPresent()) {
+          var fileReferences = session
+              .createQuery("SELECT fr FROM FileReference fr WHERE fr.contentId=:id")
+              .setParameter("id", key)
+              .getResultList();
+          result.get().setFileReferences(ListHelper.castList(FileReference.class, fileReferences));
+
           var tags = session
               .createQuery("SELECT ct FROM ContentTag ct JOIN FETCH ct.tag AS t WHERE ct.contentId=:id")
               .setParameter("id", key)
@@ -269,6 +286,12 @@ public class ContentService implements IContentService {
   public Content add(Content entity) {
     var result = repository.save(PrincipalHelper.addAudit(entity));
 
+    if (entity.getFileReferences().size() > 0) {
+      fileReferenceService.add(entity.getFileReferences().stream().map((fr) -> {
+        fr.setContentId(result.getId());
+        return fr;
+      }).toList());
+    }
     if (entity.getContentActions().size() > 0) {
       contentActionService.add(entity.getContentActions().stream().map((ca) -> {
         ca.setContentId(result.getId());
@@ -276,24 +299,25 @@ public class ContentService implements IContentService {
       }).toList());
     }
     if (entity.getContentTags().size() > 0) {
-      contentTagService.add(entity.getContentTags().stream().map((ca) -> {
-        ca.setContentId(result.getId());
-        return ca;
+      contentTagService.add(entity.getContentTags().stream().map((ct) -> {
+        ct.setContentId(result.getId());
+        return ct;
       }).toList());
     }
     if (entity.getContentCategories().size() > 0) {
-      contentCategoryService.add(entity.getContentCategories().stream().map((ca) -> {
-        ca.setContentId(result.getId());
-        return ca;
+      contentCategoryService.add(entity.getContentCategories().stream().map((cc) -> {
+        cc.setContentId(result.getId());
+        return cc;
       }).toList());
     }
     if (entity.getContentTonePools().size() > 0) {
-      contentToneService.add(entity.getContentTonePools().stream().map((ca) -> {
-        ca.setContentId(result.getId());
-        return ca;
+      contentToneService.add(entity.getContentTonePools().stream().map((ct) -> {
+        ct.setContentId(result.getId());
+        return ct;
       }).toList());
     }
-    return result;
+    // TODO: Load lazy load properties if they are not already loaded.
+    return findById(result.getId(), true).get();
   }
 
   /**
@@ -318,7 +342,8 @@ public class ContentService implements IContentService {
     if (entity.getContentTonePools().size() > 0) {
       contentToneService.update(entity.getContentTonePools());
     }
-    return result;
+    // TODO: Load lazy load properties if they are not already loaded.
+    return findById(result.getId(), true).get();
   }
 
   /**

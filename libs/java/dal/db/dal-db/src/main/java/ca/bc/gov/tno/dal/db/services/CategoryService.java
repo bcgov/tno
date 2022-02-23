@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Category;
-import ca.bc.gov.tno.dal.db.repositories.ICategoryRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.ICategoryRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ICategoryService;
 
 /**
@@ -38,8 +38,8 @@ public class CategoryService implements ICategoryService {
    */
   @Override
   public List<Category> findAll() {
-    var Categorys = (List<Category>) repository.findAll();
-    return Categorys;
+    var result = (List<Category>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class CategoryService implements ICategoryService {
    */
   @Override
   public Optional<Category> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

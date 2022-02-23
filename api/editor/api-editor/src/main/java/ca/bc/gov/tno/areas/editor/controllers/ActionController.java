@@ -24,8 +24,18 @@ public class ActionController {
   /**
    * DAL for action.
    */
-  @Autowired
   private IActionService actionService;
+
+  /**
+   * Creates a new instance of a ActionController object, initializes with
+   * specified parameters.
+   *
+   * @param actionService Action service.
+   */
+  @Autowired
+  public ActionController(IActionService actionService) {
+    this.actionService = actionService;
+  }
 
   /**
    * Request a list of all actions from the db.
