@@ -10,7 +10,7 @@ import {
   OptionItem,
   Row,
   Tab,
-  TabContainer,
+  Tabs,
 } from 'components';
 import { Formik } from 'formik';
 import { IContentApi, useApiEditor } from 'hooks';
@@ -19,8 +19,8 @@ import { useNavigate } from 'react-router-dom';
 import { useLookup } from 'store';
 
 import { PropertiesContentForm } from '.';
-import { formContentToApiContent } from './contentFormUtils';
 import { TranscriptContentForm } from './TranscriptContentForm';
+import { formContentToApiContent } from './utils';
 
 /**
  * Content Form edit and create form for default view. Path will be appeneded with content id.
@@ -80,7 +80,9 @@ export const ContentForm: React.FC = () => {
 
   useEffect(() => {
     setMediatTypeOptions(
-      [new OptionItem('All Media', 0)].concat(mediaTypes.map((m) => new OptionItem(m.name, m.id))),
+      [new OptionItem<number>('All Media', 0)].concat(
+        mediaTypes.map((m) => new OptionItem<number>(m.name, m.id)),
+      ),
     );
   }, [mediaTypes]);
 
@@ -216,7 +218,7 @@ export const ContentForm: React.FC = () => {
               </Col>
             </Row>
             <Row>
-              <TabContainer
+              <Tabs
                 tabs={
                   <>
                     <Tab
@@ -237,7 +239,7 @@ export const ContentForm: React.FC = () => {
                 ) : (
                   <TranscriptContentForm content={content} setContent={setContent} />
                 )}
-              </TabContainer>
+              </Tabs>
             </Row>
             <Row style={{ marginTop: '2%' }}>
               <Button

@@ -1,4 +1,4 @@
-import * as styled from './AreaStyled';
+import * as styled from './styled';
 
 export interface IAreaProps {
   children?: React.ReactNode;

@@ -1,7 +1,8 @@
+import { BouncingSpinner } from 'components/spinners';
 import React, { ButtonHTMLAttributes } from 'react';
 
 import { ButtonVariant } from '.';
-import * as styled from './ButtonStyled';
+import * as styled from './styled';
 
 export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
@@ -12,6 +13,10 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    * The tooltip to show on hover.
    */
   tooltip?: string;
+  /**
+   * Whether the button should show a loading indicator.
+   */
+  loading?: boolean;
 }
 
 /**
@@ -25,6 +30,7 @@ export const Button: React.FC<IButtonProps> = ({
   tooltip,
   className,
   children,
+  loading = false,
   ...rest
 }) => {
   return (
@@ -36,7 +42,10 @@ export const Button: React.FC<IButtonProps> = ({
       data-tip={tooltip}
       {...rest}
     >
-      {children}
+      <div>
+        {children}
+        {loading && <BouncingSpinner />}
+      </div>
     </styled.Button>
   );
 };

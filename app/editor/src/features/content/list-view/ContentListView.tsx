@@ -96,11 +96,13 @@ export const ContentListView: React.FC = () => {
   React.useEffect(() => {
     setContentTypes(contentTypes.map((m) => new OptionItem(m.name, m.id)));
     setMediaTypes(
-      [new OptionItem('All Media', 0)].concat(mediaTypes.map((m) => new OptionItem(m.name, m.id))),
+      [new OptionItem<number>('All Media', 0)].concat(
+        mediaTypes.map((m) => new OptionItem<number>(m.name, m.id)),
+      ),
     );
     setUsers(
-      [new OptionItem('All Users', 0)].concat(
-        users.map((u) => new OptionItem(u.displayName, u.id)),
+      [new OptionItem<number>('All Users', 0)].concat(
+        users.map((u) => new OptionItem<number>(u.displayName, u.id)),
       ),
     );
   }, [contentTypes, mediaTypes, users]);

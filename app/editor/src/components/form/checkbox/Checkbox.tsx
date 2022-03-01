@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from 'react';
 
 import { CheckboxVariant } from '.';
-import * as styled from './CheckboxStyled';
+import * as styled from './styled';
 
 export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   /**

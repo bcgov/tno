@@ -1,10 +1,9 @@
-import Row from 'components/row/RowStyled';
+import { Row } from 'components/row/styled';
 import React, { InputHTMLAttributes } from 'react';
 
 import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
-import { StyledSpan } from './SpanStyled';
-import { StyledDiv } from './StyledDiv';
+import * as styled from './styled';
 
 export interface IRadioGroupProps<OT extends string | number | IOptionItem | HTMLOptionElement>
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
@@ -87,13 +86,13 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
           </label>
         </Row>
       )}
-      <StyledDiv direction={direction} className="frm-in rag">
+      <styled.Div direction={direction} className="frm-in rag">
         {options
           ? options.map((option) => {
               if (instanceOfIOption(option)) {
                 const item = option as IOptionItem;
                 return (
-                  <StyledSpan spaceUnderRadio={!!spaceUnderRadio} key={item.value}>
+                  <styled.Span spaceUnderRadio={!!spaceUnderRadio} key={item.value}>
                     <Radio
                       id={`${name}-${item.value}`}
                       name={name}
@@ -103,7 +102,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                       {...rest}
                     />
                     <label htmlFor={`${name}-${item.value}`}>{item.label}</label>
-                  </StyledSpan>
+                  </styled.Span>
                 );
               } else if (typeof option === 'object') {
                 // TODO: Validate option is HTMLOptionElement
@@ -141,7 +140,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
               }
             })
           : children}
-      </StyledDiv>
+      </styled.Div>
     </>
   );
 };

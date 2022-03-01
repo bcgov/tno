@@ -1,21 +1,21 @@
 import { IOptionItem } from '.';
 
-export class OptionItem implements IOptionItem {
+export class OptionItem<T extends string | number = string | number> implements IOptionItem<T> {
   discriminator: 'IOption';
   label: string;
-  value: string | number;
+  value: T;
 
-  constructor(label: string, value: string | number) {
+  constructor(label: string, value: T) {
     this.discriminator = 'IOption';
     this.label = label;
     this.value = value;
   }
 
-  static create(label: string, value: string | number): IOptionItem {
+  static create<T extends string | number>(label: string, value: T): IOptionItem<T> {
     return new OptionItem(label, value);
   }
 
-  toInterface(): IOptionItem {
+  toInterface(): IOptionItem<T> {
     return {
       discriminator: this.discriminator,
       label: this.label,

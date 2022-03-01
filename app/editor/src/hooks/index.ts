@@ -3,4 +3,5 @@ export * from './useDeepCompare';
 export * from './useDeepCompareCallback';
 export * from './useDeepCompareEffect';
 export * from './useDeepCompareMemo';
+export * from './useDownload';
 export * from './useNavState';

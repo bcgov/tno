@@ -92,11 +92,12 @@ public class ContentModel extends AuditColumnModel {
       this.publishedOn = entity.getPublishedOn();
       this.sourceURL = entity.getSourceURL();
 
-      this.fileReferences = entity.getFileReferences().stream()
-          .map((file) -> new FileReferenceModel(file))
-          .toList();
-
       var putil = Persistence.getPersistenceUtil();
+      if (putil.isLoaded(entity, "fileReferences")) {
+        this.fileReferences = entity.getFileReferences().stream()
+            .map((file) -> new FileReferenceModel(file))
+            .toList();
+      }
       if (putil.isLoaded(entity, "contentCategories")) {
         this.categories = entity.getContentCategories().stream()
             .map((tag) -> new CategoryModel(tag.getCategory(), tag.getScore()))

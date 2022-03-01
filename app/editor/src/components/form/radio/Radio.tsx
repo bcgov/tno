@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from 'react';
 
 import { RadioVariant } from '.';
-import * as styled from './RadioStyled';
+import * as styled from './styled';
 
 export interface IRadioProps extends InputHTMLAttributes<HTMLInputElement> {
   /**

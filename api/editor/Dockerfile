@@ -8,7 +8,7 @@ FROM openjdk:17.0.1-slim AS final
 WORKDIR /app
 COPY --from=base /project/api-editor/target .
 
-RUN apt-get update && apt-get install curl -y
+RUN apt-get update && apt-get install curl -y fontconfig libfreetype6
 
 EXPOSE 8080
 

@@ -1,7 +1,7 @@
 import { useKeycloakWrapper } from 'tno-core';
 
 import { Button } from '..';
-import * as styled from './HeaderStyled';
+import * as styled from './styled';
 
 interface IHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
