@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -15,11 +14,12 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import ca.bc.gov.tno.dal.db.entities.Content;
-import ca.bc.gov.tno.dal.db.entities.Series;
 import ca.bc.gov.tno.dal.db.entities.User;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.LogicalOperators;
@@ -39,15 +39,17 @@ public class CBRAReport {
   // Data Variables
   private Content[] content;
   private List<Content> talkRadio;
-  private Map<Optional<Series>, List<Content>> talkRadioSeries;
-  private ArrayList<Optional<Series>> talkRadioKeys;
+  private Map<String, List<Content>> talkRadioSeries;
+  private ArrayList<String> talkRadioKeys;
   private List<Content> newsRadio;
   private ArrayList<String> newsRadioKeys;
   private List<Content> television;
   private Map<String, List<Content>> newsRadioSources;
-  private ArrayList<Optional<Series>> televisionKeys;
-  private Map<Optional<Series>, List<Content>> televisionSeries;
+  private ArrayList<String> televisionKeys;
+  private Map<String, List<Content>> televisionSeries;
   private int maxRows;
+
+  private final XSSFColor green = new XSSFColor(workbook.getStylesSource().getIndexedColors());
 
   /**
    * Creates a new instance of a CBRAReport object, initializes with specified
@@ -64,20 +66,41 @@ public class CBRAReport {
     this.actionService = actionService;
 
     sheet.setColumnWidth(0, 6000);
+    green.setARGBHex("#008000".substring(1));
     sheet.setColumnWidth(1, 4000);
   }
 
-  private XSSFCellStyle createStyle(String font, short size, boolean bold, boolean wrap,
+  private XSSFFont createFont(short size, boolean bold, XSSFColor color) {
+    var style = workbook.createFont();
+    style.setFontName("Calibri");
+    style.setFontHeightInPoints((short) size);
+    style.setBold(bold);
+    style.setColor(color);
+
+    return style;
+  }
+
+  private XSSFCellStyle createStyle(short size, boolean bold, boolean wrap,
       HorizontalAlignment horizontalAlign) {
 
-    var fontStyle = workbook.createFont();
-    fontStyle.setFontName(font);
-    fontStyle.setFontHeightInPoints((short) size);
-    fontStyle.setBold(bold);
+    var color = new XSSFColor(workbook.getStylesSource().getIndexedColors());
+    color.setARGBHex("#000000".substring(1));
+    var fontStyle = createFont(size, bold, color);
 
     var style = workbook.createCellStyle();
-    // style.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-    // style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    style.setFont(fontStyle);
+    style.setWrapText(wrap);
+    style.setAlignment(horizontalAlign);
+
+    return style;
+  }
+
+  private XSSFCellStyle createStyle(short size, boolean bold, boolean wrap,
+      HorizontalAlignment horizontalAlign, XSSFColor color) {
+
+    var fontStyle = createFont(size, bold, color);
+
+    var style = workbook.createCellStyle();
     style.setFont(fontStyle);
     style.setWrapText(wrap);
     style.setAlignment(horizontalAlign);
@@ -99,17 +122,23 @@ public class CBRAReport {
 
     talkRadio = Arrays.stream(content).filter(c -> c.getMediaType().getName().equals("Talk Radio")).toList();
     talkRadioSeries = talkRadio.stream()
-        .collect(Collectors.groupingBy(c -> Optional.ofNullable((c.getSeries()))));
-    talkRadioKeys = new ArrayList<Optional<Series>>(talkRadioSeries.keySet());
+        .collect(Collectors.groupingBy(c -> c.getSeries() != null ? c.getSeries().getName() : "NOT SET"));
+    talkRadioKeys = new ArrayList<String>(talkRadioSeries.keySet());
 
     newsRadio = Arrays.stream(content).filter(c -> c.getMediaType().getName().equals("News Radio")).toList();
-    newsRadioSources = newsRadio.stream().collect(Collectors.groupingBy(Content::getSource));
+    newsRadioSources = newsRadio.stream().collect(Collectors.groupingBy(c -> {
+      if (c.getDataSource() != null)
+        return c.getDataSource().getCode();
+      if (c.getSource() != null && c.getSource().length() != 0)
+        return c.getSource();
+      return "NOT SET";
+    }));
     newsRadioKeys = new ArrayList<String>(newsRadioSources.keySet());
 
     television = Arrays.stream(content).filter(c -> c.getMediaType().getName().equals("Television")).toList();
     televisionSeries = television.stream()
-        .collect(Collectors.groupingBy(c -> Optional.ofNullable((c.getSeries()))));
-    televisionKeys = new ArrayList<Optional<Series>>(televisionSeries.keySet());
+        .collect(Collectors.groupingBy(c -> c.getSeries() != null ? c.getSeries().getName() : "NOT SET"));
+    televisionKeys = new ArrayList<String>(televisionSeries.keySet());
 
     int[] sizes = { talkRadioSeries.size(), newsRadioSources.size(), televisionSeries.size() };
     maxRows = Arrays.stream(sizes).max().getAsInt();
@@ -126,16 +155,24 @@ public class CBRAReport {
     lastRow = addSpacerRow(lastRow + 2);
     addDatabaseEntries(lastRow + 2);
 
+    sheet.autoSizeColumn(0);
+    sheet.autoSizeColumn(1);
+    sheet.autoSizeColumn(2);
+    sheet.autoSizeColumn(3);
+    sheet.autoSizeColumn(4);
+    sheet.autoSizeColumn(5);
+
     return workbook;
   }
 
   private int addSpacerRow(int startRowIndex) {
     var style = workbook.createCellStyle();
-    style.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
+    style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
     style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
     var row = sheet.createRow(startRowIndex);
     row.setRowStyle(style);
+    row.setHeight((short) 50);
 
     return startRowIndex;
   }
@@ -144,7 +181,7 @@ public class CBRAReport {
     var localFrom = from.toLocalDateTime();
     var localTo = to.toLocalDateTime();
 
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.CENTER);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.CENTER);
 
     var titleRow = sheet.createRow(1);
     sheet.addMergedRegion(CellRangeAddress.valueOf("A2:E2"));
@@ -155,7 +192,7 @@ public class CBRAReport {
   }
 
   private int addTotalExcerptsByProgram(int startRowIndex) {
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.CENTER);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.CENTER);
 
     var totalExcerptsRow = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf("A4:E4"));
@@ -163,7 +200,7 @@ public class CBRAReport {
     totalExcerptCell.setCellStyle(titleStyle);
     totalExcerptCell.setCellValue("Total Excerpts by Program");
 
-    var style = createStyle("Arial", (short) 12, false, true, HorizontalAlignment.CENTER);
+    var style = createStyle((short) 12, false, true, HorizontalAlignment.CENTER);
 
     var row1 = sheet.createRow(++startRowIndex);
     var cellA = row1.createCell(0);
@@ -196,6 +233,9 @@ public class CBRAReport {
     cellF.setCellStyle(style);
     cellF.setCellValue("(#)");
 
+    var nameStyle = createStyle((short) 12, false, true, HorizontalAlignment.LEFT, green);
+    var valueStyle = createStyle((short) 12, false, true, HorizontalAlignment.LEFT, green);
+
     for (var i = 0; i < maxRows; i++) {
 
       var row = sheet.createRow(++startRowIndex);
@@ -204,13 +244,12 @@ public class CBRAReport {
         var talkRadioKey = talkRadioKeys.get(i);
         var talkRadioRows = talkRadioSeries.get(talkRadioKey);
 
-        var name = talkRadioKey.isPresent() ? talkRadioKey.get().getName() : "NOT SET";
         cellA = row.createCell(0);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(talkRadioKey);
 
         cellB = row.createCell(1);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(talkRadioRows.size());
       }
 
@@ -218,13 +257,12 @@ public class CBRAReport {
         var newsRadioKey = newsRadioKeys.get(i);
         var newsRadioRows = newsRadioSources.get(newsRadioKey);
 
-        var name = newsRadioKey != null ? newsRadioKey : "NOT SET";
         cellA = row.createCell(2);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(newsRadioKey);
 
         cellB = row.createCell(3);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(newsRadioRows.size());
       }
 
@@ -232,13 +270,12 @@ public class CBRAReport {
         var televisionKey = televisionKeys.get(i);
         var televisionRows = televisionSeries.get(televisionKey);
 
-        var name = televisionKey.isPresent() ? televisionKey.get().getName() : "NOT SET";
         cellA = row.createCell(4);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(televisionKey);
 
         cellB = row.createCell(5);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(televisionRows.size());
       }
 
@@ -248,7 +285,7 @@ public class CBRAReport {
   }
 
   private int addTotalRunningTimeByProgram(int startRowIndex) {
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.CENTER);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.CENTER);
 
     var totalExcerptsRow = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:E%<s", startRowIndex + 1)));
@@ -256,7 +293,7 @@ public class CBRAReport {
     totalExcerptCell.setCellStyle(titleStyle);
     totalExcerptCell.setCellValue("Total Running Time by Program");
 
-    var style = createStyle("Arial", (short) 12, false, true, HorizontalAlignment.CENTER);
+    var style = createStyle((short) 12, false, true, HorizontalAlignment.CENTER);
 
     var row1 = sheet.createRow(++startRowIndex);
     var cellA = row1.createCell(0);
@@ -289,7 +326,9 @@ public class CBRAReport {
     cellF.setCellStyle(style);
     cellF.setCellValue("(#)");
 
-    // Iterate through groups.
+    var nameStyle = createStyle((short) 12, false, true, HorizontalAlignment.LEFT, green);
+    var valueStyle = createStyle((short) 12, false, true, HorizontalAlignment.LEFT, green);
+    valueStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
 
     for (var i = 0; i < maxRows; i++) {
 
@@ -299,16 +338,15 @@ public class CBRAReport {
         var talkRadioKey = talkRadioKeys.get(i);
         var talkRadioRows = talkRadioSeries.get(talkRadioKey);
 
-        var name = talkRadioKey.isPresent() ? talkRadioKey.get().getName() : "NOT SET";
         cellA = row.createCell(0);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(talkRadioKey);
 
         var total = talkRadioRows.stream().filter(c -> c.getFileReferences().size() > 0)
             .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
         var time = calculateRunningTime(total);
         cellB = row.createCell(1);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(time);
       }
 
@@ -316,16 +354,15 @@ public class CBRAReport {
         var newsRadioKey = newsRadioKeys.get(i);
         var newsRadioRows = newsRadioSources.get(newsRadioKey);
 
-        var name = newsRadioKey != null ? newsRadioKey : "NOT SET";
         cellA = row.createCell(2);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(newsRadioKey);
 
         var total = newsRadioRows.stream().filter(c -> c.getFileReferences().size() > 0)
             .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
         var time = calculateRunningTime(total);
         cellB = row.createCell(3);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(time);
       }
 
@@ -333,16 +370,15 @@ public class CBRAReport {
         var televisionKey = televisionKeys.get(i);
         var televisionRows = televisionSeries.get(televisionKey);
 
-        var name = televisionKey.isPresent() ? televisionKey.get().getName() : "NOT SET";
         cellA = row.createCell(4);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(televisionKey);
 
         var total = televisionRows.stream().filter(c -> c.getFileReferences().size() > 0)
             .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
         var time = calculateRunningTime(total);
         cellB = row.createCell(5);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(time);
       }
 
@@ -352,7 +388,7 @@ public class CBRAReport {
   }
 
   private int addPercentOfTotalRunningTimeByProgram(int startRowIndex) {
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.CENTER);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.CENTER);
 
     var totalExcerptsRow = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:E%<s", startRowIndex + 1)));
@@ -360,7 +396,7 @@ public class CBRAReport {
     totalExcerptCell.setCellStyle(titleStyle);
     totalExcerptCell.setCellValue("% of Total Running Time by Program");
 
-    var style = createStyle("Arial", (short) 12, false, true, HorizontalAlignment.CENTER);
+    var style = createStyle((short) 12, false, true, HorizontalAlignment.CENTER);
 
     var row1 = sheet.createRow(++startRowIndex);
     var cellA = row1.createCell(0);
@@ -400,6 +436,10 @@ public class CBRAReport {
     var totalTelevision = television.stream().filter((c) -> c.getFileReferences().size() > 0)
         .mapToInt((c) -> c.getFileReferences().get(0).getRunningTime()).sum();
 
+    var nameStyle = createStyle((short) 12, false, true, HorizontalAlignment.LEFT, green);
+    var valueStyle = createStyle((short) 12, false, true, HorizontalAlignment.LEFT, green);
+    valueStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00%"));
+
     for (var i = 0; i < maxRows; i++) {
       var row = sheet.createRow(++startRowIndex);
 
@@ -407,16 +447,15 @@ public class CBRAReport {
         var talkRadioKey = talkRadioKeys.get(i);
         var talkRadioRows = talkRadioSeries.get(talkRadioKey);
 
-        var name = talkRadioKey.isPresent() ? talkRadioKey.get().getName() : "NOT SET";
         cellA = row.createCell(0);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(talkRadioKey);
 
         var totalSeries = talkRadioRows.stream().filter(c -> c.getFileReferences().size() > 0)
             .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
         var time = calculateRunningTimePercent(totalSeries, totalTalkRadio);
         cellB = row.createCell(1);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(time);
       }
 
@@ -424,16 +463,15 @@ public class CBRAReport {
         var newsRadioKey = newsRadioKeys.get(i);
         var newsRadioRows = newsRadioSources.get(newsRadioKey);
 
-        var name = newsRadioKey != null ? newsRadioKey : "NOT SET";
         cellA = row.createCell(2);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(newsRadioKey);
 
         var totalSource = newsRadioRows.stream().filter(c -> c.getFileReferences().size() > 0)
             .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
         var time = calculateRunningTimePercent(totalSource, totalNewsRadio);
         cellB = row.createCell(3);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(time);
       }
 
@@ -441,16 +479,15 @@ public class CBRAReport {
         var televisionKey = televisionKeys.get(i);
         var televisionRows = televisionSeries.get(televisionKey);
 
-        var name = televisionKey.isPresent() ? televisionKey.get().getName() : "NOT SET";
         cellA = row.createCell(4);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
+        cellA.setCellStyle(nameStyle);
+        cellA.setCellValue(televisionKey);
 
         var totalSeries = televisionRows.stream().filter(c -> c.getFileReferences().size() > 0)
             .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
         var time = calculateRunningTimePercent(totalSeries, totalTelevision);
         cellB = row.createCell(5);
-        cellB.setCellStyle(style);
+        cellB.setCellStyle(valueStyle);
         cellB.setCellValue(time);
       }
 
@@ -460,7 +497,7 @@ public class CBRAReport {
   }
 
   private int addPercentOfTotalRunningTime(int startRowIndex) {
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.CENTER);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.CENTER);
 
     var totalExcerptsRow = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:E%<s", startRowIndex + 1)));
@@ -468,7 +505,7 @@ public class CBRAReport {
     totalExcerptCell.setCellStyle(titleStyle);
     totalExcerptCell.setCellValue("% of Total Running Time");
 
-    var style = createStyle("Arial", (short) 12, false, true, HorizontalAlignment.CENTER);
+    var style = createStyle((short) 12, false, true, HorizontalAlignment.CENTER);
 
     var row1 = sheet.createRow(++startRowIndex);
     var cellA = row1.createCell(1);
@@ -483,58 +520,63 @@ public class CBRAReport {
     var sources = newsRadio.stream().collect(Collectors.groupingBy(Content::getSource));
     var sourceKeys = new ArrayList<String>(sources.keySet());
 
-    for (var i = 0; i < maxRows; i++) {
+    var valueStyle = createStyle((short) 12, false, true, HorizontalAlignment.CENTER, green);
+    valueStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00%"));
+
+    for (var i = 0; i < sources.size(); i++) {
       var row = sheet.createRow(++startRowIndex);
+      var sourceKey = sourceKeys.get(i);
+      var sourceRows = sources.get(sourceKey);
 
-      if (i < sources.size()) {
-        var sourceKey = sourceKeys.get(i);
-        var sourceRows = sources.get(sourceKey);
+      var name = sourceKey != null ? sourceKey : "NOT SET";
+      cellA = row.createCell(0);
+      cellA.setCellStyle(valueStyle);
+      cellA.setCellValue(name);
 
-        var name = sourceKey != null ? sourceKey : "NOT SET";
-        cellA = row.createCell(0);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
-
-        var totalSource = sourceRows.stream().filter(c -> c.getFileReferences().size() > 0)
-            .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
-        var time = calculateRunningTimePercent(totalSource, totalRunningTime);
-        cellB = row.createCell(1);
-        cellB.setCellStyle(style);
-        cellB.setCellValue(time);
-      }
+      var totalSource = sourceRows.stream().filter(c -> c.getFileReferences().size() > 0)
+          .mapToInt(c -> c.getFileReferences().get(0).getRunningTime()).sum();
+      var time = calculateRunningTimePercent(totalSource, totalRunningTime);
+      cellB = row.createCell(1);
+      cellB.setCellStyle(valueStyle);
+      cellB.setCellValue(time);
     }
 
     return startRowIndex;
   }
 
   private int addTotals(int startRowIndex) {
-    var style = createStyle("Arial", (short) 12, true, true, HorizontalAlignment.LEFT);
+    var labelStyle = createStyle((short) 12, true, true, HorizontalAlignment.LEFT);
+    var typeStyle = createStyle((short) 12, false, true, HorizontalAlignment.CENTER);
+    var valueStyle = createStyle((short) 12, false, true, HorizontalAlignment.RIGHT, green);
+    var valuePercentStyle = createStyle((short) 12, false, true, HorizontalAlignment.RIGHT, green);
+    valuePercentStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00%"));
 
     // Total number of Excerpts
     var row1 = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:C%<s", startRowIndex + 1)));
     var cellA = row1.createCell(0);
-    cellA.setCellStyle(style);
+    cellA.setCellStyle(labelStyle);
     cellA.setCellValue("Total number of Excerpts");
 
     var cellB = row1.createCell(3);
-    cellB.setCellStyle(style);
+    cellB.setCellStyle(typeStyle);
     cellB.setCellValue("(#)");
 
     var cellC = row1.createCell(4);
-    cellC.setCellStyle(style);
+    cellC.setCellStyle(valueStyle);
     cellC.setCellValue(content.length);
 
     // Total number of Excerpts which do not meet the definition of Qualified
     // Subject Matter
     row1 = sheet.createRow(startRowIndex += 2);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:C%<s", startRowIndex + 1)));
+    row1.setHeight((short) 580);
     cellA = row1.createCell(0);
-    cellA.setCellStyle(style);
+    cellA.setCellStyle(labelStyle);
     cellA.setCellValue("Total Number of Excerpts which do not meet the definition of Qualified Subject Matter");
 
     cellB = row1.createCell(3);
-    cellB.setCellStyle(style);
+    cellB.setCellStyle(typeStyle);
     cellB.setCellValue("(#)");
 
     var action = actionService.findByName("Non Qualified Subject");
@@ -545,18 +587,18 @@ public class CBRAReport {
                 .count() == 1)
         .count();
     cellC = row1.createCell(4);
-    cellC.setCellStyle(style);
+    cellC.setCellStyle(valueStyle);
     cellC.setCellValue(totalNonQualified);
 
     // Total number of Excerpts over 10 minutes
     row1 = sheet.createRow(startRowIndex += 2);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:C%<s", startRowIndex + 1)));
     cellA = row1.createCell(0);
-    cellA.setCellStyle(style);
+    cellA.setCellStyle(labelStyle);
     cellA.setCellValue("Total number of Excerpts over 10 minutes");
 
     cellB = row1.createCell(3);
-    cellB.setCellStyle(style);
+    cellB.setCellStyle(typeStyle);
     cellB.setCellValue("(#)");
 
     var tenMinutes = 1000 * 60 * 10;
@@ -566,38 +608,41 @@ public class CBRAReport {
                 .count() >= 1)
         .count();
     cellC = row1.createCell(4);
-    cellC.setCellStyle(style);
+    cellC.setCellStyle(valueStyle);
     cellC.setCellValue(totalOver10Minutes);
 
     // Percentage over 10 minutes
     row1 = sheet.createRow(startRowIndex += 2);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:C%<s", startRowIndex + 1)));
     cellA = row1.createCell(0);
-    cellA.setCellStyle(style);
+    cellA.setCellStyle(labelStyle);
     cellA.setCellValue("Percentage over 10 minutes");
 
     cellB = row1.createCell(3);
-    cellB.setCellStyle(style);
+    cellB.setCellStyle(typeStyle);
     cellB.setCellValue("(%)");
 
     var percentage = totalOver10Minutes > 0 ? totalOver10Minutes / content.length : 0;
     cellC = row1.createCell(4);
-    cellC.setCellStyle(style);
+    cellC.setCellStyle(valuePercentStyle);
     cellC.setCellValue(percentage);
 
     return startRowIndex;
   }
 
   private int addStaffSummary(int startRowIndex, ZonedDateTime from, ZonedDateTime to) {
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.LEFT);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.LEFT);
+    var headingStyle = createStyle((short) 12, true, false, HorizontalAlignment.CENTER);
+    var labelStyle = createStyle((short) 12, false, true, HorizontalAlignment.CENTER);
+    var nameStyle = createStyle((short) 12, true, false, HorizontalAlignment.LEFT, green);
+    var valueStyle = createStyle((short) 12, true, false, HorizontalAlignment.RIGHT, green);
+    valueStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
 
     var titleRow = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:E%<s", startRowIndex + 1)));
     var titleCell = titleRow.createCell(0);
     titleCell.setCellStyle(titleStyle);
     titleCell.setCellValue("Staff Summary");
-
-    var headingStyle = createStyle("Arial", (short) 12, true, false, HorizontalAlignment.CENTER);
 
     var row1 = sheet.createRow(++startRowIndex);
     var cellA = row1.createCell(0);
@@ -607,43 +652,42 @@ public class CBRAReport {
     cellB.setCellStyle(headingStyle);
     cellB.setCellValue("CBRA Hours");
 
-    var style = createStyle("Arial", (short) 12, false, true, HorizontalAlignment.CENTER);
-
     var row2 = sheet.createRow(++startRowIndex);
     cellA = row2.createCell(0);
-    cellA.setCellStyle(style);
+    cellA.setCellStyle(labelStyle);
     cellA.setCellValue("[Username]");
     cellB = row2.createCell(1);
-    cellB.setCellStyle(style);
+    cellB.setCellStyle(labelStyle);
     cellB.setCellValue("[hours]");
 
     var timeTracking = userService.getTimeTracking(from, to);
     var timeKeys = new ArrayList<User>(timeTracking.keySet());
 
-    for (var i = 0; i < maxRows; i++) {
+    for (var i = 0; i < timeTracking.size(); i++) {
       var row = sheet.createRow(++startRowIndex);
+      var userKey = timeKeys.get(i);
+      var userRows = timeTracking.get(userKey);
 
-      if (i < timeTracking.size()) {
-        var userKey = timeKeys.get(i);
-        var userRows = timeTracking.get(userKey);
+      var name = userKey != null ? userKey.getUsername() : "NOT SET";
+      cellA = row.createCell(0);
+      cellA.setCellStyle(nameStyle);
+      cellA.setCellValue(name);
 
-        var name = userKey != null ? userKey.getUsername() : "NOT SET";
-        cellA = row.createCell(0);
-        cellA.setCellStyle(style);
-        cellA.setCellValue(name);
-
-        var totalEffort = userRows.stream().mapToDouble(c -> c.getEffort()).sum();
-        cellB = row.createCell(1);
-        cellB.setCellStyle(style);
-        cellB.setCellValue(totalEffort);
-      }
+      var totalEffort = userRows.stream().mapToDouble(c -> c.getEffort()).sum();
+      cellB = row.createCell(1);
+      cellB.setCellStyle(valueStyle);
+      cellB.setCellValue(totalEffort);
     }
 
     return startRowIndex;
   }
 
   private int addDatabaseEntries(int startRowIndex) {
-    var titleStyle = createStyle("Arial", (short) 16, true, false, HorizontalAlignment.LEFT);
+    var titleStyle = createStyle((short) 14, true, false, HorizontalAlignment.LEFT);
+    var headingStyle = createStyle((short) 12, false, false, HorizontalAlignment.LEFT);
+    var labelStyle = createStyle((short) 12, false, false, HorizontalAlignment.CENTER);
+    var valueStyle = createStyle((short) 12, false, true, HorizontalAlignment.CENTER, green);
+    valueStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00%"));
 
     var titleRow = sheet.createRow(startRowIndex);
     sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:E%<s", startRowIndex + 1)));
@@ -651,25 +695,22 @@ public class CBRAReport {
     titleCell.setCellStyle(titleStyle);
     titleCell.setCellValue("Database Entries");
 
-    var headingStyle = createStyle("Arial", (short) 12, true, false, HorizontalAlignment.CENTER);
-
     var row1 = sheet.createRow(++startRowIndex);
+    sheet.addMergedRegion(CellRangeAddress.valueOf(String.format("A%s:E%<s", startRowIndex + 1)));
     var cellA = row1.createCell(0);
     cellA.setCellStyle(headingStyle);
     cellA.setCellValue("Percentage of CBRA Database Entries");
 
-    var style = createStyle("Arial", (short) 12, false, true, HorizontalAlignment.CENTER);
-
     var row2 = sheet.createRow(++startRowIndex);
-    cellA = row2.createCell(0);
-    cellA.setCellStyle(style);
+    cellA = row2.createCell(1);
+    cellA.setCellStyle(labelStyle);
     cellA.setCellValue("(%)");
 
     var total = talkRadioSeries.size() + newsRadioSources.size() + televisionSeries.size();
     var percentage = total <= 0 ? 0 : total / content.length;
     var row3 = sheet.createRow(++startRowIndex);
-    cellA = row3.createCell(0);
-    cellA.setCellStyle(style);
+    cellA = row3.createCell(1);
+    cellA.setCellStyle(valueStyle);
     cellA.setCellValue(percentage);
 
     return startRowIndex;
