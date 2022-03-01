@@ -12,7 +12,7 @@ import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentLink;
 import ca.bc.gov.tno.dal.db.entities.ContentLinkPK;
-import ca.bc.gov.tno.dal.db.repositories.IContentLinkRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentLinkRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentLinkService;
 
 /**
@@ -46,8 +46,8 @@ public class ContentLinkService implements IContentLinkService {
    */
   @Override
   public List<ContentLink> findAll() {
-    var ContentLinks = (List<ContentLink>) repository.findAll();
-    return ContentLinks;
+    var result = (List<ContentLink>) repository.findAll();
+    return result;
   }
 
   /**
@@ -58,8 +58,8 @@ public class ContentLinkService implements IContentLinkService {
    */
   @Override
   public Optional<ContentLink> findById(ContentLinkPK key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

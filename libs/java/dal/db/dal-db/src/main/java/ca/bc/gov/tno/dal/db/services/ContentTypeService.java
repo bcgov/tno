@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentType;
-import ca.bc.gov.tno.dal.db.repositories.IContentTypeRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentTypeRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTypeService;
 
 /**
@@ -38,8 +38,8 @@ public class ContentTypeService implements IContentTypeService {
    */
   @Override
   public List<ContentType> findAll() {
-    var ContentTypes = (List<ContentType>) repository.findAll();
-    return ContentTypes;
+    var result = (List<ContentType>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class ContentTypeService implements IContentTypeService {
    */
   @Override
   public Optional<ContentType> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

@@ -1,6 +1,6 @@
-package ca.bc.gov.tno.dal.db.repositories;
+package ca.bc.gov.tno.dal.db.repositories.interfaces;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ca.bc.gov.tno.dal.db.entities.ContentType;
@@ -10,6 +10,6 @@ import ca.bc.gov.tno.dal.db.entities.ContentType;
  * ContentType repository.
  */
 @Repository
-public interface IContentTypeRepository extends CrudRepository<ContentType, Integer> {
+public interface IContentTypeRepository extends JpaRepository<ContentType, Integer> {
 
 }

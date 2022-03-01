@@ -12,7 +12,7 @@ import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
 import ca.bc.gov.tno.dal.db.entities.ContentTagPK;
-import ca.bc.gov.tno.dal.db.repositories.IContentTagRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentTagRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTagService;
 
 /**
@@ -46,8 +46,8 @@ public class ContentTagService implements IContentTagService {
    */
   @Override
   public List<ContentTag> findAll() {
-    var ContentTags = (List<ContentTag>) repository.findAll();
-    return ContentTags;
+    var result = (List<ContentTag>) repository.findAll();
+    return result;
   }
 
   /**
@@ -58,8 +58,8 @@ public class ContentTagService implements IContentTagService {
    */
   @Override
   public Optional<ContentTag> findById(ContentTagPK key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

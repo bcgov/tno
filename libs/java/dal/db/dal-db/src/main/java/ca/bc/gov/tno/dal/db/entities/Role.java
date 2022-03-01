@@ -14,8 +14,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
 /**
@@ -60,14 +58,12 @@ public class Role extends AuditColumns {
   /**
    * A collection of user roles that belong to this role.
    */
-  @JsonManagedReference("userRole")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<UserRole> userRoles = new ArrayList<>();
 
   /**
    * A collection of role claims that belong to this role.
    */
-  @JsonManagedReference("roleClaim")
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private List<RoleClaim> roleClaims = new ArrayList<>();
 

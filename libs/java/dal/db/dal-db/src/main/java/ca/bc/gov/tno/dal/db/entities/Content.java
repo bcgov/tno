@@ -20,7 +20,9 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.ContentStatus;
@@ -205,42 +207,56 @@ public class Content extends AuditColumns {
   /**
    * A collection of content actions linked to this content.
    */
-  @JsonManagedReference("content")
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  private List<FileReference> fileReferences = new ArrayList<>();
+
+  /**
+   * A collection of content actions linked to this content.
+   */
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content categories linked to this content.
    */
-  @JsonManagedReference("content")
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 
   /**
    * A collection of content tags linked to this content.
    */
-  @JsonManagedReference("content")
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * A collection of content tone pools linked to this content.
    */
-  @JsonManagedReference("content")
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 
   /**
    * A collection of time tracking linked to this content.
    */
-  @JsonManagedReference("content")
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<TimeTracking> timeTrackings = new ArrayList<>();
 
   /**
    * A collection of content linked to this content.
    */
-  @JsonManagedReference("content")
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "link", fetch = FetchType.LAZY)
   private List<ContentLink> links = new ArrayList<>();
 
@@ -248,6 +264,8 @@ public class Content extends AuditColumns {
    * A collection of content logs linked to this content.
    */
   @JsonIgnore
+  // @LazyCollection(LazyCollectionOption.FALSE)
+  @Fetch(value = FetchMode.SUBSELECT)
   @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
   private List<ContentLog> logs = new ArrayList<>();
 
@@ -968,6 +986,20 @@ public class Content extends AuditColumns {
   }
 
   /**
+   * @return List{FileReference} return the fileReferences
+   */
+  public List<FileReference> getFileReferences() {
+    return fileReferences;
+  }
+
+  /**
+   * @param fileReferences the fileReferences to set
+   */
+  public void setFileReferences(List<FileReference> fileReferences) {
+    this.fileReferences = fileReferences;
+  }
+
+  /**
    * @return List{ContentAction} return the contentActions
    */
   public List<ContentAction> getContentActions() {
@@ -1120,5 +1152,4 @@ public class Content extends AuditColumns {
   public void setLogs(List<ContentLog> logs) {
     this.logs = logs;
   }
-
 }

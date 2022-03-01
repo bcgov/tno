@@ -1,6 +1,6 @@
-package ca.bc.gov.tno.dal.db.repositories;
+package ca.bc.gov.tno.dal.db.repositories.interfaces;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ca.bc.gov.tno.dal.db.entities.ContentTone;
@@ -11,6 +11,6 @@ import ca.bc.gov.tno.dal.db.entities.ContentTonePK;
  * ContentTone repository.
  */
 @Repository
-public interface IContentToneRepository extends CrudRepository<ContentTone, ContentTonePK> {
+public interface IContentToneRepository extends JpaRepository<ContentTone, ContentTonePK> {
 
 }

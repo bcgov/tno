@@ -34,10 +34,14 @@ public class MediaTypeModel extends AuditColumnModel {
   }
 
   public MediaTypeModel(MediaType entity) {
-    this.id = entity.getId();
-    this.name = entity.getName();
-    this.description = entity.getDescription();
-    this.enabled = entity.isEnabled();
+    super(entity);
+
+    if (entity != null) {
+      this.id = entity.getId();
+      this.name = entity.getName();
+      this.description = entity.getDescription();
+      this.enabled = entity.isEnabled();
+    }
   }
 
   /**

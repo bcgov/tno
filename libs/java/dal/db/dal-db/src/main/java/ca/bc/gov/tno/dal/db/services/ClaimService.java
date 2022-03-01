@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Claim;
-import ca.bc.gov.tno.dal.db.repositories.IClaimRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IClaimRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IClaimService;
 
 /**
@@ -38,8 +38,8 @@ public class ClaimService implements IClaimService {
    */
   @Override
   public List<Claim> findAll() {
-    var claims = (List<Claim>) repository.findAll();
-    return claims;
+    var result = (List<Claim>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class ClaimService implements IClaimService {
    */
   @Override
   public Optional<Claim> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

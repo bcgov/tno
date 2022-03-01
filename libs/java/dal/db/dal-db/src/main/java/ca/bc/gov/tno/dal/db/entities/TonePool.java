@@ -16,7 +16,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -82,7 +82,7 @@ public class TonePool extends AuditColumns {
   /**
    * A collection of role tone pools that belong to this tone pool.
    */
-  @JsonManagedReference("tonePool")
+  @JsonIgnore
   @OneToMany(mappedBy = "tonePool", fetch = FetchType.LAZY)
   private List<ContentTone> contentTones = new ArrayList<>();
 

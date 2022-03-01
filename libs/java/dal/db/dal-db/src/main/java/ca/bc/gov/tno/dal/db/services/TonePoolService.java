@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.TonePool;
-import ca.bc.gov.tno.dal.db.repositories.ITonePoolRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.ITonePoolRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ITonePoolService;
 
 /**
@@ -38,8 +38,8 @@ public class TonePoolService implements ITonePoolService {
    */
   @Override
   public List<TonePool> findAll() {
-    var TonePools = (List<TonePool>) repository.findAll();
-    return TonePools;
+    var result = (List<TonePool>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class TonePoolService implements ITonePoolService {
    */
   @Override
   public Optional<TonePool> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

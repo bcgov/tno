@@ -87,19 +87,23 @@ public class ScheduleModel extends AuditColumnModel {
   }
 
   public ScheduleModel(Schedule entity) {
-    this.id = entity.getId();
-    this.name = entity.getName();
-    this.description = entity.getDescription();
-    this.enabled = entity.isEnabled();
-    this.scheduleType = entity.getScheduleType();
-    this.delayMS = entity.getDelayMS();
-    this.runOn = entity.getRunOn();
-    this.startAt = entity.getStartAt();
-    this.stopAt = entity.getStopAt();
-    this.repeat = entity.getRepeat();
-    this.runOnWeekDays = entity.getRunOnWeekDays();
-    this.runOnMonths = entity.getRunOnMonths();
-    this.dayOfMonth = entity.getDayOfMonth();
+    super(entity);
+
+    if (entity != null) {
+      this.id = entity.getId();
+      this.name = entity.getName();
+      this.description = entity.getDescription();
+      this.enabled = entity.isEnabled();
+      this.scheduleType = entity.getScheduleType();
+      this.delayMS = entity.getDelayMS();
+      this.runOn = entity.getRunOn();
+      this.startAt = entity.getStartAt();
+      this.stopAt = entity.getStopAt();
+      this.repeat = entity.getRepeat();
+      this.runOnWeekDays = entity.getRunOnWeekDays();
+      this.runOnMonths = entity.getRunOnMonths();
+      this.dayOfMonth = entity.getDayOfMonth();
+    }
   }
 
   /**

@@ -90,20 +90,24 @@ public class DataSourceModel extends AuditColumnModel {
   }
 
   public DataSourceModel(DataSource entity) {
-    this.id = entity.getId();
-    this.name = entity.getName();
-    this.description = entity.getDescription();
-    this.enabled = entity.isEnabled();
-    this.mediaTypeId = entity.getMediaTypeId();
-    this.mediaType = new MediaTypeModel(entity.getMediaType());
-    this.licenseId = entity.getLicenseId();
-    this.license = new LicenseModel(entity.getLicense());
-    this.topic = entity.getTopic();
-    this.lastRanOn = entity.getLastRanOn();
-    this.connection = entity.getConnection();
-    this.schedules
-        .addAll(entity.getDataSourceSchedules().stream().filter((dss) -> dss.getSchedule() != null)
-            .map((dss) -> new ScheduleModel(dss.getSchedule())).toList());
+    super(entity);
+
+    if (entity != null) {
+      this.id = entity.getId();
+      this.name = entity.getName();
+      this.description = entity.getDescription();
+      this.enabled = entity.isEnabled();
+      this.mediaTypeId = entity.getMediaTypeId();
+      this.mediaType = new MediaTypeModel(entity.getMediaType());
+      this.licenseId = entity.getLicenseId();
+      this.license = new LicenseModel(entity.getLicense());
+      this.topic = entity.getTopic();
+      this.lastRanOn = entity.getLastRanOn();
+      this.connection = entity.getConnection();
+      this.schedules
+          .addAll(entity.getDataSourceSchedules().stream().filter((dss) -> dss.getSchedule() != null)
+              .map((dss) -> new ScheduleModel(dss.getSchedule())).toList());
+    }
   }
 
   /**

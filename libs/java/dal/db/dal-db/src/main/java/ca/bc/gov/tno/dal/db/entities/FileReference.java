@@ -49,10 +49,10 @@ public class FileReference extends AuditColumns {
   private int size;
 
   /**
-   * The length of the video/audio in milliseconds.
+   * The total length of running time of the audio/video content.
    */
-  @Column(name = "length", nullable = false)
-  private int length;
+  @Column(name = "running_time", nullable = false)
+  private int runningTime;
 
   /**
    * Foreign key to the content.
@@ -79,14 +79,14 @@ public class FileReference extends AuditColumns {
    * Creates a new instance of a FileReference object, initializes with specified
    * parameters.
    * 
-   * @param id       The primary key
-   * @param content  The content the file belongs to
-   * @param path     The path and name of the file
-   * @param mimeType The file mimetype
-   * @param size     The size in bytes
-   * @param length   The length of audio/video in milliseconds
+   * @param id          The primary key
+   * @param content     The content the file belongs to
+   * @param path        The path and name of the file
+   * @param mimeType    The file mimetype
+   * @param size        The size in bytes
+   * @param runningTime The running time of audio/video in milliseconds
    */
-  public FileReference(int id, Content content, String path, String mimeType, int size, int length) {
+  public FileReference(int id, Content content, String path, String mimeType, int size, int runningTime) {
     if (content == null)
       throw new NullPointerException("Parameter 'content' cannot be null.");
     if (path == null)
@@ -104,7 +104,7 @@ public class FileReference extends AuditColumns {
     this.content = content;
     this.contentId = content.getId();
     this.size = size;
-    this.length = length;
+    this.runningTime = runningTime;
   }
 
   /**
@@ -112,6 +112,13 @@ public class FileReference extends AuditColumns {
    */
   public int getId() {
     return id;
+  }
+
+  /**
+   * @param id the id to set
+   */
+  public void setId(int id) {
+    this.id = id;
   }
 
   /**
@@ -157,17 +164,17 @@ public class FileReference extends AuditColumns {
   }
 
   /**
-   * @return int return the length
+   * @return int return the runningTime
    */
-  public int getLength() {
-    return length;
+  public int getRunningTime() {
+    return runningTime;
   }
 
   /**
-   * @param length the length to set
+   * @param runningTime the runningTime to set
    */
-  public void setLength(int length) {
-    this.length = length;
+  public void setRunningTime(int runningTime) {
+    this.runningTime = runningTime;
   }
 
   /**

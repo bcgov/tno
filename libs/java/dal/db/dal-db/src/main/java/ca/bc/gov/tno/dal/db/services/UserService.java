@@ -1,8 +1,12 @@
 package ca.bc.gov.tno.dal.db.services;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +15,10 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.SortDirection;
+import ca.bc.gov.tno.dal.db.entities.TimeTracking;
 import ca.bc.gov.tno.dal.db.entities.User;
 import ca.bc.gov.tno.dal.db.models.SortParam;
-import ca.bc.gov.tno.dal.db.repositories.IUserRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IUserRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
 import ca.bc.gov.tno.models.Paged;
 import ca.bc.gov.tno.models.interfaces.IPaged;
@@ -48,8 +53,8 @@ public class UserService implements IUserService {
    */
   @Override
   public List<User> findAll() {
-    var users = (List<User>) repository.findAll();
-    return users;
+    var result = (List<User>) repository.findAll();
+    return result;
   }
 
   /**
@@ -104,8 +109,44 @@ public class UserService implements IUserService {
    */
   @Override
   public Optional<User> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
+  }
+
+  /**
+   * Find all time tracking for the specified time period, grouped by user.
+   * 
+   * @param from Content updatedOn 'from' filter.
+   * @param to   Content updatedOn 'to' filter.
+   * @return A map of all users who updated content within the filter and their
+   *         time tracking.
+   */
+  @Override
+  public Map<User, List<TimeTracking>> getTimeTracking(ZonedDateTime from, ZonedDateTime to) {
+
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+
+      var dFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+      var hsql = new StringBuilder();
+      hsql.append("SELECT timeTracking FROM TimeTracking timeTracking\n");
+      hsql.append("JOIN timeTracking.content AS content\n");
+      hsql.append("JOIN FETCH timeTracking.user AS user\n");
+      hsql.append(String.format("WHERE content.updatedOn >= '%s' AND content.updatedOn <= '%s'\n",
+          dFormat.format(from),
+          dFormat.format(to)));
+
+      var timeTracking = session.createQuery(hsql.toString());
+      var items = ListHelper.castList(TimeTracking.class, timeTracking.getResultList());
+      var users = items.stream().collect(Collectors.groupingBy(TimeTracking::getUser));
+
+      return users;
+    } finally {
+      ts.commit();
+      session.close();
+    }
   }
 
   /**

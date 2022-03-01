@@ -49,11 +49,15 @@ public class LicenseModel extends AuditColumnModel {
   }
 
   public LicenseModel(License entity) {
-    this.id = entity.getId();
-    this.name = entity.getName();
-    this.description = entity.getDescription();
-    this.enabled = entity.isEnabled();
-    this.ttl = entity.getTtl();
+    super(entity);
+
+    if (entity != null) {
+      this.id = entity.getId();
+      this.name = entity.getName();
+      this.description = entity.getDescription();
+      this.enabled = entity.isEnabled();
+      this.ttl = entity.getTtl();
+    }
   }
 
   /**

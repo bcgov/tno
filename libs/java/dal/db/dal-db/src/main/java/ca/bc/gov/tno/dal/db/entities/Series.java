@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 
@@ -59,7 +59,7 @@ public class Series extends AuditColumns {
   /**
    * A collection of content of this type.
    */
-  @JsonManagedReference("content")
+  @JsonIgnore
   @OneToMany(mappedBy = "series", fetch = FetchType.LAZY)
   private List<Content> contents = new ArrayList<>();
 

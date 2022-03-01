@@ -3,12 +3,13 @@ package ca.bc.gov.tno.dal.db.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Action;
-import ca.bc.gov.tno.dal.db.repositories.IActionRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IActionRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IActionService;
 
 /**
@@ -27,7 +28,7 @@ public class ActionService implements IActionService {
    * @param repository The action repository.
    */
   @Autowired
-  public ActionService(final IActionRepository repository) {
+  public ActionService(final SessionFactory sessionFactory, final IActionRepository repository) {
     this.repository = repository;
   }
 
@@ -38,8 +39,8 @@ public class ActionService implements IActionService {
    */
   @Override
   public List<Action> findAll() {
-    var Actions = (List<Action>) repository.findAll();
-    return Actions;
+    var result = (List<Action>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +51,20 @@ public class ActionService implements IActionService {
    */
   @Override
   public Optional<Action> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
+  }
+
+  /**
+   * Find the action for the specified primary key.
+   * 
+   * @param name The name of the action.
+   * @return A new instance of the action if it exists.
+   */
+  @Override
+  public Optional<Action> findByName(String name) {
+    var result = repository.findByName(name);
+    return result;
   }
 
   /**

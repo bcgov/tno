@@ -11,7 +11,7 @@ import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
 import ca.bc.gov.tno.dal.db.entities.DataSourceSchedule;
-import ca.bc.gov.tno.dal.db.repositories.IDataSourceRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IDataSourceRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 
 /**
@@ -44,8 +44,8 @@ public class DataSourceService implements IDataSourceService {
    */
   @Override
   public List<DataSource> findAll() {
-    var DataSources = (List<DataSource>) repository.findAll();
-    return DataSources;
+    var result = (List<DataSource>) repository.findAll();
+    return result;
   }
 
   /**
@@ -85,8 +85,8 @@ public class DataSourceService implements IDataSourceService {
    */
   @Override
   public Optional<DataSource> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

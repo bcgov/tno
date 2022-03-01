@@ -12,7 +12,7 @@ import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.ContentTone;
 import ca.bc.gov.tno.dal.db.entities.ContentTonePK;
-import ca.bc.gov.tno.dal.db.repositories.IContentToneRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentToneRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentToneService;
 
 /**
@@ -45,8 +45,8 @@ public class ContentToneService implements IContentToneService {
    */
   @Override
   public List<ContentTone> findAll() {
-    var ContentTones = (List<ContentTone>) repository.findAll();
-    return ContentTones;
+    var result = (List<ContentTone>) repository.findAll();
+    return result;
   }
 
   /**
@@ -57,8 +57,8 @@ public class ContentToneService implements IContentToneService {
    */
   @Override
   public Optional<ContentTone> findById(ContentTonePK key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**

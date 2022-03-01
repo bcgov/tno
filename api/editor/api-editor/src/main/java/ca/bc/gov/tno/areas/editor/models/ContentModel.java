@@ -11,6 +11,7 @@ import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
 import ca.bc.gov.tno.dal.db.entities.ContentTone;
+import ca.bc.gov.tno.dal.db.entities.FileReference;
 import ca.bc.gov.tno.dal.db.entities.TimeTracking;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
 import ca.bc.gov.tno.models.AuditColumnModel;
@@ -42,6 +43,7 @@ public class ContentModel extends AuditColumnModel {
   private String transcription = "";
   private ZonedDateTime publishedOn;
   private String sourceURL = "";
+  private List<FileReferenceModel> fileReferences = new ArrayList<FileReferenceModel>();
   private List<CategoryModel> categories = new ArrayList<CategoryModel>();
   private List<TagModel> tags = new ArrayList<TagModel>();
   private List<TonePoolModel> tonePools = new ArrayList<TonePoolModel>();
@@ -90,6 +92,10 @@ public class ContentModel extends AuditColumnModel {
       this.publishedOn = entity.getPublishedOn();
       this.sourceURL = entity.getSourceURL();
 
+      this.fileReferences = entity.getFileReferences().stream()
+          .map((file) -> new FileReferenceModel(file))
+          .toList();
+
       var putil = Persistence.getPersistenceUtil();
       if (putil.isLoaded(entity, "contentCategories")) {
         this.categories = entity.getContentCategories().stream()
@@ -136,6 +142,11 @@ public class ContentModel extends AuditColumnModel {
     content.setTranscription(this.transcription);
     content.setPublishedOn(this.publishedOn);
     content.setSourceURL(this.sourceURL);
+    content.getFileReferences()
+        .addAll(this.fileReferences.stream()
+            .map((file) -> new FileReference(file.getId(), content, file.getPath(), file.getMimeType(), file.getSize(),
+                file.getRunningTime()))
+            .toList());
     content.getContentTags()
         .addAll(this.tags.stream()
             .map((tag) -> new ContentTag(content, tag.getId()))
@@ -480,6 +491,20 @@ public class ContentModel extends AuditColumnModel {
    */
   public void setSourceURL(String sourceURL) {
     this.sourceURL = sourceURL;
+  }
+
+  /**
+   * @return List{FileReferenceModel} return the fileReferences
+   */
+  public List<FileReferenceModel> getFileReferences() {
+    return fileReferences;
+  }
+
+  /**
+   * @param fileReferences the fileReferences to set
+   */
+  public void setFileReferences(List<FileReferenceModel> fileReferences) {
+    this.fileReferences = fileReferences;
   }
 
   /**

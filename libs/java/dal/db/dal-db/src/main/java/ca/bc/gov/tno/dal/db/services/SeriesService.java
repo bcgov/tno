@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.Series;
-import ca.bc.gov.tno.dal.db.repositories.ISeriesRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.ISeriesRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.ISeriesService;
 
 /**
@@ -38,8 +38,8 @@ public class SeriesService implements ISeriesService {
    */
   @Override
   public List<Series> findAll() {
-    var Seriess = (List<Series>) repository.findAll();
-    return Seriess;
+    var result = (List<Series>) repository.findAll();
+    return result;
   }
 
   /**
@@ -50,8 +50,8 @@ public class SeriesService implements ISeriesService {
    */
   @Override
   public Optional<Series> findById(int key) {
-    var reference = repository.findById(key);
-    return reference;
+    var result = repository.findById(key);
+    return result;
   }
 
   /**
