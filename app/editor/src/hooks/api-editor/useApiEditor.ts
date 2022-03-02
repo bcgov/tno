@@ -1,4 +1,6 @@
 import { AxiosResponse } from 'axios';
+import { useDownload } from 'hooks/useDownload';
+import moment from 'moment';
 import React from 'react';
 import { defaultEnvelope, LifecycleToasts, useSummon } from 'tno-core';
 import { toQueryString } from 'utils';
@@ -30,6 +32,7 @@ export const useApiEditor = (
   } = {},
 ) => {
   const summon = useSummon({ ...options, baseURL: options.baseURL ?? Settings.ApiPath });
+  const download = useDownload(summon);
   const handleRequest = async <T>(request: () => Promise<AxiosResponse<T, T>>) => {
     try {
       const res = await request();
@@ -84,9 +87,20 @@ export const useApiEditor = (
       getSeries: async () => {
         return await handleRequest<any>(() => summon.get(`/editor/series`));
       },
+      generateCBRAReport: async (from: Date, to?: Date | null) => {
+        const params = {
+          from: moment(from).format('YYYY-MM-DDT00:00:00'),
+          to: to ? moment(to).format('YYYY-MM-DDT:11:59:59') : undefined,
+        };
+        return await handleRequest<any>(async () =>
+          download({
+            url: `/reports/cbra?${toQueryString(params)}`,
+            method: 'post',
+            fileName: 'cbra.xlsx',
+          }),
+        );
+      },
     }),
-    [summon],
+    [summon, download],
   );
 };
-
-export default useApiEditor;

@@ -1,25 +1,19 @@
-import { Col, Row } from 'components';
+import React from 'react';
 
-import * as styled from './TabContainerStyled';
+import * as styled from './styled';
 
-export interface ITabContainerProps {
-  borderColour?: string;
-  height?: string;
-  width?: string;
-  children?: React.ReactNode;
-  /**
-   * provide a row of tabs to display at the top of the tab component
-   */
-  tabs?: React.ReactNode;
-}
-
-export const TabContainer: React.FC<ITabContainerProps> = ({ children, tabs }) => {
+/**
+ * The element that groups the various navigation bar items together.
+ * @param children the navigation bar items
+ * @returns navigation bar group
+ */
+export const TabContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  children,
+  className,
+}) => {
   return (
-    <>
-      <Col>
-        <Row>{tabs}</Row>
-        <styled.TabContainer>{children}</styled.TabContainer>
-      </Col>
-    </>
+    <styled.TabContainer className={`${className ?? 'tab-container'}`}>
+      {children}
+    </styled.TabContainer>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import * as styled from './ColStyled';
+import * as styled from './styled';
 
 /**
  * Provides a way to style an application page in a grid format. Col simply returns a div element with a flex display with a flex

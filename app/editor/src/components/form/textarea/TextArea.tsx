@@ -1,7 +1,7 @@
 import { InputHTMLAttributes } from 'react';
 
 import { TextVariant } from '..';
-import * as styled from './TextAreaStyled';
+import * as styled from './styled';
 
 export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
   name: string;

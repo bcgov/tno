@@ -29,7 +29,7 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IUserService;
 /**
  * ActionController class, provides endpoints for actions.
  */
-@RolesAllowed({ "administrator", "editor" })
+@RolesAllowed({ "administrator" })
 @RestController("ReportsCBRAController")
 @RequestMapping({ "/reports/cbra", "/api/reports/cbra" })
 public class CBRAController {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Footer, Header, Loading } from 'tno-core';
 
-import * as styled from './LayoutStyled';
+import * as styled from './styled';
 
 interface ILayoutAnonymousProps extends React.HTMLAttributes<HTMLDivElement> {
   /**

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 
 import { SelectDateVariant } from '.';
-import * as styled from './SelectDateStyled';
+import * as styled from './styled';
 
 export interface ISelectDateProps {
   label?: string;

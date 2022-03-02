@@ -1,7 +1,7 @@
 import { Checkbox, ICheckboxProps } from 'components/form';
 import { useFormikContext } from 'formik';
 
-import * as styled from './FormikCheckboxStyled';
+import * as styled from './styled';
 
 export interface IFormikCheckboxProps extends ICheckboxProps {
   name: string;

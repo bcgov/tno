@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
+import { Claim, useKeycloakWrapper } from 'tno-core';
 
-import * as styled from './NavBarItemStyled';
+import * as styled from './styled';
 
 export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement> {
   /**
@@ -15,6 +16,10 @@ export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement> {
    * the path the item will navigate you to
    */
   navigateTo?: string;
+  /**
+   * The user requires at least one of the specified claims to see this nav item.
+   */
+  claim?: Claim | Claim[];
 }
 
 /**
@@ -24,13 +29,17 @@ export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement> {
  * @param navigateTo determine the path the item will navigate to onClick
  * @returns styled navigation bar item
  */
-export const NavBarItem: React.FC<INavBarItemProps> = ({ label, navigateTo }) => {
-  let path = window.location.pathname;
-  let isActive = navigateTo ? path.includes(navigateTo) : false;
+export const NavBarItem: React.FC<INavBarItemProps> = ({ label, navigateTo, claim }) => {
   const navigate = useNavigate();
-  return (
+  const keycloak = useKeycloakWrapper();
+  const hasClaim = !claim || keycloak.hasClaim(claim);
+
+  let path = window.location.pathname;
+  let isActive = navigateTo ? path.startsWith(navigateTo) : false;
+
+  return hasClaim ? (
     <styled.NavBarItem onClick={() => navigate(navigateTo!!)} active={isActive}>
       {label}
     </styled.NavBarItem>
-  );
+  ) : null;
 };

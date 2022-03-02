@@ -1,1 +1,1 @@
-export * from './TextBoxStyled';
+export * from './TextBox';

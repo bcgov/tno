@@ -1,9 +1,9 @@
 import { Header } from 'components';
-import { Home } from 'features';
+import { Home } from 'features/home';
 import React from 'react';
 import { Footer, Loading, MenuProvider, useKeycloakWrapper } from 'tno-core';
 
-import * as styled from './LayoutStyled';
+import * as styled from './styled';
 
 interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   /**

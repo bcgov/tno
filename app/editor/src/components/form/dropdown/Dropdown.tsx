@@ -3,7 +3,7 @@ import { Props } from 'react-select';
 import Select from 'react-select';
 
 import { DropdownVariant } from '.';
-import * as styled from './DropdownStyled';
+import * as styled from './styled';
 
 export interface IDropdownProps {
   /**

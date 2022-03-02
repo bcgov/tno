@@ -6,7 +6,6 @@ export * from './grid-table';
 export * from './header';
 export * from './home';
 export * from './navbar';
-export * from './router';
 export * from './row';
 export * from './tabs';
 export * from './text-box';

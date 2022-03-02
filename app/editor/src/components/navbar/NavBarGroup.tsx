@@ -1,6 +1,6 @@
 import React from 'react';
 
-import * as styled from './NavBarStyled';
+import * as styled from './styled';
 
 /**
  * The element that groups the various navigation bar items together.

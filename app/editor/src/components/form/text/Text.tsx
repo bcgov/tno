@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes } from 'react';
 
 import { TextVariant } from '.';
-import * as styled from './TextStyled';
+import * as styled from './styled';
 
 export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
