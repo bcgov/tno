@@ -71,7 +71,7 @@ public class ContentTest {
 
     var content = new Content(contentType, mediaType, license, null, "SOURCE", user, ContentStatus.Published,
         "headline");
-    content.getContentActions().add(new ContentAction(content, 1, "test"));
+    content.getContentActions().add(new ContentAction(content, 1, "true"));
     content.getContentTags().add(new ContentTag(content, "TBD"));
     content.getContentTonePools().add(new ContentTone(content, 1, 3));
     content.getContentCategories().add(new ContentCategory(content, 1, 67));
@@ -169,7 +169,7 @@ public class ContentTest {
 
     var c4 = new Content(contentType, mediaType, license, null, "Action", user, ContentStatus.Published,
         "action content");
-    c4.getContentActions().add(new ContentAction(c4, action));
+    c4.getContentActions().add(new ContentAction(c4, action, "true"));
     c4 = contentService.add(c4);
 
     var user2 = userService.findById(2).get(); // Editor
