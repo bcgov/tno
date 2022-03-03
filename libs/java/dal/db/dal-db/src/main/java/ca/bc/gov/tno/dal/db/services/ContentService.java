@@ -27,6 +27,7 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTagService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentToneService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IFileReferenceService;
+import ca.bc.gov.tno.dal.db.services.interfaces.ITimeTrackingService;
 import ca.bc.gov.tno.models.Paged;
 import ca.bc.gov.tno.models.interfaces.IPaged;
 
@@ -44,6 +45,7 @@ public class ContentService implements IContentService {
   private final IContentCategoryService contentCategoryService;
   private final IContentToneService contentToneService;
   private final IFileReferenceService fileReferenceService;
+  private final ITimeTrackingService timeTrackingService;
 
   /**
    * Creates a new instance of a ContentService object, initializes with
@@ -56,12 +58,13 @@ public class ContentService implements IContentService {
    * @param contentCategoryService The content category service.
    * @param contentToneService     The content tone pool service.
    * @param fileReferenceService   The file reference service.
+   * @param timeTrackingService    The time tracking service.
    */
   @Autowired
   public ContentService(final SessionFactory sessionFactory, final IContentRepository repository,
       final IContentActionService contentActionService, final IContentTagService contentTagService,
       final IContentCategoryService contentCategoryService, final IContentToneService contentToneService,
-      final IFileReferenceService fileReferenceService) {
+      final IFileReferenceService fileReferenceService, final ITimeTrackingService timeTrackingService) {
     this.sessionFactory = sessionFactory;
     this.repository = repository;
     this.contentActionService = contentActionService;
@@ -69,6 +72,7 @@ public class ContentService implements IContentService {
     this.contentCategoryService = contentCategoryService;
     this.contentToneService = contentToneService;
     this.fileReferenceService = fileReferenceService;
+    this.timeTrackingService = timeTrackingService;
   }
 
   /**
@@ -316,6 +320,12 @@ public class ContentService implements IContentService {
         return ct;
       }).toList());
     }
+    if (entity.getTimeTrackings().size() > 0) {
+      timeTrackingService.add(entity.getTimeTrackings().stream().map((ct) -> {
+        ct.setContentId(result.getId());
+        return ct;
+      }).toList());
+    }
     // TODO: Load lazy load properties if they are not already loaded.
     return findById(result.getId(), true).get();
   }
@@ -330,17 +340,55 @@ public class ContentService implements IContentService {
   public Content update(Content entity) {
     var result = repository.save(PrincipalHelper.updateAudit(entity));
 
+    // TODO: Shouldn't need to update all children. Need to find a better way to do
+    // this.
+    if (entity.getFileReferences().size() > 0) {
+      entity.getFileReferences().forEach((file) -> {
+        if (file.getId() == 0)
+          fileReferenceService.add(file);
+        else
+          fileReferenceService.update(file);
+      });
+    }
     if (entity.getContentActions().size() > 0) {
-      contentActionService.update(entity.getContentActions());
+      entity.getContentActions().forEach((action) -> {
+        if (action.getActionId() == 0)
+          contentActionService.add(action);
+        else
+          contentActionService.update(action);
+      });
     }
     if (entity.getContentTags().size() > 0) {
-      contentTagService.update(entity.getContentTags());
+      entity.getContentTags().forEach((tag) -> {
+        if (tag.getCreatedOn() == null) // TODO: I don't think this will work presently
+          contentTagService.add(tag);
+        else
+          contentTagService.update(tag);
+      });
     }
     if (entity.getContentCategories().size() > 0) {
-      contentCategoryService.update(entity.getContentCategories());
+      entity.getContentCategories().forEach((category) -> {
+        if (category.getCategoryId() == 0)
+          contentCategoryService.add(category);
+        else
+          contentCategoryService.update(category);
+      });
     }
     if (entity.getContentTonePools().size() > 0) {
-      contentToneService.update(entity.getContentTonePools());
+      entity.getContentTonePools().forEach((tone) -> {
+        if (tone.getTonePoolId() == 0)
+          contentToneService.add(tone);
+        else
+          contentToneService.update(tone);
+      });
+    }
+    if (entity.getTimeTrackings().size() > 0) {
+      entity.getTimeTrackings().forEach((time) -> {
+        if (time.getCreatedOn() == null) // TODO: I don't think this will work presently
+          timeTrackingService.add(time);
+        else
+          timeTrackingService.update(time);
+      });
     }
     // TODO: Load lazy load properties if they are not already loaded.
     return findById(result.getId(), true).get();
