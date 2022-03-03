@@ -49,7 +49,7 @@ public class ContentModel extends AuditColumnModel {
   private List<TagModel> tags = new ArrayList<TagModel>();
   private List<TonePoolModel> tonePools = new ArrayList<TonePoolModel>();
   private List<ActionModel> actions = new ArrayList<ActionModel>();
-  private List<TimeTrackingModel> timeTracking = new ArrayList<TimeTrackingModel>();
+  private List<TimeTrackingModel> timeTrackings = new ArrayList<TimeTrackingModel>();
 
   /**
    * Creates a new instance of a ContentModel object.
@@ -120,7 +120,7 @@ public class ContentModel extends AuditColumnModel {
             .toList();
       }
       if (putil.isLoaded(entity, "timeTrackings")) {
-        this.timeTracking = entity.getTimeTrackings().stream()
+        this.timeTrackings = entity.getTimeTrackings().stream()
             .map((time) -> new TimeTrackingModel(time))
             .toList();
       }
@@ -133,9 +133,15 @@ public class ContentModel extends AuditColumnModel {
    * @return A new instance of a Content object.
    */
   public Content ToContent() {
-    var content = new Content(0, this.contentTypeId, this.mediaTypeId, this.licenseId, this.seriesId, this.source,
+    var content = new Content(0,
+        this.contentTypeId,
+        this.mediaTypeId,
+        this.licenseId,
+        this.seriesId,
+        this.source,
         this.ownerId,
-        this.status, this.headline);
+        this.status,
+        this.headline);
 
     content.setDataSourceId(this.dataSourceId);
     content.setUid(this.uid);
@@ -170,7 +176,7 @@ public class ContentModel extends AuditColumnModel {
             .map((category) -> new ContentCategory(content, category.getId(), category.getScore()))
             .toList());
     content.getTimeTrackings()
-        .addAll(this.timeTracking.stream()
+        .addAll(this.timeTrackings.stream()
             .map((time) -> new TimeTracking(content, time.getUserId(), time.getEffort(), time.getActivity()))
             .toList());
 
@@ -570,17 +576,17 @@ public class ContentModel extends AuditColumnModel {
   }
 
   /**
-   * @return List<TimeTrackingModel> return the timeTracking
+   * @return List<TimeTrackingModel> return the timeTrackings
    */
-  public List<TimeTrackingModel> getTimeTracking() {
-    return timeTracking;
+  public List<TimeTrackingModel> getTimeTrackings() {
+    return timeTrackings;
   }
 
   /**
-   * @param timeTracking the timeTracking to set
+   * @param timeTrackings the timeTrackings to set
    */
-  public void setTimeTracking(List<TimeTrackingModel> timeTracking) {
-    this.timeTracking = timeTracking;
+  public void setTimeTrackings(List<TimeTrackingModel> timeTrackings) {
+    this.timeTrackings = timeTrackings;
   }
 
 }
