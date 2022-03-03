@@ -8,6 +8,7 @@ import javax.persistence.Persistence;
 
 import ca.bc.gov.tno.dal.db.ContentStatus;
 import ca.bc.gov.tno.dal.db.entities.Content;
+import ca.bc.gov.tno.dal.db.entities.ContentAction;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
 import ca.bc.gov.tno.dal.db.entities.ContentTone;
@@ -147,6 +148,10 @@ public class ContentModel extends AuditColumnModel {
         .addAll(this.fileReferences.stream()
             .map((file) -> new FileReference(file.getId(), content, file.getPath(), file.getMimeType(), file.getSize(),
                 file.getRunningTime()))
+            .toList());
+    content.getContentActions()
+        .addAll(this.actions.stream()
+            .map((action) -> new ContentAction(content, action.getId(), action.getValue()))
             .toList());
     content.getContentTags()
         .addAll(this.tags.stream()
