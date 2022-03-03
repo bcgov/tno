@@ -79,8 +79,26 @@ public class Claim extends AuditColumns {
    * @param name Unique name
    */
   public Claim(int id, String name) {
+    if (name == null)
+      throw new NullPointerException("Parameter 'name' cannot be null.");
+    if (name.length() == 0)
+      throw new IllegalArgumentException("Parameter 'name' cannot be empty.");
+
     this.id = id;
     this.name = name;
+  }
+
+  /**
+   * Creates a new instance of a Claim object, initializes with specified
+   * parameters.
+   * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param version Row version value
+   */
+  public Claim(int id, String name, int version) {
+    this(id, name);
+    this.setVersion(version);
   }
 
   /**
