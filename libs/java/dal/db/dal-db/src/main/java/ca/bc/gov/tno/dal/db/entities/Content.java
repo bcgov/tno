@@ -320,6 +320,27 @@ public class Content extends AuditColumns {
    * @param licenseId     Foreign key to license
    * @param seriesId      Foreign key to series
    * @param dataSourceId  Foreign key to datasource
+   * @param ownerId       Foreign key to owning user
+   * @param status        The status
+   * @param headline      The headline
+   * @param version       Row version value
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, Integer seriesId, int dataSourceId,
+      int ownerId, ContentStatus status, String headline, int version) {
+    this(id, contentTypeId, mediaTypeId, licenseId, seriesId, dataSourceId, ownerId, status, headline);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param seriesId      Foreign key to series
+   * @param dataSourceId  Foreign key to datasource
    * @param status        The status
    * @param headline      The headline
    */
@@ -340,6 +361,26 @@ public class Content extends AuditColumns {
     this.dataSourceId = dataSourceId;
     this.status = status;
     this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param seriesId      Foreign key to series
+   * @param dataSourceId  Foreign key to datasource
+   * @param status        The status
+   * @param headline      The headline
+   * @param version       Row version value
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, Integer seriesId, int dataSourceId,
+      ContentStatus status, String headline, int version) {
+    this(id, contentTypeId, mediaTypeId, licenseId, seriesId, dataSourceId, status, headline);
+    this.setVersion(version);
   }
 
   /**
@@ -391,6 +432,28 @@ public class Content extends AuditColumns {
    * @param licenseId     Foreign key to license
    * @param seriesId      Foreign key to series
    * @param source        The source of the content
+   * @param ownerId       Foreign key to owning user
+   * @param status        The status
+   * @param headline      The headline
+   * @param version       Row version value
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId,
+      Integer seriesId, String source, int ownerId,
+      ContentStatus status, String headline, int version) {
+    this(id, contentTypeId, mediaTypeId, licenseId, seriesId, source, ownerId, status, headline);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param seriesId      Foreign key to series
+   * @param source        The source of the content
    * @param status        The status
    * @param headline      The headline
    */
@@ -416,6 +479,26 @@ public class Content extends AuditColumns {
     this.source = source;
     this.status = status;
     this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param id            Primary key
+   * @param contentTypeId Foreign key to content type
+   * @param mediaTypeId   Foreign key to media type
+   * @param licenseId     Foreign key to license
+   * @param seriesId      Foreign key to series
+   * @param source        The source of the content
+   * @param status        The status
+   * @param headline      The headline
+   * @param version       Row version value
+   */
+  public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, Integer seriesId, String source,
+      ContentStatus status, String headline, int version) {
+    this(id, contentTypeId, mediaTypeId, licenseId, seriesId, source, status, headline);
+    this.setVersion(version);
   }
 
   /**
@@ -476,6 +559,26 @@ public class Content extends AuditColumns {
    * @param license     Foreign key to the license
    * @param series      Foreign key to the series
    * @param dataSource  Foreign key to the datasource
+   * @param owner       Foreign key to the owning user
+   * @param status      The status
+   * @param headline    The headline
+   * @param version     Row version value
+   */
+  public Content(ContentType contentType, MediaType mediaType, License license, Series series,
+      DataSource dataSource, User owner, ContentStatus status, String headline, int version) {
+    this(contentType, mediaType, license, series, dataSource, owner, status, headline);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param mediaType   Foreign key to media type
+   * @param license     Foreign key to the license
+   * @param series      Foreign key to the series
+   * @param dataSource  Foreign key to the datasource
    * @param status      The status
    * @param headline    The headline
    */
@@ -509,6 +612,25 @@ public class Content extends AuditColumns {
     this.source = dataSource.getCode();
     this.status = status;
     this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param mediaType   Foreign key to media type
+   * @param license     Foreign key to the license
+   * @param series      Foreign key to the series
+   * @param dataSource  Foreign key to the datasource
+   * @param status      The status
+   * @param headline    The headline
+   * @param version     Row version value
+   */
+  public Content(ContentType contentType, MediaType mediaType, License license, Series series,
+      DataSource dataSource, ContentStatus status, String headline, int version) {
+    this(contentType, mediaType, license, series, dataSource, status, headline);
+    this.setVersion(version);
   }
 
   /**
@@ -569,6 +691,26 @@ public class Content extends AuditColumns {
    * @param license     Foreign key to the license
    * @param series      Foreign key to the series
    * @param source      The source of the content
+   * @param owner       Foreign key to the owning user
+   * @param status      The status
+   * @param headline    The headline
+   * @param version     Row version value
+   */
+  public Content(ContentType contentType, MediaType mediaType, License license, Series series,
+      String source, User owner, ContentStatus status, String headline, int version) {
+    this(contentType, mediaType, license, series, source, owner, status, headline);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param mediaType   Foreign key to media type
+   * @param license     Foreign key to the license
+   * @param series      Foreign key to the series
+   * @param source      The source of the content
    * @param status      The status
    * @param headline    The headline
    */
@@ -602,6 +744,25 @@ public class Content extends AuditColumns {
     this.source = source;
     this.status = status;
     this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param mediaType   Foreign key to media type
+   * @param license     Foreign key to the license
+   * @param series      Foreign key to the series
+   * @param source      The source of the content
+   * @param status      The status
+   * @param headline    The headline
+   * @param version     Row version value
+   */
+  public Content(ContentType contentType, MediaType mediaType, License license, Series series,
+      String source, ContentStatus status, String headline, int version) {
+    this(contentType, mediaType, license, series, source, status, headline);
+    this.setVersion(version);
   }
 
   /**
@@ -658,6 +819,24 @@ public class Content extends AuditColumns {
    * @param contentRef  Foreign key to content reference
    * @param dataSource  Foreign key to data source
    * @param series      Foreign key to the series
+   * @param owner       Foreign key to the owning user
+   * @param headline    The headline
+   * @param version     Row version value
+   */
+  public Content(ContentType contentType, ContentReference contentRef, DataSource dataSource, Series series, User owner,
+      String headline, int version) {
+    this(contentType, contentRef, dataSource, series, owner, headline);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param contentRef  Foreign key to content reference
+   * @param dataSource  Foreign key to data source
+   * @param series      Foreign key to the series
    * @param headline    The headline
    */
   public Content(ContentType contentType, ContentReference contentRef, DataSource dataSource, Series series,
@@ -689,6 +868,23 @@ public class Content extends AuditColumns {
     this.uid = contentRef.getUid();
     this.workflowStatus = contentRef.getStatus();
     this.headline = headline;
+  }
+
+  /**
+   * Creates a new instance of a Content object, initializes with specified
+   * parameters.
+   *
+   * @param contentType Foreign key to content type
+   * @param contentRef  Foreign key to content reference
+   * @param dataSource  Foreign key to data source
+   * @param series      Foreign key to the series
+   * @param headline    The headline
+   * @param version     Row version value
+   */
+  public Content(ContentType contentType, ContentReference contentRef, DataSource dataSource, Series series,
+      String headline, int version) {
+    this(contentType, contentRef, dataSource, series, headline);
+    this.setVersion(version);
   }
 
   /**

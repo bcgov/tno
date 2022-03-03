@@ -93,6 +93,20 @@ public class ContentAction extends AuditColumns {
    * Creates a new instance of a ContentAction object, initializes with specified
    * parameters.
    * 
+   * @param content Content object
+   * @param action  Action object
+   * @param value   Action value
+   * @param version Row version value
+   */
+  public ContentAction(Content content, Action action, String value, int version) {
+    this(content, action, value);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
    * @param content  Content object
    * @param actionId Foreign key to Action object
    * @param value    Action value
@@ -113,6 +127,20 @@ public class ContentAction extends AuditColumns {
    * Creates a new instance of a ContentAction object, initializes with specified
    * parameters.
    * 
+   * @param content  Content object
+   * @param actionId Foreign key to Action object
+   * @param value    Action value
+   * @param version  Row version value
+   */
+  public ContentAction(Content content, int actionId, String value, int version) {
+    this(content, actionId, value);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
    * @param contentId Foreign key to Content object
    * @param actionId  Foreign key to Action object
    * @param value     Action value
@@ -124,6 +152,20 @@ public class ContentAction extends AuditColumns {
     this.contentId = contentId;
     this.actionId = actionId;
     this.value = value;
+  }
+
+  /**
+   * Creates a new instance of a ContentAction object, initializes with specified
+   * parameters.
+   * 
+   * @param contentId Foreign key to Content object
+   * @param actionId  Foreign key to Action object
+   * @param value     Action value
+   * @param version   Row version value
+   */
+  public ContentAction(int contentId, int actionId, String value, int version) {
+    this(contentId, actionId, value);
+    this.setVersion(version);
   }
 
   /**

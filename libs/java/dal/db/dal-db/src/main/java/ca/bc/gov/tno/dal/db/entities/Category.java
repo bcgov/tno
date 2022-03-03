@@ -88,6 +88,19 @@ public class Category extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a Category object, initializes with specified
+   * parameters.
+   * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param version Row version value
+   */
+  public Category(int id, String name, int version) {
+    this(id, name);
+    this.setVersion(version);
+  }
+
+  /**
    * @return int return the id
    */
   public int getId() {

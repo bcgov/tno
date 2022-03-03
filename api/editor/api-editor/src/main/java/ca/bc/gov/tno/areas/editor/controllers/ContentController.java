@@ -198,7 +198,7 @@ public class ContentController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public ContentModel update(@PathVariable Integer id, @RequestBody ContentModel model) {
-    var content = contentService.add(model.ToContent());
+    var content = contentService.update(model.ToContent());
     return new ContentModel(content);
   }
 

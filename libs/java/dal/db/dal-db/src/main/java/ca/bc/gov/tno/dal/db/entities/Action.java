@@ -113,6 +113,19 @@ public class Action extends AuditColumns {
    * Creates a new instance of a Action object, initializes with specified
    * parameters.
    * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param version Row version value
+   */
+  public Action(int id, String name, int version) {
+    this(id, name);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a Action object, initializes with specified
+   * parameters.
+   * 
    * @param id         Primary key
    * @param name       Unique name
    * @param valueType  Type of value allowed
@@ -132,6 +145,21 @@ public class Action extends AuditColumns {
     this.name = name;
     this.valueType = valueType;
     this.valueLabel = valueLabel;
+  }
+
+  /**
+   * Creates a new instance of a Action object, initializes with specified
+   * parameters.
+   * 
+   * @param id         Primary key
+   * @param name       Unique name
+   * @param valueType  Type of value allowed
+   * @param valueLabel Label for value
+   * @param version    Row version value
+   */
+  public Action(int id, String name, ValueType valueType, String valueLabel, int version) {
+    this(id, name, valueType, valueLabel);
+    this.setVersion(version);
   }
 
   /**
