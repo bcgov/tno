@@ -91,6 +91,20 @@ public class ContentTone extends AuditColumns {
    * Creates a new instance of a ContentTone object, initializes with specified
    * parameters.
    * 
+   * @param content  Content object
+   * @param tonePool TonePool object
+   * @param value    Tone value
+   * @param version  Row version value
+   */
+  public ContentTone(Content content, TonePool tonePool, int value, int version) {
+    this(content, tonePool, value);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentTone object, initializes with specified
+   * parameters.
+   * 
    * @param content    Content object
    * @param tonePoolId Foreign key to TonePool object
    * @param value      Tone value
@@ -103,6 +117,20 @@ public class ContentTone extends AuditColumns {
     this.contentId = content.getId();
     this.tonePoolId = tonePoolId;
     this.value = value;
+  }
+
+  /**
+   * Creates a new instance of a ContentTone object, initializes with specified
+   * parameters.
+   * 
+   * @param content    Content object
+   * @param tonePoolId Foreign key to TonePool object
+   * @param value      Tone value
+   * @param version    Row version value
+   */
+  public ContentTone(Content content, int tonePoolId, int value, int version) {
+    this(content, tonePoolId, value);
+    this.setVersion(version);
   }
 
   /**

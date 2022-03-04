@@ -69,7 +69,7 @@ public class ContentTagService implements IContentTagService {
    * @return A new instance of the content tag if it exists.
    */
   @Override
-  public List<ContentTag> findById(int contentId) {
+  public List<ContentTag> findByContentId(int contentId) {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 

@@ -83,12 +83,40 @@ public class DataSourceSchedule extends AuditColumns {
    * specified
    * parameters.
    * 
+   * @param dataSource DataSource object
+   * @param schedule   Schedule object
+   * @param version    Row version value
+   */
+  public DataSourceSchedule(DataSource dataSource, Schedule schedule, int version) {
+    this(dataSource, schedule);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a DataSourceSchedule object, initializes with
+   * specified
+   * parameters.
+   * 
    * @param dataSourceId Foreign key to data source.
    * @param scheduleId   Foreign key to Schedule.
    */
   public DataSourceSchedule(int dataSourceId, int scheduleId) {
     this.dataSourceId = dataSourceId;
     this.scheduleId = scheduleId;
+  }
+
+  /**
+   * Creates a new instance of a DataSourceSchedule object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param dataSourceId Foreign key to data source.
+   * @param scheduleId   Foreign key to Schedule.
+   * @param version      Row version value
+   */
+  public DataSourceSchedule(int dataSourceId, int scheduleId, int version) {
+    this(dataSourceId, scheduleId);
+    this.setVersion(version);
   }
 
   /**

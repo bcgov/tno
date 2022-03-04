@@ -79,12 +79,47 @@ public class RoleClaim extends AuditColumns {
    * Creates a new instance of a RoleClaim object, initializes with specified
    * parameters.
    * 
+   * @param role    The role.
+   * @param claim   The claim.
+   * @param version Row version value
+   */
+  public RoleClaim(Role role, Claim claim, int version) {
+    if (role == null)
+      throw new IllegalArgumentException("Parameter 'role' is required.");
+    if (claim == null)
+      throw new IllegalArgumentException("Parameter 'claim' is required.");
+
+    this.role = role;
+    this.roleId = role.getId();
+    this.claim = claim;
+    this.claimId = claim.getId();
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a RoleClaim object, initializes with specified
+   * parameters.
+   * 
    * @param roleId  Foreign key The role.
    * @param claimId Foreign key The claim.
    */
   public RoleClaim(int roleId, int claimId) {
     this.roleId = roleId;
     this.claimId = claimId;
+  }
+
+  /**
+   * Creates a new instance of a RoleClaim object, initializes with specified
+   * parameters.
+   * 
+   * @param roleId  Foreign key The role.
+   * @param claimId Foreign key The claim.
+   * @param version Row version value
+   */
+  public RoleClaim(int roleId, int claimId, int version) {
+    this.roleId = roleId;
+    this.claimId = claimId;
+    this.setVersion(version);
   }
 
   /**

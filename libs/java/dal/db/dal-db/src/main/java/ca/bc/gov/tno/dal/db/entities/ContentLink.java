@@ -83,12 +83,40 @@ public class ContentLink extends AuditColumns {
    * specified
    * parameters.
    * 
+   * @param content Content object
+   * @param link    Link object
+   * @param version Row version value
+   */
+  public ContentLink(Content content, Content link, int version) {
+    this(content, link);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentLink object, initializes with
+   * specified
+   * parameters.
+   * 
    * @param contentId Foreign key to Content object
    * @param linkId    Foreign key to Link object
    */
   public ContentLink(int contentId, int linkId) {
     this.contentId = contentId;
     this.linkId = linkId;
+  }
+
+  /**
+   * Creates a new instance of a ContentLink object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param contentId Foreign key to Content object
+   * @param linkId    Foreign key to Link object
+   * @param version   Row version value
+   */
+  public ContentLink(int contentId, int linkId, int version) {
+    this(contentId, linkId);
+    this.setVersion(version);
   }
 
   /**

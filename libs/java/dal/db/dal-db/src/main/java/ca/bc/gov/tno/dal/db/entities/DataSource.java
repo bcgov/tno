@@ -186,6 +186,25 @@ public class DataSource extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a DataSource object, initializes with specified
+   * parameters.
+   * 
+   * @param id         The primary key
+   * @param name       The unique name
+   * @param abbr       The unique abbreviation
+   * @param mediaType  Foreign key to the media type
+   * @param license    Foreign key to the license
+   * @param topic      The Kafka topic
+   * @param connection The connection information
+   * @param version    Row version value
+   */
+  public DataSource(int id, String name, String abbr, MediaType mediaType, License license,
+      String topic, Map<String, Object> connection, int version) {
+    this(id, name, abbr, mediaType, license, topic, connection);
+    this.setVersion(version);
+  }
+
+  /**
    * @return int return the id
    */
   public int getId() {

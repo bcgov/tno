@@ -32,7 +32,7 @@ public interface IContentCategoryService {
    * @param contentId The content primary key.
    * @return A new instance of the content category if it exists.
    */
-  List<ContentCategory> findById(int contentId);
+  List<ContentCategory> findByContentId(int contentId);
 
   /**
    * Add a new content category to the content.

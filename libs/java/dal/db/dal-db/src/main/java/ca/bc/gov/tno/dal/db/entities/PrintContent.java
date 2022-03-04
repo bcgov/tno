@@ -98,6 +98,23 @@ public class PrintContent extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a PrintContent object, initializes with
+   * specified parameters.
+   * 
+   * @param content   The content this print content belongs with
+   * @param edition   The edition of the content
+   * @param section   The section of the content
+   * @param storyType The story type of the content
+   * @param byline    The byline of the content
+   * @param version   Row version value
+   */
+  public PrintContent(Content content, String edition, String section, String storyType,
+      String byline, int version) {
+    this(content, edition, section, storyType, byline);
+    this.setVersion(version);
+  }
+
+  /**
    * @return int return the contentId
    */
   public int getContentId() {

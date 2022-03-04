@@ -25,7 +25,8 @@ public class ActionService implements IActionService {
    * Creates a new instance of a ActionService object, initializes with
    * specified parameters.
    * 
-   * @param repository The action repository.
+   * @param sessionFactory The session factory.
+   * @param repository     The action repository.
    */
   @Autowired
   public ActionService(final SessionFactory sessionFactory, final IActionRepository repository) {

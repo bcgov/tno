@@ -69,7 +69,7 @@ public class ContentActionService implements IContentActionService {
    * @return A new instance of the content action if it exists.
    */
   @Override
-  public List<ContentAction> findById(int contentId) {
+  public List<ContentAction> findByContentId(int contentId) {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 

@@ -86,6 +86,20 @@ public class ContentTag extends AuditColumns {
    * parameters.
    * 
    * @param content Content object
+   * @param tag     Tag object
+   * @param version Row version value
+   */
+  public ContentTag(Content content, Tag tag, int version) {
+    this(content, tag);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentTag object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param content Content object
    * @param tagId   Foreign key to Tag object
    */
   public ContentTag(Content content, String tagId) {
@@ -99,6 +113,20 @@ public class ContentTag extends AuditColumns {
     this.content = content;
     this.contentId = content.getId();
     this.tagId = tagId;
+  }
+
+  /**
+   * Creates a new instance of a ContentTag object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param content Content object
+   * @param tagId   Foreign key to Tag object
+   * @param version Row version value
+   */
+  public ContentTag(Content content, String tagId, int version) {
+    this(content, tagId);
+    this.setVersion(version);
   }
 
   /**

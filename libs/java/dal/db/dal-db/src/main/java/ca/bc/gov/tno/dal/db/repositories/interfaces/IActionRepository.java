@@ -13,5 +13,11 @@ import ca.bc.gov.tno.dal.db.entities.Action;
  */
 @Repository
 public interface IActionRepository extends JpaRepository<Action, Integer> {
+  /**
+   * Find the action by it's name.
+   * 
+   * @param name The name to search for.
+   * @return An Optional{Action} if found with the specified name.
+   */
   Optional<Action> findByName(String name);
 }

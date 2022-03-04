@@ -32,7 +32,7 @@ public interface IContentToneService {
    * @param contentId The content primary key.
    * @return A new instance of the content tone if it exists.
    */
-  List<ContentTone> findById(int contentId);
+  List<ContentTone> findByContentId(int contentId);
 
   /**
    * Add a new content tone to the content.

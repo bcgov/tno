@@ -68,7 +68,7 @@ public class ContentToneService implements IContentToneService {
    * @return A new instance of the content tone if it exists.
    */
   @Override
-  public List<ContentTone> findById(int contentId) {
+  public List<ContentTone> findByContentId(int contentId) {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
