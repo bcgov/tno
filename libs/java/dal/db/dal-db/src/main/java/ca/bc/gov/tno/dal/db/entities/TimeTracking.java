@@ -106,6 +106,21 @@ public class TimeTracking extends AuditColumns {
    * parameters.
    * 
    * @param content  Content object
+   * @param user     User object
+   * @param effort   Number of minutes
+   * @param activity Description of effort
+   * @param version  Row version value
+   */
+  public TimeTracking(Content content, User user, float effort, String activity, int version) {
+    this(content, user, effort, activity);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a TimeTracking object, initializes with specified
+   * parameters.
+   * 
+   * @param content  Content object
    * @param userId   Foreign key to User object
    * @param effort   Number of minutes
    * @param activity Description of effort
@@ -131,6 +146,21 @@ public class TimeTracking extends AuditColumns {
    * Creates a new instance of a TimeTracking object, initializes with specified
    * parameters.
    * 
+   * @param content  Content object
+   * @param userId   Foreign key to User object
+   * @param effort   Number of minutes
+   * @param activity Description of effort
+   * @param version  Row version value
+   */
+  public TimeTracking(Content content, int userId, float effort, String activity, int version) {
+    this(content, userId, effort, activity);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a TimeTracking object, initializes with specified
+   * parameters.
+   * 
    * @param contentId Foreign key to Content object
    * @param userId    Foreign key to User object
    * @param effort    Number of minutes
@@ -148,6 +178,21 @@ public class TimeTracking extends AuditColumns {
     this.userId = userId;
     this.effort = effort;
     this.activity = activity;
+  }
+
+  /**
+   * Creates a new instance of a TimeTracking object, initializes with specified
+   * parameters.
+   * 
+   * @param contentId Foreign key to Content object
+   * @param userId    Foreign key to User object
+   * @param effort    Number of minutes
+   * @param activity  Description of effort
+   * @param version   Row version value
+   */
+  public TimeTracking(int contentId, int userId, float effort, String activity, int version) {
+    this(contentId, userId, effort, activity);
+    this.setVersion(version);
   }
 
   /**

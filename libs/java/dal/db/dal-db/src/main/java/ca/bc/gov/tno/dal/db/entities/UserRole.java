@@ -79,12 +79,38 @@ public class UserRole extends AuditColumns {
    * Creates a new instance of a UserRole object, initializes with specified
    * parameters.
    * 
+   * @param user    The user.
+   * @param role    The role.
+   * @param version Row version value
+   */
+  public UserRole(User user, Role role, int version) {
+    this(user, role);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a UserRole object, initializes with specified
+   * parameters.
+   * 
    * @param userId Foreign key to The user.
    * @param roleId Foreign key to The role.
    */
   public UserRole(int userId, int roleId) {
     this.userId = userId;
     this.roleId = roleId;
+  }
+
+  /**
+   * Creates a new instance of a UserRole object, initializes with specified
+   * parameters.
+   * 
+   * @param userId  Foreign key to The user.
+   * @param roleId  Foreign key to The role.
+   * @param version Row version value
+   */
+  public UserRole(int userId, int roleId, int version) {
+    this(userId, roleId);
+    this.setVersion(version);
   }
 
   /**

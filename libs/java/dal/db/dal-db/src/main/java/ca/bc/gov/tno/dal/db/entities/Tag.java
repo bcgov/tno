@@ -92,6 +92,19 @@ public class Tag extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a Tag object, initializes with specified
+   * parameters.
+   * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param version Row version value
+   */
+  public Tag(String id, String name, int version) {
+    this(id, name);
+    this.setVersion(version);
+  }
+
+  /**
    * @return String return the id
    */
   public String getId() {

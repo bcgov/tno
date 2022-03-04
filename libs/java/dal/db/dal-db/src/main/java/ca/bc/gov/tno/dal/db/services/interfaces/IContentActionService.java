@@ -32,7 +32,7 @@ public interface IContentActionService {
    * @param contentId The content primary key.
    * @return A new instance of the content action if it exists.
    */
-  List<ContentAction> findById(int contentId);
+  List<ContentAction> findByContentId(int contentId);
 
   /**
    * Add a new content action to the content.

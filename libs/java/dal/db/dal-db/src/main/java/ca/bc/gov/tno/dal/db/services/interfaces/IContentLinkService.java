@@ -32,7 +32,7 @@ public interface IContentLinkService {
    * @param contentId The content primary key.
    * @return A new instance of the content link if it exists.
    */
-  List<ContentLink> findById(int contentId);
+  List<ContentLink> findByContentId(int contentId);
 
   /**
    * Add a new content link to the content.

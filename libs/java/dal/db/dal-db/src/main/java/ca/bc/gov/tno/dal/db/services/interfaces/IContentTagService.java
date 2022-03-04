@@ -32,7 +32,7 @@ public interface IContentTagService {
    * @param contentId The content primary key.
    * @return A new instance of the content tag if it exists.
    */
-  List<ContentTag> findById(int contentId);
+  List<ContentTag> findByContentId(int contentId);
 
   /**
    * Add a new content tag to the content.

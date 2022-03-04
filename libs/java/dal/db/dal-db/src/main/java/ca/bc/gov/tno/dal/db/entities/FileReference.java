@@ -108,6 +108,24 @@ public class FileReference extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a FileReference object, initializes with specified
+   * parameters.
+   * 
+   * @param id          The primary key
+   * @param content     The content the file belongs to
+   * @param path        The path and name of the file
+   * @param mimeType    The file mimetype
+   * @param size        The size in bytes
+   * @param runningTime The running time of audio/video in milliseconds
+   * @param version     Row version value
+   */
+  public FileReference(int id, Content content, String path, String mimeType, int size,
+      int runningTime, int version) {
+    this(id, content, path, mimeType, size, runningTime);
+    this.setVersion(version);
+  }
+
+  /**
    * @return int return the id
    */
   public int getId() {

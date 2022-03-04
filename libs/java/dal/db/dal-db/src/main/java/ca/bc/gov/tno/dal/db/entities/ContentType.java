@@ -81,12 +81,40 @@ public class ContentType extends AuditColumns {
    * Creates a new instance of a ContentType object, initializes with specified
    * parameters.
    * 
+   * @param name Unique name
+   */
+  public ContentType(String name) {
+    if (name == null)
+      throw new NullPointerException("Parameter 'name' cannot be null.");
+    if (name.length() == 0)
+      throw new IllegalArgumentException("Parameter 'name' cannot be empty.");
+
+    this.name = name;
+  }
+
+  /**
+   * Creates a new instance of a ContentType object, initializes with specified
+   * parameters.
+   * 
    * @param id   Primary key
    * @param name Unique name
    */
   public ContentType(int id, String name) {
+    this(name);
     this.id = id;
-    this.name = name;
+  }
+
+  /**
+   * Creates a new instance of a ContentType object, initializes with specified
+   * parameters.
+   * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param version Row version value
+   */
+  public ContentType(int id, String name, int version) {
+    this(id, name);
+    this.setVersion(version);
   }
 
   /**

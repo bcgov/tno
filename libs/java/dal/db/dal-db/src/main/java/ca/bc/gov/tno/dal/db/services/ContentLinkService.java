@@ -69,7 +69,7 @@ public class ContentLinkService implements IContentLinkService {
    * @return A new instance of the content link if it exists.
    */
   @Override
-  public List<ContentLink> findById(int contentId) {
+  public List<ContentLink> findByContentId(int contentId) {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 

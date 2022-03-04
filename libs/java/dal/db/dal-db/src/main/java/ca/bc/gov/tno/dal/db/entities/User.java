@@ -116,14 +116,76 @@ public class User extends AuditColumns {
    * Creates a new instance of a user object, initializes with specified
    * parameters.
    * 
+   * @param username The unique username to identify the user.
+   * @param email    The user's email address.
+   */
+  public User(String username, String email) {
+    super();
+
+    if (username == null)
+      throw new NullPointerException("Parameter 'username' cannot be null.");
+    if (username.length() == 0)
+      throw new IllegalArgumentException("Parameter 'username' cannot be empty.");
+    if (email == null)
+      throw new NullPointerException("Parameter 'email' cannot be null.");
+    if (email.length() == 0)
+      throw new IllegalArgumentException("Parameter 'email' cannot be empty.");
+
+    this.username = username;
+    this.email = email;
+  }
+
+  /**
+   * Creates a new instance of a user object, initializes with specified
+   * parameters.
+   * 
    * @param id       The primary key.
    * @param username The unique username to identify the user.
    * @param email    The user's email address.
    */
   public User(int id, String username, String email) {
-    super();
+    this(username, email);
     this.id = id;
+  }
+
+  /**
+   * Creates a new instance of a user object, initializes with specified
+   * parameters.
+   * 
+   * @param id       The primary key.
+   * @param username The unique username to identify the user.
+   * @param email    The user's email address.
+   * @param version  Row version value
+   */
+  public User(int id, String username, String email, int version) {
+    this(id, username, email);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a user object, initializes with specified
+   * parameters.
+   * 
+   * @param username The unique username to identify the user.
+   * @param key      A unique key to identify the user.
+   * @param email    The user's email address.
+   */
+  public User(String username, UUID key, String email) {
+    if (username == null)
+      throw new NullPointerException("Parameter 'username' cannot be null.");
+    if (username.length() == 0)
+      throw new IllegalArgumentException("Parameter 'username' cannot be empty.");
+
+    if (key == null)
+      throw new NullPointerException("Parameter 'key' cannot be null.");
+
+    if (email == null)
+      throw new NullPointerException("Parameter 'email' cannot be null.");
+    if (email.length() == 0)
+      throw new IllegalArgumentException("Parameter 'email' cannot be empty.");
+
     this.username = username;
+    this.key = key;
     this.email = email;
   }
 
@@ -137,10 +199,23 @@ public class User extends AuditColumns {
    * @param email    The user's email address.
    */
   public User(int id, String username, UUID key, String email) {
+    this(username, key, email);
     this.id = id;
-    this.username = username;
-    this.key = key;
-    this.email = email;
+  }
+
+  /**
+   * Creates a new instance of a user object, initializes with specified
+   * parameters.
+   * 
+   * @param id       The primary key.
+   * @param username The unique username to identify the user.
+   * @param key      A unique key to identify the user.
+   * @param email    The user's email address.
+   * @param version  Row version value
+   */
+  public User(int id, String username, UUID key, String email, int version) {
+    this(id, username, key, email);
+    this.setVersion(version);
   }
 
   /**

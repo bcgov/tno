@@ -23,6 +23,7 @@ import ca.bc.gov.tno.dal.db.models.SortParam;
 import ca.bc.gov.tno.dal.db.repositories.interfaces.IContentRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentActionService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentCategoryService;
+import ca.bc.gov.tno.dal.db.services.interfaces.IContentLinkService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentTagService;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentToneService;
@@ -44,6 +45,7 @@ public class ContentService implements IContentService {
   private final IContentTagService contentTagService;
   private final IContentCategoryService contentCategoryService;
   private final IContentToneService contentToneService;
+  private final IContentLinkService contentLinkService;
   private final IFileReferenceService fileReferenceService;
   private final ITimeTrackingService timeTrackingService;
 
@@ -57,6 +59,7 @@ public class ContentService implements IContentService {
    * @param contentTagService      The content tag service.
    * @param contentCategoryService The content category service.
    * @param contentToneService     The content tone pool service.
+   * @param contentLinkService     The content link service.
    * @param fileReferenceService   The file reference service.
    * @param timeTrackingService    The time tracking service.
    */
@@ -64,6 +67,7 @@ public class ContentService implements IContentService {
   public ContentService(final SessionFactory sessionFactory, final IContentRepository repository,
       final IContentActionService contentActionService, final IContentTagService contentTagService,
       final IContentCategoryService contentCategoryService, final IContentToneService contentToneService,
+      final IContentLinkService contentLinkService,
       final IFileReferenceService fileReferenceService, final ITimeTrackingService timeTrackingService) {
     this.sessionFactory = sessionFactory;
     this.repository = repository;
@@ -71,6 +75,7 @@ public class ContentService implements IContentService {
     this.contentTagService = contentTagService;
     this.contentCategoryService = contentCategoryService;
     this.contentToneService = contentToneService;
+    this.contentLinkService = contentLinkService;
     this.fileReferenceService = fileReferenceService;
     this.timeTrackingService = timeTrackingService;
   }
@@ -326,6 +331,12 @@ public class ContentService implements IContentService {
         return ct;
       }).toList());
     }
+    if (entity.getLinks().size() > 0) {
+      contentLinkService.add(entity.getLinks().stream().map((ct) -> {
+        ct.setContentId(result.getId());
+        return ct;
+      }).toList());
+    }
     // TODO: Load lazy load properties if they are not already loaded.
     return findById(result.getId(), true).get();
   }
@@ -338,6 +349,15 @@ public class ContentService implements IContentService {
    */
   @Override
   public Content update(Content entity) {
+    // Fetch all children so that we can determine what needs to be done.
+    var files = fileReferenceService.findByContentId(entity.getId());
+    var actions = contentActionService.findByContentId(entity.getId());
+    var tags = contentTagService.findByContentId(entity.getId());
+    var categories = contentCategoryService.findByContentId(entity.getId());
+    var tonePools = contentToneService.findByContentId(entity.getId());
+    var timeTrackings = timeTrackingService.findByContentId(entity.getId());
+    var links = contentLinkService.findByContentId(entity.getId());
+
     var result = repository.save(PrincipalHelper.updateAudit(entity));
 
     // TODO: Shouldn't need to update all children. Need to find a better way to do
@@ -346,50 +366,105 @@ public class ContentService implements IContentService {
       entity.getFileReferences().forEach((file) -> {
         if (file.getId() == 0)
           fileReferenceService.add(file);
-        else
+        else if (file.getUpdatedOn() == null)
           fileReferenceService.update(file);
       });
     }
+    files.stream()
+        .filter((f) -> !entity.getFileReferences().stream().anyMatch((fr) -> fr.getId() == f.getId()))
+        .forEach((file) -> {
+          fileReferenceService.delete(file);
+        });
+
     if (entity.getContentActions().size() > 0) {
       entity.getContentActions().forEach((action) -> {
         if (action.getActionId() == 0)
           contentActionService.add(action);
-        else
+        else if (action.getUpdatedOn() == null)
           contentActionService.update(action);
       });
     }
+    actions.stream()
+        .filter((a) -> !entity.getContentActions().stream().anyMatch((ca) -> ca.getActionId() == a.getActionId()))
+        .forEach((a) -> {
+          contentActionService.delete(a);
+        });
+
     if (entity.getContentTags().size() > 0) {
       entity.getContentTags().forEach((tag) -> {
-        if (tag.getCreatedOn() == null) // TODO: I don't think this will work presently
+        if (tag.getCreatedOn() == null)
           contentTagService.add(tag);
-        else
+        else if (tag.getUpdatedOn() == null)
           contentTagService.update(tag);
       });
     }
+    tags.stream()
+        .filter((t) -> !entity.getContentTags().stream().anyMatch((ct) -> ct.getTagId() == t.getTagId()))
+        .forEach((t) -> {
+          contentTagService.delete(t);
+        });
+
     if (entity.getContentCategories().size() > 0) {
       entity.getContentCategories().forEach((category) -> {
         if (category.getCategoryId() == 0)
           contentCategoryService.add(category);
-        else
+        else if (category.getUpdatedOn() == null)
           contentCategoryService.update(category);
       });
     }
+    categories.stream()
+        .filter(
+            (c) -> !entity.getContentCategories().stream().anyMatch((cc) -> cc.getCategoryId() == c.getCategoryId()))
+        .forEach((c) -> {
+          contentCategoryService.delete(c);
+        });
+
     if (entity.getContentTonePools().size() > 0) {
       entity.getContentTonePools().forEach((tone) -> {
         if (tone.getTonePoolId() == 0)
           contentToneService.add(tone);
-        else
+        else if (tone.getUpdatedOn() == null)
           contentToneService.update(tone);
       });
     }
+    tonePools.stream()
+        .filter((t) -> !entity.getContentTonePools().stream().anyMatch((tp) -> tp.getTonePoolId() == t.getTonePoolId()))
+        .forEach((t) -> {
+          contentToneService.delete(t);
+        });
+
     if (entity.getTimeTrackings().size() > 0) {
       entity.getTimeTrackings().forEach((time) -> {
-        if (time.getCreatedOn() == null) // TODO: I don't think this will work presently
+        if (time.getCreatedOn() == null)
           timeTrackingService.add(time);
-        else
+        else if (time.getUpdatedOn() == null)
           timeTrackingService.update(time);
       });
     }
+    // TODO: Need to test this because java is horrible and may not
+    // serialize/deserialize dates consistently.
+    timeTrackings.stream()
+        .filter((t) -> !entity.getTimeTrackings().stream()
+            .anyMatch((tt) -> tt.getUserId() == t.getUserId() && tt.getCreatedOn() == t.getCreatedOn()))
+        .forEach((t) -> {
+          timeTrackingService.delete(t);
+        });
+
+    if (entity.getLinks().size() > 0) {
+      entity.getLinks().forEach((link) -> {
+        if (link.getCreatedOn() == null)
+          contentLinkService.add(link);
+        else if (link.getUpdatedOn() == null)
+          contentLinkService.update(link);
+      });
+    }
+    links.stream()
+        .filter((l) -> !entity.getLinks().stream()
+            .anyMatch((cl) -> cl.getLinkId() == l.getLinkId()))
+        .forEach((l) -> {
+          contentLinkService.delete(l);
+        });
+
     // TODO: Load lazy load properties if they are not already loaded.
     return findById(result.getId(), true).get();
   }

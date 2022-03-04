@@ -112,6 +112,20 @@ public class ContentReference extends AuditColumns {
   }
 
   /**
+   * Creates a new instance of a ContentReference object, initializes with
+   * specified parameters.
+   * 
+   * @param source  Data source abbreviation
+   * @param uid     Unique identify of the content
+   * @param topic   The Kafka topic it was stored in
+   * @param version Row version value
+   */
+  public ContentReference(String source, String uid, String topic, int version) {
+    this(source, uid, topic);
+    this.setVersion(version);
+  }
+
+  /**
    * @return String return the source
    */
   public String getSource() {

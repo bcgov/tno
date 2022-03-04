@@ -82,14 +82,44 @@ public class License extends AuditColumns {
    * Creates a new instance of a License object, initializes with specified
    * parameters.
    * 
+   * @param name Unique name
+   * @param ttl  Time to live in days
+   */
+  public License(String name, int ttl) {
+    if (name == null)
+      throw new NullPointerException("Parameter 'name' cannot be null.");
+    if (name.length() == 0)
+      throw new IllegalArgumentException("Parameter 'name' cannot be empty.");
+
+    this.name = name;
+    this.ttl = ttl;
+  }
+
+  /**
+   * Creates a new instance of a License object, initializes with specified
+   * parameters.
+   * 
    * @param id   Primary key
    * @param name Unique name
    * @param ttl  Time to live in days
    */
   public License(int id, String name, int ttl) {
+    this(name, ttl);
     this.id = id;
-    this.name = name;
-    this.ttl = ttl;
+  }
+
+  /**
+   * Creates a new instance of a License object, initializes with specified
+   * parameters.
+   * 
+   * @param id      Primary key
+   * @param name    Unique name
+   * @param ttl     Time to live in days
+   * @param version Row version value
+   */
+  public License(int id, String name, int ttl, int version) {
+    this(id, name, ttl);
+    this.setVersion(version);
   }
 
   /**

@@ -93,6 +93,21 @@ public class ContentCategory extends AuditColumns {
    * specified
    * parameters.
    * 
+   * @param content  Content object
+   * @param category Category object
+   * @param score    Category score
+   * @param version  Row version value
+   */
+  public ContentCategory(Content content, Category category, int score, int version) {
+    this(content, category, score);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentCategory object, initializes with
+   * specified
+   * parameters.
+   * 
    * @param content    Content object
    * @param categoryId Foreign key to Category object
    * @param score      Category score
@@ -105,6 +120,21 @@ public class ContentCategory extends AuditColumns {
     this.contentId = content.getId();
     this.categoryId = categoryId;
     this.score = score;
+  }
+
+  /**
+   * Creates a new instance of a ContentCategory object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param content    Content object
+   * @param categoryId Foreign key to Category object
+   * @param score      Category score
+   * @param version    Row version value
+   */
+  public ContentCategory(Content content, int categoryId, int score, int version) {
+    this(content, categoryId, score);
+    this.setVersion(version);
   }
 
   /**

@@ -86,6 +86,20 @@ public class ContentTypeAction extends AuditColumns {
    * parameters.
    * 
    * @param contentType ContentType object
+   * @param action      Action object
+   * @param version     Row version value
+   */
+  public ContentTypeAction(ContentType contentType, Action action, int version) {
+    this(contentType, action);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a ContentTypeAction object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param contentType ContentType object
    * @param actionId    Foreign key to Action object
    */
   public ContentTypeAction(ContentType contentType, int actionId) {
@@ -95,6 +109,20 @@ public class ContentTypeAction extends AuditColumns {
     this.contentType = contentType;
     this.contentTypeId = contentType.getId();
     this.actionId = actionId;
+  }
+
+  /**
+   * Creates a new instance of a ContentTypeAction object, initializes with
+   * specified
+   * parameters.
+   * 
+   * @param contentType ContentType object
+   * @param actionId    Foreign key to Action object
+   * @param version     Row version value
+   */
+  public ContentTypeAction(ContentType contentType, int actionId, int version) {
+    this(contentType, actionId);
+    this.setVersion(version);
   }
 
   /**

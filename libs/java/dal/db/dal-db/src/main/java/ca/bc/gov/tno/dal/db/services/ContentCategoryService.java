@@ -69,7 +69,7 @@ public class ContentCategoryService implements IContentCategoryService {
    * @return A new instance of the content category if it exists.
    */
   @Override
-  public List<ContentCategory> findById(int contentId) {
+  public List<ContentCategory> findByContentId(int contentId) {
     var session = sessionFactory.getCurrentSession();
     var ts = session.beginTransaction();
 
