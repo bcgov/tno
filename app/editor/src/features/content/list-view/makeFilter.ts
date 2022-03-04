@@ -15,6 +15,8 @@ export const makeFilter = (
 ): IContentFilter => {
   const advanced = filter as IContentListAdvancedFilter;
   return {
+    page: filter.pageIndex + 1,
+    quantity: filter.pageSize,
     mediaTypeId: +filter.mediaTypeId > 0 ? +filter.mediaTypeId : undefined,
     ownerId: +filter.ownerId > 0 ? +filter.ownerId : undefined,
     userId: +filter.userId > 0 ? +filter.userId : undefined,

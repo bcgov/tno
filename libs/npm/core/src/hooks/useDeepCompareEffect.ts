@@ -1,6 +1,6 @@
 import React, { DependencyList, EffectCallback } from 'react';
 
-import { useDeepCompare } from '.';
+import { useDeepCompare } from './useDeepCompare';
 
 /**
  * `useDeepCompareEffect` will return a memoized version of the callback that

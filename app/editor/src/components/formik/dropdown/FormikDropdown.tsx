@@ -1,4 +1,4 @@
-import { IOptionItem } from 'components';
+import { IOptionItem } from 'components/form';
 import { Dropdown, ISelectProps } from 'components/form';
 import { useFormikContext } from 'formik';
 

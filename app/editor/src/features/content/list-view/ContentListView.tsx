@@ -1,22 +1,20 @@
+import { Button, ButtonVariant } from 'components/button';
 import {
-  Button,
-  ButtonVariant,
   Checkbox,
   Dropdown,
   IOptionItem,
-  IPage,
   OptionItem,
-  Page,
-  PagedTable,
   RadioGroup,
   SelectDate,
   Text,
-} from 'components';
-import { IContentModel, LogicalOperator, useApiEditor } from 'hooks';
+} from 'components/form';
+import { IPage, Page, PagedTable } from 'components/grid-table';
+import { IContentModel, LogicalOperator } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
-import { initialContentState, useContentStore, useLookup } from 'store/slices';
+import { useContent, useLookup } from 'store/hooks';
+import { initialContentState } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
@@ -32,18 +30,12 @@ const defaultPage: IPage<IContentModel> = {
 };
 
 export const ContentListView: React.FC = () => {
-  const {
-    storeContentTypes,
-    storeMediaTypes,
-    storeUsers,
-    state: { contentTypes, mediaTypes, users },
-  } = useLookup();
-  const {
-    storeFilter,
-    storeFilterAdvanced,
-    storeSortBy,
-    state: { filter, filterAdvanced, sortBy },
-  } = useContentStore();
+  const [{ contentTypes, mediaTypes, users }] = useLookup();
+  const [
+    { filter, filterAdvanced, sortBy },
+    { findContent },
+    { storeFilter, storeFilterAdvanced, storeSortBy },
+  ] = useContent();
 
   const [mediaTypeOptions, setMediaTypes] = React.useState<IOptionItem[]>([]);
   const [contentTypeOptions, setContentTypes] = React.useState<IOptionItem[]>([]);
@@ -52,32 +44,10 @@ export const ContentListView: React.FC = () => {
   const keycloak = useKeycloakWrapper();
   const [username, setUsername] = React.useState(keycloak.instance.tokenParsed.username);
   const navigate = useNavigate();
-  const api = useApiEditor();
 
   const currentUsername = keycloak.instance.tokenParsed.username;
   const printContentId = (contentTypeOptions.find((ct) => ct.label === 'Print')?.value ??
     0) as number;
-
-  React.useEffect(() => {
-    if (users.length === 0) {
-      api.getUsers().then((data) => {
-        storeUsers(data);
-      });
-    }
-
-    if (contentTypes.length === 0) {
-      api.getContentTypes().then((data) => {
-        storeContentTypes(data);
-      });
-    }
-
-    if (mediaTypes.length === 0) {
-      api.getMediaTypes().then((data) => {
-        storeMediaTypes(data);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api]);
 
   React.useEffect(() => {
     setUsername(currentUsername);
@@ -110,10 +80,12 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter, sortBy: ISortBy[]) => {
       try {
-        const data = await api.getContents(
-          filter.pageIndex,
-          filter.pageSize,
-          makeFilter({ ...filter, ...filterAdvanced, sortBy }),
+        const data = await findContent(
+          makeFilter({
+            ...filter,
+            ...filterAdvanced,
+            sortBy,
+          }),
         );
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
         setPage(page);
@@ -123,7 +95,7 @@ export const ContentListView: React.FC = () => {
         throw error;
       }
     },
-    [api, filterAdvanced],
+    [filterAdvanced, findContent],
   );
 
   React.useEffect(() => {

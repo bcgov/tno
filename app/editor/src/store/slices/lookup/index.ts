@@ -1,2 +1,3 @@
+export * from './interfaces';
 export * from './lookupSlice';
-export * from './useLookup';
+export * from './useLookupStore';

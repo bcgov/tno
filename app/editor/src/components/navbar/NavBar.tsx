@@ -1,4 +1,5 @@
-import { NavBarGroup, NavBarItem, Row } from 'components';
+import { NavBarGroup, NavBarItem } from 'components/navbar';
+import { Row } from 'components/row';
 import { Claim } from 'tno-core';
 
 /**

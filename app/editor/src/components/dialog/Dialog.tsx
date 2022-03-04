@@ -1,7 +1,7 @@
 import './dialog.scss';
 
 import { Dialog as HDialog } from '@headlessui/react';
-import { Button } from 'components';
+import { Button } from 'components/button';
 import { IResponseErrorModel } from 'hooks';
 import React from 'react';
 

@@ -1,4 +1,4 @@
-import { Checkbox } from 'components';
+import { Checkbox } from 'components/form';
 import { ContentStatus, IContentModel } from 'hooks/api-editor';
 import moment from 'moment';
 import { Column, UseSortByColumnOptions } from 'react-table';
@@ -27,7 +27,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'mediaType',
     Header: 'Type',
-    accessor: (row) => row.mediaType.name,
+    accessor: (row) => row.mediaType?.name,
   },
   {
     id: 'section',

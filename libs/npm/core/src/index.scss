@@ -5,7 +5,10 @@ body {
   margin: 0;
 }
 
-body, button, input, textarea {
+body,
+button,
+input,
+textarea {
   font-family: -apple-system, BlinkMacSystemFont, 'BC Sans', 'Noto Sans', Arial, 'sans serif';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -19,7 +22,9 @@ p {
   margin: 0;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -54,7 +59,7 @@ p {
 .type-light.place-bottom {
   padding: 2px 5px 2px 5px;
   border: solid 1px $primary-color;
-  
+
   &:after {
     border-bottom: 5px solid $primary-color !important;
   }

@@ -1,4 +1,4 @@
-import { IOptionItem } from 'components';
+import { IOptionItem } from 'components/form';
 import { LogicalOperator } from 'hooks';
 
 export interface IContentListAdvancedFilter {

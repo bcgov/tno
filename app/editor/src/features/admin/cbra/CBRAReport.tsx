@@ -1,6 +1,6 @@
-import { Button, ButtonVariant } from 'components';
+import { Button, ButtonVariant } from 'components/button';
 import { Dropdown, IOptionItem, SelectDate } from 'components/form';
-import { useApiEditor } from 'hooks';
+import { useApiReports } from 'hooks/api-editor/reports';
 import React from 'react';
 
 import { defaultValues, reportDurations } from './constants';
@@ -11,7 +11,7 @@ import { calcDuration } from './utils';
 interface ICBRAReportProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
-  const api = useApiEditor();
+  const api = useApiReports();
 
   const [values, setValues] = React.useState<ICBRAForm>({ ...defaultValues, ...calcDuration(0) });
   const [isDownloading, setIsDownloading] = React.useState(false);

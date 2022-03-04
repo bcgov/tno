@@ -1,5 +1,4 @@
-import { TextVariant } from 'components';
-import { ITextProps, Text } from 'components/form';
+import { ITextProps, Text, TextVariant } from 'components/form';
 import { useFormikContext } from 'formik';
 
 import * as styled from './FormikTextStyled';

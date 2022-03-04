@@ -1,85 +1,53 @@
-import {
-  Area,
-  Button,
-  ButtonVariant,
-  Col,
-  FormikCheckbox,
-  FormikDropdown,
-  FormikText,
-  IOptionItem,
-  OptionItem,
-  Row,
-  Tab,
-  Tabs,
-} from 'components';
+import { Button, ButtonVariant } from 'components/button';
+import { Col } from 'components/col';
+import { Area, IOptionItem, OptionItem } from 'components/form';
+import { FormikCheckbox, FormikDropdown, FormikText } from 'components/formik';
+import { Row } from 'components/row';
+import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
-import { IContentApi, useApiEditor } from 'hooks';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLookup } from 'store';
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useContent, useLookup } from 'store/hooks';
 
 import { PropertiesContentForm } from '.';
+import { defaultFormValues } from './constants';
+import { IContentForm } from './interfaces';
 import { TranscriptContentForm } from './TranscriptContentForm';
-import { formContentToApiContent } from './utils';
+import { toForm, toModel } from './utils';
 
 /**
- * Content Form edit and create form for default view. Path will be appeneded with content id.
+ * Content Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
 export const ContentForm: React.FC = () => {
-  const [active, setActive] = useState('properties');
   const navigate = useNavigate();
-  const {
-    storeMediaTypes,
-    state: { mediaTypes },
-  } = useLookup();
-  const [mediaTypeOptions, setMediatTypeOptions] = useState<IOptionItem[]>([]);
-  const api = useApiEditor({ baseURL: `/api/editor/contents/` });
-  const lookupApi = useApiEditor({ baseURL: '/api' });
-  const path = window.location.pathname.toString();
-  const getContentId = () => {
-    return Number(path.substring(path.lastIndexOf('/') + 1));
-  };
+  const { id } = useParams();
+  const [{ mediaTypes }] = useLookup();
+  const [, { getContent, addContent, updateContent }] = useContent();
 
-  const [mode] = useState<'edit' | 'create'>(getContentId() === 0 ? 'create' : 'edit');
-
-  const defaultValues: IContentApi = {
-    id: 0,
-    status: 0,
-    mediaTypeId: 0,
-    headline: '',
-    summary: '',
-    contentTypeId: 0,
-    source: '',
-    licenseId: 0,
-    page: '',
-    section: '',
-    transcription: '',
-    ownerId: 0,
-    createdOn: undefined,
-    seriesId: undefined,
-  };
-  const id = getContentId();
-  const [content, setContent] = useState<IContentApi>(defaultValues);
-  const [toggleCommentary, setToggleCommentary] = useState(true);
+  const [active, setActive] = React.useState('properties');
+  const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
+  const [content, setContent] = React.useState<IContentForm>({
+    ...defaultFormValues,
+    id: parseInt(id ?? '0'),
+  });
+  const [toggleCommentary, setToggleCommentary] = React.useState(true);
 
   // include id when it is an update, no idea necessary when new content
-  const submitContent = async (data: IContentApi, contentId?: number) => {
-    mode === 'create' ? await api.addContent(data) : await api.updateContent(data, id);
-    navigate('/contents');
+  const submitContent = async (values: IContentForm) => {
+    const model = toModel(values);
+    const result = !content.id ? await addContent(model) : await updateContent(model);
+    toForm(result);
   };
 
-  useEffect(() => {
-    api.findContent(id).then((data) => setContent(data));
-  }, [api, id]);
+  React.useEffect(() => {
+    if (!!content.id) {
+      getContent(content.id).then((data) => setContent(toForm(data)));
+    }
+  }, [content.id, getContent]);
 
-  // Populate lookup values on initial render
-  useEffect(() => {
-    mediaTypes.length === 0 && lookupApi.getMediaTypes().then((data) => storeMediaTypes(data));
-  }, [lookupApi, mediaTypes, storeMediaTypes]);
-
-  useEffect(() => {
-    setMediatTypeOptions(
+  React.useEffect(() => {
+    setMediaTypeOptions(
       [new OptionItem<number>('All Media', 0)].concat(
         mediaTypes.map((m) => new OptionItem<number>(m.name, m.id)),
       ),
@@ -102,8 +70,8 @@ export const ContentForm: React.FC = () => {
       </Row>
       <Formik
         enableReinitialize
-        onSubmit={(values) => {
-          submitContent(formContentToApiContent(values));
+        onSubmit={async (values) => {
+          await submitContent(values);
         }}
         initialValues={content}
       >
@@ -176,7 +144,7 @@ export const ContentForm: React.FC = () => {
                     <FormikCheckbox
                       name="commentary"
                       className="chk"
-                      disabled={mode === 'create'}
+                      disabled={!content.id}
                       onClick={() => setToggleCommentary(!toggleCommentary)}
                       labelRight
                       label="Commentary"
@@ -211,7 +179,7 @@ export const ContentForm: React.FC = () => {
                     name="timeout"
                     value="NON FUNCTIONAL"
                     label="Commentary Timeout"
-                    disabled={mode === 'edit' ? toggleCommentary : true}
+                    disabled={content.id ? toggleCommentary : true}
                     className="md"
                   />
                 </Row>
@@ -242,13 +210,8 @@ export const ContentForm: React.FC = () => {
               </Tabs>
             </Row>
             <Row style={{ marginTop: '2%' }}>
-              <Button
-                style={{ marginRight: '4%' }}
-                type="submit"
-                disabled={mode === 'edit'}
-                onClick={() => submitContent(formContentToApiContent(content))}
-              >
-                {mode === 'create' ? 'Create Snippet' : 'Update Snippet'}
+              <Button style={{ marginRight: '4%' }} type="submit" disabled={!!content.id}>
+                {!!content.id ? 'Create Snippet' : 'Update Snippet'}
               </Button>
               <Button disabled variant={ButtonVariant.danger}>
                 Remove Snippet{' '}

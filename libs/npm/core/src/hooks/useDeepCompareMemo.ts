@@ -1,6 +1,6 @@
 import React, { DependencyList } from 'react';
 
-import { useDeepCompare } from '.';
+import { useDeepCompare } from './useDeepCompare';
 
 /** util function used by other useDeep* hooks */
 export function useDeepCompareMemo(factory: () => any, dependencies: DependencyList) {

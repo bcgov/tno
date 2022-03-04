@@ -25,7 +25,8 @@
     "jock.svg",
     "jpoissonnier.vscode-styled-components",
     "pflannery.vscode-versionlens",
-    "styled-components.vscode-styled-components"
+    "styled-components.vscode-styled-components",
+    "eamodio.gitlens"
   ],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

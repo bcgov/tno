@@ -1,6 +1,6 @@
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { NavBar } from 'components';
 import { Layout } from 'components/layout';
+import { NavBar } from 'components/navbar';
 import { AppRouter } from 'features/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';

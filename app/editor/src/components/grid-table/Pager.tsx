@@ -1,4 +1,4 @@
-import { Button, ButtonVariant } from 'components';
+import { Button, ButtonVariant } from 'components/button';
 import React from 'react';
 import { BiFirstPage, BiLastPage } from 'react-icons/bi';
 

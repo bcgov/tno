@@ -1,4 +1,4 @@
-import { IOptionItem } from 'components';
+import { IOptionItem } from 'components/form';
 
 export interface IContentListFilter {
   pageIndex: number;

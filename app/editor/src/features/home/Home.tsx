@@ -1,5 +1,7 @@
-import { InfoPanel, InfoText, LogoPanel, TextBox } from 'components';
-import { LoginPanel } from 'components/home/LoginPanel';
+import { TextBox } from 'components/text-box';
+import { LoginPanel } from 'features/login';
+
+import { InfoPanel, InfoText, LogoPanel } from '.';
 
 export const Home = () => {
   return (
