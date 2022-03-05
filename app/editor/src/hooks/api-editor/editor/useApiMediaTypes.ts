@@ -19,7 +19,6 @@ export const useApiMediaTypes = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getMediaTypes: () => {
         return extractResponseData<IMediaTypeModel[]>(() => api.get(`/editor/media/types`));
       },

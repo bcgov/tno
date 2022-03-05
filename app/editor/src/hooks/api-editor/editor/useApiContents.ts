@@ -19,7 +19,6 @@ export const useApiContents = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       findContent: (filter?: IContentFilter) => {
         const params = {
           ...filter,

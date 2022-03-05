@@ -19,7 +19,6 @@ export const useApiCategories = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getCategories: () => {
         return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/categories`));
       },

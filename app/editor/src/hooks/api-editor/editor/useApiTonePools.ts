@@ -19,7 +19,6 @@ export const useApiTonePools = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getTonePools: () => {
         return extractResponseData<ITonePoolModel[]>(() => api.get(`/editor/tone/pools`));
       },

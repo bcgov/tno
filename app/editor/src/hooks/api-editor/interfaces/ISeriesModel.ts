@@ -1,7 +1,6 @@
-export interface ISeriesModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+
+export interface ISeriesModel extends ISortableModel<number> {
   description: string;
-  sortOrder: number;
   isEnabled: boolean;
 }

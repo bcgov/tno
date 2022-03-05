@@ -1,7 +1,5 @@
-export interface ICategoryModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+export interface ICategoryModel extends ISortableModel<number> {
   description: string;
-  sortOrder: number;
   isEnabled: boolean;
 }

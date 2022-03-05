@@ -1,8 +1,7 @@
-export interface ILicenseModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+
+export interface ILicenseModel extends ISortableModel<number> {
   description?: string;
   isEnabled: boolean;
-  sortOrder: number;
   ttl: number;
 }

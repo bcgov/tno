@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICategoryModel,
   IContentTypeModel,
+  ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
   ITagModel,
@@ -13,6 +14,7 @@ export interface ILookupState {
   actions: IActionModel[];
   categories: ICategoryModel[];
   contentTypes: IContentTypeModel[];
+  licenses: ILicenseModel[];
   mediaTypes: IMediaTypeModel[];
   series: ISeriesModel[];
   tags: ITagModel[];

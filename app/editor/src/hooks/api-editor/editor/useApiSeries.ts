@@ -19,7 +19,6 @@ export const useApiSeries = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getSeries: () => {
         return extractResponseData<ISeriesModel[]>(() => api.get(`/editor/series`));
       },

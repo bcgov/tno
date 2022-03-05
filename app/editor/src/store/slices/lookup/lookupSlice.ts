@@ -3,6 +3,7 @@ import {
   IActionModel,
   ICategoryModel,
   IContentTypeModel,
+  ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
   ITagModel,
@@ -16,6 +17,7 @@ export const initialLookupState: ILookupState = {
   actions: [],
   categories: [],
   contentTypes: [],
+  licenses: [],
   mediaTypes: [],
   series: [],
   tags: [],
@@ -35,6 +37,9 @@ export const lookupSlice = createSlice({
     },
     storeContentTypes(state: ILookupState, action: PayloadAction<IContentTypeModel[]>) {
       state.contentTypes = action.payload;
+    },
+    storeLicenses(state: ILookupState, action: PayloadAction<ILicenseModel[]>) {
+      state.licenses = action.payload;
     },
     storeMediaTypes(state: ILookupState, action: PayloadAction<IMediaTypeModel[]>) {
       state.mediaTypes = action.payload;
@@ -58,6 +63,7 @@ export const {
   storeActions,
   storeCategories,
   storeContentTypes,
+  storeLicenses,
   storeMediaTypes,
   storeSeries,
   storeTags,

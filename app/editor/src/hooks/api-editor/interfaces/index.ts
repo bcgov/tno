@@ -11,6 +11,7 @@ export * from './IPageFilter';
 export * from './IPrintContentModel';
 export * from './IResponseErrorModel';
 export * from './ISeriesModel';
+export * from './ISortableModel';
 export * from './ITagModel';
 export * from './ITonePoolModel';
 export * from './IUserModel';

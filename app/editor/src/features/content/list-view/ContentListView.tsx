@@ -16,6 +16,7 @@ import { SortingRule } from 'react-table';
 import { useContent, useLookup } from 'store/hooks';
 import { initialContentState } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
+import { getSortableOptions, getUserOptions } from 'utils';
 
 import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
@@ -64,17 +65,9 @@ export const ContentListView: React.FC = () => {
   }, [username, users]);
 
   React.useEffect(() => {
-    setContentTypes(contentTypes.map((m) => new OptionItem(m.name, m.id)));
-    setMediaTypes(
-      [new OptionItem<number>('All Media', 0)].concat(
-        mediaTypes.map((m) => new OptionItem<number>(m.name, m.id)),
-      ),
-    );
-    setUsers(
-      [new OptionItem<number>('All Users', 0)].concat(
-        users.map((u) => new OptionItem<number>(u.displayName, u.id)),
-      ),
-    );
+    setContentTypes(getSortableOptions(contentTypes));
+    setMediaTypes(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
+    setUsers(getUserOptions(users, [new OptionItem<number>('All Users', 0)]));
   }, [contentTypes, mediaTypes, users]);
 
   const fetch = React.useCallback(

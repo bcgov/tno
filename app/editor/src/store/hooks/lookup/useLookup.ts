@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICategoryModel,
   IContentTypeModel,
+  ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
   ITagModel,
@@ -12,6 +13,7 @@ import {
   useApiActions,
   useApiCategories,
   useApiContentTypes,
+  useApiLicenses,
   useApiMediaTypes,
   useApiSeries,
   useApiTags,
@@ -26,6 +28,7 @@ interface ILookupHook {
   getActions: () => Promise<IActionModel[]>;
   getCategories: () => Promise<ICategoryModel[]>;
   getContentTypes: () => Promise<IContentTypeModel[]>;
+  getLicenses: () => Promise<ILicenseModel[]>;
   getMediaTypes: () => Promise<IMediaTypeModel[]>;
   getSeries: () => Promise<ISeriesModel[]>;
   getTags: () => Promise<ITagModel[]>;
@@ -38,6 +41,7 @@ export const useLookup = (): [ILookupState, ILookupHook, ILookupStore] => {
   const actions = useApiActions();
   const categories = useApiCategories();
   const contentTypes = useApiContentTypes();
+  const licenses = useApiLicenses();
   const mediaTypes = useApiMediaTypes();
   const series = useApiSeries();
   const tags = useApiTags();
@@ -61,6 +65,12 @@ export const useLookup = (): [ILookupState, ILookupHook, ILookupStore] => {
     store.storeContentTypes(result);
     return result;
   }, [contentTypes, store]);
+
+  const getLicenses = React.useCallback(async () => {
+    const result = await licenses.getLicenses();
+    store.storeLicenses(result);
+    return result;
+  }, [licenses, store]);
 
   const getMediaTypes = React.useCallback(async () => {
     const result = await mediaTypes.getMediaTypes();
@@ -96,6 +106,7 @@ export const useLookup = (): [ILookupState, ILookupHook, ILookupStore] => {
     getActions,
     getCategories,
     getContentTypes,
+    getLicenses,
     getMediaTypes,
     getSeries,
     getTags,
@@ -104,10 +115,12 @@ export const useLookup = (): [ILookupState, ILookupHook, ILookupStore] => {
   };
 
   React.useEffect(() => {
-    // TODO: do these in parallel, and handle errors.
+    // Initialize the first time the hook is called only.
+    // Failures will have to manually be resolved.
     if (!state.actions.length) hook.getActions();
     if (!state.categories.length) hook.getCategories();
     if (!state.contentTypes.length) hook.getContentTypes();
+    if (!state.licenses.length) hook.getLicenses();
     if (!state.mediaTypes.length) hook.getMediaTypes();
     if (!state.series.length) hook.getSeries();
     if (!state.tags.length) hook.getTags();

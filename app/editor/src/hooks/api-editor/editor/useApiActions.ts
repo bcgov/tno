@@ -19,7 +19,6 @@ export const useApiActions = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getActions: () => {
         return extractResponseData<IActionModel[]>(() => api.get(`/editor/actions`));
       },

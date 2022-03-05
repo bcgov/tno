@@ -19,7 +19,6 @@ export const useApiTags = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getTags: () => {
         return extractResponseData<ITagModel[]>(() => api.get(`/editor/tags`));
       },

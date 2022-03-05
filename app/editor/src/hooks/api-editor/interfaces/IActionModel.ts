@@ -1,7 +1,6 @@
-export interface IActionModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+
+export interface IActionModel extends ISortableModel<number> {
   description: string;
-  sortOrder: number;
   isEnabled: boolean;
 }

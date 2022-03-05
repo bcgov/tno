@@ -8,6 +8,7 @@ import { Formik } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
+import { getSortableOptions } from 'utils';
 
 import { PropertiesContentForm } from '.';
 import { defaultFormValues } from './constants';
@@ -47,11 +48,7 @@ export const ContentForm: React.FC = () => {
   }, [content.id, getContent]);
 
   React.useEffect(() => {
-    setMediaTypeOptions(
-      [new OptionItem<number>('All Media', 0)].concat(
-        mediaTypes.map((m) => new OptionItem<number>(m.name, m.id)),
-      ),
-    );
+    setMediaTypeOptions(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
   }, [mediaTypes]);
 
   return (

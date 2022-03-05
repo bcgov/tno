@@ -19,7 +19,6 @@ export const useApiUsers = (
 
   return React.useMemo(
     () => ({
-      // Lookups
       getUsers: () => {
         return extractResponseData<IUserModel[]>(() => api.get(`/editor/users`));
       },
