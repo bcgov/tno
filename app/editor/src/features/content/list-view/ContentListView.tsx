@@ -18,7 +18,14 @@ import { useApp } from 'store/hooks/app/useApp';
 import { initialContentState } from 'store/slices';
 import { getSortableOptions, getUserOptions } from 'utils';
 
-import { columns, defaultPage, fieldTypes, logicalOperators, timeFrames } from './constants';
+import {
+  columns,
+  defaultFilter,
+  defaultPage,
+  fieldTypes,
+  logicalOperators,
+  timeFrames,
+} from './constants';
 import * as styled from './ContentListViewStyled';
 import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
@@ -30,7 +37,7 @@ export const ContentListView: React.FC = () => {
     { filter, filterAdvanced, sortBy },
     { findContent },
     { storeFilter, storeFilterAdvanced, storeSortBy },
-  ] = useContent();
+  ] = useContent({ filter: { ...defaultFilter, userId: userInfo?.id ?? 0 } });
   const navigate = useNavigate();
 
   const [mediaTypeOptions, setMediaTypes] = React.useState<IOptionItem[]>([]);
@@ -47,14 +54,6 @@ export const ContentListView: React.FC = () => {
     setMediaTypes(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
     setUsers(getUserOptions(users, [new OptionItem<number>('All Users', 0)]));
   }, [contentTypes, mediaTypes, users]);
-
-  React.useEffect(() => {
-    // Only update filter if the userInfo changes.
-    if (userInfo?.id) {
-      storeFilter({ ...filter, userId: userInfo?.id });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.id]);
 
   const fetch = React.useCallback(
     async (filter: IContentListFilter, sortBy: ISortBy[]) => {

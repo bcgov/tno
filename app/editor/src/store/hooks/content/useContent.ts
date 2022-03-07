@@ -2,7 +2,7 @@ import { IContentFilter, IContentModel, IPaged } from 'hooks';
 import { useApiContents } from 'hooks/api-editor/editor';
 import React from 'react';
 import { IContentStore, useContentStore } from 'store/slices';
-import { IContentState } from 'store/slices/content';
+import { IContentProps, IContentState } from 'store/slices/content';
 
 interface IContentHook {
   getContent: (id: number) => Promise<IContentModel>;
@@ -12,8 +12,8 @@ interface IContentHook {
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
 }
 
-export const useContent = (): [IContentState, IContentHook, IContentStore] => {
-  const [state, store] = useContentStore();
+export const useContent = (props?: IContentProps): [IContentState, IContentHook, IContentStore] => {
+  const [state, store] = useContentStore(props);
   const api = useApiContents();
 
   const hook: IContentHook = React.useMemo(
