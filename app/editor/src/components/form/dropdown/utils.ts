@@ -1,4 +1,4 @@
-import { enumKeyValues } from 'utils';
+import { enumKeyValues } from 'tno-core';
 
 import { IOptionItem } from '..';
 

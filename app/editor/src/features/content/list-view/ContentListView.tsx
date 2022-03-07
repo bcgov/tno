@@ -1,119 +1,70 @@
+import { Button, ButtonVariant } from 'components/button';
 import {
-  Button,
-  ButtonVariant,
   Checkbox,
   Dropdown,
   IOptionItem,
-  IPage,
   OptionItem,
-  Page,
-  PagedTable,
   RadioGroup,
   SelectDate,
   Text,
-} from 'components';
-import { IContentModel, LogicalOperator, useApiEditor } from 'hooks';
+} from 'components/form';
+import { Page, PagedTable } from 'components/grid-table';
+import { IContentModel, LogicalOperator } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
-import { initialContentState, useContentStore, useLookup } from 'store/slices';
-import { useKeycloakWrapper } from 'tno-core';
+import { useContent, useLookup } from 'store/hooks';
+import { useApp } from 'store/hooks/app/useApp';
+import { initialContentState } from 'store/slices';
+import { getSortableOptions, getUserOptions } from 'utils';
 
-import { columns, fieldTypes, logicalOperators, timeFrames } from './constants';
+import { columns, defaultPage, fieldTypes, logicalOperators, timeFrames } from './constants';
 import * as styled from './ContentListViewStyled';
 import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
 
-const defaultPage: IPage<IContentModel> = {
-  pageIndex: 0,
-  pageSize: 10,
-  pageCount: -1,
-  items: [],
-};
-
 export const ContentListView: React.FC = () => {
-  const {
-    storeContentTypes,
-    storeMediaTypes,
-    storeUsers,
-    state: { contentTypes, mediaTypes, users },
-  } = useLookup();
-  const {
-    storeFilter,
-    storeFilterAdvanced,
-    storeSortBy,
-    state: { filter, filterAdvanced, sortBy },
-  } = useContentStore();
+  const [{ userInfo }, { isUserReady }] = useApp();
+  const [{ contentTypes, mediaTypes, users }] = useLookup();
+  const [
+    { filter, filterAdvanced, sortBy },
+    { findContent },
+    { storeFilter, storeFilterAdvanced, storeSortBy },
+  ] = useContent();
+  const navigate = useNavigate();
 
   const [mediaTypeOptions, setMediaTypes] = React.useState<IOptionItem[]>([]);
   const [contentTypeOptions, setContentTypes] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUsers] = React.useState<IOptionItem[]>([]);
   const [page, setPage] = React.useState(defaultPage);
-  const keycloak = useKeycloakWrapper();
-  const [username, setUsername] = React.useState(keycloak.instance.tokenParsed.username);
-  const navigate = useNavigate();
-  const api = useApiEditor();
+  const [timeframe, setTimeframe] = React.useState(timeFrames[0]);
 
-  const currentUsername = keycloak.instance.tokenParsed.username;
   const printContentId = (contentTypeOptions.find((ct) => ct.label === 'Print')?.value ??
     0) as number;
 
   React.useEffect(() => {
-    if (users.length === 0) {
-      api.getUsers().then((data) => {
-        storeUsers(data);
-      });
-    }
-
-    if (contentTypes.length === 0) {
-      api.getContentTypes().then((data) => {
-        storeContentTypes(data);
-      });
-    }
-
-    if (mediaTypes.length === 0) {
-      api.getMediaTypes().then((data) => {
-        storeMediaTypes(data);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api]);
-
-  React.useEffect(() => {
-    setUsername(currentUsername);
-  }, [currentUsername]);
-
-  React.useEffect(() => {
-    // TODO: switch to user.id when keycloak is setup.
-    const currentUserId =
-      filter.userId === '' || filter.userId === 0
-        ? users.find((u) => u.username === username)?.id ?? 0
-        : filter.userId;
-    storeFilter((filter: IContentListFilter) => ({ ...filter, userId: currentUserId }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username, users]);
-
-  React.useEffect(() => {
-    setContentTypes(contentTypes.map((m) => new OptionItem(m.name, m.id)));
-    setMediaTypes(
-      [new OptionItem<number>('All Media', 0)].concat(
-        mediaTypes.map((m) => new OptionItem<number>(m.name, m.id)),
-      ),
-    );
-    setUsers(
-      [new OptionItem<number>('All Users', 0)].concat(
-        users.map((u) => new OptionItem<number>(u.displayName, u.id)),
-      ),
-    );
+    setContentTypes(getSortableOptions(contentTypes));
+    setMediaTypes(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
+    setUsers(getUserOptions(users, [new OptionItem<number>('All Users', 0)]));
   }, [contentTypes, mediaTypes, users]);
+
+  React.useEffect(() => {
+    // Only update filter if the userInfo changes.
+    if (userInfo?.id) {
+      storeFilter({ ...filter, userId: userInfo?.id });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo?.id]);
 
   const fetch = React.useCallback(
     async (filter: IContentListFilter, sortBy: ISortBy[]) => {
       try {
-        const data = await api.getContents(
-          filter.pageIndex,
-          filter.pageSize,
-          makeFilter({ ...filter, ...filterAdvanced, sortBy }),
+        const data = await findContent(
+          makeFilter({
+            ...filter,
+            ...filterAdvanced,
+            sortBy,
+          }),
         );
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
         setPage(page);
@@ -123,11 +74,14 @@ export const ContentListView: React.FC = () => {
         throw error;
       }
     },
-    [api, filterAdvanced],
+    [filterAdvanced, findContent],
   );
 
   React.useEffect(() => {
-    fetch(filter, sortBy);
+    // Only make a request if the user has been set.
+    if (isUserReady() && filter.userId !== '') {
+      fetch(filter, sortBy);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, sortBy]);
 
@@ -150,11 +104,12 @@ export const ContentListView: React.FC = () => {
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = +e.target.value;
     const timeFrame = timeFrames.find((tf) => tf.value === value);
-    storeFilter((filter: IContentListFilter) => ({
+    setTimeframe(timeframe);
+    storeFilter({
       ...filter,
       pageIndex: 0,
-      timeFrame: timeFrame?.toInterface() ?? timeFrames[0].toInterface(),
-    }));
+      timeFrame: timeFrame?.value ?? 0,
+    });
   };
 
   return (
@@ -195,7 +150,7 @@ export const ContentListView: React.FC = () => {
             label="Time Frame"
             direction="row"
             tooltip="Date created"
-            value={filter.timeFrame}
+            value={timeframe}
             options={timeFrames}
             onChange={handleTimeChange}
             disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}

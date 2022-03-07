@@ -31,7 +31,9 @@
 		"jpoissonnier.vscode-styled-components",
     "streetsidesoftware.code-spell-checker",
     "pflannery.vscode-versionlens",
-    "styled-components.vscode-styled-components"
+    "styled-components.vscode-styled-components",
+    "eamodio.gitlens",
+    "chrisbibby.hide-node-modules"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

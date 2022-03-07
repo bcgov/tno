@@ -1,7 +1,6 @@
-export interface IMediaTypeModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+
+export interface IMediaTypeModel extends ISortableModel<number> {
   description: string;
-  sortOrder: number;
   isEnabled: boolean;
 }

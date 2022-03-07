@@ -1,7 +1,6 @@
-export interface ITonePoolModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+
+export interface ITonePoolModel extends ISortableModel<number> {
   description: string;
-  sortOrder: number;
   isEnabled: boolean;
 }

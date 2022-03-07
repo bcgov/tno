@@ -38,13 +38,15 @@ export const useSummon = ({
   let loadingToastId: React.ReactText | undefined = undefined;
 
   const instance = React.useMemo(
-    () =>
-      axios.create({
+    () => {
+      const instance = axios.create({
         baseURL,
         headers: {
           'Access-Control-Allow-Origin': '*',
         },
-      }),
+      });
+      return instance;
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [baseURL, state],
   );

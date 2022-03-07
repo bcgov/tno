@@ -1,7 +1,6 @@
 import throttle from 'lodash.throttle';
 import React from 'react';
-
-import { isInViewport } from 'utils';
+import { isInViewport } from '../utils/isInViewPort';
 
 /**
  * Check if an element is in viewport

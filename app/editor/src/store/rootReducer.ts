@@ -1,10 +1,10 @@
 import { loadingBarReducer } from 'react-redux-loading-bar';
 
-import { contentSlice, jwtSlice, lookupSlice, navSlice } from './slices';
+import { appSlice, contentSlice, lookupSlice, navSlice } from './slices';
 
 export const reducer = {
   loadingBar: loadingBarReducer,
-  [jwtSlice.name]: jwtSlice.reducer,
+  [appSlice.name]: appSlice.reducer,
   [navSlice.name]: navSlice.reducer,
   [contentSlice.name]: contentSlice.reducer,
   [lookupSlice.name]: lookupSlice.reducer,

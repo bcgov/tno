@@ -15,13 +15,15 @@ export const makeFilter = (
 ): IContentFilter => {
   const advanced = filter as IContentListAdvancedFilter;
   return {
+    page: filter.pageIndex + 1,
+    quantity: filter.pageSize,
     mediaTypeId: +filter.mediaTypeId > 0 ? +filter.mediaTypeId : undefined,
     ownerId: +filter.ownerId > 0 ? +filter.ownerId : undefined,
     userId: +filter.userId > 0 ? +filter.userId : undefined,
     contentTypeId: filter.contentTypeId !== 0 ? filter.contentTypeId : undefined,
     createdStartOn: advanced.startDate
       ? moment(advanced.startDate).toISOString()
-      : setTimeFrame(filter.timeFrame.value as number)?.toISOString(),
+      : setTimeFrame(filter.timeFrame as number)?.toISOString(),
     createdEndOn: advanced.endDate ? moment(advanced.endDate).toISOString() : undefined,
     [(advanced?.fieldType?.value as string) ?? 'fake']:
       advanced.searchTerm !== '' ? advanced.searchTerm : undefined,

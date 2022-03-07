@@ -1,7 +1,6 @@
-export interface IContentTypeModel {
-  id: number;
-  name: string;
+import { ISortableModel } from '.';
+
+export interface IContentTypeModel extends ISortableModel<number> {
   description: string;
-  sortOrder: number;
   isEnabled: boolean;
 }

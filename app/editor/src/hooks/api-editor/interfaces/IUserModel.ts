@@ -5,4 +5,5 @@ export interface IUserModel {
   displayName: string;
   firstName?: string;
   lastName?: string;
+  lastLoginOn?: Date;
 }

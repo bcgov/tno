@@ -1,6 +1,7 @@
 import { ContentStatus, LogicalOperator } from '..';
+import { IPageFilter } from '.';
 
-export interface IContentFilter {
+export interface IContentFilter extends IPageFilter {
   mediaTypeId?: number;
   contentTypeId?: number;
   source?: string;

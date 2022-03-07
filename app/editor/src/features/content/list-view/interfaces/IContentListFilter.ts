@@ -1,5 +1,3 @@
-import { IOptionItem } from 'components';
-
 export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
@@ -7,7 +5,7 @@ export interface IContentListFilter {
   contentTypeId: number;
   ownerId: number | '';
   userId: number | '';
-  timeFrame: IOptionItem;
+  timeFrame: number | '';
   // Actions
   included: string;
   onTicker: string;

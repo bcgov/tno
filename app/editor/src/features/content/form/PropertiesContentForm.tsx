@@ -1,29 +1,26 @@
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  FormikCheckbox,
-  FormikDropdown,
-  FormikText,
-  FormikTextArea,
-  OptionItem,
-  RadioGroup,
-  Row,
-  SelectDate,
-} from 'components';
+import { Button, ButtonVariant } from 'components/button';
+import { Col } from 'components/col';
+import { IOptionItem, OptionItem, RadioGroup, SelectDate } from 'components/form';
+import { FormikCheckbox, FormikDropdown, FormikText, FormikTextArea } from 'components/formik';
+import { Row } from 'components/row';
 import { useFormikContext } from 'formik';
-import { IContentApi, useApiEditor } from 'hooks';
-import { useEffect, useState } from 'react';
+import React from 'react';
+import { useLookup } from 'store/hooks';
 
 import { expireOptions, summaryOptions, toningOptions } from './constants';
+import { IContentForm } from './interfaces';
 
 export interface IContentSubForms {
-  setContent: (content: IContentApi) => void;
-  content: IContentApi;
+  setContent: (content: IContentForm) => void;
+  content: IContentForm;
 }
+
 export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, content }) => {
-  const { values } = useFormikContext<IContentApi>();
-  const api = useApiEditor({ baseURL: '/api' });
+  const [{ series: lSeries }] = useLookup();
+  const { values } = useFormikContext<IContentForm>();
+
+  const [series, setSeries] = React.useState<IOptionItem[]>();
+
   const formatTime = (date: string) => {
     const converted = new Date(date);
     return !!converted.getTime()
@@ -31,12 +28,9 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
       : '';
   };
 
-  const [series, setSeries] = useState<[]>();
-  useEffect(() => {
-    api
-      .getSeries()
-      .then((data: any) => setSeries(data.map((m: any) => new OptionItem(m.name, m.id))));
-  }, [api]);
+  React.useEffect(() => {
+    setSeries(lSeries.map((m: any) => new OptionItem(m.name, m.id)));
+  }, [lSeries]);
 
   return (
     <Col style={{ margin: '3%' }}>
@@ -71,18 +65,18 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
                 className="md-lrg"
                 name="date"
                 label="Date"
-                selectedDate={values.createdOn ?? ''}
-                value={values?.createdOn}
+                selectedDate={values.publishedOn ?? ''}
+                value={values.publishedOn}
                 disabled
                 onChange={(date: any) => {
-                  setContent({ ...content, createdOn: date });
+                  setContent({ ...content, publishedOn: date });
                 }}
               />
             </Col>
             <Col style={{ marginTop: '0.45em' }}>
               <FormikText
                 disabled
-                value={formatTime(values?.createdOn!)}
+                value={values.publishedOn ? formatTime(values.publishedOn!) : ''}
                 name="time"
                 label="Time"
               />

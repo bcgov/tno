@@ -1,4 +1,4 @@
-import { OptionItem } from 'components';
+import { OptionItem } from 'components/form';
 import { LogicalOperator } from 'hooks';
 
 export const logicalOperators = [

@@ -1,4 +1,4 @@
-import { OptionItem } from 'components';
+import { OptionItem } from 'components/form';
 
 export const fieldTypes = [
   new OptionItem('Headline', 'headline'),

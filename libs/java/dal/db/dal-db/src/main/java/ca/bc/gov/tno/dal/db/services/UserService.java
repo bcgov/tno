@@ -105,11 +105,23 @@ public class UserService implements IUserService {
    * Find the user for the specified primary key.
    * 
    * @param key The primary key.
-   * @return A new instance of the user if it exists.
+   * @return The user if it exists.
    */
   @Override
   public Optional<User> findById(int key) {
     var result = repository.findById(key);
+    return result;
+  }
+
+  /**
+   * Find the user for the specified unique username.
+   * 
+   * @param username The unique username.
+   * @return The user if it exists.
+   */
+  @Override
+  public Optional<User> findByUsername(String username) {
+    var result = repository.findByUsername(username);
     return result;
   }
 

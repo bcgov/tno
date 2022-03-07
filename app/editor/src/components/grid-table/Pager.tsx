@@ -1,8 +1,8 @@
-import { Button, ButtonVariant } from 'components';
+import { Button, ButtonVariant } from 'components/button';
 import React from 'react';
 import { BiFirstPage, BiLastPage } from 'react-icons/bi';
 
-import * as styled from './PagerStyled';
+import * as styled from './styled';
 
 export interface IPagerProps {
   /**
@@ -61,7 +61,8 @@ export const Pager: React.FC<IPagerProps> = ({
     // TODO: Handle dynamic pageLimit.  Calculate center.
     let startIndex = 0;
     if (pageIndex <= 2) startIndex = 0;
-    else if (pageIndex >= pageCount - 2) startIndex = pageCount - pageLimit;
+    else if (pageIndex >= pageCount - 2)
+      startIndex = pageCount - pageLimit < 0 ? 0 : pageCount - pageLimit;
     else startIndex = pageIndex - 2;
 
     const maxIndex =
@@ -87,7 +88,7 @@ export const Pager: React.FC<IPagerProps> = ({
   }, [pageIndex, pageCount, pageLimit, pageOptions, gotoPage]);
 
   return (
-    <styled.PagerStyled>
+    <styled.Pager>
       <Button
         name="firstPage"
         variant={ButtonVariant.info}
@@ -125,6 +126,6 @@ export const Pager: React.FC<IPagerProps> = ({
       >
         <BiLastPage />
       </Button>
-    </styled.PagerStyled>
+    </styled.Pager>
   );
 };

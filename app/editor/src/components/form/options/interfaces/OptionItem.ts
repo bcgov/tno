@@ -4,15 +4,21 @@ export class OptionItem<T extends string | number = string | number> implements 
   discriminator: 'IOption';
   label: string;
   value: T;
+  isEnabled: boolean;
 
-  constructor(label: string, value: T) {
+  constructor(label: string, value: T, isEnabled: boolean = true) {
     this.discriminator = 'IOption';
     this.label = label;
     this.value = value;
+    this.isEnabled = isEnabled;
   }
 
-  static create<T extends string | number>(label: string, value: T): IOptionItem<T> {
-    return new OptionItem(label, value);
+  static create<T extends string | number>(
+    label: string,
+    value: T,
+    isEnabled: boolean = true,
+  ): IOptionItem<T> {
+    return new OptionItem(label, value, isEnabled);
   }
 
   toInterface(): IOptionItem<T> {
@@ -20,6 +26,7 @@ export class OptionItem<T extends string | number = string | number> implements 
       discriminator: this.discriminator,
       label: this.label,
       value: this.value,
+      isEnabled: this.isEnabled,
     };
   }
 }

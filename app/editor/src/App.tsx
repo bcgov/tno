@@ -1,6 +1,7 @@
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { NavBar } from 'components';
 import { Layout } from 'components/layout';
+import { NavBar } from 'components/navbar';
+import { UserInfo } from 'features/login';
 import { AppRouter } from 'features/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
@@ -35,6 +36,7 @@ function App() {
       onEvent={keycloakEventHandler(keycloak)}
     >
       <BrowserRouter>
+        <UserInfo />
         <Layout name={name}>{{ menu: <NavBar />, router: <AppRouter /> }}</Layout>
 
         <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
