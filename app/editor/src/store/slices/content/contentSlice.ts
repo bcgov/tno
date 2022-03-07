@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { fieldTypes, timeFrames } from 'features/content/list-view/constants';
+import { fieldTypes } from 'features/content/list-view/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -17,7 +17,7 @@ export const initialContentState: IContentState = {
     contentTypeId: 0,
     ownerId: '',
     userId: '',
-    timeFrame: timeFrames[0].toInterface(),
+    timeFrame: 0,
     included: '',
     onTicker: '',
     commentary: '',

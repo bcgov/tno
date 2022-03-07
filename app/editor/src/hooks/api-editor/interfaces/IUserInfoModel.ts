@@ -1,4 +1,4 @@
-export interface IUserModel {
+export interface IUserInfoModel {
   id: number;
   username: string;
   email: string;
@@ -6,4 +6,6 @@ export interface IUserModel {
   firstName?: string;
   lastName?: string;
   lastLoginOn?: Date;
+  roles: string[];
+  groups: string[];
 }

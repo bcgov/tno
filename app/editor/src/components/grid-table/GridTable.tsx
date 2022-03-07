@@ -2,7 +2,7 @@ import React from 'react';
 import { Column, Row, SortingRule, usePagination, useSortBy, useTable } from 'react-table';
 
 import { Pager, SortIndicator } from '.';
-import * as styled from './GridTableStyled';
+import * as styled from './styled';
 
 /**
  * GridTable properties.

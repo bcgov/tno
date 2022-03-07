@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PagerStyled = styled.div`
+export const Pager = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -12,5 +12,3 @@ export const PagerStyled = styled.div`
     align-items: center;
   }
 `;
-
-export default PagerStyled;

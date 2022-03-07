@@ -23,7 +23,7 @@ export const makeFilter = (
     contentTypeId: filter.contentTypeId !== 0 ? filter.contentTypeId : undefined,
     createdStartOn: advanced.startDate
       ? moment(advanced.startDate).toISOString()
-      : setTimeFrame(filter.timeFrame.value as number)?.toISOString(),
+      : setTimeFrame(filter.timeFrame as number)?.toISOString(),
     createdEndOn: advanced.endDate ? moment(advanced.endDate).toISOString() : undefined,
     [(advanced?.fieldType?.value as string) ?? 'fake']:
       advanced.searchTerm !== '' ? advanced.searchTerm : undefined,

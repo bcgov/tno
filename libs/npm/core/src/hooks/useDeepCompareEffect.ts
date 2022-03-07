@@ -10,9 +10,7 @@ import { useDeepCompare } from './useDeepCompare';
  * objects. Otherwise you should just use React.useEffect.
  *
  */
-const useDeepCompareEffect = (callback: EffectCallback, dependencies: DependencyList) => {
+export const useDeepCompareEffect = (callback: EffectCallback, dependencies: DependencyList) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(callback, useDeepCompare(dependencies));
 };
-
-export default useDeepCompareEffect;

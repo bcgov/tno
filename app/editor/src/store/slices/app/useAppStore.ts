@@ -1,13 +1,16 @@
+import { IUserInfoModel } from 'hooks';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 
-import { addRequest, clearRequests, removeRequest } from '.';
+import { addRequest, clearRequests, removeRequest, storeToken, storeUserInfo } from '.';
 import { IAppState } from './interfaces';
 
 export interface IAppStore {
   addRequest: (url: string) => void;
   removeRequest: (url: string) => void;
   clearRequests: () => void;
+  storeUserInfo: (user?: IUserInfoModel) => void;
+  storeToken: (token: any) => void;
 }
 
 export const useAppStore = (): [IAppState, IAppStore] => {
@@ -24,6 +27,12 @@ export const useAppStore = (): [IAppState, IAppStore] => {
       },
       clearRequests: () => {
         dispatch(clearRequests());
+      },
+      storeUserInfo: (user?: IUserInfoModel) => {
+        dispatch(storeUserInfo(user));
+      },
+      storeToken: (token: any) => {
+        dispatch(storeToken(token));
       },
     }),
     [dispatch],

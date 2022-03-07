@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IUserInfoModel } from 'hooks';
 
 import { IAppState } from '.';
 
@@ -23,7 +24,14 @@ export const appSlice = createSlice({
     clearRequests(state: IAppState) {
       state.requests = [];
     },
+    storeUserInfo(state: IAppState, action: PayloadAction<IUserInfoModel | undefined>) {
+      state.userInfo = action.payload;
+    },
+    storeToken(state: IAppState, action: PayloadAction<any>) {
+      state.token = action.payload;
+    },
   },
 });
 
-export const { addRequest, removeRequest, clearRequests } = appSlice.actions;
+export const { addRequest, removeRequest, clearRequests, storeUserInfo, storeToken } =
+  appSlice.actions;

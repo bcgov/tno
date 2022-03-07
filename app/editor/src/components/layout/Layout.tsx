@@ -3,6 +3,7 @@ import { Home } from 'features/home';
 import React from 'react';
 import { Footer, Loading, MenuProvider, useKeycloakWrapper } from 'tno-core';
 
+import { LayoutErrorBoundary } from '.';
 import * as styled from './styled';
 
 interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -41,7 +42,7 @@ export const Layout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
               justifyContent: 'center',
             }}
           >
-            {children.router}
+            <LayoutErrorBoundary>{children.router}</LayoutErrorBoundary>
             {isLoading && <Loading />}
           </main>
         </div>

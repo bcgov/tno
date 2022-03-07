@@ -22,14 +22,6 @@ public interface IUserService {
   List<User> findAll();
 
   /**
-   * Find the user for the specified primary key.
-   * 
-   * @param key The primary key.
-   * @return A new instance of the user if it exists.
-   */
-  Optional<User> findById(int key);
-
-  /**
    * Find a page of users that match the query.
    * 
    * @param page     The page to pull users from.
@@ -38,6 +30,22 @@ public interface IUserService {
    * @return A page of users.
    */
   IPaged<User> find(int page, int quantity, SortParam[] sort);
+
+  /**
+   * Find the user for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return The user if it exists.
+   */
+  Optional<User> findById(int key);
+
+  /**
+   * Find the user for the specified unique username.
+   * 
+   * @param username The unique username.
+   * @return The user if it exists.
+   */
+  Optional<User> findByUsername(String username);
 
   /**
    * Find all time tracking for the specified time period, grouped by user.

@@ -71,5 +71,3 @@ export const GridTable = styled.div`
     }
   }
 `;
-
-export default GridTable;

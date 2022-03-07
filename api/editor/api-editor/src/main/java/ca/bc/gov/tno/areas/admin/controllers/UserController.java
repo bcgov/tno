@@ -26,8 +26,18 @@ import ca.bc.gov.tno.dal.db.entities.User;
 @RequestMapping({ "/admin/users", "/api/admin/users" })
 public class UserController {
 
+  final private IUserService userService;
+
+  /**
+   * Creates a new instance of a UserController object, initializes with specified
+   * parameters.
+   *
+   * @param userService The user DAL service.
+   */
   @Autowired
-  private IUserService userService;
+  public UserController(final IUserService userService) {
+    this.userService = userService;
+  }
 
   /**
    * Request a list of all users from the db.
