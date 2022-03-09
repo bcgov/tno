@@ -57,7 +57,7 @@ public class CaptureConfig extends DataSourceConfig {
   private String timeZone;
 
   /**
-   * The command executing this capture process
+   * The curl or ffmpeg command executing this capture process
    */
   private String runningNow;
 
@@ -77,6 +77,8 @@ public class CaptureConfig extends DataSourceConfig {
   public CaptureConfig(DataSource dataSource) {
     super(dataSource);
 
+    setFailedAttempts(dataSource.getFailedAttempts());
+    setMaxFailedAttempts(dataSource.getRetryLimit());
     var connection = dataSource.getConnection();
 
     setAudioUrl((String) connection.get("audioUrl"));
@@ -210,7 +212,7 @@ public class CaptureConfig extends DataSourceConfig {
   }
 
   /**
-   * @param url the command for this capture process to set
+   * @param command The curl or ffmpeg command currently running
    */
   public void setRunningNow(String command) {
     this.runningNow = command;

@@ -7,9 +7,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.dal.db.services.DataSourceService;
 import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.ServiceStatus;
 import ca.bc.gov.tno.services.config.ServiceConfig;
+import ca.bc.gov.tno.services.data.BaseScheduleService;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.events.ServiceStartEvent;
 
@@ -28,6 +30,8 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
 
   private final ServiceConfig config;
 
+  private final DataSourceService dataSourceService;
+
   /**
    * Creates a new instance of an ErrorHandler object, initializes with specified
    * parameters.
@@ -38,10 +42,11 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
    */
   @Autowired
   public ErrorHandler(final ServiceState state, final ApplicationEventPublisher eventPublisher,
-      final ServiceConfig config) {
+      final ServiceConfig config, final DataSourceService dsService) {
     this.eventPublisher = eventPublisher;
     this.state = state;
     this.config = config;
+    this.dataSourceService = dsService;
   }
 
   /**
@@ -52,16 +57,32 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
   public void onApplicationEvent(ErrorEvent event) {
     var source = event.getSource();
     var exception = event.getError();
+    var config = event.getConfig();
     logger.error(String.format("Source: '%s'", source.getClass().getName()), exception);
 
     if (state.getFailedAttempts() >= config.getMaxFailedAttempts()) {
       state.setStatus(ServiceStatus.sleeping);
     } else {
       state.incrementFailedAttempts();
+      
+      if (config != null) {
+        config.incrementFailedAttempts();
+        var result = dataSourceService.findByCode(config.getId());
+        var dataSource = result.get();
+        dataSource.setFailedAttempts(config.getFailedAttempts());
+        dataSourceService.update(dataSource);
+      }
+
       if (state.getStatus() == ServiceStatus.sleeping) {
         var startEvent = new ServiceStartEvent(this);
         eventPublisher.publishEvent(startEvent);
       }
     }
+
+    if (source instanceof BaseScheduleService) {
+      synchronized(source) {
+        source.notify();
+      }
+    } 
   }
 }

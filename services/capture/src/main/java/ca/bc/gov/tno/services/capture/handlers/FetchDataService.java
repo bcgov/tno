@@ -14,6 +14,8 @@ import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
+import ca.bc.gov.tno.services.handlers.ErrorHandler;
+import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.capture.config.CaptureConfig;
 
 import org.springframework.scheduling.annotation.Async;
@@ -33,12 +35,17 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private Object caller;
   private CaptureConfig captureConfig;
   private ScheduleConfig schedule;
+  private ServiceState state;
+  private ErrorHandler ehandler;
+
   /**
    * Create a new instance of a FetchDataService object.
    */
   @Autowired
-  public FetchDataService(final ApplicationEventPublisher eventPublisher) {
+  public FetchDataService(final ApplicationEventPublisher eventPublisher, final ServiceState state, ErrorHandler ehandler) {
     this.eventPublisher = eventPublisher;
+    this.state = state;
+    this.ehandler = ehandler;
   }
 
   /**
@@ -81,12 +88,10 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
     logger.info("Transaction begin event - start processing.");
     captureConfig = (CaptureConfig) event.getDataSource();
     String mediaSource = captureConfig.getCaptureDir() + "/" + captureConfig.getId() + ".mpg";
+    caller = event.getSource();
+    schedule = event.getSchedule();
 
     try {
-      caller = event.getSource();
-      captureConfig = (CaptureConfig) event.getDataSource();
-      schedule = event.getSchedule();
-
       if (isaStopEvent(schedule)) {
         stopMediaStream(captureConfig.getRunningCommand());
       } else 
@@ -100,7 +105,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       var doneEvent = new TransactionCompleteEvent(event.getSource(), captureConfig, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, captureConfig);
       eventPublisher.publishEvent(errorEvent);
     }
   }

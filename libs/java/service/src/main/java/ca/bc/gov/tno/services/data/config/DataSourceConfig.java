@@ -229,6 +229,13 @@ public class DataSourceConfig {
   }
 
   /**
+   * Increment the failed attempts.
+   */
+  public void incrementFailedAttempts() {
+    this.failedAttempts++;
+  }
+
+  /**
    * @return List{ScheduleConfig} return the schedules
    */
   public List<ScheduleConfig> getSchedules() {

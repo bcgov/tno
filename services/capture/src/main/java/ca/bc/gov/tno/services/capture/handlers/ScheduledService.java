@@ -1,6 +1,7 @@
 package ca.bc.gov.tno.services.capture.handlers;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,15 +66,16 @@ public class ScheduledService
    * @param ranAt  The date and time the transaction ran at.
    */
   @Override
-  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
-    super.updateDataSource(dataSource, schedule, ranOn);
+  protected void updateDataSource(DataSourceConfig config, ScheduleConfig schedule, ZonedDateTime ranOn) {
+    super.updateDataSource(config, schedule, ranOn);
 
-    var result = dataSourceService.findByCode(dataSource.getId());
+    var result = dataSourceService.findByCode(config.getId());
     if (result.isPresent()) {
       var captureSource = result.get();
+      captureSource.setFailedAttempts(config.getFailedAttempts());
       var connection = captureSource.getConnection();
-      connection.put("streamStart", ((CaptureConfig) dataSource).getStreamStartTime());
-      connection.put("runningNow", ((CaptureConfig) dataSource).getRunningCommand());
+      connection.put("streamStart", ((CaptureConfig) config).getStreamStartTime());
+      connection.put("runningNow", ((CaptureConfig) config).getRunningCommand());
       captureSource.setConnection(connection);
       dataSourceService.update(captureSource);
     }
@@ -106,6 +108,7 @@ public class ScheduledService
 
     // Fetch all data sources with the specified media type.
     var dataSources = dataSourceService.findByMediaTypeId(mediaType.get().getId());
+    sourceConfigs.getSources().clear();
     dataSources.forEach(ds -> sourceConfigs.getSources().add(new CaptureConfig(ds)));
   }
 
