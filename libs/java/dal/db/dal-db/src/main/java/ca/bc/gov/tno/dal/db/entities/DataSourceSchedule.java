@@ -47,7 +47,7 @@ public class DataSourceSchedule extends AuditColumns {
   /**
    * The schedule reference.
    */
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "schedule_id", insertable = false, updatable = false)
   private Schedule schedule;
 

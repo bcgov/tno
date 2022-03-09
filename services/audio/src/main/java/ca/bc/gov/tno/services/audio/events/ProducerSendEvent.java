@@ -4,6 +4,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.scheduling.annotation.Async;
 
 import ca.bc.gov.tno.services.audio.config.AudioConfig;
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 
 /**
  * SendToKafkaEvent class, provides an event to indicate the audio feed
@@ -12,9 +13,14 @@ import ca.bc.gov.tno.services.audio.config.AudioConfig;
 @Async
 public class ProducerSendEvent extends ApplicationEvent {
   /**
-   * The data source config.
+   * The data source configuration.
    */
-  private final AudioConfig config;
+  private final AudioConfig dataSource;
+
+  /**
+   * The schedule configuration.
+   */
+  private final ScheduleConfig schedule;
 
   /**
    * The data to send to Kafka.
@@ -25,13 +31,15 @@ public class ProducerSendEvent extends ApplicationEvent {
    * Creates a new instance of an SendToKafkaEvent, initializes with specified
    * parameters.
    * 
-   * @param source
-   * @param config
-   * @param data
+   * @param source     The source of this event.
+   * @param dataSource The data source config.
+   * @param schedule   The schedule config.
+   * @param data       The syndication feed.
    */
-  public ProducerSendEvent(final Object source, final AudioConfig config, String data) {
+  public ProducerSendEvent(final Object source, final AudioConfig dataSource, final ScheduleConfig schedule, final String data) {
     super(source);
-    this.config = config;
+    this.dataSource = dataSource;
+    this.schedule = schedule;
     this.data = data;
   }
 
@@ -40,9 +48,18 @@ public class ProducerSendEvent extends ApplicationEvent {
    * 
    * @return The data source config.
    */
-  public AudioConfig getConfig() {
-    return config;
+  public AudioConfig getDataSource() {
+    return dataSource;
   }
+
+  /**
+   * Get the data that will be sent to Kafka.
+   * 
+   * @return The data to send to Kafka.
+   */
+  public ScheduleConfig getSchedule() {
+    return schedule;
+  } 
 
   /**
    * Get the data that will be sent to Kafka.

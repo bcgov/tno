@@ -41,7 +41,7 @@
 		"youmaycallmev.vscode-java-saber",
 		"ckolkman.vscode-postgres",
 		"streetsidesoftware.code-spell-checker",
-    "eamodio.gitlens"
+    	"eamodio.gitlens"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

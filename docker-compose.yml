@@ -239,6 +239,8 @@ services:
 
 ####################### Volumes Definition #######################
 volumes:
+  tno-audio-data:
+    name: tno-audio-data
   tno-database-data:
     name: tno-database-data
   tno-elastic-data:

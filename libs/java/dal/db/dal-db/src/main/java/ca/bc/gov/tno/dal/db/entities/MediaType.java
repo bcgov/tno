@@ -56,7 +56,7 @@ public class MediaType extends AuditColumns {
    */
   @JsonIgnore
   @OneToMany(mappedBy = "mediaType", fetch = FetchType.LAZY)
-  private List<DataSource> dataSources = new ArrayList<>();
+  private List<DataSource> data_sources = new ArrayList<>();
 
   /**
    * Creates a new instance of a MediaType object.
@@ -165,14 +165,14 @@ public class MediaType extends AuditColumns {
    * @return List{DataSource} return the data_sources
    */
   public List<DataSource> getDataSources() {
-    return dataSources;
+    return data_sources;
   }
 
   /**
    * @param dataSources the dataSources to set
    */
-  public void setDataSources(List<DataSource> dataSources) {
-    this.dataSources = dataSources;
+  public void setDataSources(List<DataSource> data_sources) {
+    this.data_sources = data_sources;
   }
 
 }
