@@ -37,12 +37,13 @@
   </scm>
 
   <properties>
+    <spring.profiles.active>default</spring.profiles.active>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <jackson.version>2.13.1</jackson.version>
-    <kafka.version>3.0.0</kafka.version>
+    <kafka.version>3.1.0</kafka.version>
   </properties>
 
   <repositories>
@@ -71,14 +72,14 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.3</version>
+    <version>2.5.6</version>
   </parent>
 
   <dependencies>
     <dependency>
       <groupId>ca.bc.gov.tno</groupId>
       <artifactId>service</artifactId>
-      <version>0.0.9-SNAPSHOT</version>
+      <version>0.0.10-SNAPSHOT</version>
     </dependency>
 
     <dependency>

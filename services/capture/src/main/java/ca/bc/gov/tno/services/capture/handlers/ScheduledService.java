@@ -1,8 +1,6 @@
 package ca.bc.gov.tno.services.capture.handlers;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,7 +65,7 @@ public class ScheduledService
    * @param ranAt  The date and time the transaction ran at.
    */
   @Override
-  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
+  protected synchronized void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
     super.updateDataSource(dataSource, schedule, ranOn);
 
     var result = dataSourceService.findByCode(dataSource.getId());
@@ -75,6 +73,7 @@ public class ScheduledService
       var captureSource = result.get();
       var connection = captureSource.getConnection();
       connection.put("streamStart", ((CaptureConfig) dataSource).getStreamStartTime());
+      connection.put("runningNow", ((CaptureConfig) dataSource).getRunningCommand());
       captureSource.setConnection(connection);
       dataSourceService.update(captureSource);
     }

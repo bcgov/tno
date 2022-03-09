@@ -445,6 +445,46 @@ DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
 DB_USERNAME=$dbUser
 DB_PASSWORD=$password
 
+KAFKA_LOGS_TOPIC=logs-capture
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+KAFKA_CLIENT_ID=audio-capture-01
+
+MAX_FAILED_ATTEMPTS=5" >> ./services/audio/.env
+    echo "./services/audio/.env created"
+fi
+
+## Audio - Clip Producer
+if test -f "./services/audio/.env"; then
+    echo "./services/audio/.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
+DB_USERNAME=$dbUser
+DB_PASSWORD=$password
+
+KAFKA_LOGS_TOPIC=logs-audio
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+KAFKA_CLIENT_ID=audio-capture-01
+
+MAX_FAILED_ATTEMPTS=5" >> ./services/audio/.env
+    echo "./services/audio/.env created"
+fi
+
+## Audio - Clip Producer
+if test -f "./services/audio/.env"; then
+    echo "./services/audio/.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
+DB_USERNAME=$dbUser
+DB_PASSWORD=$password
+
 KAFKA_LOGS_TOPIC=logs-audio
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal

@@ -1,6 +1,5 @@
 {
   "configurations": [
-
     {
       "type": "java",
       "name": "Spring Boot - Run Application",
