@@ -204,19 +204,49 @@ CREATE TABLE IF NOT EXISTS public.schedule
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_schedule_name" ON public.schedule ("name");
 CREATE TRIGGER tr_audit_schedule BEFORE INSERT OR UPDATE ON public.schedule FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_data_location AS INT INCREMENT BY 1 START 1;
+CREATE SEQUENCE IF NOT EXISTS public.seq_data_location_version AS BIGINT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public.data_location
+(
+  "id" INT NOT NULL DEFAULT nextval('seq_data_location'),
+  "name" VARCHAR(50) NOT NULL,
+  "description" VARCHAR(2000) NOT NULL DEFAULT '',
+  "is_enabled" BOOLEAN NOT NULL DEFAULT true,
+  "sort_order" INT NOT NULL DEFAULT 0,
+  -- "connection" JSON NOT NULL, -- Hibernate has issues with JSON types.
+  -- Audit Columns
+  "created_by_id" UUID NOT NULL,
+  "created_by" VARCHAR(50) NOT NULL,
+  "created_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_by_id" UUID NOT NULL,
+  "updated_by" VARCHAR(50) NOT NULL,
+  "updated_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "version" BIGINT NOT NULL DEFAULT nextval('seq_data_location_version'),
+  CONSTRAINT "pk_data_location" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_data_location_name" ON public.data_location ("name");
+CREATE TRIGGER tr_audit_data_location BEFORE INSERT OR UPDATE ON public.data_location FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
 CREATE SEQUENCE IF NOT EXISTS public.seq_data_source AS INT INCREMENT BY 1 START 1;
 CREATE SEQUENCE IF NOT EXISTS public.seq_data_source_version AS BIGINT INCREMENT BY 1 START 1;
 CREATE TABLE IF NOT EXISTS public.data_source
 (
   "id" INT NOT NULL DEFAULT nextval('seq_data_source'),
-  "name" VARCHAR(50) NOT NULL,
-  "code" VARCHAR(10) NOT NULL,
+  "name" VARCHAR(100) NOT NULL,
+  "short_name" VARCHAR(50) NOT NULL DEFAULT '',
+  "code" VARCHAR(20) NOT NULL,
   "description" VARCHAR(2000) NOT NULL DEFAULT '',
   "is_enabled" BOOLEAN NOT NULL DEFAULT true,
+  "data_location_id" INT NOT NULL,
   "media_type_id" INT NOT NULL,
   "license_id" INT NOT NULL,
   "topic" VARCHAR(50) NOT NULL,
   "last_ran_on" TIMESTAMP WITH TIME ZONE,
+  "retry_limit" INT NOT NULL DEFAULT 3,
+  "failed_attempts" INT NOT NULL DEFAULT 0,
+  "in_cbra" BOOLEAN NOT NULL DEFAULT false,
+  "in_analysis" BOOLEAN NOT NULL DEFAULT false,
   "connection" TEXT NOT NULL,
   "parent_id" INT,
   -- "connection" JSON NOT NULL, -- Hibernate has issues with JSON types.
@@ -229,6 +259,7 @@ CREATE TABLE IF NOT EXISTS public.data_source
   "updated_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "version" BIGINT NOT NULL DEFAULT nextval('seq_data_source_version'),
   CONSTRAINT "pk_data_source" PRIMARY KEY ("id"),
+  CONSTRAINT "fk_location_data_source" FOREIGN KEY ("data_location_id") REFERENCES public.data_location ("id"),
   CONSTRAINT "fk_media_type_data_source" FOREIGN KEY ("media_type_id") REFERENCES public.media_type ("id"),
   CONSTRAINT "fk_license_data_source" FOREIGN KEY ("license_id") REFERENCES public.license ("id"),
   CONSTRAINT "fk_data_source_data_source" FOREIGN KEY ("parent_id") REFERENCES public.data_source ("id")
@@ -832,482 +863,5376 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO admin;
 -------------------------------------------------------------------------------
 -- Seed Data
 -------------------------------------------------------------------------------
+DO $$
+DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
+BEGIN
 
-INSERT INTO public.media_type (
-    "name"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
+INSERT INTO public.content_type (
+  "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
 ) VALUES (
-    'Syndication'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Snippet'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Television'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Print'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Talk Radio'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Radio'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'News Radio'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.license (
-    "name"
-    , "ttl"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'Regular Expire'
-    , 90 -- ttl
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'Special Expire'
-    , 150 -- ttl
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'Never Expire'
-    , 0 -- ttl
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.schedule (
-    "name"
-    , "delay_ms"
-    , "repeat"
-    , "run_on_week_days"
-    , "run_on_months"
-    , "day_of_month"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'Continous - 30s'
-    , 60000 -- delayMS
-    , 0 -- repeat
-    , 0 -- runOnWeekDays
-    , 0 -- runOnMonths
-    , 0 -- dayOfMonth
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.claim (
-    "name"
-    , "key"
-    , "is_enabled"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'administrator' -- name
-    , 'db055cc6-b31c-42c4-99b5-5e519c31c8ab' -- key
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'editor' -- name
-    , 'c374cbb1-7eda-4259-8f74-cd6c2287e32b' -- key
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'subscriber' -- name
-    , '4818b135-034e-40d8-bd9c-8df2573ce9e0' -- key
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.role (
-    "name"
-    , "key"
-    , "is_enabled"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'Administrator' -- name
-    , 'c89a9f73-eaab-4c4f-8c90-f963de0c5854' -- key
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'Editor' -- name
-    , 'd5786a5b-4f71-46f1-9c0c-f6b69ee741b1' -- key
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'Subscriber' -- name
-    , '250eaa7f-67c9-4a60-b453-8ca790d569f5' -- key
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.user (
-    "username"
-    , "key"
-    , "email"
-    , "display_name"
-    , "email_verified"
-    , "is_enabled"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'admin' -- username
-    , 'f3487a90-b793-4e60-b32c-2945591289aa' -- key
-    , 'admin@local.com' -- email
-    , 'Administrator' -- displayName
-    , true -- emailVerified
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'editor' -- name
-    , '1057697d-5cd0-4b00-97f3-df0f13849217' -- key
-    , 'editor@local.com' -- email
-    , 'Editor' -- displayName
-    , true -- emailVerified
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'subscriber' -- name
-    , 'e9b0ec48-c4c2-4c73-80a6-5c03da70261d' -- key
-    , 'subscriber@local.com' -- email
-    , 'Subscriber' -- displayName
-    , true -- emailVerified
-    , true -- isEnabled
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.user_role (
-    "user_id"
-    , "role_id"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    '1' -- userId
-    , '1' -- roleId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    '2' -- userId
-    , '2' -- roleId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    '3' -- userId
-    , '3' -- roleId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.role_claim (
-    "role_id"
-    , "claim_id"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    '1' -- roleId
-    , '1' -- claimId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    '1' -- roleId
-    , '2' -- claimId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    '1' -- roleId
-    , '3' -- claimId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    '2' -- roleId
-    , '2' -- claimId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    '3' -- roleId
-    , '3' -- claimId
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.tone_pool (
-    "name"
-    , "owner_id"
-    , "is_public"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'Default'
-    , 1
-    , true
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'TV'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 INSERT INTO public.action (
-    "name"
-    , "value_label"
-    , "value_type"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
+  "name"
+  , "value_label"
+  , "value_type"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
 ) VALUES (
-    'Just In' -- name
-    , '' -- value_label
-    , 0 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Just In' -- name
+  , '' -- value_label
+  , 0 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Alert' -- name
-    , '' -- value_label
-    , 0 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Alert' -- name
+  , '' -- value_label
+  , 0 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Front Page' -- name
-    , '' -- value_label
-    , 0 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Front Page' -- name
+  , '' -- value_label
+  , 0 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Top Story' -- name
-    , '' -- value_label
-    , 0 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Top Story' -- name
+  , '' -- value_label
+  , 0 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'On Ticker' -- name
-    , '' -- value_label
-    , 0 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'On Ticker' -- name
+  , '' -- value_label
+  , 0 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Non Qualified Subject' -- name
-    , '' -- value_label
-    , 0 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Non Qualified Subject' -- name
+  , '' -- value_label
+  , 0 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-    'Commentary' -- name
-    , 'Commentary Timeout' -- value_label
-    , 2 -- valueType
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.category (
-    "name"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'TBD'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.tag (
-    "id"
-    , "name"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'TBD'
-    , 'To Be Determined'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-);
-
-INSERT INTO public.content_type (
-    "name"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
-) VALUES (
-    'Snippet'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'Print'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'Radio'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-), (
-    'TV'
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
-    , '00000000-0000-0000-0000-000000000000'
-    , ''
+  'Commentary' -- name
+  , 'Commentary Timeout' -- value_label
+  , 2 -- valueType
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 INSERT INTO public.content_type_action (
-    "content_type_id"
-    , "action_id"
-    , "created_by_id"
-    , "created_by"
-    , "updated_by_id"
-    , "updated_by"
+  "content_type_id"
+  , "action_id"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
 ) VALUES (
   2
   , 1
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
 ), (
   1
   , 2
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
 ), (
   1
   , 3
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
 ), (
   1
   , 4
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
 ), (
   1
   , 5
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
 ), (
   1
   , 6
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
 ), (
   1
   , 7
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-  , '00000000-0000-0000-0000-000000000000'
+  , DEFAULT_USER_ID
   , ''
-)
+);
 
+INSERT INTO public.media_type (
+  "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Syndication' -- 1
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Television' -- 2
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Talk Radio' -- 3
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'News Radio' -- 4
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CC News' -- 5
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CP News' -- 6
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'XML' -- 7
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Regional' -- 8
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Social Media' -- 9
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'AV Archive' -- 10
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Today''s Edition' -- 11
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Transcript' -- 12
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Scrum' -- 13
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Webcast' -- 14
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'HTML' -- 15
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Image' -- 16
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.data_location (
+  "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Internet' -- 1
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Streaming' -- 2
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'SFTP' -- 3
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'NAS' -- 4
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Desktop' -- 5
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.license (
+  "name"
+  , "ttl"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Regular Expire'
+  , 90 -- ttl
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Special Expire'
+  , 150 -- ttl
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Never Expire'
+  , 0 -- ttl
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.schedule (
+  "name"
+  , "delay_ms"
+  , "repeat"
+  , "run_on_week_days"
+  , "run_on_months"
+  , "day_of_month"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Continuos - 60s'
+  , 60000 -- delayMS
+  , 0 -- repeat
+  , 0 -- runOnWeekDays
+  , 0 -- runOnMonths
+  , 0 -- dayOfMonth
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.data_source (
+  "name"
+  , "code"
+  , "description"
+  , "is_enabled"
+  , "media_type_id"
+  , "data_location_id"
+  , "license_id"
+  , "topic"
+  , "connection"
+  , "parent_id"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Daily Hive'
+  , 'DAILYHIVE'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://dailyhive.com/feed/vancouver" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJCN'
+  , 'CJCN'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Georgia Straight'
+  , 'GEORGIA STRAIGHT'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://www.straight.com/xml/feeds/bcg/news" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Burnaby Now'
+  , 'BNOW'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Chilliwack Times'
+  , 'CTIMES'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Tri-Cities Now'
+  , 'TCNOW'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Record (New Westminster)'
+  , 'NWR'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Richmond News'
+  , 'RNEWS'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Castanet'
+  , 'CASTANET'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"https://www.castanet.net/rss/topheadlines.xml" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Coast Mountain News'
+  , 'CMN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Salmon Arm Lakeshore News'
+  , 'SALN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Indo-Canadian Voice'
+  , 'ICV'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Macleans'
+  , 'MACL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'iPolitics'
+  , 'IPOLY'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://www.ipolitics.ca/custom-feeds/bc-gov-feed.php" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cranbrook Townsman'
+  , 'CDT'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Delta Optimist'
+  , 'DO'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Langley Advance Times'
+  , 'LA'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Nelson Star'
+  , 'NS'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'North Shore News'
+  , 'NSN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Rossland News'
+  , 'RN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Surrey Now-Leader'
+  , 'SURN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Royal City Record'
+  , 'RCR'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Announcement'
+  , 'ANNOUNCE'
+  , ''
+  , true -- is_enabled
+  , 13 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Media Availability'
+  , 'MEDAV'
+  , ''
+  , true -- is_enabled
+  , 13 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Scrum'
+  , 'SCRUM'
+  , ''
+  , true -- is_enabled
+  , 13 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Speech'
+  , 'SPEECH'
+  , ''
+  , true -- is_enabled
+  , 13 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cloverdale Reporter'
+  , 'CRR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Province'
+  , 'PROVINCE'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Creston Valley Advance'
+  , 'CVA'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Hook'
+  , 'HOOK'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHKG'
+  , 'CHKG'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV Online'
+  , 'CTV ONLINE'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Canadian Centre for Policy Alternatives'
+  , 'CCPA'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cowichan Valley Citizen'
+  , 'CVC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Haida Gwaii Observer'
+  , 'HGO'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'North Delta Reporter'
+  , 'NDR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Tofino-Ucluelet Westerly News'
+  , 'TUWN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BNN'
+  , 'BNN'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Trail Daily Times'
+  , 'TDT'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Comox Valley Echo'
+  , 'CVE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Abbotsford Times'
+  , 'AT'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Edmonton Journal'
+  , 'EJ'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Calgary Herald'
+  , 'CH'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Oliver Chronicle'
+  , 'APOC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'South Okanagan Times Chronicle'
+  , 'TTC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Coast Reporter'
+  , 'CORE'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Dawson Creek Mirror'
+  , 'DCMR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Columbia Valley Pioneer'
+  , 'CVP'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Chemainus Valley Courier'
+  , 'CHVC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Opinion 250'
+  , 'O250'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Fernie Free Press'
+  , 'TFP'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Keremeos Review'
+  , 'KR'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFTV'
+  , 'CFTV'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJVB'
+  , 'CJVB'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ming Pao News'
+  , 'MING PAO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Sing Tao Daily'
+  , 'SING TAO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver is Awesome'
+  , 'VIAWE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'KRPI'
+  , 'KRPI'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Calgary Herald (Print Edition)'
+  , 'CHPE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Business in Vancouver'
+  , 'BIV'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://biv.com/rss" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHBC'
+  , 'CHBC'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFJC'
+  , 'CFJC'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNL'
+  , 'CHNL'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFNR'
+  , 'CFNR'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKYE'
+  , 'CKYE'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Bowen Island Undercurrent'
+  , 'BIU'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Burns Lake Lakes District News'
+  , 'BLLDN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Chilliwack Progress'
+  , 'CP'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kelowna Capital News'
+  , 'KCN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Monday Magazine'
+  , 'MM'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'North Island Gazette'
+  , 'NIG'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Sicamouse Eagle Valley News'
+  , 'SEVN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Similkameen Spotlight'
+  , 'SIMSP'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Daily News (Prince Rupert)'
+  , 'PRDN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV'
+  , 'CTV'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Castlegar News'
+  , 'CN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Hope Standard'
+  , 'HS'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'North Island MidWeek'
+  , 'NIMW'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Prince Rupert Northern View'
+  , 'NV'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Alberni Valley News'
+  , 'AVN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Valley Sentinel'
+  , 'VS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Trail-Rossland News'
+  , 'TRN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Courier'
+  , 'VC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kootenay Western Star'
+  , 'KWS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Sun'
+  , 'SUN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Times Colonist (Victoria)'
+  , 'TC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX'
+  , 'CFAX'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'AV Archive'
+  , 'ARCHIVE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Regional'
+  , 'REGIONAL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW'
+  , 'CKNW'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHEK'
+  , 'CHEK'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHAN'
+  , 'CHAN'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC'
+  , 'CBC'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CIVT'
+  , 'CIVT'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Globe and Mail'
+  , 'GLOBE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"sftp://gamdelivery.globeandmail.ca/", "username":"", "password":"" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Today''s Edition'
+  , 'TE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CC News'
+  , 'CCNEWS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Daily News (Kamloops)'
+  , 'KAMLOOPS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKPG'
+  , 'CKPG'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'SHAW'
+  , 'SHAW'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'National Post'
+  , 'POST'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CIVI'
+  , 'CIVI'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Prince George Citizen'
+  , 'PGC'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://library.pressdisplay.com/test/qa/Services/AdvancedSearchRssHandler.ashx?srchText=%2a&srchnewspaper=7254&extended=false" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Open Cabinet'
+  , 'OPENCABINET'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Daily Courier (Kelowna)'
+  , 'KELOWNA'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKWX'
+  , 'CKWX'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Press Theatre'
+  , 'PRESS THEATRE'
+  , ''
+  , true -- is_enabled
+  , 13 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '100 Mile House Free Press'
+  , '100MILE'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Abbotsford News'
+  , 'ABBNEWS'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Agassiz-Harrison Observer'
+  , 'AGASSIZ'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Aldergrove Star'
+  , 'ALDERSTAR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Arrow Lakes News'
+  , 'ARROWLAKE'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ashcroft Cache Creek Journal'
+  , 'ASHJOUR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Barriere Star Journal'
+  , 'BARRSTARR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Burnaby NewsLeader'
+  , 'BNL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Campbell River Mirror'
+  , 'CRM'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Clearwater Times'
+  , 'CT'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Comox Valley Record'
+  , 'CCVR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cowichan News Leader Pictorial'
+  , 'CNLP'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Esquimalt News'
+  , 'EN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Fort Saint James Courier'
+  , 'FSJC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Golden Star'
+  , 'GS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Goldstream News Gazette'
+  , 'GG'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Houston Today'
+  , 'HT'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Invermere Valley Echo'
+  , 'IVE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kamloops This Week'
+  , 'KTW'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kitimat Northern Sentinel'
+  , 'KS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kootenay News Advertiser'
+  , 'KNA'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ladysmith Chronicle'
+  , 'LC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Lake Cowichan Gazette'
+  , 'LCG'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Lakes District News'
+  , 'LDN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Langley Times'
+  , 'LT'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Maple Ridge-Pitt Meadows News'
+  , 'MRN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Merritt Herald'
+  , 'MH'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Mission City Record'
+  , 'MCR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Nanaimo News Bulletin'
+  , 'NNB'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'New Westminster News Leader'
+  , 'NWNL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'North Island Weekender'
+  , 'NIW'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'North Shore Outlook'
+  , 'NSO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Oak Bay News'
+  , 'OBN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Parksville Qualicum Beach News'
+  , 'PQN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Peace Arch News'
+  , 'PAN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Peninsula News Review'
+  , 'PNR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Penticton Western News'
+  , 'PW'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Port Hardy North Island Gazette'
+  , 'PHNIG'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Prince George Free Press'
+  , 'PGFP'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Princeton Similkameen Spotlight'
+  , 'PSS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Government and Service Employees'' Union'
+  , 'BCGEU'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'New Westminster Record'
+  , 'NWREC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBYK'
+  , 'CBYK'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CorpCal'
+  , 'CorpCal'
+  , ''
+  , true -- is_enabled
+  , 16 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'iNFOnews'
+  , 'INFONEWS'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Link'
+  , 'LINK'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Quesnel Cariboo Observer'
+  , 'QCO'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Revelstoke Review'
+  , 'RTR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Richmond Review'
+  , 'RR'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Saanich News'
+  , 'SN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Salmon Arm Observer'
+  , 'SAO'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Smithers Interior News'
+  , 'SIN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Sooke News Mirror'
+  , 'SNM'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'South Delta Leader'
+  , 'SDL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Summerland Review'
+  , 'SR'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Surrey North Delta Leader'
+  , 'SL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Terrace Standard'
+  , 'TSTD'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Chilliwack Progress'
+  , 'TCP'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Tri-City News'
+  , 'TCN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vanderhoof Omineca Express'
+  , 'VOE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vernon Morning Star'
+  , 'VMS'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Victoria News'
+  , 'VN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Victoria Weekend'
+  , 'VW'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'WestEnder'
+  , 'WESTENDER'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Williams Lake Tribune'
+  , 'WLT'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Online'
+  , 'CBCO'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"https://www.cbc.ca/cmlink/rss-topstories" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Daily News (Nanaimo)'
+  , 'NANAIMO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Lake Country Calendar'
+  , 'LCC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Caledonia Courier'
+  , 'CC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKFR'
+  , 'CKFR'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Nelson Daily News'
+  , 'NDN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CP News'
+  , 'CPNEWS'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Gulf Islands Driftwood'
+  , 'GID'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFIS'
+  , 'CFIS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBCV'
+  , 'CBCV'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBTK'
+  , 'CBTK'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBU'
+  , 'CBU'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBYG'
+  , 'CBYG'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBUT'
+  , 'CBUT'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The New York Times'
+  , 'NYT'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Daily Telegraph'
+  , 'DTL'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Online'
+  , 'CKNW ONLINE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Montreal Gazette'
+  , 'MG'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Toronto Star'
+  , 'TS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKWX Online'
+  , 'CKWX ONLINE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Seattle PI Online'
+  , 'SPIO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Georgia Straight Online'
+  , 'GSO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Province Online'
+  , 'PROVO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Globe and Mail Online'
+  , 'GMO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Victoria Buzz'
+  , 'VBUZZ'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"http://www.victoriabuzz.com/feed/" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'KXLY'
+  , 'KXLY'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Global News: BC 1'
+  , 'BC 1'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Boundary Creek Times'
+  , 'BCT'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kimberley Bulletin'
+  , 'KDB'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Peachland View'
+  , 'PV'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Conservative Party'
+  , 'BC CONS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'News Kamloops'
+  , 'NEWKAM'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Sierra Club of BC'
+  , 'SIERRA'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Webcast'
+  , 'WEBCAST'
+  , ''
+  , true -- is_enabled
+  , 14 -- media_type_id
+  , 2 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Squamish Chief'
+  , 'SC'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Sun Online'
+  , 'SUN ONLINE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'HuffPostBC'
+  , 'HUFFPOSTBC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJVB Online'
+  , 'CJVB ONLINE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKSP'
+  , 'CKSP'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Orca'
+  , 'ORCA'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"https://theorca.ca/feed/" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKVU'
+  , 'CKVU'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBX'
+  , 'CBX'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kelowna Westside Weekly'
+  , 'KWW'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKSP Sameer Kaushal'
+  , 'CKSP SAMEER'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Alaska Highway News'
+  , 'AHN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Northerner'
+  , 'FSJN'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKFU'
+  , 'CKFU'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver 24 hrs'
+  , '24HRS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'StarMetro'
+  , 'STARMETRO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Union of BC Indian Chiefs'
+  , 'UBCIC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TVS - Talentvision'
+  , 'TVS'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CityCaucus.com'
+  , 'CITYC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Hospital Employees'' Union'
+  , 'HEU'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Health Coalition'
+  , 'BCHC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHMB'
+  , 'CHMB'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJRJ'
+  , 'CJRJ'
+  , ''
+  , true -- is_enabled
+  , 3 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'KVRI'
+  , 'KVRI'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'British Columbia Nurses'' Union'
+  , 'BCNU'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'PTC'
+  , 'PTC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Island Free Daily'
+  , 'VIFD'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Tyee'
+  , 'TYEE'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Canadian Union of Public Employees'
+  , 'CUPE BC'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'APTN'
+  , 'APTN'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Social Media'
+  , 'BCPOLI'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKPG Online'
+  , 'CKPG ONLINE'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNM'
+  , 'CHNM'
+  , ''
+  , true -- is_enabled
+  , 2 -- media_type_id
+  , 4 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'British Columbia Federation of Labour'
+  , 'BC FED'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Grand Forks Gazette'
+  , 'GFG'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Teachers'' Federation'
+  , 'BCTF'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Public Eye Online'
+  , 'PEO'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Local News'
+  , 'BCLN'
+  , ''
+  , true -- is_enabled
+  , 7 -- media_type_id
+  , 3 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBCIndigNews'
+  , 'CBCINDIGNEWS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBCBCNews'
+  , 'CBCBCNEWS'
+  , ''
+  , true -- is_enabled
+  , 15 -- media_type_id
+  , 5 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{}' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Narwhal'
+  , 'NAR'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"https://thenarwhal.ca/feed/rss2" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Infotel'
+  , 'INFOTEL'
+  , ''
+  , true -- is_enabled
+  , 1 -- media_type_id
+  , 1 -- data_location_id
+  , 3 -- license_id
+  , 'topic'
+  , '{ "url":"https://infotel.ca/govbcrssfeed" }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.claim (
+  "name"
+  , "key"
+  , "is_enabled"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'administrator' -- name
+  , 'db055cc6-b31c-42c4-99b5-5e519c31c8ab' -- key
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'editor' -- name
+  , 'c374cbb1-7eda-4259-8f74-cd6c2287e32b' -- key
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'subscriber' -- name
+  , '4818b135-034e-40d8-bd9c-8df2573ce9e0' -- key
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.role (
+  "name"
+  , "key"
+  , "is_enabled"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Administrator' -- name
+  , 'c89a9f73-eaab-4c4f-8c90-f963de0c5854' -- key
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Editor' -- name
+  , 'd5786a5b-4f71-46f1-9c0c-f6b69ee741b1' -- key
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Subscriber' -- name
+  , '250eaa7f-67c9-4a60-b453-8ca790d569f5' -- key
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.user (
+  "username"
+  , "key"
+  , "email"
+  , "display_name"
+  , "email_verified"
+  , "is_enabled"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'admin' -- username
+  , 'f3487a90-b793-4e60-b32c-2945591289aa' -- key
+  , 'admin@local.com' -- email
+  , 'Administrator' -- displayName
+  , true -- emailVerified
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'editor' -- name
+  , '1057697d-5cd0-4b00-97f3-df0f13849217' -- key
+  , 'editor@local.com' -- email
+  , 'Editor' -- displayName
+  , true -- emailVerified
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'subscriber' -- name
+  , 'e9b0ec48-c4c2-4c73-80a6-5c03da70261d' -- key
+  , 'subscriber@local.com' -- email
+  , 'Subscriber' -- displayName
+  , true -- emailVerified
+  , true -- isEnabled
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.user_role (
+  "user_id"
+  , "role_id"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  '1' -- userId
+  , '1' -- roleId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '2' -- userId
+  , '2' -- roleId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '3' -- userId
+  , '3' -- roleId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.role_claim (
+  "role_id"
+  , "claim_id"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  '1' -- roleId
+  , '1' -- claimId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '1' -- roleId
+  , '2' -- claimId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '1' -- roleId
+  , '3' -- claimId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '2' -- roleId
+  , '2' -- claimId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  '3' -- roleId
+  , '3' -- claimId
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.tone_pool (
+  "name"
+  , "owner_id"
+  , "is_public"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Default'
+  , 1
+  , true
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.category (
+  "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Red tape'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Youth sports'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Schoenborn hearing'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cruise ship season'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TMX purchase'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Overdose crisis'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Single-use fees'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Powell River name change'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ICBC profit'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Forced patient transfers'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Used car tax'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'FOI fees'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC crime'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Farnworth - Lytton recovery'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Highway 99 rockslide'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC housing costs'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Gasoline prices'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Inflation concerns'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'UBC Okanagan death'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'COVID-19 restrictions'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Autism funding'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Craig James trial'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Farnworth - sexual assault svcs'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Hospital parking fees'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Khalsa parade cancelled'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Animal feed prices'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'By-election'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'COVID-19 rapid testing'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ukraine invasion'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Russian investments'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.series (
+  "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Jeremy Nuttall'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Bill Tieleman'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Christy Clark'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Editorial'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJCN Vijay Saini'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV Morning Live'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJCN Vasu Kumar'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJVB News Hotline'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TVS Straits Today'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHKG'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Noon Show'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'HEU'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Mornings with Al Ferraby'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BCGEU'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKSP Sameer Kaushal'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Teachers'' Federation'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJVB Online'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'BC Info Privacy'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vaughn Palmer'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Global BC Noon News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKPG at 5:00'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHEK News at Five'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cindy E. Harnett'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHBC News at 6:30'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Michael Smyth'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC BC Today'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Early Edition'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'APTN National News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Simi Sara'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Les Leyne'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Weekend Show'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Online'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Mike Smyth'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Newsworld'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Radio West'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC On the Coast'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHEK Political Capital with Rob Shaw'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC On the Island'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKFR'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Ian Jessop'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKWX Online'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC As It Happens'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC The House'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW View From Victoria'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Online'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNL Jeff Andreas'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Global BC Morning News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFJC Evening News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC The Current'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV Canada AM'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV News Channel'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKFR Phil Johnson'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Keith Baldrey'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHBC News at 5:00'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Daybreak North'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV News Live @ 5'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Daybreak South'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV News Live @ 6'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNL'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Paul Willcocks'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Wendy Stueck'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Stephen Hume'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Press Theatre'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV News at Five'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV News at Six'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC All Points West'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Global BC Early News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Global BC News Hour'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CityNews1130'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBCV'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBTK'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBU'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBYG'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC News Vancouver'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Bill Carroll'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Adam Stirling'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Ryan Price'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBC Daybreak Kamloops'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNL Brett Mineer'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNL Paul James'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKYE Harjinder Thind'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Lindsay Kines'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Cassidy Olivier'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Rob Shaw'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Norm Spector'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFAX Evan Solomon'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CUPE BC'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Jas Johal'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFJC Noon News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKPG at Noon'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Global News: BC 1'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHNM Omni Cantonese'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CFTV Fairchild Evening News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CJVB'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CHMB'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Bob Mackin'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKNW Jill Bennett'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The BC Conservative Party'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CP News'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Dan Burritt'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKFU'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CKYE'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Peter McKnight'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Dirk Meissner'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Don Cayo'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Frances Bula'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Gary Mason'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ian Austin'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Gordon McIntyre'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Andrew MacLeod'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Jeff Lee'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Tom Fletcher'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ian Mulgrew'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ian Bailey'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Justine Hunter'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Kim Bolan'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Richard Zussman'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Pete McMartin'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Tracy Sherlock'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Daphne Bramham'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CTV News at Noon'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Castanet'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.tag (
+  "id"
+  , "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'EMBC'
+  , 'EMBC'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'HLTH'
+  , 'HLTH'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'JTST'
+  , 'JTST'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ZZA'
+  , 'ZZA'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'MCFD'
+  , 'MCFD'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'FIN'
+  , 'FIN'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ENV'
+  , 'ENV'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TNF'
+  , 'TNF'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'PSSG'
+  , 'PSSG'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'MAZ'
+  , 'MAZ'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ADV'
+  , 'ADV'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TACZ'
+  , 'TACZ'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'MJAG'
+  , 'MJAG'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'EDU'
+  , 'EDU'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ZPZ'
+  , 'ZPZ'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'EMPR'
+  , 'EMPR'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TRAN'
+  , 'TRAN'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'PJJH'
+  , 'PJJH'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'MSD'
+  , 'MSD'
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+END $$;

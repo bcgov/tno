@@ -62,3 +62,4 @@ service:
 data:
   source:
     mediaType: ${DATA_SOURCE_MEDIA_TYPE:Syndication}
+    dataLocation: ${DATA_SOURCE_LOCATION:Internet}

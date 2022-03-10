@@ -49,6 +49,18 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
+   * Find the data source for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return An instance of the data source if it exists.
+   */
+  @Override
+  public Optional<DataSource> findById(int key) {
+    var result = repository.findById(key);
+    return result;
+  }
+
+  /**
    * Find the data source for the specified media type.
    * 
    * @param mediaTypeId Foreign key to media type.
@@ -63,6 +75,7 @@ public class DataSourceService implements IDataSourceService {
       var sql = """
           FROM DataSource ds
           JOIN FETCH ds.mediaType mt
+          JOIN FETCH ds.dataLocation dl
           JOIN FETCH ds.license l
           LEFT JOIN FETCH ds.parent p
           LEFT JOIN FETCH ds.dataSourceSchedules dss
@@ -78,15 +91,38 @@ public class DataSourceService implements IDataSourceService {
   }
 
   /**
-   * Find the data source for the specified primary key.
+   * Find the data source for the specified media type and data location.
    * 
-   * @param key The primary key.
-   * @return An instance of the data source if it exists.
+   * @param mediaTypeId    Foreign key to media type.
+   * @param dataLocationId Foreign key to data location.
+   * @return A new instance of the data source if it exists.
    */
   @Override
-  public Optional<DataSource> findById(int key) {
-    var result = repository.findById(key);
-    return result;
+  public List<DataSource> findByMediaTypeIdAndDataLocationId(int mediaTypeId, Integer dataLocationId) {
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var sql = """
+          FROM DataSource ds
+          JOIN FETCH ds.mediaType mt
+          JOIN FETCH ds.dataLocation dl
+          JOIN FETCH ds.license l
+          LEFT JOIN FETCH ds.parent p
+          LEFT JOIN FETCH ds.dataSourceSchedules dss
+          LEFT JOIN FETCH dss.schedule
+          WHERE ds.mediaTypeId = :mediaTypeId
+            AND (ds.dataLocationId = :dataLocationId OR null = :dataLocationId)
+          """;
+      var query = session
+          .createQuery(sql)
+          .setParameter("mediaTypeId", mediaTypeId)
+          .setParameter("dataLocationId", dataLocationId);
+      return ListHelper.castList(DataSource.class, query.list());
+    } finally {
+      ts.commit();
+      session.close();
+    }
   }
 
   /**
@@ -104,6 +140,7 @@ public class DataSourceService implements IDataSourceService {
       var sql = """
           FROM DataSource ds
           JOIN FETCH ds.mediaType mt
+          JOIN FETCH ds.dataLocation dl
           JOIN FETCH ds.license l
           LEFT JOIN FETCH ds.parent p
           LEFT JOIN FETCH ds.dataSourceSchedules dss

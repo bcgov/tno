@@ -1,6 +1,6 @@
-import { IContentModel } from '.';
+import { IAuditColumnsModel, IContentModel } from '.';
 
-export interface IPrintContentModel {
+export interface IPrintContentModel extends IAuditColumnsModel {
   contentId: number;
   content?: IContentModel;
   edition: string;

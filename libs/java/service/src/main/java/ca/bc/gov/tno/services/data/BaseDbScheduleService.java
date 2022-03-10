@@ -61,6 +61,7 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
     if (result.isPresent()) {
       var entity = result.get();
       entity.setLastRanOn(ranOn);
+      entity.setFailedAttempts(dataSource.getFailedAttempts());
       dataSourceService.update(entity);
     }
   }

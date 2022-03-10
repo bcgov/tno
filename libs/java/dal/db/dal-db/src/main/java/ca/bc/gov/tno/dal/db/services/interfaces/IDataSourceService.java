@@ -17,6 +17,14 @@ public interface IDataSourceService {
   List<DataSource> findAll();
 
   /**
+   * Find the data source for the specified primary key.
+   * 
+   * @param key The primary key.
+   * @return A new instance of the data source if it exists.
+   */
+  Optional<DataSource> findById(int key);
+
+  /**
    * Find the data source for the specified media type.
    * 
    * @param mediaTypeId Foreign key to media type.
@@ -25,12 +33,13 @@ public interface IDataSourceService {
   List<DataSource> findByMediaTypeId(int mediaTypeId);
 
   /**
-   * Find the data source for the specified primary key.
+   * Find the data source for the specified media type and data location.
    * 
-   * @param key The primary key.
+   * @param mediaTypeId    Foreign key to media type.
+   * @param dataLocationId Foreign key to data location.
    * @return A new instance of the data source if it exists.
    */
-  Optional<DataSource> findById(int key);
+  List<DataSource> findByMediaTypeIdAndDataLocationId(int mediaTypeId, Integer dataLocationId);
 
   /**
    * Find the data source for the specified code.
