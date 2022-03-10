@@ -56,10 +56,10 @@ public class ElasticConfig extends AbstractElasticsearchConfiguration {
    * Provide a new instance of an ElasticsearchOperations.
    * 
    * @return Provide a new instance of an ElasticsearchOperations.
-   
+   */
   @Bean
   @Override
   public ElasticsearchOperations elasticsearchOperations(ElasticsearchConverter elasticsearchConverter) {
     return new ElasticsearchRestTemplate(elasticsearchClient(), elasticsearchConverter);
-  } */
+  }
 }

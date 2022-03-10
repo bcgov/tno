@@ -12,5 +12,6 @@ auth/keycloak/config/*.log
 .DS_Store
 /misc
 /capture
-clips
+/clips
 ~
+*.class

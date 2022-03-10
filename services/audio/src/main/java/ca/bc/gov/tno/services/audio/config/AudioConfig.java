@@ -72,7 +72,7 @@ public class AudioConfig extends DataSourceConfig {
    * 
    * @param dataSource
    */
-  public AudioConfig(DataSource dataSource, final IDataSourceService dataSourceService) {
+  public AudioConfig(final DataSource dataSource, final IDataSourceService dataSourceService) {
     super(dataSource);
 
     var connection = dataSource.getConnection();

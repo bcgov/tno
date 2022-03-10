@@ -1,6 +1,5 @@
 package ca.bc.gov.tno.dal.db.entities;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

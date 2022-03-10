@@ -11,7 +11,7 @@
       "projectName": "capture",
       "preLaunchTask": "package",
       "args": "",
-      "envFile": "${workspaceFolder}/capture.env"
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

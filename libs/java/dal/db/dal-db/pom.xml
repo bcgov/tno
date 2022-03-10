@@ -231,13 +231,7 @@
                   <goal>sign</goal>
                 </goals>
               </execution>
-            </executions>
-            <configuration>
-              <gpgArguments>
-                <gpgArgument>--pinentry-mode</gpgArgument>
-                <gpgArgument>loopback</gpgArgument>
-              </gpgArguments>
-            </configuration>    
+            </executions> 
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>

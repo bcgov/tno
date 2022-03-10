@@ -7,7 +7,7 @@ import ca.bc.gov.tno.services.audio.config.AudioConfig;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 
 /**
- * SendToKafkaEvent class, provides an event to indicate the audio feed
+ * ProducerSendEvent class, provides an event to indicate the audio feed
  * has been loaded.
  */
 @Async
@@ -36,9 +36,9 @@ public class ProducerSendEvent extends ApplicationEvent {
    * @param schedule   The schedule config.
    * @param data       The syndication feed.
    */
-  public ProducerSendEvent(final Object source, final AudioConfig dataSource, final ScheduleConfig schedule, final String data) {
+  public ProducerSendEvent(final Object source, final AudioConfig config, final ScheduleConfig schedule, final String data) {
     super(source);
-    this.dataSource = dataSource;
+    this.dataSource = config;
     this.schedule = schedule;
     this.data = data;
   }
