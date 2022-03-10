@@ -106,24 +106,22 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
     var topic = config.getTopic();
 
     try {
-      if(config.getClipSuccess()) {
-        logger.info(String.format("New audio content extracted: '%s', topic: %s", clip, topic));
-        var contentReference = new ContentReference(source, clip, topic);
-        contentReference.setPublishedOn(ZonedDateTime.now());
-        contentReference.setSourceUpdatedOn(ZonedDateTime.now());
+      logger.info(String.format("New audio content extracted: '%s', topic: %s", clip, topic));
+      var contentReference = new ContentReference(source, clip, topic);
+      contentReference.setPublishedOn(ZonedDateTime.now());
+      contentReference.setSourceUpdatedOn(ZonedDateTime.now());
 
-        var record = new PublishedRecord(publishEntry(event, clip), contentReference);
-        var meta = record.getFutureRecordMetadata().get();
+      var record = new PublishedRecord(publishEntry(event, clip), contentReference);
+      var meta = record.getFutureRecordMetadata().get();
 
-        contentReference.setPartition(meta.partition());
-        contentReference.setOffset(meta.offset());
-        contentReference.setStatus(WorkflowStatus.Received);
+      contentReference.setPartition(meta.partition());
+      contentReference.setOffset(meta.offset());
+      contentReference.setStatus(WorkflowStatus.Received);
 
-        logger.info(String.format("Audio content added: '%s', topic: %s, partition: %s, offset: %s",
-        clip, meta.topic(), meta.partition(), meta.offset()));
+      logger.info(String.format("Audio content added: '%s', topic: %s, partition: %s, offset: %s",
+      clip, meta.topic(), meta.partition(), meta.offset()));
 
-        contentReference = contentReferenceService.add(contentReference);
-      }
+      contentReference = contentReferenceService.add(contentReference);
     } catch (Exception ex) {
       // Hopefully an error on one entry won't stop all other entries.
       var errorEvent = new ErrorEvent(this, ex);

@@ -44,11 +44,6 @@ public class AudioConfig extends DataSourceConfig {
   private String audioService;
 
   /**
-   * Was the last clip command validated and extracted?
-   */
-  private boolean clipSuccess;
-
-  /**
    * The timezone of the audio service
    */
   private String timeZone;
@@ -189,20 +184,6 @@ public class AudioConfig extends DataSourceConfig {
    */
   public void setAudioService(String service) {
     this.audioService = service;
-  }
-
-  /**
-   * @return String return the success of the last clip command
-   */
-  public boolean getClipSuccess() {
-    return this.clipSuccess;
-  }
-
-  /**
-   * @param success The success status of the last clip
-   */
-  public void setClipSuccess(boolean success) {
-    this.clipSuccess = success;
   }
 
   /**

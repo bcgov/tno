@@ -51,7 +51,7 @@ Configuration:
         additivity: false
         AppenderRef:
           - ref: LogToConsole
-          - ref: LogToRollingFile
+          # - ref: LogToRollingFile
           - ref: LogToKafka
 
     Root:

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -127,11 +128,12 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
     try {
       caller = event.getSource();
-      audioConfig.setClipSuccess(false);
 
       if (verifyClipSchedule(schedule)) {
         executeClipCmd(cmd, mediaSource, destination, schedule);
-        audioConfig.setClipSuccess(true);
+      } else {
+        var errorEvent = new ErrorEvent(this, new IOException("No audio captured for this clip."));
+        eventPublisher.publishEvent(errorEvent);  
       }
 
       var readyEvent = new ProducerSendEvent(caller, audioConfig, schedule, captureKey);

@@ -171,8 +171,8 @@ public class MediaType extends AuditColumns {
   /**
    * @param dataSources the dataSources to set
    */
-  public void setDataSources(List<DataSource> data_sources) {
-    this.dataSources = data_sources;
+  public void setDataSources(List<DataSource> dataSources) {
+    this.dataSources = dataSources;
   }
 
 }

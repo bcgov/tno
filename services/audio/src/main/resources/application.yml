@@ -38,7 +38,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 kafka:
-  bootstrap-servers2: ${KAFKA_BOOTSTRAP_SERVERS}
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   producer:
     client-id: ${KAFKA_CLIENT_ID}
 
