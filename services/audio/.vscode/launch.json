@@ -10,7 +10,7 @@
       "projectName": "audio",
       "preLaunchTask": "package",
       "args": "",
-      "envFile": "${workspaceFolder}/audio.env"
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

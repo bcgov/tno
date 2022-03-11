@@ -93,7 +93,7 @@ services:
     build:
       context: services/audio
     env_file:
-      - services/audio/audio.env
+      - services/audio/.env
     ports:
       - ${AUDIO_PORT:-40024}:8080
     depends_on:
@@ -101,9 +101,43 @@ services:
       - broker
     networks:
       - tno
+    volumes:
+      - tno-audio-data:/data
     healthcheck:
       test: curl -s -f http://localhost:8080/health || exit 1
       interval: 1m
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  capture:
+    image: tno:capture
+    profiles:
+      - all
+      - service
+      - data
+    restart: "no"
+    container_name: tno-capture
+    build:
+      context: services/capture
+    env_file:
+      - services/capture/.env
+    ports:
+      - ${AUDIO_PORT:-40025}:8080
+    depends_on:
+      - database
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-audio-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  tno-audio-data:
+    name: tno-audio-data

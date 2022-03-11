@@ -413,9 +413,29 @@ DATA_SOURCE_MEDIA_TYPE=Syndication
     echo "./services/syndication/.env created"
 fi
 
+## Capture service
+if test -f "./services/capture/.env"; then
+    echo "./services/capture/.env exists"
+else
+echo \
+"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
+
+DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
+DB_USERNAME=$dbUser
+DB_PASSWORD=$password
+
+KAFKA_LOGS_TOPIC=logs-capture
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+KAFKA_CLIENT_ID=audio-capture-01
+
+MAX_FAILED_ATTEMPTS=5" >> ./services/audio/.env
+    echo "./services/capture/.env created"
+fi
+
 ## Audio - Clip Producer
-if test -f "./services/audio/audio.env"; then
-    echo "./services/audio/audio.env exists"
+if test -f "./services/audio/.env"; then
+    echo "./services/audio/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
@@ -429,20 +449,8 @@ KAFKA_LOGS_TOPIC=logs-audio
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 KAFKA_CLIENT_ID=audio-capture-01
 
-MAX_FAILED_ATTEMPTS=5
-
-DATA_SOURCE_MEDIA_TYPE=CLIP
-DATA_SOURCE_ID=CBCKAM
-DATA_SOURCE_DELAY=60000
-DATA_SOURCE_TOPIC=media-cbckam
-DATA_SOURCE_URL=http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_kam
-MEDIA_CAPTURE_CMD=curl --retry 4 [capture-url] > [capture-path] &> /dev/null
-MEDIA_CAPTURE_DIR=/workspaces/tno/capture
-MEDIA_CLIP_CMD=ffmpeg -ss [start] -i [capture] -t [duration] -f mov -acodec alac -ab 64k -ar 22050 -vol 400 -y [clip] > /dev/null
-MEDIA_CLIP_DURATION=50
-MEDIA_CLIP_DIR=/workspaces/tno/clips
-MEDIA_STREAM_TIMEOUT=60000" >> ./services/audio/audio.env
-    echo "./services/audio/audio.env created"
+MAX_FAILED_ATTEMPTS=5" >> ./services/audio/.env
+    echo "./services/audio/.env created"
 fi
 
 ## NLP Consumer/Producer

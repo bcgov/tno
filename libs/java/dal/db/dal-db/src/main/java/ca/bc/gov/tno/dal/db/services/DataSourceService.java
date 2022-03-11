@@ -69,7 +69,7 @@ public class DataSourceService implements IDataSourceService {
           LEFT JOIN FETCH dss.schedule
           WHERE ds.mediaTypeId = :mediaTypeId
           """;
-      var query = session.createQuery(sql).setParameter("mediaTypeId", mediaTypeId).setMaxResults(1);
+      var query = session.createQuery(sql).setParameter("mediaTypeId", mediaTypeId);
       return ListHelper.castList(DataSource.class, query.list());
     } finally {
       ts.commit();
@@ -110,7 +110,7 @@ public class DataSourceService implements IDataSourceService {
           LEFT JOIN FETCH dss.schedule
           WHERE ds.code = :code
           """;
-      var query = session.createQuery(sql).setParameter("code", code).setMaxResults(1);
+      var query = session.createQuery(sql).setParameter("code", code);
       var result = query.uniqueResult();
       return Optional.ofNullable((DataSource) result);
     } finally {

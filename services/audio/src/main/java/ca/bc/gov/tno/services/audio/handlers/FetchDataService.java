@@ -1,7 +1,11 @@
 package ca.bc.gov.tno.services.audio.handlers;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.EventListener;
+
+import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.audio.config.AudioConfig;
@@ -23,7 +29,7 @@ import org.springframework.stereotype.Component;
  */
 @Async
 @Component
-public class FetchDataService implements ApplicationListener<TransactionBeginEvent<AudioConfig>> {
+public class FetchDataService implements ApplicationListener<TransactionBeginEvent> {
   private static final Logger logger = LogManager.getLogger(FetchDataService.class);
 
   private final ApplicationEventPublisher eventPublisher;
@@ -40,26 +46,97 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
+   * Calculate the length of the clip as the number of milliseconds between the schedule's 
+   * start time and stop time.
+   * 
+   * @param schedule The schedule triggered for this execution cycle
+   * @return The length of the clip to be extracted
+   */
+  private long getClipLength(ScheduleConfig schedule) {
+
+    var startTime = getMsDateTime(schedule.getStartAt());
+    var stopTime = getMsDateTime(schedule.getStopAt());
+    var length = (stopTime - startTime) / 1000;
+
+    return length;
+  }
+
+/**
+ * Convert a LocalTime object to a unix epoch date/time in the current time zone.
+ * 
+ * @param time The LocalTime object to convert
+ * @return the date/time in milliseconds
+ */
+  private long getMsDateTime(LocalTime time) {
+
+    var dateTime = time.atDate(LocalDate.now());
+    var instant = dateTime.atZone(ZoneId.of(audioConfig.getTimezone())).toInstant();	
+    var timeInMillis = instant.toEpochMilli(); 
+
+    return timeInMillis;
+  }
+
+  /**
+   * Get the offset of the clip in the captured file in seconds based on its start and stop time. Clips never cross date 
+   * boundaries so no handling is required to wrap from one day to another.
+   * 
+   * @param schedule Schedule config being processed
+   * @return The offset of the clip in the captured audio stream
+   */
+  private long getClipOffset(ScheduleConfig schedule) {
+
+    var streamStart = audioConfig.getStreamStartTime();
+    var startTime = getMsDateTime(schedule.getStartAt());
+    var stopTime = getMsDateTime(schedule.getStopAt());
+    var clipLength = getClipLength(schedule);
+    var offset = 0L;
+
+    if (stopTime - clipLength > streamStart) {
+      offset = (startTime - streamStart) / 1000;
+    }
+
+    return offset;
+  }
+
+/**
+ * Verifies, using the schedule's start time and the capture services' stream start time, whether the audio to be 
+ * extracted from the captured file has been recorded.
+ * 
+ * @param schedule The current clip schedule
+ * @return whether the schedule's start time is later than the stream start time
+ */
+  private boolean verifyClipSchedule(ScheduleConfig schedule) {
+
+    return getMsDateTime(schedule.getStartAt()) > audioConfig.getStreamStartTime();
+  }
+
+  /**
    * Start an audio stream, if not already in progress, and extract an audio clip. Publish an audio event so that the Kafka 
    * Producer can push the content to a topic.
    */
   @Override
   @EventListener
-  public void onApplicationEvent(TransactionBeginEvent<AudioConfig> event) {
+  public void onApplicationEvent(TransactionBeginEvent event) {
 
-    audioConfig = event.getConfig();
-    String mediaSource = audioConfig.getCaptureDir() + "/" + audioConfig.getId() + ".mpg";
+    audioConfig = (AudioConfig) event.getDataSource();
+    var schedule = event.getSchedule();
+    String mediaSource = audioConfig.getCaptureDir() + "/" + audioConfig.getCaptureService() + ".mpg";
+    String captureKey = audioConfig.getId() + "_" +  String.valueOf(System.currentTimeMillis());
+
     String cmd = audioConfig.getClipCmd();
-    String destination = clipPath();
+    String destination = clipPath(schedule);
 
     try {
       caller = event.getSource();
 
-      if (!startAudioStream(mediaSource)) {
-        executeClipCmd(cmd, mediaSource, destination);
+      if (verifyClipSchedule(schedule)) {
+        executeClipCmd(cmd, mediaSource, destination, schedule);
+      } else {
+        var errorEvent = new ErrorEvent(this, new IOException("No audio captured for this clip."));
+        eventPublisher.publishEvent(errorEvent);  
       }
-      
-      var readyEvent = new ProducerSendEvent(caller, audioConfig, destination);
+
+      var readyEvent = new ProducerSendEvent(caller, audioConfig, schedule, captureKey);
       eventPublisher.publishEvent(readyEvent);
     } catch (Exception ex) {
       var errorEvent = new ErrorEvent(this, ex);
@@ -68,77 +145,22 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Obtain the location of the streaming file for this event and check that it is being written to.
-   * If the file doesn't exist, or the audio stream has dropped, start streaming from the media source.
-   */
-  private boolean startAudioStream(String mediaSource) {
-
-    File captureFile = new File(mediaSource);
-    String cmd = audioConfig.getCaptureCmd();
-    boolean startedStream = false;
-    long modified = 0;
-    long current = 0;
-
-    if (captureFile.exists()) {
-      modified = captureFile.lastModified();
-      current = System.currentTimeMillis();
-    }
-
-    // Start recording the audio stream if it has dropped or the capture file it doesn't exist
-    if (modified == 0 || current - modified > audioConfig.getStreamTimeout()) {
-        executeCaptureCmd(cmd, mediaSource);
-        audioConfig.setStreamStartTime(System.currentTimeMillis());
-        startedStream = true;
-    }
-
-    return startedStream;
-  }
-
-  /**
-   * Executes an audio stream capture command as defined in the audioConfig object
-   * 
-   * @param cmd The Linux command to execute 
-   * @param captureFilePath The full path of the output directory
-   */
-  private void executeCaptureCmd(String cmd, String captureFilePath) {
-
-    if (!cmd.equals("")) {
-      cmd = cmd.replace("[capture-url]", audioConfig.getAudioUrl());
-      cmd = cmd.replace("[capture-path]", captureFilePath);
-
-      String[] cmdArray = {
-        "/bin/sh",
-            "-c",
-        cmd
-      };
-
-      try {
-        Process p = new ProcessBuilder(cmdArray).start();
-        logger.info("Capture command executed '" + cmd);
-      } catch (Exception e) {
-        logger.info("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);
-      }
-    }
-  }
-
-  /**
    * Executes an audio clip command as defined in the audioConfig object.
    * 
-   * @param cmd The Linux command to execute 
+   * @param cmd The Linux command to execute (with substitution markers in square brackets) 
    * @param mediaSource The streamed file from which the clip will be extracted
    * @param destination The full path of the clip file to be written
    */
-  private void executeClipCmd(String cmd, String mediaSource, String destination) {
+  private void executeClipCmd(String cmd, String mediaSource, String destination, ScheduleConfig schedule) {
 
     if (!cmd.equals("")) {
-      long streamStart = audioConfig.getStreamStartTime();
-      long now = System.currentTimeMillis();
-      String offset = String.valueOf((now - streamStart - audioConfig.getDelay()) / 1000);
+      long duration = getClipLength(schedule);
+      long offset = getClipOffset(schedule);
 
       cmd = cmd.replace("[capture]", mediaSource);
       cmd = cmd.replace("[clip]", destination);
-      cmd = cmd.replace("[duration]", audioConfig.getClipDuration());
-      cmd = cmd.replace("[start]", offset);
+      cmd = cmd.replace("[duration]", String.valueOf(duration));
+      cmd = cmd.replace("[start]", String.valueOf(offset));
 
       String[] cmdArray = {
         "/bin/sh",
@@ -161,15 +183,12 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 	 *  
 	 * @return The fully qualified clip path name.
 	 */
-	private String clipPath() {
+	private String clipPath(ScheduleConfig schedule) {
 		String path;
     LocalDateTime now = LocalDateTime.now();
     String year = String.format("%02d", now.getYear());
     String month = String.format("%02d", now.getMonthValue());
     String day = String.format("%02d", now.getDayOfMonth());
-    String hour = String.format("%02d", now.getHour());
-    String minute = String.format("%02d", now.getMinute());
-    String second = String.format("%02d", now.getSecond());
 
 		// directory
 		path = audioConfig.getClipDir() + "/" + year + month + day + "/" + audioConfig.getId();
@@ -186,9 +205,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 			}
 		}
 
-		// file name
-		path = path + "/" + audioConfig.getId();		
-		path = path + "_" + year + month + day + "_" + hour + minute + second + ".mov";
+		path = path + "/" + schedule.getName() + ".mov";		
 
 		return path;
 	}

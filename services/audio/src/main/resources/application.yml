@@ -47,15 +47,19 @@ service:
   failed-delay: ${FAILED_DELAY:5000}
 
 data:
-  sources:
-    - id: ${DATA_SOURCE_ID}
-      type: ${DATA_SOURCE_TYPE:AUDIO}
-      delay: ${DATA_SOURCE_DELAY:5000}
-      topic: ${DATA_SOURCE_TOPIC}
-      audioUrl: ${DATA_SOURCE_URL}
-      captureCmd: ${MEDIA_CAPTURE_CMD}
-      captureDir: ${MEDIA_CAPTURE_DIR}
-      clipCmd: ${MEDIA_CLIP_CMD}
-      clipDuration: ${MEDIA_CLIP_DURATION}
-      clipDir: ${MEDIA_CLIP_DIR}
-      streamTimeout: ${MEDIA_STREAM_TIMEOUT}
+  source:
+    mediaType: ${DATA_SOURCE_MEDIA_TYPE:News Radio}
+    timeZone: ${DATA_SOURCE_TIMEZONE:America/Los_Angeles}
+
+#sources:
+#    - id: ${DATA_SOURCE_ID}
+#      type: ${DATA_SOURCE_TYPE:AUDIO}
+#      delay: ${DATA_SOURCE_DELAY:5000}
+#      topic: ${DATA_SOURCE_TOPIC}
+#      audioUrl: ${DATA_SOURCE_URL}
+#      captureCmd: ${MEDIA_CAPTURE_CMD}
+#      captureDir: ${MEDIA_CAPTURE_DIR}
+#      clipCmd: ${MEDIA_CLIP_CMD}
+#      clipDuration: ${MEDIA_CLIP_DURATION}
+#      clipDir: ${MEDIA_CLIP_DIR}
+#      streamTimeout: ${MEDIA_STREAM_TIMEOUT}

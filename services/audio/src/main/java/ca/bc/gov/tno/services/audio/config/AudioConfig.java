@@ -3,6 +3,7 @@ package ca.bc.gov.tno.services.audio.config;
 import org.springframework.context.annotation.Configuration;
 
 import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 
 /**
@@ -10,20 +11,10 @@ import ca.bc.gov.tno.services.data.config.DataSourceConfig;
  * used if a connection to the database cannot be made.
  */
 @Configuration
-//@ConfigurationProperties("data")
 public class AudioConfig extends DataSourceConfig {
-  /**
-   * URL to the audio streaming source
-   */
-  private String audioUrl;
 
   /**
-   * Capture command template
-   */
-  private String captureCmd;
-
-  /**
-   * Directory in which to store captured audio
+   * Directory in which capturedAudio is being stored
    */
   private String captureDir;
 
@@ -31,11 +22,6 @@ public class AudioConfig extends DataSourceConfig {
    * Clip command template
    */
   private String clipCmd;
-
-  /**
-   * Clip duration
-   */
-  private String clipDuration;
 
   /**
    * Clip directory
@@ -48,9 +34,25 @@ public class AudioConfig extends DataSourceConfig {
   private long streamStartTime;
 
   /**
-   * Time at which the audio began streaming
+   * Code (name) of the capture service linked to this clip service.
    */
-  private long streamTimeout;
+  private String captureService;
+
+  /**
+   * Code (name) of this audio service
+   */
+  private String audioService;
+
+  /**
+   * The timezone of the audio service
+   */
+  private String timeZone;
+
+
+  /**
+   * Data source from which child schedules will be retrieved
+   */
+  private IDataSourceService dataService;
 
   /**
    * Creates a new instance of a AudioConfig object.
@@ -65,25 +67,28 @@ public class AudioConfig extends DataSourceConfig {
    * 
    * @param dataSource
    */
-  public AudioConfig(DataSource dataSource) {
+  public AudioConfig(final DataSource dataSource, final IDataSourceService dataSourceService) {
     super(dataSource);
+
+    var connection = dataSource.getConnection();
+
+    setDataService(dataSourceService);
+    setAudioService((String) dataSource.getCode());
+
+    // Get values from the parent data source
+    var result = dataSourceService.findById(dataSource.getParentId());
+    var dataRecord = result.get();
+
+    connection = dataRecord.getConnection();
+    setCaptureService(dataRecord.getCode());
+    setStreamStartTime((long) connection.get("streamStart"));
+    setCaptureDir((String) connection.get("captureDir"));
+    setClipDir((String) connection.get("clipDir"));
+    setClipCmd((String) connection.get("clipCmd"));
+    setTimezone((String) connection.get("timeZone"));
   }
 
   /**
-   * @return String return the capture command
-   */
-  public String getCaptureCmd() {
-    return captureCmd;
-  }
-
-  /**
-   * @param url the capture command to set
-   */
-  public void setCaptureCmd(String cmd) {
-    this.captureCmd = cmd;
-  }
-
-    /**
    * @return String return the capture directory
    */
   public String getCaptureDir() {
@@ -95,20 +100,6 @@ public class AudioConfig extends DataSourceConfig {
    */
   public void setCaptureDir(String dir) {
     this.captureDir = dir;
-  }
-
-  /**
-   * @return String return the audio url
-   */
-  public String getAudioUrl() {
-    return audioUrl;
-  }
-
-  /**
-   * @param url the audio url to set
-   */
-  public void setAudioUrl(String url) {
-    this.audioUrl = url;
   }
 
   /**
@@ -140,20 +131,6 @@ public class AudioConfig extends DataSourceConfig {
   }
 
   /**
-   * @return String return the clip duration
-   */
-  public String getClipDuration() {
-    return clipDuration;
-  }
-
-  /**
-   * @param url the clip duration to set
-   */
-  public void setClipDuration(String duration) {
-    this.clipDuration = duration;
-  }
-
-  /**
    * @return String return the clip directory
    */
   public String getClipDir() {
@@ -168,19 +145,58 @@ public class AudioConfig extends DataSourceConfig {
   }
 
   /**
-   * @return String return the stream timeout
+   * @return String return the name of the parent service
    */
-  public long getStreamTimeout() {
-    return streamTimeout;
+  public String getCaptureService() {
+    return captureService;
   }
 
   /**
-   * @param url the stream timeout to set
+   * @param service The name of the parent service
    */
-  public void setStreamTimeout(long timeout) {
-    this.streamTimeout = timeout;
+  public void setCaptureService(String service) {
+    this.captureService = service;
   }
 
+  /**
+   * @return String return the data source service
+   */
+  public IDataSourceService getDataService() {
+    return dataService;
+  }
 
+  /**
+   * @param service The data source service to use
+   */
+  public void setDataService(IDataSourceService service) {
+    this.dataService = service;
+  }
 
+  /**
+   * @return String return the name of the audio service
+   */
+  public String getAudioService() {
+    return this.audioService;
+  }
+
+  /**
+   * @param service The the name of the audio service to use
+   */
+  public void setAudioService(String service) {
+    this.audioService = service;
+  }
+
+  /**
+   * @return String return the timezone of the audio service
+   */
+  public String getTimezone() {
+    return this.timeZone;
+  }
+
+  /**
+   * @param timeZone The timezone to use
+   */
+  public void setTimezone(String timeZone) {
+    this.timeZone = timeZone;
+  }
 }

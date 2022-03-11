@@ -1,5 +1,6 @@
 package ca.bc.gov.tno.services.audio.kafka;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -20,7 +21,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import ca.bc.gov.tno.dal.db.KafkaMessageStatus;
+import ca.bc.gov.tno.dal.db.WorkflowStatus;
 import ca.bc.gov.tno.dal.db.entities.ContentReference;
 import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
 import ca.bc.gov.tno.models.SourceContent;
@@ -77,10 +78,11 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
   @Override
   public void onApplicationEvent(ProducerSendEvent event) {
     try {
-      var config = event.getConfig();
+      var dataSource = event.getDataSource();
+      var schedule = event.getSchedule();
       send(event);
 
-      var doneEvent = new TransactionCompleteEvent<>(event.getSource(), config);
+      var doneEvent = new TransactionCompleteEvent(event.getSource(), dataSource, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
       var errorEvent = new ErrorEvent(this, ex);
@@ -90,7 +92,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
   }
 
   /**
-   * Push the content stub into Kafka.
+   * Push the content stub into Kafka if clip extraction was successful.
    * 
    * @param event
    * @throws ExecutionException
@@ -99,22 +101,22 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
   public void send(ProducerSendEvent event) throws InterruptedException, ExecutionException {
     var clip = event.getData();
 
-    var config = event.getConfig();
+    var config = event.getDataSource();
     var source = config.getId();
     var topic = config.getTopic();
 
     try {
       logger.info(String.format("New audio content extracted: '%s', topic: %s", clip, topic));
       var contentReference = new ContentReference(source, clip, topic);
-      contentReference.setPublishedOn(new Date());
-      contentReference.setSourceUpdatedOn(new Date());
+      contentReference.setPublishedOn(ZonedDateTime.now());
+      contentReference.setSourceUpdatedOn(ZonedDateTime.now());
 
       var record = new PublishedRecord(publishEntry(event, clip), contentReference);
       var meta = record.getFutureRecordMetadata().get();
 
       contentReference.setPartition(meta.partition());
       contentReference.setOffset(meta.offset());
-      contentReference.setStatus(KafkaMessageStatus.Received);
+      contentReference.setStatus(WorkflowStatus.Received);
 
       logger.info(String.format("Audio content added: '%s', topic: %s, partition: %s, offset: %s",
       clip, meta.topic(), meta.partition(), meta.offset()));
@@ -136,7 +138,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
    */
   private Future<RecordMetadata> publishEntry(ProducerSendEvent event, String entry) {
     try {
-      var config = event.getConfig();
+      var config = event.getDataSource();
       var topic = config.getTopic();
       var content = generateContent(event, entry);
       var key = String.format("%s-%s", content.getSource(), content.getUid());
@@ -158,7 +160,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
    */
   private SourceContent generateContent(ProducerSendEvent event, String entry) {
 
-    var config = event.getConfig();
+    var config = event.getDataSource();
 
     var content = new SourceContent();
     content.setSource(entry);
@@ -171,7 +173,6 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
     content.setCopyright(config.getId());
     content.setSummary("Streaming audio clip from station: " + config.getId());
     content.setFilePath(entry);
-    content.setStreamUrl(config.getAudioUrl());
     content.setBody("none");
     content.setType(ContentType.audio);
     content.setLanguage("en"); // TODO: Clean up languages.
