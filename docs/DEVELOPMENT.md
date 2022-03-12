@@ -54,7 +54,7 @@ This can be helpful if your computer's performance is unable to support developm
 | [nvm](https://github.com/coreybutler/nvm-windows#node-version-manager-nvm-for-windows)                                                               |          | Required if you need to support different versions of node |
 | [npm](https://docs.npmjs.com/cli/v7/configuring-npm/install)                                                                                         |   7.24.0 |                                                            |
 | [yarn](https://classic.yarnpkg.com/en/docs/install/#windows-stable)                                                                                  |  v1.22.5 |                                                            |
-| [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA) |       11 |                                                            |
+| [jdk](https://docs.oracle.com/en/java/javase/11/install/installation-jdk-microsoft-windows-platforms.html#GUID-A7E27B90-A28D-4237-9383-A58B416071CA) |   17.0.2 |                                                            |
 | [maven](http://maven.apache.org/install.html)                                                                                                        |    3.8.2 |                                                            |
 
 ## Standup Local Environment

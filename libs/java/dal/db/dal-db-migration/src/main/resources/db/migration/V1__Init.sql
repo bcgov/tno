@@ -290,8 +290,8 @@ CREATE TRIGGER tr_audit_data_source_schedule BEFORE INSERT OR UPDATE ON public.d
 CREATE SEQUENCE IF NOT EXISTS public.seq_content_reference_version AS BIGINT INCREMENT BY 1 START 1;
 CREATE TABLE IF NOT EXISTS public.content_reference
 (
-  "source" VARCHAR(50) NOT NULL,
-  "uid" VARCHAR(100) NOT NULL,
+  "source" VARCHAR(100) NOT NULL,
+  "uid" VARCHAR(250) NOT NULL,
   "topic" VARCHAR(50) NOT NULL,
   "partition" INT NOT NULL DEFAULT -1,
   "offset" BIGINT NOT NULL DEFAULT -1,
@@ -316,8 +316,8 @@ CREATE SEQUENCE IF NOT EXISTS public.seq_content_reference_log AS INT INCREMENT 
 CREATE TABLE IF NOT EXISTS public.content_reference_log
 (
   "id" INT NOT NULL DEFAULT nextval('seq_content_reference_log'),
-  "source" VARCHAR(50) NOT NULL,
-  "uid" VARCHAR(100) NOT NULL,
+  "source" VARCHAR(100) NOT NULL,
+  "uid" VARCHAR(250) NOT NULL,
   "status" INT NOT NULL,
   "message" VARCHAR(500) NOT NULL,
   -- Audit Columns
@@ -565,9 +565,9 @@ CREATE TABLE IF NOT EXISTS public.content
   "series_id" INT,
   "data_source_id" INT,
   "source" VARCHAR(100) NOT NULL DEFAULT '',
-  "uid" VARCHAR(100) NOT NULL DEFAULT '',
-  "headline" VARCHAR(500) NOT NULL,
-  "page" VARCHAR(10) NOT NULL,
+  "uid" VARCHAR(250) NOT NULL DEFAULT '',
+  "headline" VARCHAR(1000) NOT NULL,
+  "page" VARCHAR(50) NOT NULL,
   "published_on" TIMESTAMP WITH TIME ZONE,
   "summary" TEXT NOT NULL DEFAULT '',
   "source_url" VARCHAR(500) NOT NULL DEFAULT '',
@@ -1125,6 +1125,18 @@ INSERT INTO public.media_type (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+  'Newspaper' -- 17
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Internet' -- 18
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 INSERT INTO public.data_location (
@@ -1173,6 +1185,13 @@ INSERT INTO public.license (
   , "updated_by_id"
   , "updated_by"
 ) VALUES (
+  'Never Expire'
+  , 0 -- ttl
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
   'Regular Expire'
   , 90 -- ttl
   , DEFAULT_USER_ID
@@ -1182,13 +1201,6 @@ INSERT INTO public.license (
 ), (
   'Special Expire'
   , 150 -- ttl
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Never Expire'
-  , 0 -- ttl
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

@@ -2,35 +2,35 @@ export enum WorkflowStatus {
   /**
    * Content has failed to be added to TNO.
    */
-  Failed = 'Failed',
+  Failed = -1,
   /**
    * Content has been received from data source and is in progress of being
    * ingested. It has not yet been added to TNO.
    */
-  InProgress = 'InProgress',
+  InProgress = 0,
   /**
    * Content has been received by TNO, but is not searchable.
    */
-  Received = 'Received',
+  Received = 1,
   /**
    * Content has been received and transcribed in TNO but is not yet searchable.
    */
-  Transcribed = 'Transcribed',
+  Transcribed = 2,
   /**
    * Content has been received and Natural Language Processed in TNO but is not
    * yet searchable.
    */
-  NLP = 'NLP',
+  NLP = 3,
   /**
    * Content has successfully been added to TNO, and is searchable.
    */
-  Success = 'Success',
+  Success = 4,
   /**
    * Content has been published.
    */
-  Published = 'Published',
+  Published = 5,
   /**
    * Content has been unpublished.
    */
-  Unpublished = 'Unpublished',
+  Unpublished = 6,
 }

@@ -430,7 +430,7 @@ KAFKA_LOGS_TOPIC=logs-capture
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 KAFKA_CLIENT_ID=audio-capture-01
 
-MAX_FAILED_ATTEMPTS=5" >> ./services/audio/.env
+MAX_FAILED_ATTEMPTS=5" >> ./services/capture/.env
     echo "./services/capture/.env created"
 fi
 
