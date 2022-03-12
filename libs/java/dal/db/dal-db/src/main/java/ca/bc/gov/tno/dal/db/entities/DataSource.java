@@ -50,6 +50,12 @@ public class DataSource extends AuditColumns {
   private String name;
 
   /**
+   * A unique short name to identify the data source.
+   */
+  @Column(name = "short_name", nullable = false)
+  private String shortName = "";
+
+  /**
    * A unique abbreviation to identify the data source. This is used in the
    * content reference table.
    */
@@ -83,6 +89,20 @@ public class DataSource extends AuditColumns {
   private MediaType mediaType;
 
   /**
+   * Foreign key to the data location.
+   */
+  @Column(name = "data_location_id", nullable = false)
+  private int dataLocationId;
+
+  /**
+   * The data location reference.
+   */
+  @JsonBackReference("dataLocation")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "data_location_id", insertable = false, updatable = false)
+  private DataLocation dataLocation;
+
+  /**
    * Foreign key to the license.
    */
   @Column(name = "license_id", nullable = false)
@@ -110,10 +130,37 @@ public class DataSource extends AuditColumns {
   private ZonedDateTime lastRanOn;
 
   /**
+   * Number of times service should attempt to connect and read from this data
+   * source before giving up.
+   */
+  @Column(name = "retry_limit", nullable = false)
+  private int retryLimit = 3;
+
+  /**
+   * Number of failed attempts to fetch or read data source.
+   */
+  @Column(name = "failed_attempts", nullable = false)
+  private int failedAttempts = 0;
+
+  /**
+   * Whether this data source should be included in the CBRA report.
+   */
+  @Column(name = "in_cbra", nullable = false)
+  private boolean inCBRA = false;
+
+  /**
+   * Whether this data source should be included in the analysis report.
+   */
+  @Column(name = "in_analysis", nullable = false)
+  private boolean inAnalysis = false;
+
+  /**
    * JSON configuration values for the ingestion services.
    */
+  // TODO: Switch to JSON in DB. Hibernate has issues with JSON which I haven't
+  // been able to solve.
   @Convert(converter = HashMapToStringConverter.class)
-  @Column(name = "connection", nullable = false, columnDefinition = "text") // TODO: Switch to JSON in DB
+  @Column(name = "connection", nullable = false, columnDefinition = "text")
   private Map<String, Object> connection = new HashMap<>();
 
   /**
@@ -145,29 +192,31 @@ public class DataSource extends AuditColumns {
   /**
    * Creates a new instance of a DataSource object, initializes with specified
    * parameters.
-   * 
-   * @param id         The primary key
+   *
    * @param name       The unique name
-   * @param abbr       The unique abbreviation
+   * @param code       The unique abbreviation
    * @param mediaType  Foreign key to the media type
+   * @param location   Foreign key to the data location
    * @param license    Foreign key to the license
    * @param topic      The Kafka topic
    * @param connection The connection information
    */
-  public DataSource(int id, String name, String abbr, MediaType mediaType, License license,
-      String topic, Map<String, Object> connection) {
+  public DataSource(String name, String code, MediaType mediaType, DataLocation location,
+      License license, String topic, Map<String, Object> connection) {
     if (name == null)
       throw new NullPointerException("Parameter 'name' cannot be null.");
     if (name.length() == 0)
       throw new IllegalArgumentException("Parameter 'name' cannot be empty.");
-    if (abbr == null)
-      throw new NullPointerException("Parameter 'abbr' cannot be null.");
-    if (abbr.length() == 0)
-      throw new IllegalArgumentException("Parameter 'abbr' cannot be empty.");
+    if (code == null)
+      throw new NullPointerException("Parameter 'code' cannot be null.");
+    if (code.length() == 0)
+      throw new IllegalArgumentException("Parameter 'code' cannot be empty.");
     if (mediaType == null)
       throw new NullPointerException("Parameter 'mediaType' cannot be null.");
     if (license == null)
       throw new NullPointerException("Parameter 'license' cannot be null.");
+    if (location == null)
+      throw new NullPointerException("Parameter 'location' cannot be null.");
     if (topic == null)
       throw new NullPointerException("Parameter 'topic' cannot be null.");
     if (topic.length() == 0)
@@ -175,10 +224,12 @@ public class DataSource extends AuditColumns {
     if (connection == null)
       throw new NullPointerException("Parameter 'connection' cannot be null.");
 
-    this.id = id;
     this.name = name;
+    this.code = code;
     this.mediaType = mediaType;
     this.mediaTypeId = mediaType.getId();
+    this.dataLocation = location;
+    this.dataLocationId = location.getId();
     this.license = license;
     this.licenseId = license.getId();
     this.topic = topic;
@@ -188,19 +239,118 @@ public class DataSource extends AuditColumns {
   /**
    * Creates a new instance of a DataSource object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id         The primary key
    * @param name       The unique name
-   * @param abbr       The unique abbreviation
+   * @param code       The unique abbreviation
    * @param mediaType  Foreign key to the media type
+   * @param location   Foreign key to the data location
+   * @param license    Foreign key to the license
+   * @param topic      The Kafka topic
+   * @param connection The connection information
+   */
+  public DataSource(int id, String name, String code, MediaType mediaType, DataLocation location,
+      License license, String topic, Map<String, Object> connection) {
+    this(name, code, mediaType, location, license, topic, connection);
+
+    this.id = id;
+  }
+
+  /**
+   * Creates a new instance of a DataSource object, initializes with specified
+   * parameters.
+   *
+   * @param id         The primary key
+   * @param name       The unique name
+   * @param code       The unique abbreviation
+   * @param mediaType  Foreign key to the media type
+   * @param location   Foreign key to the data location
    * @param license    Foreign key to the license
    * @param topic      The Kafka topic
    * @param connection The connection information
    * @param version    Row version value
    */
-  public DataSource(int id, String name, String abbr, MediaType mediaType, License license,
-      String topic, Map<String, Object> connection, int version) {
-    this(id, name, abbr, mediaType, license, topic, connection);
+  public DataSource(int id, String name, String code, MediaType mediaType, DataLocation location,
+      License license, String topic, Map<String, Object> connection, int version) {
+    this(id, name, code, mediaType, location, license, topic, connection);
+    this.setVersion(version);
+  }
+
+  /**
+   * Creates a new instance of a DataSource object, initializes with specified
+   * parameters.
+   *
+   * @param name        The unique name
+   * @param code        The unique abbreviation
+   * @param mediaTypeId Foreign key to the media type
+   * @param locationId  Foreign key to the data location
+   * @param licenseId   Foreign key to the license
+   * @param topic       The Kafka topic
+   * @param connection  The connection information
+   */
+  public DataSource(String name, String code, int mediaTypeId, int locationId,
+      int licenseId, String topic, Map<String, Object> connection) {
+    if (name == null)
+      throw new NullPointerException("Parameter 'name' cannot be null.");
+    if (name.length() == 0)
+      throw new IllegalArgumentException("Parameter 'name' cannot be empty.");
+    if (code == null)
+      throw new NullPointerException("Parameter 'code' cannot be null.");
+    if (code.length() == 0)
+      throw new IllegalArgumentException("Parameter 'code' cannot be empty.");
+    if (topic == null)
+      throw new NullPointerException("Parameter 'topic' cannot be null.");
+    if (topic.length() == 0)
+      throw new IllegalArgumentException("Parameter 'topic' cannot be empty.");
+    if (connection == null)
+      throw new NullPointerException("Parameter 'connection' cannot be null.");
+
+    this.name = name;
+    this.code = code;
+    this.mediaTypeId = mediaTypeId;
+    this.dataLocationId = locationId;
+    this.licenseId = licenseId;
+    this.topic = topic;
+    this.connection = connection;
+  }
+
+  /**
+   * Creates a new instance of a DataSource object, initializes with specified
+   * parameters.
+   *
+   * @param id          The primary key
+   * @param name        The unique name
+   * @param code        The unique abbreviation
+   * @param mediaTypeId Foreign key to the media type
+   * @param locationId  Foreign key to the data location
+   * @param licenseId   Foreign key to the license
+   * @param topic       The Kafka topic
+   * @param connection  The connection information
+   */
+  public DataSource(int id, String name, String code, int mediaTypeId, int locationId,
+      int licenseId, String topic, Map<String, Object> connection) {
+    this(name, code, mediaTypeId, locationId, licenseId, topic, connection);
+
+    this.id = id;
+  }
+
+  /**
+   * Creates a new instance of a DataSource object, initializes with specified
+   * parameters.
+   *
+   * @param id          The primary key
+   * @param name        The unique name
+   * @param code        The unique abbreviation
+   * @param mediaTypeId Foreign key to the media type
+   * @param locationId  Foreign key to the data location
+   * @param licenseId   Foreign key to the license
+   * @param topic       The Kafka topic
+   * @param connection  The connection information
+   * @param version     Row version value
+   */
+  public DataSource(int id, String name, String code, int mediaTypeId, int locationId,
+      int licenseId, String topic, Map<String, Object> connection, int version) {
+    this(id, name, code, mediaTypeId, locationId, licenseId, topic, connection);
     this.setVersion(version);
   }
 
@@ -233,6 +383,34 @@ public class DataSource extends AuditColumns {
   }
 
   /**
+   * @return String return the shortName
+   */
+  public String getShortName() {
+    return shortName;
+  }
+
+  /**
+   * @param shortName the shortName to set
+   */
+  public void setShortName(String shortName) {
+    this.shortName = shortName;
+  }
+
+  /**
+   * @return String return the code
+   */
+  public String getCode() {
+    return code;
+  }
+
+  /**
+   * @param code the code to set
+   */
+  public void setCode(String code) {
+    this.code = code;
+  }
+
+  /**
    * @return String return the description
    */
   public String getDescription() {
@@ -258,20 +436,6 @@ public class DataSource extends AuditColumns {
    */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-  }
-
-  /**
-   * @return String return the code
-   */
-  public String getCode() {
-    return code;
-  }
-
-  /**
-   * @param code the code to set
-   */
-  public void setCode(String code) {
-    this.code = code;
   }
 
   /**
@@ -303,6 +467,20 @@ public class DataSource extends AuditColumns {
   }
 
   /**
+   * @return int return the mediaTypeId
+   */
+  public int getMediaTypeId() {
+    return mediaTypeId;
+  }
+
+  /**
+   * @param mediaTypeId the mediaTypeId to set
+   */
+  public void setMediaTypeId(int mediaTypeId) {
+    this.mediaTypeId = mediaTypeId;
+  }
+
+  /**
    * @return MediaType return the media type
    */
   public MediaType getMediaType() {
@@ -317,31 +495,31 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return License return the license
+   * @return int return the dataLocationId
    */
-  public License getLicense() {
-    return license;
+  public int getDataLocationId() {
+    return dataLocationId;
   }
 
   /**
-   * @param license the license to set
+   * @param dataLocationId the dataLocationId to set
    */
-  public void setLicense(License license) {
-    this.license = license;
+  public void setDataLocationId(int dataLocationId) {
+    this.dataLocationId = dataLocationId;
   }
 
   /**
-   * @return int return the mediaTypeId
+   * @return DataLocation return the data location
    */
-  public int getMediaTypeId() {
-    return mediaTypeId;
+  public DataLocation getDataLocation() {
+    return dataLocation;
   }
 
   /**
-   * @param mediaTypeId the mediaTypeId to set
+   * @param dataLocation the data location to set
    */
-  public void setMediaTypeId(int mediaTypeId) {
-    this.mediaTypeId = mediaTypeId;
+  public void setDataLocation(DataLocation dataLocation) {
+    this.dataLocation = dataLocation;
   }
 
   /**
@@ -359,6 +537,20 @@ public class DataSource extends AuditColumns {
   }
 
   /**
+   * @return License return the license
+   */
+  public License getLicense() {
+    return license;
+  }
+
+  /**
+   * @param license the license to set
+   */
+  public void setLicense(License license) {
+    this.license = license;
+  }
+
+  /**
    * @return Map{String, Object} return the connection
    */
   public Map<String, Object> getConnection() {
@@ -370,20 +562,6 @@ public class DataSource extends AuditColumns {
    */
   public void setConnection(Map<String, Object> connection) {
     this.connection = connection;
-  }
-
-  /**
-   * @return List{DataSourceSchedule} return the dataSourceSchedules
-   */
-  public List<DataSourceSchedule> getDataSourceSchedules() {
-    return dataSourceSchedules;
-  }
-
-  /**
-   * @param dataSourceSchedules the dataSourceSchedules to set
-   */
-  public void setDataSourceSchedules(List<DataSourceSchedule> dataSourceSchedules) {
-    this.dataSourceSchedules = dataSourceSchedules;
   }
 
   /**
@@ -412,6 +590,76 @@ public class DataSource extends AuditColumns {
    */
   public void setParent(DataSource parent) {
     this.parent = parent;
+  }
+
+  /**
+   * @return int return the retryLimit
+   */
+  public int getRetryLimit() {
+    return retryLimit;
+  }
+
+  /**
+   * @param retryLimit the retryLimit to set
+   */
+  public void setRetryLimit(int retryLimit) {
+    this.retryLimit = retryLimit;
+  }
+
+  /**
+   * @return int return the failedAttempts
+   */
+  public int getFailedAttempts() {
+    return failedAttempts;
+  }
+
+  /**
+   * @param failedAttempts the failedAttempts to set
+   */
+  public void setFailedAttempts(int failedAttempts) {
+    this.failedAttempts = failedAttempts;
+  }
+
+  /**
+   * @return boolean return the inCBRA
+   */
+  public boolean inCBRA() {
+    return inCBRA;
+  }
+
+  /**
+   * @param inCBRA the inCBRA to set
+   */
+  public void setInCBRA(boolean inCBRA) {
+    this.inCBRA = inCBRA;
+  }
+
+  /**
+   * @return boolean return the inAnalysis
+   */
+  public boolean inAnalysis() {
+    return inAnalysis;
+  }
+
+  /**
+   * @param inAnalysis the inAnalysis to set
+   */
+  public void setInAnalysis(boolean inAnalysis) {
+    this.inAnalysis = inAnalysis;
+  }
+
+  /**
+   * @return List{DataSourceSchedule} return the dataSourceSchedules
+   */
+  public List<DataSourceSchedule> getDataSourceSchedules() {
+    return dataSourceSchedules;
+  }
+
+  /**
+   * @param dataSourceSchedules the dataSourceSchedules to set
+   */
+  public void setDataSourceSchedules(List<DataSourceSchedule> dataSourceSchedules) {
+    this.dataSourceSchedules = dataSourceSchedules;
   }
 
 }

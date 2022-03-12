@@ -407,6 +407,7 @@ KAFKA_CLIENT_ID=syndication-01
 MAX_FAILED_ATTEMPTS=5
 
 DATA_SOURCE_MEDIA_TYPE=Syndication
+DATA_SOURCE_LOCATION=Internet
 # DATA_SOURCE_ID=GHI
 # DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
 # DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/.env

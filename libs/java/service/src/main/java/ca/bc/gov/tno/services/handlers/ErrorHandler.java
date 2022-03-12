@@ -1,4 +1,4 @@
-package ca.bc.gov.tno.services;
+package ca.bc.gov.tno.services.handlers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
+import ca.bc.gov.tno.services.ServiceState;
+import ca.bc.gov.tno.services.ServiceStatus;
 import ca.bc.gov.tno.services.config.ServiceConfig;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.events.ServiceStartEvent;

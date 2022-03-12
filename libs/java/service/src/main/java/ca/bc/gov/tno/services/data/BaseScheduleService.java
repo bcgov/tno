@@ -139,9 +139,12 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
         }
 
         if (state.getStatus() == ServiceStatus.running) {
-          // Reset index to start over.
-          if (index == sourceConfigs.getSources().size())
+          if (index == sourceConfigs.getSources().size()) {
+            // Reset index and reinitialize configuration to start over.
+            // This enables the ability to add and remove data sources dynamically.
             index = 0;
+            initConfigs();
+          }
 
           if (sourceConfigs.getSources().size() == 0) {
             state.setStatus(ServiceStatus.sleeping);
@@ -151,8 +154,15 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
           }
 
           var dataSource = (C) sourceConfigs.getSources().get(index);
-          // Make request to TNO DB for data source configuration settings.
+          // Make request to TNO DB for most recent version of the data source
+          // configuration settings.
           dataSource = fetchDataSource(dataSource);
+
+          // This data source has failed too many times, ignore it and move on.
+          if (dataSource.getFailedAttempts() >= dataSource.getMaxFailedAttempts()) {
+            logger.debug(String.format("Data source has failed too many times: %s", dataSource.getId()));
+            continue;
+          }
 
           // Determine if the data source should be imported based on the configured
           // schedule.

@@ -22,6 +22,7 @@ import org.springframework.http.converter.feed.RssChannelHttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
@@ -52,13 +53,18 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private Object caller;
   private SyndicationConfig dataSource;
   private ScheduleConfig schedule;
+  private final IDataSourceService dataSourceService;
 
   /**
    * Create a new instance of a FetchDataService object.
+   * 
+   * @param eventPublisher    Application event publisher object.
+   * @param dataSourceService DAL data source service object.
    */
   @Autowired
-  public FetchDataService(final ApplicationEventPublisher eventPublisher) {
+  public FetchDataService(final ApplicationEventPublisher eventPublisher, final IDataSourceService dataSourceService) {
     this.eventPublisher = eventPublisher;
+    this.dataSourceService = dataSourceService;
 
     this.headers = new HttpHeaders();
     this.headers.add("Accept", "*/*");
@@ -113,17 +119,32 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       }
 
     } catch (RestClientException ex) {
+      updateDataSource();
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
     } catch (IOException ex) {
+      updateDataSource();
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
     } catch (IllegalArgumentException ex) {
+      updateDataSource();
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
     } catch (FeedException ex) {
+      updateDataSource();
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
+    }
+  }
+
+  // TODO: Refactor to be part of the shared service package so that all services
+  // inherit functionality.
+  private void updateDataSource() {
+    var ds = dataSourceService.findByCode(this.dataSource.getId());
+    if (ds.isPresent()) {
+      var entity = ds.get();
+      var failedAttempts = entity.getFailedAttempts();
+      entity.setFailedAttempts(++failedAttempts);
     }
   }
 }

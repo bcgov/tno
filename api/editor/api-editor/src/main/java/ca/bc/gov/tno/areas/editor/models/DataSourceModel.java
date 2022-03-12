@@ -21,6 +21,11 @@ public class DataSourceModel extends AuditColumnModel {
   private String name;
 
   /**
+   * A unique short name to identify the data source.
+   */
+  private String shortName;
+
+  /**
    * A unique abbreviation to identify the data source. This is used in the
    * content reference table.
    */
@@ -45,6 +50,16 @@ public class DataSourceModel extends AuditColumnModel {
    * The media type reference.
    */
   private MediaTypeModel mediaType;
+
+  /**
+   * Foreign key to the c.
+   */
+  private int dataLocationId;
+
+  /**
+   * The dataLocation reference.
+   */
+  private DataLocationModel dataLocation;
 
   /**
    * Foreign key to the license.
@@ -77,6 +92,27 @@ public class DataSourceModel extends AuditColumnModel {
   private ZonedDateTime lastRanOn;
 
   /**
+   * Number of times service should attempt to connect and read from this data
+   * source before giving up.
+   */
+  private int retryLimit = 3;
+
+  /**
+   * Number of failed attempts to fetch or read data source.
+   */
+  private int failedAttempts = 0;
+
+  /**
+   * Whether this data source should be included in the CBRA report.
+   */
+  private boolean inCBRA = false;
+
+  /**
+   * Whether this data source should be included in the analysis report.
+   */
+  private boolean inAnalysis = false;
+
+  /**
    * JSON configuration values for the ingestion services.
    */
   private Map<String, Object> connection = new HashMap<>();
@@ -95,14 +131,21 @@ public class DataSourceModel extends AuditColumnModel {
     if (entity != null) {
       this.id = entity.getId();
       this.name = entity.getName();
+      this.shortName = entity.getShortName();
       this.description = entity.getDescription();
       this.enabled = entity.isEnabled();
       this.mediaTypeId = entity.getMediaTypeId();
       this.mediaType = new MediaTypeModel(entity.getMediaType());
+      this.dataLocationId = entity.getDataLocationId();
+      this.dataLocation = new DataLocationModel(entity.getDataLocation());
       this.licenseId = entity.getLicenseId();
       this.license = new LicenseModel(entity.getLicense());
       this.topic = entity.getTopic();
       this.lastRanOn = entity.getLastRanOn();
+      this.retryLimit = entity.getRetryLimit();
+      this.failedAttempts = entity.getFailedAttempts();
+      this.inCBRA = entity.inCBRA();
+      this.inAnalysis = entity.inAnalysis();
       this.connection = entity.getConnection();
       this.schedules
           .addAll(entity.getDataSourceSchedules().stream().filter((dss) -> dss.getSchedule() != null)
@@ -136,6 +179,20 @@ public class DataSourceModel extends AuditColumnModel {
    */
   public void setName(String name) {
     this.name = name;
+  }
+
+  /**
+   * @return String return the shortName
+   */
+  public String getShortName() {
+    return shortName;
+  }
+
+  /**
+   * @param shortName the shortName to set
+   */
+  public void setShortName(String shortName) {
+    this.shortName = shortName;
   }
 
   /**
@@ -206,6 +263,34 @@ public class DataSourceModel extends AuditColumnModel {
    */
   public void setMediaType(MediaTypeModel mediaType) {
     this.mediaType = mediaType;
+  }
+
+  /**
+   * @return int return the dataLocationId
+   */
+  public int getDataLocationId() {
+    return dataLocationId;
+  }
+
+  /**
+   * @param dataLocationId the dataLocationId to set
+   */
+  public void setDataLocationId(int dataLocationId) {
+    this.dataLocationId = dataLocationId;
+  }
+
+  /**
+   * @return DataLocationModel return the dataLocation
+   */
+  public DataLocationModel getDataLocation() {
+    return dataLocation;
+  }
+
+  /**
+   * @param dataLocation the dataLocation to set
+   */
+  public void setDataLocation(DataLocationModel dataLocation) {
+    this.dataLocation = dataLocation;
   }
 
   /**
@@ -290,6 +375,62 @@ public class DataSourceModel extends AuditColumnModel {
    */
   public void setLastRanOn(ZonedDateTime lastRanOn) {
     this.lastRanOn = lastRanOn;
+  }
+
+  /**
+   * @return int return the retryLimit
+   */
+  public int getRetryLimit() {
+    return retryLimit;
+  }
+
+  /**
+   * @param retryLimit the retryLimit to set
+   */
+  public void setRetryLimit(int retryLimit) {
+    this.retryLimit = retryLimit;
+  }
+
+  /**
+   * @return int return the failedAttempts
+   */
+  public int getFailedAttempts() {
+    return failedAttempts;
+  }
+
+  /**
+   * @param failedAttempts the failedAttempts to set
+   */
+  public void setFailedAttempts(int failedAttempts) {
+    this.failedAttempts = failedAttempts;
+  }
+
+  /**
+   * @return boolean return the inCBRA
+   */
+  public boolean inCBRA() {
+    return inCBRA;
+  }
+
+  /**
+   * @param inCBRA the inCBRA to set
+   */
+  public void setInCBRA(boolean inCBRA) {
+    this.inCBRA = inCBRA;
+  }
+
+  /**
+   * @return boolean return the inAnalysis
+   */
+  public boolean inAnalysis() {
+    return inAnalysis;
+  }
+
+  /**
+   * @param inAnalysis the inAnalysis to set
+   */
+  public void setInAnalysis(boolean inAnalysis) {
+    this.inAnalysis = inAnalysis;
   }
 
   /**

@@ -14,41 +14,41 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
-import ca.bc.gov.tno.dal.db.entities.MediaType;
+import ca.bc.gov.tno.dal.db.services.interfaces.IDataLocationService;
+import ca.bc.gov.tno.dal.db.entities.DataLocation;
 
 /**
- * Endpoints to communicate with the TNO DB data media types.
+ * Endpoints to communicate with the TNO DB data data locations.
  */
 @RolesAllowed("administrator")
-@RestController("AdminMediaTypeController")
-@RequestMapping({ "/admin/media/types", "/api/admin/media/types" })
-public class MediaTypeController {
+@RestController("AdminDataLocationController")
+@RequestMapping({ "/admin/data/locations", "/api/admin/data/locations" })
+public class DataLocationController {
 
   @Autowired
-  private IMediaTypeService mediaTypeService;
+  private IDataLocationService dataLocationService;
 
   /**
-   * Request a list of all data media types from the db.
+   * Request a list of all data data locations from the db.
    *
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-  public List<MediaType> findAll() {
-    var mediaType = mediaTypeService.findAll();
-    return mediaType;
+  public List<DataLocation> findAll() {
+    var dataLocation = dataLocationService.findAll();
+    return dataLocation;
   }
 
   /**
-   * Request a list of all data media types from the db.
+   * Request a list of all data data locations from the db.
    *
    * @param id The primary key.
    * @return
    */
   @GetMapping(path = "/{id}", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-  public MediaType findById(@PathVariable(required = true) Integer id) {
-    var mediaType = mediaTypeService.findById(id).orElse(null);
-    return mediaType;
+  public DataLocation findById(@PathVariable(required = true) Integer id) {
+    var dataLocation = dataLocationService.findById(id).orElse(null);
+    return dataLocation;
   }
 
   /**
@@ -59,9 +59,9 @@ public class MediaTypeController {
    */
   @PostMapping(path = { "",
       "/" }, consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-  public MediaType add(@RequestBody MediaType model) {
-    var mediaType = mediaTypeService.add(model);
-    return mediaType;
+  public DataLocation add(@RequestBody DataLocation model) {
+    var dataLocation = dataLocationService.add(model);
+    return dataLocation;
   }
 
   /**
@@ -72,9 +72,9 @@ public class MediaTypeController {
    * @return
    */
   @PutMapping(path = "/{id}", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-  public MediaType update(@PathVariable Integer id, @RequestBody MediaType model) {
-    var mediaType = mediaTypeService.update(model);
-    return mediaType;
+  public DataLocation update(@PathVariable Integer id, @RequestBody DataLocation model) {
+    var dataLocation = dataLocationService.update(model);
+    return dataLocation;
   }
 
   /**
@@ -85,8 +85,8 @@ public class MediaTypeController {
    * @return
    */
   @DeleteMapping(path = "/{id}", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE, produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
-  public MediaType delete(@PathVariable Integer id, @RequestBody MediaType model) {
-    mediaTypeService.delete(model);
+  public DataLocation delete(@PathVariable Integer id, @RequestBody DataLocation model) {
+    dataLocationService.delete(model);
     return model;
   }
 

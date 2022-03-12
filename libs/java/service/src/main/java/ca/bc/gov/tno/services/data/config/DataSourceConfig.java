@@ -21,9 +21,14 @@ public class DataSourceConfig {
   private String id;
 
   /**
-   * The data source type (i.e. RSS, ATOM, Newspaper, Radio News, ...).
+   * The data source type (i.e. Syndication, Newspaper, Radio News, ...).
    */
   private String mediaType;
+
+  /**
+   * The data source location (i.e. Internet, Streaming, SFTP, NAS, ...).
+   */
+  private String dataLocation;
 
   /**
    * Whether the data source is enabled.
@@ -47,6 +52,16 @@ public class DataSourceConfig {
   private int ranCounter;
 
   /**
+   * Maximum number of attempts after a failure.
+   */
+  private int maxFailedAttempts;
+
+  /**
+   * Maximum number of failed attempts.
+   */
+  private int failedAttempts;
+
+  /**
    * An array of schedules for this data source.
    */
   private List<ScheduleConfig> schedules = new ArrayList<>();
@@ -68,18 +83,23 @@ public class DataSourceConfig {
     if (dataSource == null)
       throw new IllegalArgumentException("Parameter 'dataSource' is required.");
 
-    setId(dataSource.getCode());
-    setTopic(dataSource.getTopic());
-    setLastRanOn(dataSource.getLastRanOn());
+    this.id = dataSource.getCode();
+    this.topic = dataSource.getTopic();
+    this.lastRanOn = dataSource.getLastRanOn();
+    this.maxFailedAttempts = dataSource.getRetryLimit();
+    this.failedAttempts = dataSource.getFailedAttempts();
 
     var type = dataSource.getMediaType();
-    setMediaType(type.getName());
+    this.mediaType = type.getName();
+
+    var location = dataSource.getDataLocation();
+    this.dataLocation = location.getName();
 
     schedules.addAll(
         dataSource.getDataSourceSchedules().stream().map((dss) -> new ScheduleConfig(dss.getSchedule())).toList());
 
     var license = dataSource.getLicense();
-    setEnabled(dataSource.isEnabled() && type.isEnabled() && license.isEnabled());
+    this.enabled = dataSource.isEnabled() && type.isEnabled() && license.isEnabled() && location.isEnabled();
   }
 
   /**
@@ -108,6 +128,20 @@ public class DataSourceConfig {
    */
   public void setMediaType(String mediaType) {
     this.mediaType = mediaType;
+  }
+
+  /**
+   * @return String return the data location
+   */
+  public String getDataLocation() {
+    return dataLocation;
+  }
+
+  /**
+   * @param dataLocation the dataLocation to set
+   */
+  public void setDataLocation(String dataLocation) {
+    this.dataLocation = dataLocation;
   }
 
   /**
@@ -164,6 +198,34 @@ public class DataSourceConfig {
    */
   public void setRanCounter(int ranCounter) {
     this.ranCounter = ranCounter;
+  }
+
+  /**
+   * @return int return the maxFailedAttempts
+   */
+  public int getMaxFailedAttempts() {
+    return maxFailedAttempts;
+  }
+
+  /**
+   * @param maxFailedAttempts the maxFailedAttempts to set
+   */
+  public void setMaxFailedAttempts(int maxFailedAttempts) {
+    this.maxFailedAttempts = maxFailedAttempts;
+  }
+
+  /**
+   * @return int return the failedAttempts
+   */
+  public int getFailedAttempts() {
+    return failedAttempts;
+  }
+
+  /**
+   * @param failedAttempts the failedAttempts to set
+   */
+  public void setFailedAttempts(int failedAttempts) {
+    this.failedAttempts = failedAttempts;
   }
 
   /**
