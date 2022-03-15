@@ -9,6 +9,14 @@ import * as styled from './styled';
  * @param style pass further CSS properties
  * @returns
  */
-export const Row: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, style }) => {
-  return <styled.Row style={style}>{children}</styled.Row>;
+export const Row: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  children,
+  style,
+  className,
+}) => {
+  return (
+    <styled.Row className={className} style={style}>
+      {children}
+    </styled.Row>
+  );
 };
