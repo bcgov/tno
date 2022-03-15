@@ -1,5 +1,7 @@
 package ca.bc.gov.tno.areas.editor.models;
 
+import javax.persistence.Persistence;
+
 import ca.bc.gov.tno.dal.db.entities.TonePool;
 import ca.bc.gov.tno.models.AuditColumnModel;
 
@@ -65,11 +67,14 @@ public class TonePoolModel extends AuditColumnModel {
     super(entity);
 
     if (entity != null) {
+      var putil = Persistence.getPersistenceUtil();
+
       this.id = entity.getId();
       this.name = entity.getName();
       this.description = entity.getDescription();
       this.ownerId = entity.getOwnerId();
-      this.owner = new UserModel(entity.getOwner());
+      if (putil.isLoaded(entity, "owner"))
+        this.owner = new UserModel(entity.getOwner());
       this.shared = entity.isShared();
       this.enabled = entity.isEnabled();
       this.sortOrder = entity.getSortOrder();

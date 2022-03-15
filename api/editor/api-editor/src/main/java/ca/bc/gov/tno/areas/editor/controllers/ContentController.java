@@ -49,7 +49,7 @@ public class ContentController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public IPaged<ContentModel> findAll(
+  public IPaged<ContentModel> find(
       @RequestParam(required = false) Integer page,
       @RequestParam(required = false) Integer quantity,
       @RequestParam(required = false) LogicalOperators logicalOperator,

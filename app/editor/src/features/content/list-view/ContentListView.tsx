@@ -86,9 +86,8 @@ export const ContentListView: React.FC = () => {
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
-      if (filter.pageIndex !== pi) storeFilter({ ...filter, pageIndex: pi });
-      if (filter.pageSize !== ps)
-        storeFilter({ ...filter, pageSize: ps ?? initialContentState.filter.pageSize });
+      if (filter.pageIndex !== pi || filter.pageSize !== ps)
+        storeFilter({ ...filter, pageIndex: pi, pageSize: ps ?? filter.pageSize });
     },
     [filter, storeFilter],
   );

@@ -1,5 +1,7 @@
 package ca.bc.gov.tno.areas.editor.models;
 
+import javax.persistence.Persistence;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,17 +131,22 @@ public class DataSourceModel extends AuditColumnModel {
     super(entity);
 
     if (entity != null) {
+      var putil = Persistence.getPersistenceUtil();
+
       this.id = entity.getId();
       this.name = entity.getName();
       this.shortName = entity.getShortName();
       this.description = entity.getDescription();
       this.enabled = entity.isEnabled();
       this.mediaTypeId = entity.getMediaTypeId();
-      this.mediaType = new MediaTypeModel(entity.getMediaType());
+      if (putil.isLoaded(entity, "mediaType"))
+        this.mediaType = new MediaTypeModel(entity.getMediaType());
       this.dataLocationId = entity.getDataLocationId();
-      this.dataLocation = new DataLocationModel(entity.getDataLocation());
+      if (putil.isLoaded(entity, "dataLocation"))
+        this.dataLocation = new DataLocationModel(entity.getDataLocation());
       this.licenseId = entity.getLicenseId();
-      this.license = new LicenseModel(entity.getLicense());
+      if (putil.isLoaded(entity, "license"))
+        this.license = new LicenseModel(entity.getLicense());
       this.topic = entity.getTopic();
       this.lastRanOn = entity.getLastRanOn();
       this.retryLimit = entity.getRetryLimit();
@@ -147,9 +154,11 @@ public class DataSourceModel extends AuditColumnModel {
       this.inCBRA = entity.inCBRA();
       this.inAnalysis = entity.inAnalysis();
       this.connection = entity.getConnection();
-      this.schedules
-          .addAll(entity.getDataSourceSchedules().stream().filter((dss) -> dss.getSchedule() != null)
-              .map((dss) -> new ScheduleModel(dss.getSchedule())).toList());
+      if (putil.isLoaded(entity, "dataSourceSchedules"))
+        this.schedules
+            .addAll(entity.getDataSourceSchedules().stream()
+                .filter((dss) -> putil.isLoaded(dss, "schedule") && dss.getSchedule() != null)
+                .map((dss) -> new ScheduleModel(dss.getSchedule())).toList());
     }
   }
 

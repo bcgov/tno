@@ -67,23 +67,31 @@ public class ContentModel extends AuditColumnModel {
     super(entity);
 
     if (entity != null) {
+      var putil = Persistence.getPersistenceUtil();
+
       this.id = entity.getId();
       this.status = entity.getStatus();
       this.workflowStatus = entity.getWorkflowStatus();
       this.contentTypeId = entity.getContentTypeId();
-      this.contentType = new ContentTypeModel(entity.getContentType());
+      if (putil.isLoaded(entity, "contentType"))
+        this.contentType = new ContentTypeModel(entity.getContentType());
       this.mediaTypeId = entity.getMediaTypeId();
-      this.mediaType = new MediaTypeModel(entity.getMediaType());
+      if (putil.isLoaded(entity, "mediaType"))
+        this.mediaType = new MediaTypeModel(entity.getMediaType());
       this.licenseId = entity.getLicenseId();
-      this.license = new LicenseModel(entity.getLicense());
+      if (putil.isLoaded(entity, "license"))
+        this.license = new LicenseModel(entity.getLicense());
       if (entity.getSeriesId() != null) {
         this.seriesId = entity.getSeriesId();
-        this.series = new SeriesModel(entity.getSeries());
+        if (putil.isLoaded(entity, "series"))
+          this.series = new SeriesModel(entity.getSeries());
       }
       this.ownerId = entity.getOwnerId();
-      this.owner = new UserModel(entity.getOwner());
+      if (putil.isLoaded(entity, "owner"))
+        this.owner = new UserModel(entity.getOwner());
       this.dataSourceId = entity.getDataSourceId();
-      this.dataSource = entity.getDataSource() != null ? new DataSourceModel(entity.getDataSource()) : null;
+      if (putil.isLoaded(entity, "dataSource"))
+        this.dataSource = entity.getDataSource() != null ? new DataSourceModel(entity.getDataSource()) : null;
       this.source = entity.getSource();
       this.headline = entity.getHeadline();
       this.uid = entity.getUid();
@@ -93,7 +101,6 @@ public class ContentModel extends AuditColumnModel {
       this.publishedOn = entity.getPublishedOn();
       this.sourceURL = entity.getSourceURL();
 
-      var putil = Persistence.getPersistenceUtil();
       if (putil.isLoaded(entity, "fileReferences")) {
         this.fileReferences = entity.getFileReferences().stream()
             .map((file) -> new FileReferenceModel(file))
