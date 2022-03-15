@@ -6,10 +6,10 @@ import ReactDOM from 'react-dom';
 import * as styled from './styled';
 
 export interface IModalProps {
+  /** function used to toggle the modal visibility */
+  hide: () => void;
   /** boolean value used to determine whether to show the modal or not */
   isShowing: boolean;
-  /** function used to toggle the modal */
-  setIsShowing: (value: boolean) => void;
   /** the text to show along with the cancel button to close the modal */
   cancelText?: string;
   /** the text to show along with the confirm button on the modal */
@@ -27,15 +27,15 @@ export interface IModalProps {
  *  Portal is used to allow the modal to be appended outside of inner elements.
  **/
 export const Modal: React.FC<IModalProps> = ({
-  setIsShowing,
   isShowing,
   cancelText,
   confirmText,
   onConfirm,
   headerText,
+  hide,
   body,
-}) =>
-  isShowing
+}) => {
+  return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal>
           <div className="modal-overlay">
@@ -51,7 +51,7 @@ export const Modal: React.FC<IModalProps> = ({
                   <Button variant={ButtonVariant.action} onClick={onConfirm}>
                     {confirmText ?? 'Continue'}
                   </Button>
-                  <Button variant={ButtonVariant.danger} onClick={() => setIsShowing(!isShowing)}>
+                  <Button variant={ButtonVariant.danger} onClick={hide}>
                     {cancelText ?? 'Cancel'}
                   </Button>
                 </Row>
@@ -62,3 +62,4 @@ export const Modal: React.FC<IModalProps> = ({
         document.body,
       )
     : null;
+};
