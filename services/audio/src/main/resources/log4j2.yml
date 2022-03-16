@@ -22,17 +22,17 @@ Configuration:
     #  PatternLayout:
     #    Pattern: "%d %p %C{1.} [%t] %m%n"
 
-    RollingFile:
-      - name: LogToRollingFile
-        fileName: ${filename}
-        filePattern: "logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
-        PatternLayout:
-          pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-7t] %c{1}:%L - %m%n"
-        Policies:
-          SizeBasedTriggeringPolicy:
-            size: 10MB
-        DefaultRollOverStrategy:
-          max: 10
+    # RollingFile:
+    #   - name: LogToRollingFile
+    #     fileName: ${filename}
+    #     filePattern: "logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
+    #     PatternLayout:
+    #       pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-7t] %c{1}:%L - %m%n"
+    #     Policies:
+    #       SizeBasedTriggeringPolicy:
+    #         size: 10MB
+    #     DefaultRollOverStrategy:
+    #       max: 10
 
     Kafka:
       name: LogToKafka
@@ -50,8 +50,8 @@ Configuration:
         level: all
         additivity: false
         AppenderRef:
+          # - ref: LogToRollingFile
           - ref: LogToConsole
-          - ref: LogToRollingFile
           - ref: LogToKafka
 
     Root:
