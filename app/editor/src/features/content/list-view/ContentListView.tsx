@@ -327,7 +327,7 @@ export const ContentListView: React.FC = () => {
           columns={columns}
           page={page}
           sortBy={sortBy}
-          onRowClick={(row) => navigate(`/contents/${row.values.createdOn.id}`)}
+          onRowClick={(row) => navigate(`/contents/${row.id}`)}
           onChangePage={handleChangePage}
           onChangeSort={handleChangeSort}
         ></PagedTable>
