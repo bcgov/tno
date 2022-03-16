@@ -1,0 +1,309 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: audio-clip-service-deploy
+  annotations:
+    openshift.io/display-name: Java Audio Clip Ingestion Service Image
+    description: Build an image containing the Java Audio Clip Ingestion Service.
+    tags: java,maven,service,audio,clip,kafka
+
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
+    required: true
+    value: tno
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application.
+    required: true
+    value: audio-clip
+
+  - name: PROJECT_NAMESPACE
+    displayName: OpenShift Project Namespace
+    description: The namespace of the OpenShift project containing the application.
+    required: true
+    value: 9b301c
+  - name: ENV_NAME
+    displayName: Environment name
+    description: The name for this environment [dev, test, prod]
+    required: true
+    value: dev
+
+  - name: IMAGE_TAG
+    displayName: Image Tag
+    description: The image tag that identifies which image to run. (i.e. 'dev').
+    value: dev
+
+  - name: APP_PORT
+    displayName: Application Port
+    description: The port used to communicate with the Pod
+    value: "8080"
+
+  - name: KAFKA_BOOTSTRAP_SERVERS
+    displayName: Kafka Bootstrap Servers
+    description: Comma delimited Kafka bootstrap servers.
+    required: true
+    value: tno-kafka-broker:29094
+  - name: KAFKA_LOGS_TOPIC
+    displayName: Kafka Logs Topic
+    description: The Kafka topic name to log to.
+    required: true
+    value: logs-audio-clip
+  - name: KAFKA_CLIENT_ID
+    displayName: Kafka Client ID
+    description: The Kafka client id to uniquely identify this producer.
+    required: true
+    value: audio-clip
+  - name: MAX_FAILED_ATTEMPTS
+    displayName: Maximum Failed Attempts
+    description: The maximum number of failed attempts before stopping the service.
+    required: true
+    value: "5"
+  - name: DATA_SOURCE_MEDIA_TYPE
+    displayName: Data Source Media Type
+    description: The name of the media type that this service will ingest.
+    required: true
+    value: News Radio
+
+  - name: DB_SECRETS_NAME
+    displayName: Database Secret Name
+    description: Name of the database secrets object.
+    required: true
+    value: tno-database
+  - name: API_CONFIG_NAME
+    displayName: API Config Name
+    description: Name of the api config map object.
+    required: true
+    value: tno-api-editor
+
+  - name: VOLUME_CLAIM_NAME
+    displayName: Audio Capture Volume Claim Name
+    description: The name of the volume claim used by the Audio Capture service.
+    required: true
+    value: tno-audio-capture
+  - name: VOLUME_MOUNT_PATH
+    displayName: Verification Volume Mount Path
+    description: The path on which to mount the volume.
+    required: true
+    value: "/data"
+
+  - name: REPLICAS
+    displayName: Pod Replicas
+    description: Number of pod replicas to run
+    value: "1"
+  - name: CPU_REQUEST
+    displayName: Requested Minimum Resources CPU Limit
+    description: The requested minimum resources CPU limit (in cores) for this build.
+    required: true
+    value: 20m
+  - name: CPU_LIMIT
+    displayName: Resources CPU Limit
+    description: The resources CPU limit (in cores) for this build.
+    required: true
+    value: 100m
+  - name: MEMORY_REQUEST
+    displayName: Requested Minimum Memory Limit
+    description: Minimum requested amount of memory the container can use.
+    required: true
+    value: 250Mi
+  - name: MEMORY_LIMIT
+    displayName: Memory Limit
+    description: Maximum amount of memory the container can use.
+    required: true
+    value: 500Mi
+
+objects:
+  # Open up ports to communicate with the app.
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Exposes and load balances the application pods.
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    spec:
+      ports:
+        - name: ${APP_PORT}-tcp
+          port: ${{APP_PORT}}
+          protocol: TCP
+          targetPort: ${{APP_PORT}}
+      selector:
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+      sessionAffinity: None
+      type: ClusterIP
+
+  # Configuration settings
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Audio Capture service configuration settings
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    type: Opaque
+    data:
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID}
+      KAFKA_LOGS_TOPIC: ${KAFKA_LOGS_TOPIC}
+      MAX_FAILED_ATTEMPTS: ${MAX_FAILED_ATTEMPTS}
+      DATA_SOURCE_MEDIA_TYPE: ${DATA_SOURCE_MEDIA_TYPE}
+
+  # How the app will be deployed to the pod.
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Defines how to deploy ${SOLUTION_NAME}-${APP_NAME}
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+    spec:
+      replicas: ${{REPLICAS}}
+      selector:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+        app: ${APP_NAME}
+      strategy:
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          name: ${SOLUTION_NAME}-${APP_NAME}
+          labels:
+            name: ${SOLUTION_NAME}-${APP_NAME}
+            solution: ${SOLUTION_NAME}
+            app: ${APP_NAME}
+        spec:
+          volumes:
+            - name: ${SOLUTION_NAME}-${APP_NAME}
+              persistentVolumeClaim:
+                claimName: ${VOLUME_CLAIM_NAME}
+          containers:
+            - name: ${SOLUTION_NAME}-${APP_NAME}
+              image: ""
+              imagePullPolicy: Always
+              ports:
+                - containerPort: ${{APP_PORT}}
+                  protocol: TCP
+              resources:
+                requests:
+                  cpu: ${CPU_REQUEST}
+                  memory: ${MEMORY_REQUEST}
+                limits:
+                  cpu: ${CPU_LIMIT}
+                  memory: ${MEMORY_LIMIT}
+              volumeMounts:
+                - name: ${SOLUTION_NAME}-${APP_NAME}
+                  mountPath: ${VOLUME_MOUNT_PATH}
+              env:
+                - name: KEYCLOAK_AUTH_SERVER_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${API_CONFIG_NAME}
+                      key: KEYCLOAK_AUTH_SERVER_URL
+                - name: KEYCLOAK_REALM
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${API_CONFIG_NAME}
+                      key: KEYCLOAK_REALM
+                - name: KEYCLOAK_RESOURCE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${API_CONFIG_NAME}
+                      key: KEYCLOAK_CLIENT_ID
+
+                - name: KAFKA_BOOTSTRAP_SERVERS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${API_CONFIG_NAME}
+                      key: KAFKA_BOOTSTRAP_SERVERS
+
+                - name: DB_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${API_CONFIG_NAME}
+                      key: DB_URL
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SECRETS_NAME}
+                      key: POSTGRESQL_USER
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SECRETS_NAME}
+                      key: POSTGRESQL_PASSWORD
+
+                - name: KAFKA_CLIENT_ID
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}
+                      key: KAFKA_CLIENT_ID
+                - name: KAFKA_LOGS_TOPIC
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}
+                      key: KAFKA_LOGS_TOPIC
+                - name: MAX_FAILED_ATTEMPTS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}
+                      key: MAX_FAILED_ATTEMPTS
+                - name: DATA_SOURCE_MEDIA_TYPE
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SOLUTION_NAME}-${APP_NAME}
+                      key: DATA_SOURCE_MEDIA_TYPE
+              # livenessProbe:
+              #   httpGet:
+              #     path: '/health'
+              #     port: ${{APP_PORT}}
+              #     scheme: HTTP
+              #   initialDelaySeconds: 120
+              #   timeoutSeconds: 60
+              #   periodSeconds: 30
+              #   successThreshold: 1
+              #   failureThreshold: 3
+              # readinessProbe:
+              #   httpGet:
+              #     path: '/health'
+              #     port: ${{APP_PORT}}
+              #     scheme: HTTP
+              #   initialDelaySeconds: 120
+              #   timeoutSeconds: 60
+              #   periodSeconds: 30
+              #   successThreshold: 1
+              #   failureThreshold: 3
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - ${SOLUTION_NAME}-${APP_NAME}
+            from:
+              kind: ImageStreamTag
+              namespace: ${PROJECT_NAMESPACE}-tools
+              name: ${SOLUTION_NAME}-${APP_NAME}:${IMAGE_TAG}
