@@ -117,7 +117,7 @@ public class Action extends AuditColumns {
    * @param name    Unique name
    * @param version Row version value
    */
-  public Action(int id, String name, int version) {
+  public Action(int id, String name, long version) {
     this(id, name);
     this.setVersion(version);
   }
@@ -157,7 +157,7 @@ public class Action extends AuditColumns {
    * @param valueLabel Label for value
    * @param version    Row version value
    */
-  public Action(int id, String name, ValueType valueType, String valueLabel, int version) {
+  public Action(int id, String name, ValueType valueType, String valueLabel, long version) {
     this(id, name, valueType, valueLabel);
     this.setVersion(version);
   }

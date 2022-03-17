@@ -87,7 +87,7 @@ public class ContentLink extends AuditColumns {
    * @param link    Link object
    * @param version Row version value
    */
-  public ContentLink(Content content, Content link, int version) {
+  public ContentLink(Content content, Content link, long version) {
     this(content, link);
     this.setVersion(version);
   }
@@ -114,7 +114,7 @@ public class ContentLink extends AuditColumns {
    * @param linkId    Foreign key to Link object
    * @param version   Row version value
    */
-  public ContentLink(int contentId, int linkId, int version) {
+  public ContentLink(int contentId, int linkId, long version) {
     this(contentId, linkId);
     this.setVersion(version);
   }

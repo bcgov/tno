@@ -117,7 +117,7 @@ public class License extends AuditColumns {
    * @param ttl     Time to live in days
    * @param version Row version value
    */
-  public License(int id, String name, int ttl, int version) {
+  public License(int id, String name, int ttl, long version) {
     this(id, name, ttl);
     this.setVersion(version);
   }

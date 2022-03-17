@@ -83,7 +83,7 @@ public class UserRole extends AuditColumns {
    * @param role    The role.
    * @param version Row version value
    */
-  public UserRole(User user, Role role, int version) {
+  public UserRole(User user, Role role, long version) {
     this(user, role);
     this.setVersion(version);
   }
@@ -108,7 +108,7 @@ public class UserRole extends AuditColumns {
    * @param roleId  Foreign key to The role.
    * @param version Row version value
    */
-  public UserRole(int userId, int roleId, int version) {
+  public UserRole(int userId, int roleId, long version) {
     this(userId, roleId);
     this.setVersion(version);
   }

@@ -120,7 +120,7 @@ public class FileReference extends AuditColumns {
    * @param version     Row version value
    */
   public FileReference(int id, Content content, String path, String mimeType, int size,
-      int runningTime, int version) {
+      int runningTime, long version) {
     this(id, content, path, mimeType, size, runningTime);
     this.setVersion(version);
   }

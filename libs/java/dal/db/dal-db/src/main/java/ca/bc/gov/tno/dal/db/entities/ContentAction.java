@@ -98,7 +98,7 @@ public class ContentAction extends AuditColumns {
    * @param value   Action value
    * @param version Row version value
    */
-  public ContentAction(Content content, Action action, String value, int version) {
+  public ContentAction(Content content, Action action, String value, long version) {
     this(content, action, value);
     this.setVersion(version);
   }
@@ -132,7 +132,7 @@ public class ContentAction extends AuditColumns {
    * @param value    Action value
    * @param version  Row version value
    */
-  public ContentAction(Content content, int actionId, String value, int version) {
+  public ContentAction(Content content, int actionId, String value, long version) {
     this(content, actionId, value);
     this.setVersion(version);
   }
@@ -163,7 +163,7 @@ public class ContentAction extends AuditColumns {
    * @param value     Action value
    * @param version   Row version value
    */
-  public ContentAction(int contentId, int actionId, String value, int version) {
+  public ContentAction(int contentId, int actionId, String value, long version) {
     this(contentId, actionId, value);
     this.setVersion(version);
   }

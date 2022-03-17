@@ -111,7 +111,7 @@ public class TimeTracking extends AuditColumns {
    * @param activity Description of effort
    * @param version  Row version value
    */
-  public TimeTracking(Content content, User user, float effort, String activity, int version) {
+  public TimeTracking(Content content, User user, float effort, String activity, long version) {
     this(content, user, effort, activity);
     this.setVersion(version);
   }
@@ -152,7 +152,7 @@ public class TimeTracking extends AuditColumns {
    * @param activity Description of effort
    * @param version  Row version value
    */
-  public TimeTracking(Content content, int userId, float effort, String activity, int version) {
+  public TimeTracking(Content content, int userId, float effort, String activity, long version) {
     this(content, userId, effort, activity);
     this.setVersion(version);
   }
@@ -190,7 +190,7 @@ public class TimeTracking extends AuditColumns {
    * @param activity  Description of effort
    * @param version   Row version value
    */
-  public TimeTracking(int contentId, int userId, float effort, String activity, int version) {
+  public TimeTracking(int contentId, int userId, float effort, String activity, long version) {
     this(contentId, userId, effort, activity);
     this.setVersion(version);
   }

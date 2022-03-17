@@ -271,7 +271,7 @@ public class DataSource extends AuditColumns {
    * @param version    Row version value
    */
   public DataSource(int id, String name, String code, MediaType mediaType, DataLocation location,
-      License license, String topic, Map<String, Object> connection, int version) {
+      License license, String topic, Map<String, Object> connection, long version) {
     this(id, name, code, mediaType, location, license, topic, connection);
     this.setVersion(version);
   }
@@ -349,7 +349,7 @@ public class DataSource extends AuditColumns {
    * @param version     Row version value
    */
   public DataSource(int id, String name, String code, int mediaTypeId, int locationId,
-      int licenseId, String topic, Map<String, Object> connection, int version) {
+      int licenseId, String topic, Map<String, Object> connection, long version) {
     this(id, name, code, mediaTypeId, locationId, licenseId, topic, connection);
     this.setVersion(version);
   }

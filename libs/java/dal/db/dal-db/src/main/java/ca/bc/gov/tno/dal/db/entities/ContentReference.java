@@ -120,7 +120,7 @@ public class ContentReference extends AuditColumns {
    * @param topic   The Kafka topic it was stored in
    * @param version Row version value
    */
-  public ContentReference(String source, String uid, String topic, int version) {
+  public ContentReference(String source, String uid, String topic, long version) {
     this(source, uid, topic);
     this.setVersion(version);
   }

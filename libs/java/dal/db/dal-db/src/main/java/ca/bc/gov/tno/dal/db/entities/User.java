@@ -157,7 +157,7 @@ public class User extends AuditColumns {
    * @param email    The user's email address.
    * @param version  Row version value
    */
-  public User(int id, String username, String email, int version) {
+  public User(int id, String username, String email, long version) {
     this(id, username, email);
     this.setVersion(version);
   }
@@ -213,7 +213,7 @@ public class User extends AuditColumns {
    * @param email    The user's email address.
    * @param version  Row version value
    */
-  public User(int id, String username, UUID key, String email, int version) {
+  public User(int id, String username, UUID key, String email, long version) {
     this(id, username, key, email);
     this.setVersion(version);
   }

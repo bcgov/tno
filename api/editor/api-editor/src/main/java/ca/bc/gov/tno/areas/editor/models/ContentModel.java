@@ -140,7 +140,8 @@ public class ContentModel extends AuditColumnModel {
    * @return A new instance of a Content object.
    */
   public Content ToContent() {
-    var content = new Content(0,
+    var content = new Content(
+        this.getId(),
         this.contentTypeId,
         this.mediaTypeId,
         this.licenseId,
@@ -148,7 +149,8 @@ public class ContentModel extends AuditColumnModel {
         this.source,
         this.ownerId,
         this.status,
-        this.headline);
+        this.headline,
+        this.getVersion());
 
     content.setDataSourceId(this.dataSourceId);
     content.setUid(this.uid);

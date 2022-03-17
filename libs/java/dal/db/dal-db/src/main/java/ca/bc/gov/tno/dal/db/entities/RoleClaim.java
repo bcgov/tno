@@ -83,7 +83,7 @@ public class RoleClaim extends AuditColumns {
    * @param claim   The claim.
    * @param version Row version value
    */
-  public RoleClaim(Role role, Claim claim, int version) {
+  public RoleClaim(Role role, Claim claim, long version) {
     if (role == null)
       throw new IllegalArgumentException("Parameter 'role' is required.");
     if (claim == null)
@@ -116,7 +116,7 @@ public class RoleClaim extends AuditColumns {
    * @param claimId Foreign key The claim.
    * @param version Row version value
    */
-  public RoleClaim(int roleId, int claimId, int version) {
+  public RoleClaim(int roleId, int claimId, long version) {
     this.roleId = roleId;
     this.claimId = claimId;
     this.setVersion(version);

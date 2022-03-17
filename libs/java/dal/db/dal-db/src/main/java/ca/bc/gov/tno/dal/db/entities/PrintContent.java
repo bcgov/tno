@@ -109,7 +109,7 @@ public class PrintContent extends AuditColumns {
    * @param version   Row version value
    */
   public PrintContent(Content content, String edition, String section, String storyType,
-      String byline, int version) {
+      String byline, long version) {
     this(content, edition, section, storyType, byline);
     this.setVersion(version);
   }

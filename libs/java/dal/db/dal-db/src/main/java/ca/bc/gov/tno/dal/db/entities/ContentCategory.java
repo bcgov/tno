@@ -98,7 +98,7 @@ public class ContentCategory extends AuditColumns {
    * @param score    Category score
    * @param version  Row version value
    */
-  public ContentCategory(Content content, Category category, int score, int version) {
+  public ContentCategory(Content content, Category category, int score, long version) {
     this(content, category, score);
     this.setVersion(version);
   }
@@ -132,7 +132,7 @@ public class ContentCategory extends AuditColumns {
    * @param score      Category score
    * @param version    Row version value
    */
-  public ContentCategory(Content content, int categoryId, int score, int version) {
+  public ContentCategory(Content content, int categoryId, int score, long version) {
     this(content, categoryId, score);
     this.setVersion(version);
   }

@@ -87,7 +87,7 @@ public class DataSourceSchedule extends AuditColumns {
    * @param schedule   Schedule object
    * @param version    Row version value
    */
-  public DataSourceSchedule(DataSource dataSource, Schedule schedule, int version) {
+  public DataSourceSchedule(DataSource dataSource, Schedule schedule, long version) {
     this(dataSource, schedule);
     this.setVersion(version);
   }
@@ -114,7 +114,7 @@ public class DataSourceSchedule extends AuditColumns {
    * @param scheduleId   Foreign key to Schedule.
    * @param version      Row version value
    */
-  public DataSourceSchedule(int dataSourceId, int scheduleId, int version) {
+  public DataSourceSchedule(int dataSourceId, int scheduleId, long version) {
     this(dataSourceId, scheduleId);
     this.setVersion(version);
   }

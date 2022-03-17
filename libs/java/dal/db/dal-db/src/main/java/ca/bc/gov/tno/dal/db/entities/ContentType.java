@@ -112,7 +112,7 @@ public class ContentType extends AuditColumns {
    * @param name    Unique name
    * @param version Row version value
    */
-  public ContentType(int id, String name, int version) {
+  public ContentType(int id, String name, long version) {
     this(id, name);
     this.setVersion(version);
   }
