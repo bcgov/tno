@@ -89,7 +89,7 @@ public class ContentTag extends AuditColumns {
    * @param tag     Tag object
    * @param version Row version value
    */
-  public ContentTag(Content content, Tag tag, int version) {
+  public ContentTag(Content content, Tag tag, long version) {
     this(content, tag);
     this.setVersion(version);
   }
@@ -124,7 +124,7 @@ public class ContentTag extends AuditColumns {
    * @param tagId   Foreign key to Tag object
    * @param version Row version value
    */
-  public ContentTag(Content content, String tagId, int version) {
+  public ContentTag(Content content, String tagId, long version) {
     this(content, tagId);
     this.setVersion(version);
   }

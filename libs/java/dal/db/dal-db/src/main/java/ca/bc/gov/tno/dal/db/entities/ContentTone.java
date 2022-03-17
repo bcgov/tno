@@ -96,7 +96,7 @@ public class ContentTone extends AuditColumns {
    * @param value    Tone value
    * @param version  Row version value
    */
-  public ContentTone(Content content, TonePool tonePool, int value, int version) {
+  public ContentTone(Content content, TonePool tonePool, int value, long version) {
     this(content, tonePool, value);
     this.setVersion(version);
   }
@@ -128,7 +128,7 @@ public class ContentTone extends AuditColumns {
    * @param value      Tone value
    * @param version    Row version value
    */
-  public ContentTone(Content content, int tonePoolId, int value, int version) {
+  public ContentTone(Content content, int tonePoolId, int value, long version) {
     this(content, tonePoolId, value);
     this.setVersion(version);
   }

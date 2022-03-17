@@ -179,7 +179,7 @@ public class Schedule extends AuditColumns {
    * @param name    Unique name
    * @param version Row version value
    */
-  public Schedule(int id, String name, int version) {
+  public Schedule(int id, String name, long version) {
     this(id, name);
     this.setVersion(version);
   }

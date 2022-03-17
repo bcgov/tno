@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -207,66 +208,58 @@ public class Content extends AuditColumns {
   /**
    * A collection of content actions linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<FileReference> fileReferences = new ArrayList<>();
 
   /**
    * A collection of content actions linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content categories linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<ContentCategory> contentCategories = new ArrayList<>();
 
   /**
    * A collection of content tags linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * A collection of content tone pools linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<ContentTone> contentTones = new ArrayList<>();
 
   /**
    * A collection of time tracking linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<TimeTracking> timeTrackings = new ArrayList<>();
 
   /**
    * A collection of content linked to this content.
    */
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "link", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "link", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<ContentLink> links = new ArrayList<>();
 
   /**
    * A collection of content logs linked to this content.
    */
   @JsonIgnore
-  // @LazyCollection(LazyCollectionOption.FALSE)
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   private List<ContentLog> logs = new ArrayList<>();
 
   /**
@@ -326,7 +319,7 @@ public class Content extends AuditColumns {
    * @param version       Row version value
    */
   public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, Integer seriesId, int dataSourceId,
-      int ownerId, ContentStatus status, String headline, int version) {
+      int ownerId, ContentStatus status, String headline, long version) {
     this(id, contentTypeId, mediaTypeId, licenseId, seriesId, dataSourceId, ownerId, status, headline);
     this.setVersion(version);
   }
@@ -378,7 +371,7 @@ public class Content extends AuditColumns {
    * @param version       Row version value
    */
   public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, Integer seriesId, int dataSourceId,
-      ContentStatus status, String headline, int version) {
+      ContentStatus status, String headline, long version) {
     this(id, contentTypeId, mediaTypeId, licenseId, seriesId, dataSourceId, status, headline);
     this.setVersion(version);
   }
@@ -439,7 +432,7 @@ public class Content extends AuditColumns {
    */
   public Content(int id, int contentTypeId, int mediaTypeId, int licenseId,
       Integer seriesId, String source, int ownerId,
-      ContentStatus status, String headline, int version) {
+      ContentStatus status, String headline, long version) {
     this(id, contentTypeId, mediaTypeId, licenseId, seriesId, source, ownerId, status, headline);
     this.setVersion(version);
   }
@@ -496,7 +489,7 @@ public class Content extends AuditColumns {
    * @param version       Row version value
    */
   public Content(int id, int contentTypeId, int mediaTypeId, int licenseId, Integer seriesId, String source,
-      ContentStatus status, String headline, int version) {
+      ContentStatus status, String headline, long version) {
     this(id, contentTypeId, mediaTypeId, licenseId, seriesId, source, status, headline);
     this.setVersion(version);
   }
@@ -565,7 +558,7 @@ public class Content extends AuditColumns {
    * @param version     Row version value
    */
   public Content(ContentType contentType, MediaType mediaType, License license, Series series,
-      DataSource dataSource, User owner, ContentStatus status, String headline, int version) {
+      DataSource dataSource, User owner, ContentStatus status, String headline, long version) {
     this(contentType, mediaType, license, series, dataSource, owner, status, headline);
     this.setVersion(version);
   }
@@ -628,7 +621,7 @@ public class Content extends AuditColumns {
    * @param version     Row version value
    */
   public Content(ContentType contentType, MediaType mediaType, License license, Series series,
-      DataSource dataSource, ContentStatus status, String headline, int version) {
+      DataSource dataSource, ContentStatus status, String headline, long version) {
     this(contentType, mediaType, license, series, dataSource, status, headline);
     this.setVersion(version);
   }
@@ -697,7 +690,7 @@ public class Content extends AuditColumns {
    * @param version     Row version value
    */
   public Content(ContentType contentType, MediaType mediaType, License license, Series series,
-      String source, User owner, ContentStatus status, String headline, int version) {
+      String source, User owner, ContentStatus status, String headline, long version) {
     this(contentType, mediaType, license, series, source, owner, status, headline);
     this.setVersion(version);
   }
@@ -760,7 +753,7 @@ public class Content extends AuditColumns {
    * @param version     Row version value
    */
   public Content(ContentType contentType, MediaType mediaType, License license, Series series,
-      String source, ContentStatus status, String headline, int version) {
+      String source, ContentStatus status, String headline, long version) {
     this(contentType, mediaType, license, series, source, status, headline);
     this.setVersion(version);
   }
@@ -824,7 +817,7 @@ public class Content extends AuditColumns {
    * @param version     Row version value
    */
   public Content(ContentType contentType, ContentReference contentRef, DataSource dataSource, Series series, User owner,
-      String headline, int version) {
+      String headline, long version) {
     this(contentType, contentRef, dataSource, series, owner, headline);
     this.setVersion(version);
   }
@@ -882,7 +875,7 @@ public class Content extends AuditColumns {
    * @param version     Row version value
    */
   public Content(ContentType contentType, ContentReference contentRef, DataSource dataSource, Series series,
-      String headline, int version) {
+      String headline, long version) {
     this(contentType, contentRef, dataSource, series, headline);
     this.setVersion(version);
   }

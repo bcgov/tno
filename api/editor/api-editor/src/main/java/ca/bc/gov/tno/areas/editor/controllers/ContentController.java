@@ -8,7 +8,9 @@ import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -170,9 +172,11 @@ public class ContentController {
    * @return
    */
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ContentModel findById(@PathVariable(required = true) Integer id) {
-    var content = contentService.findById(id).orElse(null);
-    return new ContentModel(content);
+  public ResponseEntity<ContentModel> findById(@PathVariable(required = true) Integer id) {
+    var content = contentService.findById(id, true).orElse(null);
+    if (content == null)
+      return new ResponseEntity<ContentModel>(HttpStatus.NO_CONTENT);
+    return new ResponseEntity<ContentModel>(new ContentModel(content), HttpStatus.OK);
   }
 
   /**

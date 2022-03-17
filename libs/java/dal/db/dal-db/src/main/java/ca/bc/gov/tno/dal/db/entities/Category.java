@@ -95,7 +95,7 @@ public class Category extends AuditColumns {
    * @param name    Unique name
    * @param version Row version value
    */
-  public Category(int id, String name, int version) {
+  public Category(int id, String name, long version) {
     this(id, name);
     this.setVersion(version);
   }

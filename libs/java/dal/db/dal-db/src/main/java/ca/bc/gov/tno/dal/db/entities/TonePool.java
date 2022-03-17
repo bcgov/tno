@@ -139,7 +139,7 @@ public class TonePool extends AuditColumns {
    * @param shared  Whether this tone pool is shared with everyone
    * @param version Row version value
    */
-  public TonePool(int id, String name, User owner, boolean shared, int version) {
+  public TonePool(int id, String name, User owner, boolean shared, long version) {
     this(id, name, owner, shared);
     this.setVersion(version);
   }
@@ -187,7 +187,7 @@ public class TonePool extends AuditColumns {
    * @param shared  Whether this tone pool is shared with everyone
    * @param version Row version value
    */
-  public TonePool(int id, String name, int ownerId, boolean shared, int version) {
+  public TonePool(int id, String name, int ownerId, boolean shared, long version) {
     this(id, name, ownerId, shared);
     this.setVersion(version);
   }

@@ -89,7 +89,7 @@ public class ContentTypeAction extends AuditColumns {
    * @param action      Action object
    * @param version     Row version value
    */
-  public ContentTypeAction(ContentType contentType, Action action, int version) {
+  public ContentTypeAction(ContentType contentType, Action action, long version) {
     this(contentType, action);
     this.setVersion(version);
   }
@@ -120,7 +120,7 @@ public class ContentTypeAction extends AuditColumns {
    * @param actionId    Foreign key to Action object
    * @param version     Row version value
    */
-  public ContentTypeAction(ContentType contentType, int actionId, int version) {
+  public ContentTypeAction(ContentType contentType, int actionId, long version) {
     this(contentType, actionId);
     this.setVersion(version);
   }
