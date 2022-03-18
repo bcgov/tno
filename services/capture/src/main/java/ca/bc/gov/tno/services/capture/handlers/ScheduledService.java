@@ -65,7 +65,7 @@ public class ScheduledService
    * @param ranAt  The date and time the transaction ran at.
    */
   @Override
-  protected synchronized void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
+  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
     super.updateDataSource(dataSource, schedule, ranOn);
 
     var result = dataSourceService.findByCode(dataSource.getId());
