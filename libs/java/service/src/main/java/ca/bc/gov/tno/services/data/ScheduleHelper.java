@@ -1,5 +1,8 @@
 package ca.bc.gov.tno.services.data;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -219,5 +222,20 @@ public final class ScheduleHelper {
         return runOnMonth.contains(Months.December);
     }
     return false;
+  }
+
+  /**
+   * Convert a LocalTime object to a unix epoch date/time in the current time zone.
+   * 
+   * @param time The LocalTime object to convert
+   * @return the date/time in milliseconds
+   */
+  public static long getMsDateTime(LocalTime time, String timeZone) {
+
+    var dateTime = time.atDate(LocalDate.now(ZoneId.of(timeZone)));
+    var instant = dateTime.atZone(ZoneId.of(timeZone)).toInstant();	
+    var timeInMillis = instant.toEpochMilli(); 
+
+    return timeInMillis;
   }
 }

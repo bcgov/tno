@@ -1,21 +1,20 @@
 package ca.bc.gov.tno.services.capture.handlers;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.EventListener;
 
+import ca.bc.gov.tno.services.data.ScheduleHelper;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
+import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.capture.config.CaptureConfig;
-import ca.bc.gov.tno.services.capture.events.ProducerSendEvent;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -33,7 +32,6 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
   private Object caller;
   private CaptureConfig captureConfig;
-  private Map<String, Process> captureProcesses = new HashMap<>();
   private ScheduleConfig schedule;
   /**
    * Create a new instance of a FetchDataService object.
@@ -44,26 +42,63 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
+   * Indicates whether the current event is a stop event. This is true if the schedule's stop_at is
+   * less than the current time.
+   * 
+   * @param schedule The schedule for the current event
+   * @return true if this is a stop event, false otherwise
+   */
+  private boolean isaStopEvent(ScheduleConfig schedule) {
+
+    var stopTime = ScheduleHelper.getMsDateTime(schedule.getStopAt(), captureConfig.getTimezone());
+    var now = System.currentTimeMillis();
+
+    return stopTime < now;
+  }
+
+  /**
+   * Indicates whether the current event is a start event. This is true if the schedule's start_at is
+   * less than the current time and greater than the stop time.
+   * 
+   * @param schedule The schedule for the current event
+   * @return true if this is a start event, false otherwise
+   */
+  private boolean isaStartEvent(ScheduleConfig schedule) {
+
+    var startTime = ScheduleHelper.getMsDateTime(schedule.getStartAt(), captureConfig.getTimezone());
+    var stopTime = ScheduleHelper.getMsDateTime(schedule.getStopAt(), captureConfig.getTimezone());
+    var now = System.currentTimeMillis();
+
+    return startTime < now && stopTime > now;
+  }
+
+  /**
    * Start a media stream, if not already in progress.
    */
   @Override
-  @EventListener
   public void onApplicationEvent(TransactionBeginEvent event) {
 
+    logger.info("Transaction begin event - start processing.");
     captureConfig = (CaptureConfig) event.getDataSource();
     String mediaSource = captureConfig.getCaptureDir() + "/" + captureConfig.getId() + ".mpg";
-    String captureKey = captureConfig.getId() + "_" +  String.valueOf(System.currentTimeMillis());
 
     try {
       caller = event.getSource();
       captureConfig = (CaptureConfig) event.getDataSource();
       schedule = event.getSchedule();
 
-      boolean success = startMediaStream(mediaSource);
-      captureConfig.setCaptureSuccess(success);
+      if (isaStopEvent(schedule)) {
+        stopMediaStream(captureConfig.getRunningCommand());
+      } else 
+      if (isaStartEvent(schedule)) { 
+        boolean success = startMediaStream(mediaSource);
+        captureConfig.setCaptureSuccess(success);
+      } else {
+        logger.info(captureConfig.getId() + ": Streaming has not been started yet.");
+      }
       
-      var readyEvent = new ProducerSendEvent(caller, captureConfig, schedule, captureKey);
-      eventPublisher.publishEvent(readyEvent);
+      var doneEvent = new TransactionCompleteEvent(event.getSource(), captureConfig, schedule);
+      eventPublisher.publishEvent(doneEvent);
     } catch (Exception ex) {
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
@@ -89,18 +124,44 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
     // Start recording the media stream if it has dropped or the capture file doesn't exist
     if (modified == 0 || current - modified > captureConfig.getStreamTimeout()) {
-        executeCaptureCmd(cmd, mediaSource);
-        captureConfig.setStreamStartTime(System.currentTimeMillis());
-        captureSuccess = true;
+      executeCaptureCmd(cmd, mediaSource);
+      captureConfig.setStreamStartTime(System.currentTimeMillis());
+      captureSuccess = true;
+      logger.info(captureConfig.getId() + ": Started streaming.");
+    } else {
+      logger.info(captureConfig.getId() + ": Streaming currently in progress.");
     }
 
     return captureSuccess;
   }
 
   /**
-   * Executes an media stream capture command as defined in the captureConfig object
+   * Stop the streaming process that corresponds with the command <code>command</code>
    * 
-   * @param cmd The Linux command to execute 
+   * @param runningNow The capture command currently running
+   */
+  private void stopMediaStream(String runningNow) {
+
+    try {
+      if (!runningNow.isEmpty()) {
+        String[] cmdArray = new String[] {"pkill", "-f", runningNow};
+
+        Runtime rt = Runtime.getRuntime();
+        rt.exec(cmdArray);
+        captureConfig.setRunningNow("");
+        logger.info(captureConfig.getId() + ": Stopping streaming process.");
+      } else {
+        logger.info(captureConfig.getId() + ": Streaming has been terminated for today.");
+      }
+    } catch (IOException ex) {
+      logger.error("Unable to stop the media stream using: pkill -f " + runningNow);
+    }
+  }
+
+  /**
+   * Executes a media stream capture command as defined in the captureConfig object
+   * 
+   * @param cmd The Linux command to execute (with substitution variables)
    * @param captureFilePath The full path of the output directory
    */
   private void executeCaptureCmd(String cmd, String captureFilePath) {
@@ -117,7 +178,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
       try {
         Process p = new ProcessBuilder(cmdArray).start();
-        captureProcesses.put(captureConfig.getId(), p);
+        captureConfig.setRunningNow(cmd.substring(0, cmd.indexOf(">") - 1));
         logger.info("Capture command executed '" + cmd);
       } catch (Exception e) {
         logger.info("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);

@@ -1,9 +1,6 @@
 package ca.bc.gov.tno.services.audio.handlers;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.io.File;
 import java.io.IOException;
 
@@ -12,8 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.EventListener;
 
+import ca.bc.gov.tno.services.data.ScheduleHelper;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
@@ -54,26 +51,11 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
    */
   private long getClipLength(ScheduleConfig schedule) {
 
-    var startTime = getMsDateTime(schedule.getStartAt());
-    var stopTime = getMsDateTime(schedule.getStopAt());
+    var startTime = ScheduleHelper.getMsDateTime(schedule.getStartAt(), audioConfig.getTimezone());
+    var stopTime = ScheduleHelper.getMsDateTime(schedule.getStopAt(), audioConfig.getTimezone());
     var length = (stopTime - startTime) / 1000;
 
     return length;
-  }
-
-/**
- * Convert a LocalTime object to a unix epoch date/time in the current time zone.
- * 
- * @param time The LocalTime object to convert
- * @return the date/time in milliseconds
- */
-  private long getMsDateTime(LocalTime time) {
-
-    var dateTime = time.atDate(LocalDate.now());
-    var instant = dateTime.atZone(ZoneId.of(audioConfig.getTimezone())).toInstant();	
-    var timeInMillis = instant.toEpochMilli(); 
-
-    return timeInMillis;
   }
 
   /**
@@ -86,8 +68,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private long getClipOffset(ScheduleConfig schedule) {
 
     var streamStart = audioConfig.getStreamStartTime();
-    var startTime = getMsDateTime(schedule.getStartAt());
-    var stopTime = getMsDateTime(schedule.getStopAt());
+    var startTime = ScheduleHelper.getMsDateTime(schedule.getStartAt(), audioConfig.getTimezone());
+    var stopTime = ScheduleHelper.getMsDateTime(schedule.getStopAt(), audioConfig.getTimezone());
     var clipLength = getClipLength(schedule);
     var offset = 0L;
 
@@ -107,7 +89,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
  */
   private boolean verifyClipSchedule(ScheduleConfig schedule) {
 
-    return getMsDateTime(schedule.getStartAt()) > audioConfig.getStreamStartTime();
+    return ScheduleHelper.getMsDateTime(schedule.getStartAt(), audioConfig.getTimezone()) > audioConfig.getStreamStartTime();
   }
 
   /**
@@ -115,7 +97,6 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
    * Producer can push the content to a topic.
    */
   @Override
-  @EventListener
   public void onApplicationEvent(TransactionBeginEvent event) {
 
     audioConfig = (AudioConfig) event.getDataSource();

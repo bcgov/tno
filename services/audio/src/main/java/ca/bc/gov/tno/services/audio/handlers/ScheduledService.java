@@ -1,10 +1,6 @@
 package ca.bc.gov.tno.services.audio.handlers;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -27,7 +23,6 @@ import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.audio.config.AudioConfig;
 import ca.bc.gov.tno.services.audio.config.AudioCollectionConfig;
-import ca.bc.gov.tno.dal.db.entities.Schedule;
 
 /**
  * ScheduledService class, provides a process that manages the scheduling of

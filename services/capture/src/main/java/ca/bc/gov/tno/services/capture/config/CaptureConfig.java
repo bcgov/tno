@@ -52,6 +52,16 @@ public class CaptureConfig extends DataSourceConfig {
   private long streamStartTime;
 
   /**
+   * The timezone of the capture service
+   */
+  private String timeZone;
+
+  /**
+   * The command executing this capture process
+   */
+  private String runningNow;
+
+  /**
    * Creates a new instance of a AudioConfig object.
    */
   public CaptureConfig() {
@@ -76,6 +86,8 @@ public class CaptureConfig extends DataSourceConfig {
     setClipDir((String) connection.get("clipDir"));
     setStreamTimeout((String) connection.get("streamTimeout"));
     setStreamStartTime((long) connection.get("streamStart"));
+    setTimezone((String) connection.get("timeZone"));
+    setRunningNow((String) connection.get("runningNow"));
   }
 
   /**
@@ -188,5 +200,33 @@ public class CaptureConfig extends DataSourceConfig {
    */
   public void setCaptureSuccess(boolean success) {
     this.captureSuccess = success;
+  }
+
+  /**
+   * @return String return the command for this capture process
+   */
+  public String getRunningCommand() {
+    return runningNow;
+  }
+
+  /**
+   * @param url the command for this capture process to set
+   */
+  public void setRunningNow(String command) {
+    this.runningNow = command;
+  }
+
+   /**
+   * @return String return the timezone of the capture service
+   */
+  public String getTimezone() {
+    return this.timeZone;
+  }
+
+  /**
+   * @param timeZone The timezone to use
+   */
+  public void setTimezone(String timeZone) {
+    this.timeZone = timeZone;
   }
 }
