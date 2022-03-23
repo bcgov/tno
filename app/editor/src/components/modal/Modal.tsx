@@ -1,5 +1,6 @@
 import { Button, ButtonVariant } from 'components/button';
 import { Row } from 'components/flex/row';
+import { Col } from 'components/flex/col';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -20,6 +21,10 @@ export interface IModalProps {
   headerText?: string;
   /** the text / fragment for the body of the modal */
   body?: string | React.ReactFragment;
+  /** pass custom buttons directly to the modal */
+  customButtons?: React.ReactFragment;
+  /** preset stylings for the modal */
+  type?: 'delete' | 'default' | 'custom';
 }
 
 /**
@@ -34,30 +39,43 @@ export const Modal: React.FC<IModalProps> = ({
   headerText,
   hide,
   body,
+  customButtons,
+  type,
 }) => {
   return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal>
-          <div className="modal-overlay">
-            <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
-              <div className="modal">
-                <Row className="modal-header">
-                  <h1>{headerText}</h1>
-                </Row>
-                <Row>
-                  <p>{body}</p>
-                </Row>
-                <Row className="button-row">
-                  <Button variant={ButtonVariant.action} onClick={onConfirm}>
-                    {confirmText ?? 'Continue'}
-                  </Button>
-                  <Button variant={ButtonVariant.danger} onClick={hide}>
-                    {cancelText ?? 'Cancel'}
-                  </Button>
-                </Row>
+          <Col>
+            <div className="modal-overlay">
+              <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
+                <div className="modal">
+                  <Row className="modal-header">
+                    <h1>{headerText}</h1>
+                  </Row>
+                  <Row>
+                    <p>{body}</p>
+                  </Row>
+                  {!!!customButtons && (
+                    <Row className="button-row">
+                      <Button
+                        variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.action}
+                        onClick={onConfirm}
+                      >
+                        {confirmText ?? 'Continue'}
+                      </Button>
+                      <Button
+                        variant={type === 'delete' ? ButtonVariant.action : ButtonVariant.danger}
+                        onClick={hide}
+                      >
+                        {cancelText ?? 'Cancel'}
+                      </Button>
+                    </Row>
+                  )}
+                  {!!customButtons && <Row className="button-row"> {customButtons} </Row>}
+                </div>
               </div>
             </div>
-          </div>
+          </Col>
         </styled.Modal>,
         document.body,
       )

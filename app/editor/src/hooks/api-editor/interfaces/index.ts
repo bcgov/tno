@@ -18,6 +18,7 @@ export * from './ISortableModel';
 export * from './ISourceActionModel';
 export * from './ISourceMetricModel';
 export * from './ITagModel';
+export * from './ITimeTrackingModel';
 export * from './ITonePoolModel';
 export * from './IUserInfoModel';
 export * from './IUserModel';

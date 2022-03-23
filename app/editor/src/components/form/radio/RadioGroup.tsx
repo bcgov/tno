@@ -1,5 +1,5 @@
 import { Row } from 'components/flex/row/styled';
-import React, { InputHTMLAttributes } from 'react';
+import React, { InputHTMLAttributes, useEffect } from 'react';
 
 import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
@@ -57,6 +57,11 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
   ...rest
 }: IRadioGroupProps<OT>) => {
   const [selected, setSelected] = React.useState<OT | undefined>(value);
+
+  /** for when the value needs to be passed down on initial load */
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = e.target.value;
@@ -124,6 +129,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 );
               } else {
                 const value = option as string;
+
                 return (
                   <span key={value}>
                     <Radio

@@ -1,4 +1,4 @@
-import { IContentModel } from 'hooks/api-editor';
+import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
 import moment from 'moment';
 
 import { IContentForm } from '../interfaces';
@@ -22,6 +22,13 @@ export function toModel(values: IContentForm): IContentModel {
     page: values.page,
     summary: values.summary,
     transcription: values.transcription,
+    timeTrackings: values.timeTrackings.map((x) => {
+      const container = {} as ITimeTrackingModel;
+      container.userId = x.userId;
+      container.activity = x.activity;
+      container.effort = x.effort;
+      return container;
+    }),
     publishedOn: moment(values.publishedOn).toDate(), // TODO: If they haven't set the publishedOn it will cause an error.
     printContent: !values.section
       ? undefined

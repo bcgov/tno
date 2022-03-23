@@ -9,6 +9,7 @@ export const Button = styled.button<IButtonProps>`
   font-weight: 400;
   text-align: center;
   vertical-align: middle;
+  height: 40px;
   user-select: none;
   border: 2px solid transparent;
   padding: 0.375rem 0.75rem;
@@ -48,7 +49,7 @@ export const Button = styled.button<IButtonProps>`
   background-color: ${(props) => {
     switch (props.variant) {
       case ButtonVariant.primary:
-        return '#38598a';
+        return '#003366';
       case ButtonVariant.secondary:
         return '#6c757d';
       case ButtonVariant.success:
@@ -64,13 +65,13 @@ export const Button = styled.button<IButtonProps>`
       case ButtonVariant.link:
         return 'transparent';
       default:
-        return '#38598a';
+        return '#003366';
     }
   }};
   border-color: ${(props) => {
     switch (props.variant) {
       case ButtonVariant.primary:
-        return '#38598a';
+        return '#003366';
       case ButtonVariant.secondary:
         return '#6c757d';
       case ButtonVariant.success:
@@ -86,7 +87,7 @@ export const Button = styled.button<IButtonProps>`
       case ButtonVariant.action:
         return '#003366';
       default:
-        return '#38598a';
+        return '#003366';
     }
   }};
 

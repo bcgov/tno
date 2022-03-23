@@ -36,7 +36,7 @@ export const Modal = styled.div`
     position: relative;
     margin: 10% auto;
     border-radius: 3px;
-    max-width: 500px;
+    max-width: 600px;
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
   }
