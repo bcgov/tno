@@ -6,7 +6,7 @@ export const defaultFormValues: IContentForm = {
   id: 0,
   uid: '',
   sourceUrl: '',
-  status: ContentStatus.Draft,
+  status: ContentStatus.Publish,
   workflowStatus: WorkflowStatus.Received,
   contentTypeId: 0,
   mediaTypeId: 0,
@@ -19,6 +19,8 @@ export const defaultFormValues: IContentForm = {
   page: '',
   transcription: '',
   publishedOn: '',
+  timeTrackings: [],
+  actions: [],
   // Print Content
   section: '',
   edition: '',

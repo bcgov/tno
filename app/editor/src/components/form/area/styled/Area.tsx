@@ -31,6 +31,15 @@ export const Area = styled.div`
     width: 140px;
   }
 
+  .md-sm {
+    height: 40px;
+    width: 200px;
+  }
+
+  .space-right {
+    margin-right: 35px;
+  }
+
   .chk {
     padding-bottom: 5%;
     margin-right: 2%;
