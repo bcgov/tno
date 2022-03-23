@@ -9,6 +9,8 @@ import {
   WorkflowStatus,
 } from '..';
 import { IPrintContentModel } from '.';
+import { IActionModel } from './IActionModel';
+import { ITimeTrackingModel } from './ITimeTrackingModel';
 
 export interface IContentModel extends IAuditColumnsModel {
   id: number;
@@ -35,4 +37,6 @@ export interface IContentModel extends IAuditColumnsModel {
   summary: string;
   transcription?: string;
   sourceUrl?: string;
+  timeTrackings?: ITimeTrackingModel[];
+  actions?: IActionModel[];
 }

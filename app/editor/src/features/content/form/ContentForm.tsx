@@ -1,16 +1,21 @@
 import { Area, IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
+import { Modal } from 'components/modal';
 import { Formik } from 'formik';
+import { IActionModel, IUserModel } from 'hooks/api-editor';
+import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant } from 'tno-core';
+import { useKeycloakWrapper } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex/col';
 import { Row } from 'tno-core/dist/components/flex/row';
 import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 import { getSortableOptions } from 'utils';
 
 import { PropertiesContentForm } from '.';
+import { ActionCheckbox } from './ActionCheckbox';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import { TranscriptContentForm } from './TranscriptContentForm';
@@ -23,8 +28,9 @@ import { toForm, toModel } from './utils';
 export const ContentForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ mediaTypes }] = useLookup();
-  const [, { getContent, addContent, updateContent }] = useContent();
+  const [{ mediaTypes, users }] = useLookup();
+  const [, { getContent, addContent, updateContent, deleteContent }] = useContent();
+  const { isShowing, toggle } = useModal();
 
   const [active, setActive] = React.useState('properties');
   const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
@@ -33,9 +39,14 @@ export const ContentForm: React.FC = () => {
     id: parseInt(id ?? '0'),
   });
   const [toggleCommentary, setToggleCommentary] = React.useState(true);
+  const keycloak = useKeycloakWrapper();
+
+  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
 
   // include id when it is an update, no idea necessary when new content
   const submitContent = async (values: IContentForm) => {
+    values.contentTypeId = 1;
+    values.ownerId = !content.id ? userId ?? 0 : values.ownerId;
     const model = toModel(values);
     const result = !content.id ? await addContent(model) : await updateContent(model);
     toForm(result);
@@ -68,7 +79,11 @@ export const ContentForm: React.FC = () => {
       <Formik
         enableReinitialize
         onSubmit={async (values) => {
-          await submitContent(values);
+          try {
+            await submitContent(values);
+          } finally {
+            navigate('/contents');
+          }
         }}
         initialValues={content}
       >
@@ -82,9 +97,7 @@ export const ContentForm: React.FC = () => {
                     name="headline"
                     label="Headline"
                     value={props.values.headline}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setContent({ ...content, headline: e.target.value })
-                    }
+                    onChange={props.handleChange}
                   />
                 </Row>
                 <Row>
@@ -95,7 +108,7 @@ export const ContentForm: React.FC = () => {
                       label="Source"
                       value={props.values.source}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setContent({ ...content, source: e.target.value })
+                        props.setFieldValue('source', e.target.value)
                       }
                     />
                   </Col>
@@ -107,8 +120,10 @@ export const ContentForm: React.FC = () => {
                   <FormikSelect
                     className="md"
                     name="mediaTypeId"
-                    value={mediaTypeOptions.find((mt) => mt.value === content.mediaTypeId)}
-                    onChange={(e: any) => setContent({ ...content, mediaTypeId: e.value })}
+                    value={mediaTypeOptions.find((mt) => mt.value === props.values.mediaTypeId)}
+                    onChange={(e: any) => {
+                      props.setFieldValue('mediaTypeId', e.value);
+                    }}
                     label="Media Type"
                     options={mediaTypeOptions}
                   />
@@ -123,28 +138,25 @@ export const ContentForm: React.FC = () => {
                     <FormikCheckbox
                       name="commentary"
                       className="chk"
-                      disabled={!content.id}
                       onClick={() => setToggleCommentary(!toggleCommentary)}
                       label="Commentary"
                     />
                   </Col>
                   <Col style={{ width: '215px' }}>
-                    <FormikCheckbox disabled className="chk" name="topStory" label="Top Story " />
-                    <FormikCheckbox disabled className="chk" name="onTicker" label="On Ticker" />
-                    <FormikCheckbox
-                      className="chk"
+                    <ActionCheckbox name="topStory" label="Top Story" actionId={4} />
+                    <ActionCheckbox name="onTicker" label="On Ticker" actionId={5} />
+                    <ActionCheckbox
                       name="nonQualified"
-                      disabled
                       label="Non Qualified Subject"
+                      actionId={6}
                     />
                   </Col>
                 </Row>
                 <Row>
                   <FormikText
+                    disabled={toggleCommentary}
                     name="timeout"
-                    value="NON FUNCTIONAL"
                     label="Commentary Timeout"
-                    disabled={content.id ? toggleCommentary : true}
                     className="md"
                   />
                 </Row>
@@ -170,18 +182,44 @@ export const ContentForm: React.FC = () => {
                 {active === 'properties' ? (
                   <PropertiesContentForm content={content} setContent={setContent} />
                 ) : (
-                  <TranscriptContentForm content={content} setContent={setContent} />
+                  <TranscriptContentForm />
                 )}
               </Tabs>
             </Row>
             <Row style={{ marginTop: '2%' }}>
-              <Button style={{ marginRight: '4%' }} type="submit" disabled={!!content.id}>
-                {!!content.id ? 'Create Snippet' : 'Update Snippet'}
+              <Button
+                style={{ marginRight: '4%' }}
+                type="submit"
+                onClick={async () => {
+                  try {
+                    await submitContent(props.values);
+                  } finally {
+                    navigate('/contents');
+                  }
+                }}
+              >
+                {!content.id ? 'Create Snippet' : 'Update Snippet'}
               </Button>
-              <Button disabled variant={ButtonVariant.danger}>
-                Remove Snippet{' '}
+              <Button onClick={toggle} variant={ButtonVariant.danger}>
+                Remove Snippet
               </Button>
             </Row>
+            <Modal
+              headerText="Confirm Removal"
+              body="Are you sure you wish to remove this snippet?"
+              isShowing={isShowing}
+              hide={toggle}
+              type="delete"
+              confirmText="Yes, Remove It"
+              onConfirm={async () => {
+                try {
+                  await deleteContent(toModel(props.values));
+                } finally {
+                  toggle();
+                  navigate('/contents');
+                }
+              }}
+            />
           </Col>
         )}
       </Formik>

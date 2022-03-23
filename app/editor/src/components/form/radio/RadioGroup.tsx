@@ -58,6 +58,11 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
 }: IRadioGroupProps<OT>) => {
   const [selected, setSelected] = React.useState<OT | undefined>(value);
 
+  /** for when the value needs to be passed down on initial load */
+  React.useEffect(() => {
+    setSelected(value);
+  }, [value]);
+
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = e.target.value;
     const isChecked = e.target.checked;
@@ -124,6 +129,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 );
               } else {
                 const value = option as string;
+
                 return (
                   <span key={value}>
                     <Radio
