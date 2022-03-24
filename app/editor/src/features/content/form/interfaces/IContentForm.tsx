@@ -1,8 +1,9 @@
-import { ContentStatus, IActionModel, ITimeTrackingModel, WorkflowStatus } from 'hooks';
+import { ContentStatus, IActionModel, ITagModel, ITimeTrackingModel, WorkflowStatus } from 'hooks';
 
 export interface IContentForm {
   timeTrackings: ITimeTrackingModel[];
   actions: IActionModel[];
+  tags: ITagModel[];
   id: number;
   uid: string;
   sourceUrl: string;

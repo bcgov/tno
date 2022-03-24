@@ -10,6 +10,7 @@ import {
 } from '..';
 import { IPrintContentModel } from '.';
 import { IActionModel } from './IActionModel';
+import { ITagModel } from './ITagModel';
 import { ITimeTrackingModel } from './ITimeTrackingModel';
 
 export interface IContentModel extends IAuditColumnsModel {
@@ -39,4 +40,5 @@ export interface IContentModel extends IAuditColumnsModel {
   sourceUrl?: string;
   timeTrackings?: ITimeTrackingModel[];
   actions?: IActionModel[];
+  tags?: ITagModel[];
 }
