@@ -1,8 +1,9 @@
-import { ContentStatus, WorkflowStatus, ITimeTrackingModel, IActionModel } from 'hooks/api-editor';
+import { ContentStatus, WorkflowStatus, ITimeTrackingModel, IActionModel, ITagModel } from 'hooks/api-editor';
 
 export interface IContentForm {
   timeTrackings: ITimeTrackingModel[];
   actions: IActionModel[];
+  tags: ITagModel[];
   id: number;
   uid: string;
   sourceUrl: string;
