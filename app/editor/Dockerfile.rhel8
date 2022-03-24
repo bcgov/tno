@@ -3,11 +3,11 @@ FROM rhel8/nodejs-16 as build-deps
 USER root
 
 WORKDIR /usr/src/app
-COPY package*.json yarn.lock ./
+COPY /.yarn ./.yarn
+COPY package*.json yarn.lock .yarnrc.yml ./
 
-RUN yarn cache clean
 RUN yarn
-COPY . ./
+COPY . .
 
 RUN chmod 777 /usr/src/app/nginx/default.conf
 

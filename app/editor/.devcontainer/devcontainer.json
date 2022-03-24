@@ -33,7 +33,11 @@
     "pflannery.vscode-versionlens",
     "styled-components.vscode-styled-components",
     "eamodio.gitlens",
-    "chrisbibby.hide-node-modules"
+    "chrisbibby.hide-node-modules",
+    "kamikillerto.vscode-colorize",
+    "naumovs.color-highlight",
+    "syler.sass-indented",
+    "michelemelluso.code-beautifier"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

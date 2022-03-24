@@ -5,7 +5,7 @@ import {
   IContentListFilter,
   ISortBy,
 } from 'features/content/list-view/interfaces';
-import { LogicalOperator } from 'hooks';
+import { LogicalOperator } from 'hooks/api-editor';
 
 import { IContentState } from './interfaces';
 

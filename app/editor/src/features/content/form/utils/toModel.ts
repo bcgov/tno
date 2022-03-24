@@ -1,4 +1,4 @@
-import { IContentModel } from 'hooks';
+import { IContentModel } from 'hooks/api-editor';
 import moment from 'moment';
 
 import { IContentForm } from '../interfaces';

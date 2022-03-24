@@ -52,7 +52,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: (row) =>
       row.status === ContentStatus.Publish || row.status === ContentStatus.Published,
     Cell: ({ value }: { value: boolean }) => {
-      return <Checkbox value={value} />;
+      return <Checkbox checked={value} />;
     },
   },
 ];

@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IMediaTypeModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { IMediaTypeModel, useApi } from '..';
  */
 export const useApiMediaTypes = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiMediaTypes = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getMediaTypes: () => {
-        return extractResponseData<IMediaTypeModel[]>(() => api.get(`/editor/media/types`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getMediaTypes: () => {
+      return extractResponseData<IMediaTypeModel[]>(() => api.get(`/editor/media/types`));
+    },
+  }).current;
 };

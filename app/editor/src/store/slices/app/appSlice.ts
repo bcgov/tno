@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IUserInfoModel } from 'hooks';
+import { IUserInfoModel } from 'hooks/api-editor';
 
 import { IAppState } from '.';
 

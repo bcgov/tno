@@ -8,7 +8,7 @@ import {
   ITagModel,
   ITonePoolModel,
   IUserModel,
-} from 'hooks';
+} from 'hooks/api-editor';
 
 export interface ILookupState {
   actions: IActionModel[];

@@ -1,22 +1,32 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
-
-import { SummonContext } from './SummonContext';
+import { ILifecycleToasts, SummonContext } from '.';
 
 export const defaultEnvelope = (x: any) => ({ data: { records: x } });
+let getToken = (): string | null | undefined => {
+  throw new Error('Must use useSummon before fetch');
+};
 
 /**
- * used by the useSummon hook.
- * loadingToast is the message to display while the api request is pending. This toast is cancelled when the request is completed.
- * successToast is displayed when the request is completed successfully.
- * errorToast is displayed when the request fails for any reason. By default this will return an error from axios.
+ * Global axios instance collection for each unique baseURL.
  */
-export interface LifecycleToasts {
-  loadingToast?: () => React.ReactText;
-  successToast?: () => React.ReactText;
-  errorToast?: () => React.ReactText;
+let axiosInstances = {
+  default: {},
+};
+
+/**
+ * useSummon hook properties.
+ */
+export interface ISummonProps {
+  lifecycleToasts?: ILifecycleToasts;
+  selector?: Function;
+  envelope?: typeof defaultEnvelope;
+  /**
+   * The base URL all requests will use.
+   */
+  baseURL?: string;
 }
 
 /**
@@ -28,71 +38,67 @@ export const useSummon = ({
   selector,
   envelope = defaultEnvelope,
   baseURL,
-}: {
-  lifecycleToasts?: LifecycleToasts;
-  selector?: Function;
-  envelope?: typeof defaultEnvelope;
-  baseURL?: string;
-} = {}) => {
+}: ISummonProps = {}) => {
   const state = React.useContext(SummonContext);
   let loadingToastId: React.ReactText | undefined = undefined;
 
-  const instance = React.useMemo(
-    () => {
-      const instance = axios.create({
-        baseURL,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
-      return instance;
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [baseURL, state],
-  );
+  // Need to set this globally so that all useSummon instances have the latest token.
+  getToken = () => state.token;
+  const instance = React.useRef<AxiosInstance>((axiosInstances as any)[baseURL ?? 'default']);
 
-  instance.interceptors.request.use((config) => {
-    config!.headers!.Authorization = `Bearer ${state.token}`;
-    if (selector !== undefined) {
-      const storedValue = selector(state);
+  if (instance.current === undefined) {
+    const instance = axios.create({
+      baseURL,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
 
-      if (!isEmpty(storedValue)) {
-        throw new axios.Cancel(JSON.stringify(envelope(storedValue)));
+    instance.interceptors.request.use((config) => {
+      config!.headers!.Authorization = `Bearer ${getToken()}`;
+      if (selector !== undefined) {
+        const storedValue = selector(state);
+
+        if (!isEmpty(storedValue)) {
+          throw new axios.Cancel(JSON.stringify(envelope(storedValue)));
+        }
       }
-    }
-    if (lifecycleToasts?.loadingToast) {
-      loadingToastId = lifecycleToasts.loadingToast();
-    }
-    return config;
-  });
-
-  instance.interceptors.response.use(
-    (response) => {
-      if (lifecycleToasts?.successToast && response.status < 300) {
-        loadingToastId && toast.dismiss(loadingToastId);
-        lifecycleToasts.successToast();
-      } else if (lifecycleToasts?.errorToast && response.status >= 300) {
-        lifecycleToasts.errorToast();
+      if (lifecycleToasts?.loadingToast) {
+        loadingToastId = lifecycleToasts.loadingToast();
       }
-      return response;
-    },
-    (error) => {
-      if (axios.isCancel(error)) {
-        return Promise.resolve(error.message);
-      }
-      if (lifecycleToasts?.errorToast) {
-        loadingToastId && toast.dismiss(loadingToastId);
-        lifecycleToasts.errorToast();
-      }
+      return config;
+    });
 
-      // TODO: This is not returning the error to an async/await try/catch implementation...
-      //const errorMessage =
-      //  errorToastMessage || (error.response && error.response.data.message) || String.ERROR;
-      return Promise.reject(error);
-    },
-  );
+    instance.interceptors.response.use(
+      (response) => {
+        if (lifecycleToasts?.successToast && response.status < 300) {
+          loadingToastId && toast.dismiss(loadingToastId);
+          lifecycleToasts.successToast();
+        } else if (lifecycleToasts?.errorToast && response.status >= 300) {
+          lifecycleToasts.errorToast();
+        }
+        return response;
+      },
+      (error) => {
+        if (axios.isCancel(error)) {
+          return Promise.resolve(error.message);
+        }
+        if (lifecycleToasts?.errorToast) {
+          loadingToastId && toast.dismiss(loadingToastId);
+          lifecycleToasts.errorToast();
+        }
 
-  return instance;
+        // TODO: This is not returning the error to an async/await try/catch implementation...
+        //const errorMessage =
+        //  errorToastMessage || (error.response && error.response.data.message) || String.ERROR;
+        return Promise.reject(error);
+      },
+    );
+
+    (axiosInstances as any)[baseURL ?? 'default'] = instance;
+  }
+
+  return instance.current;
 };
 
 export default useSummon;

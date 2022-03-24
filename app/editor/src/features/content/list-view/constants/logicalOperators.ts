@@ -1,5 +1,5 @@
 import { OptionItem } from 'components/form';
-import { LogicalOperator } from 'hooks';
+import { LogicalOperator } from 'hooks/api-editor';
 
 export const logicalOperators = [
   new OptionItem('Contains', LogicalOperator.Contains),

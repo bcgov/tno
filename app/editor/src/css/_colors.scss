@@ -7,8 +7,6 @@ $secondary-variant-color-rgb: 66, 139, 202;
 $light-variant-color: #606060;
 $dark-variant-color: #121212;
 $text-color: #494949;
-$form-background-color: #d9d9d9;
-$dropdown-background-color: #32507c;
 $accent-color: #fcba19;
 $light-accent-color: #fcd573;
 $table-color: #dee2e6;
@@ -22,6 +20,11 @@ $completed-color: #2e8540;
 $filter-background-color: #f2f2f2;
 $slide-out-blue: #1a5a96;
 $selected-color: #dff0d8;
+
+// Form
+$form-background-color: #d9d9d9;
+$dropdown-background-color: #32507c;
+$input-required-border-color: #428bca;
 
 // Bootstrap defaults
 $bs-text-opacity: 1;

@@ -9,7 +9,7 @@ import {
   ITagModel,
   ITonePoolModel,
   IUserModel,
-} from 'hooks';
+} from 'hooks/api-editor';
 
 import { ILookupState } from './interfaces';
 

@@ -1,4 +1,4 @@
-import { IContentFilter } from 'hooks';
+import { IContentFilter } from 'hooks/api-editor';
 import moment from 'moment';
 
 import { IContentListAdvancedFilter, IContentListFilter, ISortBy } from './interfaces';

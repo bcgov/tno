@@ -8,7 +8,7 @@ import {
   ITagModel,
   ITonePoolModel,
   IUserModel,
-} from 'hooks';
+} from 'hooks/api-editor';
 import {
   useApiActions,
   useApiCategories,
@@ -19,7 +19,7 @@ import {
   useApiTags,
   useApiTonePools,
   useApiUsers,
-} from 'hooks/api-editor/editor';
+} from 'hooks/api-editor';
 import React from 'react';
 import { ILookupStore, useLookupStore } from 'store/slices';
 import { ILookupState } from 'store/slices/lookup';

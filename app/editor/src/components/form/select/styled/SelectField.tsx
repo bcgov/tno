@@ -1,0 +1,137 @@
+import Select from 'react-select';
+import styled from 'styled-components';
+
+import { ISelectProps, SelectVariant } from '..';
+
+export const SelectField = styled(Select)<ISelectProps<any>>`
+  margin-right: 0.5em;
+  flex-grow: 1;
+
+  &.alert {
+    .rs__control {
+      border-color: ${(props) => props.theme.css.dangerColor};
+      filter: grayscale(100%) brightness(65%) sepia(25%) hue-rotate(-50deg) saturate(600%)
+        contrast(0.8);
+    }
+  }
+
+  .rs__control {
+    text-decoration: ${(props) => (props.variant === SelectVariant.link ? 'underline' : 'none')};
+    display: flex;
+    width: ${(props) => props.width};
+    font-weight: 400;
+    text-align: left;
+    vertical-align: middle;
+    user-select: text;
+    border-width: 1px;
+    border-style: solid;
+    font-size: 1rem;
+    line-height: 1.6;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    overflow: visible;
+    text-transform: none;
+    color: ${(props) => {
+      switch (props.variant) {
+        case SelectVariant.warning:
+        case SelectVariant.danger:
+          return '#212529';
+        case SelectVariant.link:
+          return '#1a5a96';
+        default:
+          return props.theme.css.primaryColor;
+      }
+    }};
+
+    background-color: ${(props) => {
+      switch (props.variant) {
+        case SelectVariant.primary:
+          return props.theme.css.inputBackgroundColor;
+        case SelectVariant.secondary:
+          return '#6c757d';
+        case SelectVariant.success:
+          return '#43893e';
+        case SelectVariant.info:
+          return '#96c0e6';
+        case SelectVariant.warning:
+          return '#f9ca54';
+        case SelectVariant.danger:
+          return '#d93e45';
+        case SelectVariant.link:
+          return 'transparent';
+        default:
+          return '#38598a';
+      }
+    }};
+
+    border-color: ${(props) => {
+      switch (props.variant) {
+        case SelectVariant.primary:
+          return props.required ? props.theme.css.inputRequiredBorderColor : '#38598a';
+        case SelectVariant.secondary:
+          return props.required ? props.theme.css.inputRequiredBorderColor : '#6c757d';
+        case SelectVariant.success:
+          return '#43893e';
+        case SelectVariant.info:
+          return '#96c0e6';
+        case SelectVariant.warning:
+          return '#f9ca54';
+        case SelectVariant.danger:
+          return '#d93e45';
+        case SelectVariant.link:
+          return 'transparent';
+        default:
+          return '#38598a';
+      }
+    }};
+
+    &:hover {
+      color: ${(props) => {
+        switch (props.variant) {
+          case SelectVariant.warning:
+          case SelectVariant.danger:
+            return '#212529';
+          case SelectVariant.link:
+            return '#0631f3';
+          default:
+            return props.theme.css.primaryColor;
+        }
+      }};
+      border-color: ${(props) => {
+        switch (props.variant) {
+          case SelectVariant.primary:
+            return '#294266';
+          case SelectVariant.secondary:
+            return '#545b62';
+          case SelectVariant.success:
+            return '#32662e';
+          case SelectVariant.info:
+            return '#6da7dc';
+          case SelectVariant.warning:
+            return '#f7bb23';
+          case SelectVariant.danger:
+            return '#be262c';
+          case SelectVariant.link:
+            return 'transparent';
+          default:
+            return '#fff';
+        }
+      }};
+    }
+
+    &:focus {
+      outline: 0;
+      color: ${(props) => {
+        switch (props.variant) {
+          case SelectVariant.link:
+            return '#0631f3';
+        }
+      }};
+    }
+  }
+
+  .rs__menu {
+    width: ${(props) => props.width};
+  }
+`;

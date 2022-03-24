@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IContentTypeModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { IContentTypeModel, useApi } from '..';
  */
 export const useApiCategories = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiCategories = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getCategories: () => {
-        return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/categories`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getCategories: () => {
+      return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/categories`));
+    },
+  }).current;
 };

@@ -1,7 +1,5 @@
 package ca.bc.gov.tno.areas.admin.controllers;
 
-import java.util.List;
-
 import javax.annotation.security.RolesAllowed;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
+import ca.bc.gov.tno.models.Paged;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
 
 /**
@@ -35,9 +34,9 @@ public class DataSourceController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<DataSource> findAll() {
-    var users = dataSourceService.findAll();
-    return users;
+  public Paged<DataSource> find() {
+    var result = dataSourceService.findAll();
+    return new Paged<DataSource>(result, 1, result.size(), result.size());
   }
 
   /**
@@ -48,8 +47,8 @@ public class DataSourceController {
    */
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource findById(@PathVariable(required = true) Integer id) {
-    var dataSource = dataSourceService.findById(id).orElse(null);
-    return dataSource;
+    var result = dataSourceService.findById(id).orElse(null);
+    return result;
   }
 
   /**
@@ -61,8 +60,8 @@ public class DataSourceController {
   @PostMapping(path = { "", "/" }, consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource add(@RequestBody DataSource model) {
-    var dataSource = dataSourceService.add(model);
-    return dataSource;
+    var result = dataSourceService.add(model);
+    return result;
   }
 
   /**
@@ -75,8 +74,8 @@ public class DataSourceController {
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
   public DataSource update(@PathVariable Integer id, @RequestBody DataSource model) {
-    var dataSource = dataSourceService.update(model);
-    return dataSource;
+    var result = dataSourceService.update(model);
+    return result;
   }
 
   /**

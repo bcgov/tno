@@ -1,5 +1,5 @@
 import { Button, ButtonVariant } from 'components/button';
-import { Row } from 'components/row';
+import { Row } from 'components/flex/row';
 import React from 'react';
 import ReactDOM from 'react-dom';
 

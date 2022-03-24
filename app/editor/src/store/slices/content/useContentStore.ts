@@ -5,7 +5,7 @@ import {
 } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
-import useDeepCompareEffect from 'tno-core/dist/hooks/useDeepCompareEffect';
+import { useDeepCompareEffect } from 'tno-core';
 
 import { storeFilter, storeFilterAdvanced, storeSortBy } from '.';
 import { IContentState } from './interfaces';

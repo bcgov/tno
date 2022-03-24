@@ -1,8 +1,8 @@
 import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/col';
+import { Col } from 'components/flex/col';
+import { Row } from 'components/flex/row';
 import { Area, IOptionItem, OptionItem } from 'components/form';
-import { FormikCheckbox, FormikDropdown, FormikText } from 'components/formik';
-import { Row } from 'components/row';
+import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
 import React from 'react';
@@ -104,7 +104,7 @@ export const ContentForm: React.FC = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <FormikDropdown
+                  <FormikSelect
                     className="md"
                     name="mediaTypeId"
                     value={mediaTypeOptions.find((mt) => mt.value === content.mediaTypeId)}
@@ -117,56 +117,24 @@ export const ContentForm: React.FC = () => {
               <Col style={{ marginLeft: '3%', marginRight: '10%' }}>
                 <Row style={{ marginTop: '4.5%' }}>
                   <Col style={{ width: '215px' }}>
-                    <FormikCheckbox
-                      disabled
-                      className="chk"
-                      name="publish"
-                      labelRight
-                      label="Publish"
-                    />
-                    <FormikCheckbox
-                      disabled
-                      className="chk"
-                      name="alert"
-                      labelRight
-                      label="Alert"
-                    />
-                    <FormikCheckbox
-                      className="chk"
-                      name="frontPage"
-                      labelRight
-                      disabled
-                      label="Front Page"
-                    />
+                    <FormikCheckbox disabled className="chk" name="publish" label="Publish" />
+                    <FormikCheckbox disabled className="chk" name="alert" label="Alert" />
+                    <FormikCheckbox className="chk" name="frontPage" disabled label="Front Page" />
                     <FormikCheckbox
                       name="commentary"
                       className="chk"
                       disabled={!content.id}
                       onClick={() => setToggleCommentary(!toggleCommentary)}
-                      labelRight
                       label="Commentary"
                     />
                   </Col>
                   <Col style={{ width: '215px' }}>
-                    <FormikCheckbox
-                      disabled
-                      className="chk"
-                      name="topStory"
-                      labelRight
-                      label="Top Story "
-                    />
-                    <FormikCheckbox
-                      disabled
-                      className="chk"
-                      name="onTicker"
-                      labelRight
-                      label="On Ticker"
-                    />
+                    <FormikCheckbox disabled className="chk" name="topStory" label="Top Story " />
+                    <FormikCheckbox disabled className="chk" name="onTicker" label="On Ticker" />
                     <FormikCheckbox
                       className="chk"
                       name="nonQualified"
                       disabled
-                      labelRight
                       label="Non Qualified Subject"
                     />
                   </Col>

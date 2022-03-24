@@ -1,5 +1,5 @@
 import { IOptionItem } from 'components/form';
-import { LogicalOperator } from 'hooks';
+import { LogicalOperator } from 'hooks/api-editor';
 
 export interface IContentListAdvancedFilter {
   fieldType: IOptionItem;

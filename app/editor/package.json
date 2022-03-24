@@ -3,7 +3,6 @@
   "description": "Today's News Online Editor application",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "private": false,
   "homepage": "/",
   "dependencies": {
     "@headlessui/react": "1.5.0",
@@ -34,7 +33,7 @@
     "react-tooltip": "4.2.21",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.3",
-    "tno-core": "0.0.96",
+    "tno-core": "0.0.99",
     "yup": "0.32.11"
   },
   "devDependencies": {
@@ -73,8 +72,6 @@
     "sass-extract-loader": "1.1.0",
     "typescript": "4.6.2"
   },
-  "peerDependencies": {},
-  "resolutions": {},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -110,5 +107,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "packageManager": "yarn@3.2.0"
 }

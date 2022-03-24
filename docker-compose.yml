@@ -203,7 +203,7 @@ services:
     volumes:
       - ./app/editor/src:/usr/app/src
       - ./app/editor/public:/usr/app/public
-      - tno-editor-node-cache:/usr/app/node_modules
+      # - tno-editor-node-cache:/usr/app/node_modules
     ports:
       - ${APP_EDITOR_HTTP_PORT:-40082}:3000
       - ${APP_EDITOR_HTTPS_PORT:-40444}:3443

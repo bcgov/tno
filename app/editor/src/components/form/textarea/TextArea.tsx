@@ -1,10 +1,18 @@
 import { InputHTMLAttributes } from 'react';
+import React from 'react';
 
 import { TextVariant } from '..';
+import { FieldSize } from '../constants';
 import * as styled from './styled';
 
 export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement> {
+  /**
+   * Form field name and field assessor.
+   */
   name: string;
+  /**
+   * Form field label.
+   */
   label?: string;
   /**
    * The styled variant.
@@ -14,6 +22,14 @@ export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement>
    * The tooltip to show on hover.
    */
   tooltip?: string;
+  /**
+   * Form field size.
+   */
+  width?: FieldSize;
+  /**
+   * Error message.
+   */
+  error?: string;
 }
 
 export const TextArea: React.FC<ITextAreaProps> = ({
@@ -24,22 +40,49 @@ export const TextArea: React.FC<ITextAreaProps> = ({
   tooltip,
   children,
   className,
+  error,
+  width,
+  onInput,
+  onInvalid,
   ...rest
 }) => {
+  const [errorMsg, setErrorMsg] = React.useState(error);
+
   return (
-    <div className="frm-in">
+    <styled.TextArea className="frm-in">
       {label && <label htmlFor={id ?? `txa-${name}`}>{label}</label>}
-      <styled.TextArea
+      <styled.TextAreaField
         id={id}
         name={name}
         variant={variant}
         className={`txa ${className ?? ''}`}
         data-for="main-tooltip"
         data-tip={tooltip}
+        width={width}
+        role={errorMsg ? 'alert' : 'none'}
+        onInput={(e) => {
+          if (onInput) onInput(e);
+          else {
+            const input = e.target as HTMLInputElement;
+            input.setCustomValidity('');
+            setErrorMsg(undefined);
+          }
+        }}
+        onInvalid={(e) => {
+          if (onInvalid) return onInvalid(e);
+          else {
+            const input = e.target as HTMLInputElement;
+            if (rest.required && input.validity.valueMissing) {
+              input.setCustomValidity(error ?? 'required');
+              setErrorMsg(error ?? 'required');
+            }
+          }
+        }}
         {...rest}
       >
         {children}
-      </styled.TextArea>
-    </div>
+      </styled.TextAreaField>
+      {errorMsg && <p role="alert">{errorMsg}</p>}
+    </styled.TextArea>
   );
 };

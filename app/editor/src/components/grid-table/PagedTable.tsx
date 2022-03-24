@@ -18,7 +18,7 @@ export interface IPagedTableProps<CT extends object = {}> {
   /**
    * Event fires when pageIndex or pageSize changes.
    */
-  onChangePage: (pageIndex: number, pageSize?: number) => void;
+  onChangePage?: (pageIndex: number, pageSize?: number) => void;
   /**
    * The sort has changed.
    */
@@ -55,6 +55,9 @@ export const PagedTable = <CT extends object>({
       sorting={{
         manualSortBy: true,
         sortBy: sortBy,
+      }}
+      filters={{
+        manualFilters: true,
       }}
       onRowClick={onRowClick}
       onChangePage={onChangePage}
