@@ -1,6 +1,6 @@
 import { GridTable } from 'components/grid-table';
 import { Row } from 'components/row';
-import { ITimeTrackingModel, IUserModel } from 'hooks';
+import { ITimeTrackingModel } from 'hooks';
 import { useLookup } from 'store/hooks';
 import styled from 'styled-components';
 
