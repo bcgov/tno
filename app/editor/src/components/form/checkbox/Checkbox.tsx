@@ -4,7 +4,7 @@ import { CheckboxVariant } from '.';
 import { LabelPosition } from './constants';
 import * as styled from './styled';
 
-export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface ICheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value'> {
   /**
    * The label to include with the control.
    */
@@ -29,6 +29,8 @@ export interface ICheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
    * Position of label.
    */
   labelPosition?: LabelPosition;
+  /** The value to apply if the checkbox is checked. */
+  value?: boolean | string | number | readonly string[];
 }
 
 /**
@@ -41,7 +43,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
   name,
   label,
   labelPosition = LabelPosition.Right,
-  value,
+  value = true,
   type = 'checkbox',
   variant = CheckboxVariant.primary,
   tooltip,
@@ -56,6 +58,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 
   const labelId = id ?? `${name}-${value}`;
   const LabelInput = <label htmlFor={labelId}>{label}</label>;
+  const fieldValue = typeof value === 'boolean' ? (value ? 'true' : 'false') : value;
 
   return (
     <styled.Checkbox
@@ -71,7 +74,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
         <styled.CheckboxField
           id={labelId}
           name={name}
-          value={value}
+          value={fieldValue}
           ref={ref}
           type={type}
           variant={variant}

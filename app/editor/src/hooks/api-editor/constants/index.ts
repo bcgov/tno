@@ -3,5 +3,6 @@ export * from './ContentStatusName';
 export * from './LogicalOperator';
 export * from './ScheduleType';
 export * from './Settings';
+export * from './WeekDays';
 export * from './WorkflowStatus';
 export * from './WorkflowStatusName';

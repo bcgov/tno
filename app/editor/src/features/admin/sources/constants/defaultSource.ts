@@ -12,4 +12,6 @@ export const defaultSource: IDataSourceModel = {
   topic: '',
   connection: '',
   schedules: [],
+  inCBRA: false,
+  inAnalysis: false,
 };

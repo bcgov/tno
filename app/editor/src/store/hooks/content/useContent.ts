@@ -1,10 +1,10 @@
 import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
 import { useApiContents } from 'hooks/api-editor';
 import React from 'react';
-import { IContentStore, useContentStore } from 'store/slices';
+import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
 
-interface IContentHook {
+interface IContentController {
   getContent: (id: number) => Promise<IContentModel>;
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
@@ -12,35 +12,32 @@ interface IContentHook {
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
 }
 
-export const useContent = (props?: IContentProps): [IContentState, IContentHook, IContentStore] => {
-  const [state, store] = useContentStore(props);
+export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
+  const [state] = useContentStore(props);
   const api = useApiContents();
 
-  const hook: IContentHook = React.useMemo(
-    () => ({
-      getContent: async (id: number) => {
-        const result = await api.getContent(id);
-        return result;
-      },
-      findContent: async (filter: IContentFilter) => {
-        const result = await api.findContent(filter);
-        return result;
-      },
-      addContent: async (content: IContentModel) => {
-        const result = await api.addContent(content);
-        return result;
-      },
-      updateContent: async (content: IContentModel) => {
-        const result = await api.updateContent(content);
-        return result;
-      },
-      deleteContent: async (content: IContentModel) => {
-        const result = await api.deleteContent(content);
-        return result;
-      },
-    }),
-    [api],
-  );
+  const controller = React.useRef({
+    getContent: async (id: number) => {
+      const result = await api.getContent(id);
+      return result;
+    },
+    findContent: async (filter: IContentFilter) => {
+      const result = await api.findContent(filter);
+      return result;
+    },
+    addContent: async (content: IContentModel) => {
+      const result = await api.addContent(content);
+      return result;
+    },
+    updateContent: async (content: IContentModel) => {
+      const result = await api.updateContent(content);
+      return result;
+    },
+    deleteContent: async (content: IContentModel) => {
+      const result = await api.deleteContent(content);
+      return result;
+    },
+  }).current;
 
-  return [state, hook, store];
+  return [state, controller];
 };

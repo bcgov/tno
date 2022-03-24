@@ -5,14 +5,14 @@ export interface IScheduleModel extends IAuditColumnsModel {
   id: number;
   name: string;
   description: string;
-  isEnabled: boolean;
+  enabled: boolean;
   scheduleType: ScheduleType;
   delayMS: number;
   runOn?: Date;
   startAt?: Date;
   stopAt?: Date;
   repeat: number;
-  runOnWeekDays: number;
-  runOnMonths: number;
+  runOnWeekDays: number[];
+  runOnMonths: number[];
   dayOfMonth: number;
 }

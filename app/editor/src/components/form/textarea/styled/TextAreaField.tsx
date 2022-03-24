@@ -1,3 +1,4 @@
+import { FieldSize } from 'components/form/constants';
 import styled from 'styled-components';
 
 import { TextVariant } from '../../text';
@@ -8,6 +9,7 @@ export const TextAreaField = styled.textarea<ITextAreaProps>`
   text-decoration: ${(props) => (props.variant === TextVariant.link ? 'underline' : 'none')};
   display: inline-block;
   width: ${(props) => props.width};
+  min-width: ${FieldSize.Tiny};
   font-weight: 400;
   text-align: left;
   vertical-align: middle;
@@ -73,6 +75,7 @@ export const TextAreaField = styled.textarea<ITextAreaProps>`
         return '#38598a';
     }
   }};
+
   &:hover {
     color: ${(props) => {
       switch (props.variant) {
@@ -106,12 +109,13 @@ export const TextAreaField = styled.textarea<ITextAreaProps>`
       }
     }};
   }
+
   &:focus {
     outline: 0;
     box-shadow: ${(props) => {
       switch (props.variant) {
         case TextVariant.primary:
-          return '0 0 0 0.2rem rgb(86 114 156 / 50%)';
+          return '0 0 0 0.2rem #2684FF';
         case TextVariant.secondary:
           return '0 0 0 0.2rem rgb(130 138 145 / 50%)';
         case TextVariant.success:

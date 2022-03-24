@@ -122,6 +122,26 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
 
     &:focus {
       outline: 0;
+      box-shadow: ${(props) => {
+        switch (props.variant) {
+          case SelectVariant.primary:
+            return '0 0 0 0.2rem #2684FF';
+          case SelectVariant.secondary:
+            return '0 0 0 0.2rem rgb(130 138 145 / 50%)';
+          case SelectVariant.success:
+            return '0 0 0 0.2rem rgb(95 155 91 / 50%)';
+          case SelectVariant.info:
+            return '0 0 0 0.2rem rgb(132 169 202 / 50%)';
+          case SelectVariant.warning:
+            return '0 0 0 0.2rem rgb(217 177 78 / 50%)';
+          case SelectVariant.danger:
+            return '0 0 0 0.2rem rgb(223 91 97 / 50%)';
+          case SelectVariant.link:
+            return '0 0 0 0.2rem rgb(56 89 138 / 50%)';
+          default:
+            return 'none';
+        }
+      }};
       color: ${(props) => {
         switch (props.variant) {
           case SelectVariant.link:

@@ -1,34 +1,95 @@
 import { Col, Row } from 'components/flex';
 import { FieldSize } from 'components/form';
-import { FormikCheckbox, FormikText } from 'components/formik';
-import { IDataSourceModel } from 'hooks/api-editor';
+import {
+  FormikBitwiseCheckbox,
+  FormikCheckbox,
+  FormikHidden,
+  FormikText,
+  FormikTextArea,
+} from 'components/formik';
+import { useFormikContext } from 'formik';
+import { useNamespace } from 'hooks';
+import { IDataSourceModel, ScheduleType, WeekDays } from 'hooks/api-editor';
 import React from 'react';
 
-import { defaultSource } from '../constants';
 import * as styled from './styled';
 
 interface IScheduleSingleProps {
-  values?: IDataSourceModel;
+  index: number;
 }
 
-export const ScheduleSingle: React.FC<IScheduleSingleProps> = ({ values = defaultSource }) => {
+export const ScheduleSingle: React.FC<IScheduleSingleProps> = ({ index }) => {
+  const { setFieldValue } = useFormikContext<IDataSourceModel>();
+  const { field } = useNamespace('schedules', index);
+
+  React.useEffect(() => {
+    setFieldValue(field('scheduleType'), ScheduleType.Managed);
+  }, [field, index, setFieldValue]);
+
   return (
     <styled.Schedule className="schedule">
-      <Row>
-        Run service every
-        <FormikText name="time" type="number" width={FieldSize.Tiny} />
-        and stop it at
-        <FormikText name="time" type="number" width={FieldSize.Tiny} />
-        on the following days;
+      <p>
+        A start & stop service starts at the schedule time and continues to run until the stop time.
+      </p>
+      <FormikHidden name={field('scheduleType')} value={ScheduleType.Managed} />
+      <Row alignItems="center" nowrap>
+        <FormikText label="Name" name={field('name')} required />
+        <FormikCheckbox label="Enabled" name={field('enabled')} />
+      </Row>
+      <FormikTextArea label="Description" name={field('description')} />
+      <Row nowrap>
+        <p>Start the service at</p>
+        <FormikText
+          name={field('startAt')}
+          width={FieldSize.Small}
+          placeholder="HH:MM:SS"
+          required
+        />
+        <p>and stop it at</p>
+        <FormikText
+          name={field('stopAt')}
+          width={FieldSize.Small}
+          placeholder="HH:MM:SS"
+          required
+        />
+        <p>on the following days;</p>
       </Row>
       <Col>
-        <FormikCheckbox label="Monday" name="monday" />
-        <FormikCheckbox label="Tuesday" name="monday" />
-        <FormikCheckbox label="Wednesday" name="monday" />
-        <FormikCheckbox label="Thursday" name="monday" />
-        <FormikCheckbox label="Friday" name="monday" />
-        <FormikCheckbox label="Saturday" name="monday" />
-        <FormikCheckbox label="Sunday" name="monday" />
+        <FormikBitwiseCheckbox
+          label="Monday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Monday}
+        />
+        <FormikBitwiseCheckbox
+          label="Tuesday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Tuesday}
+        />
+        <FormikBitwiseCheckbox
+          label="Wednesday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Wednesday}
+        />
+        <FormikBitwiseCheckbox
+          label="Thursday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Thursday}
+        />
+        <FormikBitwiseCheckbox
+          label="Friday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Friday}
+        />
+        <FormikBitwiseCheckbox
+          label="Saturday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Saturday}
+        />
+        <FormikBitwiseCheckbox
+          label="Sunday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Sunday}
+        />
       </Col>
     </styled.Schedule>
   );

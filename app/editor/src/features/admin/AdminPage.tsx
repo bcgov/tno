@@ -34,9 +34,8 @@ export const AdminPage: React.FC = () => {
             <Route path="users" element={<UserList />} />
             <Route path="data/sources" element={<DataSourceList />} />
             <Route path="data/sources/:id" element={<DataSource />}>
-              <Route index element={<ScheduleContinuos />} />
-              <Route path="schedules" element={<ScheduleContinuos />} />
-              <Route path="schedules/daily" element={<ScheduleSingle />} />
+              <Route path="schedules/continuos" element={<ScheduleContinuos index={0} />} />
+              <Route path="schedules/daily" element={<ScheduleSingle index={0} />} />
               <Route path="schedules/advanced" element={<ScheduleProgram />} />
             </Route>
             <Route path="contents/log" element={<ContentLogs />} />

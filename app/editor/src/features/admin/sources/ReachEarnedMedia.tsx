@@ -1,21 +1,17 @@
 import { Row } from 'components/flex';
 import { FieldSize } from 'components/form';
 import { FormikText } from 'components/formik';
-import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 
-import { defaultSource } from './constants';
 import * as styled from './styled';
 
-interface IReachEarnedMediaProps {
-  values?: IDataSourceModel;
-}
+interface IReachEarnedMediaProps {}
 
-export const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = ({ values = defaultSource }) => {
+export const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = () => {
   return (
-    <styled.ReachEarnedMedia className="reach-earned-media">
-      <h2>React / Earned Media</h2>
-      <Row>
+    <styled.ReachEarnedMedia className="reach-earned-media" flex="1">
+      <h2>Reach / Earned Media</h2>
+      <Row nowrap>
         <div className="rem-label">
           <label>Monday</label>
         </div>
@@ -29,42 +25,42 @@ export const ReachEarnedMedia: React.FC<IReachEarnedMediaProps> = ({ values = de
         />
         <FormikText label="Earned Media" name="" width={FieldSize.Small} type="number" />
       </Row>
-      <Row>
+      <Row nowrap>
         <div className="rem-label">
           <label>Tuesday</label>
         </div>
         <FormikText label="Reach" name="" width={FieldSize.Small} type="number" />
         <FormikText label="Earned Media" name="" width={FieldSize.Small} type="number" />
       </Row>
-      <Row>
+      <Row nowrap>
         <div className="rem-label">
           <label>Wednesday</label>
         </div>
         <FormikText label="Reach" name="" width={FieldSize.Small} type="number" />
         <FormikText label="Earned Media" name="" width={FieldSize.Small} type="number" />
       </Row>
-      <Row>
+      <Row nowrap>
         <div className="rem-label">
           <label>Thursday</label>
         </div>
         <FormikText label="Reach" name="" width={FieldSize.Small} type="number" />
         <FormikText label="Earned Media" name="" width={FieldSize.Small} type="number" />
       </Row>
-      <Row>
+      <Row nowrap>
         <div className="rem-label">
           <label>Friday</label>
         </div>
         <FormikText label="Reach" name="" width={FieldSize.Small} type="number" />
         <FormikText label="Earned Media" name="" width={FieldSize.Small} type="number" />
       </Row>
-      <Row>
+      <Row nowrap>
         <div className="rem-label">
           <label>Saturday</label>
         </div>
         <FormikText label="Reach" name="" width={FieldSize.Small} type="number" />
         <FormikText label="Earned Media" name="" width={FieldSize.Small} type="number" />
       </Row>
-      <Row>
+      <Row nowrap>
         <div className="rem-label">
           <label>Sunday</label>
         </div>

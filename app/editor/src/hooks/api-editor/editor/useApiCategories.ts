@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IContentTypeModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiCategories = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getCategories: () => {
       return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/categories`));
     },
-  }).current;
+  };
 };

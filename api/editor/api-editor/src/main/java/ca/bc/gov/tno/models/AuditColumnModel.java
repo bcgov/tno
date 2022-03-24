@@ -3,15 +3,24 @@ package ca.bc.gov.tno.models;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import ca.bc.gov.tno.dal.db.AuditColumns;
+import ca.bc.gov.tno.dal.db.services.Settings;
 
 public abstract class AuditColumnModel {
   private UUID createdById;
   private String createdBy;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   private ZonedDateTime createdOn;
+
   private UUID updatedById;
   private String updatedBy;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
   private ZonedDateTime updatedOn;
+
   private long version;
 
   public AuditColumnModel() {

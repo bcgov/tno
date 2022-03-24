@@ -1,34 +1,91 @@
 import { Col, Row } from 'components/flex';
-import { FieldSize } from 'components/form';
-import { FormikCheckbox, FormikText } from 'components/formik';
-import { IDataSourceModel } from 'hooks/api-editor';
+import { FieldSize, Text } from 'components/form';
+import {
+  FormikBitwiseCheckbox,
+  FormikCheckbox,
+  FormikHidden,
+  FormikText,
+  FormikTextArea,
+} from 'components/formik';
+import { useFormikContext } from 'formik';
+import { useNamespace } from 'hooks';
+import { IDataSourceModel, ScheduleType, WeekDays } from 'hooks/api-editor';
 import React from 'react';
 
-import { defaultSource } from '../constants';
+import { defaultSchedule } from '../constants';
 import * as styled from './styled';
 
 interface IScheduleContinuosProps {
-  values?: IDataSourceModel;
+  index: number;
 }
 
-export const ScheduleContinuos: React.FC<IScheduleContinuosProps> = ({
-  values = defaultSource,
-}) => {
+export const ScheduleContinuos: React.FC<IScheduleContinuosProps> = ({ index }) => {
+  const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
+  const { field } = useNamespace('schedules', index);
+
+  const schedule = values.schedules.length > index ? values.schedules[index] : defaultSchedule;
+
   return (
     <styled.Schedule className="schedule">
-      <Row>
-        Run service every
-        <FormikText name="time" type="number" width={FieldSize.Tiny} />
-        on the following days;
+      <p>A continuos schedule is for services that are required to run every X minutes.</p>
+      <FormikHidden name={field('scheduleType')} value={ScheduleType.Repeating} />
+      <Row alignItems="center" nowrap>
+        <FormikText label="Name" name={field('name')} required />
+        <FormikCheckbox label="Enabled" name={field('enabled')} />
+      </Row>
+      <FormikTextArea label="Description" name={field('description')} />
+      <Row nowrap>
+        <p>Run service every</p>
+        <Text
+          name={field('delayMS')}
+          type="number"
+          required
+          width={FieldSize.Tiny}
+          value={schedule.delayMS / 1000}
+          min={1}
+          onChange={(e) => {
+            const value = Number(e.target.value) * 1000;
+            setFieldValue(field('delayMS'), value);
+          }}
+        />
+        <p>minutes on the following days;</p>
       </Row>
       <Col>
-        <FormikCheckbox label="Monday" name="monday" />
-        <FormikCheckbox label="Tuesday" name="monday" />
-        <FormikCheckbox label="Wednesday" name="monday" />
-        <FormikCheckbox label="Thursday" name="monday" />
-        <FormikCheckbox label="Friday" name="monday" />
-        <FormikCheckbox label="Saturday" name="monday" />
-        <FormikCheckbox label="Sunday" name="monday" />
+        <FormikBitwiseCheckbox
+          label="Monday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Monday}
+        />
+        <FormikBitwiseCheckbox
+          label="Tuesday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Tuesday}
+        />
+        <FormikBitwiseCheckbox
+          label="Wednesday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Wednesday}
+        />
+        <FormikBitwiseCheckbox
+          label="Thursday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Thursday}
+        />
+        <FormikBitwiseCheckbox
+          label="Friday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Friday}
+        />
+        <FormikBitwiseCheckbox
+          label="Saturday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Saturday}
+        />
+        <FormikBitwiseCheckbox
+          label="Sunday"
+          name={field('runOnWeekDays')}
+          value={WeekDays.Sunday}
+        />
       </Col>
     </styled.Schedule>
   );

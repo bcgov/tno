@@ -6,4 +6,5 @@ export enum SelectDateVariant {
   warning = 'warning',
   danger = 'danger',
   link = 'link',
+  disabled = 'disabled',
 }

@@ -1,5 +1,4 @@
 import moment from 'moment';
-import React from 'react';
 import {
   defaultEnvelope,
   extractResponseData,
@@ -25,7 +24,7 @@ export const useApiReports = (
   const api = useApi(options);
   const download = useDownload(api);
 
-  return React.useRef({
+  return {
     // Lookups
     generateCBRAReport: (from: Date, to?: Date | null) => {
       const params = {
@@ -40,5 +39,5 @@ export const useApiReports = (
         }),
       );
     },
-  }).current;
+  };
 };

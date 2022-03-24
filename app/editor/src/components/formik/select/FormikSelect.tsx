@@ -31,11 +31,9 @@ export const FormikSelect = <OptionType extends IOptionItem>({
         options={options}
         // TODO: Figure out how to strongly type these values.
         onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
+          const option = newValue as OptionType;
+          setFieldValue(name, option?.value);
           if (onChange) onChange(newValue, actionMeta);
-          else {
-            const option = newValue as OptionType;
-            setFieldValue(name, option?.value);
-          }
         }}
         onBlur={handleBlur}
         isDisabled={isDisabled || isSubmitting}

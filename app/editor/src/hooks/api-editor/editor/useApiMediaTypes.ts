@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IMediaTypeModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiMediaTypes = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getMediaTypes: () => {
       return extractResponseData<IMediaTypeModel[]>(() => api.get(`/editor/media/types`));
     },
-  }).current;
+  };
 };
