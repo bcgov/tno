@@ -1,5 +1,14 @@
 import React from 'react';
-import { Column, Row, SortingRule, usePagination, useSortBy, useTable } from 'react-table';
+import {
+  Column,
+  Row,
+  SortingRule,
+  useFilters,
+  useGlobalFilter,
+  usePagination,
+  useSortBy,
+  useTable,
+} from 'react-table';
 
 import { Pager, SortIndicator } from '.';
 import * as styled from './styled';
@@ -28,6 +37,10 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
    * The sort has changed.
    */
   onChangeSort?: (sortBy: Array<SortingRule<CT>>) => void;
+  /**
+   * Header components.
+   */
+  header?: React.ComponentType<any>;
   /**
    * Whether to show the footer.
    */
@@ -64,6 +77,12 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
      */
     sortBy?: Array<SortingRule<CT>>;
   };
+  filters?: {
+    /**
+     * Whether to manually manage filtering.
+     */
+    manualFilters?: boolean;
+  };
 }
 
 /**
@@ -77,9 +96,11 @@ export const GridTable = <T extends object>({
   onRowClick,
   onChangePage = () => {},
   onChangeSort = () => {},
+  header: Header,
   showFooter = false,
   paging,
   sorting,
+  filters,
 }: IGridTableProps<T>) => {
   const {
     showPaging = true,
@@ -88,7 +109,27 @@ export const GridTable = <T extends object>({
     pageSize: initialPageSize = 10,
     pageCount: initialPageCount = -1,
   } = paging || {};
+  const { manualFilters = false } = filters || {};
   const { manualSortBy = false, sortBy: initialSortBy = [] } = sorting || {};
+  const instance = useTable(
+    {
+      columns,
+      data,
+      manualPagination: manualPagination,
+      manualSortBy: manualSortBy,
+      manualFilters: manualFilters,
+      pageCount: initialPageCount,
+      initialState: {
+        pageIndex: initialPageIndex,
+        pageSize: initialPageSize,
+        sortBy: initialSortBy,
+      },
+    },
+    useFilters,
+    useGlobalFilter,
+    useSortBy,
+    usePagination,
+  );
   const {
     getTableProps,
     getTableBodyProps,
@@ -105,22 +146,7 @@ export const GridTable = <T extends object>({
     previousPage,
     setPageSize,
     state: { pageIndex, pageSize, sortBy },
-  } = useTable(
-    {
-      columns,
-      data,
-      manualPagination,
-      manualSortBy: manualSortBy,
-      pageCount: initialPageCount,
-      initialState: {
-        pageIndex: initialPageIndex,
-        pageSize: initialPageSize,
-        sortBy: initialSortBy,
-      },
-    },
-    useSortBy,
-    usePagination,
-  );
+  } = instance;
   const [currentPage, setCurrentPage] = React.useState({ pageIndex, pageSize });
   const pager = {
     canPreviousPage,
@@ -155,6 +181,7 @@ export const GridTable = <T extends object>({
 
   return (
     <styled.GridTable {...getTableProps()}>
+      {Header && <Header {...instance} />}
       <div role="rowheader">
         {headerGroups.map((headerGroup) => (
           <div className="rh" {...headerGroup.getHeaderGroupProps()}>

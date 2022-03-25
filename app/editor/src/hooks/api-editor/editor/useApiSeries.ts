@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ISeriesModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { ISeriesModel, useApi } from '..';
  */
 export const useApiSeries = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiSeries = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getSeries: () => {
-        return extractResponseData<ISeriesModel[]>(() => api.get(`/editor/series`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getSeries: () => {
+      return extractResponseData<ISeriesModel[]>(() => api.get(`/editor/series`));
+    },
+  }).current;
 };

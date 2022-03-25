@@ -1,6 +1,6 @@
 import { Button, ButtonVariant } from 'components/button';
-import { Dropdown, IOptionItem, SelectDate } from 'components/form';
-import { useApiReports } from 'hooks/api-editor/reports';
+import { IOptionItem, Select, SelectDate } from 'components/form';
+import { useApiReports } from 'hooks/api-editor';
 import React from 'react';
 
 import { defaultValues, reportDurations } from './constants';
@@ -19,7 +19,7 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
 
   return (
     <styled.CBRAReport className={`${className ?? 'form'}`}>
-      <Dropdown
+      <Select
         name="duration"
         label="Report Duration"
         options={reportDurations}
@@ -31,7 +31,7 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
             ...calcDuration(option),
           });
         }}
-      ></Dropdown>
+      />
       <div className="dates">
         <SelectDate
           name="start"

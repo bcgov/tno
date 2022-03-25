@@ -1,4 +1,4 @@
-import { IUserInfoModel, useApiAuth } from 'hooks';
+import { IUserInfoModel, useApiAuth } from 'hooks/api-editor';
 import React from 'react';
 import { IAppState, IAppStore, useAppStore } from 'store/slices';
 

@@ -1,7 +1,7 @@
 import { ITextAreaProps, TextArea } from 'components/form';
 import { useFormikContext } from 'formik';
 
-import * as styled from './FormikTextAreaStyled';
+import * as styled from './styled';
 
 export interface IFormikTextAreaProps extends ITextAreaProps {
   value?: string | number | readonly string[];

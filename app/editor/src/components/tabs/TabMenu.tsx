@@ -1,4 +1,4 @@
-import { Row } from 'components/row';
+import { Row } from 'components/flex/row';
 import React from 'react';
 
 import * as styled from './styled';

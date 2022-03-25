@@ -1,4 +1,4 @@
-import { IUserInfoModel } from 'hooks';
+import { IUserInfoModel } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 

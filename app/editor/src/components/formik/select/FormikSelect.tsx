@@ -1,47 +1,47 @@
+import { IOptionItem } from 'components/form/options';
+import { ISelectProps, Select } from 'components/form/select';
 import { useFormikContext } from 'formik';
 import React from 'react';
-import Select from 'react-select';
+import { ActionMeta } from 'react-select';
 
-import { customStyles } from './customStyles';
-import * as styled from './FormikSelectStyled';
-import { IFormikSelectProps } from './interfaces/IFormikSelectProps';
+import * as styled from './styled';
 
-export const FormikSelect: React.FC<IFormikSelectProps> = ({
-  label,
-  id,
-  name = '',
+export interface IFormikSelectProps<OptionType> extends ISelectProps<OptionType> {
+  options: OptionType[];
+}
+
+export const FormikSelect = <OptionType extends IOptionItem>({
+  name,
   isDisabled,
   options,
+  onChange,
   ...rest
-}) => {
-  const { values, errors, touched, handleBlur, handleChange, isSubmitting } =
-    useFormikContext<IFormikSelectProps>();
-  const error = (errors as any)[name] && (touched as any)[name] && (errors as any)[name];
+}: IFormikSelectProps<OptionType>) => {
+  const { values, errors, touched, handleBlur, isSubmitting, setFieldValue } =
+    useFormikContext<IFormikSelectProps<OptionType>>();
 
-  const handleFormikChange = ({ value }: any) => {
-    handleChange(name)(value);
-  };
+  const error = (errors as any)[name] && (touched as any)[name] && (errors as any)[name];
+  const value = options.find((option) => option.value === (values as any)[name]);
 
   return (
     <styled.FormikSelect>
-      {label && (
-        <label htmlFor={id ?? `sel-${name}`} className="form-label">
-          {label}
-        </label>
-      )}
       <Select
-        defaultValue={options.find((option) => option.value === (values as any)[name])}
+        name={name}
+        value={value}
         options={options}
-        onChange={handleFormikChange}
+        // TODO: Figure out how to strongly type these values.
+        onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
+          if (onChange) onChange(newValue, actionMeta);
+          else {
+            const option = newValue as OptionType;
+            setFieldValue(name, option?.value);
+          }
+        }}
         onBlur={handleBlur}
-        styles={customStyles}
-        id={id ?? `sel-${name}`}
         isDisabled={isDisabled || isSubmitting}
-        className={error ? 'error' : ''}
-        classNamePrefix="rs"
+        error={error}
         {...rest}
       />
-      {error ? <p role="alert">{error}</p> : null}
     </styled.FormikSelect>
   );
 };

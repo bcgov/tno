@@ -1,5 +1,5 @@
+import { Row } from 'components/flex/row';
 import { NavBarGroup, NavBarItem } from 'components/navbar';
-import { Row } from 'components/row';
 import { Claim } from 'tno-core';
 
 /**

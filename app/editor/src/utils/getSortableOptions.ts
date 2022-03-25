@@ -1,5 +1,5 @@
 import { IOptionItem, OptionItem } from 'components/form';
-import { ISortableModel } from 'hooks';
+import { ISortableModel } from 'hooks/api-editor';
 
 export const sortSortable = <T extends ISortableModel<any>>(a: T, b: T) => {
   if (a.sortOrder < b.sortOrder) return -1;

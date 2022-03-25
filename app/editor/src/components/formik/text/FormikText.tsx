@@ -1,11 +1,9 @@
 import { ITextProps, Text, TextVariant } from 'components/form';
 import { useFormikContext } from 'formik';
 
-import * as styled from './FormikTextStyled';
+import * as styled from './styled';
 
-export interface IFormikTextProps extends ITextProps {
-  value?: string | number | readonly string[];
-}
+export interface IFormikTextProps extends ITextProps {}
 
 export const FormikText = <T,>({
   id,
@@ -32,7 +30,6 @@ export const FormikText = <T,>({
         variant={disabled ? TextVariant.disabled : TextVariant.primary}
         {...rest}
       ></Text>
-      {error ? <p role="alert">{error}</p> : null}
     </styled.FormikText>
   );
 };

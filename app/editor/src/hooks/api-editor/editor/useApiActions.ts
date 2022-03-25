@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IActionModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { IActionModel, useApi } from '..';
  */
 export const useApiActions = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiActions = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getActions: () => {
-        return extractResponseData<IActionModel[]>(() => api.get(`/editor/actions`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getActions: () => {
+      return extractResponseData<IActionModel[]>(() => api.get(`/editor/actions`));
+    },
+  }).current;
 };

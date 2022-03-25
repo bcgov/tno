@@ -2,9 +2,9 @@ import React from 'react';
 import { FaCheckSquare, FaRegSquare } from 'react-icons/fa';
 
 interface ICheckboxProps {
-  value: boolean;
+  checked: boolean;
 }
 
-export const Checkbox: React.FC<ICheckboxProps> = ({ value }) => {
-  return value ? <FaCheckSquare /> : <FaRegSquare />;
+export const Checkbox: React.FC<ICheckboxProps> = ({ checked }) => {
+  return checked ? <FaCheckSquare /> : <FaRegSquare />;
 };

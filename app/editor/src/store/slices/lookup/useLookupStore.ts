@@ -8,7 +8,7 @@ import {
   ITagModel,
   ITonePoolModel,
   IUserModel,
-} from 'hooks';
+} from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 

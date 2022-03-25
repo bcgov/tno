@@ -11,8 +11,6 @@
   lightVariantColor: $light-variant-color;
   darkVariantColor: $dark-variant-color;
   textColor: $text-color;
-  formBackground: $form-background-color;
-  dropdownBackgroundColor: $dropdown-background-color;
   accentColor: $accent-color;
   lightAccentColor: $light-accent-color;
   tableColor: $table-color;
@@ -25,6 +23,11 @@
   completedColor: $completed-color;
   filterBackgroundColor: $filter-background-color;
   slideOutBlue: $slide-out-blue;
+
+  // Form
+  formBackground: $form-background-color;
+  dropdownBackgroundColor: $dropdown-background-color;
+  inputRequiredBorderColor: $input-required-border-color;
 
   primary: $bs-primary;
   secondary: $bs-secondary;

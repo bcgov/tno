@@ -1,8 +1,8 @@
 import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/col';
+import { Col } from 'components/flex/col';
+import { Row } from 'components/flex/row';
 import { IOptionItem, OptionItem, RadioGroup, SelectDate } from 'components/form';
-import { FormikCheckbox, FormikDropdown, FormikText, FormikTextArea } from 'components/formik';
-import { Row } from 'components/row';
+import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -19,7 +19,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [{ series: lSeries }] = useLookup();
   const { values } = useFormikContext<IContentForm>();
 
-  const [series, setSeries] = React.useState<IOptionItem[]>();
+  const [series, setSeries] = React.useState<IOptionItem[]>([]);
 
   const formatTime = (date: string) => {
     const converted = new Date(date);
@@ -37,27 +37,20 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
       <Row>
         <Col>
           <Row>
-            <FormikDropdown
+            <FormikSelect
               className="md"
               isDisabled
               value={series && series.find((s: any) => s.value === values.seriesId)}
               onChange={(e: any) => setContent({ ...content, seriesId: e.value })}
               options={series}
-              outerClassName="space-right"
               name="seriesId"
               label="Series"
             />
             <FormikText disabled className="md" name="otherSeries" label="Other Series" />
           </Row>
           <Row>
-            <FormikDropdown
-              outerClassName="space-right"
-              className="md"
-              isDisabled
-              name="eod"
-              label="EoD Category"
-            />
-            <FormikDropdown isDisabled className="md" name="score" label="Score" />
+            <FormikSelect className="md" isDisabled name="eod" label="EoD Category" options={[]} />
+            <FormikSelect isDisabled className="md" name="score" label="Score" options={[]} />
           </Row>
           <Row style={{ position: 'relative' }}>
             <Col>
@@ -95,13 +88,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
             <RadioGroup disabled spaceUnderRadio name="test" options={expireOptions} />
           </Col>
           <Col>
-            <FormikCheckbox
-              disabled
-              className="chk"
-              name="otherSnippet"
-              label="Other Snippet"
-              labelRight
-            />
+            <FormikCheckbox disabled className="chk" name="otherSnippet" label="Other Snippet" />
           </Col>
         </Row>
       </Row>

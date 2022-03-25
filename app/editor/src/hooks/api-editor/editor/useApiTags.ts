@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ITagModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { ITagModel, useApi } from '..';
  */
 export const useApiTags = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiTags = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getTags: () => {
-        return extractResponseData<ITagModel[]>(() => api.get(`/editor/tags`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getTags: () => {
+      return extractResponseData<ITagModel[]>(() => api.get(`/editor/tags`));
+    },
+  }).current;
 };

@@ -1,10 +1,17 @@
 import React, { InputHTMLAttributes } from 'react';
 
+import { FieldSize } from '../constants';
 import { TextVariant } from '.';
 import * as styled from './styled';
 
 export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
+  /**
+   * Form field name and field assessor.
+   */
   name: string;
+  /**
+   * Form field label.
+   */
   label?: string;
   /**
    * The styled variant.
@@ -14,6 +21,14 @@ export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
    * The tooltip to show on hover.
    */
   tooltip?: string;
+  /**
+   * Error message.
+   */
+  error?: string;
+  /**
+   * Form field size.
+   */
+  width?: FieldSize;
 }
 
 /**
@@ -30,12 +45,18 @@ export const Text: React.FC<ITextProps> = ({
   tooltip,
   children,
   className,
+  error,
+  width = FieldSize.Stretch,
+  onInput,
+  onInvalid,
   ...rest
 }) => {
+  const [errorMsg, setErrorMsg] = React.useState(error);
+
   return (
-    <div className="frm-in">
+    <styled.Text className="frm-in">
       {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
-      <styled.Text
+      <styled.TextField
         name={name}
         id={id}
         type={type}
@@ -43,10 +64,31 @@ export const Text: React.FC<ITextProps> = ({
         className={`txt ${className ?? ''}`}
         data-for="main-tooltip"
         data-tip={tooltip}
+        width={width}
+        role={errorMsg ? 'alert' : 'none'}
+        onInput={(e) => {
+          if (onInput) onInput(e);
+          else {
+            const input = e.target as HTMLInputElement;
+            input.setCustomValidity('');
+            setErrorMsg(undefined);
+          }
+        }}
+        onInvalid={(e) => {
+          if (onInvalid) return onInvalid(e);
+          else {
+            const input = e.target as HTMLInputElement;
+            if (rest.required && input.validity.valueMissing) {
+              input.setCustomValidity(error ?? 'required');
+              setErrorMsg(error ?? 'required');
+            }
+          }
+        }}
         {...rest}
       >
         {children}
-      </styled.Text>
-    </div>
+      </styled.TextField>
+      {errorMsg && <p role="alert">{errorMsg}</p>}
+    </styled.Text>
   );
 };

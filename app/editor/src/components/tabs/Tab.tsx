@@ -13,6 +13,10 @@ export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
    */
   active?: boolean;
   /**
+   * Whether the path must be exact to make tab active.
+   */
+  exact?: boolean;
+  /**
    * the path the item will navigate you to
    */
   navigateTo?: string;
@@ -36,6 +40,7 @@ export const Tab: React.FC<ITabProps> = ({
   children,
   className,
   active = false,
+  exact = false,
   onClick,
 }) => {
   const navigate = useNavigate();
@@ -43,7 +48,13 @@ export const Tab: React.FC<ITabProps> = ({
   const keycloak = useKeycloakWrapper();
   const hasClaim = !claim || keycloak.hasClaim(claim);
 
-  let isActive = active || (navigateTo ? location.pathname.includes(navigateTo) : false);
+  let isActive =
+    active ||
+    (navigateTo
+      ? exact
+        ? location.pathname.endsWith(navigateTo)
+        : location.pathname.includes(navigateTo)
+      : false);
 
   return hasClaim ? (
     <styled.Tab

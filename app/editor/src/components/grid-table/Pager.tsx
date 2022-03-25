@@ -76,7 +76,9 @@ export const Pager: React.FC<IPagerProps> = ({
           <Button
             key={pageOptions[i]}
             variant={ButtonVariant.info}
-            onClick={() => gotoPage(i)}
+            onClick={() => {
+              gotoPage(i);
+            }}
             disabled={pageIndex === pageOptions[i]}
           >
             {pageOptions[i] + 1}

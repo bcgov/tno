@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ITonePoolModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { ITonePoolModel, useApi } from '..';
  */
 export const useApiTonePools = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiTonePools = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getTonePools: () => {
-        return extractResponseData<ITonePoolModel[]>(() => api.get(`/editor/tone/pools`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getTonePools: () => {
+      return extractResponseData<ITonePoolModel[]>(() => api.get(`/editor/tone/pools`));
+    },
+  }).current;
 };

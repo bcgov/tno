@@ -27,8 +27,28 @@ p {
     box-sizing: border-box;
 }
 
+h1 {
+    font-size: 2em;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
 h2 {
+    font-size: 1.25em;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
+h3 {
     font-size: 1em;
+    text-transform: uppercase;
+    margin-top: 0;
+}
+
+h4 {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    margin-top: 0;
 }
 
 .caps {

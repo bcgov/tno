@@ -1,4 +1,4 @@
-import { Row } from 'components/row/styled';
+import { Row } from 'components/flex/row/styled';
 import React, { InputHTMLAttributes } from 'react';
 
 import { instanceOfIOption, IOptionItem } from '..';

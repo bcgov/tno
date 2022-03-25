@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, LifecycleToasts } from 'tno-core';
+import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ILicenseModel, useApi } from '..';
 
@@ -9,7 +9,7 @@ import { ILicenseModel, useApi } from '..';
  */
 export const useApiLicenses = (
   options: {
-    lifecycleToasts?: LifecycleToasts;
+    lifecycleToasts?: ILifecycleToasts;
     selector?: Function;
     envelope?: typeof defaultEnvelope;
     baseURL?: string;
@@ -17,12 +17,9 @@ export const useApiLicenses = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      getLicenses: () => {
-        return extractResponseData<ILicenseModel[]>(() => api.get(`/editor/licenses`));
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    getLicenses: () => {
+      return extractResponseData<ILicenseModel[]>(() => api.get(`/editor/licenses`));
+    },
+  }).current;
 };

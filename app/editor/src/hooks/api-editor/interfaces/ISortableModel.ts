@@ -3,4 +3,5 @@ export interface ISortableModel<T extends string | number> extends IAuditColumns
   id: T;
   name: string;
   sortOrder: number;
+  enabled: boolean;
 }

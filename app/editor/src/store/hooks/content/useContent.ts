@@ -1,5 +1,5 @@
-import { IContentFilter, IContentModel, IPaged } from 'hooks';
-import { useApiContents } from 'hooks/api-editor/editor';
+import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
+import { useApiContents } from 'hooks/api-editor';
 import React from 'react';
 import { IContentStore, useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';

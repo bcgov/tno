@@ -1,4 +1,4 @@
-import { ContentStatus, WorkflowStatus } from 'hooks';
+import { ContentStatus, WorkflowStatus } from 'hooks/api-editor';
 
 import { IContentForm } from '../interfaces';
 

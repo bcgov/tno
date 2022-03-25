@@ -1,7 +1,7 @@
 import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/col';
+import { Col } from 'components/flex/col';
+import { Row } from 'components/flex/row';
 import { FormikTextArea } from 'components/formik';
-import { Row } from 'components/row';
 import { useFormikContext } from 'formik';
 
 import { IContentSubForms } from '.';

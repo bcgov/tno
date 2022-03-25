@@ -1,15 +1,15 @@
 import { Button, ButtonVariant } from 'components/button';
 import {
   Checkbox,
-  Dropdown,
   IOptionItem,
   OptionItem,
   RadioGroup,
+  Select,
   SelectDate,
   Text,
 } from 'components/form';
 import { Page, PagedTable } from 'components/grid-table';
-import { IContentModel, LogicalOperator } from 'hooks';
+import { IContentModel, LogicalOperator } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
@@ -114,7 +114,7 @@ export const ContentListView: React.FC = () => {
     <styled.ContentListView>
       <div className="content-filter">
         <div>
-          <Dropdown
+          <Select
             name="mediaType"
             label="Media Type"
             options={mediaTypeOptions}
@@ -129,7 +129,7 @@ export const ContentListView: React.FC = () => {
               });
             }}
           />
-          <Dropdown
+          <Select
             name="user"
             label="User"
             options={userOptions}
@@ -232,7 +232,7 @@ export const ContentListView: React.FC = () => {
         <div className="box">
           <h2 className="caps">Advanced Search</h2>
           <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
-            <Dropdown
+            <Select
               name="fieldType"
               className="test"
               label="Field Type"
@@ -242,7 +242,7 @@ export const ContentListView: React.FC = () => {
                 storeFilterAdvanced({ ...filterAdvanced, fieldType: newValue as IOptionItem });
               }}
             />
-            <Dropdown
+            <Select
               className="test"
               name="logicalOperator"
               label="Logical Operator"
