@@ -2,7 +2,7 @@ import { Area, IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { Modal } from 'components/modal';
 import { Formik } from 'formik';
-import { IActionModel, IUserModel } from 'hooks/api-editor';
+import { ActionName, ContentStatus, IUserModel } from 'hooks/api-editor';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -41,7 +41,7 @@ export const ContentForm: React.FC = () => {
   const [toggleCommentary, setToggleCommentary] = React.useState(true);
   const keycloak = useKeycloakWrapper();
 
-  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
   // include id when it is an update, no idea necessary when new content
   const submitContent = async (values: IContentForm) => {
@@ -136,20 +136,33 @@ export const ContentForm: React.FC = () => {
                     <FormikCheckbox disabled className="chk" name="alert" label="Alert" />
                     <FormikCheckbox className="chk" name="frontPage" disabled label="Front Page" />
                     <FormikCheckbox
-                      name="commentary"
                       className="chk"
-                      onClick={() => setToggleCommentary(!toggleCommentary)}
-                      label="Commentary"
+                      name="publish"
+                      label="Publish"
+                      checked={
+                        props.values.status === ContentStatus.Publish ||
+                        props.values.status === ContentStatus.Published
+                      }
+                      onChange={(e: any) => {
+                        props.setFieldValue(
+                          'status',
+                          e.target.checked ? ContentStatus.Publish : ContentStatus.Draft,
+                        );
+                      }}
+                    />
+                    <ActionCheckbox name={ActionName.Alert} />
+                    <ActionCheckbox name={ActionName.FrontPage} />
+                    <ActionCheckbox
+                      name={ActionName.Commentary}
+                      onClick={() => {
+                        setToggleCommentary(!toggleCommentary);
+                      }}
                     />
                   </Col>
                   <Col style={{ width: '215px' }}>
-                    <ActionCheckbox name="topStory" label="Top Story" actionId={4} />
-                    <ActionCheckbox name="onTicker" label="On Ticker" actionId={5} />
-                    <ActionCheckbox
-                      name="nonQualified"
-                      label="Non Qualified Subject"
-                      actionId={6}
-                    />
+                    <ActionCheckbox name={ActionName.TopStory} />
+                    <ActionCheckbox name={ActionName.OnTicker} />
+                    <ActionCheckbox name={ActionName.NonQualified} />
                   </Col>
                 </Row>
                 <Row>

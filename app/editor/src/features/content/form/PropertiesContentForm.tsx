@@ -28,7 +28,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [userTags, setUserTags] = React.useState<string[]>();
   const [categoryTypes, setCategoryTypes] = React.useState<IOptionItem[]>([]);
   const keycloak = useKeycloakWrapper();
-  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
   React.useEffect(() => {
     setCategoryTypes(getSortableOptions(categories));
