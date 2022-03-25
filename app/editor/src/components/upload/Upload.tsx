@@ -18,7 +18,8 @@ export const Upload: React.FC<InputHTMLAttributes<HTMLButtonElement>> = ({
   ...rest
 }) => {
   const [fileName, setFileName] = useState('');
-  const [duration, setDuration] = useState(0);
+  /** Duration / metadata WIP */
+  // const [duration, setDuration] = useState(0);
   var reader = new FileReader();
 
   const { isShowing, toggle } = useModal();
@@ -36,7 +37,7 @@ export const Upload: React.FC<InputHTMLAttributes<HTMLButtonElement>> = ({
               reader.readAsDataURL(e.target.files[0]);
               var media = new Audio(reader.result as any);
               media.onloadedmetadata = function () {
-                setDuration(media.duration);
+                // setDuration(media.duration);
               };
             }}
           />

@@ -22,6 +22,7 @@ export const defaultFormValues: IContentForm = {
   timeTrackings: [],
   actions: [],
   tags: [],
+  categories: [],
   // Print Content
   section: '',
   edition: '',

@@ -4,11 +4,14 @@ import { Button, ButtonVariant } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex/col';
 import { Row } from 'tno-core/dist/components/flex/row';
 
-import { IContentSubForms } from '.';
 import { IContentForm } from './interfaces';
 
-export const TranscriptContentForm: React.FC<IContentSubForms> = ({ content, setContent }) => {
-  const { values } = useFormikContext<IContentForm>();
+/**
+ * The component to be displayed when the transcript tab is selected from the content form.
+ * @returns the TranscriptContentForm
+ */
+export const TranscriptContentForm: React.FC = () => {
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
   return (
     <Col style={{ margin: '3%' }}>
       <Row>
@@ -16,7 +19,7 @@ export const TranscriptContentForm: React.FC<IContentSubForms> = ({ content, set
           name="transcription"
           label="Transcript"
           value={values.transcription}
-          onChange={(e: any) => setContent({ ...content, transcription: e.target.value })}
+          onChange={(e: any) => setFieldValue('transcription', e.target.value)}
           style={{ width: '1000px', height: '500px' }}
         />
       </Row>
