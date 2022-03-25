@@ -26,6 +26,7 @@ export function toForm(model: IContentModel): IContentForm {
     timeTrackings: model.timeTrackings ?? [],
     actions: model.actions ?? [],
     tags: model.tags ?? [],
+    categories: model.categories ?? [],
     // Print Content
     section: model.printContent?.section ?? '',
     edition: model.printContent?.edition ?? '',

@@ -6,10 +6,11 @@ import { Modal } from 'components/modal/Modal';
 import { Row } from 'components/row';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { ITagModel, ITimeTrackingModel } from 'hooks';
+import { ITagModel, ITimeTrackingModel, IUserModel } from 'hooks';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { expireOptions, summaryOptions, toningOptions } from './constants';
@@ -23,10 +24,12 @@ export interface IContentSubForms {
 
 /** The sub form of the ContentForm when the Properties Tab is selected. */
 export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, content }) => {
-  const [{ series: lSeries, categories, tags }] = useLookup();
+  const [{ series: lSeries, categories, tags, users }] = useLookup();
   const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
   const [userTags, setUserTags] = React.useState<string[]>();
   const [categoryTypes, setCategoryTypes] = React.useState<IOptionItem[]>([]);
+  const keycloak = useKeycloakWrapper();
+  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
 
   React.useEffect(() => {
     setCategoryTypes(getSortableOptions(categories));
@@ -45,10 +48,6 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   React.useEffect(() => {
     setSeries(lSeries.map((m: any) => new OptionItem(m.name, m.id)));
   }, [lSeries]);
-
-  React.useEffect(() => {
-    setContent({ ...content, timeTrackings: values.timeTrackings });
-  }, [values.timeTrackings]);
 
   const tagMatch = /(?<=\[).+?(?=\])/g;
   let validTags;
@@ -71,6 +70,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
       result = values.summary.match(tagMatch)?.toString();
       setUserTags(result?.split(', '));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values.summary]);
 
   /** add tags to formik value object if tag exists - better implementation later*/
@@ -104,6 +104,17 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
               name="categories"
               label="EoD Category"
               options={categoryTypes}
+              value={
+                values.categories.length > 0
+                  ? categoryTypes.find((c) => c.value === values.categories[0].id)
+                  : undefined
+              }
+              onChange={(e: any) => {
+                // only supports one at a time right now
+                let contentCategories = [];
+                contentCategories.push(categories.find((c) => c.id === e.value));
+                setFieldValue('categories', contentCategories);
+              }}
             />
             <FormikDropdown isDisabled className="md" name="score" label="Score" />
           </Row>
@@ -115,7 +126,6 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
                 label="Date"
                 selectedDate={values.publishedOn ?? ''}
                 value={values.publishedOn}
-                disabled
                 onChange={(date: any) => {
                   setFieldValue('publishedOn', date);
                 }}
@@ -202,7 +212,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           onClick={() => {
             setEffort(effort!! + Number((values as any).prep));
             timeLog.push({
-              userId: 1,
+              userId: userId ?? 0,
               activity: !!values.id ? 'Updated' : 'Created',
               effort: (values as any).prep,
               createdOn: new Date(),

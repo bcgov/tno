@@ -6,14 +6,16 @@ import { Modal } from 'components/modal';
 import { Row } from 'components/row';
 import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
-import { ContentStatus, IActionModel } from 'hooks';
+import { ContentStatus, IUserModel } from 'hooks';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
+import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { PropertiesContentForm } from '.';
+import { ActionCheckbox } from './ActionCheckbox';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import { TranscriptContentForm } from './TranscriptContentForm';
@@ -26,7 +28,7 @@ import { toForm, toModel } from './utils';
 export const ContentForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ mediaTypes }] = useLookup();
+  const [{ mediaTypes, users }] = useLookup();
   const [, { getContent, addContent, updateContent, deleteContent }] = useContent();
   const { isShowing, toggle } = useModal();
 
@@ -37,11 +39,14 @@ export const ContentForm: React.FC = () => {
     id: parseInt(id ?? '0'),
   });
   const [toggleCommentary, setToggleCommentary] = React.useState(true);
+  const keycloak = useKeycloakWrapper();
+
+  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
 
   // include id when it is an update, no idea necessary when new content
   const submitContent = async (values: IContentForm) => {
     values.contentTypeId = 1;
-    values.ownerId = 1;
+    values.ownerId = !content.id ? userId ?? 0 : values.ownerId;
     const model = toModel(values);
     const result = !content.id ? await addContent(model) : await updateContent(model);
     toForm(result);
@@ -74,7 +79,11 @@ export const ContentForm: React.FC = () => {
       <Formik
         enableReinitialize
         onSubmit={async (values) => {
-          await submitContent(values);
+          try {
+            await submitContent(values);
+          } finally {
+            navigate('/contents');
+          }
         }}
         initialValues={content}
       >
@@ -129,8 +138,8 @@ export const ContentForm: React.FC = () => {
                       labelRight
                       label="Publish"
                       checked={
-                        content.status === ContentStatus.Publish ||
-                        content.status === ContentStatus.Published
+                        props.values.status === ContentStatus.Publish ||
+                        props.values.status === ContentStatus.Published
                       }
                       onChange={(e: any) => {
                         props.setFieldValue(
@@ -139,79 +148,34 @@ export const ContentForm: React.FC = () => {
                         );
                       }}
                     />
-                    <FormikCheckbox
-                      className="chk"
-                      name="alert"
-                      labelRight
-                      label="Alert"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 2 && x.value === 'true',
-                        )
-                      }
-                    />
-                    <FormikCheckbox
-                      className="chk"
-                      name="frontPage"
-                      labelRight
-                      label="Front Page"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 3 && x.value === 'true',
-                        )
-                      }
-                    />
-                    <FormikCheckbox
+                    <ActionCheckbox name="alert" label="Alert" actionId={2} />
+                    <ActionCheckbox name="frontPage" label="Front Page" actionId={3} />
+                    <ActionCheckbox
                       name="commentary"
-                      className="chk"
-                      onClick={() => setToggleCommentary(!toggleCommentary)}
-                      labelRight
                       label="Commentary"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 7 && x.value === 'true',
-                        )
-                      }
+                      actionId={7}
+                      onClick={() => {
+                        setToggleCommentary(!toggleCommentary);
+                      }}
                     />
                   </Col>
                   <Col style={{ width: '215px' }}>
-                    <FormikCheckbox
-                      className="chk"
-                      name="topStory"
-                      labelRight
-                      label="Top Story"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 4 && x.value === 'true',
-                        )
-                      }
-                    />
-                    <FormikCheckbox
-                      className="chk"
-                      name="onTicker"
-                      labelRight
-                      label="On Ticker"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 5 && x.value === 'true',
-                        )
-                      }
-                    />
-                    <FormikCheckbox
-                      className="chk"
+                    <ActionCheckbox name="topStory" label="Top Story" actionId={4} />
+                    <ActionCheckbox name="onTicker" label="On Ticker" actionId={5} />
+                    <ActionCheckbox
                       name="nonQualified"
-                      labelRight
                       label="Non Qualified Subject"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 6 && x.value === 'true',
-                        )
-                      }
+                      actionId={6}
                     />
                   </Col>
                 </Row>
                 <Row>
-                  <FormikText name="timeout" label="Commentary Timeout" className="md" />
+                  <FormikText
+                    disabled={toggleCommentary}
+                    name="timeout"
+                    label="Commentary Timeout"
+                    className="md"
+                  />
                 </Row>
               </Col>
             </Row>
@@ -235,7 +199,7 @@ export const ContentForm: React.FC = () => {
                 {active === 'properties' ? (
                   <PropertiesContentForm content={content} setContent={setContent} />
                 ) : (
-                  <TranscriptContentForm content={content} setContent={setContent} />
+                  <TranscriptContentForm />
                 )}
               </Tabs>
             </Row>

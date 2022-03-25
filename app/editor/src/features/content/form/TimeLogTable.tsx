@@ -27,7 +27,6 @@ const TableContainer = styled.div`
 /** Table used to display time log for users creating and updating content. */
 export const TimeLogTable: React.FC<ITimeLogTableProps> = ({ data, totalTime }) => {
   const [{ users }] = useLookup();
-  console.log(data, 'data');
   const parsedData = data.map((d: ITimeTrackingModel) => ({
     userName: users.find((u) => u.id === d.userId)?.displayName,
     userId: d.userId,
