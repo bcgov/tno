@@ -2,4 +2,5 @@
 export interface IActionValueModel {
   id: number;
   value: string;
+  name: string;
 }

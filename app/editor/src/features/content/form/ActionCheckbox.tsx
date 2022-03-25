@@ -1,39 +1,44 @@
 import { FormikCheckbox } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IActionValueModel } from 'hooks';
+import { useLookup } from 'store/hooks';
 
 import { IContentForm } from './interfaces';
 
 export interface IActionCheckbox extends React.HTMLAttributes<HTMLInputElement> {
   /** the action name to pass down to the checkbox */
   name: string;
-  /** the id of the corresponding action as it is in the database */
-  actionId: number;
-  /** the label for the checkbox field */
-  label?: string;
 }
 
 /** This component handles the logic that checks the actions array to see whther the content has specific actions
  *  associated to it or not.
  */
-export const ActionCheckbox: React.FC<IActionCheckbox> = ({ name, label, actionId, onClick }) => {
+export const ActionCheckbox: React.FC<IActionCheckbox> = ({ name, onClick }) => {
   const { setFieldValue, values } = useFormikContext<IContentForm>();
+  const [{ actions: lActions }] = useLookup();
   let actions = values.actions;
+
+  /** find the id corresponding to this action in order to send it to the API */
+  const actionId = lActions.find((x) => x.name === name)?.id ?? -1;
+  /** check the value attribute of the action to determine the value of checked */
+  const checked = !!actions.find((x: IActionValueModel) => x.name === name && x.value === 'true');
+  /** find the index of the action in order to alter the value, returns -1 if it does not exist */
+  const index = actions.findIndex((x) => x.name === name);
+  console.log(actionId);
   return (
     <FormikCheckbox
       className="chk"
       name={name}
       labelRight
-      label={label}
+      label={name}
       onClick={onClick}
-      checked={!!actions.find((x: IActionValueModel) => x.id === actionId && x.value === 'true')}
+      checked={checked}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-        if (actions.find((x: IActionValueModel) => x.id === actionId)) {
-          const index = actions.findIndex((x) => x.id === actionId);
+        if (index !== -1) {
           actions[index].value = String(e.target.checked);
           setFieldValue('actions', actions);
         } else {
-          actions.push({ id: actionId, value: String(e.target.checked) });
+          actions.push({ id: actionId, value: String(e.target.checked), name: name });
           setFieldValue('actions', actions);
         }
       }}

@@ -7,10 +7,10 @@ import { Modal } from 'components/modal/Modal';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
 import { ITagModel, ITimeTrackingModel, IUserModel } from 'hooks/api-editor';
+import { useKeycloakWrapper } from 'hooks/keycloak';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { expireOptions, summaryOptions, toningOptions } from './constants';
@@ -29,7 +29,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [userTags, setUserTags] = React.useState<string[]>();
   const [categoryTypes, setCategoryTypes] = React.useState<IOptionItem[]>([]);
   const keycloak = useKeycloakWrapper();
-  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
   React.useEffect(() => {
     setCategoryTypes(getSortableOptions(categories));
