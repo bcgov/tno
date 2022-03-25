@@ -6,12 +6,11 @@ import { Modal } from 'components/modal';
 import { Row } from 'components/row';
 import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
-import { ContentStatus, IUserModel } from 'hooks';
+import { ActionName, ContentStatus, IUserModel, useKeycloakWrapper } from 'hooks';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
-import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { PropertiesContentForm } from '.';
@@ -41,7 +40,7 @@ export const ContentForm: React.FC = () => {
   const [toggleCommentary, setToggleCommentary] = React.useState(true);
   const keycloak = useKeycloakWrapper();
 
-  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
   // include id when it is an update, no idea necessary when new content
   const submitContent = async (values: IContentForm) => {
@@ -148,25 +147,19 @@ export const ContentForm: React.FC = () => {
                         );
                       }}
                     />
-                    <ActionCheckbox name="alert" label="Alert" actionId={2} />
-                    <ActionCheckbox name="frontPage" label="Front Page" actionId={3} />
+                    <ActionCheckbox name={ActionName.Alert} />
+                    <ActionCheckbox name={ActionName.FrontPage} />
                     <ActionCheckbox
-                      name="commentary"
-                      label="Commentary"
-                      actionId={7}
+                      name={ActionName.Commentary}
                       onClick={() => {
                         setToggleCommentary(!toggleCommentary);
                       }}
                     />
                   </Col>
                   <Col style={{ width: '215px' }}>
-                    <ActionCheckbox name="topStory" label="Top Story" actionId={4} />
-                    <ActionCheckbox name="onTicker" label="On Ticker" actionId={5} />
-                    <ActionCheckbox
-                      name="nonQualified"
-                      label="Non Qualified Subject"
-                      actionId={6}
-                    />
+                    <ActionCheckbox name={ActionName.TopStory} />
+                    <ActionCheckbox name={ActionName.OnTicker} />
+                    <ActionCheckbox name={ActionName.NonQualified} />
                   </Col>
                 </Row>
                 <Row>
