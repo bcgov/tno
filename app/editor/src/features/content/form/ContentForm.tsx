@@ -6,14 +6,16 @@ import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { Modal } from 'components/modal';
 import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
-import { IActionModel } from 'hooks/api-editor';
+import { IActionModel, IUserModel } from 'hooks/api-editor';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
+import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { PropertiesContentForm } from '.';
+import { ActionCheckbox } from './ActionCheckbox';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import { TranscriptContentForm } from './TranscriptContentForm';
@@ -26,7 +28,7 @@ import { toForm, toModel } from './utils';
 export const ContentForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ mediaTypes }] = useLookup();
+  const [{ mediaTypes, users }] = useLookup();
   const [, { getContent, addContent, updateContent, deleteContent }] = useContent();
   const { isShowing, toggle } = useModal();
 
@@ -37,11 +39,14 @@ export const ContentForm: React.FC = () => {
     id: parseInt(id ?? '0'),
   });
   const [toggleCommentary, setToggleCommentary] = React.useState(true);
+  const keycloak = useKeycloakWrapper();
+
+  const userId = users.find((u: IUserModel) => u.displayName === keycloak.getDisplayName())?.id;
 
   // include id when it is an update, no idea necessary when new content
   const submitContent = async (values: IContentForm) => {
     values.contentTypeId = 1;
-    values.ownerId = 1;
+    values.ownerId = !content.id ? userId ?? 0 : values.ownerId;
     const model = toModel(values);
     const result = !content.id ? await addContent(model) : await updateContent(model);
     toForm(result);
@@ -74,7 +79,11 @@ export const ContentForm: React.FC = () => {
       <Formik
         enableReinitialize
         onSubmit={async (values) => {
-          await submitContent(values);
+          try {
+            await submitContent(values);
+          } finally {
+            navigate('/contents');
+          }
         }}
         initialValues={content}
       >
@@ -131,31 +140,25 @@ export const ContentForm: React.FC = () => {
                       className="chk"
                       onClick={() => setToggleCommentary(!toggleCommentary)}
                       label="Commentary"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 7 && x.value === 'true',
-                        )
-                      }
                     />
                   </Col>
                   <Col style={{ width: '215px' }}>
-                    <FormikCheckbox disabled className="chk" name="topStory" label="Top Story " />
-                    <FormikCheckbox disabled className="chk" name="onTicker" label="On Ticker" />
-                    <FormikCheckbox
-                      className="chk"
+                    <ActionCheckbox name="topStory" label="Top Story" actionId={4} />
+                    <ActionCheckbox name="onTicker" label="On Ticker" actionId={5} />
+                    <ActionCheckbox
                       name="nonQualified"
-                      disabled
                       label="Non Qualified Subject"
-                      checked={
-                        !!props.values.actions.find(
-                          (x: IActionModel) => x.id === 6 && x.value === 'true',
-                        )
-                      }
+                      actionId={6}
                     />
                   </Col>
                 </Row>
                 <Row>
-                  <FormikText name="timeout" label="Commentary Timeout" className="md" />
+                  <FormikText
+                    disabled={toggleCommentary}
+                    name="timeout"
+                    label="Commentary Timeout"
+                    className="md"
+                  />
                 </Row>
               </Col>
             </Row>
@@ -179,7 +182,7 @@ export const ContentForm: React.FC = () => {
                 {active === 'properties' ? (
                   <PropertiesContentForm content={content} setContent={setContent} />
                 ) : (
-                  <TranscriptContentForm content={content} setContent={setContent} />
+                  <TranscriptContentForm />
                 )}
               </Tabs>
             </Row>
