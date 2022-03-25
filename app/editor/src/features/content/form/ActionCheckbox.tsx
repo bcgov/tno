@@ -24,7 +24,6 @@ export const ActionCheckbox: React.FC<IActionCheckbox> = ({ name, onClick }) => 
   const checked = !!actions.find((x: IActionValueModel) => x.name === name && x.value === 'true');
   /** find the index of the action in order to alter the value, returns -1 if it does not exist */
   const index = actions.findIndex((x) => x.name === name);
-  console.log(actionId);
   return (
     <FormikCheckbox
       className="chk"
