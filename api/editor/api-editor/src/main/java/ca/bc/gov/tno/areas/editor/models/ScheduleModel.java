@@ -106,6 +106,24 @@ public class ScheduleModel extends AuditColumnModel {
     }
   }
 
+  public Schedule toSchedule() {
+    var entity = new Schedule(this.id, this.name, this.getVersion());
+
+    entity.setDescription(this.description);
+    entity.setEnabled(this.enabled);
+    entity.setScheduleType(this.scheduleType);
+    entity.setDelayMS(this.delayMS);
+    entity.setRunOn(this.runOn);
+    entity.setStartAt(this.startAt);
+    entity.setStopAt(this.stopAt);
+    entity.setRepeat(this.repeat);
+    entity.setRunOnWeekDays(this.runOnWeekDays);
+    entity.setRunOnMonths(this.runOnMonths);
+    entity.setDayOfMonth(this.dayOfMonth);
+
+    return entity;
+  }
+
   /**
    * @return int return the id
    */

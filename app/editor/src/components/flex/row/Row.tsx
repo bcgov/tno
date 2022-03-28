@@ -9,6 +9,7 @@ export interface IRowProps extends React.HTMLAttributes<HTMLDivElement> {
   basis?: string | 'auto';
   direction?: 'row' | 'row-reverse';
   wrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
+  nowrap?: boolean;
   gap?: string;
   rowGap?: string;
   colGap?: string;
@@ -54,18 +55,12 @@ export interface IRowProps extends React.HTMLAttributes<HTMLDivElement> {
 /**
  * Provides a way to style an application page in a grid format. Row simply returns a div element with a flex display with a flex
  * direction of type row.
- * @param children the elements you wish to have in your row
- * @param style pass further CSS properties
- * @returns
+ * @param props0 Component properties.
+ * @returns Row component.
  */
-export const Row: React.FC<IRowProps> = ({
-  children,
-  direction = 'row',
-  wrap = 'wrap',
-  ...rest
-}) => {
+export const Row: React.FC<IRowProps> = ({ children, direction = 'row', ...rest }) => {
   return (
-    <styled.Row direction={direction} wrap={wrap} {...rest}>
+    <styled.Row direction={direction} {...rest}>
       {children}
     </styled.Row>
   );

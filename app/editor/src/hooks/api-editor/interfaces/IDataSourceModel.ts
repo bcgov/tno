@@ -19,6 +19,8 @@ export interface IDataSourceModel extends IAuditColumnsModel {
   licenseId: number;
   license?: ILicenseModel;
   topic: string;
+  inCBRA: boolean;
+  inAnalysis: boolean;
   connection: any;
   lastRanOn?: Date;
   parentId?: number;

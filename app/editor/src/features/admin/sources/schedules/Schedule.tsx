@@ -1,25 +1,20 @@
 import { Tab, Tabs } from 'components/tabs';
-import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { defaultSource } from '../constants';
-import * as styled from '../styled';
+import * as styled from './styled';
 
-interface IScheduleProps {
-  values?: IDataSourceModel;
-}
+interface IScheduleProps {}
 
-export const Schedule: React.FC<IScheduleProps> = ({ values = defaultSource }) => {
+export const Schedule: React.FC<IScheduleProps> = () => {
   return (
-    <styled.Schedule className="schedule">
+    <styled.Schedule className="schedule" flex="1">
       <h2>Schedule</h2>
-
       <Tabs
         tabs={
           <>
-            <Tab exact navigateTo="schedules" label="Continuos" />
-            <Tab exact navigateTo="schedules/daily" label="Daily" />
+            <Tab exact navigateTo="schedules/continuos" label="Continuos" />
+            <Tab exact navigateTo="schedules/daily" label="Start/Stop" />
             <Tab exact navigateTo="schedules/advanced" label="Advanced" />
           </>
         }

@@ -74,16 +74,6 @@ public class DataSourceModel extends AuditColumnModel {
   private LicenseModel license;
 
   /**
-   * Foreign key to the schedule.
-   */
-  private int scheduleId;
-
-  /**
-   * The schedule reference.
-   */
-  private ScheduleModel schedule;
-
-  /**
    * The Kafka topic that content will be pushed into.
    */
   private String topic;
@@ -135,6 +125,7 @@ public class DataSourceModel extends AuditColumnModel {
 
       this.id = entity.getId();
       this.name = entity.getName();
+      this.code = entity.getCode();
       this.shortName = entity.getShortName();
       this.description = entity.getDescription();
       this.enabled = entity.isEnabled();
@@ -331,34 +322,6 @@ public class DataSourceModel extends AuditColumnModel {
   }
 
   /**
-   * @return int return the scheduleId
-   */
-  public int getScheduleId() {
-    return scheduleId;
-  }
-
-  /**
-   * @param scheduleId the scheduleId to set
-   */
-  public void setScheduleId(int scheduleId) {
-    this.scheduleId = scheduleId;
-  }
-
-  /**
-   * @return ScheduleModel return the schedule
-   */
-  public ScheduleModel getSchedule() {
-    return schedule;
-  }
-
-  /**
-   * @param schedule the schedule to set
-   */
-  public void setSchedule(ScheduleModel schedule) {
-    this.schedule = schedule;
-  }
-
-  /**
    * @return String return the topic
    */
   public String getTopic() {
@@ -417,7 +380,7 @@ public class DataSourceModel extends AuditColumnModel {
   /**
    * @return boolean return the inCBRA
    */
-  public boolean inCBRA() {
+  public boolean getInCBRA() {
     return inCBRA;
   }
 
@@ -431,7 +394,7 @@ public class DataSourceModel extends AuditColumnModel {
   /**
    * @return boolean return the inAnalysis
    */
-  public boolean inAnalysis() {
+  public boolean getInAnalysis() {
     return inAnalysis;
   }
 

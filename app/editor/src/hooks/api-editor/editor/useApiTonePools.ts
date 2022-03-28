@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ITonePoolModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiTonePools = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getTonePools: () => {
       return extractResponseData<ITonePoolModel[]>(() => api.get(`/editor/tone/pools`));
     },
-  }).current;
+  };
 };

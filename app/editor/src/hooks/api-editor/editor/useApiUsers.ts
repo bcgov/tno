@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IUserModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiUsers = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getUsers: () => {
       return extractResponseData<IUserModel[]>(() => api.get(`/editor/users`));
     },
-  }).current;
+  };
 };

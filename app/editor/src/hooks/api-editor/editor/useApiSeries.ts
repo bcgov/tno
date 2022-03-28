@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ISeriesModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiSeries = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getSeries: () => {
       return extractResponseData<ISeriesModel[]>(() => api.get(`/editor/series`));
     },
-  }).current;
+  };
 };

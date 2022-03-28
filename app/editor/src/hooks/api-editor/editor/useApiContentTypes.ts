@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IContentTypeModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiContentTypes = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getContentTypes: () => {
       return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/content/types`));
     },
-  }).current;
+  };
 };

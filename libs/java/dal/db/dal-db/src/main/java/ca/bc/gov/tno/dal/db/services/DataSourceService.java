@@ -12,6 +12,7 @@ import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
 import ca.bc.gov.tno.dal.db.entities.DataSourceSchedule;
 import ca.bc.gov.tno.dal.db.repositories.interfaces.IDataSourceRepository;
+import ca.bc.gov.tno.dal.db.repositories.interfaces.IScheduleRepository;
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 
 /**
@@ -22,24 +23,29 @@ import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 public class DataSourceService implements IDataSourceService {
   private final SessionFactory sessionFactory;
   private final IDataSourceRepository repository;
+  private final IScheduleRepository scheduleRepository;
 
   /**
    * Creates a new instance of a DataSourceService object, initializes with
    * specified parameters.
-   * 
-   * @param sessionFactory The session factory.
-   * @param repository     The data source repository.
+   *
+   * @param sessionFactory     The session factory.
+   * @param repository         The data source repository.
+   * @param scheduleRepository The schedule repository.
    */
   @Autowired
-  public DataSourceService(final SessionFactory sessionFactory,
-      final IDataSourceRepository repository) {
+  public DataSourceService(
+      final SessionFactory sessionFactory,
+      final IDataSourceRepository repository,
+      final IScheduleRepository scheduleRepository) {
     this.sessionFactory = sessionFactory;
     this.repository = repository;
+    this.scheduleRepository = scheduleRepository;
   }
 
   /**
    * Find all that match the criteria.
-   * 
+   *
    * @return A list of data source.
    */
   @Override
@@ -50,19 +56,39 @@ public class DataSourceService implements IDataSourceService {
 
   /**
    * Find the data source for the specified primary key.
-   * 
+   *
    * @param key The primary key.
    * @return An instance of the data source if it exists.
    */
   @Override
+  @SuppressWarnings("unchecked")
   public Optional<DataSource> findById(int key) {
-    var result = repository.findById(key);
-    return result;
+    var session = sessionFactory.getCurrentSession();
+    var ts = session.beginTransaction();
+
+    try {
+      var sql = """
+          SELECT DISTINCT ds
+          FROM DataSource ds
+          JOIN FETCH ds.mediaType mt
+          JOIN FETCH ds.dataLocation dl
+          JOIN FETCH ds.license l
+          LEFT JOIN FETCH ds.parent p
+          LEFT JOIN FETCH ds.dataSourceSchedules dss
+          LEFT JOIN FETCH dss.schedule
+          WHERE ds.id = :id
+          """;
+      var query = session.createQuery(sql).setParameter("id", key);
+      return query.uniqueResultOptional();
+    } finally {
+      ts.commit();
+      session.close();
+    }
   }
 
   /**
    * Find the data source for the specified media type.
-   * 
+   *
    * @param mediaTypeId Foreign key to media type.
    * @return A new instance of the data source if it exists.
    */
@@ -92,7 +118,7 @@ public class DataSourceService implements IDataSourceService {
 
   /**
    * Find the data source for the specified media type and data location.
-   * 
+   *
    * @param mediaTypeId    Foreign key to media type.
    * @param dataLocationId Foreign key to data location.
    * @return A new instance of the data source if it exists.
@@ -127,7 +153,7 @@ public class DataSourceService implements IDataSourceService {
 
   /**
    * Find the data source for the specified code.
-   * 
+   *
    * @param code The unique code.
    * @return An instance of the data source if it exists.
    */
@@ -158,7 +184,7 @@ public class DataSourceService implements IDataSourceService {
 
   /**
    * Add a new data source to the data source.
-   * 
+   *
    * @param entity The data source to add.
    * @return A new instance of the data source that was added.
    */
@@ -166,6 +192,8 @@ public class DataSourceService implements IDataSourceService {
   public DataSource add(DataSource entity) {
     for (DataSourceSchedule dss : entity.getDataSourceSchedules()) {
       PrincipalHelper.addAudit(dss);
+      var schedule = scheduleRepository.save(PrincipalHelper.addAudit(dss.getSchedule()));
+      dss.setScheduleId(schedule.getId());
     }
     var result = repository.save(PrincipalHelper.addAudit(entity));
     return result;
@@ -173,7 +201,7 @@ public class DataSourceService implements IDataSourceService {
 
   /**
    * Update the specified data source in the data source.
-   * 
+   *
    * @param entity The data source to update.
    * @return A new instance of the data source that was updated.
    */
@@ -181,6 +209,13 @@ public class DataSourceService implements IDataSourceService {
   public DataSource update(DataSource entity) {
     for (DataSourceSchedule dss : entity.getDataSourceSchedules()) {
       PrincipalHelper.addAudit(dss);
+      var schedule = dss.getSchedule();
+      if (schedule.getId() == 0)
+        PrincipalHelper.addAudit(schedule);
+      else
+        PrincipalHelper.updateAudit(schedule);
+      schedule = scheduleRepository.save(schedule);
+      dss.setScheduleId(schedule.getId());
     }
     var result = repository.save(PrincipalHelper.updateAudit(entity));
     return result;
@@ -188,7 +223,7 @@ public class DataSourceService implements IDataSourceService {
 
   /**
    * Delete the specified data source from the data source.
-   * 
+   *
    * @param entity The data source to delete.
    */
   @Override

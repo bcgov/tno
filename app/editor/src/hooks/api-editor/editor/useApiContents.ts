@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts, toQueryString } from 'tno-core';
 
 import { IContentFilter, IContentModel, IPaged, useApi } from '..';
@@ -17,7 +16,7 @@ export const useApiContents = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     findContent: (filter?: IContentFilter) => {
       const params = {
         ...filter,
@@ -43,5 +42,5 @@ export const useApiContents = (
         api.delete(`/editor/contents/${content.id}`, { data: content }),
       );
     },
-  }).current;
+  };
 };

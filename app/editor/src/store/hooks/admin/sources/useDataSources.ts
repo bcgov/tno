@@ -1,7 +1,7 @@
 import { IDataSourceModel, IPaged, useApiAdminDataSources } from 'hooks/api-editor';
 import React from 'react';
 
-interface IDataSourceHook {
+interface IDataSourceController {
   findDataSources: () => Promise<IPaged<IDataSourceModel>>;
   getDataSource: (id: number) => Promise<IDataSourceModel>;
   addDataSource: (model: IDataSourceModel) => Promise<IDataSourceModel>;
@@ -9,10 +9,10 @@ interface IDataSourceHook {
   deleteDataSource: (model: IDataSourceModel) => Promise<IDataSourceModel>;
 }
 
-export const useDataSources = (): [IDataSourceHook] => {
+export const useDataSources = (): [IDataSourceController] => {
   const api = useApiAdminDataSources();
 
-  const hookRef = React.useRef({
+  const controller = React.useRef({
     findDataSources: async () => {
       const result = await api.findDataSources();
       return result;
@@ -33,7 +33,7 @@ export const useDataSources = (): [IDataSourceHook] => {
       const result = await api.deleteDataSource(model);
       return result;
     },
-  });
+  }).current;
 
-  return [hookRef.current];
+  return [controller];
 };

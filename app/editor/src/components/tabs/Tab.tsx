@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Claim, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
+import { isActivePath } from './utils';
 
 export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
   /**
@@ -12,6 +13,10 @@ export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
    * prop used to determine whether the tab is active
    */
   active?: boolean;
+  /**
+   * An array of paths that if match will make the tab active.
+   */
+  activePaths?: string[];
   /**
    * Whether the path must be exact to make tab active.
    */
@@ -29,9 +34,8 @@ export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
 /**
  * The individual item that will appear in the navigation bar, on click it will navigate to desired path and will use the applications
  * current path to determine whether it is active or not.
- * @param label the text to appear on the tab in the navigation bar
- * @param navigateTo determine the path the item will navigate to onClick
- * @returns styled navigation bar item
+ * @param props Component properties.
+ * @returns Tab component.
  */
 export const Tab: React.FC<ITabProps> = ({
   label,
@@ -40,6 +44,7 @@ export const Tab: React.FC<ITabProps> = ({
   children,
   className,
   active = false,
+  activePaths = [],
   exact = false,
   onClick,
 }) => {
@@ -50,11 +55,8 @@ export const Tab: React.FC<ITabProps> = ({
 
   let isActive =
     active ||
-    (navigateTo
-      ? exact
-        ? location.pathname.endsWith(navigateTo)
-        : location.pathname.includes(navigateTo)
-      : false);
+    isActivePath(location.pathname, navigateTo, exact) ||
+    activePaths.some((p) => isActivePath(location.pathname, p, exact));
 
   return hasClaim ? (
     <styled.Tab

@@ -6,7 +6,7 @@ export const Row = styled.div<IRowProps>`
   display: flex;
   flex-direction: ${(props) => props.direction};
   flex: ${(props) => props.flex};
-  flex-wrap: ${(props) => props.wrap};
+  flex-wrap: ${(props) => (props.nowrap ? 'no-wrap' : props.wrap ?? 'wrap')};
   flex-grow: ${(props) => props.grow};
   flex-shrink: ${(props) => props.shrink};
   flex-basis: ${(props) => props.basis};
@@ -16,9 +16,4 @@ export const Row = styled.div<IRowProps>`
   gap: ${(props) => props.gap};
   row-gap: ${(props) => props.rowGap};
   column-gap: ${(props) => props.colGap};
-
-  & > button {
-    align-self: flex-end;
-    margin-bottom: 0.5em;
-  }
 `;

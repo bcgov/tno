@@ -1,4 +1,4 @@
-import { Row } from 'components/flex';
+import { Col } from 'components/flex';
 import styled from 'styled-components';
 
-export const DataSourceDetails = styled(Row)``;
+export const DataSourceDetails = styled(Col)``;

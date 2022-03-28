@@ -3,6 +3,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import React, { useState } from 'react';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 
+import { FieldSize } from '../constants';
 import { SelectDateVariant } from '.';
 import * as styled from './styled';
 
@@ -21,6 +22,10 @@ export interface ISelectDateProps {
    * input if provided.
    */
   selectedDate?: string;
+  /** Whether the form field is required. */
+  required?: boolean;
+  /** The form field size. */
+  width?: FieldSize;
 }
 
 export interface IDatePickerProps extends ISelectDateProps, ReactDatePickerProps {}
@@ -39,31 +44,41 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
   children,
   className,
   selectedDate,
+  required,
+  width = FieldSize.Stretch,
+  onChange,
   ...rest
 }) => {
   const [startDate, setStartDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
 
   return (
-    <styled.SelectDate className="frm-in">
+    <styled.SelectDate className="frm-in" variant={variant} required={required} width={width}>
       {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
       {selectedDate ? (
         <DatePicker
           name={name}
           id={id}
           selected={startDate}
-          onChange={(date: any) => setStartDate(date)}
-          className={`dpk ${className ?? ''}`}
+          onChange={(date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
+            setStartDate(date as Date);
+            if (onChange) onChange(date, event);
+          }}
+          className={`dpk${className ? ` ${className}` : ''}`}
           data-for="main-tooltip"
           data-tip={tooltip}
           disabled={rest.disabled}
+          required={required}
         />
       ) : (
         <DatePicker
           name={name}
           id={id}
-          className={`dpk ${className ?? ''}`}
+          className={`dpk${className ? ` ${className}` : ''}`}
           data-for="main-tooltip"
           data-tip={tooltip}
+          disabled={rest.disabled}
+          required={required}
+          onChange={onChange}
           {...rest}
         />
       )}

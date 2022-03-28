@@ -1,27 +1,24 @@
 import { IUserInfoModel, useApiAuth } from 'hooks/api-editor';
 import React from 'react';
-import { IAppState, IAppStore, useAppStore } from 'store/slices';
+import { IAppState, useAppStore } from 'store/slices';
 
-interface IAppHook {
+interface IAppController {
   getUserInfo: () => Promise<IUserInfoModel>;
   isUserReady: () => boolean;
 }
 
-export const useApp = (): [IAppState, IAppHook, IAppStore] => {
+export const useApp = (): [IAppState, IAppController] => {
   const [state, store] = useAppStore();
   const api = useApiAuth();
 
-  const hook: IAppHook = React.useMemo(
-    () => ({
-      getUserInfo: async () => {
-        const result = await api.getUserInfo();
-        store.storeUserInfo(result);
-        return result;
-      },
-      isUserReady: () => state.userInfo !== undefined,
-    }),
-    [api, store, state.userInfo],
-  );
+  const controller = React.useRef({
+    getUserInfo: async () => {
+      const result = await api.getUserInfo();
+      store.storeUserInfo(result);
+      return result;
+    },
+    isUserReady: () => state.userInfo !== undefined,
+  });
 
-  return [state, hook, store];
+  return [state, controller.current];
 };

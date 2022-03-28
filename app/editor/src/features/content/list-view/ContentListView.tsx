@@ -1,4 +1,5 @@
 import { Button, ButtonVariant } from 'components/button';
+import { Col } from 'components/flex';
 import {
   Checkbox,
   IOptionItem,
@@ -15,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useContent, useLookup } from 'store/hooks';
 import { useApp } from 'store/hooks/app/useApp';
-import { initialContentState } from 'store/slices';
+import { initialContentState, useContentStore } from 'store/slices';
 import { getSortableOptions, getUserOptions } from 'utils';
 
 import {
@@ -33,11 +34,10 @@ import { makeFilter } from './makeFilter';
 export const ContentListView: React.FC = () => {
   const [{ userInfo }, { isUserReady }] = useApp();
   const [{ contentTypes, mediaTypes, users }] = useLookup();
-  const [
-    { filter, filterAdvanced, sortBy },
-    { findContent },
-    { storeFilter, storeFilterAdvanced, storeSortBy },
-  ] = useContent({ filter: { ...defaultFilter, userId: userInfo?.id ?? 0 } });
+  const [{ filter, filterAdvanced, sortBy }, { findContent }] = useContent({
+    filter: { ...defaultFilter, userId: userInfo?.id ?? 0 },
+  });
+  const [, { storeFilter, storeFilterAdvanced, storeSortBy }] = useContentStore();
   const navigate = useNavigate();
 
   const [mediaTypeOptions, setMediaTypes] = React.useState<IOptionItem[]>([]);
@@ -267,41 +267,37 @@ export const ContentListView: React.FC = () => {
               }}
             ></Text>
           </div>
-          <div className="frm-in dateRange">
+          <Col className="frm-in dateRange" alignItems="flex-start">
             <label data-for="main-tooltip" data-tip="Date created">
               Date Range
             </label>
-            <div>
-              <SelectDate
-                name="startDate"
-                placeholderText="YYYY MM DD"
-                selected={
-                  !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
-                }
-                showTimeSelect
-                dateFormat="Pp"
-                onChange={(date) =>
-                  storeFilterAdvanced({
-                    ...filterAdvanced,
-                    startDate: !!date ? date.toString() : undefined,
-                  })
-                }
-              />
-              <SelectDate
-                name="endDate"
-                placeholderText="YYYY MM DD"
-                selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
-                showTimeSelect
-                dateFormat="Pp"
-                onChange={(date) =>
-                  storeFilterAdvanced({
-                    ...filterAdvanced,
-                    endDate: !!date ? date.toString() : undefined,
-                  })
-                }
-              />
-            </div>
-          </div>
+            <SelectDate
+              name="startDate"
+              placeholderText="YYYY MM DD"
+              selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
+              showTimeSelect
+              dateFormat="Pp"
+              onChange={(date) =>
+                storeFilterAdvanced({
+                  ...filterAdvanced,
+                  startDate: !!date ? date.toString() : undefined,
+                })
+              }
+            />
+            <SelectDate
+              name="endDate"
+              placeholderText="YYYY MM DD"
+              selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
+              showTimeSelect
+              dateFormat="Pp"
+              onChange={(date) =>
+                storeFilterAdvanced({
+                  ...filterAdvanced,
+                  endDate: !!date ? date.toString() : undefined,
+                })
+              }
+            />
+          </Col>
           <Button
             name="search"
             onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced }, sortBy)}

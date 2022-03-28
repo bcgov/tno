@@ -27,13 +27,13 @@ public abstract class AuditColumns implements Serializable {
    * The uid that identifies the user who created the record.
    */
   @Column(name = "created_by_id", nullable = false)
-  private UUID createdById;
+  private UUID createdById = new UUID(0L, 0L);
 
   /**
    * A name that identifies the user who created the record.
    */
   @Column(name = "created_by", nullable = false)
-  private String createdBy;
+  private String createdBy = "";
 
   /**
    * When the record was created.
@@ -43,19 +43,19 @@ public abstract class AuditColumns implements Serializable {
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
   @Column(name = "created_on", nullable = false)
-  private ZonedDateTime createdOn;
+  private ZonedDateTime createdOn = ZonedDateTime.now();
 
   /**
    * The uid that identifies the user who updated the record last.
    */
   @Column(name = "updated_by_id", nullable = false)
-  private UUID updatedById;
+  private UUID updatedById = new UUID(0L, 0L);
 
   /**
    * The name that identifies the user who updated the record last.
    */
   @Column(name = "updated_by", nullable = false)
-  private String updatedBy;
+  private String updatedBy = "";
 
   /**
    * When the record was last updated.
@@ -65,7 +65,7 @@ public abstract class AuditColumns implements Serializable {
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
   @Column(name = "updated_on", nullable = false)
-  private ZonedDateTime updatedOn;
+  private ZonedDateTime updatedOn = ZonedDateTime.now();
 
   /**
    * Provides concurrency control to enforce optimistic concurrency.

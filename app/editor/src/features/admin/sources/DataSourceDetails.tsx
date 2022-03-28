@@ -1,65 +1,84 @@
-import { Col } from 'components/flex';
+import { Col, Row } from 'components/flex';
+import { Checkbox, IOptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
-import { Section } from 'components/section';
+import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
+import { ActionMeta } from 'react-select';
 import { useLookup } from 'store/hooks';
 import { getSortableOptions } from 'utils';
 
-import { defaultSource } from './constants';
+import { defaultSchedule } from './constants';
+import { Connection } from './media-types';
 import * as styled from './styled';
 
-interface IDataSourceDetailsProps {
-  values?: IDataSourceModel;
-}
+interface IDataSourceDetailsProps {}
 
-export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = ({
-  values = defaultSource,
-}) => {
+export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
+  const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
 
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
   const licenses = getSortableOptions(lookups.licenses);
 
+  const handleMediaTypeChange = (newValue: unknown, actionMeta: ActionMeta<unknown>) => {
+    // Change so that the connection settings can display the correct form.
+    const option = newValue as IOptionItem;
+    const mediaType = lookups.mediaTypes.find((mt) => mt.id === option.value);
+    setFieldValue('mediaType', mediaType);
+  };
+
+  React.useEffect(() => {
+    // Ensures the connection settings can display the correct form on initial load.
+    const mediaType = lookups.mediaTypes.find((mt) => mt.id === values.mediaTypeId);
+    setFieldValue('mediaType', mediaType);
+  }, [lookups.mediaTypes, setFieldValue, values.mediaTypeId, values.mediaType]);
+
   return (
-    <styled.DataSourceDetails alignContent="flex-start" alignItems="flex-start">
-      <Col>
-        <FormikText label="Name" name="name" required />
-        <FormikText label="Abbreviation" name="code" required placeholder="A unique code" />
-        <FormikText label="Common Call" name="code" />
-        <FormikTextArea label="Description" name="description" />
-        <FormikSelect label="Media Type" name="mediaTypeId" options={mediaTypes} required />
-        <FormikSelect label="License" name="licenseId" options={licenses} required />
-        <FormikSelect
-          label="Parent Data Source"
-          name="parentId"
-          options={[]}
-          placeholder="optional"
-        />
-        <Section>
-          <h3>Connection Settings</h3>
-          <FormikText label="URL" name="connection.url" value={values.connection.url} />
-          <FormikText
-            label="username"
-            name="connection.username"
-            value={values.connection.username}
+    <styled.DataSourceDetails alignContent="flex-start" alignItems="flex-start" flex="1">
+      <h2>Details</h2>
+      <Row>
+        <Col>
+          <FormikText label="Name" name="name" required />
+          <FormikText label="Abbreviation" name="code" required placeholder="A unique code" />
+          <FormikText label="Common Call" name="shortName" />
+          <FormikTextArea label="Description" name="description" />
+          <FormikSelect
+            label="Media Type"
+            name="mediaTypeId"
+            options={mediaTypes}
+            required
+            onChange={handleMediaTypeChange}
           />
-          <FormikText
-            label="password"
-            name="connection.password"
-            value={values.connection.password}
-            type="password"
-            autoComplete="off"
+          <FormikSelect label="License" name="licenseId" options={licenses} required />
+          <FormikSelect
+            label="Parent Data Source"
+            name="parentId"
+            options={[]}
+            placeholder="optional"
           />
-        </Section>
-      </Col>
-      <Col>
-        <FormikCheckbox label="Enabled" name="enabled" />
-        <FormikCheckbox label="CBRA" name="cbra" />
-        <FormikCheckbox label="TV Archive" name="tvArchive" />
-        <FormikCheckbox label="Use in Analysis" name="useInAnalysis" />
-        <FormikCheckbox label="Use in Event of the Day" name="useInEoD" />
-      </Col>
+          <Connection />
+        </Col>
+        <Col>
+          <Checkbox
+            label="Has Service Schedule"
+            name="hasSchedule"
+            value={true}
+            checked={!!values.schedules.length}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              if (checked && !values.schedules.length)
+                setFieldValue('schedules.0', defaultSchedule);
+              else if (!checked) setFieldValue('schedules', []);
+            }}
+          />
+          <FormikCheckbox label="Enabled" name="enabled" />
+          <FormikCheckbox label="CBRA" name="inCBRA" />
+          <FormikCheckbox label="TV Archive" name="inTVArchive" />
+          <FormikCheckbox label="Use in Analysis" name="inAnalysis" />
+          <FormikCheckbox label="Use in Event of the Day" name="inEoD" />
+        </Col>
+      </Row>
     </styled.DataSourceDetails>
   );
 };

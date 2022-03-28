@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from 'store/hooks/app/useApp';
+import { useAppStore } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
 
 /**
@@ -8,15 +9,16 @@ import { useKeycloakWrapper } from 'tno-core';
  */
 export const UserInfo: React.FC = ({ children }) => {
   const keycloak = useKeycloakWrapper();
-  const [{ userInfo }, appHook, appStore] = useApp();
+  const [{ userInfo }, app] = useApp();
+  const [, appStore] = useAppStore();
 
   React.useEffect(() => {
     if (keycloak.authenticated && userInfo === undefined) {
-      appHook.getUserInfo();
+      app.getUserInfo();
     } else if (!keycloak.authenticated) {
       appStore.storeUserInfo();
     }
-  }, [appHook, appStore, keycloak.authenticated, userInfo]);
+  }, [app, appStore, keycloak.authenticated, userInfo]);
 
   return <>{children}</>;
 };

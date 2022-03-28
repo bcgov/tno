@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { ITagModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiTags = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getTags: () => {
       return extractResponseData<ITagModel[]>(() => api.get(`/editor/tags`));
     },
-  }).current;
+  };
 };

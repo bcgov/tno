@@ -1,13 +1,13 @@
 import { Button } from 'components/button';
-import { Row } from 'components/flex';
+import { Col, Row } from 'components/flex';
 import { FormikForm } from 'components/formik';
-import { IDataSourceModel } from 'hooks/api-editor';
+import { IDataSourceModel, ScheduleType } from 'hooks/api-editor';
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin';
 
 import { DataSourceDetails, ReachEarnedMedia, Schedule } from '.';
-import { defaultSource } from './constants';
+import { defaultSchedule, defaultSource } from './constants';
 import * as styled from './styled';
 
 interface IDataSourceProps {}
@@ -15,15 +15,33 @@ interface IDataSourceProps {}
 export const DataSource: React.FC<IDataSourceProps> = (props) => {
   const [api] = useDataSources();
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { state } = useLocation();
 
-  const [source, setSource] = React.useState<IDataSourceModel>();
+  const [source, setSource] = React.useState<IDataSourceModel>(
+    (state as any)?.source ?? defaultSource,
+  );
   const sourceId = Number(id);
 
   React.useEffect(() => {
-    api.getDataSource(sourceId).then((data) => {
-      setSource(data);
-    });
-  }, [api, sourceId]);
+    if (source?.id !== sourceId) {
+      api.getDataSource(sourceId).then((data) => {
+        // always make sure there is at least one schedule.
+        if (!data.schedules.length) data.schedules.push(defaultSchedule);
+
+        setSource(data);
+
+        // Navigate to the correct URL for the schedule type.
+        if (data.schedules[0].scheduleType === ScheduleType.Repeating) {
+          navigate('schedules/continuos', { replace: true, state: { source: data } });
+        } else if (data.schedules.length === 1) {
+          navigate('schedules/daily', { replace: true, state: { source: data } });
+        } else {
+          navigate('schedules/advanced', { replace: true, state: { source: data } });
+        }
+      });
+    }
+  }, [api, navigate, source?.id, sourceId]);
 
   const handleSubmit = async (values: IDataSourceModel) => {
     const data = await api.updateDataSource(values);
@@ -33,7 +51,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
   return (
     <styled.DataSource>
       <FormikForm
-        initialValues={source ?? defaultSource}
+        initialValues={source}
         validate={(values) => {
           const errors = {};
           return errors;
@@ -44,12 +62,16 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
         }}
       >
         {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-          <Row alignItems="flex-start">
-            <DataSourceDetails values={source} />
-            <Schedule values={source} />
-            <ReachEarnedMedia values={source} />
-            <Button type="submit">Save</Button>
-          </Row>
+          <Col>
+            <Row alignItems="flex-start">
+              <DataSourceDetails />
+              <Schedule />
+              <ReachEarnedMedia />
+            </Row>
+            <Col alignContent="flex-start" alignItems="flex-end">
+              <Button type="submit">Save</Button>
+            </Col>
+          </Col>
         )}
       </FormikForm>
     </styled.DataSource>

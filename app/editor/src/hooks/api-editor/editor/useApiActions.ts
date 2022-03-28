@@ -1,4 +1,3 @@
-import React from 'react';
 import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
 
 import { IActionModel, useApi } from '..';
@@ -17,9 +16,9 @@ export const useApiActions = (
 ) => {
   const api = useApi(options);
 
-  return React.useRef({
+  return {
     getActions: () => {
       return extractResponseData<IActionModel[]>(() => api.get(`/editor/actions`));
     },
-  }).current;
+  };
 };

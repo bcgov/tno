@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.models.Paged;
-import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.areas.admin.models.DataSourceModel;
 
 /**
  * Endpoints to communicate with the TNO DB data sources.
@@ -34,9 +34,9 @@ public class DataSourceController {
    * @return
    */
   @GetMapping(path = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Paged<DataSource> find() {
-    var result = dataSourceService.findAll();
-    return new Paged<DataSource>(result, 1, result.size(), result.size());
+  public Paged<DataSourceModel> find() {
+    var result = dataSourceService.findAll().stream().map(i -> new DataSourceModel(i)).toList();
+    return new Paged<DataSourceModel>(result, 1, result.size(), result.size());
   }
 
   /**
@@ -46,9 +46,9 @@ public class DataSourceController {
    * @return
    */
   @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public DataSource findById(@PathVariable(required = true) Integer id) {
+  public DataSourceModel findById(@PathVariable(required = true) Integer id) {
     var result = dataSourceService.findById(id).orElse(null);
-    return result;
+    return new DataSourceModel(result);
   }
 
   /**
@@ -59,9 +59,9 @@ public class DataSourceController {
    */
   @PostMapping(path = { "", "/" }, consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public DataSource add(@RequestBody DataSource model) {
-    var result = dataSourceService.add(model);
-    return result;
+  public DataSourceModel add(@RequestBody DataSourceModel model) {
+    var result = dataSourceService.add(model.toDataSource());
+    return new DataSourceModel(result);
   }
 
   /**
@@ -73,9 +73,9 @@ public class DataSourceController {
    */
   @PutMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public DataSource update(@PathVariable Integer id, @RequestBody DataSource model) {
-    var result = dataSourceService.update(model);
-    return result;
+  public DataSourceModel update(@PathVariable Integer id, @RequestBody DataSourceModel model) {
+    var result = dataSourceService.update(model.toDataSource());
+    return new DataSourceModel(result);
   }
 
   /**
@@ -87,8 +87,8 @@ public class DataSourceController {
    */
   @DeleteMapping(path = "/{id}", consumes = {
       MediaType.APPLICATION_JSON_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE)
-  public DataSource delete(@PathVariable Integer id, @RequestBody DataSource model) {
-    dataSourceService.delete(model);
+  public DataSourceModel delete(@PathVariable Integer id, @RequestBody DataSourceModel model) {
+    dataSourceService.delete(model.toDataSource());
     return model;
   }
 
