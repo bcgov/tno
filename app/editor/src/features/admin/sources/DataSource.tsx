@@ -7,7 +7,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin';
 
 import { DataSourceDetails, ReachEarnedMedia, Schedule } from '.';
-import { defaultSchedule, defaultSource } from './constants';
+import { defaultSource } from './constants';
 import * as styled from './styled';
 
 interface IDataSourceProps {}
@@ -26,18 +26,16 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
   React.useEffect(() => {
     if (source?.id !== sourceId) {
       api.getDataSource(sourceId).then((data) => {
-        // always make sure there is at least one schedule.
-        if (!data.schedules.length) data.schedules.push(defaultSchedule);
-
         setSource(data);
-
-        // Navigate to the correct URL for the schedule type.
-        if (data.schedules[0].scheduleType === ScheduleType.Repeating) {
-          navigate('schedules/continuos', { replace: true, state: { source: data } });
-        } else if (data.schedules.length === 1) {
-          navigate('schedules/daily', { replace: true, state: { source: data } });
-        } else {
-          navigate('schedules/advanced', { replace: true, state: { source: data } });
+        if (!!data.schedules.length) {
+          // Navigate to the correct URL for the schedule type.
+          if (data.schedules[0].scheduleType === ScheduleType.Repeating) {
+            navigate('schedules/continuos', { replace: true, state: { source: data } });
+          } else if (data.schedules.length === 1) {
+            navigate('schedules/daily', { replace: true, state: { source: data } });
+          } else {
+            navigate('schedules/advanced', { replace: true, state: { source: data } });
+          }
         }
       });
     }
