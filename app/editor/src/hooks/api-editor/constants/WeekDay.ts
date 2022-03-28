@@ -1,4 +1,4 @@
-export enum WeekDays {
+export enum WeekDay {
   /** Not applicable */
   NA = 0,
   /** Sunday */

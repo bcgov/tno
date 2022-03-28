@@ -1565,28 +1565,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/is-prop-valid@npm:^0.8.8":
-  version: 0.8.8
-  resolution: "@emotion/is-prop-valid@npm:0.8.8"
-  dependencies:
-    "@emotion/memoize": 0.7.4
-  checksum: bb7ec6d48c572c540e24e47cc94fc2f8dec2d6a342ae97bc9c8b6388d9b8d283862672172a1bb62d335c02662afe6291e10c71e9b8642664a8b43416cdceffac
-  languageName: node
-  linkType: hard
-
 "@emotion/is-prop-valid@npm:^1.1.0":
   version: 1.1.2
   resolution: "@emotion/is-prop-valid@npm:1.1.2"
   dependencies:
     "@emotion/memoize": ^0.7.4
   checksum: 58b1f2d429a589f8f5bc2c33a8732cbb7bbcb17131a103511ef9a94ac754d7eeb53d627f947da480cd977f9d419fd92e244991680292f3287204159652745707
-  languageName: node
-  linkType: hard
-
-"@emotion/memoize@npm:0.7.4":
-  version: 0.7.4
-  resolution: "@emotion/memoize@npm:0.7.4"
-  checksum: 4e3920d4ec95995657a37beb43d3f4b7d89fed6caa2b173a4c04d10482d089d5c3ea50bbc96618d918b020f26ed6e9c4026bbd45433566576c1f7b056c3271dc
   languageName: node
   linkType: hard
 
@@ -1709,7 +1693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@headlessui/react@npm:1.5.0":
+"@headlessui/react@npm:1.5.0, @headlessui/react@npm:^1.5.0":
   version: 1.5.0
   resolution: "@headlessui/react@npm:1.5.0"
   peerDependencies:
@@ -2062,7 +2046,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-keycloak/web@npm:3.4.0":
+"@react-keycloak/web@npm:3.4.0, @react-keycloak/web@npm:^3.4.0":
   version: 3.4.0
   resolution: "@react-keycloak/web@npm:3.4.0"
   dependencies:
@@ -3969,16 +3953,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:0.26.0":
-  version: 0.26.0
-  resolution: "axios@npm:0.26.0"
-  dependencies:
-    follow-redirects: ^1.14.8
-  checksum: d7a8b898f4157bedeb2e06c03b16133b91b354c041205bea732ce58b7a21f373d22057b0eea0d482838145ce6ff482b359750d9bcb8dd19d45e3928e3c65c280
-  languageName: node
-  linkType: hard
-
-"axios@npm:0.26.1":
+"axios@npm:0.26.1, axios@npm:^0.26.1":
   version: 0.26.1
   resolution: "axios@npm:0.26.1"
   dependencies:
@@ -5483,7 +5458,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dequal@npm:2.0.2":
+"dequal@npm:2.0.2, dequal@npm:^2.0.2":
   version: 2.0.2
   resolution: "dequal@npm:2.0.2"
   checksum: 86c7a2c59f7b0797ed397c74b5fcdb744e48fc19440b70ad6ac59f57550a96b0faef3f1cfd5760ec5e6d3f7cb101f634f1f80db4e727b1dc8389bf62d977c0a0
@@ -6820,7 +6795,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"formik@npm:2.2.9":
+"formik@npm:2.2.9, formik@npm:^2.2.9":
   version: 2.2.9
   resolution: "formik@npm:2.2.9"
   dependencies:
@@ -7219,7 +7194,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"history@npm:5.3.0":
+"history@npm:5.3.0, history@npm:^5.3.0":
   version: 5.3.0
   resolution: "history@npm:5.3.0"
   dependencies:
@@ -8765,17 +8740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"keycloak-js@npm:17.0.0":
-  version: 17.0.0
-  resolution: "keycloak-js@npm:17.0.0"
-  dependencies:
-    base64-js: ^1.5.1
-    js-sha256: ^0.9.0
-  checksum: b58829a0c565848ab6c82a8ac6a367690d224d3706b415f9f0dbc5c0590bf89fd99a6ec2576d4c09b9af0c32af675aa22f998c9e255ed9a845e03870e080717c
-  languageName: node
-  linkType: hard
-
-"keycloak-js@npm:17.0.1":
+"keycloak-js@npm:17.0.1, keycloak-js@npm:^17.0.1":
   version: 17.0.1
   resolution: "keycloak-js@npm:17.0.1"
   dependencies:
@@ -8981,7 +8946,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.throttle@npm:4.1.1":
+"lodash.throttle@npm:4.1.1, lodash.throttle@npm:^4.1.1":
   version: 4.1.1
   resolution: "lodash.throttle@npm:4.1.1"
   checksum: 129c0a28cee48b348aef146f638ef8a8b197944d4e9ec26c1890c19d9bf5a5690fe11b655c77a4551268819b32d27f4206343e30c78961f60b561b8608c8c805
@@ -9353,7 +9318,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment-timezone@npm:0.5.34":
+"moment-timezone@npm:0.5.34, moment-timezone@npm:^0.5.34":
   version: 0.5.34
   resolution: "moment-timezone@npm:0.5.34"
   dependencies:
@@ -9362,7 +9327,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:2.29.1, moment@npm:>= 2.9.0":
+"moment@npm:2.29.1, moment@npm:>= 2.9.0, moment@npm:^2.29.1":
   version: 2.29.1
   resolution: "moment@npm:2.29.1"
   checksum: 1e14d5f422a2687996be11dd2d50c8de3bd577c4a4ca79ba5d02c397242a933e5b941655de6c8cb90ac18f01cc4127e55b4a12ae3c527a6c0a274e455979345e
@@ -11169,7 +11134,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-datepicker@npm:4.7.0":
+"react-datepicker@npm:4.7.0, react-datepicker@npm:^4.7.0":
   version: 4.7.0
   resolution: "react-datepicker@npm:4.7.0"
   dependencies:
@@ -11218,7 +11183,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:17.0.2":
+"react-dom@npm:17.0.2, react-dom@npm:^17.0.2":
   version: 17.0.2
   resolution: "react-dom@npm:17.0.2"
   dependencies:
@@ -11231,7 +11196,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-boundary@npm:3.1.4":
+"react-error-boundary@npm:3.1.4, react-error-boundary@npm:^3.1.4":
   version: 3.1.4
   resolution: "react-error-boundary@npm:3.1.4"
   dependencies:
@@ -11242,7 +11207,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-error-overlay@npm:6.0.10, react-error-overlay@npm:^6.0.10":
+"react-error-overlay@npm:^6.0.10":
   version: 6.0.10
   resolution: "react-error-overlay@npm:6.0.10"
   checksum: e7384f086a0162eecac8e081fe3c79b32f4ac8690c56bde35ab6b6380d10e6c8375bbb689a450902b6615261fcf6c95ea016fc0b200934667089ca83536bc4a7
@@ -11272,7 +11237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-icons@npm:4.3.1":
+"react-icons@npm:4.3.1, react-icons@npm:^4.3.1":
   version: 4.3.1
   resolution: "react-icons@npm:4.3.1"
   peerDependencies:
@@ -11281,7 +11246,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-inlinesvg@npm:2.3.0":
+"react-inlinesvg@npm:^2.3.0":
   version: 2.3.0
   resolution: "react-inlinesvg@npm:2.3.0"
   dependencies:
@@ -11489,7 +11454,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-table@npm:7.7.0":
+"react-table@npm:7.7.0, react-table@npm:^7.7.0":
   version: 7.7.0
   resolution: "react-table@npm:7.7.0"
   peerDependencies:
@@ -11498,7 +11463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toastify@npm:8.2.0":
+"react-toastify@npm:8.2.0, react-toastify@npm:^8.2.0":
   version: 8.2.0
   resolution: "react-toastify@npm:8.2.0"
   dependencies:
@@ -11510,7 +11475,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-tooltip@npm:4.2.21":
+"react-tooltip@npm:4.2.21, react-tooltip@npm:^4.2.21":
   version: 4.2.21
   resolution: "react-tooltip@npm:4.2.21"
   dependencies:
@@ -11538,7 +11503,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:17.0.2":
+"react@npm:17.0.2, react@npm:^17.0.2":
   version: 17.0.2
   resolution: "react@npm:17.0.2"
   dependencies:
@@ -12703,29 +12668,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-components@npm:5.3.3":
-  version: 5.3.3
-  resolution: "styled-components@npm:5.3.3"
-  dependencies:
-    "@babel/helper-module-imports": ^7.0.0
-    "@babel/traverse": ^7.4.5
-    "@emotion/is-prop-valid": ^0.8.8
-    "@emotion/stylis": ^0.8.4
-    "@emotion/unitless": ^0.7.4
-    babel-plugin-styled-components: ">= 1.12.0"
-    css-to-react-native: ^3.0.0
-    hoist-non-react-statics: ^3.0.0
-    shallowequal: ^1.1.0
-    supports-color: ^5.5.0
-  peerDependencies:
-    react: ">= 16.8.0"
-    react-dom: ">= 16.8.0"
-    react-is: ">= 16.8.0"
-  checksum: a104341068fc39fa2c73950a34970d832dc7a511fc52b3df12f34e6746031f1f128f53b4d540bf39d9f0da043cf0d91517faf874d2c87de5e385f5c2e7620436
-  languageName: node
-  linkType: hard
-
-"styled-components@npm:5.3.5":
+"styled-components@npm:5.3.5, styled-components@npm:^5.3.5":
   version: 5.3.5
   resolution: "styled-components@npm:5.3.5"
   dependencies:
@@ -13048,33 +12991,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.99":
-  version: 0.0.99
-  resolution: "tno-core@npm:0.0.99"
+"tno-core@npm:0.0.101":
+  version: 0.0.101
+  resolution: "tno-core@npm:0.0.101"
   dependencies:
-    "@headlessui/react": 1.5.0
-    "@react-keycloak/web": 3.4.0
-    axios: 0.26.0
-    dequal: 2.0.2
-    formik: 2.2.9
-    history: 5.3.0
-    keycloak-js: 17.0.0
-    lodash: 4.17.21
-    lodash.throttle: 4.1.1
-    moment: 2.29.1
-    moment-timezone: 0.5.34
-    react: 17.0.2
-    react-datepicker: 4.7.0
-    react-dom: 17.0.2
-    react-error-boundary: 3.1.4
-    react-error-overlay: 6.0.10
-    react-icons: 4.3.1
-    react-inlinesvg: 2.3.0
-    react-table: 7.7.0
-    react-toastify: 8.2.0
-    react-tooltip: 4.2.21
-    styled-components: 5.3.3
-  checksum: d604974411d2391eb019e99e87725e183dc63853d5c00c854518588674f391e8169d6394785c243e49394ab52e80cf69065388d3430c8a102db4108362200f90
+    "@headlessui/react": ^1.5.0
+    "@react-keycloak/web": ^3.4.0
+    axios: ^0.26.1
+    dequal: ^2.0.2
+    formik: ^2.2.9
+    history: ^5.3.0
+    keycloak-js: ^17.0.1
+    lodash: ^4.17.21
+    lodash.throttle: ^4.1.1
+    moment: ^2.29.1
+    moment-timezone: ^0.5.34
+    react: ^17.0.2
+    react-datepicker: ^4.7.0
+    react-dom: ^17.0.2
+    react-error-boundary: ^3.1.4
+    react-error-overlay: ^6.0.10
+    react-icons: ^4.3.1
+    react-inlinesvg: ^2.3.0
+    react-table: ^7.7.0
+    react-toastify: ^8.2.0
+    react-tooltip: ^4.2.21
+    styled-components: ^5.3.5
+  checksum: 67ce078debf9c016fa5c09dab4f72c64179988a42c500fd47620fa1cb21bddc0e3bbd5c1ce28b9f6b3523a53c9a31f6f1bde7ad52f6b2f76a1191334cfeab8cd
   languageName: node
   linkType: hard
 
@@ -13145,7 +13088,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.5
-    tno-core: 0.0.99
+    tno-core: 0.0.101
     typescript: 4.6.3
     yup: 0.32.11
   languageName: unknown

@@ -9,7 +9,7 @@ import {
 } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
-import { IDataSourceModel, ScheduleType, WeekDays } from 'hooks/api-editor';
+import { IDataSourceModel, ScheduleType, WeekDay } from 'hooks/api-editor';
 import React from 'react';
 
 import * as styled from './styled';
@@ -58,37 +58,37 @@ export const ScheduleSingle: React.FC<IScheduleSingleProps> = ({ index }) => {
         <FormikBitwiseCheckbox
           label="Monday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Monday}
+          value={WeekDay.Monday}
         />
         <FormikBitwiseCheckbox
           label="Tuesday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Tuesday}
+          value={WeekDay.Tuesday}
         />
         <FormikBitwiseCheckbox
           label="Wednesday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Wednesday}
+          value={WeekDay.Wednesday}
         />
         <FormikBitwiseCheckbox
           label="Thursday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Thursday}
+          value={WeekDay.Thursday}
         />
         <FormikBitwiseCheckbox
           label="Friday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Friday}
+          value={WeekDay.Friday}
         />
         <FormikBitwiseCheckbox
           label="Saturday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Saturday}
+          value={WeekDay.Saturday}
         />
         <FormikBitwiseCheckbox
           label="Sunday"
           name={field('runOnWeekDays')}
-          value={WeekDays.Sunday}
+          value={WeekDay.Sunday}
         />
       </Col>
     </styled.Schedule>

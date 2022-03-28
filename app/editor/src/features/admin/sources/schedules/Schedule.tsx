@@ -1,4 +1,6 @@
 import { Tab, Tabs } from 'components/tabs';
+import { useFormikContext } from 'formik';
+import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
@@ -7,7 +9,9 @@ import * as styled from './styled';
 interface IScheduleProps {}
 
 export const Schedule: React.FC<IScheduleProps> = () => {
-  return (
+  const { values } = useFormikContext<IDataSourceModel>();
+
+  return values.schedules.length ? (
     <styled.Schedule className="schedule" flex="1">
       <h2>Schedule</h2>
       <Tabs
@@ -22,5 +26,5 @@ export const Schedule: React.FC<IScheduleProps> = () => {
         <Outlet />
       </Tabs>
     </styled.Schedule>
-  );
+  ) : null;
 };
