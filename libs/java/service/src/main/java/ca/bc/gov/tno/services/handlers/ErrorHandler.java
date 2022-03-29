@@ -66,7 +66,7 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
       state.incrementFailedAttempts();
       
       if (config != null) {
-        config.incrementFailedAttempts();
+        config.failedAttempts++;
         var result = dataSourceService.findByCode(config.getId());
         var dataSource = result.get();
         dataSource.setFailedAttempts(config.getFailedAttempts());

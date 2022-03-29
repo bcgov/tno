@@ -59,7 +59,7 @@ public class DataSourceConfig {
   /**
    * Maximum number of failed attempts.
    */
-  private int failedAttempts;
+  public int failedAttempts;
 
   /**
    * An array of schedules for this data source.
@@ -226,13 +226,6 @@ public class DataSourceConfig {
    */
   public void setFailedAttempts(int failedAttempts) {
     this.failedAttempts = failedAttempts;
-  }
-
-  /**
-   * Increment the failed attempts.
-   */
-  public void incrementFailedAttempts() {
-    this.failedAttempts++;
   }
 
   /**

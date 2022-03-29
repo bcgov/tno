@@ -14,8 +14,6 @@ import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
-import ca.bc.gov.tno.services.handlers.ErrorHandler;
-import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.capture.config.CaptureConfig;
 
 import org.springframework.scheduling.annotation.Async;
@@ -35,17 +33,13 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private Object caller;
   private CaptureConfig captureConfig;
   private ScheduleConfig schedule;
-  private ServiceState state;
-  private ErrorHandler ehandler;
 
   /**
    * Create a new instance of a FetchDataService object.
    */
   @Autowired
-  public FetchDataService(final ApplicationEventPublisher eventPublisher, final ServiceState state, ErrorHandler ehandler) {
+  public FetchDataService(final ApplicationEventPublisher eventPublisher) {
     this.eventPublisher = eventPublisher;
-    this.state = state;
-    this.ehandler = ehandler;
   }
 
   /**
