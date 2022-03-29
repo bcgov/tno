@@ -4,6 +4,8 @@ import {
   ILicenseModel,
   IMediaTypeModel,
   IScheduleModel,
+  ISourceActionModel,
+  ISourceMetricModel,
 } from '.';
 
 export interface IDataSourceModel extends IAuditColumnsModel {
@@ -19,10 +21,12 @@ export interface IDataSourceModel extends IAuditColumnsModel {
   licenseId: number;
   license?: ILicenseModel;
   topic: string;
-  inCBRA: boolean;
-  inAnalysis: boolean;
   connection: any;
   lastRanOn?: Date;
+  retryLimit: number;
+  failedAttempts: number;
   parentId?: number;
+  actions: ISourceActionModel[];
+  metrics: ISourceMetricModel[];
   schedules: IScheduleModel[];
 }

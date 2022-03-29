@@ -1,4 +1,4 @@
 export * from './Schedule';
-export * from './ScheduleContinuos';
+export * from './ScheduleContinuous';
 export * from './ScheduleProgram';
 export * from './ScheduleSingle';

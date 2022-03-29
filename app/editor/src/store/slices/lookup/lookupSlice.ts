@@ -6,6 +6,8 @@ import {
   ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
+  ISourceActionModel,
+  ISourceMetricModel,
   ITagModel,
   ITonePoolModel,
   IUserModel,
@@ -15,6 +17,8 @@ import { ILookupState } from './interfaces';
 
 export const initialLookupState: ILookupState = {
   actions: [],
+  sourceActions: [],
+  sourceMetrics: [],
   categories: [],
   contentTypes: [],
   licenses: [],
@@ -31,6 +35,12 @@ export const lookupSlice = createSlice({
   reducers: {
     storeActions(state: ILookupState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
+    },
+    storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
+      state.sourceActions = action.payload;
+    },
+    storeSourceMetrics(state: ILookupState, action: PayloadAction<ISourceMetricModel[]>) {
+      state.sourceMetrics = action.payload;
     },
     storeCategories(state: ILookupState, action: PayloadAction<ICategoryModel[]>) {
       state.categories = action.payload;
@@ -61,6 +71,8 @@ export const lookupSlice = createSlice({
 
 export const {
   storeActions,
+  storeSourceActions,
+  storeSourceMetrics,
   storeCategories,
   storeContentTypes,
   storeLicenses,

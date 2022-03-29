@@ -11,7 +11,9 @@ export const defaultSource: IDataSourceModel = {
   licenseId: 0,
   topic: '',
   connection: '',
+  retryLimit: 0,
+  failedAttempts: 0,
+  actions: [],
+  metrics: [],
   schedules: [],
-  inCBRA: false,
-  inAnalysis: false,
 };

@@ -1,13 +1,15 @@
 import { Col, Row } from 'components/flex';
-import { Checkbox, IOptionItem } from 'components/form';
+import { Checkbox, IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { ActionMeta } from 'react-select';
 import { useLookup } from 'store/hooks';
-import { getSortableOptions } from 'utils';
+import { useDataSources } from 'store/hooks/admin';
+import { getDataSourceOptions, getSortableOptions } from 'utils';
 
+import { DataSourceActions, DataSourceStatus } from '.';
 import { defaultSchedule } from './constants';
 import { Connection } from './media-types';
 import * as styled from './styled';
@@ -17,6 +19,12 @@ interface IDataSourceDetailsProps {}
 export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
+  const [{ dataSources }, api] = useDataSources();
+
+  const [init, setInit] = React.useState(true);
+  const [sources, setSources] = React.useState(
+    getDataSourceOptions(dataSources, [new OptionItem('No Parent', 0)]),
+  );
 
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
   const licenses = getSortableOptions(lookups.licenses);
@@ -29,14 +37,32 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
   };
 
   React.useEffect(() => {
+    if (init && !dataSources.length) {
+      api.findDataSources().then((page) => {
+        setSources(getDataSourceOptions(page.items, [new OptionItem('No Parent', 0)]));
+      });
+      setInit(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataSources.length, init]);
+
+  React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
     const mediaType = lookups.mediaTypes.find((mt) => mt.id === values.mediaTypeId);
     setFieldValue('mediaType', mediaType);
   }, [lookups.mediaTypes, setFieldValue, values.mediaTypeId, values.mediaType]);
 
+  const showHideSchedule = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
+    if (checked && !values.schedules.length) {
+      setFieldValue('schedules.0', defaultSchedule);
+    } else if (!checked) {
+      setFieldValue('schedules', []);
+    }
+  };
+
   return (
-    <styled.DataSourceDetails alignContent="flex-start" alignItems="flex-start" flex="1">
-      <h2>Details</h2>
+    <styled.DataSourceDetails alignItems="center">
       <Row>
         <Col>
           <FormikText label="Name" name="name" required />
@@ -54,7 +80,7 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
           <FormikSelect
             label="Parent Data Source"
             name="parentId"
-            options={[]}
+            options={sources}
             placeholder="optional"
           />
           <Connection />
@@ -65,19 +91,12 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
             name="hasSchedule"
             value={true}
             checked={!!values.schedules.length}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              if (checked && !values.schedules.length)
-                setFieldValue('schedules.0', defaultSchedule);
-              else if (!checked) setFieldValue('schedules', []);
-            }}
+            onChange={showHideSchedule}
           />
           <FormikCheckbox label="Enabled" name="enabled" />
-          <FormikCheckbox label="CBRA" name="inCBRA" />
-          <FormikCheckbox label="TV Archive" name="inTVArchive" />
-          <FormikCheckbox label="Use in Analysis" name="inAnalysis" />
-          <FormikCheckbox label="Use in Event of the Day" name="inEoD" />
+          <DataSourceActions />
         </Col>
+        <DataSourceStatus />
       </Row>
     </styled.DataSourceDetails>
   );

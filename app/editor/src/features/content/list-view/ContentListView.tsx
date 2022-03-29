@@ -306,7 +306,7 @@ export const ContentListView: React.FC = () => {
           </Button>
           <Button
             name="clear"
-            variant={ButtonVariant.action}
+            variant={ButtonVariant.secondary}
             onClick={() => {
               storeFilterAdvanced({
                 ...initialContentState.filterAdvanced,

@@ -2,6 +2,8 @@ import { Checkbox, Ellipsis } from 'components/cell';
 import { IScheduleModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
 
+import { weekDayName } from '../utils';
+
 export const columns: (Column<IScheduleModel> &
   UseSortByColumnOptions<IScheduleModel> &
   UseFiltersColumnOptions<IScheduleModel>)[] = [
@@ -13,7 +15,7 @@ export const columns: (Column<IScheduleModel> &
   },
   {
     Header: 'Start/Stop',
-    accessor: (row) => `${row.startAt}-${row.stopAt}`,
+    accessor: (row) => `${row.startAt ? row.startAt : ''}${row.stopAt ? `-${row.stopAt}` : ''}`,
   },
   {
     Header: 'Enabled',
@@ -23,5 +25,6 @@ export const columns: (Column<IScheduleModel> &
   {
     Header: 'Days of the Week',
     accessor: 'runOnWeekDays',
+    Cell: (cell) => weekDayName(cell.value),
   },
 ];

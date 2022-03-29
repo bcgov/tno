@@ -108,22 +108,22 @@ public class ContentModel extends AuditColumnModel {
       }
       if (putil.isLoaded(entity, "contentCategories")) {
         this.categories = entity.getContentCategories().stream()
-            .map((tag) -> new CategoryModel(tag.getCategory(), tag.getScore()))
+            .map((category) -> new CategoryModel(category.getCategory(), category.getScore(), category.getVersion()))
             .toList();
       }
       if (putil.isLoaded(entity, "contentTags")) {
         this.tags = entity.getContentTags().stream()
-            .map((tag) -> new TagModel(tag.getTag()))
+            .map((tag) -> new TagModel(tag.getTag(), tag.getVersion()))
             .toList();
       }
       if (putil.isLoaded(entity, "contentTonePools")) {
         this.tonePools = entity.getContentTonePools().stream()
-            .map((tone) -> new TonePoolModel(tone.getTonePool(), tone.getValue()))
+            .map((tone) -> new TonePoolModel(tone.getTonePool(), tone.getValue(), tone.getVersion()))
             .toList();
       }
       if (putil.isLoaded(entity, "contentActions")) {
         this.actions = entity.getContentActions().stream()
-            .map((action) -> new ActionModel(action.getAction(), action.getValue()))
+            .map((action) -> new ActionModel(action.getAction(), action.getValue(), action.getVersion()))
             .toList();
       }
       if (putil.isLoaded(entity, "timeTrackings")) {
@@ -162,31 +162,29 @@ public class ContentModel extends AuditColumnModel {
     content.getFileReferences()
         .addAll(this.fileReferences.stream()
             .map((file) -> new FileReference(file.getId(), content, file.getPath(), file.getMimeType(), file.getSize(),
-                file.getRunningTime()))
+                file.getRunningTime(), file.getVersion()))
             .toList());
     content.getContentActions()
         .addAll(this.actions.stream()
-            .map((action) -> new ContentAction(content, action.getId(), action.getValue()))
+            .map((action) -> new ContentAction(content, action.getId(), action.getValue(), action.getVersion()))
             .toList());
     content.getContentTags()
         .addAll(this.tags.stream()
-            .map((tag) -> new ContentTag(content, tag.getId()))
+            .map((tag) -> new ContentTag(content, tag.getId(), tag.getVersion()))
             .toList());
     content.getContentCategories()
         .addAll(this.categories.stream()
-            .map((category) -> new ContentCategory(content, category.getId(), category.getScore()))
+            .map((category) -> new ContentCategory(content, category.getId(), category.getScore(),
+                category.getVersion()))
             .toList());
     content.getContentTonePools()
         .addAll(this.tonePools.stream()
-            .map((tone) -> new ContentTone(content, tone.getId(), tone.getValue()))
-            .toList());
-    content.getContentCategories()
-        .addAll(this.categories.stream()
-            .map((category) -> new ContentCategory(content, category.getId(), category.getScore()))
+            .map((tone) -> new ContentTone(content, tone.getId(), tone.getValue(), tone.getVersion()))
             .toList());
     content.getTimeTrackings()
         .addAll(this.timeTrackings.stream()
-            .map((time) -> new TimeTracking(content, time.getUserId(), time.getEffort(), time.getActivity()))
+            .map((time) -> new TimeTracking(content, time.getUserId(), time.getEffort(), time.getActivity(),
+                time.getVersion()))
             .toList());
 
     return content;

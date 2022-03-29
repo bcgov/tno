@@ -84,7 +84,7 @@ public class DataSource extends AuditColumns {
    * The media type reference.
    */
   @JsonBackReference("mediaType")
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "media_type_id", insertable = false, updatable = false)
   private MediaType mediaType;
 
@@ -98,7 +98,7 @@ public class DataSource extends AuditColumns {
    * The data location reference.
    */
   @JsonBackReference("dataLocation")
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "data_location_id", insertable = false, updatable = false)
   private DataLocation dataLocation;
 
@@ -112,7 +112,7 @@ public class DataSource extends AuditColumns {
    * The license reference.
    */
   @JsonBackReference("license")
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "license_id", insertable = false, updatable = false)
   private License license;
 
@@ -143,18 +143,6 @@ public class DataSource extends AuditColumns {
   private int failedAttempts = 0;
 
   /**
-   * Whether this data source should be included in the CBRA report.
-   */
-  @Column(name = "in_cbra", nullable = false)
-  private boolean inCBRA = false;
-
-  /**
-   * Whether this data source should be included in the analysis report.
-   */
-  @Column(name = "in_analysis", nullable = false)
-  private boolean inAnalysis = false;
-
-  /**
    * JSON configuration values for the ingestion services.
    */
   // TODO: Switch to JSON in DB. Hibernate has issues with JSON which I haven't
@@ -176,6 +164,18 @@ public class DataSource extends AuditColumns {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_id", insertable = false, updatable = false)
   private DataSource parent;
+
+  /**
+   * A collection of data source schedules linked to this data source.
+   */
+  @OneToMany(mappedBy = "dataSource", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+  private List<DataSourceAction> dataSourceActions = new ArrayList<>();
+
+  /**
+   * A collection of data source schedules linked to this data source.
+   */
+  @OneToMany(mappedBy = "dataSource", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+  private List<DataSourceMetric> dataSourceMetrics = new ArrayList<>();
 
   /**
    * A collection of data source schedules linked to this data source.
@@ -621,34 +621,6 @@ public class DataSource extends AuditColumns {
   }
 
   /**
-   * @return boolean return the inCBRA
-   */
-  public boolean inCBRA() {
-    return inCBRA;
-  }
-
-  /**
-   * @param inCBRA the inCBRA to set
-   */
-  public void setInCBRA(boolean inCBRA) {
-    this.inCBRA = inCBRA;
-  }
-
-  /**
-   * @return boolean return the inAnalysis
-   */
-  public boolean inAnalysis() {
-    return inAnalysis;
-  }
-
-  /**
-   * @param inAnalysis the inAnalysis to set
-   */
-  public void setInAnalysis(boolean inAnalysis) {
-    this.inAnalysis = inAnalysis;
-  }
-
-  /**
    * @return List{DataSourceSchedule} return the dataSourceSchedules
    */
   public List<DataSourceSchedule> getDataSourceSchedules() {
@@ -660,6 +632,34 @@ public class DataSource extends AuditColumns {
    */
   public void setDataSourceSchedules(List<DataSourceSchedule> dataSourceSchedules) {
     this.dataSourceSchedules = dataSourceSchedules;
+  }
+
+  /**
+   * @return List{DataSourceAction} return the dataSourceActions
+   */
+  public List<DataSourceAction> getDataSourceActions() {
+    return dataSourceActions;
+  }
+
+  /**
+   * @param dataSourceActions the dataSourceActions to set
+   */
+  public void setDataSourceActions(List<DataSourceAction> dataSourceActions) {
+    this.dataSourceActions = dataSourceActions;
+  }
+
+  /**
+   * @return List{DataSourceMetric} return the dataSourceMetrics
+   */
+  public List<DataSourceMetric> getDataSourceMetrics() {
+    return dataSourceMetrics;
+  }
+
+  /**
+   * @param dataSourceMetrics the dataSourceMetrics to set
+   */
+  public void setDataSourceMetrics(List<DataSourceMetric> dataSourceMetrics) {
+    this.dataSourceMetrics = dataSourceMetrics;
   }
 
 }

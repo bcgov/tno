@@ -15,6 +15,8 @@ export * from './IResponseErrorModel';
 export * from './IScheduleModel';
 export * from './ISeriesModel';
 export * from './ISortableModel';
+export * from './ISourceActionModel';
+export * from './ISourceMetricModel';
 export * from './ITagModel';
 export * from './ITonePoolModel';
 export * from './IUserInfoModel';

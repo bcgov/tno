@@ -5,6 +5,8 @@ import {
   ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
+  ISourceActionModel,
+  ISourceMetricModel,
   ITagModel,
   ITonePoolModel,
   IUserModel,
@@ -12,6 +14,8 @@ import {
 
 export interface ILookupState {
   actions: IActionModel[];
+  sourceActions: ISourceActionModel[];
+  sourceMetrics: ISourceMetricModel[];
   categories: ICategoryModel[];
   contentTypes: IContentTypeModel[];
   licenses: ILicenseModel[];

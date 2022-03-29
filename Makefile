@@ -82,7 +82,7 @@ build: ## Builds all containers or the one specified (args: n={service name}, p=
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
 		--profile $(if $(p),$(p),all) \
-		build --no-cache $(n)
+		build --no-cache --force-rm $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Starts all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
@@ -123,6 +123,7 @@ restart: ## Restart all containers or the one specified (n={service name}, p={pr
 refresh: ## Stop, build, and start all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
 	$(info Stop, build, and start all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
 	@make stop n=$(n) p=$(p)
+	@./tools/scripts/docker-remove.sh $(n)
 	@make build n=$(n) p=$(p)
 	@make up n=$(n) p=$(p)
 

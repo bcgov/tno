@@ -3,6 +3,7 @@ package ca.bc.gov.tno.dal.db.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.tno.ListHelper;
 import ca.bc.gov.tno.auth.PrincipalHelper;
 import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.dal.db.entities.DataSourceAction;
+import ca.bc.gov.tno.dal.db.entities.DataSourceMetric;
 import ca.bc.gov.tno.dal.db.entities.DataSourceSchedule;
 import ca.bc.gov.tno.dal.db.repositories.interfaces.IDataSourceRepository;
 import ca.bc.gov.tno.dal.db.repositories.interfaces.IScheduleRepository;
@@ -79,7 +82,18 @@ public class DataSourceService implements IDataSourceService {
           WHERE ds.id = :id
           """;
       var query = session.createQuery(sql).setParameter("id", key);
-      return query.uniqueResultOptional();
+      var result = query.uniqueResultOptional();
+
+      if (!result.isPresent())
+        return result;
+
+      var entity = (DataSource) result.get();
+      Hibernate.initialize(entity.getDataSourceActions());
+      Hibernate.initialize(entity.getDataSourceMetrics());
+      entity.getDataSourceActions();
+      entity.getDataSourceMetrics();
+
+      return result;
     } finally {
       ts.commit();
       session.close();
@@ -195,7 +209,16 @@ public class DataSourceService implements IDataSourceService {
       var schedule = scheduleRepository.save(PrincipalHelper.addAudit(dss.getSchedule()));
       dss.setScheduleId(schedule.getId());
     }
+    for (DataSourceAction dsa : entity.getDataSourceActions()) {
+      PrincipalHelper.addAudit(dsa);
+    }
+    for (DataSourceMetric dsm : entity.getDataSourceMetrics()) {
+      PrincipalHelper.addAudit(dsm);
+    }
     var result = repository.save(PrincipalHelper.addAudit(entity));
+    Hibernate.initialize(result.getDataSourceActions());
+    Hibernate.initialize(result.getDataSourceMetrics());
+    Hibernate.initialize(result.getDataSourceSchedules());
     return result;
   }
 
@@ -217,7 +240,16 @@ public class DataSourceService implements IDataSourceService {
       schedule = scheduleRepository.save(schedule);
       dss.setScheduleId(schedule.getId());
     }
+    for (DataSourceAction dsa : entity.getDataSourceActions()) {
+      PrincipalHelper.addAudit(dsa);
+    }
+    for (DataSourceMetric dsm : entity.getDataSourceMetrics()) {
+      PrincipalHelper.addAudit(dsm);
+    }
     var result = repository.save(PrincipalHelper.updateAudit(entity));
+    Hibernate.initialize(result.getDataSourceActions());
+    Hibernate.initialize(result.getDataSourceMetrics());
+    Hibernate.initialize(result.getDataSourceSchedules());
     return result;
   }
 

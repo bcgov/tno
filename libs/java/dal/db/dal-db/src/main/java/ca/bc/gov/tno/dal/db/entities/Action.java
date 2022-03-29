@@ -170,6 +170,13 @@ public class Action extends AuditColumns {
   }
 
   /**
+   * @param id the id to set
+   */
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  /**
    * @return String return the name
    */
   public String getName() {
@@ -265,13 +272,6 @@ public class Action extends AuditColumns {
    */
   public void setContentActions(List<ContentAction> contentActions) {
     this.contentActions = contentActions;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(int id) {
-    this.id = id;
   }
 
   /**

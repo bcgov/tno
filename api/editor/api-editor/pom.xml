@@ -56,7 +56,7 @@
     <dependency>
       <groupId>ca.bc.gov.tno</groupId>
       <artifactId>dal-db</artifactId>
-      <version>0.0.21-SNAPSHOT</version>
+      <version>0.0.22-SNAPSHOT</version>
     </dependency>
 
     <dependency>
