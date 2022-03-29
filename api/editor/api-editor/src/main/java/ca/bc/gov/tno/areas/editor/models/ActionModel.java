@@ -54,10 +54,10 @@ public class ActionModel extends AuditColumnModel {
   }
 
   public ActionModel(Action entity) {
-    this(entity, "");
+    this(entity, "", entity.getVersion());
   }
 
-  public ActionModel(Action entity, String value) {
+  public ActionModel(Action entity, String value, long version) {
     super(entity);
 
     if (entity != null) {
@@ -70,6 +70,7 @@ public class ActionModel extends AuditColumnModel {
       this.sortOrder = entity.getSortOrder();
     }
     this.value = value == null ? "" : value;
+    this.setVersion(version);
   }
 
   /**

@@ -12,14 +12,25 @@ interface IDataSourceListProps {}
 
 export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
   const navigate = useNavigate();
-  const [api] = useDataSources();
+  const [{ dataSources }, api] = useDataSources();
 
   const [page, setPage] = React.useState<IPage<IDataSourceModel>>(defaultPage<IDataSourceModel>());
 
   React.useEffect(() => {
-    api.findDataSources().then((data) => {
-      setPage(toPage(data));
-    });
+    if (dataSources.length) {
+      setPage(
+        toPage({
+          page: 1,
+          items: dataSources,
+          quantity: 10,
+          total: dataSources.length,
+        }),
+      );
+    } else {
+      api.findDataSources().then((data) => {
+        setPage(toPage(data));
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

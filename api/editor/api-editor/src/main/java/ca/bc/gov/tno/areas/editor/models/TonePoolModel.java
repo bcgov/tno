@@ -60,10 +60,10 @@ public class TonePoolModel extends AuditColumnModel {
   }
 
   public TonePoolModel(TonePool entity) {
-    this(entity, 0);
+    this(entity, 0, entity.getVersion());
   }
 
-  public TonePoolModel(TonePool entity, int value) {
+  public TonePoolModel(TonePool entity, int value, long version) {
     super(entity);
 
     if (entity != null) {
@@ -80,6 +80,7 @@ public class TonePoolModel extends AuditColumnModel {
       this.sortOrder = entity.getSortOrder();
     }
     this.value = value;
+    this.setVersion(version);
   }
 
   /**

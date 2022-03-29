@@ -34,19 +34,19 @@ export const useApi = (
 
   return {
     request: (config: AxiosRequestConfig<any>) => {
-      return handleRequest(config.url, () => summon.request(config));
+      return handleRequest(config.url, () => summon?.request(config));
     },
     get: (url: string, config?: AxiosRequestConfig<any> | undefined) => {
-      return handleRequest(url, () => summon.get(url, config));
+      return handleRequest(url, () => summon?.get(url, config));
     },
     post: (url: string, data?: any, config?: AxiosRequestConfig<any> | undefined) => {
-      return handleRequest(url, () => summon.post(url, data, config));
+      return handleRequest(url, () => summon?.post(url, data, config));
     },
     put: (url: string, data?: any, config?: AxiosRequestConfig<any> | undefined) => {
-      return handleRequest(url, () => summon.put(url, data, config));
+      return handleRequest(url, () => summon?.put(url, data, config));
     },
     delete: (url: string, config?: AxiosRequestConfig<any> | undefined) => {
-      return handleRequest(url, () => summon.delete(url, config));
+      return handleRequest(url, () => summon?.delete(url, config));
     },
   } as AxiosInstance;
 };

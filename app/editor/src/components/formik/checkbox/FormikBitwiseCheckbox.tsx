@@ -40,7 +40,6 @@ export const FormikBitwiseCheckbox: React.FC<IFormikBitwiseCheckbox> = ({
       let newValue = [...fieldValue];
       if (e.target.checked) newValue.push(value);
       else newValue = fieldValue.filter((v: any) => v !== value);
-      console.debug(newValue);
       setFieldValue(fieldName, newValue);
     } else {
       setFieldValue(fieldName, e.target.checked ? fieldValue | value : fieldValue - value);

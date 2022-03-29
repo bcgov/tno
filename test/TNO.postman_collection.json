@@ -1131,6 +1131,322 @@
 							]
 						},
 						{
+							"name": "source actions",
+							"item": [
+								{
+									"name": "actions",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/actions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"actions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/actions/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"actions",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/actions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"actions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/actions/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"actions",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "actions/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/actions/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"actions",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "source metrics",
+							"item": [
+								{
+									"name": "metrics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"metrics"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "metrics/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"metrics",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "metrics",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"metrics"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "metrics/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"metrics",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "metrics/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"source",
+												"metrics",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "categories",
 							"item": [
 								{
@@ -1856,7 +2172,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"createdById\": \"6531ca81-60a9-4c8d-8770-94fa41a70478\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"createdOn\": \"2022-02-16T21:35:24.642+0000\",\r\n    \"updatedById\": \"6531ca81-60a9-4c8d-8770-94fa41a70478\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-02-16T21:35:24.642+0000\",\r\n    \"version\": 0,\r\n    \"id\": 1,\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"code\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"enabled\": true,\r\n    \"mediaTypeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"topic\": \"test\",\r\n    \"lastRanOn\": null,\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    },\r\n    \"parentId\": null,\r\n    \"dataSourceSchedules\": [\r\n        {\r\n            \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"createdBy\": \"service-account-tno-service-account\",\r\n            \"createdOn\": \"2022-02-16T19:54:56.119+0000\",\r\n            \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"updatedBy\": \"service-account-tno-service-account\",\r\n            \"updatedOn\": \"2022-02-16T19:54:56.119+0000\",\r\n            \"dataSourceId\": 1,\r\n            \"scheduleId\": 1\r\n        }\r\n    ]\r\n}",
+											"raw": "{\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-03-29T17:23:35.539+0000\",\r\n    \"version\": 5,\r\n    \"id\": 1,\r\n    \"name\": \"Daily Hive\",\r\n    \"shortName\": \"\",\r\n    \"code\": \"DAILYHIVE\",\r\n    \"description\": \"\",\r\n    \"enabled\": true,\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"version\": 3,\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"ttl\": 150\r\n    },\r\n    \"topic\": \"topic\",\r\n    \"lastRanOn\": null,\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"connection\": {\r\n        \"url\": \"http://dailyhive.com/feed/vancouver\"\r\n    },\r\n    \"actions\": [\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 11,\r\n            \"id\": 1,\r\n            \"name\": \"CBRA\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": true\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 12,\r\n            \"id\": 2,\r\n            \"name\": \"TV Archive\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": false\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 11,\r\n            \"id\": 3,\r\n            \"name\": \"Use in Analysis\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": false\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 12,\r\n            \"id\": 4,\r\n            \"name\": \"Use in Event of Day\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": true\r\n        }\r\n    ],\r\n    \"metrics\": [\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 8,\r\n            \"id\": 1,\r\n            \"name\": \"Monday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 1,\r\n            \"enabled\": true,\r\n            \"reach\": 1.0,\r\n            \"earned\": 2.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 9,\r\n            \"id\": 2,\r\n            \"name\": \"Tuesday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 2,\r\n            \"enabled\": true,\r\n            \"reach\": 3.0,\r\n            \"earned\": 4.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 10,\r\n            \"id\": 3,\r\n            \"name\": \"Wednesday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 3,\r\n            \"enabled\": true,\r\n            \"reach\": 5.0,\r\n            \"earned\": 6.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 11,\r\n            \"id\": 4,\r\n            \"name\": \"Thursday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 4,\r\n            \"enabled\": true,\r\n            \"reach\": 7.0,\r\n            \"earned\": 8.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 12,\r\n            \"id\": 5,\r\n            \"name\": \"Friday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 5,\r\n            \"enabled\": true,\r\n            \"reach\": 9.0,\r\n            \"earned\": 10.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 16,\r\n            \"id\": 6,\r\n            \"name\": \"Saturday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 6,\r\n            \"enabled\": true,\r\n            \"reach\": 8.0,\r\n            \"earned\": 12.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 14,\r\n            \"id\": 7,\r\n            \"name\": \"Sunday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 7,\r\n            \"enabled\": true,\r\n            \"reach\": 3.0,\r\n            \"earned\": 3.0,\r\n            \"impression\": 3.0\r\n        }\r\n    ],\r\n    \"schedules\": []\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -2478,7 +2794,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"createdOn\": \"2022-02-16T17:40:59.527+0000\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-02-16T18:43:10.931+0000\",\r\n    \"version\": 2,\r\n    \"id\": 1,\r\n    \"name\": \"Continous - 60s\",\r\n    \"description\": \"test\",\r\n    \"enabled\": true,\r\n    \"scheduleType\": 0,\r\n    \"delayMS\": 60000,\r\n    \"runOn\": null,\r\n    \"startAt\": null,\r\n    \"stopAt\": null,\r\n    \"repeat\": 0,\r\n    \"runOnWeekDays\": [\r\n        0\r\n    ],\r\n    \"runOnMonths\": [\r\n        0\r\n    ],\r\n    \"dayOfMonth\": 0\r\n}",
+											"raw": "{\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"createdOn\": \"2022-03-15T00:43:23.356+0000\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-03-25T21:20:28.230+0000\",\r\n    \"version\": 2,\r\n    \"id\": 1,\r\n    \"name\": \"Continuos - 60s\",\r\n    \"description\": \"\",\r\n    \"enabled\": true,\r\n    \"scheduleType\": 0,\r\n    \"delayMS\": 60000,\r\n    \"runOn\": null,\r\n    \"startAt\": null,\r\n    \"stopAt\": null,\r\n    \"repeat\": 0,\r\n    \"runOnWeekDays\": [\r\n        0,\r\n        2\r\n    ],\r\n    \"runOnMonths\": [\r\n        0\r\n    ],\r\n    \"dayOfMonth\": 0\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3176,7 +3492,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=1&quantity=100&sort=mediaTypeId asc",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=2&quantity=1000&sort=mediaTypeId asc",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -3189,11 +3505,11 @@
 											"query": [
 												{
 													"key": "page",
-													"value": "1"
+													"value": "2"
 												},
 												{
 													"key": "quantity",
-													"value": "100"
+													"value": "1000"
 												},
 												{
 													"key": "mediaTypeId",
@@ -3256,7 +3572,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "26"
+													"value": "1"
 												}
 											]
 										}
@@ -3328,7 +3644,7 @@
 									"response": []
 								},
 								{
-									"name": "add - with File",
+									"name": "add - with file",
 									"protocolProfileBehavior": {
 										"disabledSystemHeaders": {}
 									},
@@ -3360,6 +3676,70 @@
 									"response": []
 								},
 								{
+									"name": "add - with tone pool",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1,\r\n    \"seriesId\": 1,\r\n    \"fileReferences\": [\r\n        {\r\n            \"mimeType\": \"audio\",\r\n            \"path\": \"some/path/file.mpg\",\r\n            \"size\": 4000,\r\n            \"runningTime\": 780000\r\n        }\r\n    ],\r\n    \"actions\": [\r\n        {\r\n            \"id\": 5,\r\n            \"value\": \"true\"\r\n        }, {\r\n            \"id\": 6,\r\n            \"value\": \"true\"\r\n        }\r\n    ],\r\n    \"tags\": [\r\n        {\r\n            \"id\": \"TBD\"\r\n        }\r\n    ],\r\n    \"tonePools\": [\r\n        {\r\n            \"id\": 1,\r\n            \"value\": 5\r\n        }\r\n    ]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "add - with time tracking",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1,\r\n    \"seriesId\": 1,\r\n    \"fileReferences\": [\r\n        {\r\n            \"mimeType\": \"audio\",\r\n            \"path\": \"some/path/file.mpg\",\r\n            \"size\": 4000,\r\n            \"runningTime\": 780000\r\n        }\r\n    ],\r\n    \"actions\": [\r\n        {\r\n            \"id\": 5,\r\n            \"value\": \"true\"\r\n        }, {\r\n            \"id\": 6,\r\n            \"value\": \"true\"\r\n        }\r\n    ],\r\n    \"tags\": [\r\n        {\r\n            \"id\": \"TBD\"\r\n        }\r\n    ],\r\n    \"tonePools\": [\r\n        {\r\n            \"id\": 1,\r\n            \"value\": 5\r\n        }\r\n    ],\r\n    \"timeTrackings\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"effort\": 0.25,\r\n            \"activity\": \"working\"\r\n        }\r\n    ]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents"
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "update",
 									"protocolProfileBehavior": {
 										"disabledSystemHeaders": {}
@@ -3369,7 +3749,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"createdOn\": \"2022-02-23T19:34:49.403+0000\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-02-23T19:34:49.403+0000\",\r\n    \"version\": 0,\r\n    \"id\": 1,\r\n    \"status\": 0,\r\n    \"workflowStatus\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"printContent\": null,\r\n    \"headline\": \"test X\",\r\n    \"dataSourceId\": null,\r\n    \"source\": \"source A\",\r\n    \"uid\": \"\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 2,\r\n    \"seriesId\": null,\r\n    \"page\": \"P1\",\r\n    \"publishedOn\": null,\r\n    \"summary\": \"summary\",\r\n    \"transcription\": \"\",\r\n    \"sourceURL\": \"\",\r\n    \"ownerId\": 2,\r\n    \"contentActions\": [],\r\n    \"contentCategories\": [],\r\n    \"contentTags\": [\r\n        {\r\n            \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"createdBy\": \"service-account-tno-service-account\",\r\n            \"createdOn\": null,\r\n            \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"updatedBy\": \"service-account-tno-service-account\",\r\n            \"updatedOn\": null,\r\n            \"version\": 0,\r\n            \"contentId\": 1,\r\n            \"tagId\": \"TBD\"\r\n        }\r\n    ],\r\n    \"contentTones\": [],\r\n    \"timeTrackings\": [],\r\n    \"links\": [],\r\n    \"contentTonePools\": []\r\n}",
+											"raw": "{\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"createdOn\": \"2022-03-03T17:54:51.354639Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-03-03T17:54:51.354639Z\",\r\n    \"version\": 0,\r\n    \"id\": 38,\r\n    \"status\": 0,\r\n    \"workflowStatus\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"contentType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 2,\r\n        \"id\": 2,\r\n        \"name\": \"Print\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 3,\r\n    \"mediaType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 3,\r\n        \"id\": 3,\r\n        \"name\": \"Talk Radio\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"licenseId\": 2,\r\n    \"license\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 2,\r\n        \"id\": 2,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"ttl\": 150\r\n    },\r\n    \"seriesId\": 1,\r\n    \"series\": {\r\n        \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n        \"createdBy\": \"service-account-tno-service-account\",\r\n        \"createdOn\": \"2022-02-28T16:32:52.051815Z\",\r\n        \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n        \"updatedBy\": \"service-account-tno-service-account\",\r\n        \"updatedOn\": \"2022-02-28T16:32:52.051815Z\",\r\n        \"version\": 0,\r\n        \"id\": 1,\r\n        \"name\": \"Series 1\",\r\n        \"description\": \"description\",\r\n        \"enabled\": false\r\n    },\r\n    \"ownerId\": 1,\r\n    \"owner\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"username\": \"admin\",\r\n        \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n        \"email\": \"admin@local.com\",\r\n        \"displayName\": \"Administrator\",\r\n        \"firstName\": \"\",\r\n        \"lastName\": \"\",\r\n        \"enabled\": true,\r\n        \"emailVerified\": true,\r\n        \"lastLoginOn\": null\r\n    },\r\n    \"dataSourceId\": null,\r\n    \"dataSource\": null,\r\n    \"source\": \"source A\",\r\n    \"headline\": \"test X\",\r\n    \"uid\": \"\",\r\n    \"page\": \"P1\",\r\n    \"summary\": \"summary\",\r\n    \"transcription\": \"\",\r\n    \"publishedOn\": null,\r\n    \"sourceURL\": \"\",\r\n    \"fileReferences\": [\r\n        {\r\n            \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"createdBy\": \"service-account-tno-service-account\",\r\n            \"createdOn\": \"2022-03-03T17:54:23.029222Z\",\r\n            \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"updatedBy\": \"service-account-tno-service-account\",\r\n            \"updatedOn\": \"2022-03-03T17:54:51.368322Z\",\r\n            \"version\": 1,\r\n            \"id\": 17,\r\n            \"mimeType\": \"audio\",\r\n            \"path\": \"some/path/file.mpg\",\r\n            \"size\": 4000,\r\n            \"runningTime\": 780000\r\n        }\r\n    ],\r\n    \"categories\": [],\r\n    \"tags\": [\r\n        {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"version\": 1,\r\n            \"id\": \"TBD\",\r\n            \"name\": \"To Be Determined\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true\r\n        }\r\n    ],\r\n    \"tonePools\": [],\r\n    \"actions\": [\r\n        {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"version\": 5,\r\n            \"id\": 5,\r\n            \"name\": \"On Ticker\",\r\n            \"description\": \"\",\r\n            \"valueType\": 0,\r\n            \"valueLabel\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"version\": 6,\r\n            \"id\": 6,\r\n            \"name\": \"Non Qualified Subject\",\r\n            \"description\": \"\",\r\n            \"valueType\": 0,\r\n            \"valueLabel\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": \"true\"\r\n        }\r\n    ],\r\n    \"timeTrackings\": []\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3391,7 +3771,46 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "37"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete/:id",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"createdOn\": \"2022-03-15T15:35:00.834289Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"updatedOn\": \"2022-03-15T15:35:00.834289Z\",\r\n    \"version\": 1516,\r\n    \"id\": 1516,\r\n    \"status\": 0,\r\n    \"workflowStatus\": 3,\r\n    \"contentTypeId\": 1,\r\n    \"contentType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"name\": \"Snippet\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 6,\r\n    \"mediaType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"version\": 6,\r\n        \"id\": 6,\r\n        \"name\": \"CP News\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"version\": 3,\r\n        \"id\": 3,\r\n        \"name\": \"Never Expire\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"ttl\": 0\r\n    },\r\n    \"seriesId\": null,\r\n    \"series\": null,\r\n    \"ownerId\": 1,\r\n    \"owner\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"username\": \"admin\",\r\n        \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n        \"email\": \"admin@local.com\",\r\n        \"displayName\": \"Administrator\",\r\n        \"firstName\": \"\",\r\n        \"lastName\": \"\",\r\n        \"enabled\": true,\r\n        \"emailVerified\": true,\r\n        \"lastLoginOn\": null\r\n    },\r\n    \"dataSourceId\": 179,\r\n    \"dataSource\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-15T00:43:23.356617Z\",\r\n        \"version\": 179,\r\n        \"id\": 179,\r\n        \"name\": \"CP News\",\r\n        \"shortName\": \"\",\r\n        \"code\": null,\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"mediaTypeId\": 1,\r\n        \"mediaType\": null,\r\n        \"dataLocationId\": 1,\r\n        \"dataLocation\": null,\r\n        \"licenseId\": 3,\r\n        \"license\": {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-03-15T00:43:23.356617Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-03-15T00:43:23.356617Z\",\r\n            \"version\": 3,\r\n            \"id\": 3,\r\n            \"name\": \"Never Expire\",\r\n            \"description\": \"\",\r\n            \"enabled\": true,\r\n            \"ttl\": 0\r\n        },\r\n        \"scheduleId\": 0,\r\n        \"schedule\": null,\r\n        \"topic\": \"topic\",\r\n        \"lastRanOn\": null,\r\n        \"retryLimit\": 3,\r\n        \"failedAttempts\": 0,\r\n        \"connection\": {\r\n            \"url\": \"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr\"\r\n        },\r\n        \"schedules\": []\r\n    },\r\n    \"source\": \"CP News\",\r\n    \"headline\": \"BNP Paribas Open Results (TEN-BNP-Paribas-Open-Res)\",\r\n    \"uid\": \"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_dv.htm/_ibyx/daj/_svc/cp_pub/_Id/2033188925/_k/qMlM55aSPdq38mOj\",\r\n    \"page\": \"\",\r\n    \"summary\": \"\",\r\n    \"transcription\": \"\",\r\n    \"publishedOn\": \"2022-03-14T00:00:00Z\",\r\n    \"sourceURL\": \"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_dv.htm/_ibyx/daj/_svc/cp_pub/_Id/2033188925/_k/qMlM55aSPdq38mOj\",\r\n    \"fileReferences\": [],\r\n    \"categories\": [],\r\n    \"tags\": [],\r\n    \"tonePools\": [],\r\n    \"actions\": [],\r\n    \"timeTrackings\": []\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1516"
 												}
 											]
 										}
@@ -3924,13 +4343,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/userinfo",
+							"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/auth/userinfo",
 							"protocol": "{{scheme}}",
 							"host": [
 								"{{host}}"
 							],
 							"port": "{{port}}{{root-path}}",
 							"path": [
+								"auth",
 								"userinfo"
 							]
 						}
@@ -5030,7 +5450,7 @@
 											"variable": [
 												{
 													"key": "cluster_id",
-													"value": "x29JqB9RQWSsvZG2CtqE9Q"
+													"value": "74dyrvH2QWaRqi62tV1rBA"
 												}
 											]
 										}
@@ -5077,7 +5497,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"topic_name\": \"elastic-logs\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
+											"raw": "{\r\n    \"topic_name\": \"logs-audio-clip\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5100,7 +5520,7 @@
 											"variable": [
 												{
 													"key": "cluster_id",
-													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+													"value": "74dyrvH2QWaRqi62tV1rBA"
 												}
 											]
 										}

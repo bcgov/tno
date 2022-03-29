@@ -5,9 +5,13 @@ import {
   ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
+  ISourceActionModel,
+  ISourceMetricModel,
   ITagModel,
   ITonePoolModel,
   IUserModel,
+  useApiSourceActions,
+  useApiSourceMetrics,
 } from 'hooks/api-editor';
 import {
   useApiActions,
@@ -26,6 +30,8 @@ import { ILookupState } from 'store/slices/lookup';
 
 interface ILookupController {
   getActions: () => Promise<IActionModel[]>;
+  getSourceActions: () => Promise<ISourceActionModel[]>;
+  getSourceMetrics: () => Promise<ISourceMetricModel[]>;
   getCategories: () => Promise<ICategoryModel[]>;
   getContentTypes: () => Promise<IContentTypeModel[]>;
   getLicenses: () => Promise<ILicenseModel[]>;
@@ -39,6 +45,8 @@ interface ILookupController {
 export const useLookup = (): [ILookupState, ILookupController] => {
   const [state, store] = useLookupStore();
   const actions = useApiActions();
+  const sourceActions = useApiSourceActions();
+  const sourceMetrics = useApiSourceMetrics();
   const categories = useApiCategories();
   const contentTypes = useApiContentTypes();
   const licenses = useApiLicenses();
@@ -52,6 +60,16 @@ export const useLookup = (): [ILookupState, ILookupController] => {
     getActions: async () => {
       const result = await actions.getActions();
       store.storeActions(result);
+      return result;
+    },
+    getSourceActions: async () => {
+      const result = await sourceActions.getActions();
+      store.storeSourceActions(result);
+      return result;
+    },
+    getSourceMetrics: async () => {
+      const result = await sourceMetrics.getMetrics();
+      store.storeSourceMetrics(result);
       return result;
     },
     getCategories: async () => {
@@ -100,6 +118,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
     // Initialize the first time the hook is called only.
     // Failures will have to manually be resolved.
     if (!state.actions.length) controller.getActions();
+    if (!state.sourceActions.length) controller.getSourceActions();
+    if (!state.sourceMetrics.length) controller.getSourceMetrics();
     if (!state.categories.length) controller.getCategories();
     if (!state.contentTypes.length) controller.getContentTypes();
     if (!state.licenses.length) controller.getLicenses();

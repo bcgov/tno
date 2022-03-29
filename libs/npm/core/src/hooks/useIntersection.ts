@@ -6,7 +6,6 @@ export const useIntersection = (element: React.RefObject<HTMLElement>, rootMargi
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.debug('intersect');
         setState(entry.isIntersecting);
       },
       { rootMargin },

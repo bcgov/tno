@@ -1,3 +1,4 @@
+import { Row } from 'components/flex';
 import React, { InputHTMLAttributes } from 'react';
 
 import { FieldSize } from '../constants';
@@ -56,38 +57,39 @@ export const Text: React.FC<ITextProps> = ({
   return (
     <styled.Text className="frm-in">
       {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
-      <styled.TextField
-        name={name}
-        id={id}
-        type={type}
-        variant={variant}
-        className={`txt ${className ?? ''}`}
-        data-for="main-tooltip"
-        data-tip={tooltip}
-        width={width}
-        role={errorMsg ? 'alert' : 'none'}
-        onInput={(e) => {
-          if (onInput) onInput(e);
-          else {
-            const input = e.target as HTMLInputElement;
-            input.setCustomValidity('');
-            setErrorMsg(undefined);
-          }
-        }}
-        onInvalid={(e) => {
-          if (onInvalid) return onInvalid(e);
-          else {
-            const input = e.target as HTMLInputElement;
-            if (rest.required && input.validity.valueMissing) {
-              input.setCustomValidity(error ?? 'required');
-              setErrorMsg(error ?? 'required');
+      <Row>
+        <styled.TextField
+          name={name}
+          id={id}
+          type={type}
+          variant={variant}
+          className={`txt ${className ?? ''}`}
+          data-for="main-tooltip"
+          data-tip={tooltip}
+          width={width}
+          role={errorMsg ? 'alert' : 'none'}
+          onInput={(e) => {
+            if (onInput) onInput(e);
+            else {
+              const input = e.target as HTMLInputElement;
+              input.setCustomValidity('');
+              setErrorMsg(undefined);
             }
-          }
-        }}
-        {...rest}
-      >
+          }}
+          onInvalid={(e) => {
+            if (onInvalid) return onInvalid(e);
+            else {
+              const input = e.target as HTMLInputElement;
+              if (rest.required && input.validity.valueMissing) {
+                input.setCustomValidity(error ?? 'required');
+                setErrorMsg(error ?? 'required');
+              }
+            }
+          }}
+          {...rest}
+        />
         {children}
-      </styled.TextField>
+      </Row>
       {errorMsg && <p role="alert">{errorMsg}</p>}
     </styled.Text>
   );

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.dal.db.entities.DataSourceAction;
+import ca.bc.gov.tno.dal.db.entities.DataSourceMetric;
 import ca.bc.gov.tno.dal.db.entities.DataSourceSchedule;
 import ca.bc.gov.tno.models.AuditColumnModel;
 
@@ -96,19 +98,24 @@ public class DataSourceModel extends AuditColumnModel {
   private int failedAttempts = 0;
 
   /**
-   * Whether this data source should be included in the CBRA report.
+   * Foreign key to parent data source.
    */
-  private boolean inCBRA = false;
-
-  /**
-   * Whether this data source should be included in the analysis report.
-   */
-  private boolean inAnalysis = false;
+  private Integer parentId;
 
   /**
    * JSON configuration values for the ingestion services.
    */
   private Map<String, Object> connection = new HashMap<>();
+
+  /**
+   * An array of schedules associated with this data source.
+   */
+  private List<DataSourceActionModel> actions = new ArrayList<>();
+
+  /**
+   * An array of schedules associated with this data source.
+   */
+  private List<DataSourceMetricModel> metrics = new ArrayList<>();
 
   /**
    * An array of schedules associated with this data source.
@@ -143,9 +150,23 @@ public class DataSourceModel extends AuditColumnModel {
       this.lastRanOn = entity.getLastRanOn();
       this.retryLimit = entity.getRetryLimit();
       this.failedAttempts = entity.getFailedAttempts();
-      this.inCBRA = entity.inCBRA();
-      this.inAnalysis = entity.inAnalysis();
+      this.parentId = entity.getParentId();
       this.connection = entity.getConnection();
+
+      if (putil.isLoaded(entity, "dataSourceActions"))
+        this.actions
+            .addAll(entity.getDataSourceActions().stream()
+                .filter((dsa) -> putil.isLoaded(dsa, "sourceAction") && dsa.getSourceAction() != null)
+                .map((dsa) -> new DataSourceActionModel(dsa))
+                .toList());
+
+      if (putil.isLoaded(entity, "dataSourceMetrics"))
+        this.metrics
+            .addAll(entity.getDataSourceMetrics().stream()
+                .filter((dsm) -> putil.isLoaded(dsm, "sourceMetric") && dsm.getSourceMetric() != null)
+                .map((dsm) -> new DataSourceMetricModel(dsm))
+                .toList());
+
       if (putil.isLoaded(entity, "dataSourceSchedules"))
         this.schedules
             .addAll(entity.getDataSourceSchedules().stream()
@@ -164,8 +185,18 @@ public class DataSourceModel extends AuditColumnModel {
     entity.setLastRanOn(this.lastRanOn);
     entity.setRetryLimit(this.retryLimit);
     entity.setFailedAttempts(this.failedAttempts);
-    entity.setInCBRA(this.inCBRA);
-    entity.setInAnalysis(this.inAnalysis);
+    entity.setParentId(this.parentId);
+
+    entity.setDataSourceActions(
+        this.actions.stream().map(s -> new DataSourceAction(entity, s.toSourceAction(), s.getValue(), s.getVersion()))
+            .toList());
+
+    entity.setDataSourceMetrics(
+        this.metrics.stream()
+            .map(s -> new DataSourceMetric(entity, s.toSourceMetric(), s.getReach(), s.getEarned(), s.getImpression(),
+                s.getVersion()))
+            .toList());
+
     entity.setDataSourceSchedules(
         this.schedules.stream().map(s -> new DataSourceSchedule(entity, s.toSchedule())).toList());
 
@@ -397,31 +428,17 @@ public class DataSourceModel extends AuditColumnModel {
   }
 
   /**
-   * @return boolean return the inCBRA
+   * @return Integer return the parentId
    */
-  public boolean getInCBRA() {
-    return inCBRA;
+  public Integer getParentId() {
+    return parentId;
   }
 
   /**
-   * @param inCBRA the inCBRA to set
+   * @param parentId the parentId to set
    */
-  public void setInCBRA(boolean inCBRA) {
-    this.inCBRA = inCBRA;
-  }
-
-  /**
-   * @return boolean return the inAnalysis
-   */
-  public boolean getInAnalysis() {
-    return inAnalysis;
-  }
-
-  /**
-   * @param inAnalysis the inAnalysis to set
-   */
-  public void setInAnalysis(boolean inAnalysis) {
-    this.inAnalysis = inAnalysis;
+  public void setParentId(Integer parentId) {
+    this.parentId = parentId;
   }
 
   /**
@@ -436,6 +453,34 @@ public class DataSourceModel extends AuditColumnModel {
    */
   public void setConnection(Map<String, Object> connection) {
     this.connection = connection;
+  }
+
+  /**
+   * @return List<DataSourceActionModel> return the actions
+   */
+  public List<DataSourceActionModel> getActions() {
+    return actions;
+  }
+
+  /**
+   * @param actions the actions to set
+   */
+  public void setActions(List<DataSourceActionModel> actions) {
+    this.actions = actions;
+  }
+
+  /**
+   * @return List<DataSourceMetricModel> return the metrics
+   */
+  public List<DataSourceMetricModel> getMetrics() {
+    return metrics;
+  }
+
+  /**
+   * @param metrics the metrics to set
+   */
+  public void setMetrics(List<DataSourceMetricModel> metrics) {
+    this.metrics = metrics;
   }
 
   /**

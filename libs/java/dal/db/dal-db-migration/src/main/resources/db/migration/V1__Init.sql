@@ -204,6 +204,49 @@ CREATE TABLE IF NOT EXISTS public.schedule
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_schedule_name" ON public.schedule ("name");
 CREATE TRIGGER tr_audit_schedule BEFORE INSERT OR UPDATE ON public.schedule FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
+CREATE SEQUENCE IF NOT EXISTS public.seq_source_action AS INT INCREMENT BY 1 START 1;
+CREATE SEQUENCE IF NOT EXISTS public.seq_source_action_version AS BIGINT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public.source_action
+(
+  "id" INT NOT NULL DEFAULT nextval('seq_source_action'),
+  "name" VARCHAR(50) NOT NULL,
+  "description" VARCHAR(2000) NOT NULL DEFAULT '',
+  "is_enabled" BOOLEAN NOT NULL DEFAULT true,
+  "sort_order" INT NOT NULL DEFAULT 0,
+  -- Audit Columns
+  "created_by_id" UUID NOT NULL,
+  "created_by" VARCHAR(50) NOT NULL,
+  "created_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_by_id" UUID NOT NULL,
+  "updated_by" VARCHAR(50) NOT NULL,
+  "updated_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "version" BIGINT NOT NULL DEFAULT nextval('seq_source_action_version'),
+  CONSTRAINT "pk_source_action" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_source_action_name" ON public.source_action ("name");
+CREATE TRIGGER tr_audit_source_action BEFORE INSERT OR UPDATE ON public.source_action FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_source_metric AS INT INCREMENT BY 1 START 1;
+CREATE SEQUENCE IF NOT EXISTS public.seq_source_metric_version AS BIGINT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public.source_metric
+(
+  "id" INT NOT NULL DEFAULT nextval('seq_source_metric'),
+  "name" VARCHAR(50) NOT NULL,
+  "description" VARCHAR(2000) NOT NULL DEFAULT '',
+  "is_enabled" BOOLEAN NOT NULL DEFAULT true,
+  "sort_order" INT NOT NULL DEFAULT 0,
+  -- Audit Columns
+  "created_by_id" UUID NOT NULL,
+  "created_by" VARCHAR(50) NOT NULL,
+  "created_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_by_id" UUID NOT NULL,
+  "updated_by" VARCHAR(50) NOT NULL,
+  "updated_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "version" BIGINT NOT NULL DEFAULT nextval('seq_source_metric_version'),
+  CONSTRAINT "pk_source_metric" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_source_metric_name" ON public.source_metric ("name");
+CREATE TRIGGER tr_audit_source_metric BEFORE INSERT OR UPDATE ON public.source_metric FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE SEQUENCE IF NOT EXISTS public.seq_data_location AS INT INCREMENT BY 1 START 1;
 CREATE SEQUENCE IF NOT EXISTS public.seq_data_location_version AS BIGINT INCREMENT BY 1 START 1;
@@ -214,7 +257,6 @@ CREATE TABLE IF NOT EXISTS public.data_location
   "description" VARCHAR(2000) NOT NULL DEFAULT '',
   "is_enabled" BOOLEAN NOT NULL DEFAULT true,
   "sort_order" INT NOT NULL DEFAULT 0,
-  -- "connection" JSON NOT NULL, -- Hibernate has issues with JSON types.
   -- Audit Columns
   "created_by_id" UUID NOT NULL,
   "created_by" VARCHAR(50) NOT NULL,
@@ -245,8 +287,6 @@ CREATE TABLE IF NOT EXISTS public.data_source
   "last_ran_on" TIMESTAMP WITH TIME ZONE,
   "retry_limit" INT NOT NULL DEFAULT 3,
   "failed_attempts" INT NOT NULL DEFAULT 0,
-  "in_cbra" BOOLEAN NOT NULL DEFAULT false,
-  "in_analysis" BOOLEAN NOT NULL DEFAULT false,
   "connection" TEXT NOT NULL,
   "parent_id" INT,
   -- "connection" JSON NOT NULL, -- Hibernate has issues with JSON types.
@@ -286,6 +326,48 @@ CREATE TABLE IF NOT EXISTS public.data_source_schedule
   CONSTRAINT "fk_schedule_data_source_schedule" FOREIGN KEY ("schedule_id") REFERENCES public.schedule ("id") ON DELETE CASCADE
 );
 CREATE TRIGGER tr_audit_data_source_schedule BEFORE INSERT OR UPDATE ON public.data_source_schedule FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_data_source_action_version AS BIGINT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public.data_source_action
+(
+  "data_source_id" INT NOT NULL,
+  "source_action_id" INT NOT NULL,
+  "value" BOOLEAN NOT NULL DEFAULT false,
+  -- Audit Columns
+  "created_by_id" UUID NOT NULL,
+  "created_by" VARCHAR(50) NOT NULL,
+  "created_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_by_id" UUID NOT NULL,
+  "updated_by" VARCHAR(50) NOT NULL,
+  "updated_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "version" BIGINT NOT NULL DEFAULT nextval('seq_data_source_action_version'),
+  CONSTRAINT "pk_data_source_action" PRIMARY KEY ("data_source_id", "source_action_id"),
+  CONSTRAINT "fk_data_source_data_source_action" FOREIGN KEY ("data_source_id") REFERENCES public.data_source ("id") ON DELETE CASCADE,
+  CONSTRAINT "fk_source_action_data_source_action" FOREIGN KEY ("source_action_id") REFERENCES public.source_action ("id") ON DELETE CASCADE
+);
+CREATE TRIGGER tr_audit_data_source_action BEFORE INSERT OR UPDATE ON public.data_source_action FOR EACH ROW EXECUTE PROCEDURE updateAudit();
+
+CREATE SEQUENCE IF NOT EXISTS public.seq_data_source_metric_version AS BIGINT INCREMENT BY 1 START 1;
+CREATE TABLE IF NOT EXISTS public.data_source_metric
+(
+  "data_source_id" INT NOT NULL,
+  "source_metric_id" INT NOT NULL,
+  "reach" FLOAT NOT NULL DEFAULT 0,
+  "earned" FLOAT NOT NULL DEFAULT 0,
+  "impression" FLOAT NOT NULL DEFAULT 0,
+  -- Audit Columns
+  "created_by_id" UUID NOT NULL,
+  "created_by" VARCHAR(50) NOT NULL,
+  "created_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_by_id" UUID NOT NULL,
+  "updated_by" VARCHAR(50) NOT NULL,
+  "updated_on" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "version" BIGINT NOT NULL DEFAULT nextval('seq_data_source_metric_version'),
+  CONSTRAINT "pk_data_source_metric" PRIMARY KEY ("data_source_id", "source_metric_id"),
+  CONSTRAINT "fk_data_source_data_source_metric" FOREIGN KEY ("data_source_id") REFERENCES public.data_source ("id") ON DELETE CASCADE,
+  CONSTRAINT "fk_source_metric_data_source_metric" FOREIGN KEY ("source_metric_id") REFERENCES public.source_metric ("id") ON DELETE CASCADE
+);
+CREATE TRIGGER tr_audit_data_source_metric BEFORE INSERT OR UPDATE ON public.data_source_metric FOR EACH ROW EXECUTE PROCEDURE updateAudit();
 
 CREATE SEQUENCE IF NOT EXISTS public.seq_content_reference_version AS BIGINT INCREMENT BY 1 START 1;
 CREATE TABLE IF NOT EXISTS public.content_reference
@@ -1201,6 +1283,96 @@ INSERT INTO public.license (
 ), (
   'Special Expire'
   , 150 -- ttl
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.source_action (
+  "name"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'CBRA' -- name
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'TV Archive' -- name
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Use in Analysis' -- name
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Use in Event of Day' -- name
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.source_metric (
+  "name"
+  , "sort_order"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Monday' -- name
+  , 1
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Tuesday' -- name
+  , 2
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Wednesday' -- name
+  , 3
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Thursday' -- name
+  , 4
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Friday' -- name
+  , 5
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Saturday' -- name
+  , 6
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Sunday' -- name
+  , 7
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

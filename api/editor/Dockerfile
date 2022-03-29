@@ -2,6 +2,8 @@ FROM maven:3.6.3-openjdk-17 AS base
 WORKDIR /project
 COPY . .
 WORKDIR /project/api-editor
+
+RUN mvn clean
 RUN mvn package
 
 FROM openjdk:17.0.1-slim AS final

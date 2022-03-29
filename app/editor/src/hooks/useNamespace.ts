@@ -7,10 +7,13 @@ import React from 'react';
  * @returns object with functions
  */
 export const useNamespace = (namespace: string, defaultIndex?: number) => {
-  return React.useRef({
-    field: (name: string, index?: number) => {
-      const i = index ?? defaultIndex;
-      return `${namespace}${i !== undefined ? `.${i}` : ''}.${name}`;
-    },
-  }).current;
+  return React.useMemo(
+    () => ({
+      field: (name: string, index?: number) => {
+        const i = index ?? defaultIndex;
+        return `${namespace}${i !== undefined ? `.${i}` : ''}.${name}`;
+      },
+    }),
+    [namespace, defaultIndex],
+  );
 };

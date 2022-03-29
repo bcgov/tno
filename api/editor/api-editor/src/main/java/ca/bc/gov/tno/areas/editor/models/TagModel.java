@@ -38,6 +38,10 @@ public class TagModel extends AuditColumnModel {
   }
 
   public TagModel(Tag entity) {
+    this(entity, entity.getVersion());
+  }
+
+  public TagModel(Tag entity, long version) {
     super(entity);
 
     if (entity != null) {
@@ -47,6 +51,7 @@ public class TagModel extends AuditColumnModel {
       this.enabled = entity.isEnabled();
       this.sortOrder = entity.getSortOrder();
     }
+    this.setVersion(version);
   }
 
   /**

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
 export const AdminPage = styled.div`
-  width: 100%;
+  min-width: 50em;
   padding: 0.5em;
 `;

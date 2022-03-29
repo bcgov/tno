@@ -43,10 +43,10 @@ public class CategoryModel extends AuditColumnModel {
   }
 
   public CategoryModel(Category entity) {
-    this(entity, 0);
+    this(entity, 0, entity.getVersion());
   }
 
-  public CategoryModel(Category entity, int score) {
+  public CategoryModel(Category entity, int score, long version) {
     super(entity);
 
     if (entity != null) {
@@ -57,6 +57,7 @@ public class CategoryModel extends AuditColumnModel {
       this.sortOrder = entity.getSortOrder();
     }
     this.score = score;
+    this.setVersion(version);
   }
 
   /**
