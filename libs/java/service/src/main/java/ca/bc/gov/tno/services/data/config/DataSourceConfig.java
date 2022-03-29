@@ -59,7 +59,7 @@ public class DataSourceConfig {
   /**
    * Maximum number of failed attempts.
    */
-  private int failedAttempts;
+  public int failedAttempts;
 
   /**
    * An array of schedules for this data source.

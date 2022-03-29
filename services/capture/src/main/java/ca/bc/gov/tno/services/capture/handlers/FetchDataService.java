@@ -33,6 +33,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private Object caller;
   private CaptureConfig captureConfig;
   private ScheduleConfig schedule;
+
   /**
    * Create a new instance of a FetchDataService object.
    */
@@ -81,12 +82,10 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
     logger.info("Transaction begin event - start processing.");
     captureConfig = (CaptureConfig) event.getDataSource();
     String mediaSource = captureConfig.getCaptureDir() + "/" + captureConfig.getId() + ".mpg";
+    caller = event.getSource();
+    schedule = event.getSchedule();
 
     try {
-      caller = event.getSource();
-      captureConfig = (CaptureConfig) event.getDataSource();
-      schedule = event.getSchedule();
-
       if (isaStopEvent(schedule)) {
         stopMediaStream(captureConfig.getRunningCommand());
       } else 
@@ -100,7 +99,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       var doneEvent = new TransactionCompleteEvent(event.getSource(), captureConfig, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, captureConfig);
       eventPublisher.publishEvent(errorEvent);
     }
   }
