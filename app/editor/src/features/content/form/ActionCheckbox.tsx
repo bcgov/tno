@@ -24,22 +24,21 @@ export const ActionCheckbox: React.FC<IActionCheckbox> = ({ name, onClick }) => 
   const checked = !!actions.find((x: IActionValueModel) => x.name === name && x.value === 'true');
   /** find the index of the action in order to alter the value, returns -1 if it does not exist */
   const index = actions.findIndex((x) => x.name === name);
+
   return (
     <FormikCheckbox
       className="chk"
       name={name}
-      labelRight
       label={name}
       onClick={onClick}
       checked={checked}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
         if (index !== -1) {
           actions[index].value = String(e.target.checked);
-          setFieldValue('actions', actions);
         } else {
           actions.push({ id: actionId, value: String(e.target.checked), name: name });
-          setFieldValue('actions', actions);
         }
+        setFieldValue('actions', actions);
       }}
     />
   );

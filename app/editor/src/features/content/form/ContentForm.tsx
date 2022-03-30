@@ -6,14 +6,15 @@ import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { Modal } from 'components/modal';
 import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
-import { IUserModel, ActionName, ContentStatus } from 'hooks/api-editor';
-import { useKeycloakWrapper } from 'hooks';
+import { ActionName, ContentStatus, IUserModel } from 'hooks/api-editor';
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
+import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
+import { ContentFormSchema } from '../validation';
 import { PropertiesContentForm } from '.';
 import { ActionCheckbox } from './ActionCheckbox';
 import { defaultFormValues } from './constants';
@@ -85,6 +86,7 @@ export const ContentForm: React.FC = () => {
             navigate('/contents');
           }
         }}
+        validationSchema={ContentFormSchema}
         initialValues={content}
       >
         {(props) => (
@@ -105,6 +107,7 @@ export const ContentForm: React.FC = () => {
                     <FormikText
                       className="md"
                       name="source"
+                      required
                       label="Source"
                       value={props.values.source}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -112,13 +115,12 @@ export const ContentForm: React.FC = () => {
                       }
                     />
                   </Col>
-                  <Col style={{ marginLeft: '5%' }}>
+                  <Col>
                     <FormikText disabled className="md" name="otherSource" label="Other Source" />
                   </Col>
                 </Row>
                 <Row>
                   <FormikSelect
-                    className="md"
                     name="mediaTypeId"
                     value={mediaTypeOptions.find((mt) => mt.value === props.values.mediaTypeId)}
                     onChange={(e: any) => {
@@ -126,15 +128,13 @@ export const ContentForm: React.FC = () => {
                     }}
                     label="Media Type"
                     options={mediaTypeOptions}
+                    required
                   />
                 </Row>
               </Col>
-              <Col style={{ marginLeft: '3%', marginRight: '10%' }}>
+              <Col className="checkbox-column">
                 <Row style={{ marginTop: '4.5%' }}>
                   <Col style={{ width: '215px' }}>
-                    <FormikCheckbox disabled className="chk" name="publish" label="Publish" />
-                    <FormikCheckbox disabled className="chk" name="alert" label="Alert" />
-                    <FormikCheckbox className="chk" name="frontPage" disabled label="Front Page" />
                     <FormikCheckbox
                       className="chk"
                       name="publish"
@@ -203,12 +203,8 @@ export const ContentForm: React.FC = () => {
               <Button
                 style={{ marginRight: '4%' }}
                 type="submit"
-                onClick={async () => {
-                  try {
-                    await submitContent(props.values);
-                  } finally {
-                    navigate('/contents');
-                  }
+                onClick={() => {
+                  props.handleSubmit();
                 }}
               >
                 {!content.id ? 'Create Snippet' : 'Update Snippet'}

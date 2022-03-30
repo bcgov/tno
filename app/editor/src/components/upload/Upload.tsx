@@ -1,7 +1,7 @@
 import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/col';
+import { Col } from 'components/flex/col';
+import { Row } from 'components/flex/row';
 import { Modal } from 'components/modal';
-import { Row } from 'components/row';
 import useModal from 'hooks/modal/useModal';
 import React, { InputHTMLAttributes, useState } from 'react';
 

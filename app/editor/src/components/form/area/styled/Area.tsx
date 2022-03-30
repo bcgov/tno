@@ -5,6 +5,19 @@ export const Area = styled.div`
   height: fit-content;
   padding: 3%;
   width: fit-content;
+
+  p[role='alert'] {
+    color: red;
+    margin-bottom: 1em;
+  }
+
+  .back-btn {
+    width: fit-content;
+  }
+
+  .checkbox-column {
+    margin-left: 8em;
+  }
   .space-right {
     margin-right: 25px;
   }

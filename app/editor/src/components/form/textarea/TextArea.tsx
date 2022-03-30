@@ -50,7 +50,11 @@ export const TextArea: React.FC<ITextAreaProps> = ({
 
   return (
     <styled.TextArea className="frm-in">
-      {label && <label htmlFor={id ?? `txa-${name}`}>{label}</label>}
+      {label && (
+        <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txa-${name}`}>
+          {label}
+        </label>
+      )}
       <styled.TextAreaField
         id={id}
         name={name}

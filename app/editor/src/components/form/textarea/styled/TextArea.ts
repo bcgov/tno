@@ -4,6 +4,12 @@ import styled from 'styled-components';
 export const TextArea = styled(Col)`
   padding-right: 0.5em;
 
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+    font-weight: 700;
+  }
+
   p[role='alert'] {
     font-weight: 0.85em;
     color: ${(props) => props.theme.css.dangerColor};

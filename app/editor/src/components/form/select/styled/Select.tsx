@@ -2,6 +2,11 @@ import { Col } from 'components/flex/col';
 import styled from 'styled-components';
 
 export const Select = styled(Col)`
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+  }
+
   p[role='alert'] {
     font-size: 0.85em;
     color: ${(props) => props.theme.css.dangerColor};

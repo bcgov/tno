@@ -45,9 +45,18 @@ export function useKeycloakWrapper(): IKeycloak {
     return token?.display_name ?? '';
   };
 
+  /**
+   * Extract the unique username of the user
+   * @returns User's unique username
+   */
+     const getUsername = () => {
+      return token?.username ?? '';
+    };
+
   return {
     instance: keycloak,
     authenticated: keycloak.authenticated,
+    getUsername,
     getDisplayName,
     hasRole,
     hasClaim,

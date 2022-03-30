@@ -12,7 +12,7 @@ export const defaultFormValues: IContentForm = {
   mediaTypeId: 0,
   licenseId: 0,
   ownerId: 0,
-  seriesId: 0,
+  seriesId: undefined,
   headline: '',
   summary: '',
   source: '',

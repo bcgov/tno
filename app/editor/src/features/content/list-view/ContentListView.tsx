@@ -32,7 +32,7 @@ import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
 
 export const ContentListView: React.FC = () => {
-  const [{ userInfo }, { isUserReady }] = useApp();
+  const [{ userInfo, requests }, { isUserReady }] = useApp();
   const [{ contentTypes, mediaTypes, users }] = useLookup();
   const [{ filter, filterAdvanced, sortBy }, { findContent }] = useContent({
     filter: { ...defaultFilter, userId: userInfo?.id ?? 0 },
@@ -322,6 +322,7 @@ export const ContentListView: React.FC = () => {
         <PagedTable
           columns={columns}
           page={page}
+          isLoading={!!requests.length}
           sortBy={sortBy}
           onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
           onChangePage={handleChangePage}

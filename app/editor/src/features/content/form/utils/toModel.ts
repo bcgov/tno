@@ -36,6 +36,7 @@ export function toModel(values: IContentForm): IContentModel {
         })
       : undefined,
     publishedOn: !!values.publishedOn ? moment(values.publishedOn).toDate() : new Date(), // TODO: If they haven't set the publishedOn it will cause an error.
+    version: values.version,
     printContent: !values.section
       ? undefined
       : {
