@@ -1,6 +1,7 @@
-import * as styled from './UnauthenticatedStyled';
 import SVG from 'react-inlinesvg';
-import IconUnauthenticated from './401.svg';
+
+import IconUnauthenticated from '../../../assets/401.svg';
+import * as styled from './UnauthenticatedStyled';
 
 /**
  * Unauthenticated provides a simple 401 Unauthenticated error message.

@@ -1,5 +1,4 @@
 import { Button } from '..';
-
 import * as styled from './HeaderStyled';
 
 interface IHeaderProps extends React.HTMLAttributes<HTMLDivElement> {

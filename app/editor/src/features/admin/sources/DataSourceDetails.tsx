@@ -1,4 +1,3 @@
-import { Col, Row } from 'components/flex';
 import { Checkbox, IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
@@ -7,6 +6,7 @@ import React from 'react';
 import { ActionMeta } from 'react-select';
 import { useLookup } from 'store/hooks';
 import { useDataSources } from 'store/hooks/admin';
+import { Col, Row } from 'tno-core/dist/components/flex';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { DataSourceActions, DataSourceStatus } from '.';
@@ -28,13 +28,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
 
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
   const licenses = getSortableOptions(lookups.licenses);
-
-  const handleMediaTypeChange = (newValue: unknown, actionMeta: ActionMeta<unknown>) => {
-    // Change so that the connection settings can display the correct form.
-    const option = newValue as IOptionItem;
-    const mediaType = lookups.mediaTypes.find((mt) => mt.id === option.value);
-    setFieldValue('mediaType', mediaType);
-  };
 
   React.useEffect(() => {
     if (init && !dataSources.length) {
@@ -59,6 +52,13 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
     } else if (!checked) {
       setFieldValue('schedules', []);
     }
+  };
+
+  const handleMediaTypeChange = (newValue: unknown, actionMeta: ActionMeta<unknown>) => {
+    // Change so that the connection settings can display the correct form.
+    const option = newValue as IOptionItem;
+    const mediaType = lookups.mediaTypes.find((mt) => mt.id === option.value);
+    setFieldValue('mediaType', mediaType);
   };
 
   return (

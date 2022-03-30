@@ -1,5 +1,5 @@
 import React from 'react';
-import { Footer, Header, Loading } from 'tno-core';
+import { Footer, Header } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -16,16 +16,11 @@ interface ILayoutAnonymousProps extends React.HTMLAttributes<HTMLDivElement> {
  * @returns Layout component.
  */
 export const LayoutAnonymous: React.FC<ILayoutAnonymousProps> = ({ name, children, ...rest }) => {
-  const [isLoading] = React.useState(false);
-
   return (
     <styled.Layout {...rest}>
       <Header name={name} />
       <div className="main-window">
-        <main>
-          {children}
-          {isLoading && <Loading />}
-        </main>
+        <main>{children}</main>
       </div>
       <Footer />
     </styled.Layout>

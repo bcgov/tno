@@ -1,10 +1,10 @@
-import { Row } from 'components/flex';
 import { FieldSize } from 'components/form';
 import { FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Button, ButtonVariant } from 'tno-core';
+import { Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
 

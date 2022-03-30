@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ISeriesModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiSeries = (
 
   return {
     getSeries: () => {
-      return extractResponseData<ISeriesModel[]>(() => api.get(`/editor/series`));
+      return api.get<ISeriesModel[]>(`/editor/series`);
     },
   };
 };

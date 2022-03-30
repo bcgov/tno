@@ -1,5 +1,5 @@
-import { Row } from 'components/flex/row/styled';
 import React, { InputHTMLAttributes } from 'react';
+import { Row } from 'tno-core/dist/components/flex';
 
 import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';

@@ -1,8 +1,8 @@
-import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/flex/col';
-import { Row } from 'components/flex/row';
 import { FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
+import { Button, ButtonVariant } from 'tno-core';
+import { Col } from 'tno-core/dist/components/flex/col';
+import { Row } from 'tno-core/dist/components/flex/row';
 
 import { IContentSubForms } from '.';
 import { IContentForm } from './interfaces';

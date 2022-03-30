@@ -1,6 +1,6 @@
-import { View } from 'components/view';
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { View } from 'tno-core/dist/components/view';
 
 import {
   CBRAReport,

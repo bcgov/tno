@@ -1,11 +1,11 @@
+import 'react-toastify/dist/ReactToastify.css';
+
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { Layout } from 'components/layout';
-import { UserInfo } from 'features/login';
-import { NavBar } from 'features/navbar';
-import { AppRouter } from 'features/router';
+import { DefaultLayout } from 'components/layout';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import {
   createKeycloakInstance,
@@ -14,10 +14,12 @@ import {
   useKeycloakEventHandler,
 } from 'tno-core';
 
+const appName = 'TNO News Service';
+
 function App() {
-  const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();
   const keycloakEventHandler = useKeycloakEventHandler();
-  const name = 'TNO News Service';
+
+  const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();
 
   React.useEffect(() => {
     createKeycloakInstance().then((result) => {
@@ -25,28 +27,29 @@ function App() {
     });
   }, []);
 
-  return keycloak ? (
-    <ReactKeycloakProvider
-      authClient={keycloak}
-      LoadingComponent={
-        <LayoutAnonymous name={name}>
+  return (
+    <BrowserRouter>
+      {keycloak ? (
+        <ReactKeycloakProvider
+          authClient={keycloak}
+          LoadingComponent={
+            <LayoutAnonymous name={appName}>
+              <Loading />
+            </LayoutAnonymous>
+          }
+          onEvent={keycloakEventHandler(keycloak)}
+        >
+          <DefaultLayout name={appName}></DefaultLayout>
+        </ReactKeycloakProvider>
+      ) : (
+        <LayoutAnonymous name={appName}>
           <Loading />
         </LayoutAnonymous>
-      }
-      onEvent={keycloakEventHandler(keycloak)}
-    >
-      <BrowserRouter>
-        <UserInfo />
-        <Layout name={name}>{{ menu: <NavBar />, router: <AppRouter /> }}</Layout>
-
-        <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
-        <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
-      </BrowserRouter>
-    </ReactKeycloakProvider>
-  ) : (
-    <LayoutAnonymous name={name}>
-      <Loading />
-    </LayoutAnonymous>
+      )}
+      <ToastContainer />
+      <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
+      <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
+    </BrowserRouter>
   );
 }
 

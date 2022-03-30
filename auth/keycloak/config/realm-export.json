@@ -432,7 +432,7 @@
       "name": "Administator",
       "path": "/Administator",
       "attributes": {},
-      "realmRoles": ["administrator"],
+      "realmRoles": ["administrator","editor","subscriber"],
       "clientRoles": {},
       "subGroups": []
     },

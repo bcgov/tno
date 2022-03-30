@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Claim, useKeycloakWrapper } from 'tno-core';
 
+import { Claim, useKeycloakWrapper } from '../../hooks/keycloak';
 import * as styled from './styled';
 import { isActive } from './utils';
 

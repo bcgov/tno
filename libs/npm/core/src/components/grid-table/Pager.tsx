@@ -1,7 +1,7 @@
-import { Button, ButtonVariant } from 'components/button';
 import React from 'react';
 import { BiFirstPage, BiLastPage } from 'react-icons/bi';
 
+import { Button, ButtonVariant } from '../button';
 import * as styled from './styled';
 
 export interface IPagerProps {

@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IMediaTypeModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiMediaTypes = (
 
   return {
     getMediaTypes: () => {
-      return extractResponseData<IMediaTypeModel[]>(() => api.get(`/editor/media/types`));
+      return api.get<IMediaTypeModel[]>(`/editor/media/types`);
     },
   };
 };

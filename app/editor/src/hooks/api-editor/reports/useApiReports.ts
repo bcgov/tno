@@ -1,11 +1,5 @@
 import moment from 'moment';
-import {
-  defaultEnvelope,
-  extractResponseData,
-  ILifecycleToasts,
-  toQueryString,
-  useDownload,
-} from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts, toQueryString, useDownload } from 'tno-core';
 
 import { useApi } from '..';
 
@@ -31,13 +25,11 @@ export const useApiReports = (
         from: moment(from).format('YYYY-MM-DDT00:00:00'),
         to: to ? moment(to).format('YYYY-MM-DDT:11:59:59') : undefined,
       };
-      return extractResponseData<any>(() =>
-        download({
-          url: `/reports/cbra?${toQueryString(params)}`,
-          method: 'post',
-          fileName: 'cbra.xlsx',
-        }),
-      );
+      return download({
+        url: `/reports/cbra?${toQueryString(params)}`,
+        method: 'post',
+        fileName: 'cbra.xlsx',
+      });
     },
   };
 };

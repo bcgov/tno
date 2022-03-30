@@ -1,7 +1,11 @@
 import { IUserInfoModel } from 'hooks/api-editor';
 
+import { IErrorModel } from '.';
+
 export interface IAppState {
   token?: any;
-  requests: string[];
   userInfo?: IUserInfoModel;
+  requests: string[];
+  showErrors: boolean;
+  errors: IErrorModel[];
 }

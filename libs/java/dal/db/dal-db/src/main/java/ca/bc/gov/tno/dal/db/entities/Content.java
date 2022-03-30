@@ -209,49 +209,49 @@ public class Content extends AuditColumns {
    * A collection of content actions linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<FileReference> fileReferences = new ArrayList<>();
 
   /**
    * A collection of content actions linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<ContentAction> contentActions = new ArrayList<>();
 
   /**
    * A collection of content categories linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<ContentCategory> contentCategories = new ArrayList<>();
 
   /**
    * A collection of content tags linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<ContentTag> contentTags = new ArrayList<>();
 
   /**
    * A collection of content tone pools linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<ContentTone> contentTones = new ArrayList<>();
 
   /**
    * A collection of time tracking linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<TimeTracking> timeTrackings = new ArrayList<>();
 
   /**
    * A collection of content linked to this content.
    */
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "link", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "link", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<ContentLink> links = new ArrayList<>();
 
   /**
@@ -259,7 +259,7 @@ public class Content extends AuditColumns {
    */
   @JsonIgnore
   @Fetch(value = FetchMode.SUBSELECT)
-  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "content", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
   private List<ContentLog> logs = new ArrayList<>();
 
   /**
@@ -1284,20 +1284,6 @@ public class Content extends AuditColumns {
    */
   public void setPrintContent(PrintContent printContent) {
     this.printContent = printContent;
-  }
-
-  /**
-   * @return List{ContentTone} return the contentTones
-   */
-  public List<ContentTone> getContentTones() {
-    return contentTones;
-  }
-
-  /**
-   * @param contentTones the contentTones to set
-   */
-  public void setContentTones(List<ContentTone> contentTones) {
-    this.contentTones = contentTones;
   }
 
   /**

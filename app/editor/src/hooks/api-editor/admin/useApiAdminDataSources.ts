@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IDataSourceModel, IPaged, useApi } from '..';
 
@@ -18,23 +18,19 @@ export const useApiAdminDataSources = (
 
   return {
     findDataSources: () => {
-      return extractResponseData<IPaged<IDataSourceModel>>(() => api.get(`/admin/data/sources`));
+      return api.get<IPaged<IDataSourceModel>>(`/admin/data/sources`);
     },
     getDataSource: (id: number) => {
-      return extractResponseData<IDataSourceModel>(() => api.get(`/admin/data/sources/${id}`));
+      return api.get<IDataSourceModel>(`/admin/data/sources/${id}`);
     },
     addDataSource: (model: IDataSourceModel) => {
-      return extractResponseData<IDataSourceModel>(() => api.post(`/admin/data/sources`, model));
+      return api.post<IDataSourceModel>(`/admin/data/sources`, model);
     },
     updateDataSource: (model: IDataSourceModel) => {
-      return extractResponseData<IDataSourceModel>(() =>
-        api.put(`/admin/data/sources/${model.id}`, model),
-      );
+      return api.put<IDataSourceModel>(`/admin/data/sources/${model.id}`, model);
     },
     deleteDataSource: (model: IDataSourceModel) => {
-      return extractResponseData<IDataSourceModel>(() =>
-        api.delete(`/admin/data/sources/${model.id}`, { data: model }),
-      );
+      return api.delete<IDataSourceModel>(`/admin/data/sources/${model.id}`, { data: model });
     },
   };
 };

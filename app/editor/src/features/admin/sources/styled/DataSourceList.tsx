@@ -1,5 +1,5 @@
-import { Col } from 'components/flex/col';
 import styled from 'styled-components';
+import { Col } from 'tno-core/dist/components/flex/col';
 
 export const DataSourceList = styled(Col)`
   .filter {
