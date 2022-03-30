@@ -56,7 +56,11 @@ export const Text: React.FC<ITextProps> = ({
 
   return (
     <styled.Text className="frm-in">
-      {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
+      {label && (
+        <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
+          {label}
+        </label>
+      )}
       <Row>
         <styled.TextField
           name={name}

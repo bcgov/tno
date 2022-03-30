@@ -53,7 +53,11 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
 
   return (
     <styled.SelectDate className="frm-in" variant={variant} required={required} width={width}>
-      {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
+      {label && (
+        <label className={required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
+          {label}
+        </label>
+      )}
       {selectedDate ? (
         <DatePicker
           name={name}

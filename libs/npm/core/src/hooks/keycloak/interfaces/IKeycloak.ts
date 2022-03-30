@@ -7,6 +7,7 @@ export interface IKeycloak {
   instance: any;
   authenticated?: boolean;
   getDisplayName: () => string;
+  getUsername: () => string;
   hasRole(role?: Role | Array<Role>): boolean;
   hasClaim(claim?: Claim | Array<Claim>): boolean;
 }

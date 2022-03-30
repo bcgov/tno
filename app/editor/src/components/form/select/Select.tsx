@@ -77,7 +77,11 @@ export const Select = <OptionType extends IOptionItem>({
 
   return (
     <styled.Select className="frm-in">
-      {label && <label htmlFor={`sel-${name}`}>{label}</label>}
+      {label && (
+        <label className={required ? 'required' : ''} htmlFor={`sel-${name}`}>
+          {label}
+        </label>
+      )}
       <Row>
         <styled.SelectField
           ref={selectRef}

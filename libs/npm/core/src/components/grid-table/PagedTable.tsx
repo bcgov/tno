@@ -27,6 +27,10 @@ export interface IPagedTableProps<CT extends object = {}> {
    * Initial sorting rules.
    */
   sortBy?: Array<SortingRule<CT>>;
+  /**
+   * Flag to indicate whether table is loading data or not.
+   */
+  isLoading?: boolean;
 }
 
 /**
@@ -40,12 +44,14 @@ export const PagedTable = <CT extends object>({
   onRowClick,
   onChangePage,
   onChangeSort,
+  isLoading,
   sortBy,
 }: IPagedTableProps<CT>) => {
   return (
     <GridTable
       columns={columns}
       data={page.items}
+      isLoading={isLoading}
       paging={{
         manualPagination: true,
         pageIndex: page.pageIndex,

@@ -1,9 +1,9 @@
+import { Row } from 'components/flex/row';
 import { GridTable } from 'components/grid-table';
-import { Row } from 'components/row';
 import { ITimeTrackingModel } from 'hooks';
 import { useLookup } from 'store/hooks';
-import styled from 'styled-components';
 
+import { TableContainer } from '../styled';
 import { timeLogColumns } from './constants';
 
 export interface ITimeLogTableProps {
@@ -12,17 +12,6 @@ export interface ITimeLogTableProps {
   /** the total time logged against the content */
   totalTime: number;
 }
-
-const TableContainer = styled.div`
-  div[role='table'] {
-    width: 550px;
-  }
-  .total-text {
-    font-weight: 700;
-    margin-top: 1%;
-    margin-left: 1%;
-  }
-`;
 
 /** Table used to display time log for users creating and updating content. */
 export const TimeLogTable: React.FC<ITimeLogTableProps> = ({ data, totalTime }) => {

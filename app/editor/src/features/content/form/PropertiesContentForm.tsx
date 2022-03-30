@@ -1,5 +1,6 @@
 import { IOptionItem, OptionItem, RadioGroup, SelectDate } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
+import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
@@ -74,7 +75,9 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
 
   /** add tags to formik value object if tag exists - better implementation later*/
   React.useEffect(() => {
-    validTags = tags.filter((t1: ITagModel) => userTags?.some((t2: string) => t2 === t1.id));
+    validTags = tags
+      .filter((t1: ITagModel) => userTags?.some((t2: string) => t2 === t1.id))
+      .map((x) => ({ ...x, createdOn: null }));
     setFieldValue('tags', validTags);
   }, [userTags]);
 
@@ -89,21 +92,39 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
               onChange={(e: any) => {
                 setFieldValue('seriesId', e.value);
               }}
-              options={series!}
+              options={series ?? []}
+              required
               name="seriesId"
               label="Series"
             />
             <FormikText disabled className="md" name="otherSeries" label="Other Series" />
           </Row>
           <Row>
-            <FormikSelect className="md" isDisabled name="eod" label="EoD Category" options={categoryTypes} />
+            <FormikSelect
+              className="md"
+              name="categories"
+              label="EoD Category"
+              options={categoryTypes}
+              value={
+                values.categories.length > 0
+                  ? categoryTypes.find((c) => c.value === values.categories[0].id)
+                  : undefined
+              }
+              onChange={(e: any) => {
+                // only supports one at a time right now
+                let contentCategories = [];
+                contentCategories.push(categories.find((c) => c.id === e.value));
+                setFieldValue('categories', contentCategories);
+              }}
+            />
             <FormikSelect isDisabled className="md" name="score" label="Score" options={[]} />
           </Row>
           <Row style={{ position: 'relative' }}>
             <Col>
-              <SelectDate
+              <FormikDatePicker
+                required
                 className="md-lrg"
-                name="date"
+                name="publishedOn"
                 label="Date"
                 selectedDate={values.publishedOn ?? ''}
                 value={values.publishedOn}
@@ -112,7 +133,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
                 }}
               />
             </Col>
-            <Col style={{ marginTop: '0.45em' }}>
+            <Col style={{ marginLeft: '1%' }}>
               <FormikText
                 disabled
                 value={formatTime(values.publishedOn)}
@@ -154,6 +175,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
         <FormikTextArea
           name="summary"
           label="Summary"
+          required
           value={values.summary}
           onChange={handleChange}
           style={{ width: '1000px', height: '400px' }}
