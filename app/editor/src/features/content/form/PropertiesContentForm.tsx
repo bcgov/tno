@@ -128,6 +128,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
             <Col>
               <FormikDatePicker
                 required
+                disabled
                 className="md-lrg"
                 name="publishedOn"
                 label="Date"
