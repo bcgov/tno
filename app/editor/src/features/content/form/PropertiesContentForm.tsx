@@ -1,7 +1,7 @@
 import { Button, ButtonVariant } from 'components/button';
 import { Col } from 'components/flex/col';
 import { Row } from 'components/flex/row';
-import { IOptionItem, OptionItem, RadioGroup, SelectDate } from 'components/form';
+import { IOptionItem, OptionItem, RadioGroup } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
@@ -12,6 +12,7 @@ import { ITimeTrackingModel } from 'hooks/api-editor/interfaces/ITimeTrackingMod
 import useModal from 'hooks/modal/useModal';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { expireOptions, summaryOptions, toningOptions } from './constants';
@@ -28,6 +29,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [{ series: lSeries, categories, tags, users }] = useLookup();
   const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
   const [userTags, setUserTags] = React.useState<string[]>();
+  const [validTags, setValidTags] = React.useState<ITagModel[]>();
   const [categoryTypes, setCategoryTypes] = React.useState<IOptionItem[]>([]);
   const keycloak = useKeycloakWrapper();
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
@@ -51,7 +53,6 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   }, [lSeries]);
 
   const tagMatch = /(?<=\[).+?(?=\])/g;
-  let validTags;
 
   const getTotalTime = () => {
     let count = 0;
@@ -76,10 +77,13 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
 
   /** add tags to formik value object if tag exists - better implementation later*/
   React.useEffect(() => {
-    validTags = tags
-      .filter((t1: ITagModel) => userTags?.some((t2: string) => t2 === t1.id))
-      .map((x) => ({ ...x, createdOn: null }));
+    setValidTags(
+      tags
+        .filter((t1: ITagModel) => userTags?.some((t2: string) => t2 === t1.id))
+        .map((x) => ({ ...x, createdOn: undefined })),
+    );
     setFieldValue('tags', validTags);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userTags]);
 
   return (
