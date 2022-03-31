@@ -1,0 +1,60 @@
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "BC Sans", "Noto Sans", Arial, "sans serif";
+        font-size: 1em;
+        background-color: rgb(245, 245, 245); 
+    }
+
+    .container {
+        height: 618px; 
+        width: 1200px; 
+        display: flex; 
+        box-shadow: 0px 0px 20px rgb(0 0 0 / 15%); 
+        border-radius: 20px; 
+        position: absolute; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%)
+    }
+
+    .div-general {
+        display: flex;
+        justify-content: center;
+    }
+
+    .left-div {
+        background-color: rgb(0, 51, 102); 
+        border-radius: 20px 0 0 20px; 
+        width: 400px; 
+    }
+
+    .centre-div {
+        background-color: rgb(245, 245, 245); 
+        padding: 65px 60px; 
+        font-size: 16px; 
+        line-height: 26px; 
+        width: 280px;
+    }
+
+    .right-div {
+        background-color: white; 
+        width: 400px; 
+        border-radius: 0 20px 20px 0; 
+    }
+
+    .maint-div {
+        font-size: 16pt; 
+        margin-top: 40%; 
+        margin-left: 50px
+    }
+    
+    .maint-image {
+        width: 100px; 
+        margin-left: 100px; 
+        display: flex
+    }
+
+    .bc-logo {
+        margin-top: 75%;
+        height:45px; 
+        width: 150px;
+    }
