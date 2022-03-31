@@ -97,6 +97,7 @@ export const ContentForm: React.FC = () => {
                   <FormikText
                     className="lrg"
                     name="headline"
+                    required
                     label="Headline"
                     value={props.values.headline}
                     onChange={props.handleChange}
