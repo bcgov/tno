@@ -33,7 +33,6 @@ export const FormikText = <T,>({
         variant={disabled ? TextVariant.disabled : TextVariant.primary}
         {...rest}
       ></Text>
-      {error ? <p role="alert">{error}</p> : null}
     </styled.FormikText>
   );
 };

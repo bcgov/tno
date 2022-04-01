@@ -26,6 +26,8 @@ export interface ISelectDateProps {
   required?: boolean;
   /** The form field size. */
   width?: FieldSize;
+  /** Error related to the date picker */
+  error?: string;
 }
 
 export interface IDatePickerProps extends ISelectDateProps, ReactDatePickerProps {}
@@ -45,6 +47,7 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
   className,
   selectedDate,
   required,
+  error,
   width = FieldSize.Stretch,
   onChange,
   ...rest
@@ -59,32 +62,38 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
         </label>
       )}
       {selectedDate ? (
-        <DatePicker
-          name={name}
-          id={id}
-          selected={startDate}
-          onChange={(date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
-            setStartDate(date as Date);
-            if (onChange) onChange(date, event);
-          }}
-          className={`dpk${className ? ` ${className}` : ''}`}
-          data-for="main-tooltip"
-          data-tip={tooltip}
-          disabled={rest.disabled}
-          required={required}
-        />
+        <>
+          <DatePicker
+            name={name}
+            id={id}
+            selected={startDate}
+            onChange={(date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
+              setStartDate(date as Date);
+              if (onChange) onChange(date, event);
+            }}
+            className={`dpk${className ? ` ${className}` : ''}`}
+            data-for="main-tooltip"
+            data-tip={tooltip}
+            disabled={rest.disabled}
+            required={required}
+          />
+          {error && <p role="alert">{error}</p>}
+        </>
       ) : (
-        <DatePicker
-          name={name}
-          id={id}
-          className={`dpk${className ? ` ${className}` : ''}`}
-          data-for="main-tooltip"
-          data-tip={tooltip}
-          disabled={rest.disabled}
-          required={required}
-          onChange={onChange}
-          {...rest}
-        />
+        <>
+          <DatePicker
+            name={name}
+            id={id}
+            className={`dpk${className ? ` ${className}` : ''}`}
+            data-for="main-tooltip"
+            data-tip={tooltip}
+            disabled={rest.disabled}
+            required={required}
+            onChange={onChange}
+            {...rest}
+          />
+          {error && <p role="alert">{error}</p>}
+        </>
       )}
     </styled.SelectDate>
   );

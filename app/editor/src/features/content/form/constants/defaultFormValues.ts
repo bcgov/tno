@@ -10,7 +10,7 @@ export const defaultFormValues: IContentForm = {
   workflowStatus: WorkflowStatus.Received,
   contentTypeId: 0,
   mediaTypeId: 0,
-  licenseId: 0,
+  licenseId: 1,
   ownerId: 0,
   seriesId: undefined,
   headline: '',
