@@ -39,7 +39,6 @@ export const FormikSelect = <OptionType extends IOptionItem>({
         error={error}
         {...rest}
       />
-      <p role="alert">{error}</p>
     </styled.FormikSelect>
   );
 };

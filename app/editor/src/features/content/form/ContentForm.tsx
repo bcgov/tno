@@ -101,6 +101,7 @@ export const ContentForm: React.FC = () => {
                     label="Headline"
                     value={props.values.headline}
                     onChange={props.handleChange}
+                    error={(props.errors as any)['headline']}
                   />
                 </Row>
                 <Row>
@@ -114,6 +115,7 @@ export const ContentForm: React.FC = () => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         props.setFieldValue('source', e.target.value)
                       }
+                      error={(props.errors as any)['source']}
                     />
                   </Col>
                   <Col>
