@@ -1,6 +1,7 @@
+import { Col } from 'components/flex';
 import styled from 'styled-components';
 
-export const Modal = styled.div`
+export const Modal = styled(Col)`
   .modal-overlay {
     position: fixed;
     top: 0;

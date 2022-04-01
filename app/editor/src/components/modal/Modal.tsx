@@ -45,37 +45,35 @@ export const Modal: React.FC<IModalProps> = ({
   return isShowing
     ? ReactDOM.createPortal(
         <styled.Modal>
-          <Col>
-            <div className="modal-overlay">
-              <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
-                <div className="modal">
-                  <Row className="modal-header">
-                    <h1>{headerText}</h1>
+          <div className="modal-overlay">
+            <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
+              <div className="modal">
+                <Row className="modal-header">
+                  <h1>{headerText}</h1>
+                </Row>
+                <Row>
+                  <p>{body}</p>
+                </Row>
+                {!!!customButtons && (
+                  <Row className="button-row">
+                    <Button
+                      variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.action}
+                      onClick={onConfirm}
+                    >
+                      {confirmText ?? 'Continue'}
+                    </Button>
+                    <Button
+                      variant={type === 'delete' ? ButtonVariant.action : ButtonVariant.danger}
+                      onClick={hide}
+                    >
+                      {cancelText ?? 'Cancel'}
+                    </Button>
                   </Row>
-                  <Row>
-                    <p>{body}</p>
-                  </Row>
-                  {!!!customButtons && (
-                    <Row className="button-row">
-                      <Button
-                        variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.action}
-                        onClick={onConfirm}
-                      >
-                        {confirmText ?? 'Continue'}
-                      </Button>
-                      <Button
-                        variant={type === 'delete' ? ButtonVariant.action : ButtonVariant.danger}
-                        onClick={hide}
-                      >
-                        {cancelText ?? 'Cancel'}
-                      </Button>
-                    </Row>
-                  )}
-                  {!!customButtons && <Row className="button-row"> {customButtons} </Row>}
-                </div>
+                )}
+                {!!customButtons && <Row className="button-row"> {customButtons} </Row>}
               </div>
             </div>
-          </Col>
+          </div>
         </styled.Modal>,
         document.body,
       )
