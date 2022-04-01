@@ -2,15 +2,27 @@ import { IUserInfoModel } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 
-import { addRequest, clearRequests, removeRequest, storeToken, storeUserInfo } from '.';
-import { IAppState } from './interfaces';
+import {
+  addError,
+  addRequest,
+  clearErrors,
+  clearRequests,
+  removeError,
+  removeRequest,
+  storeToken,
+  storeUserInfo,
+} from '.';
+import { IAppState, IErrorModel } from './interfaces';
 
 export interface IAppStore {
+  storeToken: (token: any) => void;
+  storeUserInfo: (user?: IUserInfoModel) => void;
   addRequest: (url: string) => void;
   removeRequest: (url: string) => void;
   clearRequests: () => void;
-  storeUserInfo: (user?: IUserInfoModel) => void;
-  storeToken: (token: any) => void;
+  addError: (error: IErrorModel) => void;
+  removeError: (error: IErrorModel) => void;
+  clearErrors: () => void;
 }
 
 export const useAppStore = (): [IAppState, IAppStore] => {
@@ -19,6 +31,12 @@ export const useAppStore = (): [IAppState, IAppStore] => {
 
   const controller = React.useMemo(
     () => ({
+      storeToken: (token: any) => {
+        dispatch(storeToken(token));
+      },
+      storeUserInfo: (user?: IUserInfoModel) => {
+        dispatch(storeUserInfo(user));
+      },
       addRequest: (url: string) => {
         dispatch(addRequest(url));
       },
@@ -28,11 +46,14 @@ export const useAppStore = (): [IAppState, IAppStore] => {
       clearRequests: () => {
         dispatch(clearRequests());
       },
-      storeUserInfo: (user?: IUserInfoModel) => {
-        dispatch(storeUserInfo(user));
+      addError: (error: IErrorModel) => {
+        dispatch(addError(error));
       },
-      storeToken: (token: any) => {
-        dispatch(storeToken(token));
+      removeError: (error: IErrorModel) => {
+        dispatch(removeError(error));
+      },
+      clearErrors: () => {
+        dispatch(clearErrors());
       },
     }),
     [dispatch],

@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IContentTypeModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiCategories = (
 
   return {
     getCategories: () => {
-      return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/categories`));
+      return api.get<IContentTypeModel[]>(`/editor/categories`);
     },
   };
 };

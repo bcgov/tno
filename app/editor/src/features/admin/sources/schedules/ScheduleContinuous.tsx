@@ -1,4 +1,3 @@
-import { Col, Row } from 'components/flex';
 import { FieldSize, Text } from 'components/form';
 import {
   FormikBitwiseCheckbox,
@@ -11,6 +10,7 @@ import { useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, ScheduleType, WeekDay } from 'hooks/api-editor';
 import React from 'react';
+import { Col, Row } from 'tno-core/dist/components/flex';
 
 import { defaultSchedule } from '../constants';
 import * as styled from './styled';

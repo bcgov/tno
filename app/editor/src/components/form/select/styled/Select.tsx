@@ -1,5 +1,5 @@
-import { Col } from 'components/flex/col';
 import styled from 'styled-components';
+import { Col } from 'tno-core/dist/components/flex';
 
 export const Select = styled(Col)`
   .required:after {

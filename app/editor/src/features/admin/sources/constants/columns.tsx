@@ -1,6 +1,6 @@
-import { Checkbox, Date, Ellipsis } from 'components/cell';
 import { IDataSourceModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
+import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 
 export const columns: (Column<IDataSourceModel> &
   UseSortByColumnOptions<IDataSourceModel> &

@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ITonePoolModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiTonePools = (
 
   return {
     getTonePools: () => {
-      return extractResponseData<ITonePoolModel[]>(() => api.get(`/editor/tone/pools`));
+      return api.get<ITonePoolModel[]>(`/editor/tone/pools`);
     },
   };
 };

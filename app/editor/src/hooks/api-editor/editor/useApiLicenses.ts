@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ILicenseModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiLicenses = (
 
   return {
     getLicenses: () => {
-      return extractResponseData<ILicenseModel[]>(() => api.get(`/editor/licenses`));
+      return api.get<ILicenseModel[]>(`/editor/licenses`);
     },
   };
 };

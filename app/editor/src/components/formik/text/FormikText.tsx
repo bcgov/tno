@@ -25,6 +25,7 @@ export const FormikText = <T,>({
       <Text
         id={id ?? `txt-${name}`}
         name={name}
+        error={error}
         value={value ?? fieldValue ?? ''}
         onChange={onChange ?? handleChange}
         onBlur={onBlur ?? handleBlur}

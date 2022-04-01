@@ -1,9 +1,10 @@
-import { defaultPage, GridTable, IPage, toPage } from 'components/grid-table';
 import { IDataSourceModel } from 'hooks/api-editor';
+import { toPage } from 'hooks/api-editor/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin/sources';
 import { useApp } from 'store/hooks/app/useApp';
+import { defaultPage, GridTable, IPage } from 'tno-core/dist/components/grid-table';
 
 import { DataSourceFilter } from '.';
 import { columns } from './constants';

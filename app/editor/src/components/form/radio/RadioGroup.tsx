@@ -1,5 +1,5 @@
-import { Row } from 'components/flex/row/styled';
-import React, { InputHTMLAttributes, useEffect } from 'react';
+import React, { InputHTMLAttributes } from 'react';
+import { Row } from 'tno-core/dist/components/flex';
 
 import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
@@ -59,7 +59,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
   const [selected, setSelected] = React.useState<OT | undefined>(value);
 
   /** for when the value needs to be passed down on initial load */
-  useEffect(() => {
+  React.useEffect(() => {
     setSelected(value);
   }, [value]);
 

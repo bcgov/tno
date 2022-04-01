@@ -1,8 +1,8 @@
-import { Tab, Tabs } from 'components/tabs';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Outlet, useParams } from 'react-router-dom';
+import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 
 import * as styled from './styled';
 

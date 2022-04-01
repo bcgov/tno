@@ -1,5 +1,5 @@
 import React from 'react';
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IUserInfoModel, useApi } from '..';
 
@@ -19,7 +19,7 @@ export const useApiAuth = (
 
   return React.useRef({
     getUserInfo: () => {
-      return extractResponseData<IUserInfoModel>(() => api.get(`/auth/userinfo`));
+      return api.get<IUserInfoModel>(`/auth/userinfo`);
     },
   }).current;
 };

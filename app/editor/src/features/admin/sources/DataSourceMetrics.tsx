@@ -1,4 +1,3 @@
-import { Row } from 'components/flex';
 import { FieldSize } from 'components/form';
 import { FormikText } from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
@@ -6,6 +5,7 @@ import { useNamespace } from 'hooks';
 import { IDataSourceModel, ISourceMetricModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
 

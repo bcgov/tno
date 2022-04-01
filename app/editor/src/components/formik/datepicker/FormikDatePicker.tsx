@@ -37,6 +37,7 @@ export const FormikDatePicker: React.FC<IDatePickerProps> = ({
         selectedDate={selectedDate}
         required={required}
         width={width}
+        error={error}
         onChange={onChange}
         {...rest}
       />

@@ -1,6 +1,7 @@
-import * as styled from './NotAuthorizedStyled';
 import SVG from 'react-inlinesvg';
-import IconNotAuthorized from './403.svg';
+
+import IconNotAuthorized from '../../../assets/403.svg';
+import * as styled from './NotAuthorizedStyled';
 
 /**
  * NotAuthorized provides a simple 403 Not Authorized error message.

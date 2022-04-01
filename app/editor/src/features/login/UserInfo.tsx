@@ -1,5 +1,5 @@
 import React from 'react';
-import { useApp } from 'store/hooks/app/useApp';
+import { useApp } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
 

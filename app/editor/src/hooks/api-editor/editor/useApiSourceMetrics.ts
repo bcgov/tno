@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ISourceMetricModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiSourceMetrics = (
 
   return {
     getMetrics: () => {
-      return extractResponseData<ISourceMetricModel[]>(() => api.get(`/editor/source/metrics`));
+      return api.get<ISourceMetricModel[]>(`/editor/source/metrics`);
     },
   };
 };

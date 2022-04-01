@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ISourceActionModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiSourceActions = (
 
   return {
     getActions: () => {
-      return extractResponseData<ISourceActionModel[]>(() => api.get(`/editor/source/actions`));
+      return api.get<ISourceActionModel[]>(`/editor/source/actions`);
     },
   };
 };

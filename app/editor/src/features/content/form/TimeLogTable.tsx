@@ -1,7 +1,6 @@
-import { Row } from 'components/flex/row';
-import { GridTable } from 'components/grid-table';
 import { ITimeTrackingModel } from 'hooks';
 import { useLookup } from 'store/hooks';
+import { GridTable, Row } from 'tno-core';
 
 import { TableContainer } from '../styled';
 import { timeLogColumns } from './constants';

@@ -26,6 +26,7 @@ export const FormikTextArea = <T,>({
       <TextArea
         id={id ?? `txa-${name}`}
         name={name}
+        error={error}
         value={value ?? fieldValue ?? ''}
         onChange={onChange ?? handleChange}
         onBlur={onBlur ?? handleBlur}

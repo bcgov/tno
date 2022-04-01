@@ -1,7 +1,7 @@
-import { Row } from 'components/flex/row';
 import React, { Ref } from 'react';
 import { ActionMeta, GroupBase, Props } from 'react-select';
 import ReactSelect from 'react-select/dist/declarations/src/Select';
+import { Row } from 'tno-core/dist/components/flex';
 
 import { FieldSize, IOptionItem } from '..';
 import { SelectVariant } from '.';
