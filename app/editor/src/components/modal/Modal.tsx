@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, ButtonVariant } from 'tno-core';
-import { Col, Row } from 'tno-core/dist/components/flex';
+import { Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
 
