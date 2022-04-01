@@ -1,4 +1,4 @@
-import { date, number, object, string } from 'yup';
+import { number, object, string } from 'yup';
 
 export const ContentFormSchema = object().shape({
   source: string().required('Source is a required field.'),
