@@ -2,6 +2,11 @@ import styled from 'styled-components';
 import { Col } from 'tno-core/dist/components/flex';
 
 export const Select = styled(Col)`
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+  }
+
   p[role='alert'] {
     font-size: 0.85em;
     color: ${(props) => props.theme.css.dangerColor};

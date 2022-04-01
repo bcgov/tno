@@ -1,4 +1,4 @@
-import { IContentModel } from 'hooks/api-editor';
+import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
 import moment from 'moment';
 
 import { IContentForm } from '../interfaces';
@@ -14,6 +14,7 @@ export function toModel(values: IContentForm): IContentModel {
     workflowStatus: values.workflowStatus,
     contentTypeId: values.contentTypeId,
     mediaTypeId: values.mediaTypeId,
+    createdBy: 'placeholder',
     licenseId: values.licenseId,
     ownerId: values.ownerId,
     seriesId: values.seriesId,
@@ -21,8 +22,21 @@ export function toModel(values: IContentForm): IContentModel {
     source: values.source,
     page: values.page,
     summary: values.summary,
+    actions: !!values.actions ? values.actions : undefined,
+    tags: !!values.tags ? values.tags : undefined,
+    categories: values.categories,
     transcription: values.transcription,
-    publishedOn: moment(values.publishedOn).toDate(), // TODO: If they haven't set the publishedOn it will cause an error.
+    timeTrackings: !!values.timeTrackings
+      ? values.timeTrackings.map((x) => {
+          const container = {} as ITimeTrackingModel;
+          container.userId = x.userId;
+          container.activity = x.activity;
+          container.effort = x.effort;
+          return container;
+        })
+      : undefined,
+    publishedOn: !!values.publishedOn ? moment(values.publishedOn).toDate() : new Date(), // TODO: If they haven't set the publishedOn it will cause an error.
+    version: values.version,
     printContent: !values.section
       ? undefined
       : {

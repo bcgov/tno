@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const ContentListView = styled.div`
   background-color: white;
-  max-width: fit-content;
+  width: fit-content;
   height: 100%;
   padding: 5%;
   input[type='text'],

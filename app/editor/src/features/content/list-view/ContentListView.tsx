@@ -31,13 +31,8 @@ import * as styled from './ContentListViewStyled';
 import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
 
-/**
- * ContentListView component provides a filter and table to find content.
- * @param props Component properties.
- * @returns ContentListView component.
- */
-export const ContentListView: React.FC = (props) => {
-  const [{ userInfo }, { isUserReady }] = useApp();
+export const ContentListView: React.FC = () => {
+  const [{ userInfo, requests }, { isUserReady }] = useApp();
   const [{ contentTypes, mediaTypes, users }] = useLookup();
   const [{ filter, filterAdvanced, sortBy }, { findContent }] = useContent({
     filter: { ...defaultFilter, userId: userInfo?.id ?? 0 },
@@ -333,6 +328,7 @@ export const ContentListView: React.FC = (props) => {
         <PagedTable
           columns={columns}
           page={page}
+          isLoading={!!requests.length}
           sortBy={sortBy}
           onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
           onChangePage={handleChangePage}

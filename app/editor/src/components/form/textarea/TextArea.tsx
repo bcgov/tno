@@ -46,11 +46,13 @@ export const TextArea: React.FC<ITextAreaProps> = ({
   onInvalid,
   ...rest
 }) => {
-  const [errorMsg, setErrorMsg] = React.useState(error);
-
   return (
     <styled.TextArea className="frm-in">
-      {label && <label htmlFor={id ?? `txa-${name}`}>{label}</label>}
+      {label && (
+        <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txa-${name}`}>
+          {label}
+        </label>
+      )}
       <styled.TextAreaField
         id={id}
         name={name}
@@ -59,13 +61,12 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         data-for="main-tooltip"
         data-tip={tooltip}
         width={width}
-        role={errorMsg ? 'alert' : 'none'}
+        role={error ? 'alert' : 'none'}
         onInput={(e) => {
           if (onInput) onInput(e);
           else {
             const input = e.target as HTMLInputElement;
             input.setCustomValidity('');
-            setErrorMsg(undefined);
           }
         }}
         onInvalid={(e) => {
@@ -74,7 +75,6 @@ export const TextArea: React.FC<ITextAreaProps> = ({
             const input = e.target as HTMLInputElement;
             if (rest.required && input.validity.valueMissing) {
               input.setCustomValidity(error ?? 'required');
-              setErrorMsg(error ?? 'required');
             }
           }
         }}
@@ -82,7 +82,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
       >
         {children}
       </styled.TextAreaField>
-      {errorMsg && <p role="alert">{errorMsg}</p>}
+      {error && <p role="alert">{error}</p>}
     </styled.TextArea>
   );
 };

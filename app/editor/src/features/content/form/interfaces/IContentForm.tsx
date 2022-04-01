@@ -1,6 +1,17 @@
-import { ContentStatus, WorkflowStatus } from 'hooks/api-editor';
+import {
+  ContentStatus,
+  IActionValueModel,
+  ICategoryModel,
+  ITagModel,
+  ITimeTrackingModel,
+  WorkflowStatus,
+} from 'hooks/api-editor';
 
 export interface IContentForm {
+  timeTrackings: ITimeTrackingModel[];
+  actions: IActionValueModel[];
+  categories: ICategoryModel[];
+  tags: ITagModel[];
   id: number;
   uid: string;
   sourceUrl: string;
@@ -17,6 +28,7 @@ export interface IContentForm {
   summary: string;
   transcription: string;
   publishedOn: string;
+  version?: number;
   // Print Content
   section: string;
   edition: string;

@@ -12,6 +12,7 @@ export const Row = styled.div<IRowProps>`
   flex-basis: ${(props) => props.basis};
   align-items: ${(props) => props.alignItems};
   align-content: ${(props) => props.alignContent};
+  justify-content: ${(props) => props.justify};
   align-self: ${(props) => props.alignSelf};
   gap: ${(props) => props.gap};
   row-gap: ${(props) => props.rowGap};

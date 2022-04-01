@@ -8,7 +8,10 @@ import {
   IUserModel,
   WorkflowStatus,
 } from '..';
-import { IPrintContentModel } from '.';
+import { IActionValueModel, IPrintContentModel } from '.';
+import { ICategoryModel } from './ICategoryModel';
+import { ITagModel } from './ITagModel';
+import { ITimeTrackingModel } from './ITimeTrackingModel';
 
 export interface IContentModel extends IAuditColumnsModel {
   id: number;
@@ -35,4 +38,8 @@ export interface IContentModel extends IAuditColumnsModel {
   summary: string;
   transcription?: string;
   sourceUrl?: string;
+  timeTrackings?: ITimeTrackingModel[];
+  actions?: IActionValueModel[];
+  tags?: ITagModel[];
+  categories?: ICategoryModel[];
 }
