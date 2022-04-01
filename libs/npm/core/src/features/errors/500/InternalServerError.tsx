@@ -1,6 +1,7 @@
-import * as styled from './InternalServerErrorStyled';
 import SVG from 'react-inlinesvg';
-import IconInternalServerError from './500.svg';
+
+import IconInternalServerError from '../../../assets/500.svg';
+import * as styled from './InternalServerErrorStyled';
 
 /**
  * InternalServerError provides a simple 500 Internal Server Error message.

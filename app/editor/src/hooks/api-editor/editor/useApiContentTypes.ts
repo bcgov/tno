@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IContentTypeModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiContentTypes = (
 
   return {
     getContentTypes: () => {
-      return extractResponseData<IContentTypeModel[]>(() => api.get(`/editor/content/types`));
+      return api.get<IContentTypeModel[]>(`/editor/content/types`);
     },
   };
 };

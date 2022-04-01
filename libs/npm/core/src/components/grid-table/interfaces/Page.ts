@@ -1,5 +1,4 @@
-import { calcPages } from 'utils';
-
+import { calcPages } from '../../../utils';
 import { IPage } from '.';
 
 export class Page<IT> implements IPage<IT> {

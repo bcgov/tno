@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IUserModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiUsers = (
 
   return {
     getUsers: () => {
-      return extractResponseData<IUserModel[]>(() => api.get(`/editor/users`));
+      return api.get<IUserModel[]>(`/editor/users`);
     },
   };
 };

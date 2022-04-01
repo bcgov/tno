@@ -1,6 +1,5 @@
 import { IPaged } from 'hooks/api-editor';
-
-import { IPage } from '../interfaces';
+import { IPage } from 'tno-core/dist/components/grid-table';
 
 export const toPage = <ItemType>(page: IPaged<ItemType>): IPage<ItemType> => {
   const pageSize = page.quantity > 0 ? page.quantity : 10;

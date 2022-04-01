@@ -1,12 +1,12 @@
 import React from 'react';
+import SVG from 'react-inlinesvg';
 import ReactTooltip from 'react-tooltip';
 
+import IconToggle from '../../assets/navbar-toggle-icon.svg';
 import { useKeycloakWrapper } from '../../hooks';
 import { Button } from '..';
 import { MenuContext, MenuStatus } from '.';
 import * as styled from './styled';
-import IconToggle from './navbar-toggle-icon.svg';
-import SVG from 'react-inlinesvg';
 
 export interface IMenuToggleProps {
   /**

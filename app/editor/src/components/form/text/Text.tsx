@@ -1,5 +1,5 @@
-import { Row } from 'components/flex';
 import React, { InputHTMLAttributes } from 'react';
+import { Row } from 'tno-core/dist/components/flex';
 
 import { FieldSize } from '../constants';
 import { TextVariant } from '.';

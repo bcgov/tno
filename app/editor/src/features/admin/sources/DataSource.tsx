@@ -1,11 +1,11 @@
-import { Button } from 'components/button';
-import { Col } from 'components/flex';
 import { FormikForm } from 'components/formik';
-import { Tab, Tabs } from 'components/tabs';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin';
+import { Button } from 'tno-core';
+import { Col } from 'tno-core/dist/components/flex';
+import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 
 import { defaultSource } from './constants';
 import * as styled from './styled';

@@ -1,10 +1,10 @@
-import { Button, ButtonVariant } from 'components/button';
-import { Col, Row } from 'components/flex';
-import { GridTable } from 'components/grid-table';
 import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, IScheduleModel, ScheduleType } from 'hooks/api-editor';
 import React from 'react';
+import { Button, ButtonVariant } from 'tno-core';
+import { Col, Row } from 'tno-core/dist/components/flex';
+import { GridTable } from 'tno-core/dist/components/grid-table';
 
 import { defaultSchedule } from '../constants';
 import { ScheduleSingle } from '.';

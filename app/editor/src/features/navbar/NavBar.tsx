@@ -1,7 +1,8 @@
-import { Row } from 'components/flex/row';
-import { NavBarGroup, NavBarItem } from 'components/navbar';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Claim } from 'tno-core';
+import { Row } from 'tno-core/dist/components/flex/row';
+import { NavBarGroup, NavBarItem } from 'tno-core/dist/components/navbar';
 
 /**
  * The navigation bar that is used throughout the TNO editor application. Add or remove navigation bar items here.

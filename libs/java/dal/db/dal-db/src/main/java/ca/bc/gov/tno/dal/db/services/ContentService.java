@@ -14,9 +14,11 @@ import ca.bc.gov.tno.dal.db.SortDirection;
 import ca.bc.gov.tno.dal.db.entities.Content;
 import ca.bc.gov.tno.dal.db.entities.ContentAction;
 import ca.bc.gov.tno.dal.db.entities.ContentCategory;
+import ca.bc.gov.tno.dal.db.entities.ContentLink;
 import ca.bc.gov.tno.dal.db.entities.ContentTag;
 import ca.bc.gov.tno.dal.db.entities.ContentTone;
 import ca.bc.gov.tno.dal.db.entities.FileReference;
+import ca.bc.gov.tno.dal.db.entities.TimeTracking;
 import ca.bc.gov.tno.dal.db.models.FilterCollection;
 import ca.bc.gov.tno.dal.db.models.FilterParam;
 import ca.bc.gov.tno.dal.db.models.SortParam;
@@ -293,6 +295,35 @@ public class ContentService implements IContentService {
    */
   @Override
   public Content add(Content entity) {
+    for (FileReference fr : entity.getFileReferences()) {
+      PrincipalHelper.addAudit(fr);
+      fr.setContent(entity);
+    }
+    for (ContentAction ca : entity.getContentActions()) {
+      PrincipalHelper.addAudit(ca);
+      ca.setContent(entity);
+    }
+    for (ContentTag ct : entity.getContentTags()) {
+      PrincipalHelper.addAudit(ct);
+      ct.setContent(entity);
+    }
+    for (ContentCategory cc : entity.getContentCategories()) {
+      PrincipalHelper.addAudit(cc);
+      cc.setContent(entity);
+    }
+    for (ContentTone ct : entity.getContentTonePools()) {
+      PrincipalHelper.addAudit(ct);
+      ct.setContent(entity);
+    }
+    for (TimeTracking tt : entity.getTimeTrackings()) {
+      PrincipalHelper.addAudit(tt);
+      tt.setContent(entity);
+    }
+    for (ContentLink cl : entity.getLinks()) {
+      PrincipalHelper.addAudit(cl);
+      cl.setContent(entity);
+    }
+
     var result = repository.save(PrincipalHelper.addAudit(entity));
 
     if (entity.getFileReferences().size() > 0) {

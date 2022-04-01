@@ -1,4 +1,4 @@
-import { defaultEnvelope, extractResponseData, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ITagModel, useApi } from '..';
 
@@ -18,7 +18,7 @@ export const useApiTags = (
 
   return {
     getTags: () => {
-      return extractResponseData<ITagModel[]>(() => api.get(`/editor/tags`));
+      return api.get<ITagModel[]>(`/editor/tags`);
     },
   };
 };

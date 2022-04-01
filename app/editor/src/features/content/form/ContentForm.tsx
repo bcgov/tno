@@ -1,13 +1,13 @@
-import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/flex/col';
-import { Row } from 'components/flex/row';
 import { Area, IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
-import { Tab, Tabs } from 'components/tabs';
 import { Formik } from 'formik';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContent, useLookup } from 'store/hooks';
+import { Button, ButtonVariant } from 'tno-core';
+import { Col } from 'tno-core/dist/components/flex/col';
+import { Row } from 'tno-core/dist/components/flex/row';
+import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 import { getSortableOptions } from 'utils';
 
 import { PropertiesContentForm } from '.';

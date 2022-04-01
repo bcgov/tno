@@ -1,6 +1,7 @@
-import * as styled from './NotFoundStyled';
 import SVG from 'react-inlinesvg';
-import IconNotFound from './404.svg';
+
+import IconNotFound from '../../../assets/404.svg';
+import * as styled from './NotFoundStyled';
 
 /**
  * NotFound provides a simple 404 Not Found error message.

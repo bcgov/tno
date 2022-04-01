@@ -1,7 +1,7 @@
-import { Button, ButtonVariant } from 'components/button';
 import { IOptionItem, Select, SelectDate } from 'components/form';
 import { useApiReports } from 'hooks/api-editor';
 import React from 'react';
+import { Button, ButtonVariant } from 'tno-core';
 
 import { defaultValues, reportDurations } from './constants';
 import { ICBRAForm } from './interfaces';

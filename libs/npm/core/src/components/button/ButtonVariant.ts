@@ -6,4 +6,5 @@ export enum ButtonVariant {
   warning = 'warning',
   danger = 'danger',
   link = 'link',
+  action = 'action',
 }

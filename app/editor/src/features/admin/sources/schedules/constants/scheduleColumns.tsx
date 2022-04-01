@@ -1,6 +1,6 @@
-import { Checkbox, Ellipsis } from 'components/cell';
 import { IScheduleModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
+import { Checkbox, Ellipsis } from 'tno-core/dist/components/cell';
 
 import { weekDayName } from '../utils';
 

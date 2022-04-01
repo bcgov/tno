@@ -1,6 +1,6 @@
-import { Row } from 'components/flex/row';
 import { Text } from 'components/form';
 import React from 'react';
+import { Row } from 'tno-core/dist/components/flex/row';
 
 interface IDataSourceFilterProps {
   setGlobalFilter: (filterValue: any) => void;

@@ -1,5 +1,3 @@
-import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/flex';
 import {
   Checkbox,
   IOptionItem,
@@ -9,14 +7,16 @@ import {
   SelectDate,
   Text,
 } from 'components/form';
-import { Page, PagedTable } from 'components/grid-table';
 import { IContentModel, LogicalOperator } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useContent, useLookup } from 'store/hooks';
-import { useApp } from 'store/hooks/app/useApp';
+import { useApp } from 'store/hooks';
 import { initialContentState, useContentStore } from 'store/slices';
+import { Button, ButtonVariant } from 'tno-core';
+import { Col } from 'tno-core/dist/components/flex';
+import { Page, PagedTable } from 'tno-core/dist/components/grid-table';
 import { getSortableOptions, getUserOptions } from 'utils';
 
 import {
@@ -31,7 +31,12 @@ import * as styled from './ContentListViewStyled';
 import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
 
-export const ContentListView: React.FC = () => {
+/**
+ * ContentListView component provides a filter and table to find content.
+ * @param props Component properties.
+ * @returns ContentListView component.
+ */
+export const ContentListView: React.FC = (props) => {
   const [{ userInfo }, { isUserReady }] = useApp();
   const [{ contentTypes, mediaTypes, users }] = useLookup();
   const [{ filter, filterAdvanced, sortBy }, { findContent }] = useContent({
@@ -81,8 +86,10 @@ export const ContentListView: React.FC = () => {
     if (isUserReady() && filter.userId !== '') {
       fetch(filter, sortBy);
     }
+    // Only want to make a request when filter or sort change.
+    // 'fetch' regrettably changes any time the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, sortBy]);
+  }, [filter, sortBy, isUserReady]);
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
@@ -239,7 +246,11 @@ export const ContentListView: React.FC = () => {
               options={fieldTypes}
               value={filterAdvanced.fieldType}
               onChange={(newValue) => {
-                storeFilterAdvanced({ ...filterAdvanced, fieldType: newValue as IOptionItem });
+                const value =
+                  newValue instanceof OptionItem
+                    ? newValue.toInterface()
+                    : (newValue as IOptionItem);
+                storeFilterAdvanced({ ...filterAdvanced, fieldType: value });
               }}
             />
             <Select

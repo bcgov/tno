@@ -1,4 +1,5 @@
 import Keycloak, { KeycloakInstance } from 'keycloak-js';
+
 import { IKeycloakConfig } from '.';
 
 /**
