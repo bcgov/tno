@@ -114,7 +114,6 @@ export const ContentForm: React.FC = () => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         props.setFieldValue('source', e.target.value)
                       }
-                      error={(props.errors as any)['source']}
                     />
                   </Col>
                   <Col>

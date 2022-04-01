@@ -106,6 +106,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
             <FormikSelect
               className="md"
               name="categories"
+              isDisabled
               label="EoD Category"
               options={categoryTypes}
               value={
