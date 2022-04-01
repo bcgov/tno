@@ -9,16 +9,20 @@ import { useKeycloakWrapper } from 'tno-core';
  */
 export const UserInfo: React.FC = ({ children }) => {
   const keycloak = useKeycloakWrapper();
-  const [{ userInfo }, app] = useApp();
+  const [, app] = useApp();
   const [, appStore] = useAppStore();
 
+  const [init, setInit] = React.useState(true);
+
   React.useEffect(() => {
-    if (keycloak.authenticated && userInfo === undefined) {
+    if (keycloak.authenticated && init) {
       app.getUserInfo();
+      setInit(false);
     } else if (!keycloak.authenticated) {
       appStore.storeUserInfo();
+      setInit(true);
     }
-  }, [app, appStore, keycloak.authenticated, userInfo]);
+  }, [app, appStore, keycloak.authenticated, init]);
 
   return <>{children}</>;
 };
