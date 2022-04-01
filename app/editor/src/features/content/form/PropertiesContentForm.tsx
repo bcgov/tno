@@ -1,4 +1,4 @@
-import { IOptionItem, OptionItem, RadioGroup, SelectDate } from 'components/form';
+import { IOptionItem, OptionItem, RadioGroup } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
@@ -25,7 +25,7 @@ export interface IContentSubForms {
 /** The sub form of the ContentForm when the Properties Tab is selected. */
 export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, content }) => {
   const [{ series: lSeries, categories, tags, users }] = useLookup();
-  const { values, setFieldValue, handleChange, errors } = useFormikContext<IContentForm>();
+  const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
   const [userTags, setUserTags] = React.useState<string[]>();
   const [validTags, setValidTags] = React.useState<ITagModel[]>();
   const [categoryTypes, setCategoryTypes] = React.useState<IOptionItem[]>([]);
@@ -183,7 +183,6 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           value={values.summary}
           onChange={handleChange}
           style={{ width: '1000px', height: '400px' }}
-          error={(errors as any)['summary']}
         />
       </Row>
       <Row>

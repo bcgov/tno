@@ -1,5 +1,5 @@
-import { Row as FlexRow } from 'components/flex';
-import { Spinner } from 'components/spinner';
+import { Row as FlexRow } from '../flex';
+import { Spinner } from '../spinners';
 import React from 'react';
 import {
   Column,

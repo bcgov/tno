@@ -1,9 +1,7 @@
-import { Button, ButtonVariant } from 'components/button';
-import { Col } from 'components/flex/col';
-import { Row } from 'components/flex/row';
 import { Modal } from 'components/modal';
 import useModal from 'hooks/modal/useModal';
 import React, { InputHTMLAttributes, useState } from 'react';
+import { Button, ButtonVariant, Col, Row } from 'tno-core';
 
 import * as styled from './styled';
 
