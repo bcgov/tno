@@ -100,27 +100,25 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   public void onApplicationEvent(TransactionBeginEvent event) {
 
     audioConfig = (AudioConfig) event.getDataSource();
+    var caller = event.getSource();
     var schedule = event.getSchedule();
-    String mediaSource = audioConfig.getCaptureDir() + "/" + audioConfig.getCaptureService() + ".mpg";
-    String captureKey = audioConfig.getId() + "_" +  String.valueOf(System.currentTimeMillis());
-
-    String cmd = audioConfig.getClipCmd();
-    String destination = clipPath(schedule);
+    var mediaSource = audioConfig.getCaptureDir() + "/" + audioConfig.getCaptureService() + ".mpg";
+    var captureKey = audioConfig.getId() + "_" +  String.valueOf(System.currentTimeMillis());
+    var cmd = audioConfig.getClipCmd();
 
     try {
-      caller = event.getSource();
+      var destination = clipPath(schedule);
 
       if (verifyClipSchedule(schedule)) {
         executeClipCmd(cmd, mediaSource, destination, schedule);
       } else {
-        var errorEvent = new ErrorEvent(this, new IOException("No audio captured for this clip."));
-        eventPublisher.publishEvent(errorEvent);  
+        throw new IOException("No audio available for this clip.");
       }
 
       var readyEvent = new ProducerSendEvent(caller, audioConfig, schedule, captureKey);
       eventPublisher.publishEvent(readyEvent);
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, audioConfig);
       eventPublisher.publishEvent(errorEvent);
     }
   }
@@ -131,8 +129,9 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
    * @param cmd The Linux command to execute (with substitution markers in square brackets) 
    * @param mediaSource The streamed file from which the clip will be extracted
    * @param destination The full path of the clip file to be written
+   * @throws Exception
    */
-  private void executeClipCmd(String cmd, String mediaSource, String destination, ScheduleConfig schedule) {
+  private void executeClipCmd(String cmd, String mediaSource, String destination, ScheduleConfig schedule) throws Exception {
 
     if (!cmd.equals("")) {
       long duration = getClipLength(schedule);
@@ -149,12 +148,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
         cmd
       };
 
-      try {
-        Process p = new ProcessBuilder(cmdArray).start();
-        logger.info("Clip command executed '" + cmd);
-      } catch (Exception e) {
-        logger.info("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);
-      }
+      Process p = new ProcessBuilder(cmdArray).start();
+      logger.info("Clip command executed '" + cmd);
     }
   }
 
@@ -163,8 +158,9 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 	 *  at the time of execution. The path does NOT include file extension.
 	 *  
 	 * @return The fully qualified clip path name.
+	 * @throws IOException
 	 */
-	private String clipPath(ScheduleConfig schedule) {
+	private String clipPath(ScheduleConfig schedule) throws IOException {
 		String path;
     LocalDateTime now = LocalDateTime.now();
     String year = String.format("%02d", now.getYear());
@@ -177,12 +173,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 		// create directory if necessary
 		File dirTarget = new File(path);
 		if (!dirTarget.isDirectory()) {
-			try {
-				if (!(dirTarget.mkdirs())) {
-					logger.warn("Could not create directory '" + path + "'");
-				}
-			} catch (Exception ex) {
-				logger.error("Exception creating directory '" + path + "': '", ex);
+			if (!(dirTarget.mkdirs())) {
+        throw new IOException("Could not create directory " + path);
 			}
 		}
 

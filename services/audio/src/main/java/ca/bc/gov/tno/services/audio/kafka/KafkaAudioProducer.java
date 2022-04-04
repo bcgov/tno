@@ -77,15 +77,16 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
    */
   @Override
   public void onApplicationEvent(ProducerSendEvent event) {
+    var config = event.getDataSource();
+
     try {
-      var dataSource = event.getDataSource();
       var schedule = event.getSchedule();
       send(event);
-
-      var doneEvent = new TransactionCompleteEvent(event.getSource(), dataSource, schedule);
+      var doneEvent = new TransactionCompleteEvent(event.getSource(), config, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var caller = event.getSource();
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
       producer.flush();
     }
@@ -104,6 +105,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
     var config = event.getDataSource();
     var source = config.getId();
     var topic = config.getTopic();
+    var caller = event.getSource();
 
     try {
       logger.info(String.format("New audio content extracted: '%s', topic: %s", clip, topic));
@@ -124,7 +126,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
       contentReference = contentReferenceService.add(contentReference);
     } catch (Exception ex) {
       // Hopefully an error on one entry won't stop all other entries.
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     }
   }
@@ -137,15 +139,18 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
    * @return Future{RecordMetadata} object.
    */
   private Future<RecordMetadata> publishEntry(ProducerSendEvent event, String entry) {
+    var caller = event.getSource();
+    var config = event.getDataSource();
+
     try {
-      var config = event.getDataSource();
       var topic = config.getTopic();
       var content = generateContent(event, entry);
+
       var key = String.format("%s-%s", content.getSource(), content.getUid());
       logger.info(String.format("Sending content: '%s', topic: %s", key, topic));
       return producer.send(new ProducerRecord<String, SourceContent>(topic, key, content));
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     }
     return CompletableFuture.completedFuture(null);

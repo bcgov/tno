@@ -83,15 +83,17 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
    */
   @Override
   public void onApplicationEvent(ProducerSendEvent event) {
+    var caller = event.getSource();
+    var config = event.getDataSource();
+
     try {
-      var dataSource = event.getDataSource();
       var schedule = event.getSchedule();
       send(event);
 
-      var doneEvent = new TransactionCompleteEvent(event.getSource(), dataSource, schedule);
+      var doneEvent = new TransactionCompleteEvent(event.getSource(), config, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
       producer.flush();
     }
@@ -107,6 +109,8 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
   public void send(ProducerSendEvent event) throws InterruptedException, ExecutionException {
     var feed = event.getData();
     var responses = new ArrayList<PublishedRecord>();
+    var caller = event.getSource();
+    var config = event.getDataSource();
 
     for (var entry : feed.getEntries()) {
       var record = handleDuplication(event, entry);
@@ -140,7 +144,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
         }
       } catch (Exception ex) {
         // Hopefully an error on one entry won't stop all other entries.
-        var errorEvent = new ErrorEvent(this, ex);
+        var errorEvent = new ErrorEvent(caller, ex, config);
         eventPublisher.publishEvent(errorEvent);
       }
 
@@ -159,9 +163,10 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
    * @return A new PublishRecord object or null to stop duplication.
    */
   private PublishedRecord handleDuplication(ProducerSendEvent event, SyndEntry entry) {
-    var dataSource = event.getDataSource();
-    var source = dataSource.getId();
-    var topic = dataSource.getTopic();
+    var config = event.getDataSource();
+    var caller = event.getSource();
+    var source = config.getId();
+    var topic = config.getTopic();
     var uid = entry.getUri();
     var entryUpdatedOn = entry.getUpdatedDate();
 
@@ -227,7 +232,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
       // TODO: It's possible a failure here will result in the record being imported
       // multiple times. This needs to be handled.
       // Hopefully an error on one entry won't stop all other entries.
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     }
 
@@ -242,15 +247,17 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
    * @return Future{RecordMetadata} object.
    */
   private Future<RecordMetadata> publishEntry(ProducerSendEvent event, SyndEntry entry) {
+    var config = event.getDataSource();
+    var caller = event.getSource();
+
     try {
-      var dataSource = event.getDataSource();
-      var topic = dataSource.getTopic();
+      var topic = config.getTopic();
       var content = generateContent(event, entry);
       var key = String.format("%s-%s", content.getSource(), content.getUid());
       logger.info(String.format("Sending content: '%s', topic: %s", key, topic));
       return producer.send(new ProducerRecord<String, SourceContent>(topic, key, content));
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     }
     return CompletableFuture.completedFuture(null);

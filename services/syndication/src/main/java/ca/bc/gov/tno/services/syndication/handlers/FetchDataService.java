@@ -51,7 +51,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private final RestTemplate rest;
 
   private Object caller;
-  private SyndicationConfig dataSource;
+  private SyndicationConfig config;
   private ScheduleConfig schedule;
   private final IDataSourceService dataSourceService;
 
@@ -91,12 +91,13 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
    */
   @Override
   public void onApplicationEvent(TransactionBeginEvent event) {
+    caller = event.getSource();
+
     try {
-      caller = event.getSource();
-      dataSource = (SyndicationConfig) event.getDataSource();
+      config = (SyndicationConfig) event.getDataSource();
       schedule = event.getSchedule();
 
-      var url = dataSource.getUrl();
+      var url = config.getUrl();
       logger.info(String.format("Syndication fetch request started - %s", url));
 
       var entity = new HttpEntity<Resource>(headers);
@@ -108,31 +109,31 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
         var input = new SyndFeedInput();
         var reader = new XmlReader(response.getBody().getInputStream());
         SyndFeed feed = input.build(reader);
-        var readyEvent = new ProducerSendEvent(caller, dataSource, schedule, feed);
+        var readyEvent = new ProducerSendEvent(caller, config, schedule, feed);
         eventPublisher.publishEvent(readyEvent);
 
       } else if (status.series() == HttpStatus.Series.SERVER_ERROR
           || status.series() == HttpStatus.Series.CLIENT_ERROR) {
-        var errorEvent = new ErrorEvent(this,
-            new HttpException(String.format("Syndication fetch response - %s %s", url, status)));
+        var errorEvent = new ErrorEvent(caller,
+            new HttpException(String.format("Syndication fetch response - %s %s", url, status)), config);
         eventPublisher.publishEvent(errorEvent);
       }
 
     } catch (RestClientException ex) {
       updateDataSource();
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     } catch (IOException ex) {
       updateDataSource();
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     } catch (IllegalArgumentException ex) {
       updateDataSource();
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     } catch (FeedException ex) {
       updateDataSource();
-      var errorEvent = new ErrorEvent(this, ex);
+      var errorEvent = new ErrorEvent(caller, ex, config);
       eventPublisher.publishEvent(errorEvent);
     }
   }
@@ -140,7 +141,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   // TODO: Refactor to be part of the shared service package so that all services
   // inherit functionality.
   private void updateDataSource() {
-    var ds = dataSourceService.findByCode(this.dataSource.getId());
+    var ds = dataSourceService.findByCode(this.config.getId());
     if (ds.isPresent()) {
       var entity = ds.get();
       var failedAttempts = entity.getFailedAttempts();
