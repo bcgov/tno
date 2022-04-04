@@ -57,7 +57,7 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
   public void onApplicationEvent(ErrorEvent event) {
     var source = event.getSource();
     var exception = event.getError();
-    var config = event.getConfig();
+    var dsConfig = event.getConfig();
     logger.error(String.format("Source: '%s'", source.getClass().getName()), exception);
 
     if (state.getFailedAttempts() >= config.getMaxFailedAttempts()) {
@@ -65,11 +65,11 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
     } else {
       state.incrementFailedAttempts();
       
-      if (config != null) {
-        config.failedAttempts++;
-        var result = dataSourceService.findByCode(config.getId());
+      if (dsConfig != null) {
+        dsConfig.failedAttempts++;
+        var result = dataSourceService.findByCode(dsConfig.getId());
         var dataSource = result.get();
-        dataSource.setFailedAttempts(config.getFailedAttempts());
+        dataSource.setFailedAttempts(dsConfig.getFailedAttempts());
         dataSourceService.update(dataSource);
       }
 
