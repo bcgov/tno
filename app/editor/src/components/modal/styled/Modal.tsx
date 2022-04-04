@@ -1,6 +1,7 @@
 import styled from 'styled-components';
+import { Col } from 'tno-core/dist/components/flex';
 
-export const Modal = styled.div`
+export const Modal = styled(Col)`
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -36,7 +37,7 @@ export const Modal = styled.div`
     position: relative;
     margin: 10% auto;
     border-radius: 3px;
-    max-width: 500px;
+    max-width: 600px;
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Button, ButtonVariant } from 'tno-core';
-import { Row } from 'tno-core/dist/components/flex/row';
+import { Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
 
@@ -20,6 +20,10 @@ export interface IModalProps {
   headerText?: string;
   /** the text / fragment for the body of the modal */
   body?: string | React.ReactFragment;
+  /** pass custom buttons directly to the modal */
+  customButtons?: React.ReactFragment;
+  /** preset stylings for the modal */
+  type?: 'delete' | 'default' | 'custom';
 }
 
 /**
@@ -34,6 +38,8 @@ export const Modal: React.FC<IModalProps> = ({
   headerText,
   hide,
   body,
+  customButtons,
+  type,
 }) => {
   return isShowing
     ? ReactDOM.createPortal(
@@ -47,14 +53,23 @@ export const Modal: React.FC<IModalProps> = ({
                 <Row>
                   <p>{body}</p>
                 </Row>
-                <Row className="button-row">
-                  <Button variant={ButtonVariant.action} onClick={onConfirm}>
-                    {confirmText ?? 'Continue'}
-                  </Button>
-                  <Button variant={ButtonVariant.danger} onClick={hide}>
-                    {cancelText ?? 'Cancel'}
-                  </Button>
-                </Row>
+                {!!!customButtons && (
+                  <Row className="button-row">
+                    <Button
+                      variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.action}
+                      onClick={onConfirm}
+                    >
+                      {confirmText ?? 'Continue'}
+                    </Button>
+                    <Button
+                      variant={type === 'delete' ? ButtonVariant.action : ButtonVariant.danger}
+                      onClick={hide}
+                    >
+                      {cancelText ?? 'Cancel'}
+                    </Button>
+                  </Row>
+                )}
+                {!!customButtons && <Row className="button-row"> {customButtons} </Row>}
               </div>
             </div>
           </div>

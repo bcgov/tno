@@ -23,10 +23,15 @@ export function toForm(model: IContentModel): IContentForm {
     ownerId: model.ownerId,
     seriesId: model.seriesId,
     publishedOn: moment(model.publishedOn).format('MM-dd-YYYY HH:mm:ss'),
+    timeTrackings: model.timeTrackings ?? [],
+    actions: model.actions ?? [],
+    tags: model.tags ?? [],
+    categories: model.categories ?? [],
     // Print Content
     section: model.printContent?.section ?? '',
     edition: model.printContent?.edition ?? '',
     storyType: model.printContent?.storyType ?? '',
     byline: model.printContent?.byline ?? '',
+    version: model.version,
   };
 }

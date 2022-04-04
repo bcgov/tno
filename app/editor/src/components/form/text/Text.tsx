@@ -52,11 +52,13 @@ export const Text: React.FC<ITextProps> = ({
   onInvalid,
   ...rest
 }) => {
-  const [errorMsg, setErrorMsg] = React.useState(error);
-
   return (
     <styled.Text className="frm-in">
-      {label && <label htmlFor={id ?? `txt-${name}`}>{label}</label>}
+      {label && (
+        <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
+          {label}
+        </label>
+      )}
       <Row>
         <styled.TextField
           name={name}
@@ -67,13 +69,12 @@ export const Text: React.FC<ITextProps> = ({
           data-for="main-tooltip"
           data-tip={tooltip}
           width={width}
-          role={errorMsg ? 'alert' : 'none'}
+          role={error ? 'alert' : 'none'}
           onInput={(e) => {
             if (onInput) onInput(e);
             else {
               const input = e.target as HTMLInputElement;
               input.setCustomValidity('');
-              setErrorMsg(undefined);
             }
           }}
           onInvalid={(e) => {
@@ -82,7 +83,6 @@ export const Text: React.FC<ITextProps> = ({
               const input = e.target as HTMLInputElement;
               if (rest.required && input.validity.valueMissing) {
                 input.setCustomValidity(error ?? 'required');
-                setErrorMsg(error ?? 'required');
               }
             }
           }}
@@ -90,7 +90,7 @@ export const Text: React.FC<ITextProps> = ({
         />
         {children}
       </Row>
-      {errorMsg && <p role="alert">{errorMsg}</p>}
+      {error && <p role="alert">{error}</p>}
     </styled.Text>
   );
 };

@@ -3,6 +3,7 @@ import { toPage } from 'hooks/api-editor/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin/sources';
+import { useApp } from 'store/hooks/app/useApp';
 import { defaultPage, GridTable, IPage } from 'tno-core/dist/components/grid-table';
 
 import { DataSourceFilter } from '.';
@@ -14,6 +15,7 @@ interface IDataSourceListProps {}
 export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ dataSources }, api] = useDataSources();
+  const [{ requests }] = useApp();
 
   const [page, setPage] = React.useState<IPage<IDataSourceModel>>(defaultPage<IDataSourceModel>());
 
@@ -39,6 +41,7 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
     <styled.DataSourceList>
       <GridTable
         columns={columns}
+        isLoading={!!requests.length}
         data={page.items}
         header={DataSourceFilter}
         onRowClick={(row) => navigate(`${row.original.id}`)}

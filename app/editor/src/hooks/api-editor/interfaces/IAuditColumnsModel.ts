@@ -5,4 +5,5 @@ export interface IAuditColumnsModel {
   updatedOn?: string;
   updatedBy?: string;
   updatedById?: string;
+  version?: number;
 }

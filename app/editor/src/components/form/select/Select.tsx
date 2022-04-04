@@ -71,19 +71,22 @@ export const Select = <OptionType extends IOptionItem>({
   onChange,
   ...rest
 }: ISelectProps<OptionType>) => {
-  const [errorMsg, setErrorMsg] = React.useState(error);
   const selectRef = React.useRef(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   return (
     <styled.Select className="frm-in">
-      {label && <label htmlFor={`sel-${name}`}>{label}</label>}
+      {label && (
+        <label className={required ? 'required' : ''} htmlFor={`sel-${name}`}>
+          {label}
+        </label>
+      )}
       <Row>
         <styled.SelectField
           ref={selectRef}
           id={id ?? `sel-${name}`}
           name={name}
-          className={`${className ?? ''}${!!errorMsg ? ' alert' : ''}`}
+          className={`${className ?? ''}${!!error ? ' alert' : ''}`}
           classNamePrefix={classNamePrefix ?? 'rs'}
           data-for="main-tooltip"
           data-tip={tooltip}
@@ -99,7 +102,6 @@ export const Select = <OptionType extends IOptionItem>({
           onFocus={(e: any) => {
             const input = e.target as HTMLSelectElement;
             input?.setCustomValidity('');
-            setErrorMsg(undefined);
           }}
           {...rest}
         />
@@ -123,18 +125,16 @@ export const Select = <OptionType extends IOptionItem>({
           onInput={(e) => {
             const input = e.target as HTMLInputElement;
             input?.setCustomValidity('');
-            setErrorMsg(undefined);
           }}
           onInvalid={(e) => {
             const input = e.target as HTMLInputElement;
             if (required && input?.validity.valueMissing) {
               input.setCustomValidity(error ?? 'required');
-              setErrorMsg(error ?? 'required');
             }
           }}
         />
       )}
-      {errorMsg && <p role="alert">{errorMsg}</p>}
+      {error && <p role="alert">{error}</p>}
     </styled.Select>
   );
 };

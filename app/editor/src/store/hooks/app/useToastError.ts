@@ -19,7 +19,7 @@ export const useToastError = () => {
 
   React.useEffect(() => {
     errors.forEach((e) => {
-      toast(e.message, {});
+      toast.error(e.message, {});
     });
   }, [errors]);
 };

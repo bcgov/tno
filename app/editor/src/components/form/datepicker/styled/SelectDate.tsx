@@ -5,6 +5,12 @@ import { ISelectDateProps, SelectDateVariant } from '..';
 export const SelectDate = styled.span<ISelectDateProps>`
   padding-right: 0.5em;
 
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+    font-weight: 700;
+  }
+
   .react-datepicker-wrapper {
     min-width: 12ch;
 

@@ -1,3 +1,5 @@
+import { Row as FlexRow } from '../flex';
+import { Spinner } from '../spinners';
 import React from 'react';
 import {
   Column,
@@ -83,6 +85,10 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
      */
     manualFilters?: boolean;
   };
+  /**
+   * Flag to indicate whether table is loading data or not.
+   */
+  isLoading?: boolean;
 }
 
 /**
@@ -100,6 +106,7 @@ export const GridTable = <T extends object>({
   showFooter = false,
   paging,
   sorting,
+  isLoading,
   filters,
 }: IGridTableProps<T>) => {
   const {
@@ -194,18 +201,25 @@ export const GridTable = <T extends object>({
           </div>
         ))}
       </div>
-      <div {...getTableBodyProps()}>
-        {page.map((row) => {
-          prepareRow(row);
-          return (
-            <div {...row.getRowProps()} onClick={() => onRowClick && onRowClick(row)}>
-              {row.cells.map((cell) => {
-                return <div {...cell.getCellProps()}>{cell.render('Cell')}</div>;
-              })}
-            </div>
-          );
-        })}
-      </div>
+      {isLoading ? (
+        <FlexRow justify="center">
+          <Spinner />
+        </FlexRow>
+      ) : (
+        <div {...getTableBodyProps()}>
+          {page.map((row) => {
+            prepareRow(row);
+            return (
+              <div {...row.getRowProps()} onClick={() => onRowClick && onRowClick(row)}>
+                {row.cells.map((cell) => {
+                  return <div {...cell.getCellProps()}>{cell.render('Cell')}</div>;
+                })}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {showFooter && (
         <div>
           {footerGroups.map((footerGroup) => (

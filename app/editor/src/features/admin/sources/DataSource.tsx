@@ -2,6 +2,7 @@ import { FormikForm } from 'components/formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useDataSources } from 'store/hooks/admin';
 import { Button } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
@@ -36,6 +37,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
       parentId: values.parentId ? values.parentId : undefined,
     });
     setSource({ ...data, parentId: data.parentId ? data.parentId : undefined });
+    toast.success(`${data.name} has successfully been updated.`);
   };
 
   return (
