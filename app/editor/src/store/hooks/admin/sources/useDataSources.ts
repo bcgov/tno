@@ -4,6 +4,7 @@ import { useApiDispatcher } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IDataSourceController {
+  findAllDataSources: () => Promise<IDataSourceModel[]>;
   findDataSources: () => Promise<IPaged<IDataSourceModel>>;
   getDataSource: (id: number) => Promise<IDataSourceModel>;
   addDataSource: (model: IDataSourceModel) => Promise<IDataSourceModel>;
@@ -20,9 +21,13 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
 
   const controller = React.useMemo(
     () => ({
+      findAllDataSources: async () => {
+        const result = await dispatch('find-all-data-sources', () => api.findAllDataSources());
+        store.storeDataSources(result);
+        return result;
+      },
       findDataSources: async () => {
         const result = await dispatch('find-data-sources', () => api.findDataSources());
-        store.storeDataSources(result.items);
         return result;
       },
       getDataSource: async (id: number) => {

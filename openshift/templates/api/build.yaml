@@ -1,5 +1,5 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: api-editor-build
   annotations:
@@ -38,12 +38,12 @@ parameters:
   - name: CONTEXT_DIR
     displayName: Context Directory
     description: Set this to use a subdirectory of the source code repository
-    value: api/editor
+    value: ./
   - name: DOCKERFILE
     displayName: Dockerfile Name
     description: The Dockerfile name
     required: true
-    value: Dockerfile
+    value: api/net/Dockerfile
 
   - name: OUTPUT_IMAGE_TAG
     displayName: Output Image Tag

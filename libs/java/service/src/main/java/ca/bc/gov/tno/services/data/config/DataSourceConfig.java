@@ -76,7 +76,7 @@ public class DataSourceConfig {
   /**
    * Creates a new instance of a DataSourceConfig object, initializes with
    * specified parameters.
-   * 
+   *
    * @param dataSource The data source object.
    */
   public DataSourceConfig(DataSource dataSource) {
@@ -99,7 +99,7 @@ public class DataSourceConfig {
         dataSource.getDataSourceSchedules().stream().map((dss) -> new ScheduleConfig(dss.getSchedule())).toList());
 
     var license = dataSource.getLicense();
-    this.enabled = dataSource.isEnabled() && type.isEnabled() && license.isEnabled() && location.isEnabled();
+    this.enabled = dataSource.getIsEnabled() && type.getIsEnabled() && license.getIsEnabled() && location.getIsEnabled();
   }
 
   /**
@@ -147,14 +147,14 @@ public class DataSourceConfig {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
+  public boolean getIsEnabled() {
     return enabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
+  public void setIsEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 

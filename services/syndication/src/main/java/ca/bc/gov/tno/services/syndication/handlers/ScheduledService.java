@@ -39,7 +39,7 @@ public class ScheduledService
   /**
    * Creates a new instance of a ScheduledService object, initializes with
    * specified parameters.
-   * 
+   *
    * @param state               Service state.
    * @param syndicationConfig   Syndication media type config.
    * @param config              Syndication config.
@@ -109,7 +109,7 @@ public class ScheduledService
 
     // Only use the data sources that are configured.
     var approvedDataSources = dataSources.stream()
-        .filter((ds) -> ds.isEnabled() && ds.getConnection().get("url") != null)
+        .filter((ds) -> ds.getIsEnabled() && ds.getConnection().get("url") != null)
         .toList();
     approvedDataSources.forEach(ds -> sourceConfigs.getSources().add(new SyndicationConfig(ds)));
   }
@@ -117,7 +117,7 @@ public class ScheduledService
   /**
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
-   * 
+   *
    * @param dataSource The data source config.
    * @return The data source config.
    */
@@ -137,7 +137,7 @@ public class ScheduledService
     var newConfig = new SyndicationConfig(result.get());
 
     // TODO: Check for all conditions.
-    if (dataSource.isEnabled() != newConfig.isEnabled()
+    if (dataSource.getIsEnabled() != newConfig.getIsEnabled()
         || !dataSource.getTopic().equals(newConfig.getTopic())
         || !dataSource.getMediaType().equals(newConfig.getMediaType()))
       logger.warn(String.format("Configuration has been changed for data source '%s'", dataSource.getId()));
@@ -147,7 +147,7 @@ public class ScheduledService
 
   /**
    * Create the event that the scheduler will publish.
-   * 
+   *
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
    * @return A new application event.

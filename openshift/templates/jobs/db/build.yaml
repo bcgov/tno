@@ -1,11 +1,11 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
-  name: java-flyway-build
+  name: database-migration-build
   annotations:
-    openshift.io/display-name: Java flyway migration image
-    description: Build an image containing the Java flyway migration application.
-    tags: database,postgres,flyway,java
+    openshift.io/display-name: Entity Framework Database Migration Image
+    description: Build an image containing the Entity Framework migration application.
+    tags: database,migration,net
 parameters:
   - name: SOLUTION_NAME
     displayName: Solution Group Name
@@ -30,13 +30,14 @@ parameters:
     value: https://github.com/bcgov/tno.git
   - name: GIT_REF
     displayName: Git Reference
-    description: Set this to a branch name, tag or other ref of your repository if you
+    description:
+      Set this to a branch name, tag or other ref of your repository if you
       are not using the default branch.
     value: dev
   - name: CONTEXT_DIR
     displayName: Context Directory
     description: Set this to use a subdirectory of the source code repository
-    value: libs/java/dal/db/dal-db-migration
+    value: libs/net
   - name: DOCKERFILE
     displayName: Dockerfile Name
     description: The Dockerfile name

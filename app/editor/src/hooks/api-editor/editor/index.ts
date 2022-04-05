@@ -2,6 +2,7 @@ export * from './useApiActions';
 export * from './useApiCategories';
 export * from './useApiContents';
 export * from './useApiContentTypes';
+export * from './useApiDataSources';
 export * from './useApiLicenses';
 export * from './useApiMediaTypes';
 export * from './useApiSeries';

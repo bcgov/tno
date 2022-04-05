@@ -20,7 +20,7 @@ public final class ScheduleHelper {
 
   /**
    * Determine if the object is a BaseScheduleService.
-   * 
+   *
    * @param object The object to check.
    * @return True if the object is a BaseScheduleService.
    */
@@ -30,7 +30,7 @@ public final class ScheduleHelper {
 
   /**
    * Calculate the time to wait until the next day's runAt value.
-   * 
+   *
    * @param config Configuration settings.
    * @return Number of milliseconds to wait before running again.
    */
@@ -58,7 +58,7 @@ public final class ScheduleHelper {
   /**
    * Determine if the schedule allows for the process to run at this point in
    * time.
-   * 
+   *
    * @param now        The date and time to verify.
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
@@ -67,7 +67,7 @@ public final class ScheduleHelper {
   public static boolean verifySchedule(ZonedDateTime now, DataSourceConfig dataSource, ScheduleConfig schedule) {
     var cal = GregorianCalendar.from(now);
 
-    var isEnabled = dataSource.isEnabled();
+    var isEnabled = dataSource.getIsEnabled();
     var isRun = verifyDelay(cal, dataSource, schedule);
     var isRunOn = verifyRunOn(cal, dataSource, schedule);
     var isDayOfMonth = verifyDayOfMonth(cal, schedule);
@@ -78,7 +78,7 @@ public final class ScheduleHelper {
 
   /**
    * Determine if the scheduled delay has been exceeded.
-   * 
+   *
    * @param now        The date and time to verify.
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
@@ -100,7 +100,7 @@ public final class ScheduleHelper {
 
   /**
    * Verify that the process can run on this time in the day.
-   * 
+   *
    * @param now        The date and time to verify.
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
@@ -136,7 +136,7 @@ public final class ScheduleHelper {
 
   /**
    * Verify that the process can run on this day of the month.
-   * 
+   *
    * @param now    The date and time to verify.
    * @param config The data source config.
    * @return Whether the process should be run.
@@ -150,7 +150,7 @@ public final class ScheduleHelper {
 
   /**
    * Verify that the process can run on this day of the week.
-   * 
+   *
    * @param now    The date and time to verify.
    * @param config The data source config.
    * @return Whether the process should be run.
@@ -183,7 +183,7 @@ public final class ScheduleHelper {
 
   /**
    * Verify that the process can run on this month.
-   * 
+   *
    * @param now    The date and time to verify.
    * @param config The data source config.
    * @return Whether the process should be run.
@@ -226,15 +226,15 @@ public final class ScheduleHelper {
 
   /**
    * Convert a LocalTime object to a unix epoch date/time in the current time zone.
-   * 
+   *
    * @param time The LocalTime object to convert
    * @return the date/time in milliseconds
    */
   public static long getMsDateTime(LocalTime time, String timeZone) {
 
     var dateTime = time.atDate(LocalDate.now(ZoneId.of(timeZone)));
-    var instant = dateTime.atZone(ZoneId.of(timeZone)).toInstant();	
-    var timeInMillis = instant.toEpochMilli(); 
+    var instant = dateTime.atZone(ZoneId.of(timeZone)).toInstant();
+    var timeInMillis = instant.toEpochMilli();
 
     return timeInMillis;
   }

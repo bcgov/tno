@@ -1,4 +1,4 @@
-import { ContentStatus, IContentModel } from 'hooks/api-editor';
+import { ContentStatusName, IContentModel } from 'hooks/api-editor';
 import { Column, UseSortByColumnOptions } from 'react-table';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 
@@ -37,7 +37,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'status',
     Header: 'Status',
-    accessor: (row) => ContentStatus[row.status],
+    accessor: (row) => row.status,
   },
   {
     id: 'createdOn',
@@ -50,7 +50,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Header: 'Use',
     disableSortBy: true,
     accessor: (row) =>
-      row.status === ContentStatus.Publish || row.status === ContentStatus.Published,
+      row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
     Cell: ({ value }: { value: boolean }) => {
       return <Checkbox checked={value} />;
     },

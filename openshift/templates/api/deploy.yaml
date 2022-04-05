@@ -5,7 +5,7 @@ metadata:
   annotations:
     description: Editor API application deployment configuration
     openshift.io/display-name: Editor API Application Deployment Configuration
-    openshift.io/long-description: Deployment configuriation to Editor API application.
+    openshift.io/long-description: Deployment configuration to Editor API application.
     tags: api,java,maven,editor
 
 parameters:
@@ -39,7 +39,7 @@ parameters:
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
-    value: '8080'
+    value: "8080"
 
   - name: KEYCLOAK_AUTH_SERVER_URL
     displayName: Keycloak Authority URL
@@ -62,11 +62,11 @@ parameters:
     description: Name of the database secrets object.
     required: true
     value: tno-database
-  - name: DB_URL
-    displayName: Database URL
-    description: PostgreSQL database URL connection string.
+  - name: CONNECTION_STRING
+    displayName: Database Connection String
+    description: PostgreSQL database connection string.
     required: true
-    value: jdbc:postgresql://tno-database:5432/tno
+    value: Host=tno-database:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
   - name: ELASTIC_SECRETS_NAME
     displayName: Elasticsearch Secret Name
@@ -88,7 +88,7 @@ parameters:
   - name: REPLICAS
     displayName: Pod Replicas
     description: Number of pod replicas to run
-    value: '3'
+    value: "3"
   - name: CPU_REQUEST
     displayName: Requested Minimum Resources CPU Limit
     description: The requested minimum resources CPU limit (in cores) for this build.
@@ -195,7 +195,7 @@ objects:
         spec:
           containers:
             - name: ${SOLUTION_NAME}-${APP_NAME}
-              image: ''
+              image: ""
               imagePullPolicy: Always
               ports:
                 - containerPort: ${{APP_PORT}}
@@ -230,17 +230,17 @@ objects:
                       name: ${SOLUTION_NAME}-${APP_NAME}
                       key: KAFKA_BOOTSTRAP_SERVERS
 
-                - name: DB_URL
+                - name: ConnectionStrings__TNO
                   valueFrom:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
-                      key: DB_URL
-                - name: DB_USERNAME
+                      key: CONNECTION_STRING
+                - name: DB_POSTGRES_USERNAME
                   valueFrom:
                     secretKeyRef:
                       name: ${DB_SECRETS_NAME}
                       key: POSTGRESQL_USER
-                - name: DB_PASSWORD
+                - name: DB_POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: ${DB_SECRETS_NAME}
@@ -299,26 +299,26 @@ objects:
                     secretKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
                       key: AZURE_VIDEO_ANALYZER_LOCATION
-              # livenessProbe:
-              #   httpGet:
-              #     path: '/health'
-              #     port: ${{APP_PORT}}
-              #     scheme: HTTP
-              #   initialDelaySeconds: 120
-              #   timeoutSeconds: 60
-              #   periodSeconds: 30
-              #   successThreshold: 1
-              #   failureThreshold: 3
-              # readinessProbe:
-              #   httpGet:
-              #     path: '/health'
-              #     port: ${{APP_PORT}}
-              #     scheme: HTTP
-              #   initialDelaySeconds: 120
-              #   timeoutSeconds: 60
-              #   periodSeconds: 30
-              #   successThreshold: 1
-              #   failureThreshold: 3
+              livenessProbe:
+                httpGet:
+                  path: "/health"
+                  port: ${{APP_PORT}}
+                  scheme: HTTP
+                initialDelaySeconds: 120
+                timeoutSeconds: 30
+                periodSeconds: 30
+                successThreshold: 1
+                failureThreshold: 3
+              readinessProbe:
+                httpGet:
+                  path: "/health"
+                  port: ${{APP_PORT}}
+                  scheme: HTTP
+                initialDelaySeconds: 120
+                timeoutSeconds: 60
+                periodSeconds: 30
+                successThreshold: 1
+                failureThreshold: 3
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           securityContext: {}

@@ -39,12 +39,12 @@ parameters:
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
-    value: '8080'
+    value: "8080"
 
   - name: REPLICAS
     displayName: Pod Replicas
     description: Number of pod replicas to run
-    value: '1'
+    value: "1"
   - name: CPU_REQUEST
     displayName: Requested Minimum Resources CPU Limit
     description: The requested minimum resources CPU limit (in cores) for this build.
@@ -127,7 +127,7 @@ objects:
         spec:
           containers:
             - name: ${SOLUTION_NAME}-${APP_NAME}
-              image: ''
+              image: ""
               imagePullPolicy: Always
               ports:
                 - containerPort: ${{APP_PORT}}

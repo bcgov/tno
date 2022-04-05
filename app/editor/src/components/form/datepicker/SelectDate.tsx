@@ -76,6 +76,7 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
             data-tip={tooltip}
             disabled={rest.disabled}
             required={required}
+            {...rest}
           />
           {error && <p role="alert">{error}</p>}
         </>

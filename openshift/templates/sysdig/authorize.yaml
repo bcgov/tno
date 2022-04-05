@@ -24,12 +24,12 @@ parameters:
     displayName: OpenShift Project Namespace
     description: The namespace of the OpenShift project containing the application.
     required: true
-    value: '9b301c'
+    value: "9b301c"
   - name: ENV_NAME
     displayName: Environment name
     description: The name for this environment [dev, test, prod]
     required: true
-    value: 'tools'
+    value: "tools"
 
   - name: MANAGER_01
     displayName: Role Team Manager 1
@@ -72,17 +72,17 @@ objects:
       team:
         description: The Sysdig Team for the Platform Services Documize
         users:
-        - name: ${MANAGER_01}
-          role: ROLE_TEAM_MANAGER
-        - name: ${MANAGER_02}
-          role: ROLE_TEAM_MANAGER
-        - name: ${STANDARD_01}
-          role: ROLE_TEAM_STANDARD
-        - name: ${STANDARD_02}
-          role: ROLE_TEAM_STANDARD
-        - name: ${STANDARD_03}
-          role: ROLE_TEAM_STANDARD
-        - name: ${READ_01}
-          role: ROLE_TEAM_READ
-        - name: ${READ_02}
-          role: ROLE_TEAM_READ
+          - name: ${MANAGER_01}
+            role: ROLE_TEAM_MANAGER
+          - name: ${MANAGER_02}
+            role: ROLE_TEAM_MANAGER
+          - name: ${STANDARD_01}
+            role: ROLE_TEAM_STANDARD
+          - name: ${STANDARD_02}
+            role: ROLE_TEAM_STANDARD
+          - name: ${STANDARD_03}
+            role: ROLE_TEAM_STANDARD
+          - name: ${READ_01}
+            role: ROLE_TEAM_READ
+          - name: ${READ_02}
+            role: ROLE_TEAM_READ

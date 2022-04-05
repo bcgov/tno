@@ -6,4 +6,6 @@ export interface IUserModel {
   firstName?: string;
   lastName?: string;
   lastLoginOn?: Date;
+  isEnabled: boolean;
+  isSystemAccount: boolean;
 }

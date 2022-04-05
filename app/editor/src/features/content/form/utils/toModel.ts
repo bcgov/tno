@@ -1,42 +1,42 @@
-import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
+import { IContentModel, ITimeTrackingModel, ITonePoolModel } from 'hooks/api-editor';
 import moment from 'moment';
 
 import { IContentForm } from '../interfaces';
 
-export function toModel(values: IContentForm): IContentModel {
+export function toModel(values: IContentForm, tonePool?: ITonePoolModel): IContentModel {
   // return form values in valid API format on submit of ContentForm
   // not utilized properly right now - update coming
   return {
     id: values.id,
-    uid: !!values.uid ? values.uid : undefined,
-    sourceUrl: !!values.sourceUrl ? values.sourceUrl : undefined,
+    uid: values.uid,
+    sourceUrl: values.sourceUrl,
     status: values.status,
     workflowStatus: values.workflowStatus,
     contentTypeId: values.contentTypeId,
     mediaTypeId: values.mediaTypeId,
-    createdBy: 'placeholder',
     licenseId: values.licenseId,
     ownerId: values.ownerId,
     seriesId: values.seriesId,
-    headline: values.headline,
+    otherSeries: values.otherSeries,
+    dataSourceId: values.dataSourceId,
     source: values.source,
+    headline: values.headline,
     page: values.page,
     summary: values.summary,
-    actions: !!values.actions ? values.actions : undefined,
-    tags: !!values.tags ? values.tags : undefined,
-    categories: values.categories,
     transcription: values.transcription,
-    timeTrackings: !!values.timeTrackings
-      ? values.timeTrackings.map((x) => {
-          const container = {} as ITimeTrackingModel;
-          container.userId = x.userId;
-          container.activity = x.activity;
-          container.effort = x.effort;
-          return container;
-        })
-      : undefined,
-    publishedOn: !!values.publishedOn ? moment(values.publishedOn).toDate() : new Date(), // TODO: If they haven't set the publishedOn it will cause an error.
-    version: values.version,
+    actions: values.actions,
+    categories: values.categories,
+    tags: values.tags,
+    timeTrackings: values.timeTrackings.map((x) => {
+      const container = {} as ITimeTrackingModel;
+      container.userId = x.userId;
+      container.activity = x.activity;
+      container.effort = x.effort;
+      return container;
+    }),
+    tonePools: !!tonePool ? [{ ...tonePool, value: +values.tone }] : [],
+    fileReferences: values.fileReferences,
+    links: values.links,
     printContent: !values.section
       ? undefined
       : {
@@ -46,5 +46,7 @@ export function toModel(values: IContentForm): IContentModel {
           storyType: values.storyType,
           byline: values.byline,
         },
+    publishedOn: moment(values.publishedOn).toDate(),
+    version: values.version,
   };
 }

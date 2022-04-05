@@ -1,5 +1,5 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 labels:
   template: quickstart-network-security-policy
 metadata:
@@ -44,5 +44,5 @@ objects:
       # to one another.
       podSelector:
       ingress:
-      - from:
-        - podSelector: {}
+        - from:
+            - podSelector: {}

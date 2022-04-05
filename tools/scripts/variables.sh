@@ -141,8 +141,8 @@ export portAzureBlob=40006
 export portAzureQueue=40007
 export portAzureTable=40008
 
-export portApiEditor=40010
-export portApiEditorHttps=40011
+export portApi=40010
+export portApiHttps=40011
 export portAppEditor=40082
 export portAppEditorHttps=40444
 export portAppSubscriber=40083

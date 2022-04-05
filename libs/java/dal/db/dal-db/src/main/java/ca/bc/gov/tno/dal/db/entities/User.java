@@ -77,7 +77,7 @@ public class User extends AuditColumns {
    * Whether the user is enabled or disabled.
    */
   @Column(name = "is_enabled", nullable = false)
-  private boolean enabled = true;
+  private boolean isEnabled = true;
 
   /**
    * Whether the email has been verified.
@@ -115,7 +115,7 @@ public class User extends AuditColumns {
   /**
    * Creates a new instance of a user object, initializes with specified
    * parameters.
-   * 
+   *
    * @param username The unique username to identify the user.
    * @param email    The user's email address.
    */
@@ -138,7 +138,7 @@ public class User extends AuditColumns {
   /**
    * Creates a new instance of a user object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id       The primary key.
    * @param username The unique username to identify the user.
    * @param email    The user's email address.
@@ -151,7 +151,7 @@ public class User extends AuditColumns {
   /**
    * Creates a new instance of a user object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id       The primary key.
    * @param username The unique username to identify the user.
    * @param email    The user's email address.
@@ -165,7 +165,7 @@ public class User extends AuditColumns {
   /**
    * Creates a new instance of a user object, initializes with specified
    * parameters.
-   * 
+   *
    * @param username The unique username to identify the user.
    * @param key      A unique key to identify the user.
    * @param email    The user's email address.
@@ -192,7 +192,7 @@ public class User extends AuditColumns {
   /**
    * Creates a new instance of a user object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id       The primary key.
    * @param username The unique username to identify the user.
    * @param key      A unique key to identify the user.
@@ -206,7 +206,7 @@ public class User extends AuditColumns {
   /**
    * Creates a new instance of a user object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id       The primary key.
    * @param username The unique username to identify the user.
    * @param key      A unique key to identify the user.
@@ -312,15 +312,15 @@ public class User extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
-    return enabled;
+  public boolean getIsEnabled() {
+    return isEnabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setIsEnabled(boolean enabled) {
+    this.isEnabled = isEnabled;
   }
 
   /**

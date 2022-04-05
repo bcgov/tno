@@ -24,59 +24,59 @@ parameters:
     displayName: OpenShift Project Namespace
     description: The namespace of the OpenShift project containing the application.
     required: true
-    value: '9b301c'
+    value: "9b301c"
   - name: ENV_NAME
     displayName: Environment name
     description: The name for this environment [dev, test, prod]
     required: true
-    value: 'dev'
+    value: "dev"
 
   - name: IMAGE_TAG
     displayName: Image Tag
     description: The image tag that identifies which image to run. (i.e. 'dev').
-    value: 'dev'
+    value: "dev"
 
   - name: API_APP_NAME
     displayName: API Component Group Name
     description: The name of the API component group
     required: true
-    value: 'api-editor'
+    value: "api-editor"
 
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
-    value: '8080'
+    value: "8080"
 
   - name: KEYCLOAK_REALM
     displayName: Keycloak SSO realm
     description: Keycloak SSO realm, used by the frontend login.
     required: true
-    value: 'gcpe'
+    value: "gcpe"
   - name: KEYCLOAK_AUTHORITY_URL
     displayName: Keycloak Authority URL
     description: The Keycloak authority URL.
     required: true
-    value: 'https://dev.oidc.gov.bc.ca/auth/'
+    value: "https://dev.oidc.gov.bc.ca/auth/"
   - name: KEYCLOAK_CLIENT_ID
     displayName: Keycloak Client ID
     description: The Keycloak Client ID to identify the resource.
     required: true
-    value: 'tno-app'
+    value: "tno-app"
   - name: FILE_CONFIG_MOUNT_PATH
     displayName: keycloak.json Mount Path
     description: The path to use to mount the config file.
     required: true
-    value: '/usr/share/nginx/html/'
+    value: "/usr/share/nginx/html/"
   - name: KEYCLOAK_CONFIG_FILE_NAME
     displayName: keycloak.json Config File Name
     description: The name of the configuration file to be used for keycloak.json.
     required: true
-    value: 'keycloak.json'
+    value: "keycloak.json"
 
   - name: REPLICAS
     displayName: Pod Replicas
     description: Number of pod replicas to run
-    value: '3'
+    value: "3"
   - name: CPU_REQUEST
     displayName: Requested Minimum Resources CPU Limit
     description: The requested minimum resources CPU limit (in cores) for this build.
@@ -209,7 +209,7 @@ objects:
                     path: ${KEYCLOAK_CONFIG_FILE_NAME}
           containers:
             - name: ${SOLUTION_NAME}-${APP_NAME}
-              image: ''
+              image: ""
               imagePullPolicy: Always
               ports:
                 - containerPort: ${{APP_PORT}}
@@ -227,7 +227,7 @@ objects:
                   subPath: ${KEYCLOAK_CONFIG_FILE_NAME}
               livenessProbe:
                 httpGet:
-                  path: '/nginx-status'
+                  path: "/nginx-status"
                   port: ${{APP_PORT}}
                   scheme: HTTP
                 initialDelaySeconds: 30
@@ -237,7 +237,7 @@ objects:
                 failureThreshold: 3
               readinessProbe:
                 httpGet:
-                  path: '/nginx-status'
+                  path: "/nginx-status"
                   port: ${{APP_PORT}}
                   scheme: HTTP
                 initialDelaySeconds: 10

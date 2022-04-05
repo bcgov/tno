@@ -1,5 +1,5 @@
 import { Modal } from 'components/modal';
-import useModal from 'hooks/modal/useModal';
+import { useModal } from 'hooks/modal';
 import React, { InputHTMLAttributes, useState } from 'react';
 import { Button, ButtonVariant, Col, Row } from 'tno-core';
 

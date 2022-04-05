@@ -206,7 +206,12 @@ objects:
               lifecycle:
                 postStart:
                   exec:
-                    command: ["/bin/sh", "-c", "echo ${POD_NAME##*-} > ${ZOOKEEPER_DATA_DIR}/myid"]
+                    command:
+                      [
+                        "/bin/sh",
+                        "-c",
+                        "echo ${POD_NAME##*-} > ${ZOOKEEPER_DATA_DIR}/myid",
+                      ]
               env:
                 - name: POD_IP
                   valueFrom:

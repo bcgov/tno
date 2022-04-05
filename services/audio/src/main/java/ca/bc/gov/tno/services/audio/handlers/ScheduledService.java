@@ -42,7 +42,7 @@ extends BaseDbScheduleService<AudioConfig, DataSourceCollectionConfig<AudioConfi
   /**
    * Creates a new instance of a ScheduledService object, initializes with
    * specified parameters.
-   * 
+   *
    * @param state             Service state.
    * @param mediaConfig       Audio media type config.
    * @param config            Audio config.
@@ -66,15 +66,15 @@ extends BaseDbScheduleService<AudioConfig, DataSourceCollectionConfig<AudioConfi
 
     /**
    * Update the data source with the next run_on date and time (one day from now).
-   * 
+   *
    * For clips, because the audio being extracted must already have been recorded, the clip process cannot begin until
    * the clip's stop time. This is the time at which this schedule will trigger. It is also the time at which the next
    * run time for this clip will be set when clip extraction is completed.
-   * 
+   *
    * The stop time is recorded in the database as the number of milliseconds since midnight (time only), while the next
-   * run time is a full date/time. To calculate the next run time we need the time at the previous midnight. This is then 
-   * added to the stop time and TimeUnit.DAYS.toMillis(1) to determine the next run time for this schedule. 
-   * 
+   * run time is a full date/time. To calculate the next run time we need the time at the previous midnight. This is then
+   * added to the stop time and TimeUnit.DAYS.toMillis(1) to determine the next run time for this schedule.
+   *
    * @param config The data source config.
    * @param ranOn  The date and time the transaction ran at.
    */
@@ -120,7 +120,7 @@ extends BaseDbScheduleService<AudioConfig, DataSourceCollectionConfig<AudioConfi
   /**
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
-   * 
+   *
    * @param config The data source config.
    * @return The data source config.
    */
@@ -140,7 +140,7 @@ extends BaseDbScheduleService<AudioConfig, DataSourceCollectionConfig<AudioConfi
     var newConfig = new AudioConfig(result.get(), dataSourceService);
 
     // TODO: Check for all conditions.
-    if (config.isEnabled() != newConfig.isEnabled()
+    if (config.getIsEnabled() != newConfig.getIsEnabled()
         || !config.getTopic().equals(newConfig.getTopic())
         || !config.getMediaType().equals(newConfig.getMediaType()))
       logger.warn(String.format("Configuration has been changed for data source '%s'", config.getId()));
@@ -150,7 +150,7 @@ extends BaseDbScheduleService<AudioConfig, DataSourceCollectionConfig<AudioConfi
 
     /**
    * Create the event that the scheduler will publish.
-   * 
+   *
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
    * @return A new application event.

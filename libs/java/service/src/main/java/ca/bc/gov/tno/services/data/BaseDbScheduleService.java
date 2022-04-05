@@ -17,7 +17,7 @@ import ca.bc.gov.tno.services.ServiceState;
  * BaseDbScheduleService class, provides a process that manages the scheduling
  * of ingestion. This will ensure the process runs according to the configured
  * schedule.
- * 
+ *
  * @param <C>  The data source config type.
  * @param <CA> The data source config collection type.
  */
@@ -34,7 +34,7 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
   /**
    * Creates a new instance of a BaseDbScheduleService object, initializes with
    * specified parameters.
-   * 
+   *
    * @param state             Service state.
    * @param config            Data source config.
    * @param dataSourceService DAL DB data source service.
@@ -48,7 +48,7 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
 
   /**
    * Update the data source with the current ranAt date and time.
-   * 
+   *
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
    * @param ranOn      The date and time the transaction ran at.
@@ -69,7 +69,7 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
   /**
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
-   * 
+   *
    * @param dataSourceConfig The data source config.
    * @return The data source config.
    */
@@ -90,7 +90,7 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
     var newConfig = (C) new DataSourceConfig(result.get());
 
     // TODO: Check for all conditions.
-    if (dataSourceConfig.isEnabled() != newConfig.isEnabled()
+    if (dataSourceConfig.getIsEnabled() != newConfig.getIsEnabled()
         || !dataSourceConfig.getTopic().equals(newConfig.getTopic())
         || !dataSourceConfig.getMediaType().equals(newConfig.getMediaType()))
       logger.warn(String.format("Configuration has been changed for data source '%s'", dataSourceConfig.getId()));

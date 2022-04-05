@@ -971,6 +971,29 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "environment",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/health/env",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"health",
+										"env"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -2108,6 +2131,28 @@
 									"response": []
 								},
 								{
+									"name": "data/sources/find",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/find",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"data",
+												"sources",
+												"find"
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "data/sources/:id",
 									"request": {
 										"method": "GET",
@@ -2128,7 +2173,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "108"
 												}
 											]
 										}
@@ -2172,7 +2217,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-03-29T17:23:35.539+0000\",\r\n    \"version\": 5,\r\n    \"id\": 1,\r\n    \"name\": \"Daily Hive\",\r\n    \"shortName\": \"\",\r\n    \"code\": \"DAILYHIVE\",\r\n    \"description\": \"\",\r\n    \"enabled\": true,\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-03-29T13:51:29.453+0000\",\r\n        \"version\": 3,\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"ttl\": 150\r\n    },\r\n    \"topic\": \"topic\",\r\n    \"lastRanOn\": null,\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"connection\": {\r\n        \"url\": \"http://dailyhive.com/feed/vancouver\"\r\n    },\r\n    \"actions\": [\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 11,\r\n            \"id\": 1,\r\n            \"name\": \"CBRA\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": true\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 12,\r\n            \"id\": 2,\r\n            \"name\": \"TV Archive\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": false\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 11,\r\n            \"id\": 3,\r\n            \"name\": \"Use in Analysis\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": false\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 12,\r\n            \"id\": 4,\r\n            \"name\": \"Use in Event of Day\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": true\r\n        }\r\n    ],\r\n    \"metrics\": [\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 8,\r\n            \"id\": 1,\r\n            \"name\": \"Monday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 1,\r\n            \"enabled\": true,\r\n            \"reach\": 1.0,\r\n            \"earned\": 2.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 9,\r\n            \"id\": 2,\r\n            \"name\": \"Tuesday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 2,\r\n            \"enabled\": true,\r\n            \"reach\": 3.0,\r\n            \"earned\": 4.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 10,\r\n            \"id\": 3,\r\n            \"name\": \"Wednesday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 3,\r\n            \"enabled\": true,\r\n            \"reach\": 5.0,\r\n            \"earned\": 6.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 11,\r\n            \"id\": 4,\r\n            \"name\": \"Thursday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 4,\r\n            \"enabled\": true,\r\n            \"reach\": 7.0,\r\n            \"earned\": 8.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 12,\r\n            \"id\": 5,\r\n            \"name\": \"Friday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 5,\r\n            \"enabled\": true,\r\n            \"reach\": 9.0,\r\n            \"earned\": 10.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 16,\r\n            \"id\": 6,\r\n            \"name\": \"Saturday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 6,\r\n            \"enabled\": true,\r\n            \"reach\": 8.0,\r\n            \"earned\": 12.0,\r\n            \"impression\": 0.0\r\n        },\r\n        {\r\n            \"createdById\": null,\r\n            \"createdBy\": null,\r\n            \"createdOn\": null,\r\n            \"updatedById\": null,\r\n            \"updatedBy\": null,\r\n            \"updatedOn\": null,\r\n            \"version\": 14,\r\n            \"id\": 7,\r\n            \"name\": \"Sunday\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 7,\r\n            \"enabled\": true,\r\n            \"reach\": 3.0,\r\n            \"earned\": 3.0,\r\n            \"impression\": 3.0\r\n        }\r\n    ],\r\n    \"schedules\": []\r\n}",
+											"raw": "{\r\n    \"id\": 108,\r\n    \"name\": \"100 Mile House Free Press\",\r\n    \"code\": \"100MILE\",\r\n    \"description\": \"5\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 3,\r\n    \"dataLocation\": {\r\n        \"id\": 3,\r\n        \"name\": \"SFTP\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"mediaTypeId\": 7,\r\n    \"mediaType\": {\r\n        \"id\": 7,\r\n        \"name\": \"XML\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"topic\": \"\",\r\n    \"connection\": {},\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"actions\": [],\r\n    \"metrics\": [],\r\n    \"schedules\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"test\",\r\n            \"delayMS\": 1,\r\n            \"runOnWeekDays\": 3\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-07T19:27:40.105408Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account\",\r\n    \"version\": 44\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -2195,7 +2240,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "108"
 												}
 											]
 										}
@@ -3492,7 +3537,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=2&quantity=1000&sort=mediaTypeId asc",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=1&quantity=1000&sort=MediaTypeId asc",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -3505,7 +3550,7 @@
 											"query": [
 												{
 													"key": "page",
-													"value": "2"
+													"value": "1"
 												},
 												{
 													"key": "quantity",
@@ -3533,7 +3578,12 @@
 												},
 												{
 													"key": "sort",
-													"value": "mediaTypeId asc"
+													"value": "MediaTypeId asc"
+												},
+												{
+													"key": "createdStartOn",
+													"value": "2022-04-08T07%3A00%3A00.000Z",
+													"disabled": true
 												}
 											]
 										}
@@ -3557,22 +3607,10 @@
 												"contents",
 												":id"
 											],
-											"query": [
-												{
-													"key": "page",
-													"value": "1",
-													"disabled": true
-												},
-												{
-													"key": "quantity",
-													"value": "10",
-													"disabled": true
-												}
-											],
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "2"
 												}
 											]
 										}
@@ -3589,7 +3627,39 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1,\r\n    \"tags\": [\r\n        {\r\n            \"id\": \"TBD\"\r\n        }\r\n    ]\r\n}",
+											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"uid\": \"test\",\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "add - with tags",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1,\r\n    \"tags\": [\r\n        {\r\n            \"id\": \"EMBC\"\r\n        }\r\n    ]\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3717,7 +3787,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1,\r\n    \"seriesId\": 1,\r\n    \"fileReferences\": [\r\n        {\r\n            \"mimeType\": \"audio\",\r\n            \"path\": \"some/path/file.mpg\",\r\n            \"size\": 4000,\r\n            \"runningTime\": 780000\r\n        }\r\n    ],\r\n    \"actions\": [\r\n        {\r\n            \"id\": 5,\r\n            \"value\": \"true\"\r\n        }, {\r\n            \"id\": 6,\r\n            \"value\": \"true\"\r\n        }\r\n    ],\r\n    \"tags\": [\r\n        {\r\n            \"id\": \"TBD\"\r\n        }\r\n    ],\r\n    \"tonePools\": [\r\n        {\r\n            \"id\": 1,\r\n            \"value\": 5\r\n        }\r\n    ],\r\n    \"timeTrackings\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"effort\": 0.25,\r\n            \"activity\": \"working\"\r\n        }\r\n    ]\r\n}",
+											"raw": "{\r\n    \"id\": 0,\r\n    \"status\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"headline\": \"test X\",\r\n    \"source\": \"source A\",\r\n    \"licenseId\": 2,\r\n    \"mediaTypeId\": 3,\r\n    \"page\": \"P1\",\r\n    \"section\": \"\",\r\n    \"summary\": \"summary\",\r\n    \"ownerId\": 1,\r\n    \"seriesId\": 1,\r\n    \"timeTrackings\": [\r\n        {\r\n            \"userId\": 1,\r\n            \"effort\": 0.25,\r\n            \"activity\": \"working\"\r\n        }\r\n    ]\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3749,7 +3819,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"createdOn\": \"2022-03-03T17:54:51.354639Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-03-03T17:54:51.354639Z\",\r\n    \"version\": 0,\r\n    \"id\": 38,\r\n    \"status\": 0,\r\n    \"workflowStatus\": 0,\r\n    \"contentTypeId\": 2,\r\n    \"contentType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 2,\r\n        \"id\": 2,\r\n        \"name\": \"Print\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 3,\r\n    \"mediaType\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 3,\r\n        \"id\": 3,\r\n        \"name\": \"Talk Radio\",\r\n        \"description\": \"\",\r\n        \"enabled\": true\r\n    },\r\n    \"licenseId\": 2,\r\n    \"license\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 2,\r\n        \"id\": 2,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"enabled\": true,\r\n        \"ttl\": 150\r\n    },\r\n    \"seriesId\": 1,\r\n    \"series\": {\r\n        \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n        \"createdBy\": \"service-account-tno-service-account\",\r\n        \"createdOn\": \"2022-02-28T16:32:52.051815Z\",\r\n        \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n        \"updatedBy\": \"service-account-tno-service-account\",\r\n        \"updatedOn\": \"2022-02-28T16:32:52.051815Z\",\r\n        \"version\": 0,\r\n        \"id\": 1,\r\n        \"name\": \"Series 1\",\r\n        \"description\": \"description\",\r\n        \"enabled\": false\r\n    },\r\n    \"ownerId\": 1,\r\n    \"owner\": {\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n        \"version\": 1,\r\n        \"id\": 1,\r\n        \"username\": \"admin\",\r\n        \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n        \"email\": \"admin@local.com\",\r\n        \"displayName\": \"Administrator\",\r\n        \"firstName\": \"\",\r\n        \"lastName\": \"\",\r\n        \"enabled\": true,\r\n        \"emailVerified\": true,\r\n        \"lastLoginOn\": null\r\n    },\r\n    \"dataSourceId\": null,\r\n    \"dataSource\": null,\r\n    \"source\": \"source A\",\r\n    \"headline\": \"test X\",\r\n    \"uid\": \"\",\r\n    \"page\": \"P1\",\r\n    \"summary\": \"summary\",\r\n    \"transcription\": \"\",\r\n    \"publishedOn\": null,\r\n    \"sourceURL\": \"\",\r\n    \"fileReferences\": [\r\n        {\r\n            \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"createdBy\": \"service-account-tno-service-account\",\r\n            \"createdOn\": \"2022-03-03T17:54:23.029222Z\",\r\n            \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n            \"updatedBy\": \"service-account-tno-service-account\",\r\n            \"updatedOn\": \"2022-03-03T17:54:51.368322Z\",\r\n            \"version\": 1,\r\n            \"id\": 17,\r\n            \"mimeType\": \"audio\",\r\n            \"path\": \"some/path/file.mpg\",\r\n            \"size\": 4000,\r\n            \"runningTime\": 780000\r\n        }\r\n    ],\r\n    \"categories\": [],\r\n    \"tags\": [\r\n        {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"version\": 1,\r\n            \"id\": \"TBD\",\r\n            \"name\": \"To Be Determined\",\r\n            \"description\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true\r\n        }\r\n    ],\r\n    \"tonePools\": [],\r\n    \"actions\": [\r\n        {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"version\": 5,\r\n            \"id\": 5,\r\n            \"name\": \"On Ticker\",\r\n            \"description\": \"\",\r\n            \"valueType\": 0,\r\n            \"valueLabel\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": \"true\"\r\n        },\r\n        {\r\n            \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"createdBy\": \"\",\r\n            \"createdOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"updatedOn\": \"2022-02-23T19:33:57.744758Z\",\r\n            \"version\": 6,\r\n            \"id\": 6,\r\n            \"name\": \"Non Qualified Subject\",\r\n            \"description\": \"\",\r\n            \"valueType\": 0,\r\n            \"valueLabel\": \"\",\r\n            \"sortOrder\": 0,\r\n            \"enabled\": true,\r\n            \"value\": \"true\"\r\n        }\r\n    ],\r\n    \"timeTrackings\": []\r\n}",
+											"raw": "{\r\n    \"id\": 2,\r\n    \"status\": \"Publish\",\r\n    \"workflowStatus\": \"Received\",\r\n    \"contentTypeId\": 1,\r\n    \"contentType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Snippet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 4,\r\n    \"mediaType\": {\r\n        \"id\": 4,\r\n        \"name\": \"News Radio\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 1,\r\n    \"license\": {\r\n        \"id\": 1,\r\n        \"name\": \"Never Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"ownerId\": 2,\r\n    \"owner\": {\r\n        \"id\": 2,\r\n        \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n        \"username\": \"admin\",\r\n        \"email\": \"admin@local.com\",\r\n        \"displayName\": \"Administrator\",\r\n        \"firstName\": \"\",\r\n        \"lastName\": \"\",\r\n        \"isEnabled\": true,\r\n        \"emailVerified\": true\r\n    },\r\n    \"dataSourceId\": 88,\r\n    \"dataSource\": {\r\n        \"id\": 88,\r\n        \"name\": \"AV Archive\",\r\n        \"code\": \"ARCHIVE\",\r\n        \"shortName\": \"\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"dataLocationId\": 5,\r\n        \"mediaTypeId\": 15,\r\n        \"licenseId\": 3,\r\n        \"topic\": \"topic\",\r\n        \"connection\": \"{}\",\r\n        \"retryLimit\": 3,\r\n        \"failedAttempts\": 0\r\n    },\r\n    \"source\": \"ARCHIVE\",\r\n    \"headline\": \"second\",\r\n    \"uid\": \"\",\r\n    \"page\": \"c1\",\r\n    \"summary\": \"test story this is clearly really slow\",\r\n    \"transcription\": \"asdfasdf\",\r\n    \"sourceUrl\": \"\",\r\n    \"publishedOn\": \"2022-04-11T14:00:00.545Z\",\r\n    \"actions\": [\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"true\",\r\n            \"defaultValue\": \"true\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 1,\r\n            \"name\": \"Alert\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124272Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 2,\r\n            \"name\": \"Just In\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 3,\r\n            \"name\": \"Front Page\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124272Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 4,\r\n            \"name\": \"Top Story\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 5,\r\n            \"name\": \"On Ticker\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"true\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 6,\r\n            \"name\": \"Non Qualified Subject\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"Commentary Timeout\",\r\n            \"valueType\": \"String\",\r\n            \"id\": 7,\r\n            \"name\": \"Commentary\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124274Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        {\r\n            \"contentId\": 2,\r\n            \"score\": 54,\r\n            \"id\": 13,\r\n            \"name\": \"BC crime\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124312Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"tags\": [],\r\n    \"tonePools\": [\r\n        {\r\n            \"contentId\": 2,\r\n            \"ownerId\": 1,\r\n            \"value\": 5,\r\n            \"id\": 1,\r\n            \"name\": \"Default\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T17:05:28.116552Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T17:39:28.752397Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 1\r\n        }\r\n    ],\r\n    \"timeTrackings\": [],\r\n    \"fileReferences\": [],\r\n    \"links\": [],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-11T18:03:11.44442Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account\",\r\n    \"version\": 11,\r\n    \"otherSeries\": \"test3\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3771,7 +3841,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "37"
+													"value": "1"
 												}
 											]
 										}
@@ -3957,6 +4027,139 @@
 										"editor",
 										"tone",
 										"pools"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/users",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "roles",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/roles",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"roles"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "claims",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/claims",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"claims"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "source/actions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/source/actions",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"source",
+										"actions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "source/metrics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/source/metrics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"source",
+										"metrics"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "data/sources",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/data/sources?quantity=300&mediaTypeId=1",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"data",
+										"sources"
+									],
+									"query": [
+										{
+											"key": "quantity",
+											"value": "300"
+										},
+										{
+											"key": "mediaTypeId",
+											"value": "1"
+										}
 									]
 								}
 							},

@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICategoryModel,
   IContentTypeModel,
+  IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
@@ -18,6 +19,7 @@ import {
   storeActions,
   storeCategories,
   storeContentTypes,
+  storeDataSources,
   storeLicenses,
   storeMediaTypes,
   storeSeries,
@@ -37,6 +39,7 @@ export interface ILookupStore {
   storeContentTypes: (contentTypes: IContentTypeModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
   storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
+  storeDataSources: (dataSources: IDataSourceModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
   storeTags: (tags: ITagModel[]) => void;
   storeTonePools: (contentTypes: ITonePoolModel[]) => void;
@@ -69,6 +72,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => {
         dispatch(storeMediaTypes(mediaTypes));
+      },
+      storeDataSources: (dataSources: IDataSourceModel[]) => {
+        dispatch(storeDataSources(dataSources));
       },
       storeSeries: (series: ISeriesModel[]) => {
         dispatch(storeSeries(series));

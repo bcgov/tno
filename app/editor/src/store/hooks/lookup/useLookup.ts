@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICategoryModel,
   IContentTypeModel,
+  IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
@@ -17,6 +18,7 @@ import {
   useApiActions,
   useApiCategories,
   useApiContentTypes,
+  useApiDataSources,
   useApiLicenses,
   useApiMediaTypes,
   useApiSeries,
@@ -40,6 +42,7 @@ interface ILookupController {
   getContentTypes: () => Promise<IContentTypeModel[]>;
   getLicenses: () => Promise<ILicenseModel[]>;
   getMediaTypes: () => Promise<IMediaTypeModel[]>;
+  getDataSources: () => Promise<IDataSourceModel[]>;
   getSeries: () => Promise<ISeriesModel[]>;
   getTags: () => Promise<ITagModel[]>;
   getTonePools: () => Promise<ITonePoolModel[]>;
@@ -57,6 +60,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const contentTypes = useApiContentTypes();
   const licenses = useApiLicenses();
   const mediaTypes = useApiMediaTypes();
+  const dataSources = useApiDataSources();
   const series = useApiSeries();
   const tags = useApiTags();
   const tonePools = useApiTonePools();
@@ -98,6 +102,11 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       store.storeMediaTypes(result);
       return result;
     },
+    getDataSources: async () => {
+      const result = await dispatch('get-data-sources', () => dataSources.getDataSources());
+      store.storeDataSources(result);
+      return result;
+    },
     getSeries: async () => {
       const result = await dispatch('get-series', () => series.getSeries());
       store.storeSeries(result);
@@ -131,6 +140,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       if (!state.contentTypes.length) api.getContentTypes();
       if (!state.licenses.length) api.getLicenses();
       if (!state.mediaTypes.length) api.getMediaTypes();
+      if (!state.dataSources.length) api.getDataSources();
       if (!state.series.length) api.getSeries();
       if (!state.tags.length) api.getTags();
       if (!state.tonePools.length) api.getTonePools();

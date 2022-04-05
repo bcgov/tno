@@ -75,7 +75,7 @@ public class SourceAction extends AuditColumns {
   /**
    * Creates a new instance of a SourceAction object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id   Primary key
    * @param name Unique name
    */
@@ -92,7 +92,7 @@ public class SourceAction extends AuditColumns {
   /**
    * Creates a new instance of a SourceAction object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param version Row version value
@@ -161,14 +161,14 @@ public class SourceAction extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
+  public boolean getIsEnabled() {
     return enabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
+  public void setIsEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 

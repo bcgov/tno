@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { ISelectDateProps, SelectDateVariant } from '..';
 
-export const SelectDate = styled.span<ISelectDateProps>`
+export const SelectDate = styled.div<ISelectDateProps>`
   padding-right: 0.5em;
 
   .required:after {

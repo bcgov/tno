@@ -1,13 +1,19 @@
 import { IOptionItem } from 'components/form/options';
 import { ISelectProps, Select } from 'components/form/select';
 import { useFormikContext } from 'formik';
-import React from 'react';
 import { ActionMeta } from 'react-select';
 
 import * as styled from './styled';
 
 export interface IFormikSelectProps<OptionType> extends ISelectProps<OptionType> {
+  /**
+   * An array of select options.
+   */
   options: OptionType[];
+  /**
+   * The value to set when clearing the current selection.
+   */
+  clearValue?: unknown;
 }
 
 export const FormikSelect = <OptionType extends IOptionItem>({
@@ -15,6 +21,8 @@ export const FormikSelect = <OptionType extends IOptionItem>({
   isDisabled,
   options,
   onChange,
+  onClear,
+  clearValue = undefined,
   ...rest
 }: IFormikSelectProps<OptionType>) => {
   const { values, errors, touched, handleBlur, isSubmitting, setFieldValue } =
@@ -35,6 +43,10 @@ export const FormikSelect = <OptionType extends IOptionItem>({
           if (onChange) onChange(newValue, actionMeta);
         }}
         onBlur={handleBlur}
+        onClear={() => {
+          setFieldValue(name, Array.isArray(value) ? [] : clearValue);
+          onClear?.();
+        }}
         isDisabled={isDisabled || isSubmitting}
         error={error}
         {...rest}

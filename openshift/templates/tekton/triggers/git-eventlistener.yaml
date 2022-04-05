@@ -1,11 +1,10 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: git-triggered-pipeline
   annotations:
     openshift.io/display-name: GIT Triggered Pipeline
-    description:
-      Listen for a GIT merge event to trigger a pipeline run.
+    description: Listen for a GIT merge event to trigger a pipeline run.
     tags: git,trigger,tekton
 
 parameters:

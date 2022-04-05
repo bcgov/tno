@@ -38,11 +38,11 @@ parameters:
   - name: APP_PATH
     displayName: Application URL Root Path
     description: The URL root path to the web application
-    value: ''
+    value: ""
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
-    value: '8080'
+    value: "8080"
 
 objects:
   # The route for the app.

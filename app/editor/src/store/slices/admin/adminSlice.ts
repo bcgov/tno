@@ -17,4 +17,4 @@ export const adminSlice = createSlice({
   },
 });
 
-export const { storeDataSources } = adminSlice.actions;
+export const { storeDataSources: storeAdminDataSources } = adminSlice.actions;

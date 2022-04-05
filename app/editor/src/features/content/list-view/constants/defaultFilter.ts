@@ -3,7 +3,7 @@ import { defaultPage } from './defaultPage';
 
 export const defaultFilter: IContentListFilter = {
   pageIndex: defaultPage.pageIndex,
-  pageSize: defaultPage.pageIndex,
+  pageSize: defaultPage.pageSize,
   mediaTypeId: 0,
   contentTypeId: 0,
   ownerId: 0,

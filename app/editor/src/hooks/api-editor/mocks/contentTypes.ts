@@ -6,13 +6,13 @@ export const mockContentTypes: IContentTypeModel[] = [
     name: 'Snippets',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
   },
   {
     id: 2,
     name: 'Newspaper',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
   },
 ];

@@ -1,5 +1,4 @@
 import React, { InputHTMLAttributes } from 'react';
-import { Row } from 'tno-core/dist/components/flex';
 
 import { instanceOfIOption, IOptionItem } from '..';
 import { Radio, RadioVariant } from '.';
@@ -11,6 +10,9 @@ export interface IRadioGroupProps<OT extends string | number | IOptionItem | HTM
    * The control name.
    */
   name: string;
+  /**
+   * Whether to include space under the radio.  // TODO: replace property with appropriate styling options.
+   */
   spaceUnderRadio?: boolean;
   /**
    * The label to include with the control.
@@ -33,10 +35,17 @@ export interface IRadioGroupProps<OT extends string | number | IOptionItem | HTM
    */
   value?: OT;
   /**
+   * Flex flow direction.
+   */
+  direction?: 'row' | 'col';
+  /**
+   * An error message.
+   */
+  error?: string;
+  /**
    * OnChange event
    */
   onChange?: (event: React.ChangeEvent<HTMLInputElement>, values: OT | undefined) => void;
-  direction?: 'row' | 'col';
 }
 
 /**
@@ -51,9 +60,10 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
   children,
   options,
   value,
-  onChange,
-  direction,
+  className,
   spaceUnderRadio,
+  error,
+  onChange,
   ...rest
 }: IRadioGroupProps<OT>) => {
   const [selected, setSelected] = React.useState<OT | undefined>(value);
@@ -83,15 +93,21 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
   };
 
   return (
-    <>
-      {label && (
-        <Row>
-          <label htmlFor={`dpn-${name}`} data-for="main-tooltip" data-tip={tooltip}>
-            <b>{label}</b>
+    <styled.RadioGroup
+      name={name}
+      className={`frm-in rag${className ? ` ${className}` : ''}`}
+      {...rest}
+    >
+      <div>
+        {label && (
+          <label
+            data-for="main-tooltip"
+            data-tip={tooltip}
+            className={rest.required ? 'required' : ''}
+          >
+            {label}
           </label>
-        </Row>
-      )}
-      <styled.Div direction={direction} className="frm-in rag">
+        )}
         {options
           ? options.map((option) => {
               if (instanceOfIOption(option)) {
@@ -99,14 +115,14 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 return (
                   <styled.Span spaceUnderRadio={!!spaceUnderRadio} key={item.value}>
                     <Radio
-                      id={`${name}-${item.value}`}
+                      id={`rad-${name}-${item.value}`}
                       name={name}
                       value={item.value}
                       checked={item.value === (selected as IOptionItem)?.value}
                       onChange={handleChange}
                       {...rest}
                     />
-                    <label htmlFor={`${name}-${item.value}`}>{item.label}</label>
+                    <label htmlFor={`rad-${name}-${item.value}`}>{item.label}</label>
                   </styled.Span>
                 );
               } else if (typeof option === 'object') {
@@ -117,14 +133,14 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 return (
                   <span key={value}>
                     <Radio
-                      id={`${name}-${value}`}
+                      id={`rad-${name}-${value}`}
                       name={name}
                       value={value}
                       checked={value === selected}
                       {...rest}
                       onChange={handleChange}
                     />
-                    <label htmlFor={`${name}-${value}`}>{value}</label>
+                    <label htmlFor={`rad-${name}-${value}`}>{value}</label>
                   </span>
                 );
               } else {
@@ -133,20 +149,21 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 return (
                   <span key={value}>
                     <Radio
-                      id={`${name}-${value}`}
+                      id={`rad-${name}-${value}`}
                       name={name}
                       value={value}
                       checked={value === selected}
                       {...rest}
                       onChange={handleChange}
                     />
-                    <label htmlFor={`${name}-${value}`}>{value}</label>
+                    <label htmlFor={`rad-${name}-${value}`}>{value}</label>
                   </span>
                 );
               }
             })
           : children}
-      </styled.Div>
-    </>
+      </div>
+      {error && <p role="alert">{error}</p>}
+    </styled.RadioGroup>
   );
 };

@@ -45,8 +45,8 @@ AZURE_TABLE_PORT=$portAzureTable
 # Applications
 #############################
 
-API_EDITOR_HTTP_PORT=$portApiEditor
-API_EDITOR_HTTPS_PORT=$portApiEditorHttps
+API_HTTP_PORT=$portApi
+API_HTTPS_PORT=$portApiHttps
 
 APP_EDITOR_HTTP_PORT=$portAppEditor
 APP_EDITOR_HTTPS_PORT=$portAppEditorHttps
@@ -116,6 +116,17 @@ DB_PASSWORD=$password" >> ./libs/java/dal/db/.env
     echo "./libs/java/dal/db/.env created"
 fi
 
+# Database - DAL
+if test -f "./libs/net/dal/.env"; then
+    echo "./libs/net/dal.env exists"
+else
+echo \
+"ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+DB_POSTGRES_USERNAME=$dbUser
+DB_POSTGRES_PASSWORD=$password" >> ./libs/net/dal/.env
+    echo "./libs/net/dal/.env created"
+fi
+
 # Keycloak
 if test -f "./auth/keycloak/.env"; then
     echo "./auth/keycloak/.env exists"
@@ -175,9 +186,38 @@ ES_JAVA_OPTS='-Xms512m -Xmx512m'" >> ./db/elasticsearch/.env
     echo "./db/elasticsearch/.env created"
 fi
 
+# API
+if test -f "./api/net/.env"; then
+    echo "./api/net/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+KEYCLOAK__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+ConnectionStrings__TNO=Host=host.docker.internal:40000;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+DB_POSTGRES_USERNAME=$dbUser
+DB_POSTGRES_PASSWORD=$password
+
+ELASTIC_URIS=host.docker.internal:$portElastic
+ELASTIC_USERNAME=$elasticUser
+ELASTIC_PASSWORD=$password
+
+AZURE_STORAGE_CONTAINER_NAME=$dbName
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=devaccount1;AccountKey=$azureKey;BlobEndpoint=http://host.docker.internal:$portAzureBlob/devaccount1;
+
+COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=$azureCognitiveServiceKey
+COGNITIVE_SERVICES_SPEECH_REGION=$azureCognitiveServiceRegion
+
+AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$azureVideoAnalyzerKey
+AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$azureVideoAccountId
+AZURE_VIDEO_ANALYZER_LOCATION=$azureVideoLocation
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./api/net/.env
+    echo "./api/net/.env created"
+fi
+
 # API - Editor
-if test -f "./api/editor/.env"; then
-    echo "./api/editor/.env exists"
+if test -f "./api/java/editor/.env"; then
+    echo "./api/java/editor/.env exists"
 else
 echo \
 "KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
@@ -200,8 +240,8 @@ AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$azureVideoAnalyzerKey
 AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$azureVideoAccountId
 AZURE_VIDEO_ANALYZER_LOCATION=$azureVideoLocation
 
-KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./api/editor/.env
-    echo "./api/editor/.env created"
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./api/java/editor/.env
+    echo "./api/java/editor/.env created"
 fi
 
 # APP - Editor
@@ -212,7 +252,7 @@ echo \
 "NODE_ENV=development
 CHOKIDAR_USEPOLLING=true
 WDS_SOCKET_PORT=$portNginxEditor
-#API_URL=http://api-editor:8080/
+#API_URL=http://api:80/
 REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/editor/.env
     echo "./app/editor/.env created"
 fi
@@ -224,7 +264,7 @@ else
 echo \
 "NODE_ENV=development
 CHOKIDAR_USEPOLLING=true
-#API_URL=http://api-subscriber:8080/
+#API_URL=http://api:80/
 REACT_APP_KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth" >> ./app/subscriber/.env
     echo "./app/subscriber/.env created"
 fi

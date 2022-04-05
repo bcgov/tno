@@ -25,23 +25,20 @@ export const FormikDatePicker: React.FC<IDatePickerProps> = ({
     (errors as any)[name ?? ''] && (touched as any)[name ?? ''] && (errors as any)[name ?? ''];
 
   return (
-    <>
-      <SelectDate
-        id={id}
-        name={name}
-        label={label}
-        variant={variant}
-        tooltip={tooltip}
-        children={children}
-        className={className}
-        selectedDate={selectedDate}
-        required={required}
-        width={width}
-        error={error}
-        onChange={onChange}
-        {...rest}
-      />
-      {error ? <p role="alert">{error}</p> : null}
-    </>
+    <SelectDate
+      id={id}
+      name={name}
+      label={label}
+      variant={variant}
+      tooltip={tooltip}
+      children={children}
+      className={className}
+      selectedDate={selectedDate}
+      required={required}
+      width={width}
+      error={error}
+      onChange={onChange}
+      {...rest}
+    />
   );
 };

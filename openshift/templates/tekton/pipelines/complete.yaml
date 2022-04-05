@@ -1,11 +1,10 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: oc-complete-pipeline
   annotations:
     openshift.io/display-name: OC Mono-repo Pipeline
-    description:
-      Build and deploy all components from the mono-repo via oc commands.
+    description: Build and deploy all components from the mono-repo via oc commands.
     tags: oc,pipeline
 
 parameters:

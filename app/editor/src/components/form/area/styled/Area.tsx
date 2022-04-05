@@ -15,19 +15,19 @@ export const Area = styled.div`
     width: fit-content;
   }
 
-  .checkbox-column {
-    margin-left: 8em;
-  }
   .space-right {
     margin-right: 25px;
   }
+
   .label {
     font-weight: 700;
   }
+
   .lrg {
     width: 680px;
     height: 40px;
   }
+
   .md {
     width: 320px;
     height: 40px;

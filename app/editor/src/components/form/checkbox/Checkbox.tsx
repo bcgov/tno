@@ -50,6 +50,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
   children,
   ref,
   error,
+  className,
   onInput,
   onInvalid,
   ...rest
@@ -62,7 +63,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
 
   return (
     <styled.Checkbox
-      className="frm-in chk"
+      className={`frm-in chk${className ? ` ${className}` : ''}`}
       data-for="main-tooltip"
       data-tip={tooltip}
       labelPosition={labelPosition}
