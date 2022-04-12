@@ -6,7 +6,7 @@ export const mockLicenses: ILicenseModel[] = [
     name: 'Regular Expire',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
     ttl: 90,
   },
   {
@@ -14,7 +14,7 @@ export const mockLicenses: ILicenseModel[] = [
     name: 'Special Expire',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
     ttl: 140,
   },
   {
@@ -22,7 +22,7 @@ export const mockLicenses: ILicenseModel[] = [
     name: 'Never Expire',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
     ttl: -1,
   },
 ];

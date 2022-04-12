@@ -36,6 +36,10 @@ export interface ISelectBaseProps {
    * Error message to display if validation fails.
    */
   error?: string;
+  /**
+   * When the user pressed the delete button.
+   */
+  onClear?: () => void;
 }
 
 export type SelectProps = ISelectBaseProps &
@@ -69,6 +73,7 @@ export const Select = <OptionType extends IOptionItem>({
   onInput,
   onInvalid,
   onChange,
+  onClear,
   ...rest
 }: ISelectProps<OptionType>) => {
   const selectRef = React.useRef(null);
@@ -81,7 +86,13 @@ export const Select = <OptionType extends IOptionItem>({
           {label}
         </label>
       )}
-      <Row>
+      <Row
+        onKeyUp={(e) => {
+          if (e.code === 'Delete') {
+            onClear?.();
+          }
+        }}
+      >
         <styled.SelectField
           ref={selectRef}
           id={id ?? `sel-${name}`}
@@ -96,7 +107,7 @@ export const Select = <OptionType extends IOptionItem>({
           value={value}
           options={options}
           onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
-            if (onChange) onChange(newValue, actionMeta);
+            onChange?.(newValue, actionMeta);
             inputRef?.current?.setCustomValidity('');
           }}
           onFocus={(e: any) => {

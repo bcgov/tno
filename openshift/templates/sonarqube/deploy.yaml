@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 message: "Login to SonarQube with the default admin user: admin/admin"
 metadata:

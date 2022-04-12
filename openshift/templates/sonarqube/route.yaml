@@ -17,15 +17,15 @@ parameters:
   - name: APP_HOST
     displayName: Application Hostname
     description: The exposed hostname that will route to the the React frontend, if left blank a value will be defaulted.
-    value: 'tno-sonarqube.apps.silver.devops.gov.bc.ca'
+    value: "tno-sonarqube.apps.silver.devops.gov.bc.ca"
   - name: APP_PATH
     displayName: Application URL Root Path
     description: The URL root path to the web application
-    value: ''
+    value: ""
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
-    value: '9000'
+    value: "9000"
 
 objects:
   # The route for the app.

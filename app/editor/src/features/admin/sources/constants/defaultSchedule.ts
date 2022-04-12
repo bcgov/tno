@@ -1,14 +1,19 @@
-import { IScheduleModel, ScheduleType } from 'hooks/api-editor';
+import {
+  IScheduleModel,
+  ScheduleMonthName,
+  ScheduleType,
+  ScheduleWeekDayName,
+} from 'hooks/api-editor';
 
 export const defaultSchedule: IScheduleModel = {
   id: 0,
   name: '',
   description: '',
-  enabled: true,
+  isEnabled: true,
   scheduleType: ScheduleType.Repeating,
   delayMS: 0,
   repeat: 0,
-  runOnWeekDays: [0],
-  runOnMonths: [0],
+  runOnWeekDays: ScheduleWeekDayName.NA,
+  runOnMonths: ScheduleMonthName.NA,
   dayOfMonth: 0,
 };

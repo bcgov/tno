@@ -1,8 +1,6 @@
 import { Checkbox, ICheckboxProps } from 'components/form';
 import { getIn, useFormikContext } from 'formik';
 
-import * as styled from './styled';
-
 export interface IFormikCheckboxProps extends ICheckboxProps {
   /** Name to identify form field, and also default pathname to field if 'field' is not provided. */
   name: string;
@@ -28,24 +26,22 @@ export const FormikCheckbox = <T,>({
   const fieldValue = getIn(values, field);
 
   return (
-    <styled.FormikCheckbox>
-      <Checkbox
-        name={name}
-        value={value ?? fieldValue ?? ''}
-        checked={checked || fieldValue === value}
-        onChange={(e) => {
-          handleChange(e);
-          if (onChange) onChange(e);
-        }}
-        onBlur={(e) => {
-          handleBlur(e);
-          if (onBlur) onBlur(e);
-        }}
-        className={error ? `${className ?? ''} error` : className}
-        disabled={disabled || isSubmitting}
-        error={error}
-        {...rest}
-      />
-    </styled.FormikCheckbox>
+    <Checkbox
+      name={name}
+      value={value ?? fieldValue ?? ''}
+      checked={checked || fieldValue === value}
+      onChange={(e) => {
+        if (onChange) onChange(e);
+        else handleChange(e);
+      }}
+      onBlur={(e) => {
+        if (onBlur) onBlur(e);
+        else handleBlur(e);
+      }}
+      className={error ? `${className ?? ''} error` : className}
+      disabled={disabled || isSubmitting}
+      error={error}
+      {...rest}
+    />
   );
 };

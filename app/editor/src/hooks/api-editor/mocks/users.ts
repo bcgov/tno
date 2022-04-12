@@ -8,5 +8,7 @@ export const mockUsers: IUserModel[] = [
     displayName: 'user',
     firstName: 'first',
     lastName: 'last',
+    isEnabled: true,
+    isSystemAccount: false,
   },
 ];

@@ -23,12 +23,12 @@ parameters:
     displayName: OpenShift Project Namespace
     description: The namespace of the OpenShift project containing the application.
     required: true
-    value: '9b301c'
+    value: "9b301c"
   - name: ENV_NAME
     displayName: Environment name
     description: The name for this environment [dev, test, prod]
     required: true
-    value: 'dev'
+    value: "dev"
 
   - name: IMAGE
     displayName: Image
@@ -49,7 +49,7 @@ parameters:
   - name: REPLICAS
     displayName: Pod Replicas
     description: Number of pod replicas to run
-    value: '3'
+    value: "3"
   - name: CPU_REQUEST
     displayName: Requested Minimum Resources CPU Limit
     description: The requested minimum resources CPU limit (in cores) for this build.

@@ -39,7 +39,7 @@ public class ScheduledService
   /**
    * Creates a new instance of a ScheduledService object, initializes with
    * specified parameters.
-   * 
+   *
    * @param state             Service state.
    * @param mediaConfig       Capture media type config.
    * @param config            Capture config.
@@ -61,7 +61,7 @@ public class ScheduledService
 
   /**
    * Update the data source with the current ranAt date and time.
-   * 
+   *
    * @param config The data source config.
    * @param ranAt  The date and time the transaction ran at.
    */
@@ -115,7 +115,7 @@ public class ScheduledService
   /**
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
-   * 
+   *
    * @param config The data source config.
    * @return The data source config.
    */
@@ -135,7 +135,7 @@ public class ScheduledService
     var newConfig = new CaptureConfig(result.get());
 
     // TODO: Check for all conditions.
-    if (config.isEnabled() != newConfig.isEnabled()
+    if (config.getIsEnabled() != newConfig.getIsEnabled()
         || !config.getTopic().equals(newConfig.getTopic())
         || !config.getMediaType().equals(newConfig.getMediaType()))
       logger.warn(String.format("Configuration has been changed for data source '%s'", config.getId()));
@@ -145,7 +145,7 @@ public class ScheduledService
 
   /**
    * Create the event that the scheduler will publish.
-   * 
+   *
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
    * @return A new application event.

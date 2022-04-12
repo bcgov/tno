@@ -132,27 +132,11 @@ remove: ## Remove all containers
 	@docker-compose rm -sv
 
 ##############################################################################
-# Node Container Management
-##############################################################################
-
-npm-down: ## Removes node containers, images, volumes, for specified application (args: n=[editor,subscriber]).
-	$(info Removes node containers, images, volumes, for specified application (n=$(if $(n),$(n),app-editor)))
-	@make stop n=app-$(if $(n),$(n),editor)
-	@docker-compose rm -f -v -s app-$(if $(n),$(n),editor)
-	@docker volume rm -f tno-$(if $(n),$(n),editor)-node-cache
-
-npm-refresh: ## Run yarn install within the container (args: n=[editor,subscriber]).
-	$(info Run yarn install within the container (args: n=$(if $(n),$(n),app-editor)))
-	@make npm-down n=$(if $(n),$(n),editor)
-	@make build n=app-$(if $(n),$(n),editor)
-	@make up n=app-$(if $(n),$(n),editor)
-
-##############################################################################
 # Database Commands
 ##############################################################################
 
-db-update: ## Run the flyway database migration update (requires maven to be installed).
-	$(info Run the flyway database migration update)
+db-update: ## Run the database migration update.
+	$(info Run the database migration update)
 	@./tools/scripts/db-update.sh
 
 db-refresh: ## Drop database and reinitialize

@@ -59,7 +59,7 @@ export const Text: React.FC<ITextProps> = ({
           {label}
         </label>
       )}
-      <Row>
+      <Row nowrap>
         <styled.TextField
           name={name}
           id={id}

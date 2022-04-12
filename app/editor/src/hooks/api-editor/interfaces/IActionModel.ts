@@ -1,6 +1,8 @@
+import { ValueType } from '../constants';
 import { ISortableModel } from '.';
 
 export interface IActionModel extends ISortableModel<number> {
-  description: string;
-  isEnabled: boolean;
+  defaultValue: string;
+  valueType: ValueType;
+  valueLabel: string;
 }

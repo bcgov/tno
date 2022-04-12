@@ -1,11 +1,12 @@
-import { IOptionItem, OptionItem, RadioGroup } from 'components/form';
-import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
+import { FieldSize, IOptionItem, OptionItem, RadioGroup } from 'components/form';
+import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { ITagModel, ITimeTrackingModel, IUserModel } from 'hooks/api-editor';
-import useModal from 'hooks/modal/useModal';
+import { IUserModel } from 'hooks/api-editor';
+import { useModal } from 'hooks/modal';
+import moment from 'moment';
 import React from 'react';
 import { useLookup } from 'store/hooks';
 import { Button, ButtonVariant, useKeycloakWrapper } from 'tno-core';
@@ -13,10 +14,12 @@ import { Col } from 'tno-core/dist/components/flex/col';
 import { Row } from 'tno-core/dist/components/flex/row';
 import { getSortableOptions } from 'utils';
 
-import { expireOptions, summaryOptions, toningOptions } from './constants';
+import { toningOptions } from './constants';
 import { IContentForm } from './interfaces';
 import { TimeLogTable } from './TimeLogTable';
+import { getTotalTime } from './utils';
 
+const tagMatch = /(?<=\[).+?(?=\])/g;
 export interface IContentSubForms {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
@@ -24,65 +27,36 @@ export interface IContentSubForms {
 
 /** The sub form of the ContentForm when the Properties Tab is selected. */
 export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, content }) => {
-  const [{ series: lSeries, categories, tags, users }] = useLookup();
-  const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
-  const [userTags, setUserTags] = React.useState<string[]>();
-  const [validTags, setValidTags] = React.useState<ITagModel[]>();
-  const [categoryTypes, setCategoryTypes] = React.useState<IOptionItem[]>([]);
   const keycloak = useKeycloakWrapper();
-  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
-
-  React.useEffect(() => {
-    setCategoryTypes(getSortableOptions(categories));
-  }, [categories]);
-
+  const [{ series, categories, licenses, tags, users }] = useLookup();
+  const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
 
+  const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
+  const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
+  const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
+  const [effort, setEffort] = React.useState(getTotalTime(values.timeTrackings));
+
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
   let timeLog = values.timeTrackings;
-  const [series, setSeries] = React.useState<IOptionItem[]>();
 
-  const formatTime = (date: string) => {
-    const converted = new Date(date);
-    return !!converted.getTime() ? converted.getTime() : '';
+  React.useEffect(() => {
+    setCategoryOptions(getSortableOptions(categories));
+  }, [categories]);
+
+  React.useEffect(() => {
+    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id)));
+  }, [series]);
+
+  React.useEffect(() => {
+    setLicenseOptions(licenses.map((m: any) => new OptionItem(m.name, m.id)));
+  }, [licenses]);
+
+  const extractTags = (values: string[]) => {
+    return tags
+      .filter((tag) => values.some((value: string) => value.toLowerCase() === tag.id.toLowerCase()))
+      .map((tag) => ({ ...tag }));
   };
-
-  React.useEffect(() => {
-    setSeries(lSeries.map((m: any) => new OptionItem(m.name, m.id)));
-  }, [lSeries]);
-
-  const tagMatch = /(?<=\[).+?(?=\])/g;
-
-  const getTotalTime = () => {
-    let count = 0;
-    if (values.timeTrackings.length === 0) {
-      return 0;
-    }
-    values.timeTrackings.forEach((t: ITimeTrackingModel) => (count += Number(t.effort)));
-    return count;
-  };
-
-  const [effort, setEffort] = React.useState(getTotalTime());
-
-  /** capture user's tags when entering them in the summary field */
-  React.useEffect(() => {
-    var result;
-    if (values.summary) {
-      result = values.summary.match(tagMatch)?.toString();
-      setUserTags(result?.split(', '));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.summary]);
-
-  /** add tags to formik value object if tag exists - better implementation later*/
-  React.useEffect(() => {
-    setValidTags(
-      tags
-        .filter((t1: ITagModel) => userTags?.some((t2: string) => t2 === t1.id))
-        .map((x) => ({ ...x, createdOn: undefined })),
-    );
-    setFieldValue('tags', validTags);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userTags]);
 
   return (
     <Col style={{ margin: '3%' }}>
@@ -90,65 +64,82 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
         <Col>
           <Row>
             <FormikSelect
-              className="md"
-              value={series && series.find((s: any) => s.value === values.seriesId)}
-              onChange={(e: any) => {
-                setFieldValue('seriesId', e.value);
-              }}
-              options={series ?? []}
-              required
               name="seriesId"
               label="Series"
+              width={FieldSize.Medium}
+              value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
+              options={seriesOptions}
+              isDisabled={!!values.otherSeries}
+              onChange={(e) => {
+                handleChange(e);
+                setFieldValue('otherSeries', '');
+              }}
             />
-            <FormikText disabled className="md" name="otherSeries" label="Other Series" />
+            <FormikText
+              name="otherSeries"
+              label="Other Series"
+              width={FieldSize.Medium}
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                setFieldValue('otherSeries', value);
+                if (!!value) setFieldValue('seriesId', undefined);
+              }}
+              onBlur={() => {
+                const found = series.find(
+                  (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
+                );
+                if (found) {
+                  setFieldValue('seriesId', found.id);
+                  setFieldValue('otherSeries', '');
+                }
+              }}
+            />
           </Row>
-          <Row>
+          <Row alignContent="flex-start" alignItems="flex-start">
             <FormikSelect
-              className="md"
               name="categories"
-              isDisabled
-              label="EoD Category"
-              options={categoryTypes}
+              label="Event of Day Category"
+              width={FieldSize.Medium}
+              options={categoryOptions}
+              clearValue={[]}
               value={
-                values.categories.length > 0
-                  ? categoryTypes.find((c) => c.value === values.categories[0].id)
-                  : undefined
+                values.categories.length
+                  ? categoryOptions.find((c) => c.value === values.categories[0].id) ?? []
+                  : []
               }
               onChange={(e: any) => {
                 // only supports one at a time right now
-                let contentCategories = [];
-                contentCategories.push(categories.find((c) => c.id === e.value));
-                setFieldValue('categories', contentCategories);
+                const value = categories.find((c) => c.id === e.value);
+                setFieldValue('categories', !!value ? [value] : []);
               }}
             />
-            <FormikSelect isDisabled className="md" name="score" label="Score" options={[]} />
-          </Row>
-          <Row style={{ position: 'relative' }}>
-            <Col>
-              <FormikDatePicker
-                required
-                disabled
-                className="md-lrg"
-                name="publishedOn"
-                label="Date"
-                selectedDate={values.publishedOn ?? ''}
-                value={values.publishedOn}
-                onChange={(date: any) => {
-                  setFieldValue('publishedOn', date);
-                }}
-              />
-            </Col>
-            <Col style={{ marginLeft: '1%' }}>
-              <FormikText
-                disabled
-                value={formatTime(values.publishedOn)}
-                name="time"
-                label="Time"
-              />
-            </Col>
+            <FormikText
+              name="categories[0].score"
+              label="Score"
+              type="number"
+              width={FieldSize.Stretch}
+              disabled={!values.categories.length}
+            />
           </Row>
           <Row>
-            <FormikText name="page" label="Page" onChange={handleChange} />
+            <FormikDatePicker
+              name="publishedOn"
+              label="Published On"
+              required
+              showTimeSelect
+              dateFormat="MMMM d, yyyy hh:mm aa"
+              width={FieldSize.Medium}
+              selectedDate={
+                !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
+              }
+              value={values.publishedOn}
+              onChange={(date: any) => {
+                setFieldValue('publishedOn', date);
+              }}
+            />
+            <Col grow={1}>
+              <FormikText name="page" label="Page" onChange={handleChange} />
+            </Col>
           </Row>
         </Col>
         <Row style={{ marginLeft: '10%', marginTop: '1%' }}>
@@ -156,25 +147,12 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
             <RadioGroup
               spaceUnderRadio
               name="expireOptions"
-              options={expireOptions}
-              value={expireOptions.find((e) => e.value === values?.licenseId)}
+              options={licenseOptions}
+              value={licenseOptions.find((e) => e.value === values?.licenseId)}
               onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
             />
           </Col>
-          <Col>
-            <FormikCheckbox disabled className="chk" name="otherSnippet" label="Other Snippet" />
-          </Col>
         </Row>
-      </Row>
-      <Row>
-        {/* Currently only support text. */}
-        <RadioGroup
-          disabled
-          value={summaryOptions.find((x) => x.value === 0)}
-          direction="row"
-          name="test"
-          options={summaryOptions}
-        />
       </Row>
       <Row>
         <FormikTextArea
@@ -184,30 +162,53 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           value={values.summary}
           onChange={handleChange}
           style={{ width: '1000px', height: '400px' }}
+          onBlur={(e) => {
+            const value = e.currentTarget.value;
+            if (!!value) {
+              const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
+              const tags = extractTags(values);
+              setFieldValue('tags', tags);
+            }
+          }}
         />
       </Row>
       <Row>
-        <FormikText disabled name="tags" label="Tags" value={userTags && userTags.join(', ')} />
+        <FormikText
+          disabled
+          name="tags"
+          label="Tags"
+          value={values.tags.map((t) => t.id).join(', ')}
+        />
         <Button
           variant={ButtonVariant.danger}
           style={{ marginTop: '1.16em' }}
           onClick={() => {
-            const regex = /\[.*\]/;
+            const regex = /\[.*\]/; // TODO: This is far too eager and could remove value content.
             setFieldValue('summary', values.summary.replace(regex, ''));
-            setUserTags([]);
+            setFieldValue('tags', []);
           }}
         >
           Clear Tags
         </Button>
       </Row>
       <Row style={{ marginTop: '2%' }}>
-        <RadioGroup disabled label="Toning" direction="row" name="toning" options={toningOptions} />
+        <FormikRadioGroup
+          label="Toning"
+          direction="row"
+          name="tonePool"
+          required
+          options={toningOptions}
+          onChange={(e, value) => {
+            setFieldValue('tonePool', value);
+            setFieldValue('tone', value?.value);
+          }}
+        />
       </Row>
       <Row style={{ marginTop: '2%' }}>
         <Upload />
       </Row>
       <Row style={{ marginTop: '2%' }}>
-        <FormikText className="sm" name="prep" label="Prep Time" />
+        <FormikText className="sm" name="prep" label="Prep Time (minutes)" type="number" />
         <Button
           style={{ marginTop: '1.16em', marginRight: '2%' }}
           variant={ButtonVariant.action}
@@ -220,6 +221,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
               createdOn: new Date(),
             });
             setFieldValue('timeTrackings', timeLog);
+            setFieldValue('prep', '');
           }}
         >
           Add

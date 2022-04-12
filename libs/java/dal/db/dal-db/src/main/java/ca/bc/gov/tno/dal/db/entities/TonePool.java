@@ -77,7 +77,7 @@ public class TonePool extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "is_enabled", nullable = false)
-  private boolean enabled = true;
+  private boolean isEnabled = true;
 
   /**
    * A collection of role tone pools that belong to this tone pool.
@@ -96,7 +96,7 @@ public class TonePool extends AuditColumns {
   /**
    * Creates a new instance of a TonePool object, initializes with specified
    * parameters.
-   * 
+   *
    * @param name   Unique name
    * @param owner  User object who owns this tone pool
    * @param shared Whether this tone pool is shared with everyone
@@ -118,7 +118,7 @@ public class TonePool extends AuditColumns {
   /**
    * Creates a new instance of a TonePool object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id     Primary key
    * @param name   Unique name
    * @param owner  User object who owns this tone pool
@@ -132,7 +132,7 @@ public class TonePool extends AuditColumns {
   /**
    * Creates a new instance of a TonePool object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param owner   User object who owns this tone pool
@@ -147,7 +147,7 @@ public class TonePool extends AuditColumns {
   /**
    * Creates a new instance of a TonePool object, initializes with specified
    * parameters.
-   * 
+   *
    * @param name    Unique name
    * @param ownerId Foreign key to user who owns the tone pool
    * @param shared  Whether this tone pool is shared with everyone
@@ -166,7 +166,7 @@ public class TonePool extends AuditColumns {
   /**
    * Creates a new instance of a TonePool object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param ownerId Foreign key to user who owns the tone pool
@@ -180,7 +180,7 @@ public class TonePool extends AuditColumns {
   /**
    * Creates a new instance of a TonePool object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param ownerId Foreign key to user who owns the tone pool
@@ -286,15 +286,15 @@ public class TonePool extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
-    return enabled;
+  public boolean getIsEnabled() {
+    return isEnabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setIsEnabled(boolean enabled) {
+    this.isEnabled = isEnabled;
   }
 
   /**

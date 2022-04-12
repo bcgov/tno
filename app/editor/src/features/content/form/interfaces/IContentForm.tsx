@@ -1,32 +1,42 @@
+import { IOptionItem } from 'components/form';
 import {
-  ContentStatus,
-  IActionValueModel,
-  ICategoryModel,
-  ITagModel,
+  ContentStatusName,
+  IContentActionModel,
+  IContentCategoryModel,
+  IContentLinkModel,
+  IContentTagModel,
+  IFileReferenceModel,
   ITimeTrackingModel,
-  WorkflowStatus,
+  WorkflowStatusName,
 } from 'hooks/api-editor';
 
 export interface IContentForm {
-  timeTrackings: ITimeTrackingModel[];
-  actions: IActionValueModel[];
-  categories: ICategoryModel[];
-  tags: ITagModel[];
   id: number;
   uid: string;
   sourceUrl: string;
-  status: ContentStatus;
-  workflowStatus: WorkflowStatus;
+  headline: string;
+  status: ContentStatusName;
+  workflowStatus: WorkflowStatusName;
   ownerId: number;
   contentTypeId: number;
   mediaTypeId: number;
   licenseId: number;
-  seriesId?: number;
-  headline: string;
+  dataSourceId?: number;
   source: string;
+  otherSource: string;
+  seriesId?: number;
+  otherSeries: string;
   page: string;
   summary: string;
   transcription: string;
+  actions: IContentActionModel[];
+  categories: IContentCategoryModel[];
+  tags: IContentTagModel[];
+  tone: number | '';
+  tonePool?: IOptionItem;
+  timeTrackings: ITimeTrackingModel[];
+  fileReferences: IFileReferenceModel[];
+  links: IContentLinkModel[];
   publishedOn: string;
   version?: number;
   // Print Content

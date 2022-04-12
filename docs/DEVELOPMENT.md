@@ -83,9 +83,9 @@ The exposed container ports is configurable, but the defaults are identified bel
 | database        |               40000 | Provides PostgreSQL relational database for the API                                           |
 | elastic         |               40003 | Provides NoSQL Elasticsearch database for the API                                             |
 | azure-storage   | 40006, 40007, 40008 | Azurite local Azure Storage for development                                                   |
-| api-editor      |               40010 | Provides the RESTful API which gives secure access to data                                    |
-| app-editor      |               40082 | Web application for Editors                                                                   |
-| app-subscriber  |               40083 | Web application for Subscribers                                                               |
+| api             |               40010 | Provides the RESTful API which gives secure access to data                                    |
+| editor          |               40082 | Web application for Editors                                                                   |
+| subscriber      |               40083 | Web application for Subscribers                                                               |
 | zookeeper       |               40100 | Kafka Zookeeper to manage cluster                                                             |
 | broker          |        40101, 40102 | Kafka server and REST API v3                                                                  |
 | schema-registry |               40103 | Kafka schema registry services                                                                |
@@ -113,7 +113,7 @@ Or if you choose to run everything use the `make up` command.
 
 ```bash
 # Start up containers for the web applications.
-make up p=app
+make up p=editor
 # Start up containers for ingestion services.
 make up p=ingest
 # Start up containers for Kafka only.
@@ -133,9 +133,9 @@ Read more [here](../test/README.md).
 | ------------------ | -------------------------------------------------------- |
 | nginx - editor     | [http://localhost:40080/app](http://localhost:40080)     |
 | nginx - subscriber | [http://localhost:40080/app](http://localhost:40081)     |
-| app-editor         | [http://localhost:40082/app](http://localhost:40082)     |
-| app-subscriber     | [http://localhost:40083](http://localhost:40083)         |
-| api-editor         | [http://localhost:40010/api](http://localhost:40010/api) |
+| editor             | [http://localhost:40082/app](http://localhost:40082)     |
+| subscriber         | [http://localhost:40083](http://localhost:40083)         |
+| api                | [http://localhost:40010/api](http://localhost:40010/api) |
 | keycloak           | [http://localhost:40001/](http://localhost:40001)        |
 | kafka rest-proxy   | [http://localhost:40104](http://localhost:40104)         |
 | kafka kowl         | [http://localhost:40180](http://localhost:40180)         |

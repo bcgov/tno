@@ -17,8 +17,11 @@ export const useApiAdminDataSources = (
   const api = useApi(options);
 
   return {
+    findAllDataSources: () => {
+      return api.get<IDataSourceModel[]>(`/admin/data/sources`);
+    },
     findDataSources: () => {
-      return api.get<IPaged<IDataSourceModel>>(`/admin/data/sources`);
+      return api.get<IPaged<IDataSourceModel>>(`/admin/data/sources/find`);
     },
     getDataSource: (id: number) => {
       return api.get<IDataSourceModel>(`/admin/data/sources/${id}`);

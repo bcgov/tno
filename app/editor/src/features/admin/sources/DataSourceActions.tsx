@@ -5,8 +5,6 @@ import { IDataSourceModel, ISourceActionModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
 
-import * as styled from './styled';
-
 export const DataSourceActions: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [{ sourceActions }] = useLookup();
@@ -28,17 +26,23 @@ export const DataSourceActions: React.FC = (props) => {
     }
   }, [setFieldValue, sourceActions, values.actions]);
 
-  const options = actions.map((a, i) => {
+  const options = sourceActions.map((a) => {
+    const index = actions.findIndex((da) => da.id === a.id);
+    const found = actions[index];
     return (
       <FormikCheckbox
         key={a.id}
         label={a.name}
-        name={field('value', i)}
-        value={true}
-        checked={!!a?.value}
+        name={field('value', index)}
+        value="true"
+        checked={found?.value === 'true'}
+        onChange={(e) => {
+          const checked = e.currentTarget.checked;
+          setFieldValue(field('value', index), checked ? 'true' : 'false');
+        }}
       />
     );
   });
 
-  return <styled.DataSourceActions>{options}</styled.DataSourceActions>;
+  return <>{options}</>;
 };

@@ -20,6 +20,8 @@ export const Radio = styled.input<IRadioProps>`
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   overflow: visible;
   text-transform: none;
+  cursor: pointer;
+
   color: ${(props) => {
     switch (props.variant) {
       case RadioVariant.warning:

@@ -6,6 +6,6 @@ export const mockMediaTypes: IMediaTypeModel[] = [
     name: 'media',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
   },
 ];

@@ -9,6 +9,7 @@ import { useApiDispatcher } from '..';
  */
 let userInfo: IUserInfoModel = {
   id: 0,
+  key: '',
   username: '',
   email: '',
   displayName: '',
@@ -44,17 +45,20 @@ export const useApp = (): [IAppState, IAppController] => {
   const dispatch = useApiDispatcher();
   const api = useApiAuth();
 
-  const controller = React.useRef({
-    getUserInfo: async () => {
-      const result = await dispatch('get-user-info', () => api.getUserInfo());
-      userInfo = result;
-      store.storeUserInfo(result);
-      return result;
-    },
-    isUserReady: () => userInfo.id !== 0,
-    removeError: store.removeError,
-    clearErrors: store.clearErrors,
-  }).current;
+  const controller = React.useMemo(
+    () => ({
+      getUserInfo: async () => {
+        const result = await dispatch('get-user-info', () => api.getUserInfo());
+        userInfo = result;
+        store.storeUserInfo(result);
+        return result;
+      },
+      isUserReady: () => userInfo.id !== 0,
+      removeError: store.removeError,
+      clearErrors: store.clearErrors,
+    }),
+    [api, dispatch, store],
+  );
 
   return [state, controller];
 };

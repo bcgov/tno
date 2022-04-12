@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Core", "core\TNO.Core.csproj", "{7FCD0392-3CEB-4B36-B7F3-33D3602DDB44}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Entities", "entities\TNO.Entities.csproj", "{8C01FF24-6EAE-419B-AB00-588AFEF9A676}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.DAL", "dal\TNO.DAL.csproj", "{036CE85A-09E0-4C1A-8AC5-346893D78668}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FCD0392-3CEB-4B36-B7F3-33D3602DDB44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FCD0392-3CEB-4B36-B7F3-33D3602DDB44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FCD0392-3CEB-4B36-B7F3-33D3602DDB44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FCD0392-3CEB-4B36-B7F3-33D3602DDB44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C01FF24-6EAE-419B-AB00-588AFEF9A676}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C01FF24-6EAE-419B-AB00-588AFEF9A676}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C01FF24-6EAE-419B-AB00-588AFEF9A676}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C01FF24-6EAE-419B-AB00-588AFEF9A676}.Release|Any CPU.Build.0 = Release|Any CPU
+		{036CE85A-09E0-4C1A-8AC5-346893D78668}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{036CE85A-09E0-4C1A-8AC5-346893D78668}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{036CE85A-09E0-4C1A-8AC5-346893D78668}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{036CE85A-09E0-4C1A-8AC5-346893D78668}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

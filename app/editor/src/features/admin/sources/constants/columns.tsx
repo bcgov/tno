@@ -21,7 +21,7 @@ export const columns: (Column<IDataSourceModel> &
   },
   {
     Header: 'Enabled',
-    accessor: 'enabled',
+    accessor: 'isEnabled',
     Cell: (cell) => <Checkbox checked={cell.value} />,
   },
   {

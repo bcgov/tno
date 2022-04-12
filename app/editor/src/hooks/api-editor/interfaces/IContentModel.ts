@@ -1,23 +1,29 @@
 import {
-  ContentStatus,
+  ContentStatusName,
   IAuditColumnsModel,
   IContentTypeModel,
   ILicenseModel,
   IMediaTypeModel,
   ISeriesModel,
   IUserModel,
-  WorkflowStatus,
+  WorkflowStatusName,
 } from '..';
-import { IActionValueModel, IPrintContentModel } from '.';
-import { ICategoryModel } from './ICategoryModel';
-import { ITagModel } from './ITagModel';
-import { ITimeTrackingModel } from './ITimeTrackingModel';
+import {
+  IContentActionModel,
+  IContentCategoryModel,
+  IContentLinkModel,
+  IContentTagModel,
+  IContentTonePoolModel,
+  IFileReferenceModel,
+  IPrintContentModel,
+  ITimeTrackingModel,
+} from '.';
 
 export interface IContentModel extends IAuditColumnsModel {
   id: number;
   printContent?: IPrintContentModel;
-  status: ContentStatus;
-  workflowStatus: WorkflowStatus;
+  status: ContentStatusName;
+  workflowStatus: WorkflowStatusName;
   contentTypeId: number;
   contentType?: IContentTypeModel;
   mediaTypeId: number;
@@ -29,6 +35,7 @@ export interface IContentModel extends IAuditColumnsModel {
   source: string;
   seriesId?: number;
   series?: ISeriesModel;
+  otherSeries?: string;
   ownerId: number;
   owner?: IUserModel;
   headline: string;
@@ -38,8 +45,11 @@ export interface IContentModel extends IAuditColumnsModel {
   summary: string;
   transcription?: string;
   sourceUrl?: string;
+  actions?: IContentActionModel[];
+  tags?: IContentTagModel[];
+  categories?: IContentCategoryModel[];
+  tonePools?: IContentTonePoolModel[];
   timeTrackings?: ITimeTrackingModel[];
-  actions?: IActionValueModel[];
-  tags?: ITagModel[];
-  categories?: ICategoryModel[];
+  fileReferences?: IFileReferenceModel[];
+  links?: IContentLinkModel[];
 }

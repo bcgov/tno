@@ -1,11 +1,12 @@
+import { OptionItem } from 'components/form';
 import { IContentModel } from 'hooks/api-editor';
-import moment from 'moment';
 
 import { IContentForm } from '../interfaces';
 
 export function toForm(model: IContentModel): IContentForm {
   // return form values in valid API format on submit of ContentForm
   // not utilized properly right now - update coming
+  const defaultTonePool = model.tonePools?.find((t) => t.name === 'Default');
   return {
     id: model.id,
     uid: model.uid ?? '',
@@ -18,15 +19,24 @@ export function toForm(model: IContentModel): IContentForm {
     mediaTypeId: model.mediaTypeId,
     licenseId: model.licenseId,
     headline: model.headline,
+    dataSourceId: model.dataSourceId,
     source: model.source,
+    otherSource: !!model.dataSourceId ? '' : model.source,
     page: model.page,
     ownerId: model.ownerId,
     seriesId: model.seriesId,
-    publishedOn: moment(model.publishedOn).format('MM-dd-YYYY HH:mm:ss'),
-    timeTrackings: model.timeTrackings ?? [],
+    otherSeries: '',
+    publishedOn: model.publishedOn.toString(),
     actions: model.actions ?? [],
-    tags: model.tags ?? [],
     categories: model.categories ?? [],
+    tags: model.tags ?? [],
+    tone: defaultTonePool?.value ?? '',
+    tonePool: defaultTonePool
+      ? new OptionItem(`${defaultTonePool.value}`, defaultTonePool.value)
+      : undefined,
+    timeTrackings: model.timeTrackings ?? [],
+    fileReferences: model.fileReferences ?? [],
+    links: model.links ?? [],
     // Print Content
     section: model.printContent?.section ?? '',
     edition: model.printContent?.edition ?? '',

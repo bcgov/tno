@@ -6,4 +6,5 @@ export enum RadioVariant {
   warning = 'warning',
   danger = 'danger',
   link = 'link',
+  disabled = 'disabled',
 }

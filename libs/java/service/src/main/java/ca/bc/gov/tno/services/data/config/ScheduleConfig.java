@@ -83,7 +83,7 @@ public class ScheduleConfig {
   /**
    * Creates a new instance of a ScheduleConfig object, initializes with
    * specified parameters.
-   * 
+   *
    * @param schedule The schedule object.
    */
   public ScheduleConfig(Schedule schedule) {
@@ -162,14 +162,14 @@ public class ScheduleConfig {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
+  public boolean getIsEnabled() {
     return enabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
+  public void setIsEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 

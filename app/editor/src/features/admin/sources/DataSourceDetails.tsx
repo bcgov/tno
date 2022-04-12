@@ -83,6 +83,7 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
             options={sources}
             placeholder="optional"
           />
+          <FormikText label="Kafka Topic" name="topic" />
           <Connection />
         </Col>
         <Col>
@@ -93,7 +94,7 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
             checked={!!values.schedules.length}
             onChange={showHideSchedule}
           />
-          <FormikCheckbox label="Enabled" name="enabled" />
+          <FormikCheckbox label="Enabled" name="isEnabled" />
           <DataSourceActions />
         </Col>
         <DataSourceStatus />

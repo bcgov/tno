@@ -49,7 +49,7 @@ public class MediaType extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "is_enabled", nullable = false)
-  private boolean enabled = true;
+  private boolean isEnabled = true;
 
   /**
    * A collection of data sources of this type.
@@ -68,7 +68,7 @@ public class MediaType extends AuditColumns {
   /**
    * Creates a new instance of a MediaType object, initializes with specified
    * parameters.
-   * 
+   *
    * @param name Unique name
    */
   public MediaType(String name) {
@@ -83,7 +83,7 @@ public class MediaType extends AuditColumns {
   /**
    * Creates a new instance of a MediaType object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id   Primary key
    * @param name Unique name
    */
@@ -95,7 +95,7 @@ public class MediaType extends AuditColumns {
   /**
    * Creates a new instance of a MediaType object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param version Row version value
@@ -150,15 +150,15 @@ public class MediaType extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
-    return enabled;
+  public boolean getIsEnabled() {
+    return isEnabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setIsEnabled(boolean enabled) {
+    this.isEnabled = isEnabled;
   }
 
   /**

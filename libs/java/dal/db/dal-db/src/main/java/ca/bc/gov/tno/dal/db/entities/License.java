@@ -48,7 +48,7 @@ public class License extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "is_enabled", nullable = false)
-  private boolean enabled = true;
+  private boolean isEnabled = true;
 
   /**
    * The number of days content is allowed to be kept before it must be purged (0
@@ -81,7 +81,7 @@ public class License extends AuditColumns {
   /**
    * Creates a new instance of a License object, initializes with specified
    * parameters.
-   * 
+   *
    * @param name Unique name
    * @param ttl  Time to live in days
    */
@@ -98,7 +98,7 @@ public class License extends AuditColumns {
   /**
    * Creates a new instance of a License object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id   Primary key
    * @param name Unique name
    * @param ttl  Time to live in days
@@ -111,7 +111,7 @@ public class License extends AuditColumns {
   /**
    * Creates a new instance of a License object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param ttl     Time to live in days
@@ -167,15 +167,15 @@ public class License extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
-    return enabled;
+  public boolean getIsEnabled() {
+    return isEnabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setIsEnabled(boolean enabled) {
+    this.isEnabled = isEnabled;
   }
 
   /**

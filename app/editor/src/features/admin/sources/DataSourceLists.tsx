@@ -1,10 +1,9 @@
 import { IDataSourceModel } from 'hooks/api-editor';
-import { toPage } from 'hooks/api-editor/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin/sources';
 import { useApp } from 'store/hooks/app/useApp';
-import { defaultPage, GridTable, IPage } from 'tno-core/dist/components/grid-table';
+import { GridTable } from 'tno-core/dist/components/grid-table';
 
 import { DataSourceFilter } from '.';
 import { columns } from './constants';
@@ -17,21 +16,14 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
   const [{ dataSources }, api] = useDataSources();
   const [{ requests }] = useApp();
 
-  const [page, setPage] = React.useState<IPage<IDataSourceModel>>(defaultPage<IDataSourceModel>());
+  const [items, setItems] = React.useState<IDataSourceModel[]>([]);
 
   React.useEffect(() => {
     if (dataSources.length) {
-      setPage(
-        toPage({
-          page: 1,
-          items: dataSources,
-          quantity: 10,
-          total: dataSources.length,
-        }),
-      );
+      setItems(dataSources);
     } else {
-      api.findDataSources().then((data) => {
-        setPage(toPage(data));
+      api.findAllDataSources().then((data) => {
+        setItems(data);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,7 +34,7 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
       <GridTable
         columns={columns}
         isLoading={!!requests.length}
-        data={page.items}
+        data={items}
         header={DataSourceFilter}
         onRowClick={(row) => navigate(`${row.original.id}`)}
       ></GridTable>

@@ -1,14 +1,14 @@
 import { FieldSize, Text } from 'components/form';
 import {
-  FormikBitwiseCheckbox,
   FormikCheckbox,
   FormikHidden,
+  FormikStringEnumCheckbox,
   FormikText,
   FormikTextArea,
 } from 'components/formik';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
-import { IDataSourceModel, ScheduleType, WeekDay } from 'hooks/api-editor';
+import { IDataSourceModel, ScheduleType, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
@@ -25,6 +25,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, 
   const { field } = useNamespace('schedules', index);
 
   const schedule = values.schedules.length > index ? values.schedules[index] : defaultSchedule;
+  const runOnWeekDays = getIn(values, field('runOnWeekDays'), ScheduleWeekDayName.NA);
 
   return (
     <styled.Schedule className="schedule">
@@ -33,7 +34,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, 
         <FormikHidden name={field('scheduleType')} value={ScheduleType.Repeating} />
         <Row alignItems="center" nowrap>
           <FormikText label="Name" name={field('name')} required />
-          <FormikCheckbox label="Enabled" name={field('enabled')} />
+          <FormikCheckbox label="Enabled" name={field('isEnabled')} />
         </Row>
         <FormikTextArea label="Description" name={field('description')} />
         <Row nowrap>
@@ -53,40 +54,41 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, 
           <p>minutes on the following days;</p>
         </Row>
         <Col>
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Monday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Monday}
+            value={ScheduleWeekDayName.Monday}
+            checked={runOnWeekDays.includes(ScheduleWeekDayName.Monday)}
           />
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Tuesday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Tuesday}
+            value={ScheduleWeekDayName.Tuesday}
           />
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Wednesday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Wednesday}
+            value={ScheduleWeekDayName.Wednesday}
           />
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Thursday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Thursday}
+            value={ScheduleWeekDayName.Thursday}
           />
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Friday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Friday}
+            value={ScheduleWeekDayName.Friday}
           />
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Saturday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Saturday}
+            value={ScheduleWeekDayName.Saturday}
           />
-          <FormikBitwiseCheckbox
+          <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Sunday"
             name={field('runOnWeekDays')}
-            value={WeekDay.Sunday}
+            value={ScheduleWeekDayName.Sunday}
           />
         </Col>
       </Col>

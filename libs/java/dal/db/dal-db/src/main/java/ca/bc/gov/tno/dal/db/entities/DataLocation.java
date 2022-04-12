@@ -67,7 +67,7 @@ public class DataLocation extends AuditColumns {
   /**
    * Creates a new instance of a DataLocation object, initializes with specified
    * parameters.
-   * 
+   *
    * @param name Unique name
    */
   public DataLocation(String name) {
@@ -82,7 +82,7 @@ public class DataLocation extends AuditColumns {
   /**
    * Creates a new instance of a DataLocation object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id   Primary key
    * @param name Unique name
    */
@@ -94,7 +94,7 @@ public class DataLocation extends AuditColumns {
   /**
    * Creates a new instance of a DataLocation object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param version Row version value
@@ -149,14 +149,14 @@ public class DataLocation extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
+  public boolean getIsEnabled() {
     return enabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
+  public void setIsEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 

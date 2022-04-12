@@ -33,7 +33,8 @@ export const FormikBitwiseCheckbox: React.FC<IFormikBitwiseCheckbox> = ({
   isArray = isArray || Array.isArray(originalFieldValue);
   const fieldValue = getIn(values, fieldName, isArray ? [] : 0);
   const isChecked =
-    checked || isArray ? fieldValue.some((v: any) => v === value) : (fieldValue & value) === value;
+    checked ||
+    (isArray ? fieldValue.some((v: any) => v === value) : (fieldValue & value) === value);
 
   const handleChange = (e: React.ChangeEvent<any>) => {
     if (isArray) {

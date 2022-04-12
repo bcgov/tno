@@ -1,11 +1,11 @@
-import { ContentStatus, IContentModel, WorkflowStatus } from '..';
+import { ContentStatusName, IContentModel, WorkflowStatusName } from '..';
 import { mockContentTypes, mockLicenses, mockMediaTypes, mockUsers } from '.';
 
 export const mockContents: IContentModel[] = [
   {
     id: 1,
-    status: ContentStatus.Draft,
-    workflowStatus: WorkflowStatus.InProgress,
+    status: ContentStatusName.Draft,
+    workflowStatus: WorkflowStatusName.InProgress,
     contentTypeId: mockContentTypes[0].id,
     contentType: mockContentTypes[0],
     mediaTypeId: mockMediaTypes[0].id,
@@ -22,8 +22,8 @@ export const mockContents: IContentModel[] = [
   },
   {
     id: 2,
-    status: ContentStatus.Draft,
-    workflowStatus: WorkflowStatus.InProgress,
+    status: ContentStatusName.Draft,
+    workflowStatus: WorkflowStatusName.InProgress,
     contentTypeId: mockContentTypes[0].id,
     contentType: mockContentTypes[0],
     mediaTypeId: mockMediaTypes[0].id,
@@ -40,8 +40,8 @@ export const mockContents: IContentModel[] = [
   },
   {
     id: 3,
-    status: ContentStatus.Draft,
-    workflowStatus: WorkflowStatus.InProgress,
+    status: ContentStatusName.Draft,
+    workflowStatus: WorkflowStatusName.InProgress,
     contentTypeId: mockContentTypes[0].id,
     contentType: mockContentTypes[0],
     mediaTypeId: mockMediaTypes[0].id,
@@ -58,8 +58,8 @@ export const mockContents: IContentModel[] = [
   },
   {
     id: 4,
-    status: ContentStatus.Draft,
-    workflowStatus: WorkflowStatus.InProgress,
+    status: ContentStatusName.Draft,
+    workflowStatus: WorkflowStatusName.InProgress,
     contentTypeId: mockContentTypes[0].id,
     contentType: mockContentTypes[0],
     mediaTypeId: mockMediaTypes[0].id,
@@ -76,8 +76,8 @@ export const mockContents: IContentModel[] = [
   },
   {
     id: 5,
-    status: ContentStatus.Draft,
-    workflowStatus: WorkflowStatus.InProgress,
+    status: ContentStatusName.Draft,
+    workflowStatus: WorkflowStatusName.InProgress,
     contentTypeId: mockContentTypes[0].id,
     contentType: mockContentTypes[0],
     mediaTypeId: mockMediaTypes[0].id,
@@ -94,8 +94,8 @@ export const mockContents: IContentModel[] = [
   },
   {
     id: 6,
-    status: ContentStatus.Draft,
-    workflowStatus: WorkflowStatus.InProgress,
+    status: ContentStatusName.Draft,
+    workflowStatus: WorkflowStatusName.InProgress,
     contentTypeId: mockContentTypes[0].id,
     contentType: mockContentTypes[0],
     mediaTypeId: mockMediaTypes[0].id,

@@ -1,5 +1,5 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: elastic-deploy
   annotations:
@@ -267,4 +267,4 @@ objects:
             storageClassName: ${STORAGE_CLASS}
             resources:
               requests:
-                storage:  ${VOLUME_CAPACITY}
+                storage: ${VOLUME_CAPACITY}

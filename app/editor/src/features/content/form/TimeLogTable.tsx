@@ -2,8 +2,8 @@ import { ITimeTrackingModel } from 'hooks';
 import { useLookup } from 'store/hooks';
 import { GridTable, Row } from 'tno-core';
 
-import { TableContainer } from '../styled';
 import { timeLogColumns } from './constants';
+import * as styled from './styled';
 
 export interface ITimeLogTableProps {
   /** the data to be displayed in the table */
@@ -24,7 +24,7 @@ export const TimeLogTable: React.FC<ITimeLogTableProps> = ({ data, totalTime }) 
     createdOn: d.createdOn,
   }));
   return (
-    <TableContainer>
+    <styled.TimeLogTable>
       <GridTable
         paging={{ showPaging: false }}
         columns={timeLogColumns}
@@ -33,6 +33,6 @@ export const TimeLogTable: React.FC<ITimeLogTableProps> = ({ data, totalTime }) 
       <Row>
         <p className="total-text">{`Total: ${totalTime} Min`}</p>
       </Row>
-    </TableContainer>
+    </styled.TimeLogTable>
   );
 };

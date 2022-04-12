@@ -27,9 +27,9 @@ import {
   logicalOperators,
   timeFrames,
 } from './constants';
-import * as styled from './ContentListViewStyled';
 import { IContentListFilter, ISortBy } from './interfaces';
 import { makeFilter } from './makeFilter';
+import * as styled from './styled';
 
 export const ContentListView: React.FC = () => {
   const [{ userInfo, requests }, { isUserReady }] = useApp();
@@ -52,7 +52,12 @@ export const ContentListView: React.FC = () => {
   React.useEffect(() => {
     setContentTypes(getSortableOptions(contentTypes));
     setMediaTypes(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
-    setUsers(getUserOptions(users, [new OptionItem<number>('All Users', 0)]));
+    setUsers(
+      getUserOptions(
+        users.filter((u) => !u.isSystemAccount),
+        [new OptionItem<number>('All Users', 0)],
+      ),
+    );
   }, [contentTypes, mediaTypes, users]);
 
   const fetch = React.useCallback(
@@ -84,7 +89,7 @@ export const ContentListView: React.FC = () => {
     // Only want to make a request when filter or sort change.
     // 'fetch' regrettably changes any time the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, sortBy, isUserReady]);
+  }, [filter, sortBy]);
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {

@@ -1,57 +1,57 @@
-import { WeekDay, WeekDayName } from 'hooks/api-editor';
+import { ScheduleWeekDay, ScheduleWeekDayName } from 'hooks/api-editor';
 
-export const weekDayName = (value: WeekDay | WeekDay[]) => {
+export const weekDayName = (value: ScheduleWeekDay | ScheduleWeekDay[]) => {
   var values = Array.isArray(value) ? value : [value];
 
   if (
-    values.includes(WeekDay.Sunday) &&
-    values.includes(WeekDay.Monday) &&
-    values.includes(WeekDay.Tuesday) &&
-    values.includes(WeekDay.Wednesday) &&
-    values.includes(WeekDay.Thursday) &&
-    values.includes(WeekDay.Friday) &&
-    values.includes(WeekDay.Saturday)
+    values.includes(ScheduleWeekDay.Sunday) &&
+    values.includes(ScheduleWeekDay.Monday) &&
+    values.includes(ScheduleWeekDay.Tuesday) &&
+    values.includes(ScheduleWeekDay.Wednesday) &&
+    values.includes(ScheduleWeekDay.Thursday) &&
+    values.includes(ScheduleWeekDay.Friday) &&
+    values.includes(ScheduleWeekDay.Saturday)
   )
     return 'All';
 
   if (
-    values.includes(WeekDay.Sunday) &&
-    values.includes(WeekDay.Saturday) &&
-    ((values.includes(WeekDay.NA) && values.length === 3) || values.length === 2)
+    values.includes(ScheduleWeekDay.Sunday) &&
+    values.includes(ScheduleWeekDay.Saturday) &&
+    ((values.includes(ScheduleWeekDay.NA) && values.length === 3) || values.length === 2)
   )
     return 'Weekends';
 
   if (
-    !values.includes(WeekDay.Sunday) &&
-    values.includes(WeekDay.Monday) &&
-    values.includes(WeekDay.Tuesday) &&
-    values.includes(WeekDay.Wednesday) &&
-    values.includes(WeekDay.Thursday) &&
-    values.includes(WeekDay.Friday) &&
-    !values.includes(WeekDay.Saturday)
+    !values.includes(ScheduleWeekDay.Sunday) &&
+    values.includes(ScheduleWeekDay.Monday) &&
+    values.includes(ScheduleWeekDay.Tuesday) &&
+    values.includes(ScheduleWeekDay.Wednesday) &&
+    values.includes(ScheduleWeekDay.Thursday) &&
+    values.includes(ScheduleWeekDay.Friday) &&
+    !values.includes(ScheduleWeekDay.Saturday)
   )
     return 'Weekdays';
 
   const result = values
-    .filter((v) => v !== WeekDay.NA)
+    .filter((v) => v !== ScheduleWeekDay.NA)
     .map((v) => {
       switch (v) {
-        case WeekDay.Sunday:
-          return WeekDayName.Sunday;
-        case WeekDay.Monday:
-          return WeekDayName.Monday;
-        case WeekDay.Tuesday:
-          return WeekDayName.Tuesday;
-        case WeekDay.Wednesday:
-          return WeekDayName.Wednesday;
-        case WeekDay.Thursday:
-          return WeekDayName.Thursday;
-        case WeekDay.Friday:
-          return WeekDayName.Friday;
-        case WeekDay.Saturday:
-          return WeekDayName.Saturday;
+        case ScheduleWeekDay.Sunday:
+          return ScheduleWeekDayName.Sunday;
+        case ScheduleWeekDay.Monday:
+          return ScheduleWeekDayName.Monday;
+        case ScheduleWeekDay.Tuesday:
+          return ScheduleWeekDayName.Tuesday;
+        case ScheduleWeekDay.Wednesday:
+          return ScheduleWeekDayName.Wednesday;
+        case ScheduleWeekDay.Thursday:
+          return ScheduleWeekDayName.Thursday;
+        case ScheduleWeekDay.Friday:
+          return ScheduleWeekDayName.Friday;
+        case ScheduleWeekDay.Saturday:
+          return ScheduleWeekDayName.Saturday;
         default:
-          return WeekDayName.NA;
+          return ScheduleWeekDayName.NA;
       }
     });
 

@@ -2,7 +2,7 @@ import { IScheduleModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
 import { Checkbox, Ellipsis } from 'tno-core/dist/components/cell';
 
-import { weekDayName } from '../utils';
+import { weekDayNameAbbrev } from '../utils';
 
 export const columns: (Column<IScheduleModel> &
   UseSortByColumnOptions<IScheduleModel> &
@@ -19,12 +19,12 @@ export const columns: (Column<IScheduleModel> &
   },
   {
     Header: 'Enabled',
-    accessor: 'enabled',
+    accessor: 'isEnabled',
     Cell: (cell) => <Checkbox checked={cell.value} />,
   },
   {
     Header: 'Days of the Week',
     accessor: 'runOnWeekDays',
-    Cell: (cell) => weekDayName(cell.value),
+    Cell: (cell) => weekDayNameAbbrev(cell.value),
   },
 ];

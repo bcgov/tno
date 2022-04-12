@@ -1,5 +1,5 @@
 kind: Template
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 metadata:
   name: elastic-deploy
   annotations:
@@ -191,4 +191,3 @@ objects:
                   mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
                   readOnly: true
                   subPath: elasticsearch.yml
-

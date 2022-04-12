@@ -6,6 +6,6 @@ export const mockSeries: ISeriesModel[] = [
     name: 'series',
     description: '',
     sortOrder: 0,
-    enabled: true,
+    isEnabled: true,
   },
 ];

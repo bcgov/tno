@@ -36,8 +36,8 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
       ...values,
       parentId: values.parentId ? values.parentId : undefined,
     });
-    setSource({ ...data, parentId: data.parentId ? data.parentId : undefined });
-    toast.success(`${data.name} has successfully been updated.`);
+    setSource({ ...data, parentId: data.parentId ? data.parentId : 0 });
+    toast.success(`${data.name} has successfully been saved.`);
   };
 
   return (

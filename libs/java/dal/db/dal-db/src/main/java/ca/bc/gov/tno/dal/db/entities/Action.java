@@ -68,7 +68,7 @@ public class Action extends AuditColumns {
    * Whether this record is enabled or disabled.
    */
   @Column(name = "is_enabled", nullable = false)
-  private boolean enabled = true;
+  private boolean isEnabled = true;
 
   /**
    * A collection of role actions that belong to this action.
@@ -94,7 +94,7 @@ public class Action extends AuditColumns {
   /**
    * Creates a new instance of a Action object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id   Primary key
    * @param name Unique name
    */
@@ -112,7 +112,7 @@ public class Action extends AuditColumns {
   /**
    * Creates a new instance of a Action object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id      Primary key
    * @param name    Unique name
    * @param version Row version value
@@ -125,7 +125,7 @@ public class Action extends AuditColumns {
   /**
    * Creates a new instance of a Action object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id         Primary key
    * @param name       Unique name
    * @param valueType  Type of value allowed
@@ -150,7 +150,7 @@ public class Action extends AuditColumns {
   /**
    * Creates a new instance of a Action object, initializes with specified
    * parameters.
-   * 
+   *
    * @param id         Primary key
    * @param name       Unique name
    * @param valueType  Type of value allowed
@@ -249,15 +249,15 @@ public class Action extends AuditColumns {
   /**
    * @return boolean return the enabled
    */
-  public boolean isEnabled() {
-    return enabled;
+  public boolean getIsEnabled() {
+    return isEnabled;
   }
 
   /**
    * @param enabled the enabled to set
    */
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setIsEnabled(boolean enabled) {
+    this.isEnabled = isEnabled;
   }
 
   /**

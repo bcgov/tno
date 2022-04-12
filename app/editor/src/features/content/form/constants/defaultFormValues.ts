@@ -1,4 +1,4 @@
-import { ContentStatus, WorkflowStatus } from 'hooks/api-editor';
+import { ContentStatusName, WorkflowStatusName } from 'hooks/api-editor';
 
 import { IContentForm } from '../interfaces';
 
@@ -6,23 +6,29 @@ export const defaultFormValues: IContentForm = {
   id: 0,
   uid: '',
   sourceUrl: '',
-  status: ContentStatus.Publish,
-  workflowStatus: WorkflowStatus.Received,
+  status: ContentStatusName.Publish,
+  workflowStatus: WorkflowStatusName.Received,
   contentTypeId: 0,
   mediaTypeId: 0,
   licenseId: 1,
+  dataSourceId: undefined,
   ownerId: 0,
   seriesId: undefined,
+  otherSeries: '',
   headline: '',
   summary: '',
   source: '',
+  otherSource: '',
   page: '',
   transcription: '',
   publishedOn: '',
-  timeTrackings: [],
   actions: [],
-  tags: [],
   categories: [],
+  tags: [],
+  tone: '',
+  timeTrackings: [],
+  fileReferences: [],
+  links: [],
   // Print Content
   section: '',
   edition: '',
