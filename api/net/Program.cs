@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Npgsql;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
@@ -30,6 +29,7 @@ builder
     .AddEnvironmentVariables()
     .AddCommandLine(args);
 var config = builder.Configuration;
+builder.WebHost.UseUrls(config.GetValue<string>("Urls"));
 
 // Add services to the container.
 

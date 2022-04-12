@@ -1,6 +1,6 @@
 ARG BUILD_CONFIGURATION=Release
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-EXPOSE 443 80
+EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build

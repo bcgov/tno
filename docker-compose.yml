@@ -173,7 +173,7 @@ services:
       dockerfile: api/net/Dockerfile
     env_file: api/net/.env
     ports:
-      - ${API_HTTP_PORT:-40010}:80
+      - ${API_HTTP_PORT:-40010}:8080
       - ${API_HTTPS_PORT:-40011}:443
     depends_on:
       - database
