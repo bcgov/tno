@@ -173,7 +173,7 @@ services:
       dockerfile: api/net/Dockerfile
     env_file: api/net/.env
     ports:
-      - ${API_HTTP_PORT:-40010}:80
+      - ${API_HTTP_PORT:-40010}:8080
       - ${API_HTTPS_PORT:-40011}:443
     depends_on:
       - database
@@ -181,7 +181,7 @@ services:
     networks:
       - tno
     healthcheck:
-      test: curl -s -f http://localhost:80/health
+      test: curl -s -f http://localhost:8080/health
       interval: 5m
       timeout: 10s
       retries: 3

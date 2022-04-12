@@ -6,7 +6,7 @@ metadata:
     description: Editor API application deployment configuration
     openshift.io/display-name: Editor API Application Deployment Configuration
     openshift.io/long-description: Deployment configuration to Editor API application.
-    tags: api,java,maven,editor
+    tags: api,net,editor
 
 parameters:
   - name: SOLUTION_NAME
@@ -41,17 +41,23 @@ parameters:
     description: The port used to communicate with the Pod
     value: "8080"
 
-  - name: KEYCLOAK_AUTH_SERVER_URL
+  - name: CONNECTION_STRING
+    displayName: Database Connection String
+    description: PostgreSQL database connection string.
+    required: true
+    value: Host=tno-database:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
+
+  - name: KEYCLOAK_AUTHORITY
     displayName: Keycloak Authority URL
     description: The Keycloak authority URL.
     required: true
-    value: https://dev.oidc.gov.bc.ca/auth/
+    value: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
   - name: KEYCLOAK_REALM
     displayName: Keycloak SSO realm
     description: Keycloak SSO realm, used by the frontend login.
     required: true
     value: gcpe
-  - name: KEYCLOAK_CLIENT_ID
+  - name: KEYCLOAK_AUDIENCE
     displayName: Keycloak Client ID
     description: The Keycloak Client ID to identify the resource.
     required: true
@@ -62,11 +68,6 @@ parameters:
     description: Name of the database secrets object.
     required: true
     value: tno-database
-  - name: CONNECTION_STRING
-    displayName: Database Connection String
-    description: PostgreSQL database connection string.
-    required: true
-    value: Host=tno-database:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
   - name: ELASTIC_SECRETS_NAME
     displayName: Elasticsearch Secret Name
@@ -149,11 +150,11 @@ objects:
         app: ${APP_NAME}
     type: Opaque
     data:
-      KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL}
+      KEYCLOAK_AUTHORITY: ${KEYCLOAK_AUTHORITY}
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE}
 
-      DB_URL: ${DB_URL}
+      CONNECTION_STRING: ${CONNECTION_STRING}
 
       ELASTIC_URIS: ${ELASTIC_URIS}
 
@@ -208,21 +209,23 @@ objects:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
               env:
-                - name: KEYCLOAK_AUTH_SERVER_URL
+                - name: ASPNETCORE_URLS
+                  value: http://+:${APP_PORT}
+                - name: Keycloak__Authority
                   valueFrom:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
-                      key: KEYCLOAK_AUTH_SERVER_URL
-                - name: KEYCLOAK_REALM
+                      key: KEYCLOAK_AUTHORITY
+                - name: Keycloak__Realm
                   valueFrom:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
                       key: KEYCLOAK_REALM
-                - name: KEYCLOAK_RESOURCE
+                - name: Keycloak__Audience
                   valueFrom:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
-                      key: KEYCLOAK_CLIENT_ID
+                      key: KEYCLOAK_AUDIENCE
 
                 - name: KAFKA_BOOTSTRAP_SERVERS
                   valueFrom:
@@ -304,7 +307,7 @@ objects:
                   path: "/health"
                   port: ${{APP_PORT}}
                   scheme: HTTP
-                initialDelaySeconds: 120
+                initialDelaySeconds: 30
                 timeoutSeconds: 30
                 periodSeconds: 30
                 successThreshold: 1
@@ -314,7 +317,7 @@ objects:
                   path: "/health"
                   port: ${{APP_PORT}}
                   scheme: HTTP
-                initialDelaySeconds: 120
+                initialDelaySeconds: 30
                 timeoutSeconds: 60
                 periodSeconds: 30
                 successThreshold: 1

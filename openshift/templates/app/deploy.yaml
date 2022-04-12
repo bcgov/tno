@@ -5,7 +5,7 @@ metadata:
   annotations:
     description: Editor web application deployment configuration
     openshift.io/display-name: Editor Web Application Deployment Configuration
-    openshift.io/long-description: Deployment configuriation to Editor web application.
+    openshift.io/long-description: Deployment configuration to Editor web application.
     tags: app,react,nginx,editor
 
 parameters:
@@ -40,7 +40,7 @@ parameters:
     displayName: API Component Group Name
     description: The name of the API component group
     required: true
-    value: "api-editor"
+    value: api-editor
 
   - name: APP_PORT
     displayName: Application Port
@@ -51,27 +51,27 @@ parameters:
     displayName: Keycloak SSO realm
     description: Keycloak SSO realm, used by the frontend login.
     required: true
-    value: "gcpe"
+    value: gcpe
   - name: KEYCLOAK_AUTHORITY_URL
     displayName: Keycloak Authority URL
     description: The Keycloak authority URL.
     required: true
-    value: "https://dev.oidc.gov.bc.ca/auth/"
+    value: https://dev.oidc.gov.bc.ca/auth/
   - name: KEYCLOAK_CLIENT_ID
     displayName: Keycloak Client ID
     description: The Keycloak Client ID to identify the resource.
     required: true
-    value: "tno-app"
+    value: tno-app
   - name: FILE_CONFIG_MOUNT_PATH
     displayName: keycloak.json Mount Path
     description: The path to use to mount the config file.
     required: true
-    value: "/usr/share/nginx/html/"
+    value: /usr/share/nginx/html/
   - name: KEYCLOAK_CONFIG_FILE_NAME
     displayName: keycloak.json Config File Name
     description: The name of the configuration file to be used for keycloak.json.
     required: true
-    value: "keycloak.json"
+    value: keycloak.json
 
   - name: REPLICAS
     displayName: Pod Replicas

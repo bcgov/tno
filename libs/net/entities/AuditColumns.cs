@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Claims;
+using TNO.Core.Extensions;
 
 namespace TNO.Entities;
 
@@ -36,10 +38,26 @@ public abstract class AuditColumns : ISaveChanges
         this.Version = 0;
     }
 
+    public void OnAdded(ClaimsPrincipal? user)
+    {
+        this.CreatedById = user?.GetUid() ?? Guid.Empty;
+        this.CreatedBy = user?.GetUsername() ?? "";
+        this.CreatedOn = DateTime.UtcNow;
+        this.Version = 0;
+    }
+
     public void OnModified(User user)
     {
         this.UpdatedById = user.Key;
         this.UpdatedBy = user.Username;
+        this.UpdatedOn = DateTime.UtcNow;
+        this.Version++;
+    }
+
+    public void OnModified(ClaimsPrincipal? user)
+    {
+        this.UpdatedById = user?.GetUid() ?? Guid.Empty;
+        this.UpdatedBy = user?.GetUsername() ?? "";
         this.UpdatedOn = DateTime.UtcNow;
         this.Version++;
     }

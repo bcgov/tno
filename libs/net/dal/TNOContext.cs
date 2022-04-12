@@ -111,9 +111,7 @@ public class TNOContext : DbContext
         var modifiedEntries = ChangeTracker.Entries()
                 .Where(x => (x.State == EntityState.Added || x.State == EntityState.Modified));
 
-        var key = _httpContextAccessor?.HttpContext?.User.GetUid();
-        // TODO: Should add the User.Id to a claim so that it can be easily returned.
-        var user = this.Users.Where(u => u.Key == key).FirstOrDefault() ?? throw new InvalidOperationException($"User does not exist for key '{key}'");
+        var user = _httpContextAccessor?.HttpContext?.User;
         foreach (var entry in modifiedEntries)
         {
             if (entry.Entity is ISaveChanges entity)
