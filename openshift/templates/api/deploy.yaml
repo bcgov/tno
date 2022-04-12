@@ -39,7 +39,13 @@ parameters:
   - name: APP_PORT
     displayName: Application Port
     description: The port used to communicate with the Pod
-    value: "80"
+    value: "8080"
+
+  - name: CONNECTION_STRING
+    displayName: Database Connection String
+    description: PostgreSQL database connection string.
+    required: true
+    value: Host=tno-database:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
   - name: KEYCLOAK_AUTHORITY
     displayName: Keycloak Authority URL
@@ -62,11 +68,6 @@ parameters:
     description: Name of the database secrets object.
     required: true
     value: tno-database
-  - name: CONNECTION_STRING
-    displayName: Database Connection String
-    description: PostgreSQL database connection string.
-    required: true
-    value: Host=tno-database:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
   - name: ELASTIC_SECRETS_NAME
     displayName: Elasticsearch Secret Name
@@ -208,6 +209,8 @@ objects:
                   cpu: ${CPU_LIMIT}
                   memory: ${MEMORY_LIMIT}
               env:
+                - name: ASPNETCORE_URLS
+                  value: http://+:${APP_PORT}
                 - name: Keycloak__Authority
                   valueFrom:
                     configMapKeyRef:
@@ -304,7 +307,7 @@ objects:
                   path: "/health"
                   port: ${{APP_PORT}}
                   scheme: HTTP
-                initialDelaySeconds: 120
+                initialDelaySeconds: 30
                 timeoutSeconds: 30
                 periodSeconds: 30
                 successThreshold: 1
@@ -314,7 +317,7 @@ objects:
                   path: "/health"
                   port: ${{APP_PORT}}
                   scheme: HTTP
-                initialDelaySeconds: 120
+                initialDelaySeconds: 30
                 timeoutSeconds: 60
                 periodSeconds: 30
                 successThreshold: 1

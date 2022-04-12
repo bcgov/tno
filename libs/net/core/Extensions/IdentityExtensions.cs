@@ -24,7 +24,7 @@ public static class IdentityExtensions
     /// <returns></returns>
     public static string? GetUsername(this ClaimsPrincipal user)
     {
-        var claim = user?.FindFirst("username");
+        var claim = user?.FindFirst("username") ?? user?.FindFirst("preferred_username");
         return claim?.Value;
     }
 
@@ -46,7 +46,7 @@ public static class IdentityExtensions
     /// <returns></returns>
     public static string? GetFirstName(this ClaimsPrincipal user)
     {
-        var claim = user?.FindFirst(ClaimTypes.GivenName);
+        var claim = user?.FindFirst(ClaimTypes.GivenName) ?? user?.FindFirst("given_name");
         return claim?.Value;
     }
 
@@ -57,7 +57,7 @@ public static class IdentityExtensions
     /// <returns></returns>
     public static string? GetLastName(this ClaimsPrincipal user)
     {
-        var claim = user?.FindFirst(ClaimTypes.Surname);
+        var claim = user?.FindFirst(ClaimTypes.Surname) ?? user?.FindFirst("family_name");
         return claim?.Value;
     }
 

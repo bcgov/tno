@@ -29,7 +29,6 @@ builder
     .AddEnvironmentVariables()
     .AddCommandLine(args);
 var config = builder.Configuration;
-builder.WebHost.UseUrls(config.GetValue<string>("Urls"));
 
 // Add services to the container.
 

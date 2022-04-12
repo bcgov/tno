@@ -192,6 +192,7 @@ if test -f "./api/net/.env"; then
 else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8080
 KEYCLOAK__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
 ConnectionStrings__TNO=Host=host.docker.internal:40000;Database=$dbName;Include Error Detail=true;Log Parameters=true;
 DB_POSTGRES_USERNAME=$dbUser

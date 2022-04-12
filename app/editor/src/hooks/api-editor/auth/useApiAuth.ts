@@ -19,7 +19,7 @@ export const useApiAuth = (
 
   return React.useRef({
     getUserInfo: () => {
-      return api.get<IUserInfoModel>(`/auth/userinfo`);
+      return api.post<IUserInfoModel>(`/auth/userinfo`);
     },
   }).current;
 };

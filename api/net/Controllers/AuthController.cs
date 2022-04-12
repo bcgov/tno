@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
     /// Return environment information.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("userinfo")]
+    [HttpPost("userinfo")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(PrincipalModel), 200)]
     [SwaggerOperation(Tags = new[] { "health" })]
@@ -48,6 +48,7 @@ public class AuthController : ControllerBase
     {
         var key = this.User.GetUid();
         var user = _userService.FindByKey(key);
+
         // TODO: Add custom attribute to Keycloak to store the user.Id.  Then remove need to fetch from database.
         // If user doesn't exist, add them to the database.
         if (user == null)

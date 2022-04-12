@@ -181,7 +181,7 @@ services:
     networks:
       - tno
     healthcheck:
-      test: curl -s -f http://localhost:80/health
+      test: curl -s -f http://localhost:8080/health
       interval: 5m
       timeout: 10s
       retries: 3
