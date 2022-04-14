@@ -4,7 +4,7 @@ import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { IUserModel } from 'hooks/api-editor';
+import { ITimeTrackingModel, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
