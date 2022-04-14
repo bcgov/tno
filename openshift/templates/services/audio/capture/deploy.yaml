@@ -67,28 +67,6 @@ parameters:
     required: true
     value: tno-services
 
-  - name: VOLUME_SIZE
-    displayName: Backup Volume Size
-    description:
-      The size of the persistent volume used for restoring and verifying
-      backups, e.g. 512Mi, 1Gi, 2Gi.  Ensure this is sized correctly.  It should be
-      large enough to contain your largest database.
-    required: true
-    value: "5Gi"
-  - name: VOLUME_CLASS
-    displayName: Backup Volume Class
-    description:
-      The class of the persistent volume used for restoring and verifying
-      backups; should be one of netapp-block-standard or netapp-file-standard.  netapp-block-standard
-      performs better.
-    required: true
-    value: "netapp-file-standard"
-  - name: VOLUME_MOUNT_PATH
-    displayName: Verification Volume Mount Path
-    description: The path on which to mount the volume.
-    required: true
-    value: "/data"
-
   - name: REPLICAS
     displayName: Pod Replicas
     description: Number of pod replicas to run
@@ -115,24 +93,6 @@ parameters:
     value: 500Mi
 
 objects:
-  # Storage for videos.
-  - kind: PersistentVolumeClaim
-    apiVersion: v1
-    metadata:
-      name: ${SOLUTION_NAME}-${APP_NAME}
-      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
-      labels:
-        name: ${SOLUTION_NAME}-${APP_NAME}
-        solution: ${SOLUTION_NAME}
-        app: ${APP_NAME}
-    spec:
-      storageClassName: ${VOLUME_CLASS}
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: ${VOLUME_SIZE}
-
   # Open up ports to communicate with the app.
   - kind: Service
     apiVersion: v1

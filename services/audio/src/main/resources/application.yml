@@ -14,6 +14,12 @@ service:
   max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
   failed-delay: ${FAILED_DELAY:5000}
 
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL}
+  realm: ${KEYCLOAK_REALM:tno}
+  resource: ${KEYCLOAK_CLIENT_ID:tno-api}
+  public-client: true
+
 api:
   host-url: ${API_HOST_URL}
   authority-url: ${KEYCLOAK_AUTH_SERVER_URL}
@@ -30,7 +36,6 @@ data:
   source:
     mediaType: ${DATA_SOURCE_MEDIA_TYPE:News Radio}
     timeZone: ${DATA_SOURCE_TIMEZONE:America/Los_Angeles}
-
 #sources:
 #    - id: ${DATA_SOURCE_ID}
 #      type: ${DATA_SOURCE_TYPE:AUDIO}
