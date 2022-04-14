@@ -19,6 +19,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -27,6 +28,7 @@ import ca.bc.gov.tno.dal.db.Months;
 import ca.bc.gov.tno.dal.db.ScheduleType;
 import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.dal.db.converters.WeekDaysAttributeConverter;
+import ca.bc.gov.tno.dal.db.converters.ZonedDateTimeDeserializer;
 import ca.bc.gov.tno.dal.db.services.Settings;
 import ca.bc.gov.tno.dal.db.converters.MonthsAttributeConverter;
 
@@ -80,7 +82,8 @@ public class Schedule extends AuditColumns {
    * service should be delayed from running for a period of time.
    * null = Run immediately.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Column(name = "run_on")
   private ZonedDateTime runOn;
 
@@ -237,7 +240,7 @@ public class Schedule extends AuditColumns {
    * @param enabled the enabled to set
    */
   public void setIsEnabled(boolean enabled) {
-    this.isEnabled = isEnabled;
+    this.isEnabled = enabled;
   }
 
   /**

@@ -173,6 +173,8 @@ objects:
               value: ${SOLUTION_NAME}-${MIGRATION_NAME}
             - name: DB_APP_NAME
               value: ${SOLUTION_NAME}-${DB_NAME}
+            - name: API_NAME
+              value: ${SOLUTION_NAME}-${API_NAME}
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
             - name: DEPLOY_TO

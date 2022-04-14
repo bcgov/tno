@@ -43,7 +43,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Indicates whether the current event is a stop event. This is true if the schedule's stop_at is
+   * Indicates whether the current event is a stop event. This is true if the
+   * schedule's stop_at is
    * less than the current time.
    * 
    * @param schedule The schedule for the current event
@@ -58,7 +59,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Indicates whether the current event is a start event. This is true if the schedule's start_at is
+   * Indicates whether the current event is a start event. This is true if the
+   * schedule's start_at is
    * less than the current time and greater than the stop time.
    * 
    * @param schedule The schedule for the current event
@@ -88,28 +90,28 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
     try {
       if (isaStopEvent(schedule)) {
         stopMediaStream(captureConfig.getRunningCommand());
-      } else 
-      if (isaStartEvent(schedule)) { 
+      } else if (isaStartEvent(schedule)) {
         boolean success = startMediaStream(mediaSource);
         captureConfig.setCaptureSuccess(success);
       } else {
         logger.info(captureConfig.getId() + ": Streaming has not been started yet.");
       }
-      
+
       var doneEvent = new TransactionCompleteEvent(event.getSource(), captureConfig, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(caller, ex, captureConfig);
+      var errorEvent = new ErrorEvent(caller, captureConfig, ex);
       eventPublisher.publishEvent(errorEvent);
     }
   }
 
   /**
-   * Obtain the location of the streaming file for this event and check that it is being written to.
-   * If the file doesn't exist, or the media stream has dropped, start streaming from the media source.
+   * Obtain the location of the streaming file for this event and check that it is
+   * being written to.
+   * If the file doesn't exist, or the media stream has dropped, start streaming
+   * from the media source.
    */
   private boolean startMediaStream(String mediaSource) {
-
     File captureFile = new File(mediaSource);
     String cmd = captureConfig.getCaptureCmd();
     boolean captureSuccess = false;
@@ -121,7 +123,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       current = System.currentTimeMillis();
     }
 
-    // Start recording the media stream if it has dropped or the capture file doesn't exist
+    // Start recording the media stream if it has dropped or the capture file
+    // doesn't exist
     if (modified == 0 || current - modified > captureConfig.getStreamTimeout()) {
       executeCaptureCmd(cmd, mediaSource);
       captureConfig.setStreamStartTime(System.currentTimeMillis());
@@ -135,7 +138,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Stop the streaming process that corresponds with the command <code>command</code>
+   * Stop the streaming process that corresponds with the command
+   * <code>command</code>
    * 
    * @param runningNow The capture command currently running
    */
@@ -143,7 +147,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
     try {
       if (!runningNow.isEmpty()) {
-        String[] cmdArray = new String[] {"pkill", "-f", runningNow};
+        String[] cmdArray = new String[] { "pkill", "-f", runningNow };
 
         Runtime rt = Runtime.getRuntime();
         rt.exec(cmdArray);
@@ -158,9 +162,11 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Executes a media stream capture command as defined in the captureConfig object
+   * Executes a media stream capture command as defined in the captureConfig
+   * object
    * 
-   * @param cmd The Linux command to execute (with substitution variables)
+   * @param cmd             The Linux command to execute (with substitution
+   *                        variables)
    * @param captureFilePath The full path of the output directory
    */
   private void executeCaptureCmd(String cmd, String captureFilePath) {
@@ -170,17 +176,17 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       cmd = cmd.replace("[capture-path]", captureFilePath);
 
       String[] cmdArray = {
-        "/bin/sh",
-            "-c",
-        cmd
+          "/bin/sh",
+          "-c",
+          cmd
       };
 
       try {
-        Process p = new ProcessBuilder(cmdArray).start();
+        new ProcessBuilder(cmdArray).start();
         captureConfig.setRunningNow(cmd.substring(0, cmd.indexOf(">") - 1));
         logger.info("Capture command executed '" + cmd);
       } catch (Exception e) {
-        logger.info("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);
+        logger.error("Exception launching capture command '" + cmd + "': '" + e.getMessage() + "'", e);
       }
     }
   }

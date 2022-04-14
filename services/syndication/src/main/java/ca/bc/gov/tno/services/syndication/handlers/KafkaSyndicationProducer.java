@@ -26,12 +26,12 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import ca.bc.gov.tno.dal.db.WorkflowStatus;
-import ca.bc.gov.tno.dal.db.entities.ContentReference;
-import ca.bc.gov.tno.dal.db.entities.ContentReferencePK;
-import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
+import ca.bc.gov.tno.services.models.WorkflowStatus;
+import ca.bc.gov.tno.services.models.ContentReference;
+import ca.bc.gov.tno.services.converters.ParseZonedDateTime;
 import ca.bc.gov.tno.models.SourceContent;
 import ca.bc.gov.tno.models.Tag;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.kafka.config.KafkaProducerConfig;
@@ -50,17 +50,17 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
 
   private final ApplicationEventPublisher eventPublisher;
   private final KafkaProducerConfig kafkaConfig;
-  private final IContentReferenceService contentReferenceService;
+  private final TnoApi api;
   private final KafkaProducer<String, SourceContent> producer;
 
   /**
    * Create a new instance of a KafkaSyndicationProducer object.
    */
   @Autowired
-  public KafkaSyndicationProducer(final KafkaProducerConfig config, final IContentReferenceService service,
+  public KafkaSyndicationProducer(final KafkaProducerConfig config, final TnoApi api,
       final ApplicationEventPublisher eventPublisher) {
     this.kafkaConfig = config;
-    this.contentReferenceService = service;
+    this.api = api;
     this.eventPublisher = eventPublisher;
 
     var props = new Properties();
@@ -93,7 +93,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
       var doneEvent = new TransactionCompleteEvent(event.getSource(), config, schedule);
       eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
       producer.flush();
     }
@@ -136,15 +136,15 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
 
         // Only update the content reference if it was in progress.f
         // An update won't change the status.
-        if (content.getStatus() == WorkflowStatus.InProgress) {
+        if (content.getWorkflowStatus() == WorkflowStatus.InProgress) {
           content.setPartition(record.partition());
           content.setOffset(record.offset());
-          content.setStatus(WorkflowStatus.Received);
-          contentReferenceService.update(content);
+          content.setWorkflowStatus(WorkflowStatus.Received);
+          api.update(content);
         }
       } catch (Exception ex) {
         // Hopefully an error on one entry won't stop all other entries.
-        var errorEvent = new ErrorEvent(caller, ex, config);
+        var errorEvent = new ErrorEvent(caller, config, ex);
         eventPublisher.publishEvent(errorEvent);
       }
 
@@ -172,10 +172,8 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
 
     try {
       // Ensure no duplicates are imported.
-      var rContentReference = contentReferenceService.findById(new ContentReferencePK(source, uid));
-      if (rContentReference.isPresent()) {
-        // The content reference already exists,
-        var contentReference = rContentReference.get();
+      var contentReference = api.getContentReference(source, uid);
+      if (contentReference != null) {
 
         // TODO: verify a hash of the content to ensure it has changed. This may be slow
         // however, but would ensure the content was physically updated.
@@ -183,33 +181,34 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
         // If another process has it in progress only attempt to do an import if it's
         // more than an hour old.
         // Assumption is that it is stuck.
-        if (contentReference.getStatus() == WorkflowStatus.InProgress) {
-          var diffMinutes = ZonedDateTime.now().toEpochSecond() - contentReference.getUpdatedOn().toEpochSecond();
+        if (contentReference.getWorkflowStatus() == WorkflowStatus.InProgress) {
+          var updatedOn = ParseZonedDateTime.parse(contentReference.getUpdatedOn());
+          var diffMinutes = ZonedDateTime.now().toEpochSecond() - updatedOn.toEpochSecond();
           var diff = TimeUnit.MINUTES.convert(diffMinutes, TimeUnit.MINUTES);
           if (diff >= 60) {
             logger.warn(String.format("Stuck content identified: '%s', topic: %s", uid, topic));
-            contentReference.setPublishedOn(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()));
+            contentReference.setPublishedOn(ParseZonedDateTime.format(entry.getPublishedDate()));
             if (entryUpdatedOn != null)
-              contentReference.setSourceUpdatedOn(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault()));
-            contentReference = contentReferenceService.update(contentReference);
+              contentReference.setSourceUpdatedOn(ParseZonedDateTime.format(entryUpdatedOn));
+            contentReference = api.update(contentReference);
             return new PublishedRecord(publishEntry(event, entry), contentReference);
           }
         } else {
-          var updatedOn = contentReference.getSourceUpdatedOn();
-          var publishedOn = contentReference.getPublishedOn();
+          var updatedOn = ParseZonedDateTime.parse(contentReference.getUpdatedOn());
+          var publishedOn = ParseZonedDateTime.parse(contentReference.getPublishedOn());
           // If the source feed entry has been updated or republished it will need to get
           // pushed to Kafka and the reference will need to be updated.
           if ((updatedOn != null
               && entryUpdatedOn != null
               && updatedOn.isBefore(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault())))
               || (publishedOn != null
-                  && publishedOn.isBefore(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault())))) {
+                  && publishedOn.isBefore(ParseZonedDateTime.toZone(entry.getPublishedDate())))) {
             logger.info(String.format("Updated content identified: '%s', topic: %s, partition: %s, offset: %s", uid,
                 topic, contentReference.getPartition(), contentReference.getOffset()));
-            contentReference.setPublishedOn(publishedOn);
+            contentReference.setPublishedOn(ParseZonedDateTime.format(publishedOn));
             if (entryUpdatedOn != null)
-              contentReference.setSourceUpdatedOn(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault()));
-            contentReference = contentReferenceService.update(contentReference);
+              contentReference.setSourceUpdatedOn(ParseZonedDateTime.format(entryUpdatedOn));
+            contentReference = api.update(contentReference);
             return new PublishedRecord(publishEntry(event, entry), contentReference);
           }
         }
@@ -221,18 +220,18 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
         // attempts will know it is in progress and then they will not attempt to
         // publish the same content.
         logger.info(String.format("New content identified: '%s', topic: %s", uid, topic));
-        var contentReference = new ContentReference(source, uid, topic);
-        contentReference.setPublishedOn(entry.getPublishedDate().toInstant().atZone(ZoneId.systemDefault()));
+        var entity = new ContentReference(source, uid, topic);
+        entity.setPublishedOn(ParseZonedDateTime.format(entry.getPublishedDate()));
         if (entryUpdatedOn != null)
-          contentReference.setSourceUpdatedOn(entryUpdatedOn.toInstant().atZone(ZoneId.systemDefault()));
-        contentReference = contentReferenceService.add(contentReference);
-        return new PublishedRecord(publishEntry(event, entry), contentReference);
+          entity.setSourceUpdatedOn(ParseZonedDateTime.format(entryUpdatedOn));
+        entity = api.add(entity);
+        return new PublishedRecord(publishEntry(event, entry), entity);
       }
     } catch (Exception ex) {
       // TODO: It's possible a failure here will result in the record being imported
       // multiple times. This needs to be handled.
       // Hopefully an error on one entry won't stop all other entries.
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
     }
 
@@ -257,7 +256,7 @@ public class KafkaSyndicationProducer implements ApplicationListener<ProducerSen
       logger.info(String.format("Sending content: '%s', topic: %s", key, topic));
       return producer.send(new ProducerRecord<String, SourceContent>(topic, key, content));
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
     }
     return CompletableFuture.completedFuture(null);

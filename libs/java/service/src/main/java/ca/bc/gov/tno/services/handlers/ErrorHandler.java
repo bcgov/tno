@@ -7,11 +7,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
-import ca.bc.gov.tno.dal.db.services.DataSourceService;
 import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.ServiceStatus;
 import ca.bc.gov.tno.services.config.ServiceConfig;
+import ca.bc.gov.tno.services.data.ApiException;
 import ca.bc.gov.tno.services.data.BaseScheduleService;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.events.ServiceStartEvent;
 
@@ -30,7 +31,8 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
 
   private final ServiceConfig config;
 
-  private final DataSourceService dataSourceService;
+  /** AJAX Requester */
+  protected final TnoApi api;
 
   /**
    * Creates a new instance of an ErrorHandler object, initializes with specified
@@ -39,14 +41,15 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
    * @param state          Service state.
    * @param eventPublisher Application event publisher.
    * @param config         Service configuration.
+   * @param dataSourceApi  DataSource API.
    */
   @Autowired
   public ErrorHandler(final ServiceState state, final ApplicationEventPublisher eventPublisher,
-      final ServiceConfig config, final DataSourceService dsService) {
+      final ServiceConfig config, final TnoApi dataSourceApi) {
     this.eventPublisher = eventPublisher;
     this.state = state;
     this.config = config;
-    this.dataSourceService = dsService;
+    this.api = dataSourceApi;
   }
 
   /**
@@ -64,13 +67,18 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
       state.setStatus(ServiceStatus.sleeping);
     } else {
       state.incrementFailedAttempts();
-      
+
       if (dsConfig != null) {
         dsConfig.failedAttempts++;
-        var result = dataSourceService.findByCode(dsConfig.getId());
-        var dataSource = result.get();
-        dataSource.setFailedAttempts(dsConfig.getFailedAttempts());
-        dataSourceService.update(dataSource);
+        try {
+          var dataSource = api.getDataSource(dsConfig.getId());
+          if (dataSource == null)
+            throw new ApiException(String.format("Data-source does not exist '%s'", dsConfig.getId()));
+          dataSource.setFailedAttempts(dsConfig.getFailedAttempts());
+          api.update(dataSource);
+        } catch (Exception ex) {
+          logger.error("Failed to update datasource failed attempts", ex);
+        }
       }
 
       if (state.getStatus() == ServiceStatus.sleeping) {
@@ -80,9 +88,9 @@ public class ErrorHandler implements ApplicationListener<ErrorEvent> {
     }
 
     if (source instanceof BaseScheduleService) {
-      synchronized(source) {
+      synchronized (source) {
         source.notify();
       }
-    } 
+    }
   }
 }

@@ -2,13 +2,23 @@ import { Button, useKeycloakWrapper } from 'tno-core';
 
 export const LoginPanel: React.FC = () => {
   const keycloak = useKeycloakWrapper();
+
+  console.debug(keycloak);
+
+  const login = () => {
+    const instance = keycloak.instance;
+    const auth = `${instance.authServerUrl}/realms/${instance.realm}`;
+    const redirect = encodeURI(window.location.href);
+    window.location.href = `${auth}/protocol/openid-connect/auth?client_id=${instance.clientId}&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&kc_idp_hint=idir`;
+  };
+
   return (
     <div className="loginPanel">
       <div className="headerSection">
         <p>
           Welcome to <b>TNO News</b>
         </p>
-        <Button className="signIn" onClick={() => keycloak.instance.login()}>
+        <Button className="signIn" onClick={login}>
           Sign In
         </Button>
       </div>

@@ -4,7 +4,7 @@ import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.RecordMetadata;
 
-import ca.bc.gov.tno.dal.db.entities.ContentReference;
+import ca.bc.gov.tno.services.models.ContentReference;
 
 /**
  * PublishedRecord class, provides a container for holding the published record.

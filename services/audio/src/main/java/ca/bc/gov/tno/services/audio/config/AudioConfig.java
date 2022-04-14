@@ -2,8 +2,7 @@ package ca.bc.gov.tno.services.audio.config;
 
 import org.springframework.context.annotation.Configuration;
 
-import ca.bc.gov.tno.dal.db.entities.DataSource;
-import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
+import ca.bc.gov.tno.services.models.DataSource;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 
 /**
@@ -48,12 +47,6 @@ public class AudioConfig extends DataSourceConfig {
    */
   private String timeZone;
 
-
-  /**
-   * Data source from which child schedules will be retrieved
-   */
-  private IDataSourceService dataService;
-
   /**
    * Creates a new instance of a AudioConfig object.
    */
@@ -67,25 +60,21 @@ public class AudioConfig extends DataSourceConfig {
    * 
    * @param dataSource
    */
-  public AudioConfig(final DataSource dataSource, final IDataSourceService dataSourceService) {
+  public AudioConfig(final DataSource dataSource) {
     super(dataSource);
 
-    var connection = dataSource.getConnection();
-
-    setDataService(dataSourceService);
     setAudioService((String) dataSource.getCode());
 
-    // Get values from the parent data source
-    var result = dataSourceService.findById(dataSource.getParentId());
-    var dataRecord = result.get();
-
-    connection = dataRecord.getConnection();
-    setCaptureService(dataRecord.getCode());
-    setStreamStartTime((long) connection.get("streamStart"));
-    setCaptureDir((String) connection.get("captureDir"));
-    setClipDir((String) connection.get("clipDir"));
-    setClipCmd((String) connection.get("clipCmd"));
-    setTimezone((String) connection.get("timeZone"));
+    if (dataSource.getParent() != null) {
+      var parent = dataSource.getParent();
+      var connection = parent.getConnection();
+      setCaptureService(parent.getCode());
+      setStreamStartTime((long) connection.get("streamStart"));
+      setCaptureDir((String) connection.get("captureDir"));
+      setClipDir((String) connection.get("clipDir"));
+      setClipCmd((String) connection.get("clipCmd"));
+      setTimezone((String) connection.get("timeZone"));
+    }
   }
 
   /**
@@ -159,20 +148,6 @@ public class AudioConfig extends DataSourceConfig {
   }
 
   /**
-   * @return String return the data source service
-   */
-  public IDataSourceService getDataService() {
-    return dataService;
-  }
-
-  /**
-   * @param service The data source service to use
-   */
-  public void setDataService(IDataSourceService service) {
-    this.dataService = service;
-  }
-
-  /**
    * @return String return the name of the audio service
    */
   public String getAudioService() {
@@ -199,4 +174,19 @@ public class AudioConfig extends DataSourceConfig {
   public void setTimezone(String timeZone) {
     this.timeZone = timeZone;
   }
+
+  /**
+   * @return String return the timeZone
+   */
+  public String getTimeZone() {
+    return timeZone;
+  }
+
+  /**
+   * @param timeZone the timeZone to set
+   */
+  public void setTimeZone(String timeZone) {
+    this.timeZone = timeZone;
+  }
+
 }

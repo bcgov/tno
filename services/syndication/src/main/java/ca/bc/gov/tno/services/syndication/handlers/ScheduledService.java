@@ -1,7 +1,5 @@
 package ca.bc.gov.tno.services.syndication.handlers;
 
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,13 +7,12 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 
-import ca.bc.gov.tno.dal.db.entities.DataSource;
-import ca.bc.gov.tno.dal.db.services.interfaces.IDataLocationService;
-import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
-import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
 import ca.bc.gov.tno.services.ServiceState;
+import ca.bc.gov.tno.services.data.ApiException;
 import ca.bc.gov.tno.services.data.BaseDbScheduleService;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
@@ -31,35 +28,28 @@ import ca.bc.gov.tno.services.syndication.config.SyndicationCollectionConfig;
 @Component
 public class ScheduledService
     extends BaseDbScheduleService<SyndicationConfig, DataSourceCollectionConfig<SyndicationConfig>> {
-  private static final Logger logger = LogManager.getLogger(ScheduledService.class);
   private final SyndicationConfig syndicationConfig;
-  private final IMediaTypeService mediaTypeService;
-  private final IDataLocationService dataLocationService;
+
+  private static final Logger logger = LogManager.getLogger(ScheduledService.class);
 
   /**
    * Creates a new instance of a ScheduledService object, initializes with
    * specified parameters.
    *
-   * @param state               Service state.
-   * @param syndicationConfig   Syndication media type config.
-   * @param config              Syndication config.
-   * @param dataSourceService   DAL DB data source service.
-   * @param mediaTypeService    DAL DB media type service.
-   * @param dataLocationService DAL DB data location service.
-   * @param eventPublisher      Application event publisher.
+   * @param state             Service state.
+   * @param syndicationConfig Syndication media type config.
+   * @param config            Syndication config.
+   * @param eventPublisher    Application event publisher.
+   * @param api               Data source API.
    */
   @Autowired
   public ScheduledService(final ServiceState state,
       final SyndicationConfig syndicationConfig,
       final SyndicationCollectionConfig config,
-      final IDataSourceService dataSourceService,
-      final IMediaTypeService mediaTypeService,
-      final IDataLocationService dataLocationService,
-      final ApplicationEventPublisher eventPublisher) {
-    super(state, config, dataSourceService, eventPublisher);
+      final ApplicationEventPublisher eventPublisher,
+      final TnoApi api) {
+    super(state, config, eventPublisher, api);
     this.syndicationConfig = syndicationConfig;
-    this.mediaTypeService = mediaTypeService;
-    this.dataLocationService = dataLocationService;
   }
 
   /**
@@ -68,7 +58,7 @@ public class ScheduledService
    * services.
    */
   @Override
-  protected void initConfigs() {
+  protected void initConfigs() throws ApiException {
     if (syndicationConfig == null)
       throw new IllegalArgumentException(
           "Argument 'syndicationConfig' in constructor is required and cannot be null.");
@@ -78,34 +68,11 @@ public class ScheduledService
       throw new IllegalArgumentException(
           "Argument 'syndicationConfig.mediaType' in constructor is required and cannot be null or empty.");
 
-    if (mediaTypeService == null)
-      throw new IllegalArgumentException("Argument 'mediaTypeService' in constructor is required and cannot be null.");
-
-    var mediaType = mediaTypeService.findByName(mediaTypeName);
-
-    if (!mediaType.isPresent())
-      throw new IllegalArgumentException(
-          String.format("Argument 'syndicationConfig.mediaType'='%s' does not exist in the data source.",
-              mediaTypeName));
+    if (api == null)
+      throw new IllegalArgumentException("Argument 'api' in constructor is required and cannot be null.");
 
     // Fetch all data sources with the specified media type.
-    List<DataSource> dataSources;
-
-    var dataLocationName = syndicationConfig.getDataLocation();
-    if (dataLocationName == null || dataLocationName.isEmpty()) {
-      dataSources = dataSourceService.findByMediaTypeId(mediaType.get().getId());
-    } else {
-      var dataLocation = dataLocationService.findByName(dataLocationName);
-
-      if (!dataLocation.isPresent())
-        throw new IllegalArgumentException(
-            String.format("Argument 'syndicationConfig.dataLocation'='%s' does not exist in the data source.",
-                dataLocationName));
-
-      dataSources = dataSourceService.findByMediaTypeIdAndDataLocationId(
-          mediaType.get().getId(),
-          dataLocation.get().getId());
-    }
+    var dataSources = api.getDataSourcesForMediaType(mediaTypeName);
 
     // Only use the data sources that are configured.
     var approvedDataSources = dataSources.stream()
@@ -118,29 +85,29 @@ public class ScheduledService
    * Make a request to the TNO DB to fetch an updated configuration. If none is
    * found, return the current config. Log if the config is different.
    *
-   * @param dataSource The data source config.
+   * @param config The data source config.
    * @return The data source config.
+   * @throws ApiException            A failure occurred communicating with the
+   *                                 api.
+   * @throws ResourceAccessException A failure occurred with the AJAX request.
    */
   @Override
-  protected SyndicationConfig fetchDataSource(SyndicationConfig dataSource) {
+  protected SyndicationConfig fetchDataSource(SyndicationConfig config) throws ResourceAccessException, ApiException {
+    if (config == null)
+      throw new IllegalArgumentException("Parameter 'dataSourceConfig' is required.");
+
+    var dataSource = api.getDataSource(config.getId());
+
     if (dataSource == null)
-      throw new IllegalArgumentException("Parameter 'dataSource' is required.");
+      throw new ApiException(String.format("Data-source does not exist '%s'", config.getId()));
 
-    var result = dataSourceService.findByCode(dataSource.getId());
-
-    // If the database does not have a config for this source, then log warning.
-    if (result.isEmpty()) {
-      logger.warn(String.format("Data source '%s' does not exist in database", dataSource.getId()));
-      return dataSource;
-    }
-
-    var newConfig = new SyndicationConfig(result.get());
+    var newConfig = new SyndicationConfig(dataSource);
 
     // TODO: Check for all conditions.
-    if (dataSource.getIsEnabled() != newConfig.getIsEnabled()
-        || !dataSource.getTopic().equals(newConfig.getTopic())
-        || !dataSource.getMediaType().equals(newConfig.getMediaType()))
-      logger.warn(String.format("Configuration has been changed for data source '%s'", dataSource.getId()));
+    if (config.getIsEnabled() != newConfig.getIsEnabled()
+        || !config.getTopic().equals(newConfig.getTopic())
+        || !config.getMediaType().equals(newConfig.getMediaType()))
+      logger.warn(String.format("Configuration has been changed for data-source '%s'", config.getId()));
 
     return newConfig;
   }

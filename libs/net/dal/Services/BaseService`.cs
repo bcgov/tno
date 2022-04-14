@@ -20,6 +20,11 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
 
     #region Methods
 
+    public virtual TEntity? FindByKey(params object[] key)
+    {
+        return this.Context.Find<TEntity>(key);
+    }
+
     public virtual TEntity? FindById(TKey id)
     {
         return this.Context.Find<TEntity>(id);

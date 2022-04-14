@@ -43,7 +43,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Calculate the length of the clip as the number of milliseconds between the schedule's 
+   * Calculate the length of the clip as the number of milliseconds between the
+   * schedule's
    * start time and stop time.
    * 
    * @param schedule The schedule triggered for this execution cycle
@@ -59,7 +60,8 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   }
 
   /**
-   * Get the offset of the clip in the captured file in seconds based on its start and stop time. Clips never cross date 
+   * Get the offset of the clip in the captured file in seconds based on its start
+   * and stop time. Clips never cross date
    * boundaries so no handling is required to wrap from one day to another.
    * 
    * @param schedule Schedule config being processed
@@ -80,33 +82,36 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
     return offset;
   }
 
-/**
- * Verifies, using the schedule's start time and the capture services' stream start time, whether the audio to be 
- * extracted from the captured file has been recorded.
- * 
- * @param schedule The current clip schedule
- * @return whether the schedule's start time is later than the stream start time
- */
+  /**
+   * Verifies, using the schedule's start time and the capture services' stream
+   * start time, whether the audio to be
+   * extracted from the captured file has been recorded.
+   * 
+   * @param schedule The current clip schedule
+   * @return whether the schedule's start time is later than the stream start time
+   */
   private boolean verifyClipSchedule(ScheduleConfig schedule) {
 
-    return ScheduleHelper.getMsDateTime(schedule.getStartAt(), audioConfig.getTimezone()) > audioConfig.getStreamStartTime();
+    return ScheduleHelper.getMsDateTime(schedule.getStartAt(), audioConfig.getTimezone()) > audioConfig
+        .getStreamStartTime();
   }
 
   /**
-   * Start an audio stream, if not already in progress, and extract an audio clip. Publish an audio event so that the Kafka 
+   * Start an audio stream, if not already in progress, and extract an audio clip.
+   * Publish an audio event so that the Kafka
    * Producer can push the content to a topic.
    */
   @Override
   public void onApplicationEvent(TransactionBeginEvent event) {
-
-    audioConfig = (AudioConfig) event.getDataSource();
-    var caller = event.getSource();
-    var schedule = event.getSchedule();
-    var mediaSource = audioConfig.getCaptureDir() + "/" + audioConfig.getCaptureService() + ".mpg";
-    var captureKey = audioConfig.getId() + "_" +  String.valueOf(System.currentTimeMillis());
-    var cmd = audioConfig.getClipCmd();
+    caller = event.getSource();
 
     try {
+      audioConfig = (AudioConfig) event.getDataSource();
+      var schedule = event.getSchedule();
+      var mediaSource = audioConfig.getCaptureDir() + "/" + audioConfig.getCaptureService() + ".mpg";
+      var captureKey = audioConfig.getId() + "_" + String.valueOf(System.currentTimeMillis());
+      var cmd = audioConfig.getClipCmd();
+
       var destination = clipPath(schedule);
 
       if (verifyClipSchedule(schedule)) {
@@ -118,7 +123,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       var readyEvent = new ProducerSendEvent(caller, audioConfig, schedule, captureKey);
       eventPublisher.publishEvent(readyEvent);
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(caller, ex, audioConfig);
+      var errorEvent = new ErrorEvent(caller, audioConfig, ex);
       eventPublisher.publishEvent(errorEvent);
     }
   }
@@ -126,12 +131,14 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   /**
    * Executes an audio clip command as defined in the audioConfig object.
    * 
-   * @param cmd The Linux command to execute (with substitution markers in square brackets) 
+   * @param cmd         The Linux command to execute (with substitution markers in
+   *                    square brackets)
    * @param mediaSource The streamed file from which the clip will be extracted
    * @param destination The full path of the clip file to be written
    * @throws Exception
    */
-  private void executeClipCmd(String cmd, String mediaSource, String destination, ScheduleConfig schedule) throws Exception {
+  private void executeClipCmd(String cmd, String mediaSource, String destination, ScheduleConfig schedule)
+      throws Exception {
 
     if (!cmd.equals("")) {
       long duration = getClipLength(schedule);
@@ -143,43 +150,44 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
       cmd = cmd.replace("[start]", String.valueOf(offset));
 
       String[] cmdArray = {
-        "/bin/sh",
-            "-c",
-        cmd
+          "/bin/sh",
+          "-c",
+          cmd
       };
 
-      Process p = new ProcessBuilder(cmdArray).start();
+      new ProcessBuilder(cmdArray).start();
       logger.info("Clip command executed '" + cmd);
     }
   }
 
-	/**
-	 *  Create a full file path based on date and source for use in captureEvent(). Also create any directories in this path that do not exist
-	 *  at the time of execution. The path does NOT include file extension.
-	 *  
-	 * @return The fully qualified clip path name.
-	 * @throws IOException
-	 */
-	private String clipPath(ScheduleConfig schedule) throws IOException {
-		String path;
+  /**
+   * Create a full file path based on date and source for use in captureEvent().
+   * Also create any directories in this path that do not exist
+   * at the time of execution. The path does NOT include file extension.
+   * 
+   * @return The fully qualified clip path name.
+   * @throws IOException
+   */
+  private String clipPath(ScheduleConfig schedule) throws IOException {
+    String path;
     LocalDateTime now = LocalDateTime.now();
     String year = String.format("%02d", now.getYear());
     String month = String.format("%02d", now.getMonthValue());
     String day = String.format("%02d", now.getDayOfMonth());
 
-		// directory
-		path = audioConfig.getClipDir() + "/" + year + month + day + "/" + audioConfig.getId();
+    // directory
+    path = audioConfig.getClipDir() + "/" + year + month + day + "/" + audioConfig.getId();
 
-		// create directory if necessary
-		File dirTarget = new File(path);
-		if (!dirTarget.isDirectory()) {
-			if (!(dirTarget.mkdirs())) {
+    // create directory if necessary
+    File dirTarget = new File(path);
+    if (!dirTarget.isDirectory()) {
+      if (!(dirTarget.mkdirs())) {
         throw new IOException("Could not create directory " + path);
-			}
-		}
+      }
+    }
 
-		path = path + "/" + schedule.getName() + ".mov";		
+    path = path + "/" + schedule.getName() + ".mov";
 
-		return path;
-	}
+    return path;
+  }
 }

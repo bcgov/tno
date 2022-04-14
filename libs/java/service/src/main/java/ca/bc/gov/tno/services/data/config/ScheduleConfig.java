@@ -4,10 +4,10 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 
-import ca.bc.gov.tno.dal.db.Months;
-import ca.bc.gov.tno.dal.db.ScheduleType;
-import ca.bc.gov.tno.dal.db.WeekDays;
-import ca.bc.gov.tno.dal.db.entities.Schedule;
+import ca.bc.gov.tno.services.models.Schedule;
+import ca.bc.gov.tno.services.models.ScheduleMonths;
+import ca.bc.gov.tno.services.models.ScheduleType;
+import ca.bc.gov.tno.services.models.ScheduleWeekDays;
 
 /**
  * Configuration settings for Schedule Schedule.
@@ -61,12 +61,12 @@ public class ScheduleConfig {
   /**
    * Days of week to run on.
    */
-  private EnumSet<WeekDays> runOnWeekDays;
+  private EnumSet<ScheduleWeekDays> runOnWeekDays;
 
   /**
    * Months to run on.
    */
-  private EnumSet<Months> runOnMonths;
+  private EnumSet<ScheduleMonths> runOnMonths;
 
   /**
    * Day of month to run on.
@@ -218,28 +218,28 @@ public class ScheduleConfig {
   /**
    * @return EnumSet{WeekDays} return the runOnWeekDays
    */
-  public EnumSet<WeekDays> getRunOnWeekDays() {
+  public EnumSet<ScheduleWeekDays> getRunOnWeekDays() {
     return runOnWeekDays;
   }
 
   /**
    * @param runOnWeekDays the runOnWeekDays to set
    */
-  public void setRunOnWeekDays(EnumSet<WeekDays> runOnWeekDays) {
+  public void setRunOnWeekDays(EnumSet<ScheduleWeekDays> runOnWeekDays) {
     this.runOnWeekDays = runOnWeekDays;
   }
 
   /**
    * @return EnumSet{Months} return the runOnMonths
    */
-  public EnumSet<Months> getRunOnMonths() {
+  public EnumSet<ScheduleMonths> getRunOnMonths() {
     return runOnMonths;
   }
 
   /**
    * @param runOnMonths the runOnMonths to set
    */
-  public void setRunOnMonths(EnumSet<Months> runOnMonths) {
+  public void setRunOnMonths(EnumSet<ScheduleMonths> runOnMonths) {
     this.runOnMonths = runOnMonths;
   }
 

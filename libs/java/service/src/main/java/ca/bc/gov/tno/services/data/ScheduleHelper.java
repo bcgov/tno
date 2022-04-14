@@ -8,10 +8,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import ca.bc.gov.tno.dal.db.Months;
-import ca.bc.gov.tno.dal.db.WeekDays;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
+import ca.bc.gov.tno.services.models.ScheduleMonths;
+import ca.bc.gov.tno.services.models.ScheduleWeekDays;
 
 /**
  * ScheduleHelper static class, provides helper methods for the scheduler.
@@ -159,24 +159,24 @@ public final class ScheduleHelper {
     var dayOfWeek = now.get(Calendar.DAY_OF_WEEK);
     var runOnWeekDays = config.getRunOnWeekDays();
 
-    if (runOnWeekDays == null || runOnWeekDays.contains(WeekDays.NA))
+    if (runOnWeekDays == null || runOnWeekDays.contains(ScheduleWeekDays.NA))
       return true;
 
     switch (dayOfWeek) {
       case (1):
-        return runOnWeekDays.contains(WeekDays.Monday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Monday);
       case (2):
-        return runOnWeekDays.contains(WeekDays.Tuesday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Tuesday);
       case (3):
-        return runOnWeekDays.contains(WeekDays.Wednesday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Wednesday);
       case (4):
-        return runOnWeekDays.contains(WeekDays.Thursday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Thursday);
       case (5):
-        return runOnWeekDays.contains(WeekDays.Friday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Friday);
       case (6):
-        return runOnWeekDays.contains(WeekDays.Saturday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Saturday);
       case (7):
-        return runOnWeekDays.contains(WeekDays.Sunday);
+        return runOnWeekDays.contains(ScheduleWeekDays.Sunday);
     }
     return false;
   }
@@ -192,42 +192,44 @@ public final class ScheduleHelper {
     var month = now.get(Calendar.MONTH);
     var runOnMonth = config.getRunOnMonths();
 
-    if (runOnMonth == null || runOnMonth.contains(Months.NA))
+    if (runOnMonth == null || runOnMonth.contains(ScheduleMonths.NA))
       return true;
 
     switch (month) {
       case (0):
-        return runOnMonth.contains(Months.January);
+        return runOnMonth.contains(ScheduleMonths.January);
       case (1):
-        return runOnMonth.contains(Months.February);
+        return runOnMonth.contains(ScheduleMonths.February);
       case (2):
-        return runOnMonth.contains(Months.March);
+        return runOnMonth.contains(ScheduleMonths.March);
       case (3):
-        return runOnMonth.contains(Months.April);
+        return runOnMonth.contains(ScheduleMonths.April);
       case (4):
-        return runOnMonth.contains(Months.May);
+        return runOnMonth.contains(ScheduleMonths.May);
       case (5):
-        return runOnMonth.contains(Months.June);
+        return runOnMonth.contains(ScheduleMonths.June);
       case (6):
-        return runOnMonth.contains(Months.July);
+        return runOnMonth.contains(ScheduleMonths.July);
       case (7):
-        return runOnMonth.contains(Months.August);
+        return runOnMonth.contains(ScheduleMonths.August);
       case (8):
-        return runOnMonth.contains(Months.September);
+        return runOnMonth.contains(ScheduleMonths.September);
       case (9):
-        return runOnMonth.contains(Months.October);
+        return runOnMonth.contains(ScheduleMonths.October);
       case (10):
-        return runOnMonth.contains(Months.November);
+        return runOnMonth.contains(ScheduleMonths.November);
       case (11):
-        return runOnMonth.contains(Months.December);
+        return runOnMonth.contains(ScheduleMonths.December);
     }
     return false;
   }
 
   /**
-   * Convert a LocalTime object to a unix epoch date/time in the current time zone.
+   * Convert a LocalTime object to a unix epoch date/time in the current time
+   * zone.
    *
-   * @param time The LocalTime object to convert
+   * @param time     The LocalTime object to convert
+   * @param timeZone The timezone.
    * @return the date/time in milliseconds
    */
   public static long getMsDateTime(LocalTime time, String timeZone) {

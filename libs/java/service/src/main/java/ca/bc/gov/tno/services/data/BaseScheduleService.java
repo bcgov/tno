@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.client.RestClientException;
 
 import ca.bc.gov.tno.services.ServiceState;
 import ca.bc.gov.tno.services.ServiceStatus;
@@ -98,7 +99,7 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
           updateDataSource(dataSource, schedule, ZonedDateTime.now());
           // Reset failures as the source has been completed 'successfully'.
           state.setFailedAttempts(0);
-        } catch (Exception ex) {
+        } catch (ApiException ex) {
           // If an error occurs we don't want to block the current process, but we do want
           // to log it.
           var errorEvent = new ErrorEvent(this, ex);
@@ -153,32 +154,37 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
             continue;
           }
 
-          var dataSource = (C) sourceConfigs.getSources().get(index);
+          var config = (C) sourceConfigs.getSources().get(index);
           // Make request to TNO DB for most recent version of the data source
           // configuration settings.
-          dataSource = fetchDataSource(dataSource);
+          try {
+            config = fetchDataSource(config);
 
-          // This data source has failed too many times, ignore it and move on.
-          if (dataSource.getFailedAttempts() >= dataSource.getMaxFailedAttempts()) {
-            logger.debug(String.format("Data source has failed too many times: %s", dataSource.getId()));
-            continue;
-          }
+            // This data source has failed too many times, ignore it and move on.
+            if (config.getFailedAttempts() >= config.getMaxFailedAttempts()) {
+              logger.debug(String.format("Data source has failed too many times: %s", config.getId()));
+              continue;
+            }
 
-          // Determine if the data source should be imported based on the configured
-          // schedule.
-          for (ScheduleConfig schedule : dataSource.getSchedules()) {
-            if (ScheduleHelper.verifySchedule(ZonedDateTime.now(), dataSource, schedule)) {
-              logger.debug(String.format("Data source start: %s", dataSource.getId()));
-              var beginEvent = createEvent(this, dataSource, schedule);
-              // var beginEvent = new TransactionBeginEvent<C>(this, dataSource, schedule);
-              eventPublisher.publishEvent(beginEvent);
+            // Determine if the data source should be imported based on the configured
+            // schedule.
+            for (ScheduleConfig schedule : config.getSchedules()) {
+              if (ScheduleHelper.verifySchedule(ZonedDateTime.now(), config, schedule)) {
+                logger.debug(String.format("Data source start: %s", config.getId()));
+                var beginEvent = createEvent(this, config, schedule);
+                // var beginEvent = new TransactionBeginEvent<C>(this, dataSource, schedule);
+                eventPublisher.publishEvent(beginEvent);
 
-              // TODO: Remove synchronous limitations.
-              // Wait until the SourceCompleteEvent is received.
-              synchronized (this) {
-                wait();
+                // TODO: Remove synchronous limitations.
+                // Wait until the SourceCompleteEvent is received.
+                synchronized (this) {
+                  wait();
+                }
               }
             }
+          } catch (RestClientException | ApiException ex) {
+            var errorEvent = new ErrorEvent(this, ex);
+            eventPublisher.publishEvent(errorEvent);
           }
 
           index++;
@@ -188,7 +194,7 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
         // during pause, or if all syndication sources are disabled.
         Thread.sleep(50);
       }
-    } catch (InterruptedException ex) {
+    } catch (Exception ex) {
       state.setStatus(ServiceStatus.sleeping);
       var errorEvent = new ErrorEvent(this, ex);
       eventPublisher.publishEvent(errorEvent);
@@ -207,8 +213,10 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
 
   /**
    * Initialize the data source configurations.
+   * 
+   * @throws ApiException A failure occurred communicating with the api.
    */
-  protected void initConfigs() {
+  protected void initConfigs() throws ApiException {
   }
 
   /**
@@ -217,8 +225,9 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
    * 
    * @param dataSource The data source config.
    * @return The data source config.
+   * @throws ApiException A failure occurred communicating with the api.
    */
-  protected C fetchDataSource(C dataSource) {
+  protected C fetchDataSource(C dataSource) throws ApiException {
     return dataSource;
   }
 
@@ -228,8 +237,10 @@ public abstract class BaseScheduleService<C extends DataSourceConfig, CA extends
    * @param dataSource The data source config.
    * @param schedule   The schedule config.
    * @param ranOn      The date and time the transaction ran.
+   * @throws ApiException A failure occurred communicating with the api.
    */
-  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
+  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn)
+      throws ApiException {
     if (dataSource == null)
       throw new IllegalArgumentException("Parameter 'dataSource' is required.");
     if (schedule == null)

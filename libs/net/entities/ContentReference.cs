@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,6 +11,7 @@ public class ContentReference : AuditColumns
     [Column("source")]
     public string Source { get; set; } = "";
 
+    [Key]
     [Column("uid")]
     public string Uid { get; set; } = "";
 
@@ -22,7 +22,7 @@ public class ContentReference : AuditColumns
     public string Topic { get; set; } = "";
 
     [Column("offset")]
-    public int Offset { get; set; }
+    public long Offset { get; set; }
 
     [Column("partition")]
     public int Partition { get; set; }
@@ -39,7 +39,7 @@ public class ContentReference : AuditColumns
     #region Constructors
     protected ContentReference() { }
 
-    public ContentReference(string source, string uid, string topic, int offset, int partition, WorkflowStatus status)
+    public ContentReference(string source, string uid, string topic, long offset, int partition, WorkflowStatus status)
     {
         if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
         if (String.IsNullOrWhiteSpace(uid)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(uid));

@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.bc.gov.tno.services.models.HealthReport;
-import ca.bc.gov.tno.services.ServiceStatus;
 import ca.bc.gov.tno.services.ServiceState;
+import ca.bc.gov.tno.services.ServiceStatus;
 import ca.bc.gov.tno.services.kafka.events.ConsumerPauseEvent;
 import ca.bc.gov.tno.services.kafka.events.ConsumerResumeEvent;
 import ca.bc.gov.tno.services.events.ServiceStartEvent;

@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.services.models.DataSource;
 
 /**
  * Configuration settings for Data Source.
@@ -99,7 +99,8 @@ public class DataSourceConfig {
         dataSource.getDataSourceSchedules().stream().map((dss) -> new ScheduleConfig(dss.getSchedule())).toList());
 
     var license = dataSource.getLicense();
-    this.enabled = dataSource.getIsEnabled() && type.getIsEnabled() && license.getIsEnabled() && location.getIsEnabled();
+    this.enabled = dataSource.getIsEnabled() && type.getIsEnabled() && license.getIsEnabled()
+        && location.getIsEnabled();
   }
 
   /**

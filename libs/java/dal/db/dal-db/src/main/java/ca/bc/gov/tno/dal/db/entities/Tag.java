@@ -164,7 +164,7 @@ public class Tag extends AuditColumns {
    * @param enabled the enabled to set
    */
   public void setIsEnabled(boolean enabled) {
-    this.isEnabled = isEnabled;
+    this.isEnabled = enabled;
   }
 
   /**

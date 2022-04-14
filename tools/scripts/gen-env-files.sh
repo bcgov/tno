@@ -434,11 +434,11 @@ if test -f "./services/syndication/.env"; then
     echo "./services/syndication/.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
-
-DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
-DB_USERNAME=$dbUser
-DB_PASSWORD=$password
+"API_HOST_URL=http://host.docker.internal:$portApi
+KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
+KEYCLOAK_REALM=tno
+KEYCLOAK_CLIENT_ID=tno-service-account
+KEYCLOAK_CLIENT_SECRET=
 
 KAFKA_LOGS_TOPIC=logs-syndication
 
@@ -460,11 +460,11 @@ if test -f "./services/capture/.env"; then
     echo "./services/capture/.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
-
-DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
-DB_USERNAME=$dbUser
-DB_PASSWORD=$password
+"API_HOST_URL=http://host.docker.internal:$portApi
+KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
+KEYCLOAK_REALM=tno
+KEYCLOAK_CLIENT_ID=tno-service-account
+KEYCLOAK_CLIENT_SECRET=
 
 KAFKA_LOGS_TOPIC=logs-capture
 
@@ -480,11 +480,11 @@ if test -f "./services/audio/.env"; then
     echo "./services/audio/.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
-
-DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
-DB_USERNAME=$dbUser
-DB_PASSWORD=$password
+"API_HOST_URL=http://host.docker.internal:$portApi
+KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
+KEYCLOAK_REALM=tno
+KEYCLOAK_CLIENT_ID=tno-service-account
+KEYCLOAK_CLIENT_SECRET=
 
 KAFKA_LOGS_TOPIC=logs-audio
 
@@ -500,11 +500,11 @@ if test -f "./services/nlp/.env"; then
     echo "./services/nlp/.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
-
-DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
-DB_USERNAME=$dbUser
-DB_PASSWORD=$password
+"API_HOST_URL=http://host.docker.internal:$portApi
+KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
+KEYCLOAK_REALM=tno
+KEYCLOAK_CLIENT_ID=tno-service-account
+KEYCLOAK_CLIENT_SECRET=
 
 KAFKA_LOGS_TOPIC=logs-nlp
 
@@ -527,11 +527,11 @@ if test -f "./services/elastic/.env"; then
     echo "./services/elastic/.env exists"
 else
 echo \
-"KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth/
-
-DB_URL=jdbc:postgresql://host.docker.internal:$portDatabase/$dbName
-DB_USERNAME=$dbUser
-DB_PASSWORD=$password
+"API_HOST_URL=http://host.docker.internal:$portApi
+KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
+KEYCLOAK_REALM=tno
+KEYCLOAK_CLIENT_ID=tno-service-account
+KEYCLOAK_CLIENT_SECRET=
 
 KAFKA_LOGS_TOPIC=logs-elastic
 

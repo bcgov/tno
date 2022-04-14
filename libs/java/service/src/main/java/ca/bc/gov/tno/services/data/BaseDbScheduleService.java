@@ -6,12 +6,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.client.ResourceAccessException;
 
-import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
-import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
 import ca.bc.gov.tno.services.ServiceState;
+import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
 
 /**
  * BaseDbScheduleService class, provides a process that manages the scheduling
@@ -24,45 +24,45 @@ import ca.bc.gov.tno.services.ServiceState;
 @Async
 public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA extends DataSourceCollectionConfig<C>>
     extends BaseScheduleService<C, CA> {
+
   private static final Logger logger = LogManager.getLogger(BaseDbScheduleService.class);
 
-  /**
-   * The data source service.
-   */
-  protected final IDataSourceService dataSourceService;
+  /** AJAX Requester */
+  protected final TnoApi api;
 
   /**
    * Creates a new instance of a BaseDbScheduleService object, initializes with
    * specified parameters.
    *
-   * @param state             Service state.
-   * @param config            Data source config.
-   * @param dataSourceService DAL DB data source service.
-   * @param eventPublisher    Application event publisher.
+   * @param state          Service state.
+   * @param config         Data source config.
+   * @param eventPublisher Application event publisher.
+   * @param dataSourceApi  DataSource API.
    */
-  public BaseDbScheduleService(final ServiceState state, final CA config, final IDataSourceService dataSourceService,
-      final ApplicationEventPublisher eventPublisher) {
+  public BaseDbScheduleService(final ServiceState state, final CA config,
+      final ApplicationEventPublisher eventPublisher, final TnoApi dataSourceApi) {
     super(state, config, eventPublisher);
-    this.dataSourceService = dataSourceService;
+    this.api = dataSourceApi;
   }
 
   /**
    * Update the data source with the current ranAt date and time.
    *
-   * @param dataSource The data source config.
-   * @param schedule   The schedule config.
-   * @param ranOn      The date and time the transaction ran at.
+   * @param config   The data source config.
+   * @param schedule The schedule config.
+   * @param ranOn    The date and time the transaction ran at.
+   * @throws ApiException A failure occurred communicating with the api.
    */
   @Override
-  protected void updateDataSource(DataSourceConfig dataSource, ScheduleConfig schedule, ZonedDateTime ranOn) {
-    super.updateDataSource(dataSource, schedule, ranOn);
+  protected void updateDataSource(DataSourceConfig config, ScheduleConfig schedule, ZonedDateTime ranOn)
+      throws ApiException {
+    super.updateDataSource(config, schedule, ranOn);
 
-    var result = dataSourceService.findByCode(dataSource.getId());
-    if (result.isPresent()) {
-      var entity = result.get();
-      entity.setLastRanOn(ranOn);
-      entity.setFailedAttempts(dataSource.getFailedAttempts());
-      dataSourceService.update(entity);
+    var dataSource = api.getDataSource(config.getId());
+    if (dataSource != null) {
+      dataSource.setLastRanOn(ranOn);
+      dataSource.setFailedAttempts(config.getFailedAttempts());
+      api.update(dataSource);
     }
   }
 
@@ -72,28 +72,27 @@ public abstract class BaseDbScheduleService<C extends DataSourceConfig, CA exten
    *
    * @param dataSourceConfig The data source config.
    * @return The data source config.
+   * @throws ApiException A failure occurred communicating with the api.
    */
   @Override
-  protected C fetchDataSource(C dataSourceConfig) {
+  protected C fetchDataSource(C dataSourceConfig) throws ApiException, ResourceAccessException {
     if (dataSourceConfig == null)
-      throw new IllegalArgumentException("Parameter 'dataSource' is required.");
+      throw new IllegalArgumentException("Parameter 'dataSourceConfig' is required.");
 
-    var result = dataSourceService.findByCode(dataSourceConfig.getId());
+    var dataSource = api.getDataSource(dataSourceConfig.getId());
 
-    // If the database does not have a config for this source, then log warning.
-    if (result.isEmpty()) {
-      logger.warn(String.format("Data source '%s' does not exist in database", dataSourceConfig.getId()));
-      return dataSourceConfig;
-    }
+    if (dataSource == null)
+      throw new ApiException(String.format("Data-source does not exist '%s'", dataSourceConfig.getId()));
 
     @SuppressWarnings("unchecked")
-    var newConfig = (C) new DataSourceConfig(result.get());
+    var newConfig = (C) new DataSourceConfig(dataSource); // TODO: Java is horrible and this doesn't work right. Need to
+                                                          // override in child class.
 
     // TODO: Check for all conditions.
     if (dataSourceConfig.getIsEnabled() != newConfig.getIsEnabled()
         || !dataSourceConfig.getTopic().equals(newConfig.getTopic())
         || !dataSourceConfig.getMediaType().equals(newConfig.getMediaType()))
-      logger.warn(String.format("Configuration has been changed for data source '%s'", dataSourceConfig.getId()));
+      logger.warn(String.format("Configuration has been changed for data-source '%s'", dataSourceConfig.getId()));
 
     return newConfig;
   }

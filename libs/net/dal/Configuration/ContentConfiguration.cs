@@ -20,7 +20,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.DataSourceId);
         builder.Property(m => m.Source).IsRequired().HasMaxLength(100);
         builder.Property(m => m.Headline).IsRequired().HasMaxLength(500);
-        builder.Property(m => m.Uid).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.Uid).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Page).IsRequired().HasMaxLength(10);
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.Summary).IsRequired().HasColumnType("text");

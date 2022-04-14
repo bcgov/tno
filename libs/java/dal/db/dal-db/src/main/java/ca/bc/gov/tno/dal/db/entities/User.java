@@ -18,8 +18,10 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
+import ca.bc.gov.tno.dal.db.converters.ZonedDateTimeDeserializer;
 import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
@@ -88,7 +90,8 @@ public class User extends AuditColumns {
   /**
    * The date and time the user last logged in.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Column(name = "last_login_on", nullable = false)
   private ZonedDateTime lastLoginOn;
 
@@ -320,7 +323,7 @@ public class User extends AuditColumns {
    * @param enabled the enabled to set
    */
   public void setIsEnabled(boolean enabled) {
-    this.isEnabled = isEnabled;
+    this.isEnabled = enabled;
   }
 
   /**

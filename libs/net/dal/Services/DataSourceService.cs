@@ -74,10 +74,36 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Include(c => c.DataLocation)
             .Include(c => c.MediaType)
             .Include(c => c.License)
+            .Include(c => c.Parent)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
             .Include(c => c.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
             .Include(c => c.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
             .FirstOrDefault(c => c.Id == id);
+    }
+
+    public DataSource? FindByCode(string code)
+    {
+        return this.Context.DataSources
+            .Include(c => c.DataLocation)
+            .Include(c => c.MediaType)
+            .Include(c => c.License)
+            .Include(c => c.Parent)
+            .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
+            .Include(c => c.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
+            .Include(c => c.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .FirstOrDefault(c => c.Code.ToLower() == code.ToLower());
+    }
+
+    public IEnumerable<DataSource> FindByMediaType(string mediaTypeName)
+    {
+        return this.Context.DataSources
+            .Include(c => c.DataLocation)
+            .Include(c => c.MediaType)
+            .Include(c => c.License)
+            .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
+            .Include(c => c.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
+            .Include(c => c.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .Where(c => c.MediaType!.Name.ToLower() == mediaTypeName.ToLower()).ToArray();
     }
 
     public override DataSource Add(DataSource entity)
@@ -89,8 +115,13 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
 
     public override DataSource Update(DataSource entity)
     {
+        return this.Update(entity);
+    }
+
+    public DataSource Update(DataSource entity, bool updateChildren = false)
+    {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
-        this.Context.UpdateContext(original, entity);
+        this.Context.UpdateContext(original, entity, updateChildren);
         base.Update(original);
         return original;
     }

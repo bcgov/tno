@@ -126,7 +126,7 @@ public class DataSourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "DataSource" })]
     public IActionResult Update(DataSourceModel model)
     {
-        var result = _service.Update(model.ToEntity(_serializerOptions));
+        var result = _service.Update(model.ToEntity(_serializerOptions), true);
         return new JsonResult(new DataSourceModel(result, _serializerOptions));
     }
 

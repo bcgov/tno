@@ -378,8 +378,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("Uid")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("uid");
 
                     b.Property<string>("UpdatedBy")
@@ -691,8 +691,8 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("source");
 
                     b.Property<string>("Uid")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("uid");
 
                     b.Property<string>("CreatedBy")
@@ -711,8 +711,8 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("Offset")
-                        .HasColumnType("integer")
+                    b.Property<long>("Offset")
+                        .HasColumnType("bigint")
                         .HasColumnName("offset");
 
                     b.Property<int>("Partition")

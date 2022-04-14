@@ -40,21 +40,6 @@ parameters:
     description: The port used to communicate with the Pod
     value: "8080"
 
-  - name: KAFKA_BOOTSTRAP_SERVERS
-    displayName: Kafka Bootstrap Servers
-    description: Comma delimited Kafka bootstrap servers.
-    required: true
-    value: tno-kafka-broker:29094
-  - name: KAFKA_LOGS_TOPIC
-    displayName: Kafka Logs Topic
-    description: The Kafka topic name to log to.
-    required: true
-    value: logs-audio-clip
-  - name: KAFKA_CLIENT_ID
-    displayName: Kafka Client ID
-    description: The Kafka client id to uniquely identify this producer.
-    required: true
-    value: audio-clip
   - name: MAX_FAILED_ATTEMPTS
     displayName: Maximum Failed Attempts
     description: The maximum number of failed attempts before stopping the service.
@@ -65,17 +50,22 @@ parameters:
     description: The name of the media type that this service will ingest.
     required: true
     value: News Radio
+  - name: KAFKA_LOGS_TOPIC
+    displayName: Kafka Logs Topic
+    description: The Kafka topic name to log to.
+    required: true
+    value: logs-audio-clip
+  - name: KAFKA_CLIENT_ID
+    displayName: Kafka Client ID
+    description: The Kafka client id to uniquely identify this producer.
+    required: true
+    value: audio-clip
 
-  - name: DB_SECRETS_NAME
-    displayName: Database Secret Name
-    description: Name of the database secrets object.
+  - name: SERVICE_CONFIG_NAME
+    displayName: Service ConfigMap Name
+    description: Name of the service config map object.
     required: true
-    value: tno-database
-  - name: API_CONFIG_NAME
-    displayName: API Config Name
-    description: Name of the api config map object.
-    required: true
-    value: tno-api-editor
+    value: tno-services
 
   - name: VOLUME_CLAIM_NAME
     displayName: Audio Capture Volume Claim Name
@@ -213,43 +203,38 @@ objects:
                 - name: ${SOLUTION_NAME}-${APP_NAME}
                   mountPath: ${VOLUME_MOUNT_PATH}
               env:
+                - name: API_HOST_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SERVICE_CONFIG_NAME}
+                      key: API_HOST_URL
+
                 - name: KEYCLOAK_AUTH_SERVER_URL
                   valueFrom:
                     configMapKeyRef:
-                      name: ${API_CONFIG_NAME}
+                      name: ${SERVICE_CONFIG_NAME}
                       key: KEYCLOAK_AUTH_SERVER_URL
                 - name: KEYCLOAK_REALM
                   valueFrom:
                     configMapKeyRef:
-                      name: ${API_CONFIG_NAME}
+                      name: ${SERVICE_CONFIG_NAME}
                       key: KEYCLOAK_REALM
-                - name: KEYCLOAK_RESOURCE
+                - name: KEYCLOAK_CLIENT_ID
                   valueFrom:
                     configMapKeyRef:
-                      name: ${API_CONFIG_NAME}
+                      name: ${SERVICE_CONFIG_NAME}
                       key: KEYCLOAK_CLIENT_ID
+                - name: KEYCLOAK_CLIENT_SECRET
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ${SERVICE_CONFIG_NAME}
+                      key: KEYCLOAK_CLIENT_SECRET
 
                 - name: KAFKA_BOOTSTRAP_SERVERS
                   valueFrom:
                     configMapKeyRef:
-                      name: ${API_CONFIG_NAME}
+                      name: ${SERVICE_CONFIG_NAME}
                       key: KAFKA_BOOTSTRAP_SERVERS
-
-                - name: DB_URL
-                  valueFrom:
-                    configMapKeyRef:
-                      name: ${API_CONFIG_NAME}
-                      key: DB_URL
-                - name: DB_USERNAME
-                  valueFrom:
-                    secretKeyRef:
-                      name: ${DB_SECRETS_NAME}
-                      key: POSTGRESQL_USER
-                - name: DB_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: ${DB_SECRETS_NAME}
-                      key: POSTGRESQL_PASSWORD
 
                 - name: KAFKA_CLIENT_ID
                   valueFrom:
