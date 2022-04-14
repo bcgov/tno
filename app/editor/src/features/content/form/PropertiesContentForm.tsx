@@ -4,7 +4,7 @@ import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { IUserModel } from 'hooks/api-editor';
+import { ITimeTrackingModel, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
@@ -38,7 +38,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [effort, setEffort] = React.useState(getTotalTime(values.timeTrackings));
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
-  let timeLog = values.timeTrackings;
+  const [timeLog, setTimeLog] = React.useState<ITimeTrackingModel[]>(values.timeTrackings);
 
   React.useEffect(() => {
     setCategoryOptions(getSortableOptions(categories));
@@ -214,12 +214,15 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           variant={ButtonVariant.action}
           onClick={() => {
             setEffort(effort!! + Number((values as any).prep));
-            timeLog.push({
-              userId: userId ?? 0,
-              activity: !!values.id ? 'Updated' : 'Created',
-              effort: (values as any).prep,
-              createdOn: new Date(),
-            });
+            setTimeLog([
+              ...timeLog,
+              {
+                userId: userId ?? 0,
+                activity: !!values.id ? 'Updated' : 'Created',
+                effort: (values as any).prep,
+                createdOn: new Date(),
+              },
+            ]);
             setFieldValue('timeTrackings', timeLog);
             setFieldValue('prep', '');
           }}
