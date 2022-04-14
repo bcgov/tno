@@ -5,7 +5,7 @@ server:
 
 spring:
   main:
-    banner-mode: 'off'
+    banner-mode: "off"
 
   profiles:
     active: @spring.profiles.active@
@@ -13,6 +13,12 @@ spring:
 service:
   max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
   failed-delay: ${FAILED_DELAY:5000}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL}
+  realm: ${KEYCLOAK_REALM:tno}
+  resource: ${KEYCLOAK_CLIENT_ID:tno-api}
+  public-client: true
 
 api:
   host-url: ${API_HOST_URL}
@@ -29,12 +35,12 @@ kafka:
 # data:
 #   sources:
 #     - mediaType: ${DATA_SOURCE_MEDIA_TYPE:RSS}
-      # id: ${DATA_SOURCE_ID}
-      # url: ${DATA_SOURCE_URL}
-      # topic: ${DATA_SOURCE_TOPIC}
-      # schedules: 
-      #   - name: example
-      #     delayMS: ${DATA_SOURCE_DELAY:5000}
+# id: ${DATA_SOURCE_ID}
+# url: ${DATA_SOURCE_URL}
+# topic: ${DATA_SOURCE_TOPIC}
+# schedules:
+#   - name: example
+#     delayMS: ${DATA_SOURCE_DELAY:5000}
 
 data:
   source:
