@@ -51,7 +51,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, 
               setFieldValue(field('delayMS'), value);
             }}
           />
-          <p>minutes on the following days;</p>
+          <p>seconds, on the following days;</p>
         </Row>
         <Col>
           <FormikStringEnumCheckbox<ScheduleWeekDayName>

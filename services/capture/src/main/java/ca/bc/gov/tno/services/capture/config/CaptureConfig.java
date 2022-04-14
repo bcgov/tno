@@ -2,7 +2,7 @@ package ca.bc.gov.tno.services.capture.config;
 
 import org.springframework.context.annotation.Configuration;
 
-import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.services.models.DataSource;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 
 /**
@@ -106,7 +106,7 @@ public class CaptureConfig extends DataSourceConfig {
     this.captureCmd = cmd;
   }
 
-    /**
+  /**
    * @return String return the capture directory
    */
   public String getCaptureDir() {
@@ -218,7 +218,7 @@ public class CaptureConfig extends DataSourceConfig {
     this.runningNow = command;
   }
 
-   /**
+  /**
    * @return String return the timezone of the capture service
    */
   public String getTimezone() {

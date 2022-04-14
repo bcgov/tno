@@ -1,0 +1,86 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: service-config-map
+  annotations:
+    openshift.io/display-name: Service ConfigMap template
+    description: Service ConfigMap template to support services
+    tags: java,keycloak,kafka,services
+
+parameters:
+  - name: SOLUTION_NAME
+    displayName: Solution Group Name
+    description: The name of the solution (e.g tno).
+    required: true
+    value: tno
+  - name: APP_NAME
+    displayName: Application Name
+    description: The name of the application.
+    required: true
+    value: services
+
+  - name: PROJECT_NAMESPACE
+    displayName: OpenShift Project Namespace
+    description: The namespace of the OpenShift project containing the application.
+    required: true
+    value: 9b301c
+  - name: ENV_NAME
+    displayName: Environment name
+    description: The name for this environment [dev, test, prod]
+    required: true
+    value: dev
+
+  - name: KEYCLOAK_AUTH_SERVER_URL
+    displayName: Keycloak Authority Server URL
+    description: The URL to the keycloak authority server.
+    required: true
+    value: https://dev.oidc.gov.bc.ca/auth
+  - name: KEYCLOAK_REALM
+    displayName: Keycloak Realm
+    description: The name of the keycloak realm.
+    required: true
+    value: gcpe
+  - name: KEYCLOAK_CLIENT_ID
+    displayName: Keycloak Client ID
+    description: The name of the keycloak client.
+    required: true
+    value: tno-service-account
+  - name: KEYCLOAK_CLIENT_SECRET
+    displayName: Keycloak Client Secret
+    description: The secret key to use the client.
+    required: true
+
+  - name: KAFKA_BOOTSTRAP_SERVERS
+    displayName: Kafka Bootstrap Servers
+    description: Comma delimited Kafka bootstrap servers.
+    required: true
+    value: tno-kafka-broker:29094
+
+  - name: API_HOST_URL
+    displayName: API Host URL
+    description: The URL to the API.
+    required: true
+    value: http://tno-api-editor:8080
+
+objects:
+  # Configuration settings
+  - kind: ConfigMap
+    apiVersion: v1
+    metadata:
+      name: ${SOLUTION_NAME}-${APP_NAME}
+      namespace: ${PROJECT_NAMESPACE}-${ENV_NAME}
+      annotations:
+        description: Service configuration settings
+      labels:
+        name: ${SOLUTION_NAME}-${APP_NAME}
+        solution: ${SOLUTION_NAME}
+    type: Opaque
+    data:
+      API_HOST_URL: ${API_HOST_URL}
+
+      KEYCLOAK_AUTHORITY: ${KEYCLOAK_AUTHORITY}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}

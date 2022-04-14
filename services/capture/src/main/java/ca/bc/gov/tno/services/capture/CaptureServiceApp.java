@@ -11,20 +11,17 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.services.events.ServiceStartEvent;
 
 /**
- * CaptureServiceApp class, provides a process that captures media feeds and 
+ * CaptureServiceApp class, provides a process that captures media feeds and
  * stores them on a persistent volume.
  */
 @Service
-@EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.db" })
-@EntityScan(basePackages = { "ca.bc.gov.tno.dal.db" })
-@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno.services.capture", "ca.bc.gov.tno.dal.db",
-    "ca.bc.gov.tno.services" })
+@EntityScan(basePackages = { "ca.bc.gov.tno.services" })
+@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno.services.capture", "ca.bc.gov.tno.services" })
 public class CaptureServiceApp implements ApplicationRunner {
   private static final Logger logger = LogManager.getLogger(CaptureServiceApp.class);
 

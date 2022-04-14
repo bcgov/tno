@@ -58,8 +58,8 @@ public class ContentReferenceLog extends AuditColumns {
   /**
    * The workflow process status of the content.
    */
-  @Column(name = "status", nullable = false)
-  private WorkflowStatus status = WorkflowStatus.InProgress;
+  @Column(name = "workflow_status", nullable = false)
+  private WorkflowStatus workflowStatus = WorkflowStatus.InProgress;
 
   /**
    * A message describing the log event.
@@ -78,12 +78,12 @@ public class ContentReferenceLog extends AuditColumns {
    * Creates a new instance of a ContentReferenceLog object, initializes with
    * specified parameters.
    *
-   * @param source  Foreign key to content reference
-   * @param uid     Foreign key to content reference
-   * @param status  The status
-   * @param message The log message
+   * @param source         Foreign key to content reference
+   * @param uid            Foreign key to content reference
+   * @param workflowStatus The workflow status
+   * @param message        The log message
    */
-  public ContentReferenceLog(String source, String uid, WorkflowStatus status, String message) {
+  public ContentReferenceLog(String source, String uid, WorkflowStatus workflowStatus, String message) {
     if (source == null)
       throw new NullPointerException("Parameter 'source' cannot be null.");
     if (source.length() == 0)
@@ -92,8 +92,8 @@ public class ContentReferenceLog extends AuditColumns {
       throw new NullPointerException("Parameter 'uid' cannot be null.");
     if (uid.length() == 0)
       throw new IllegalArgumentException("Parameter 'uid' cannot be empty.");
-    if (status == null)
-      throw new NullPointerException("Parameter 'status' cannot be null.");
+    if (workflowStatus == null)
+      throw new NullPointerException("Parameter 'workflowStatus' cannot be null.");
     if (message == null)
       throw new NullPointerException("Parameter 'message' cannot be null.");
     if (message.length() == 0)
@@ -101,7 +101,7 @@ public class ContentReferenceLog extends AuditColumns {
 
     this.source = source;
     this.uid = uid;
-    this.status = status;
+    this.workflowStatus = workflowStatus;
     this.message = message;
   }
 
@@ -123,7 +123,7 @@ public class ContentReferenceLog extends AuditColumns {
     this.contentReference = contentRef;
     this.source = contentRef.getSource();
     this.uid = contentRef.getUid();
-    this.status = contentRef.getStatus();
+    this.workflowStatus = contentRef.getWorkflowStatus();
     this.message = message;
   }
 

@@ -89,10 +89,10 @@ namespace TNO.DAL.Migrations
                 columns: table => new
                 {
                     source = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    uid = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    uid = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     workflow_status = table.Column<int>(type: "integer", nullable: false),
                     topic = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    offset = table.Column<int>(type: "integer", nullable: false),
+                    offset = table.Column<long>(type: "bigint", nullable: false),
                     partition = table.Column<int>(type: "integer", nullable: false),
                     published_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     source_updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -601,7 +601,7 @@ namespace TNO.DAL.Migrations
                     data_source_id = table.Column<int>(type: "integer", nullable: true),
                     source = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     headline = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    uid = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    uid = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     page = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     published_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     summary = table.Column<string>(type: "text", nullable: false),

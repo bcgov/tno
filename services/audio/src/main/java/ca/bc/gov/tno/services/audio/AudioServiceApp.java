@@ -11,7 +11,6 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 
 import ca.bc.gov.tno.services.events.ServiceStartEvent;
@@ -21,9 +20,9 @@ import ca.bc.gov.tno.services.events.ServiceStartEvent;
  * feeds and imports them into a Kafka Topic.
  */
 @Service
-@EnableJpaRepositories(basePackages = { "ca.bc.gov.tno.dal.db" })
-@EntityScan(basePackages = { "ca.bc.gov.tno.dal.db" })
-@SpringBootApplication(scanBasePackages = { "ca.bc.gov.tno.services.audio", "ca.bc.gov.tno.dal.db",
+@EntityScan(basePackages = { "ca.bc.gov.tno.services" })
+@SpringBootApplication(scanBasePackages = {
+    "ca.bc.gov.tno.services.audio",
     "ca.bc.gov.tno.services" })
 public class AudioServiceApp implements ApplicationRunner {
   private static final Logger logger = LogManager.getLogger(AudioServiceApp.class);

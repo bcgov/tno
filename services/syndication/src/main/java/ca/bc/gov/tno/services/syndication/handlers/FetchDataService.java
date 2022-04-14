@@ -1,6 +1,5 @@
 package ca.bc.gov.tno.services.syndication.handlers;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.http.HttpException;
@@ -19,10 +18,9 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.feed.AtomFeedHttpMessageConverter;
 import org.springframework.http.converter.feed.RssChannelHttpMessageConverter;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
@@ -33,7 +31,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
@@ -53,18 +50,18 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private Object caller;
   private SyndicationConfig config;
   private ScheduleConfig schedule;
-  private final IDataSourceService dataSourceService;
+  private final TnoApi api;
 
   /**
    * Create a new instance of a FetchDataService object.
    * 
-   * @param eventPublisher    Application event publisher object.
-   * @param dataSourceService DAL data source service object.
+   * @param eventPublisher Application event publisher object.
+   * @param api            DAL data source service object.
    */
   @Autowired
-  public FetchDataService(final ApplicationEventPublisher eventPublisher, final IDataSourceService dataSourceService) {
+  public FetchDataService(final ApplicationEventPublisher eventPublisher, final TnoApi api) {
     this.eventPublisher = eventPublisher;
-    this.dataSourceService = dataSourceService;
+    this.api = api;
 
     this.headers = new HttpHeaders();
     this.headers.add("Accept", "*/*");
@@ -114,26 +111,14 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
 
       } else if (status.series() == HttpStatus.Series.SERVER_ERROR
           || status.series() == HttpStatus.Series.CLIENT_ERROR) {
-        var errorEvent = new ErrorEvent(caller,
-            new HttpException(String.format("Syndication fetch response - %s %s", url, status)), config);
+        var errorEvent = new ErrorEvent(caller, config,
+            new HttpException(String.format("Syndication fetch response - %s %s", url, status)));
         eventPublisher.publishEvent(errorEvent);
       }
 
-    } catch (RestClientException ex) {
+    } catch (Exception ex) {
       updateDataSource();
-      var errorEvent = new ErrorEvent(caller, ex, config);
-      eventPublisher.publishEvent(errorEvent);
-    } catch (IOException ex) {
-      updateDataSource();
-      var errorEvent = new ErrorEvent(caller, ex, config);
-      eventPublisher.publishEvent(errorEvent);
-    } catch (IllegalArgumentException ex) {
-      updateDataSource();
-      var errorEvent = new ErrorEvent(caller, ex, config);
-      eventPublisher.publishEvent(errorEvent);
-    } catch (FeedException ex) {
-      updateDataSource();
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
     }
   }
@@ -141,11 +126,13 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   // TODO: Refactor to be part of the shared service package so that all services
   // inherit functionality.
   private void updateDataSource() {
-    var ds = dataSourceService.findByCode(this.config.getId());
-    if (ds.isPresent()) {
-      var entity = ds.get();
-      var failedAttempts = entity.getFailedAttempts();
-      entity.setFailedAttempts(++failedAttempts);
+    try {
+      var dataSource = api.getDataSource(this.config.getId());
+      var failedAttempts = dataSource.getFailedAttempts();
+      dataSource.setFailedAttempts(++failedAttempts);
+    } catch (Exception ex) {
+      logger.error(String.format("Failed to update data-source '%s'", this.config.getId()), ex);
+      // Ignore error but log it.
     }
   }
 }

@@ -3,12 +3,6 @@ debug: false
 server:
   port: ${SERVER_PORT:8080}
 
-keycloak:
-  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://host.docker.internal:40001/auth/}
-  realm: ${KEYCLOAK_REALM:tno}
-  resource: ${KEYCLOAK_RESOURCE:tno-api}
-  public-client: true
-
 spring:
   main:
     banner-mode: 'off'
@@ -16,38 +10,21 @@ spring:
   profiles:
     active: @spring.profiles.active@
 
-  h2:
-    console:
-      enabled: false
+service:
+  max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
+  failed-delay: ${FAILED_DELAY:5000}
 
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://database:5432/tno}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
-  flyway:
-    enabled: ${DB_MIGRATION_ENABLED:false}
-    validate-on-migrate: ${DB_VALIDATE_MIGRATION:true}
-
-  jpa:
-    show-sql: ${JPA_SHOW_SQL:false}
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL92Dialect
-        "[current_session_context_class]": thread
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:none}
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+api:
+  host-url: ${API_HOST_URL}
+  authority-url: ${KEYCLOAK_AUTH_SERVER_URL}
+  realm: ${KEYCLOAK_REALM}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
   producer:
     client-id: ${KAFKA_CLIENT_ID}
-
-service:
-  max-failed-attempts: ${MAX_FAILED_ATTEMPTS:3}
-  failed-delay: ${FAILED_DELAY:5000}
 
 # data:
 #   sources:

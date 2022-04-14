@@ -21,16 +21,16 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import ca.bc.gov.tno.dal.db.WorkflowStatus;
-import ca.bc.gov.tno.dal.db.entities.ContentReference;
-import ca.bc.gov.tno.dal.db.services.interfaces.IContentReferenceService;
+import ca.bc.gov.tno.services.models.ContentReference;
+import ca.bc.gov.tno.services.models.WorkflowStatus;
 import ca.bc.gov.tno.models.SourceContent;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.data.events.TransactionCompleteEvent;
 import ca.bc.gov.tno.services.events.ErrorEvent;
 import ca.bc.gov.tno.services.kafka.config.KafkaProducerConfig;
 import ca.bc.gov.tno.services.audio.events.ProducerSendEvent;
 import ca.bc.gov.tno.services.audio.models.PublishedRecord;
-
+import ca.bc.gov.tno.services.converters.ParseZonedDateTime;
 import ca.bc.gov.tno.ContentType;
 
 /**
@@ -44,17 +44,17 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
 
   private final ApplicationEventPublisher eventPublisher;
   private final KafkaProducerConfig kafkaConfig;
-  private final IContentReferenceService contentReferenceService;
+  private final TnoApi api;
   private final KafkaProducer<String, SourceContent> producer;
 
   /**
    * Create a new instance of a KafkaAudioProducer object.
    */
   @Autowired
-  public KafkaAudioProducer(final KafkaProducerConfig config, final IContentReferenceService service,
+  public KafkaAudioProducer(final KafkaProducerConfig config, final TnoApi api,
       final ApplicationEventPublisher eventPublisher) {
     this.kafkaConfig = config;
-    this.contentReferenceService = service;
+    this.api = api;
     this.eventPublisher = eventPublisher;
 
     var props = new Properties();
@@ -86,7 +86,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
       eventPublisher.publishEvent(doneEvent);
     } catch (InterruptedException | ExecutionException ex) {
       var caller = event.getSource();
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
       producer.flush();
     }
@@ -110,23 +110,23 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
     try {
       logger.info(String.format("New audio content extracted: '%s', topic: %s", clip, topic));
       var contentReference = new ContentReference(source, clip, topic);
-      contentReference.setPublishedOn(ZonedDateTime.now());
-      contentReference.setSourceUpdatedOn(ZonedDateTime.now());
+      contentReference.setPublishedOn(ParseZonedDateTime.format(ZonedDateTime.now()));
+      contentReference.setSourceUpdatedOn(ParseZonedDateTime.format(ZonedDateTime.now()));
 
       var record = new PublishedRecord(publishEntry(event, clip), contentReference);
       var meta = record.getFutureRecordMetadata().get();
 
       contentReference.setPartition(meta.partition());
       contentReference.setOffset(meta.offset());
-      contentReference.setStatus(WorkflowStatus.Received);
+      contentReference.setWorkflowStatus(WorkflowStatus.Received);
 
       logger.info(String.format("Audio content added: '%s', topic: %s, partition: %s, offset: %s",
-      clip, meta.topic(), meta.partition(), meta.offset()));
+          clip, meta.topic(), meta.partition(), meta.offset()));
 
-      contentReference = contentReferenceService.add(contentReference);
+      contentReference = api.add(contentReference);
     } catch (Exception ex) {
       // Hopefully an error on one entry won't stop all other entries.
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
     }
   }
@@ -150,7 +150,7 @@ public class KafkaAudioProducer implements ApplicationListener<ProducerSendEvent
       logger.info(String.format("Sending content: '%s', topic: %s", key, topic));
       return producer.send(new ProducerRecord<String, SourceContent>(topic, key, content));
     } catch (Exception ex) {
-      var errorEvent = new ErrorEvent(caller, ex, config);
+      var errorEvent = new ErrorEvent(caller, config, ex);
       eventPublisher.publishEvent(errorEvent);
     }
     return CompletableFuture.completedFuture(null);

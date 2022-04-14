@@ -52,6 +52,8 @@ spec:
           value: tno-db-migration
         - name: DB_APP_NAME
           value: tno-database
+        - name: API_NAME
+          value: tno-api-editor
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: DEPLOY_TO

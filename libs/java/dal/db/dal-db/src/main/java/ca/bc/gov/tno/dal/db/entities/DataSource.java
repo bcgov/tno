@@ -22,9 +22,11 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.converters.HashMapToStringConverter;
+import ca.bc.gov.tno.dal.db.converters.ZonedDateTimeDeserializer;
 import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
@@ -125,7 +127,8 @@ public class DataSource extends AuditColumns {
   /**
    * The date and time this data source was successfully ingested on.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Column(name = "last_ran_on")
   private ZonedDateTime lastRanOn;
 
@@ -435,7 +438,7 @@ public class DataSource extends AuditColumns {
    * @param enabled the enabled to set
    */
   public void setIsEnabled(boolean enabled) {
-    this.isEnabled = isEnabled;
+    this.isEnabled = enabled;
   }
 
   /**

@@ -36,12 +36,13 @@ public class ErrorEvent extends ApplicationEvent {
    * parameters.
    * 
    * @param source    The source of the event.
+   * @param config    The data-source config.
    * @param exception The exception that was thrown.
    */
-  public ErrorEvent(final Object source, final Exception exception, final DataSourceConfig config) {
+  public ErrorEvent(final Object source, final DataSourceConfig config, final Exception exception) {
     super(source);
-    this.exception = exception;
     this.config = config;
+    this.exception = exception;
   }
 
   /**

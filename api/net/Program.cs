@@ -51,7 +51,10 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ClaimsPrincipal>(s => s.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal());
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+{
+    options.RespectBrowserAcceptHeader = true;
+})
   .AddJsonOptions(options =>
   {
       options.JsonSerializerOptions.DefaultIgnoreCondition = jsonSerializerOptions.DefaultIgnoreCondition;

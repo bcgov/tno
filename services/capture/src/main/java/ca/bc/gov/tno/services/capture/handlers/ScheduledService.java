@@ -1,7 +1,6 @@
 package ca.bc.gov.tno.services.capture.handlers;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,12 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.context.ApplicationEvent;
 
-import ca.bc.gov.tno.dal.db.services.interfaces.IDataSourceService;
-import ca.bc.gov.tno.dal.db.services.interfaces.IMediaTypeService;
 import ca.bc.gov.tno.services.ServiceState;
+import ca.bc.gov.tno.services.data.ApiException;
 import ca.bc.gov.tno.services.data.BaseDbScheduleService;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
@@ -34,29 +34,25 @@ public class ScheduledService
 
   private static final Logger logger = LogManager.getLogger(ScheduledService.class);
   private final CaptureConfig mediaConfig;
-  private final IMediaTypeService mediaTypeService;
 
   /**
    * Creates a new instance of a ScheduledService object, initializes with
    * specified parameters.
    *
-   * @param state             Service state.
-   * @param mediaConfig       Capture media type config.
-   * @param config            Capture config.
-   * @param dataSourceService DAL DB data source service.
-   * @param mediaTypeService  DAL DB media type service.
-   * @param eventPublisher    Application event publisher.
+   * @param state          Service state.
+   * @param mediaConfig    Capture media type config.
+   * @param config         Capture config.
+   * @param api            DAL DB data source service.
+   * @param eventPublisher Application event publisher.
    */
   @Autowired
   public ScheduledService(final ServiceState state,
       final CaptureConfig mediaConfig,
       final CaptureCollectionConfig config,
-      final IDataSourceService dataSourceService,
-      final IMediaTypeService mediaTypeService,
+      final TnoApi api,
       final ApplicationEventPublisher eventPublisher) {
-    super(state, config, dataSourceService, eventPublisher);
+    super(state, config, eventPublisher, api);
     this.mediaConfig = mediaConfig;
-    this.mediaTypeService = mediaTypeService;
   }
 
   /**
@@ -64,20 +60,21 @@ public class ScheduledService
    *
    * @param config The data source config.
    * @param ranAt  The date and time the transaction ran at.
+   * @throws ApiException
    */
   @Override
-  protected void updateDataSource(DataSourceConfig config, ScheduleConfig schedule, ZonedDateTime ranOn) {
+  protected void updateDataSource(DataSourceConfig config, ScheduleConfig schedule, ZonedDateTime ranOn)
+      throws ApiException {
     super.updateDataSource(config, schedule, ranOn);
 
-    var result = dataSourceService.findByCode(config.getId());
-    if (result.isPresent()) {
-      var captureSource = result.get();
-      captureSource.setFailedAttempts(config.getFailedAttempts());
-      var connection = captureSource.getConnection();
+    var dataSource = api.getDataSource(config.getId());
+    if (dataSource != null) {
+      dataSource.setFailedAttempts(config.getFailedAttempts());
+      var connection = dataSource.getConnection();
       connection.put("streamStart", ((CaptureConfig) config).getStreamStartTime());
       connection.put("runningNow", ((CaptureConfig) config).getRunningCommand());
-      captureSource.setConnection(connection);
-      dataSourceService.update(captureSource);
+      dataSource.setConnection(connection);
+      api.update(dataSource);
     }
   }
 
@@ -87,29 +84,28 @@ public class ScheduledService
    * services.
    */
   @Override
-  protected void initConfigs() {
+  protected void initConfigs() throws ApiException {
     if (mediaConfig == null)
       throw new IllegalArgumentException(
-          "Argument 'mediaConfig' in constructor is required and cannot be null.");
+          "Argument 'syndicationConfig' in constructor is required and cannot be null.");
 
     var mediaTypeName = mediaConfig.getMediaType();
     if (mediaTypeName == null || mediaTypeName.length() == 0)
       throw new IllegalArgumentException(
-          "Argument 'mediaConfig.mediaType' in constructor is required and cannot be null or empty.");
+          "Argument 'syndicationConfig.mediaType' in constructor is required and cannot be null or empty.");
 
-    if (mediaTypeService == null)
-      throw new IllegalArgumentException("Argument 'mediaTypeService' in constructor is required and cannot be null.");
-
-    var mediaType = mediaTypeService.findByName(mediaTypeName);
-
-    if (!mediaType.isPresent())
-      throw new IllegalArgumentException(
-          String.format("Argument 'mediaConfig.mediaType'='%s' does not exist in the data source.", mediaTypeName));
+    if (api == null)
+      throw new IllegalArgumentException("Argument 'api' in constructor is required and cannot be null.");
 
     // Fetch all data sources with the specified media type.
-    var dataSources = dataSourceService.findByMediaTypeId(mediaType.get().getId());
-    sourceConfigs.getSources().clear();
-    dataSources.forEach(ds -> sourceConfigs.getSources().add(new CaptureConfig(ds)));
+    var dataSources = api.getDataSourcesForMediaType(mediaTypeName);
+
+    // Only use the data sources that are configured.
+    var approvedDataSources = dataSources.stream()
+        .filter((ds) -> ds.getIsEnabled() &&
+            ds.getConnection().get("url") != null)
+        .toList();
+    approvedDataSources.forEach(ds -> sourceConfigs.getSources().add(new CaptureConfig(ds)));
   }
 
   /**
@@ -120,25 +116,22 @@ public class ScheduledService
    * @return The data source config.
    */
   @Override
-  protected CaptureConfig fetchDataSource(CaptureConfig config) {
+  protected CaptureConfig fetchDataSource(CaptureConfig config) throws ResourceAccessException, ApiException {
     if (config == null)
-      throw new IllegalArgumentException("Parameter 'config' is required.");
+      throw new IllegalArgumentException("Parameter 'dataSourceConfig' is required.");
 
-    var result = dataSourceService.findByCode(config.getId());
+    var dataSource = api.getDataSource(config.getId());
 
-    // If the database does not have a config for this source, then log warning.
-    if (result.isEmpty()) {
-      logger.warn(String.format("Data source '%s' does not exist in database", config.getId()));
-      return config;
-    }
+    if (dataSource == null)
+      throw new ApiException(String.format("Data-source does not exist '%s'", config.getId()));
 
-    var newConfig = new CaptureConfig(result.get());
+    var newConfig = new CaptureConfig(dataSource);
 
     // TODO: Check for all conditions.
     if (config.getIsEnabled() != newConfig.getIsEnabled()
         || !config.getTopic().equals(newConfig.getTopic())
         || !config.getMediaType().equals(newConfig.getMediaType()))
-      logger.warn(String.format("Configuration has been changed for data source '%s'", config.getId()));
+      logger.warn(String.format("Configuration has been changed for data-source '%s'", config.getId()));
 
     return newConfig;
   }

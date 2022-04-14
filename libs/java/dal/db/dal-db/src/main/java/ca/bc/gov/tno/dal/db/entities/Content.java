@@ -21,6 +21,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -28,6 +29,7 @@ import org.hibernate.annotations.FetchMode;
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.ContentStatus;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
+import ca.bc.gov.tno.dal.db.converters.ZonedDateTimeDeserializer;
 import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
@@ -169,7 +171,8 @@ public class Content extends AuditColumns {
    * For Snippets - set by Editor.
    * All other content - the date is managed by ingestion services.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Column(name = "published_on")
   private ZonedDateTime publishedOn;
 
@@ -798,7 +801,7 @@ public class Content extends AuditColumns {
     this.seriesId = series != null ? series.getId() : null;
     this.source = contentRef.getSource();
     this.uid = contentRef.getUid();
-    this.workflowStatus = contentRef.getStatus();
+    this.workflowStatus = contentRef.getWorkflowStatus();
     this.owner = owner;
     this.ownerId = owner.getId();
     this.headline = headline;
@@ -859,7 +862,7 @@ public class Content extends AuditColumns {
     this.seriesId = series != null ? series.getId() : null;
     this.source = contentRef.getSource();
     this.uid = contentRef.getUid();
-    this.workflowStatus = contentRef.getStatus();
+    this.workflowStatus = contentRef.getWorkflowStatus();
     this.headline = headline;
   }
 

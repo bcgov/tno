@@ -3,7 +3,7 @@ package ca.bc.gov.tno.services.syndication.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import ca.bc.gov.tno.dal.db.entities.DataSource;
+import ca.bc.gov.tno.services.models.DataSource;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 
 /**

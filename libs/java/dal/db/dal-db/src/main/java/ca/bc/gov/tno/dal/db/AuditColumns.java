@@ -9,12 +9,14 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.Source;
 import org.hibernate.annotations.SourceType;
 
+import ca.bc.gov.tno.dal.db.converters.ZonedDateTimeDeserializer;
 import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
@@ -39,7 +41,8 @@ public abstract class AuditColumns implements Serializable {
    * When the record was created.
    * Automatically set by the DB.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
   @Column(name = "created_on", nullable = false)
@@ -61,7 +64,8 @@ public abstract class AuditColumns implements Serializable {
    * When the record was last updated.
    * Automatically set by the DB.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Source(SourceType.DB)
   @Generated(GenerationTime.ALWAYS)
   @Column(name = "updated_on", nullable = false)

@@ -1,6 +1,5 @@
 namespace TNO.DAL.Configuration;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TNO.Entities;
 
@@ -10,7 +9,7 @@ public class ContentReferenceConfiguration : AuditColumnsConfiguration<ContentRe
     {
         builder.HasKey(m => new { m.Source, m.Uid });
         builder.Property(m => m.Source).IsRequired().HasMaxLength(50).ValueGeneratedNever();
-        builder.Property(m => m.Uid).IsRequired().HasMaxLength(100).ValueGeneratedNever();
+        builder.Property(m => m.Uid).IsRequired().HasMaxLength(500).ValueGeneratedNever();
         builder.Property(m => m.Topic).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Offset);
         builder.Property(m => m.Partition);

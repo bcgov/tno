@@ -14,9 +14,11 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import ca.bc.gov.tno.dal.db.AuditColumns;
 import ca.bc.gov.tno.dal.db.WorkflowStatus;
+import ca.bc.gov.tno.dal.db.converters.ZonedDateTimeDeserializer;
 import ca.bc.gov.tno.dal.db.services.Settings;
 
 /**
@@ -63,22 +65,24 @@ public class ContentReference extends AuditColumns {
   /**
    * The date and time the content was published.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Column(name = "published_on")
   private ZonedDateTime publishedOn;
 
   /**
    * The date and time the source content was updated.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat, timezone = "UTC")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
+  @JsonDeserialize(using = ZonedDateTimeDeserializer.class)
   @Column(name = "source_updated_on")
   private ZonedDateTime sourceUpdatedOn;
 
   /**
    * The status of the reference in Kafka.
    */
-  @Column(name = "status", nullable = false)
-  private WorkflowStatus status;
+  @Column(name = "workflow_status", nullable = false)
+  private WorkflowStatus workflowStatus;
 
   /**
    * A collection of content reference logs linked to this content.
@@ -108,7 +112,7 @@ public class ContentReference extends AuditColumns {
     this.topic = topic;
     this.partition = -1;
     this.offset = -1;
-    this.status = WorkflowStatus.InProgress;
+    this.workflowStatus = WorkflowStatus.InProgress;
   }
 
   /**
@@ -224,17 +228,17 @@ public class ContentReference extends AuditColumns {
   }
 
   /**
-   * @return WorkflowStatus return the status
+   * @return WorkflowStatus return the workflowStatus
    */
-  public WorkflowStatus getStatus() {
-    return status;
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
   }
 
   /**
-   * @param status the status to set
+   * @param workflowStatus the workflowStatus to set
    */
-  public void setStatus(WorkflowStatus status) {
-    this.status = status;
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
   }
 
 }

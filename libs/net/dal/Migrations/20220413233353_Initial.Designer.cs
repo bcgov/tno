@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20220410032532_Initial")]
+    [Migration("20220413233353_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -380,8 +380,8 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("Uid")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("uid");
 
                     b.Property<string>("UpdatedBy")
@@ -693,8 +693,8 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("source");
 
                     b.Property<string>("Uid")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("uid");
 
                     b.Property<string>("CreatedBy")
@@ -713,8 +713,8 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("Offset")
-                        .HasColumnType("integer")
+                    b.Property<long>("Offset")
+                        .HasColumnType("bigint")
                         .HasColumnName("offset");
 
                     b.Property<int>("Partition")
