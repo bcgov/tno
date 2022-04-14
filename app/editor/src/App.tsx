@@ -1,7 +1,7 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { DefaultLayout } from 'components/layout';
+import { AppRouter } from 'features/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -39,7 +39,7 @@ function App() {
           }
           onEvent={keycloakEventHandler(keycloak)}
         >
-          <DefaultLayout name={appName}></DefaultLayout>
+          <AppRouter name={appName} />
         </ReactKeycloakProvider>
       ) : (
         <LayoutAnonymous name={appName}>

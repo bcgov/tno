@@ -23,7 +23,7 @@ export const timeLogColumns: Column<ITimeTrackingModel>[] = [
     accessor: 'createdOn',
     Cell: ({ value }: any) => {
       const date = new Date(value);
-      return `${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`;
+      return <>{`${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`}</>;
     },
   },
 ];

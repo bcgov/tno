@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using TNO.Core;
+using TNO.DAL.Extensions;
 
 namespace TNO.DAL;
 
@@ -109,12 +110,12 @@ public class TNOContext : DbContext
     {
         // get entries that are being Added or Updated
         var modifiedEntries = ChangeTracker.Entries()
-                .Where(x => (x.State == EntityState.Added || x.State == EntityState.Modified));
+                .Where(x => x.State == EntityState.Added || x.State == EntityState.Modified);
 
         var user = _httpContextAccessor?.HttpContext?.User;
         foreach (var entry in modifiedEntries)
         {
-            if (entry.Entity is ISaveChanges entity)
+            if (entry.Entity is AuditColumns entity)
             {
                 if (entry.State == EntityState.Added)
                 {
@@ -122,7 +123,7 @@ public class TNOContext : DbContext
                 }
                 else if (entry.State != EntityState.Deleted)
                 {
-                    entity.OnModified(user);
+                    this.OnUpdate(entity, user);
                 }
             }
         }

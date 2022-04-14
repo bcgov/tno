@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const ContentListView = styled.div`
+  position: relative;
   background-color: white;
   width: fit-content;
   height: 100%;

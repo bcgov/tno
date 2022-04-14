@@ -1,6 +1,6 @@
 import React from 'react';
 
-export class LayoutErrorBoundary extends React.Component {
+export class LayoutErrorBoundary extends React.Component<any, any> {
   constructor(props: React.Component) {
     super(props);
     this.state = { hasError: false };

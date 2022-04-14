@@ -40,7 +40,8 @@
     "kamikillerto.vscode-colorize",
     "naumovs.color-highlight",
     "syler.sass-indented",
-    "michelemelluso.code-beautifier"
+    "michelemelluso.code-beautifier",
+    "editorconfig.editorconfig"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

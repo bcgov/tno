@@ -69,32 +69,31 @@ export const CheckboxGroup = <CT extends string | number | IOptionItem | HTMLOpt
             if (instanceOfIOption(option)) {
               const item = option as IOptionItem;
               return (
-                <React.Fragment key={item.value}>
-                  <Checkbox
-                    id={`${name}-${item.value}`}
-                    name={name}
-                    label={item.label}
-                    value={item.value}
-                    onChange={handleChange}
-                    {...rest}
-                  />
-                </React.Fragment>
+                <Checkbox
+                  key={item.value}
+                  id={`${name}-${item.value}`}
+                  name={name}
+                  label={item.label}
+                  value={item.value}
+                  onChange={handleChange}
+                  {...rest}
+                />
               );
             } else if (typeof option === 'object') {
               // TODO: Validate option is HTMLOptionElement
-              return option;
+              const element = option as unknown as React.ReactNode;
+              return element;
             } else {
               const value = option as string;
               return (
-                <React.Fragment key={value}>
-                  <Checkbox
-                    id={`${name}-${value}`}
-                    name={name}
-                    label={value}
-                    value={value}
-                    {...rest}
-                  />
-                </React.Fragment>
+                <Checkbox
+                  key={value}
+                  id={`${name}-${value}`}
+                  name={name}
+                  label={value}
+                  value={value}
+                  {...rest}
+                />
               );
             }
           })

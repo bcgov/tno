@@ -1,3 +1,4 @@
 export * from './BouncingSpinner';
-export * from './LoadingStyled';
-export * from './SpinnerStyled';
+export * from './Loader';
+export * from './Loading';
+export * from './Spinner';
