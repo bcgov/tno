@@ -7,9 +7,10 @@ export const LoginPanel: React.FC = () => {
 
   const login = () => {
     const instance = keycloak.instance;
-    const auth = `${instance.authServerUrl}/realms/${instance.realm}`;
+    const authority = instance.authServerUrl.replace(/\/$/, '');
+    const authUrl = `${authority}/realms/${instance.realm}`;
     const redirect = encodeURI(window.location.href);
-    window.location.href = `${auth}/protocol/openid-connect/auth?client_id=${instance.clientId}&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&kc_idp_hint=idir`;
+    window.location.href = `${authUrl}/protocol/openid-connect/auth?client_id=${instance.clientId}&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&kc_idp_hint=idir`;
   };
 
   return (
