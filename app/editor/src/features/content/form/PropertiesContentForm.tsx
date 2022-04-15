@@ -4,7 +4,7 @@ import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { ITimeTrackingModel, IUserModel } from 'hooks/api-editor';
+import { IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
@@ -35,10 +35,13 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
-  const [effort, setEffort] = React.useState(getTotalTime(values.timeTrackings));
+  const [effort, setEffort] = React.useState(0);
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
-  const [timeLog, setTimeLog] = React.useState<ITimeTrackingModel[]>(values.timeTrackings);
+
+  React.useEffect(() => {
+    setEffort(getTotalTime(values.timeTrackings));
+  }, [values.timeTrackings]);
 
   React.useEffect(() => {
     setCategoryOptions(getSortableOptions(categories));
@@ -214,8 +217,8 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           variant={ButtonVariant.action}
           onClick={() => {
             setEffort(effort!! + Number((values as any).prep));
-            setTimeLog([
-              ...timeLog,
+            setFieldValue('timeTrackings', [
+              ...values.timeTrackings,
               {
                 userId: userId ?? 0,
                 activity: !!values.id ? 'Updated' : 'Created',
@@ -223,7 +226,6 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
                 createdOn: new Date(),
               },
             ]);
-            setFieldValue('timeTrackings', timeLog);
             setFieldValue('prep', '');
           }}
         >
@@ -244,7 +246,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           hide={toggle}
           isShowing={isShowing}
           headerText="Prep Time Log"
-          body={<TimeLogTable totalTime={effort} data={timeLog} />}
+          body={<TimeLogTable totalTime={effort} data={values.timeTrackings} />}
           customButtons={
             <Button variant={ButtonVariant.action} onClick={toggle}>
               Close
