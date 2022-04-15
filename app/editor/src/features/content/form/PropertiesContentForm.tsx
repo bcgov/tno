@@ -35,10 +35,13 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
-  const [effort, setEffort] = React.useState(getTotalTime(values.timeTrackings));
+  const [effort, setEffort] = React.useState(0);
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
-  let timeLog = values.timeTrackings;
+
+  React.useEffect(() => {
+    setEffort(getTotalTime(values.timeTrackings));
+  }, [values.timeTrackings]);
 
   React.useEffect(() => {
     setCategoryOptions(getSortableOptions(categories));
@@ -214,13 +217,15 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           variant={ButtonVariant.action}
           onClick={() => {
             setEffort(effort!! + Number((values as any).prep));
-            timeLog.push({
-              userId: userId ?? 0,
-              activity: !!values.id ? 'Updated' : 'Created',
-              effort: (values as any).prep,
-              createdOn: new Date(),
-            });
-            setFieldValue('timeTrackings', timeLog);
+            setFieldValue('timeTrackings', [
+              ...values.timeTrackings,
+              {
+                userId: userId ?? 0,
+                activity: !!values.id ? 'Updated' : 'Created',
+                effort: (values as any).prep,
+                createdOn: new Date(),
+              },
+            ]);
             setFieldValue('prep', '');
           }}
         >
@@ -241,7 +246,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           hide={toggle}
           isShowing={isShowing}
           headerText="Prep Time Log"
-          body={<TimeLogTable totalTime={effort} data={timeLog} />}
+          body={<TimeLogTable totalTime={effort} data={values.timeTrackings} />}
           customButtons={
             <Button variant={ButtonVariant.action} onClick={toggle}>
               Close
