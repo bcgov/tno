@@ -34,7 +34,7 @@ export const Header = styled.header`
       margin-bottom: auto;
     }
 
-    .user {
+    .options {
       flex-shrink: 1;
       margin-right: 5em;
       margin-top: auto;
@@ -43,5 +43,3 @@ export const Header = styled.header`
     }
   }
 `;
-
-export default Header;

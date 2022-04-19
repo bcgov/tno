@@ -7,7 +7,7 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import { useDeepCompareEffect } from 'tno-core';
 
-import { storeFilter, storeFilterAdvanced, storeSortBy } from '.';
+import { init, storeFilter, storeFilterAdvanced, storeSortBy } from '.';
 import { IContentState } from './interfaces';
 
 export interface IContentProps {
@@ -40,8 +40,8 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
   );
 
   useDeepCompareEffect(() => {
-    if (props?.filter) {
-      controller.storeFilter(props?.filter);
+    if (!state.initialized && props?.filter) {
+      dispatch(init(props?.filter));
     }
   }, [controller, props?.filter]);
 

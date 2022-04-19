@@ -7,6 +7,9 @@ import * as styled from './styled';
  * @param children the navigation bar items
  * @returns navigation bar group
  */
-export const NavBarGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children }) => {
-  return <styled.NavBarGroup>{children}</styled.NavBarGroup>;
+export const NavBarGroup: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  children,
+  ...rest
+}) => {
+  return <styled.NavBarGroup {...rest}>{children}</styled.NavBarGroup>;
 };

@@ -4,7 +4,6 @@ export * from './flex';
 export * from './footer';
 export * from './grid-table';
 export * from './header';
-export * from './layout';
 export * from './loading';
 export * from './menu';
 export * from './navbar';

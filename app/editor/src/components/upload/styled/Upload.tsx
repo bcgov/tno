@@ -1,17 +1,16 @@
 import styled from 'styled-components';
 
 export const Upload = styled.div`
-display: flex;
-flex-direction: row;
-margin-right: 3%;
-.file-name {
-  text-align: center;
-}
-.upl {
+  display: flex;
+  flex-direction: row;
+  margin-right: 3%;
+  .file-name {
+    text-align: center;
+  }
+  .upl {
     color: #003366;
     margin: 1px 2px 1px 2px;
     margin-right: 5px;
-    height: 40px;
     width: 124px;
     font-weight: 400;
     text-align: center;
@@ -31,7 +30,7 @@ margin-right: 3%;
   }
 
   .msg {
-    color: #2E8540;
+    color: #2e8540;
     font-weight: 700;
   }
 
@@ -40,7 +39,7 @@ margin-right: 3%;
     background-color: red;
   }
 
-  width: fit-content
+  width: fit-content;
   margin-right: 5%;
 
   label {

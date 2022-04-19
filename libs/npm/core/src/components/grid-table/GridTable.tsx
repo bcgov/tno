@@ -1,5 +1,3 @@
-import { Row as FlexRow } from '../flex';
-import { Spinner } from '../spinners';
 import React from 'react';
 import {
   Column,
@@ -12,6 +10,8 @@ import {
   useTable,
 } from 'react-table';
 
+import { Row as FlexRow } from '../flex';
+import { Spinner } from '../spinners';
 import { Pager, SortIndicator } from '.';
 import * as styled from './styled';
 
@@ -194,7 +194,7 @@ export const GridTable = <T extends object>({
           <div className="rh" {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
               <div {...column.getHeaderProps(column.getSortByToggleProps())}>
-                {column.render('Header')}
+                {column.render('Header') as unknown as React.ReactNode}
                 <SortIndicator column={column} />
               </div>
             ))}
@@ -212,7 +212,11 @@ export const GridTable = <T extends object>({
             return (
               <div {...row.getRowProps()} onClick={() => onRowClick && onRowClick(row)}>
                 {row.cells.map((cell) => {
-                  return <div {...cell.getCellProps()}>{cell.render('Cell')}</div>;
+                  return (
+                    <div {...cell.getCellProps()}>
+                      {cell.render('Cell') as unknown as React.ReactNode}
+                    </div>
+                  );
                 })}
               </div>
             );
@@ -226,7 +230,7 @@ export const GridTable = <T extends object>({
             <div role="row" {...footerGroup.getFooterGroupProps()}>
               {footerGroup.headers.map((column) => (
                 <div role="cell" {...column.getFooterProps()}>
-                  {column.render('Footer')}
+                  {column.render('Footer') as unknown as React.ReactNode}
                 </div>
               ))}
             </div>

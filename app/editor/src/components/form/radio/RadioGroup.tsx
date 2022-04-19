@@ -37,7 +37,7 @@ export interface IRadioGroupProps<OT extends string | number | IOptionItem | HTM
   /**
    * Flex flow direction.
    */
-  direction?: 'row' | 'col';
+  direction?: 'row' | 'column' | 'col-row';
   /**
    * An error message.
    */
@@ -63,6 +63,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
   className,
   spaceUnderRadio,
   error,
+  direction = 'column',
   onChange,
   ...rest
 }: IRadioGroupProps<OT>) => {
@@ -96,6 +97,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
     <styled.RadioGroup
       name={name}
       className={`frm-in rag${className ? ` ${className}` : ''}`}
+      direction={direction}
       {...rest}
     >
       <div>

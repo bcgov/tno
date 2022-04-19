@@ -25,27 +25,22 @@ export const Area = styled.div`
 
   .lrg {
     width: 680px;
-    height: 40px;
   }
 
   .md {
     width: 320px;
-    height: 40px;
   }
 
   .md-lrg {
     width: 400px;
-    height: 40px;
     margin-right: 40px;
   }
 
   .sm {
-    height: 40px;
     width: 140px;
   }
 
   .md-sm {
-    height: 40px;
     width: 200px;
   }
 

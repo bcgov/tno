@@ -21,12 +21,6 @@ p {
     margin: 0;
 }
 
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
 h1 {
     font-size: 2em;
     text-transform: uppercase;
@@ -121,15 +115,3 @@ h4 {
     }
 }
 
-.box {
-    margin-top: 0.6em;
-    margin-left: 1em;
-    border: solid 1px grey;
-    border-radius: 0.25em;
-    max-width: 50em;
-    padding: 1em;
-    .test {
-        margin-right: 1em;
-        height: 40px;
-    }
-}

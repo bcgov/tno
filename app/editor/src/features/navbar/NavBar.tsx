@@ -14,36 +14,40 @@ export const NavBar: React.FC = () => {
   const showAdmin = location.pathname.startsWith('/admin');
 
   return (
-    <NavBarGroup>
-      <Row>
-        <NavBarItem navigateTo="/contents" label="Editor" claim={Claim.editor} />
-        <NavBarItem navigateTo="/admin" label="Admin" claim={Claim.administrator} />
-      </Row>
-      {showEditor && (
+    <>
+      <NavBarGroup className="navbar">
         <Row>
-          <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
+          <NavBarItem navigateTo="/contents" label="Editor" claim={Claim.editor} />
+          <NavBarItem navigateTo="/admin" label="Admin" claim={Claim.administrator} />
         </Row>
-      )}
-      {showAdmin && (
-        <Row>
-          <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
-          <NavBarItem
-            navigateTo="/admin/data/sources"
-            label="Sources"
-            claim={Claim.administrator}
-          />
-          <NavBarItem
-            navigateTo="/admin/contents/log"
-            label="Linked Snippet Log"
-            claim={Claim.administrator}
-          />
-          <NavBarItem
-            navigateTo="/admin/reports/cbra"
-            label="CBRA Report"
-            claim={Claim.administrator}
-          />
-        </Row>
-      )}
-    </NavBarGroup>
+      </NavBarGroup>
+      <NavBarGroup className="navbar">
+        {showEditor && (
+          <Row>
+            <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
+          </Row>
+        )}
+        {showAdmin && (
+          <Row>
+            <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/data/sources"
+              label="Sources"
+              claim={Claim.administrator}
+            />
+            <NavBarItem
+              navigateTo="/admin/contents/log"
+              label="Linked Snippet Log"
+              claim={Claim.administrator}
+            />
+            <NavBarItem
+              navigateTo="/admin/reports/cbra"
+              label="CBRA Report"
+              claim={Claim.administrator}
+            />
+          </Row>
+        )}
+      </NavBarGroup>
+    </>
   );
 };
