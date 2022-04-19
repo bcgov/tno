@@ -127,7 +127,8 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 );
               } else if (typeof option === 'object') {
                 // TODO: Validate option is HTMLOptionElement
-                return option;
+                const element = option as unknown as React.ReactNode;
+                return element;
               } else if (typeof option === 'number') {
                 const value = option as number;
                 return (

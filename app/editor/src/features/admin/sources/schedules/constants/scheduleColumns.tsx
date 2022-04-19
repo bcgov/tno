@@ -25,6 +25,6 @@ export const columns: (Column<IScheduleModel> &
   {
     Header: 'Days of the Week',
     accessor: 'runOnWeekDays',
-    Cell: (cell) => weekDayNameAbbrev(cell.value),
+    Cell: (cell) => <>{weekDayNameAbbrev(cell.value)}</>,
   },
 ];

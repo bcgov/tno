@@ -32,17 +32,25 @@ public abstract class AuditColumns : ISaveChanges
 
     public void OnAdded(User user)
     {
+        var now = DateTime.UtcNow;
         this.CreatedById = user.Key;
         this.CreatedBy = user.Username;
-        this.CreatedOn = DateTime.UtcNow;
+        this.CreatedOn = now;
+        this.UpdatedById = user.Key;
+        this.UpdatedBy = user.Username;
+        this.UpdatedOn = now;
         this.Version = 0;
     }
 
     public void OnAdded(ClaimsPrincipal? user)
     {
+        var now = DateTime.UtcNow;
         this.CreatedById = user?.GetUid() ?? Guid.Empty;
         this.CreatedBy = user?.GetUsername() ?? "";
-        this.CreatedOn = DateTime.UtcNow;
+        this.CreatedOn = now;
+        this.UpdatedById = user?.GetUid() ?? Guid.Empty;
+        this.UpdatedBy = user?.GetUsername() ?? "";
+        this.UpdatedOn = now;
         this.Version = 0;
     }
 

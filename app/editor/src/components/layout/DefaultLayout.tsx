@@ -2,8 +2,8 @@ import { Header } from 'components/header';
 import { Home } from 'features/home';
 import { UserInfo } from 'features/login';
 import { NavBar } from 'features/navbar';
-import { AppRouter } from 'features/router';
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 import { useToastError } from 'store/hooks';
 import { Footer, useKeycloakWrapper } from 'tno-core';
 
@@ -34,17 +34,9 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
           <Header name={name} />
           <div className="main-window">
             <NavBar />
-            <main
-              style={{
-                backgroundColor: '#f2f2f2',
-                margin: '0px',
-                padding: '0',
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
+            <main>
               <LayoutErrorBoundary>
-                <AppRouter />
+                <Outlet />
               </LayoutErrorBoundary>
             </main>
           </div>

@@ -3,11 +3,15 @@ import { useApp } from 'store/hooks';
 import { useAppStore } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
 
+export interface IUserInfoProps {
+  children?: React.ReactNode;
+}
+
 /**
  * UserInfo component provides a simple way to initialize user info within the application.
  * @returns Any empty component.
  */
-export const UserInfo: React.FC = ({ children }) => {
+export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
   const keycloak = useKeycloakWrapper();
   const [, app] = useApp();
   const [, appStore] = useAppStore();

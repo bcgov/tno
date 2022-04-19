@@ -14,7 +14,7 @@ import { SortingRule } from 'react-table';
 import { useContent, useLookup } from 'store/hooks';
 import { useApp } from 'store/hooks';
 import { initialContentState, useContentStore } from 'store/slices';
-import { Button, ButtonVariant } from 'tno-core';
+import { Button, ButtonVariant, Loader } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
 import { Page, PagedTable } from 'tno-core/dist/components/grid-table';
 import { getSortableOptions, getUserOptions } from 'utils';
@@ -40,9 +40,9 @@ export const ContentListView: React.FC = () => {
   const [, { storeFilter, storeFilterAdvanced, storeSortBy }] = useContentStore();
   const navigate = useNavigate();
 
-  const [mediaTypeOptions, setMediaTypes] = React.useState<IOptionItem[]>([]);
-  const [contentTypeOptions, setContentTypes] = React.useState<IOptionItem[]>([]);
-  const [userOptions, setUsers] = React.useState<IOptionItem[]>([]);
+  const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
+  const [contentTypeOptions, setContentTypeOptions] = React.useState<IOptionItem[]>([]);
+  const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [page, setPage] = React.useState(defaultPage);
   const [timeframe, setTimeframe] = React.useState(timeFrames[0]);
 
@@ -50,15 +50,21 @@ export const ContentListView: React.FC = () => {
     0) as number;
 
   React.useEffect(() => {
-    setContentTypes(getSortableOptions(contentTypes));
-    setMediaTypes(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
-    setUsers(
+    setContentTypeOptions(getSortableOptions(contentTypes));
+  }, [contentTypes]);
+
+  React.useEffect(() => {
+    setMediaTypeOptions(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
+  }, [mediaTypes]);
+
+  React.useEffect(() => {
+    setUserOptions(
       getUserOptions(
         users.filter((u) => !u.isSystemAccount),
         [new OptionItem<number>('All Users', 0)],
       ),
     );
-  }, [contentTypes, mediaTypes, users]);
+  }, [users]);
 
   const fetch = React.useCallback(
     async (filter: IContentListFilter, sortBy: ISortBy[]) => {
@@ -117,8 +123,11 @@ export const ContentListView: React.FC = () => {
     });
   };
 
+  const showLoader = !mediaTypeOptions.length || !userOptions.length;
+
   return (
     <styled.ContentListView>
+      <Loader size="5em" visible={showLoader} />
       <div className="content-filter">
         <div>
           <Select
@@ -166,7 +175,7 @@ export const ContentListView: React.FC = () => {
               <div>
                 <Checkbox
                   name="isPrintContent"
-                  label="Lois"
+                  label="Print Content"
                   tooltip="Print Content"
                   value={printContentId}
                   checked={filter.contentTypeId !== 0}

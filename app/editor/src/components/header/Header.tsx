@@ -21,7 +21,7 @@ export const Header: React.FC<IHeaderProps> = ({ name, children, ...rest }) => {
   return (
     <styled.Header {...rest}>
       <div>
-        <a href="https://www2.gov.bc.ca/gov/content/home">
+        <a href={`${process.env.PUBLIC_URL}/`}>
           <img alt="BC Gov logo" src={process.env.PUBLIC_URL + '/assets/gov_bc_logo.svg'} />
         </a>
       </div>

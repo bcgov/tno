@@ -12,5 +12,3 @@ export const Loading = styled.span`
   white-space: nowrap !important;
   border: 0 !important;
 `;
-
-export default Loading;

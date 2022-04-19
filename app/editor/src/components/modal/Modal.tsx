@@ -19,9 +19,9 @@ export interface IModalProps {
   /** the text for the header */
   headerText?: string;
   /** the text / fragment for the body of the modal */
-  body?: string | React.ReactFragment;
+  body?: React.ReactNode;
   /** pass custom buttons directly to the modal */
-  customButtons?: React.ReactFragment;
+  customButtons?: React.ReactNode;
   /** preset stylings for the modal */
   type?: 'delete' | 'default' | 'custom';
 }
