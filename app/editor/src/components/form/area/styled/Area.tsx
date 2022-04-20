@@ -1,11 +1,6 @@
 import styled from 'styled-components';
 
 export const Area = styled.div`
-  background-color: white;
-  height: fit-content;
-  padding: 3%;
-  width: fit-content;
-
   p[role='alert'] {
     color: red;
     margin-bottom: 1em;
