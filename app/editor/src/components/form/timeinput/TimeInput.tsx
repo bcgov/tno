@@ -2,6 +2,7 @@ import { InputHTMLAttributes } from 'react';
 
 import * as styled from './styled';
 
+/** Component that will enforce the HH:MM:SS time format */
 export const TimeInput: React.FC<InputHTMLAttributes<HTMLInputElement>> = (props) => {
   const formatTime = (value: string) => {
     const chars = value.split('');
