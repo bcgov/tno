@@ -2877,6 +2877,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-text-mask@npm:5.4.11":
+  version: 5.4.11
+  resolution: "@types/react-text-mask@npm:5.4.11"
+  dependencies:
+    "@types/react": "*"
+  checksum: 4defba1467e61b73bfdae74d0b1bea0f27846aabf5283f137fa372ef05bf23accfdf04fffaba33272e9eff5abf00a74863e9c24ca6974c731d73f3fae6efc577
+  languageName: node
+  linkType: hard
+
 "@types/react-transition-group@npm:^4.4.0":
   version: 4.4.4
   resolution: "@types/react-transition-group@npm:4.4.4"
@@ -10712,7 +10721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.5.6, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -11206,6 +11215,17 @@ __metadata:
   peerDependencies:
     react: ^16.8.3 || ^17.0.0-0
   checksum: a679edecc76d3e51311b095528395b38ac85a1ffa371716bea01559a5fdc75af9a6abb9bb907c63190c8e77da22b11f7b05065b3a45d190d8f43cb83e4366206
+  languageName: node
+  linkType: hard
+
+"react-text-mask@npm:5.4.3":
+  version: 5.4.3
+  resolution: "react-text-mask@npm:5.4.3"
+  dependencies:
+    prop-types: ^15.5.6
+  peerDependencies:
+    react: ^0.14.0 || ^15.0.0 || ^16.0.0
+  checksum: ee9c560f47d2f67d0193636eeea36852503d6d7bfd16d75ecb8170256606923d786bbb3511971deedbd01136340acf597fe2b6ba0be3cddb2a17a602767eb7b9
   languageName: node
   linkType: hard
 
@@ -12764,6 +12784,7 @@ __metadata:
     "@types/react-redux": 7.1.24
     "@types/react-router-dom": 5.3.3
     "@types/react-table": 7.7.10
+    "@types/react-text-mask": 5.4.11
     "@types/redux-logger": 3.0.9
     "@types/styled-components": 5.1.25
     "@types/yup": 0.29.13
@@ -12801,6 +12822,7 @@ __metadata:
     react-scripts: 5.0.1
     react-select: 5.3.0
     react-table: 7.7.0
+    react-text-mask: 5.4.3
     react-toastify: 8.2.0
     react-tooltip: 4.2.21
     redux-logger: 3.0.6

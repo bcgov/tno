@@ -1,4 +1,4 @@
-import { FieldSize } from 'components/form';
+import { FieldSize, TimeInput } from 'components/form';
 import {
   FormikCheckbox,
   FormikHidden,
@@ -6,7 +6,7 @@ import {
   FormikText,
   FormikTextArea,
 } from 'components/formik';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, ScheduleType, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
@@ -20,7 +20,7 @@ interface IScheduleSingleProps {
 }
 
 export const ScheduleSingle: React.FC<IScheduleSingleProps> = ({ index, message }) => {
-  const { setFieldValue } = useFormikContext<IDataSourceModel>();
+  const { setFieldValue, values } = useFormikContext<IDataSourceModel>();
   const { field } = useNamespace('schedules', index);
 
   React.useEffect(() => {
@@ -39,16 +39,20 @@ export const ScheduleSingle: React.FC<IScheduleSingleProps> = ({ index, message 
         <FormikTextArea label="Description" name={field('description')} />
         <Row nowrap>
           <p>Start the service at</p>
-          <FormikText
+          <TimeInput
             name={field('startAt')}
+            value={getIn(values, field('startAt'))}
             width={FieldSize.Small}
+            onChange={(e: any) => setFieldValue(field('startAt'), e.target.value)}
             placeholder="HH:MM:SS"
             required
           />
           <p>and stop it at</p>
-          <FormikText
+          <TimeInput
             name={field('stopAt')}
+            value={getIn(values, field('stopAt'))}
             width={FieldSize.Small}
+            onChange={(e: any) => setFieldValue(field('stopAt'), e.target.value)}
             placeholder="HH:MM:SS"
             required
           />
