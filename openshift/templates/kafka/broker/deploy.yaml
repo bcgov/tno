@@ -61,17 +61,17 @@ parameters:
     displayName: REPLICAS
     description: The number of StatefulSet replicas to use.
     required: true
-    value: "3"
+    value: "1"
   - name: CPU_REQUEST
     displayName: Requested Minimum Resources CPU Limit
     description: The requested minimum resources CPU limit (in cores) for this build.
     required: true
-    value: 50m
+    value: 100m
   - name: CPU_LIMIT
     displayName: Resources CPU Limit
     description: The resources CPU limit (in cores) for this build.
     required: true
-    value: 250m
+    value: 500m
   - name: MEMORY_REQUEST
     displayName: Requested Minimum Memory Limit
     description: Minimum requested amount of memory the container can use.
