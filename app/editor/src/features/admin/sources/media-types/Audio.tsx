@@ -21,6 +21,37 @@ export const Audio: React.FC = (props) => {
         name="connection.frequency"
         value={values.connection.frequency}
       />
+      <FormikText
+        label="Stream URL"
+        name="connection.audioUrl"
+        value={values.connection.audioUrl}
+      />
+      <FormikText
+        label="Capture Directory"
+        name="connection.captureDir"
+        value={values.connection.captureDir}
+      />
+      <FormikText
+        label="Clip Directory"
+        name="connection.clipDir"
+        value={values.connection.clipDir}
+      />
+      <FormikText
+        label="Capture Command"
+        name="connection.captureCmd"
+        value={values.connection.captureCmd}
+      />
+      <FormikText
+        label="Stream Timeout"
+        name="connection.streamTimeout"
+        value={values.connection.streamTimeout}
+      />
+      <FormikText
+        label="Clip Command"
+        name="connection.clipCmd"
+        value={values.connection.clipCmd}
+      />
+      <FormikText label="Timezone" name="connection.timeZone" value={values.connection.timeZone} />
     </styled.MediaType>
   );
 };
