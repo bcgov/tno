@@ -130,14 +130,14 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
               label="Published On"
               required
               showTimeSelect
-              dateFormat="MMMM d, yyyy hh:mm a"
+              dateFormat="MMMM D, yyyy hh:mm a"
               width={FieldSize.Medium}
               selectedDate={
                 !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
               }
               value={
                 !!values.publishedOn
-                  ? moment(values.publishedOn).format('MMMM d, yyyy hh:mm a')
+                  ? moment(values.publishedOn).format('MMMM D, yyyy hh:mm a')
                   : ''
               }
               onChange={(date: any) => {

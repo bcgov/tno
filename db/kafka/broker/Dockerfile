@@ -1,4 +1,4 @@
-FROM confluentinc/cp-kafka:7.0.1
+FROM confluentinc/cp-kafka:7.0.3
 
 # COPY ./scripts /home/scripts
 
