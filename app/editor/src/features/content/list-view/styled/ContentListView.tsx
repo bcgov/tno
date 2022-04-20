@@ -2,10 +2,6 @@ import styled from 'styled-components';
 
 export const ContentListView = styled.div`
   position: relative;
-  background-color: white;
-  width: fit-content;
-  height: 100%;
-  padding: 2em;
   input[type='text'],
   .content-filter {
     display: flex;
@@ -44,7 +40,6 @@ export const ContentListView = styled.div`
   }
 
   .content-list {
-    max-width: fit-content;
     table {
       background: transparent;
     }

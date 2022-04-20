@@ -8,6 +8,7 @@ import {
   SelectDate,
   Text,
 } from 'components/form';
+import { FormPage } from 'components/form/formpage';
 import { IContentModel, LogicalOperator } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -128,264 +129,266 @@ export const ContentListView: React.FC = () => {
 
   return (
     <styled.ContentListView>
-      <Loader size="5em" visible={showLoader} />
-      <div className="content-filter">
-        <div>
-          <Select
-            name="mediaType"
-            label="Media Type"
-            options={mediaTypeOptions}
-            value={mediaTypeOptions.find((mt) => mt.value === filter.mediaTypeId)}
-            defaultValue={mediaTypeOptions[0]}
-            onChange={(newValue) => {
-              var mediaTypeId = (newValue as IOptionItem).value ?? 0;
-              storeFilter({
-                ...filter,
-                pageIndex: 0,
-                mediaTypeId: mediaTypeId as number,
-              });
-            }}
-          />
-          <Select
-            name="user"
-            label="User"
-            options={userOptions}
-            value={userOptions.find((u) => u.value === filter.userId)}
-            onChange={(newValue) => {
-              var userId = (newValue as IOptionItem).value ?? '';
-              storeFilter({
-                ...filter,
-                pageIndex: 0,
-                userId: typeof userId === 'string' ? '' : userId,
-              });
-            }}
-          />
-          <RadioGroup
-            name="timeFrame"
-            label="Time Frame"
-            direction="col-row"
-            tooltip="Date created"
-            value={timeframe}
-            options={timeFrames}
-            onChange={handleTimeChange}
-            disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
-          />
-          <div className="frm-in chg">
-            <label>Filters</label>
-            <div className="action-filters">
-              <div>
-                <Checkbox
-                  name="isPrintContent"
-                  label="Print Content"
-                  tooltip="Print Content"
-                  value={printContentId}
-                  checked={filter.contentTypeId !== 0}
-                  onChange={(e) => {
-                    storeFilter({
-                      ...filter,
-                      pageIndex: 0,
-                      contentTypeId: e.target.checked ? printContentId : 0,
-                    });
-                  }}
-                />
-                <Checkbox
-                  name="included"
-                  label="Included"
-                  value="Included"
-                  checked={filter.included !== ''}
-                  onChange={(e) =>
-                    storeFilter({
-                      ...filter,
-                      pageIndex: 0,
-                      included: e.target.checked ? e.target.value : '',
-                    })
-                  }
-                />
-                <Checkbox
-                  name="ticker"
-                  label="On Ticker"
-                  value="On Ticker"
-                  checked={filter.onTicker !== ''}
-                  onChange={(e) =>
-                    storeFilter({
-                      ...filter,
-                      pageIndex: 0,
-                      onTicker: e.target.checked ? e.target.value : '',
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Checkbox
-                  name="commentary"
-                  label="Commentary"
-                  value="Commentary"
-                  checked={filter.commentary !== ''}
-                  onChange={(e) =>
-                    storeFilter({
-                      ...filter,
-                      pageIndex: 0,
-                      commentary: e.target.checked ? e.target.value : '',
-                    })
-                  }
-                />
-                <Checkbox
-                  name="topStory"
-                  label="Top Story"
-                  value="Top Story"
-                  checked={filter.topStory !== ''}
-                  onChange={(e) =>
-                    storeFilter({
-                      ...filter,
-                      pageIndex: 0,
-                      topStory: e.target.checked ? e.target.value : '',
-                    })
-                  }
-                />
+      <FormPage>
+        <Loader size="5em" visible={showLoader} />
+        <div className="content-filter">
+          <div>
+            <Select
+              name="mediaType"
+              label="Media Type"
+              options={mediaTypeOptions}
+              value={mediaTypeOptions.find((mt) => mt.value === filter.mediaTypeId)}
+              defaultValue={mediaTypeOptions[0]}
+              onChange={(newValue) => {
+                var mediaTypeId = (newValue as IOptionItem).value ?? 0;
+                storeFilter({
+                  ...filter,
+                  pageIndex: 0,
+                  mediaTypeId: mediaTypeId as number,
+                });
+              }}
+            />
+            <Select
+              name="user"
+              label="User"
+              options={userOptions}
+              value={userOptions.find((u) => u.value === filter.userId)}
+              onChange={(newValue) => {
+                var userId = (newValue as IOptionItem).value ?? '';
+                storeFilter({
+                  ...filter,
+                  pageIndex: 0,
+                  userId: typeof userId === 'string' ? '' : userId,
+                });
+              }}
+            />
+            <RadioGroup
+              name="timeFrame"
+              label="Time Frame"
+              direction="col-row"
+              tooltip="Date created"
+              value={timeframe}
+              options={timeFrames}
+              onChange={handleTimeChange}
+              disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
+            />
+            <div className="frm-in chg">
+              <label>Filters</label>
+              <div className="action-filters">
+                <div>
+                  <Checkbox
+                    name="isPrintContent"
+                    label="Print Content"
+                    tooltip="Print Content"
+                    value={printContentId}
+                    checked={filter.contentTypeId !== 0}
+                    onChange={(e) => {
+                      storeFilter({
+                        ...filter,
+                        pageIndex: 0,
+                        contentTypeId: e.target.checked ? printContentId : 0,
+                      });
+                    }}
+                  />
+                  <Checkbox
+                    name="included"
+                    label="Included"
+                    value="Included"
+                    checked={filter.included !== ''}
+                    onChange={(e) =>
+                      storeFilter({
+                        ...filter,
+                        pageIndex: 0,
+                        included: e.target.checked ? e.target.value : '',
+                      })
+                    }
+                  />
+                  <Checkbox
+                    name="ticker"
+                    label="On Ticker"
+                    value="On Ticker"
+                    checked={filter.onTicker !== ''}
+                    onChange={(e) =>
+                      storeFilter({
+                        ...filter,
+                        pageIndex: 0,
+                        onTicker: e.target.checked ? e.target.value : '',
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <Checkbox
+                    name="commentary"
+                    label="Commentary"
+                    value="Commentary"
+                    checked={filter.commentary !== ''}
+                    onChange={(e) =>
+                      storeFilter({
+                        ...filter,
+                        pageIndex: 0,
+                        commentary: e.target.checked ? e.target.value : '',
+                      })
+                    }
+                  />
+                  <Checkbox
+                    name="topStory"
+                    label="Top Story"
+                    value="Top Story"
+                    checked={filter.topStory !== ''}
+                    onChange={(e) =>
+                      storeFilter({
+                        ...filter,
+                        pageIndex: 0,
+                        topStory: e.target.checked ? e.target.value : '',
+                      })
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="box">
-          <h2 className="caps">Advanced Search</h2>
-          <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
-            <Select
-              name="fieldType"
-              label="Field Type"
-              options={fieldTypes}
-              value={filterAdvanced.fieldType}
-              onChange={(newValue) => {
-                const value =
-                  newValue instanceof OptionItem
-                    ? newValue.toInterface()
-                    : (newValue as IOptionItem);
-                storeFilterAdvanced({ ...filterAdvanced, fieldType: value });
+          <div className="box">
+            <h2 className="caps">Advanced Search</h2>
+            <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
+              <Select
+                name="fieldType"
+                label="Field Type"
+                options={fieldTypes}
+                value={filterAdvanced.fieldType}
+                onChange={(newValue) => {
+                  const value =
+                    newValue instanceof OptionItem
+                      ? newValue.toInterface()
+                      : (newValue as IOptionItem);
+                  storeFilterAdvanced({ ...filterAdvanced, fieldType: value });
+                }}
+              />
+              <Select
+                className="test"
+                name="logicalOperator"
+                label="Logical Operator"
+                options={logicalOperators}
+                value={logicalOperators.find(
+                  (lo) => (LogicalOperator as any)[lo.value] === filterAdvanced.logicalOperator,
+                )}
+                onChange={(newValue) => {
+                  const logicalOperator = (LogicalOperator as any)[
+                    (newValue as IOptionItem).value ?? 0
+                  ];
+                  storeFilterAdvanced({ ...filterAdvanced, logicalOperator });
+                }}
+              />
+              <Text
+                className="test"
+                name="searchTerm"
+                label="Search Terms"
+                value={filterAdvanced.searchTerm}
+                onChange={(e) => {
+                  storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value.trim() });
+                }}
+              ></Text>
+            </div>
+            <Col className="frm-in dateRange" alignItems="flex-start">
+              <label data-for="main-tooltip" data-tip="Date created">
+                Date Range
+              </label>
+              <Row>
+                <SelectDate
+                  name="startDate"
+                  placeholderText="YYYY MM DD"
+                  selected={
+                    !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
+                  }
+                  showTimeSelect
+                  dateFormat="Pp"
+                  width={FieldSize.Small}
+                  onChange={(date) =>
+                    storeFilterAdvanced({
+                      ...filterAdvanced,
+                      startDate: !!date ? date.toString() : undefined,
+                    })
+                  }
+                />
+                <SelectDate
+                  name="endDate"
+                  placeholderText="YYYY MM DD"
+                  selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  width={FieldSize.Small}
+                  onChange={(date) =>
+                    storeFilterAdvanced({
+                      ...filterAdvanced,
+                      endDate: !!date ? date.toString() : undefined,
+                    })
+                  }
+                />
+              </Row>
+            </Col>
+            <Button
+              name="search"
+              onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced }, sortBy)}
+            >
+              Search
+            </Button>
+            <Button
+              name="clear"
+              variant={ButtonVariant.secondary}
+              onClick={() => {
+                storeFilterAdvanced({
+                  ...initialContentState.filterAdvanced,
+                });
+                storeFilter({ ...filter, pageIndex: 0 });
               }}
-            />
-            <Select
-              className="test"
-              name="logicalOperator"
-              label="Logical Operator"
-              options={logicalOperators}
-              value={logicalOperators.find(
-                (lo) => (LogicalOperator as any)[lo.value] === filterAdvanced.logicalOperator,
-              )}
-              onChange={(newValue) => {
-                const logicalOperator = (LogicalOperator as any)[
-                  (newValue as IOptionItem).value ?? 0
-                ];
-                storeFilterAdvanced({ ...filterAdvanced, logicalOperator });
-              }}
-            />
-            <Text
-              className="test"
-              name="searchTerm"
-              label="Search Terms"
-              value={filterAdvanced.searchTerm}
-              onChange={(e) => {
-                storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value.trim() });
-              }}
-            ></Text>
+            >
+              Clear
+            </Button>
           </div>
-          <Col className="frm-in dateRange" alignItems="flex-start">
-            <label data-for="main-tooltip" data-tip="Date created">
-              Date Range
-            </label>
-            <Row>
-              <SelectDate
-                name="startDate"
-                placeholderText="YYYY MM DD"
-                selected={
-                  !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
-                }
-                showTimeSelect
-                dateFormat="Pp"
-                width={FieldSize.Small}
-                onChange={(date) =>
-                  storeFilterAdvanced({
-                    ...filterAdvanced,
-                    startDate: !!date ? date.toString() : undefined,
-                  })
-                }
-              />
-              <SelectDate
-                name="endDate"
-                placeholderText="YYYY MM DD"
-                selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
-                showTimeSelect
-                dateFormat="Pp"
-                width={FieldSize.Small}
-                onChange={(date) =>
-                  storeFilterAdvanced({
-                    ...filterAdvanced,
-                    endDate: !!date ? date.toString() : undefined,
-                  })
-                }
-              />
-            </Row>
-          </Col>
-          <Button
-            name="search"
-            onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced }, sortBy)}
-          >
-            Search
-          </Button>
-          <Button
-            name="clear"
-            variant={ButtonVariant.secondary}
-            onClick={() => {
-              storeFilterAdvanced({
-                ...initialContentState.filterAdvanced,
-              });
-              storeFilter({ ...filter, pageIndex: 0 });
-            }}
-          >
-            Clear
-          </Button>
         </div>
-      </div>
-      <div className="content-list">
-        <PagedTable
-          columns={columns}
-          page={page}
-          isLoading={!!requests.length}
-          sortBy={sortBy}
-          onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
-          onChangePage={handleChangePage}
-          onChangeSort={handleChangeSort}
-        ></PagedTable>
-      </div>
-      <div className="content-actions">
-        <Button name="create" onClick={() => navigate('/contents/0')}>
-          Create Snippet
-        </Button>
-        <div style={{ marginTop: '2%' }} className="addition-actions">
-          <Button
-            name="create"
-            variant={ButtonVariant.action}
-            disabled
-            tooltip="Under Construction"
-          >
-            Send Lois Front Pages
-          </Button>
-          <Button
-            name="create"
-            variant={ButtonVariant.action}
-            disabled
-            tooltip="Under Construction"
-          >
-            Send Top Stories
-          </Button>
-          <Button
-            name="create"
-            variant={ButtonVariant.action}
-            disabled
-            tooltip="Under Construction"
-          >
-            Send Send Lois to Commentary
-          </Button>
+        <div className="content-list">
+          <PagedTable
+            columns={columns}
+            page={page}
+            isLoading={!!requests.length}
+            sortBy={sortBy}
+            onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
+            onChangePage={handleChangePage}
+            onChangeSort={handleChangeSort}
+          ></PagedTable>
         </div>
-      </div>
+        <div className="content-actions">
+          <Button name="create" onClick={() => navigate('/contents/0')}>
+            Create Snippet
+          </Button>
+          <div style={{ marginTop: '2%' }} className="addition-actions">
+            <Button
+              name="create"
+              variant={ButtonVariant.action}
+              disabled
+              tooltip="Under Construction"
+            >
+              Send Lois Front Pages
+            </Button>
+            <Button
+              name="create"
+              variant={ButtonVariant.action}
+              disabled
+              tooltip="Under Construction"
+            >
+              Send Top Stories
+            </Button>
+            <Button
+              name="create"
+              variant={ButtonVariant.action}
+              disabled
+              tooltip="Under Construction"
+            >
+              Send Send Lois to Commentary
+            </Button>
+          </div>
+        </div>
+      </FormPage>
     </styled.ContentListView>
   );
 };
