@@ -1,5 +1,6 @@
 import {
   Checkbox,
+  FieldSize,
   IOptionItem,
   OptionItem,
   RadioGroup,
@@ -13,9 +14,9 @@ import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useContent, useLookup } from 'store/hooks';
 import { useApp } from 'store/hooks';
-import { initialContentState, useContentStore } from 'store/slices';
+import { initialContentState } from 'store/slices';
 import { Button, ButtonVariant, Loader } from 'tno-core';
-import { Col } from 'tno-core/dist/components/flex';
+import { Col, Row } from 'tno-core/dist/components/flex';
 import { Page, PagedTable } from 'tno-core/dist/components/grid-table';
 import { getSortableOptions, getUserOptions } from 'utils';
 
@@ -34,17 +35,17 @@ import * as styled from './styled';
 export const ContentListView: React.FC = () => {
   const [{ userInfo, requests }, { isUserReady }] = useApp();
   const [{ contentTypes, mediaTypes, users }] = useLookup();
-  const [{ filter, filterAdvanced, sortBy }, { findContent }] = useContent({
-    filter: { ...defaultFilter, userId: userInfo?.id ?? 0 },
-  });
-  const [, { storeFilter, storeFilterAdvanced, storeSortBy }] = useContentStore();
+  const [
+    { filter, filterAdvanced, sortBy },
+    { findContent, storeFilter, storeFilterAdvanced, storeSortBy },
+  ] = useContent({ filter: { ...defaultFilter, userId: userInfo?.id ?? 0 } });
   const navigate = useNavigate();
 
   const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [contentTypeOptions, setContentTypeOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [page, setPage] = React.useState(defaultPage);
-  const [timeframe, setTimeframe] = React.useState(timeFrames[0]);
+  const [timeframe, setTimeframe] = React.useState(timeFrames[Number(filter.timeFrame)]);
 
   const printContentId = (contentTypeOptions.find((ct) => ct.label === 'Print')?.value ??
     0) as number;
@@ -162,7 +163,7 @@ export const ContentListView: React.FC = () => {
           <RadioGroup
             name="timeFrame"
             label="Time Frame"
-            direction="row"
+            direction="col-row"
             tooltip="Date created"
             value={timeframe}
             options={timeFrames}
@@ -250,7 +251,6 @@ export const ContentListView: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
             <Select
               name="fieldType"
-              className="test"
               label="Field Type"
               options={fieldTypes}
               value={filterAdvanced.fieldType}
@@ -291,32 +291,38 @@ export const ContentListView: React.FC = () => {
             <label data-for="main-tooltip" data-tip="Date created">
               Date Range
             </label>
-            <SelectDate
-              name="startDate"
-              placeholderText="YYYY MM DD"
-              selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
-              showTimeSelect
-              dateFormat="Pp"
-              onChange={(date) =>
-                storeFilterAdvanced({
-                  ...filterAdvanced,
-                  startDate: !!date ? date.toString() : undefined,
-                })
-              }
-            />
-            <SelectDate
-              name="endDate"
-              placeholderText="YYYY MM DD"
-              selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
-              showTimeSelect
-              dateFormat="Pp"
-              onChange={(date) =>
-                storeFilterAdvanced({
-                  ...filterAdvanced,
-                  endDate: !!date ? date.toString() : undefined,
-                })
-              }
-            />
+            <Row>
+              <SelectDate
+                name="startDate"
+                placeholderText="YYYY MM DD"
+                selected={
+                  !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
+                }
+                showTimeSelect
+                dateFormat="Pp"
+                width={FieldSize.Small}
+                onChange={(date) =>
+                  storeFilterAdvanced({
+                    ...filterAdvanced,
+                    startDate: !!date ? date.toString() : undefined,
+                  })
+                }
+              />
+              <SelectDate
+                name="endDate"
+                placeholderText="YYYY MM DD"
+                selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
+                showTimeSelect
+                dateFormat="Pp"
+                width={FieldSize.Small}
+                onChange={(date) =>
+                  storeFilterAdvanced({
+                    ...filterAdvanced,
+                    endDate: !!date ? date.toString() : undefined,
+                  })
+                }
+              />
+            </Row>
           </Col>
           <Button
             name="search"

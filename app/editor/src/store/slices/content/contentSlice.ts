@@ -10,6 +10,7 @@ import { LogicalOperator } from 'hooks/api-editor';
 import { IContentState } from './interfaces';
 
 export const initialContentState: IContentState = {
+  initialized: false,
   filter: {
     pageIndex: 0,
     pageSize: 10,
@@ -35,6 +36,10 @@ export const contentSlice = createSlice({
   name: 'content',
   initialState: initialContentState,
   reducers: {
+    init(state: IContentState, action: PayloadAction<IContentListFilter>) {
+      state.filter = action.payload;
+      state.initialized = true;
+    },
     storeFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
       state.filter = action.payload;
     },
@@ -47,4 +52,4 @@ export const contentSlice = createSlice({
   },
 });
 
-export const { storeFilter, storeFilterAdvanced, storeSortBy } = contentSlice.actions;
+export const { init, storeFilter, storeFilterAdvanced, storeSortBy } = contentSlice.actions;

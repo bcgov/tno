@@ -13,6 +13,15 @@ export const RadioGroup = styled.div<IRadioGroupProps<any>>`
 
   & > div {
     display: flex;
-    flex-direction: ${(props) => (props.direction === 'row' ? 'row' : 'column')};
+    flex-direction: ${(props) => (props.direction === 'col-row' ? 'row' : props.direction)};
+    flex-wrap: wrap;
+
+    & > :first-child {
+      width: ${(props) => (props.direction === 'col-row' ? '100%' : '')};
+    }
+
+    & > :not(:first-child) {
+      flex: 1;
+    }
   }
 `;

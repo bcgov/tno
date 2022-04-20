@@ -1,18 +1,14 @@
 import 'react-toastify/dist/ReactToastify.css';
 
 import { ReactKeycloakProvider } from '@react-keycloak/web';
+import { LayoutAnonymous } from 'components/layout';
 import { AppRouter } from 'features/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
-import {
-  createKeycloakInstance,
-  LayoutAnonymous,
-  Loading,
-  useKeycloakEventHandler,
-} from 'tno-core';
+import { createKeycloakInstance, Loading, useKeycloakEventHandler } from 'tno-core';
 
 const appName = 'TNO News Service';
 

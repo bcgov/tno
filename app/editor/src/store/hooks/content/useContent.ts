@@ -1,3 +1,8 @@
+import {
+  IContentListAdvancedFilter,
+  IContentListFilter,
+  ISortBy,
+} from 'features/content/list-view/interfaces';
 import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
 import { useApiContents } from 'hooks/api-editor';
 import React from 'react';
@@ -12,10 +17,13 @@ interface IContentController {
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
+  storeFilter: (filter: IContentListFilter) => void;
+  storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
+  storeSortBy: (sortBy: ISortBy[]) => void;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
-  const [state] = useContentStore(props);
+  const [state, actions] = useContentStore(props);
   const dispatch = useApiDispatcher();
   const api = useApiContents();
 
@@ -40,6 +48,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       const result = await dispatch('delete-content', () => api.deleteContent(content));
       return result;
     },
+    storeFilter: actions.storeFilter,
+    storeFilterAdvanced: actions.storeFilterAdvanced,
+    storeSortBy: actions.storeSortBy,
   }).current;
 
   return [state, controller];

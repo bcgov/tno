@@ -8,4 +8,8 @@ export const ContentForm = styled.div`
       max-height: 12em;
     }
   }
+
+  .content-properties {
+    padding-top: 1em;
+  }
 `;

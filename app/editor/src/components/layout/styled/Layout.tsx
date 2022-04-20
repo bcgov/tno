@@ -12,6 +12,10 @@ export const Layout = styled.div`
     align-items: stretch;
     flex-grow: 1;
     overflow: hidden;
+
+    & > .navbar:first-child {
+      border-bottom: solid 1px #65799e;
+    }
   }
 
   main {
@@ -25,5 +29,11 @@ export const Layout = styled.div`
     padding: 0;
     display: flex;
     justify-content: center;
+  }
+
+  .navbar {
+    & > div {
+      margin-left: 5em;
+    }
   }
 `;

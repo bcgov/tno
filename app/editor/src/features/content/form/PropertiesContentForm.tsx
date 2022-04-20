@@ -62,7 +62,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   };
 
   return (
-    <Col style={{ margin: '3%' }}>
+    <Col className="content-properties">
       <Row>
         <Col>
           <Row>

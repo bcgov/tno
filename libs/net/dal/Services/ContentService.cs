@@ -35,7 +35,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(filter.Source))
             query = query.Where(c => c.Source == filter.Source);
         if (!String.IsNullOrWhiteSpace(filter.Headline))
-            query = query.Where(c => EF.Functions.Like(c.Headline, $"{filter.Headline}"));
+            query = query.Where(c => EF.Functions.Like(c.Headline, $"%{filter.Headline}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
             query = query.Where(c => c.PrintContent != null && c.PrintContent.Section == filter.Section);
         if (!String.IsNullOrWhiteSpace(filter.Edition))
@@ -43,7 +43,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(filter.StoryType))
             query = query.Where(c => c.PrintContent != null && c.PrintContent.StoryType == filter.StoryType);
         if (!String.IsNullOrWhiteSpace(filter.Byline))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline, $"{filter.Byline}"));
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline, $"%{filter.Byline}%"));
 
         if (filter.ContentTypeId.HasValue)
             query = query.Where(c => c.ContentTypeId == filter.ContentTypeId);

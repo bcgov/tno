@@ -33,7 +33,6 @@ export const InfoPanel = styled.div<IInfoPanelProps>`
       margin-top: 100px;
       .signIn {
         width: 96px;
-        height: 40px;
       }
     }
   }

@@ -5,12 +5,8 @@ export const ContentListView = styled.div`
   background-color: white;
   width: fit-content;
   height: 100%;
-  padding: 5%;
+  padding: 2em;
   input[type='text'],
-  select {
-    min-width: 15em;
-  }
-
   .content-filter {
     display: flex;
     flex-direction: row;
@@ -67,5 +63,14 @@ export const ContentListView = styled.div`
         margin-bottom: 0.5em;
       }
     }
+  }
+
+  .box {
+    margin-top: 0.6em;
+    margin-left: 1em;
+    border: solid 1px grey;
+    border-radius: 0.25em;
+    max-width: 50em;
+    padding: 1em;
   }
 `;
