@@ -1,38 +1,41 @@
+import { FieldSize } from 'components/form';
+import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
-import { IDataSourceModel } from 'hooks/api-editor';
+import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
-import { Outlet, useParams } from 'react-router-dom';
-import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 
+import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
+import { scheduleTypeOptions } from './constants';
 import * as styled from './styled';
 
 interface IScheduleProps {}
 
 export const Schedule: React.FC<IScheduleProps> = () => {
   const { values } = useFormikContext<IDataSourceModel>();
-  const { id } = useParams();
 
-  return values.schedules.length ? (
+  const form = (scheduleType: DataSourceScheduleTypeName) => {
+    switch (scheduleType) {
+      case DataSourceScheduleTypeName.Continuous:
+        return <ScheduleContinuous index={0} />;
+      case DataSourceScheduleTypeName.Daily:
+        return <ScheduleDaily index={0} />;
+      case DataSourceScheduleTypeName.Advanced:
+        return <ScheduleAdvanced />;
+    }
+  };
+
+  return (
     <styled.Schedule className="schedule">
       <p>
         A service schedule provides a way to manage when and how often source content is imported.
       </p>
-      <Tabs
-        tabs={
-          <>
-            <Tab
-              exact
-              navigateTo="continuous"
-              label="Continuous"
-              activePaths={[`/admin/data/sources/${id}/schedules`]}
-            />
-            <Tab exact navigateTo="daily" label="Start/Stop" />
-            <Tab exact navigateTo="advanced" label="Advanced" />
-          </>
-        }
-      >
-        <Outlet />
-      </Tabs>
+      <FormikSelect
+        label="Schedule Type"
+        name="scheduleType"
+        options={scheduleTypeOptions}
+        width={FieldSize.Medium}
+      />
+      {form(values.scheduleType)}
     </styled.Schedule>
-  ) : null;
+  );
 };

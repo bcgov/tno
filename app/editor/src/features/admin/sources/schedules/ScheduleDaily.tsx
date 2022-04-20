@@ -8,30 +8,26 @@ import {
 } from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
-import { IDataSourceModel, ScheduleType, ScheduleWeekDayName } from 'hooks/api-editor';
+import { IDataSourceModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
 import * as styled from './styled';
 
-interface IScheduleSingleProps {
+interface IScheduleDailyProps {
   index: number;
   message?: string;
 }
 
-export const ScheduleSingle: React.FC<IScheduleSingleProps> = ({ index, message }) => {
+export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({ index, message }) => {
   const { setFieldValue, values } = useFormikContext<IDataSourceModel>();
   const { field } = useNamespace('schedules', index);
 
-  React.useEffect(() => {
-    setFieldValue(field('scheduleType'), ScheduleType.Managed);
-  }, [field, index, setFieldValue]);
-
   return (
     <styled.Schedule className="schedule" alignItems="center">
+      <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Daily} />
       <Col>
         {message && <p>{message}</p>}
-        <FormikHidden name={field('scheduleType')} value={ScheduleType.Managed} />
         <Row alignItems="center" nowrap>
           <FormikText label="Name" name={field('name')} required />
           <FormikCheckbox label="Enabled" name={field('isEnabled')} />

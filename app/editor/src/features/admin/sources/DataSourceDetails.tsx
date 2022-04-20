@@ -1,4 +1,4 @@
-import { Checkbox, IOptionItem, OptionItem } from 'components/form';
+import { IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
@@ -10,7 +10,6 @@ import { Col, Row } from 'tno-core/dist/components/flex';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { DataSourceActions, DataSourceStatus } from '.';
-import { defaultSchedule } from './constants';
 import { Connection } from './media-types';
 import * as styled from './styled';
 
@@ -45,15 +44,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
     setFieldValue('mediaType', mediaType);
   }, [lookups.mediaTypes, setFieldValue, values.mediaTypeId, values.mediaType]);
 
-  const showHideSchedule = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    if (checked && !values.schedules.length) {
-      setFieldValue('schedules.0', defaultSchedule);
-    } else if (!checked) {
-      setFieldValue('schedules', []);
-    }
-  };
-
   const handleMediaTypeChange = (newValue: unknown, actionMeta: ActionMeta<unknown>) => {
     // Change so that the connection settings can display the correct form.
     const option = newValue as IOptionItem;
@@ -86,13 +76,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
           <FormikText label="Kafka Topic" name="topic" />
         </Col>
         <Col>
-          <Checkbox
-            label="Has Service Schedule"
-            name="hasSchedule"
-            value={true}
-            checked={!!values.schedules.length}
-            onChange={showHideSchedule}
-          />
           <FormikCheckbox label="Enabled" name="isEnabled" />
           <DataSourceActions />
         </Col>

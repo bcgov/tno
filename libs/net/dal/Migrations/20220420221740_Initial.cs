@@ -450,6 +450,7 @@ namespace TNO.DAL.Migrations
                     data_location_id = table.Column<int>(type: "integer", nullable: false),
                     media_type_id = table.Column<int>(type: "integer", nullable: false),
                     license_id = table.Column<int>(type: "integer", nullable: false),
+                    ScheduleType = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     topic = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     connection = table.Column<string>(type: "json", nullable: false),
                     last_ran_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),

@@ -1,8 +1,8 @@
-export enum ScheduleType {
+export enum ScheduleTypeName {
   /** Repeating will run a continuously repeating schedule */
-  Continuous = 0,
+  Continuous = 'Continuous',
   /** Managed will run between a start and stop time */
-  Daily = 1,
+  Daily = 'Daily',
   /** Runs based on a programmed schedule of multiple start ands top events. */
-  Advanced = 2,
+  Advanced = 'Advanced',
 }
