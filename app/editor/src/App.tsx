@@ -23,6 +23,10 @@ function App() {
     });
   }, []);
 
+  React.useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
   return (
     <BrowserRouter>
       {keycloak ? (
