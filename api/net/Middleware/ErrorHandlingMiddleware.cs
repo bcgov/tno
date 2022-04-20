@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using TNO.Core.Exceptions;
 using System.Net;
+using System.Security.Authentication;
 using System.Text.Json;
+using TNO.Core.Exceptions;
 
 namespace TNO.API.Middleware
 {
@@ -145,11 +146,12 @@ namespace TNO.API.Middleware
             }
             else if (ex is AuthenticationException)
             {
+                code = HttpStatusCode.Unauthorized;
                 var exception = ex as AuthenticationException;
                 message = exception?.Message;
                 details = exception?.InnerException?.Message;
 
-                _logger.LogError(ex, "Unable to validate authentication information.", ex.Message);
+                _logger.LogWarning(ex, "Unable to validate authentication information.", ex.Message);
             }
             else
             {
