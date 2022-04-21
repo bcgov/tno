@@ -13,6 +13,7 @@ import { IContentModel, LogicalOperator } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
+import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
 import { useApp } from 'store/hooks';
 import { initialContentState } from 'store/slices';
@@ -50,6 +51,10 @@ export const ContentListView: React.FC = () => {
 
   const printContentId = (contentTypeOptions.find((ct) => ct.label === 'Print')?.value ??
     0) as number;
+
+  React.useEffect(() => {
+    ReactTooltip.rebuild();
+  });
 
   React.useEffect(() => {
     setContentTypeOptions(getSortableOptions(contentTypes));
