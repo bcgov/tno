@@ -13,6 +13,7 @@ import { useModal } from 'hooks/modal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, Col, Row, Tab, Tabs, useKeycloakWrapper } from 'tno-core';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
@@ -59,6 +60,10 @@ export const ContentForm: React.FC = () => {
   React.useEffect(() => {
     setMediaTypeOptions(getSortableOptions(mediaTypes));
   }, [mediaTypes]);
+
+  React.useEffect(() => {
+    ReactTooltip.rebuild();
+  });
 
   const handleSubmit = async (values: IContentForm) => {
     const originalId = values.id;
