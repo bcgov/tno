@@ -1265,7 +1265,8 @@ namespace TNO.DAL.Migrations
                     b.Property<int>("ScheduleType")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(0)
+                        .HasColumnName("schedule_type");
 
                     b.Property<string>("ShortName")
                         .IsRequired()

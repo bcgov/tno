@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20220420221740_Initial")]
+    [Migration("20220421130605_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1267,7 +1267,8 @@ namespace TNO.DAL.Migrations
                     b.Property<int>("ScheduleType")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(0)
+                        .HasColumnName("schedule_type");
 
                     b.Property<string>("ShortName")
                         .IsRequired()
