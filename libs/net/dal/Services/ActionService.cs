@@ -19,5 +19,11 @@ public class ActionService : BaseService<Action, int>, IActionService
     {
         return this.Context.Actions.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
+
+    public Entities.Action? FindByName(string name)
+    {
+        return this.Context.Actions
+            .FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
+    }
     #endregion
 }
