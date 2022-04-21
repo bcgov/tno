@@ -144,7 +144,7 @@ public class DataSourceModel : AuditColumnsModel
         this.ScheduleType = entity.ScheduleType;
         this.Topic = entity.Topic;
         this.ParentId = entity.ParentId;
-        this.Parent = entity.Parent != null ? new DataSourceModel(entity.Parent) : null;
+        this.Parent = entity.Parent != null ? new DataSourceModel(entity.Parent, options) : null;
         this.Connection = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Connection, options) ?? new Dictionary<string, object>();
         this.LastRanOn = entity.LastRanOn;
         this.RetryLimit = entity.RetryLimit;
