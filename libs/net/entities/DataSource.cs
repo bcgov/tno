@@ -41,6 +41,7 @@ public class DataSource : AuditColumns
 
     public virtual License? License { get; set; }
 
+    [Column("schedule_type")]
     public DataSourceScheduleType ScheduleType { get; set; }
 
     [Column("topic")]
