@@ -23,6 +23,7 @@ public class DataSourceConfiguration : AuditColumnsConfiguration<DataSource>
         builder.Property(m => m.LastRanOn);
         builder.Property(m => m.RetryLimit).HasDefaultValue(3);
         builder.Property(m => m.FailedAttempts).HasDefaultValue(0);
+        builder.Property(m => m.ScheduleType).HasDefaultValue(DataSourceScheduleType.None);
 
         builder.HasOne(m => m.DataLocation).WithMany(m => m.DataSources).HasForeignKey(m => m.DataLocationId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.MediaType).WithMany(m => m.DataSources).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Restrict);

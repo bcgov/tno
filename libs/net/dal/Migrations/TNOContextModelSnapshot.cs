@@ -1262,6 +1262,11 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValue(3)
                         .HasColumnName("retry_limit");
 
+                    b.Property<int>("ScheduleType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

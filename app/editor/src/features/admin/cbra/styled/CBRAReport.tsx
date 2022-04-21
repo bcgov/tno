@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 
 export const CBRAReport = styled.div`
-  display: inline-block;
-
   & > div:first-child {
     display: inline-block;
     width: 15em;
@@ -11,11 +9,6 @@ export const CBRAReport = styled.div`
   .dates {
     display: flex;
     flex-direction: row;
-
-    span {
-      margin-right: 1em;
-      width: 20em;
-    }
   }
 
   .buttons {

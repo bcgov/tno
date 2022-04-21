@@ -1,7 +1,7 @@
 import {
   IScheduleModel,
   ScheduleMonthName,
-  ScheduleType,
+  ScheduleTypeName,
   ScheduleWeekDayName,
 } from 'hooks/api-editor';
 
@@ -10,7 +10,7 @@ export const defaultSchedule: IScheduleModel = {
   name: '',
   description: '',
   isEnabled: true,
-  scheduleType: ScheduleType.Repeating,
+  scheduleType: ScheduleTypeName.Continuous,
   delayMS: 0,
   repeat: 0,
   runOnWeekDays: ScheduleWeekDayName.NA,

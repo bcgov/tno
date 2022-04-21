@@ -41,6 +41,8 @@ public class DataSource : AuditColumns
 
     public virtual License? License { get; set; }
 
+    public DataSourceScheduleType ScheduleType { get; set; }
+
     [Column("topic")]
     public string Topic { get; set; } = "";
 
@@ -79,7 +81,7 @@ public class DataSource : AuditColumns
     #region Constructors
     protected DataSource() { }
 
-    public DataSource(string name, string code, DataLocation location, MediaType mediaType, License license, string topic)
+    public DataSource(string name, string code, DataLocation location, MediaType mediaType, License license, DataSourceScheduleType scheduleType, string topic)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(code)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(code));
@@ -92,10 +94,11 @@ public class DataSource : AuditColumns
         this.MediaType = mediaType;
         this.LicenseId = license?.Id ?? throw new ArgumentNullException(nameof(license));
         this.License = license;
+        this.ScheduleType = scheduleType;
         this.Topic = topic ?? throw new ArgumentNullException(nameof(topic));
     }
 
-    public DataSource(string name, string code, int locationId, int mediaTypeId, int licenseId, string topic)
+    public DataSource(string name, string code, int locationId, int mediaTypeId, int licenseId, DataSourceScheduleType scheduleType, string topic)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(code)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(code));
@@ -105,6 +108,7 @@ public class DataSource : AuditColumns
         this.DataLocationId = locationId;
         this.MediaTypeId = mediaTypeId;
         this.LicenseId = licenseId;
+        this.ScheduleType = scheduleType;
         this.Topic = topic ?? throw new ArgumentNullException(nameof(topic));
     }
     #endregion

@@ -8,7 +8,7 @@ import { Button } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
 import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 
-import { defaultSource } from './constants';
+import { defaultDataSource } from './constants';
 import * as styled from './styled';
 
 interface IDataSourceProps {}
@@ -20,7 +20,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
 
   const sourceId = Number(id);
   const [source, setSource] = React.useState<IDataSourceModel>(
-    (state as any)?.source ?? defaultSource,
+    (state as any)?.source ?? defaultDataSource,
   );
 
   React.useEffect(() => {
@@ -58,7 +58,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
             tabs={
               <>
                 <Tab navigateTo="details" label="Details" exact activePaths={[`${id}`]} />
-                {!!values.schedules.length && <Tab navigateTo="schedules" label="Schedule" />}
+                <Tab navigateTo="schedule" label="Schedule" />
                 <Tab navigateTo="metrics" label="Reach/Earned Media" />
               </>
             }

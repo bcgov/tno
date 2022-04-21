@@ -1,6 +1,6 @@
-import { IDataSourceModel } from 'hooks/api-editor';
+import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 
-export const defaultSource: IDataSourceModel = {
+export const defaultDataSource: IDataSourceModel = {
   id: 0,
   name: '',
   code: '',
@@ -10,6 +10,7 @@ export const defaultSource: IDataSourceModel = {
   dataLocationId: 0,
   mediaTypeId: 0,
   licenseId: 0,
+  scheduleType: DataSourceScheduleTypeName.None,
   topic: '',
   connection: '',
   retryLimit: 0,

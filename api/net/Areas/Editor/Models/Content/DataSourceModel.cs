@@ -1,3 +1,5 @@
+using TNO.Entities;
+
 namespace TNO.API.Areas.Editor.Models.Content;
 
 /// <summary>
@@ -9,7 +11,7 @@ public class DataSourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int Id { get; set; } = default!;
+    public int Id { get; set; }
 
     /// <summary>
     /// get/set -
@@ -39,17 +41,22 @@ public class DataSourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int DataLocationId { get; set; } = default!;
+    public int DataLocationId { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int MediaTypeId { get; set; } = default!;
+    public int MediaTypeId { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int LicenseId { get; set; } = default!;
+    public int LicenseId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public DataSourceScheduleType ScheduleType { get; set; }
 
     /// <summary>
     /// get/set -
@@ -74,12 +81,12 @@ public class DataSourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int RetryLimit { get; set; } = default!;
+    public int RetryLimit { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int FailedAttempts { get; set; } = default!;
+    public int FailedAttempts { get; set; }
     #endregion
 
     #region Constructors
@@ -103,6 +110,7 @@ public class DataSourceModel
         this.DataLocationId = entity.DataLocationId;
         this.MediaTypeId = entity.MediaTypeId;
         this.LicenseId = entity.LicenseId;
+        this.ScheduleType = entity.ScheduleType;
         this.Topic = entity.Topic;
         this.ParentId = entity.ParentId;
         this.Connection = entity.Connection;
@@ -119,7 +127,7 @@ public class DataSourceModel
     /// <param name="model"></param>
     public static explicit operator Entities.DataSource(DataSourceModel model)
     {
-        return new Entities.DataSource(model.Name, model.Code, model.DataLocationId, model.MediaTypeId, model.LicenseId, model.Topic)
+        return new Entities.DataSource(model.Name, model.Code, model.DataLocationId, model.MediaTypeId, model.LicenseId, model.ScheduleType, model.Topic)
         {
             Id = model.Id,
             ShortName = model.ShortName,

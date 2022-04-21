@@ -1,44 +1,27 @@
-import { getIn, useFormikContext } from 'formik';
+import { FormikHidden } from 'components/formik';
+import { useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
-import { IDataSourceModel, IScheduleModel, ScheduleType } from 'hooks/api-editor';
+import { IDataSourceModel, IScheduleModel, ScheduleTypeName } from 'hooks/api-editor';
 import React from 'react';
 import { Button, ButtonVariant } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 import { GridTable } from 'tno-core/dist/components/grid-table';
 
 import { defaultSchedule } from '../constants';
-import { ScheduleSingle } from '.';
+import { ScheduleDaily } from '.';
 import { columns } from './constants';
 import * as styled from './styled';
 
-interface IScheduleProgramProps {
+interface IScheduleAdvancedProps {
   message?: string;
 }
 
-export const ScheduleProgram: React.FC<IScheduleProgramProps> = ({ message }) => {
+export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = ({ message }) => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const { field } = useNamespace('schedules');
 
   const [index, setIndex] = React.useState<number>();
   const [schedule, setSchedule] = React.useState<IScheduleModel>();
-
-  React.useEffect(() => {
-    // Set the default values for the initial schedule.
-    // TODO: Rethink this entire schedule UI.  It's confusing to have a default schedule.
-    const scheduleType = getIn(values, field('scheduleType', 0));
-    const startAt = getIn(values, field('startAt', 0));
-    const stopAt = getIn(values, field('stopAt', 0));
-
-    if (scheduleType !== ScheduleType.Managed) {
-      setFieldValue(field('scheduleType', 0), ScheduleType.Managed);
-    }
-    if (startAt === undefined) {
-      setFieldValue(field('startAt', 0), '08:00:00');
-    }
-    if (stopAt === undefined) {
-      setFieldValue(field('stopAt', 0), '18:00:00');
-    }
-  }, [field, setFieldValue, values]);
 
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     setFieldValue(`schedules`, [...values.schedules, defaultSchedule]);
@@ -64,6 +47,7 @@ export const ScheduleProgram: React.FC<IScheduleProgramProps> = ({ message }) =>
 
   return (
     <styled.Schedule className="schedule" alignItems="center">
+      <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Advanced} />
       <Col>
         {message && <p>{message}</p>}
         <GridTable
@@ -76,7 +60,7 @@ export const ScheduleProgram: React.FC<IScheduleProgramProps> = ({ message }) =>
           paging={{ showPaging: false }}
         ></GridTable>
         <Col alignItems="flex-end">
-          {index !== undefined && <ScheduleSingle index={index} />}
+          {index !== undefined && <ScheduleDaily index={index} />}
           <Row>
             {index === undefined && <Button onClick={handleAdd}>Add</Button>}
             {index !== undefined && <Button onClick={handleDone}>Done</Button>}

@@ -8,7 +8,7 @@ import {
 } from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
-import { IDataSourceModel, ScheduleType, ScheduleWeekDayName } from 'hooks/api-editor';
+import { IDataSourceModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
@@ -31,7 +31,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, 
     <styled.Schedule className="schedule">
       <Col>
         {message && <p>{message}</p>}
-        <FormikHidden name={field('scheduleType')} value={ScheduleType.Repeating} />
+        <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Continuous} />
         <Row alignItems="center" nowrap>
           <FormikText label="Name" name={field('name')} required />
           <FormikCheckbox label="Enabled" name={field('isEnabled')} />

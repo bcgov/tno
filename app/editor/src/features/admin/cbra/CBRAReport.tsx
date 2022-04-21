@@ -1,4 +1,4 @@
-import { IOptionItem, Select, SelectDate } from 'components/form';
+import { FieldSize, IOptionItem, Select, SelectDate } from 'components/form';
 import { useApiReports } from 'hooks/api-editor';
 import React from 'react';
 import { Button, ButtonVariant } from 'tno-core';
@@ -40,15 +40,19 @@ export const CBRAReport: React.FC<ICBRAReportProps> = ({ className }) => {
           onChange={(date) => setValues({ ...values, start: date })}
           disabled={!isCustomRange}
           selected={values.start}
+          width={FieldSize.Small}
         />
-        <SelectDate
-          name="end"
-          label="Report Duration End"
-          placeholderText="YYYY MM DD"
-          onChange={(date) => setValues({ ...values, end: date })}
-          disabled={!isCustomRange}
-          selected={values.end}
-        />
+        {values.duration > 1 && (
+          <SelectDate
+            name="end"
+            label="Report Duration End"
+            placeholderText="YYYY MM DD"
+            onChange={(date) => setValues({ ...values, end: date })}
+            disabled={!isCustomRange}
+            selected={values.end}
+            width={FieldSize.Small}
+          />
+        )}
       </div>
       <div className="buttons">
         <Button

@@ -73,6 +73,11 @@ public class DataSourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public DataSourceScheduleType ScheduleType { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public string Topic { get; set; } = "";
 
     /// <summary>
@@ -131,6 +136,7 @@ public class DataSourceModel : AuditColumnsModel
         this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
+        this.ScheduleType = entity.ScheduleType;
         this.Topic = entity.Topic;
         this.ParentId = entity.ParentId;
         this.Connection = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Connection, options) ?? new Dictionary<string, object>();
@@ -161,7 +167,7 @@ public class DataSourceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.DataSource(DataSourceModel model)
     {
-        var entity = new Entities.DataSource(model.Name, model.Code, model.DataLocationId, model.MediaTypeId, model.LicenseId, model.Topic)
+        var entity = new Entities.DataSource(model.Name, model.Code, model.DataLocationId, model.MediaTypeId, model.LicenseId, model.ScheduleType, model.Topic)
         {
             Id = model.Id,
             ShortName = model.ShortName,

@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20220413233353_Initial")]
+    [Migration("20220420221740_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1263,6 +1263,11 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(3)
                         .HasColumnName("retry_limit");
+
+                    b.Property<int>("ScheduleType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ShortName")
                         .IsRequired()

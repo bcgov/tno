@@ -1,3 +1,4 @@
+import { DataSourceScheduleTypeName } from '../constants';
 import {
   IAuditColumnsModel,
   IDataLocationModel,
@@ -21,6 +22,7 @@ export interface IDataSourceModel extends IAuditColumnsModel {
   mediaType?: IMediaTypeModel;
   licenseId: number;
   license?: ILicenseModel;
+  scheduleType: DataSourceScheduleTypeName;
   topic: string;
   connection: any;
   lastRanOn?: Date;
