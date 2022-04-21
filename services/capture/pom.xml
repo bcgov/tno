@@ -126,12 +126,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.opennlp</groupId>
-      <artifactId>opennlp-tools</artifactId>
-      <version>1.9.4</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>${kafka.version}</version>
@@ -231,6 +225,12 @@
   </dependencyManagement>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

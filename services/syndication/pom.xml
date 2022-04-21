@@ -121,12 +121,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.opennlp</groupId>
-      <artifactId>opennlp-tools</artifactId>
-      <version>1.9.4</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>${kafka.version}</version>
