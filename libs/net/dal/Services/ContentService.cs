@@ -53,6 +53,12 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => c.DataSourceId == filter.DataSourceId);
         if (filter.OwnerId.HasValue)
             query = query.Where(c => c.OwnerId == filter.OwnerId);
+        if (filter.UserId.HasValue)
+        {
+            var user = this.Context.Users.Find(filter.UserId);
+            if (user != null)
+                query = query.Where(c => c.CreatedById == user.Key || c.UpdatedById == user.Key || c.Logs.Any(l => l.CreatedById == user.Key));
+        }
 
         if (filter.CreatedOn.HasValue)
             query = query.Where(c => c.CreatedOn == filter.CreatedOn.Value.ToUniversalTime());
