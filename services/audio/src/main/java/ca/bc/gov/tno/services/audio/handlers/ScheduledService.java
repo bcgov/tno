@@ -117,7 +117,10 @@ public class ScheduledService
     var approvedDataSources = dataSources.stream()
         .filter((ds) -> ds.getIsEnabled() && ds.getParentId() != null)
         .toList();
-    approvedDataSources.forEach(ds -> sourceConfigs.getSources().add(new AudioConfig(ds)));
+
+    for (var ds : approvedDataSources) {
+      sourceConfigs.getSources().add(new AudioConfig(ds, api));
+    }
   }
 
   /**
@@ -142,7 +145,7 @@ public class ScheduledService
     if (dataSource.getParent() == null)
       throw new ApiException(String.format("Data-source parent does not exist '%s'", config.getId()));
 
-    var newConfig = new AudioConfig(dataSource);
+    var newConfig = new AudioConfig(dataSource, api);
 
     // TODO: Check for all conditions.
     if (config.getIsEnabled() != newConfig.getIsEnabled()

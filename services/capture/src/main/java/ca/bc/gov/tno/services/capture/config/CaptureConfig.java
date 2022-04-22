@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Configuration;
 
 import ca.bc.gov.tno.services.models.DataSource;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
+import ca.bc.gov.tno.services.data.ApiException;
 
 /**
  * Configuration settings for the default Audio Feed. These values will be
@@ -14,7 +15,7 @@ public class CaptureConfig extends DataSourceConfig {
   /**
    * URL to the audio streaming source
    */
-  private String audioUrl;
+  private String url;
 
   /**
    * Capture command template
@@ -74,14 +75,14 @@ public class CaptureConfig extends DataSourceConfig {
    * 
    * @param dataSource
    */
-  public CaptureConfig(DataSource dataSource) {
+  public CaptureConfig(DataSource dataSource) throws ApiException {
     super(dataSource);
 
     setFailedAttempts(dataSource.getFailedAttempts());
     setMaxFailedAttempts(dataSource.getRetryLimit());
     var connection = dataSource.getConnection();
 
-    setAudioUrl((String) connection.get("audioUrl"));
+    setUrl((String) connection.get("url"));
     setCaptureCmd((String) connection.get("captureCmd"));
     setCaptureDir((String) connection.get("captureDir"));
     setClipCmd((String) connection.get("clipCmd"));
@@ -123,15 +124,15 @@ public class CaptureConfig extends DataSourceConfig {
   /**
    * @return String return the audio url
    */
-  public String getAudioUrl() {
-    return audioUrl;
+  public String getUrl() {
+    return url;
   }
 
   /**
    * @param url the audio url to set
    */
-  public void setAudioUrl(String url) {
-    this.audioUrl = url;
+  public void setUrl(String url) {
+    this.url = url;
   }
 
   /**

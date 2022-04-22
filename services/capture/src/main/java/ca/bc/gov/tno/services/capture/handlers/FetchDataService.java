@@ -172,7 +172,7 @@ public class FetchDataService implements ApplicationListener<TransactionBeginEve
   private void executeCaptureCmd(String cmd, String captureFilePath) {
 
     if (!cmd.equals("")) {
-      cmd = cmd.replace("[capture-url]", captureConfig.getAudioUrl());
+      cmd = cmd.replace("[capture-url]", captureConfig.getUrl());
       cmd = cmd.replace("[capture-path]", captureFilePath);
 
       String[] cmdArray = {

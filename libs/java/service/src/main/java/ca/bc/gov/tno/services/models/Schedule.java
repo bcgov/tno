@@ -60,15 +60,15 @@ public class Schedule extends AuditColumns {
   /**
    * At what time the schedule should start.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ")
-  @DateTimeFormat(pattern = "HH:mm:ss.SSSZ")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+  @DateTimeFormat(pattern = "HH:mm:ss")
   private LocalTime startAt;
 
   /**
    * At what time the schedule should stop.
    */
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSSZ")
-  @DateTimeFormat(pattern = "HH:mm:ss.SSSZ")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+  @DateTimeFormat(pattern = "HH:mm:ss")
   private LocalTime stopAt;
 
   /**
