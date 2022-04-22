@@ -14,10 +14,10 @@ spec:
       description: The name of the database migration image.
       type: string
       default: tno-db-migration
-    - name: DB_APP_NAME
-      description: The name of the database.
+    - name: DB_SECRET_NAME
+      description: The name of the database secrets.
       type: string
-      default: tno-database
+      default: postgres-cluster-pguser-postgres-cluster
     - name: API_NAME
       description: The name of the database.
       type: string
@@ -48,8 +48,8 @@ spec:
         PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         IMAGE=image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.MIGRATION_IMAGE):$(params.IMAGE_TAG)
         CONNECTION_STRING=$(oc -n $PROJECT get configmap $(params.API_NAME) -o jsonpath='{.data.CONNECTION_STRING}')
-        DB_USERNAME=$(oc -n $PROJECT get secret $(params.DB_APP_NAME) -o jsonpath='{.data.PATRONI_SUPERUSER_USERNAME}' | base64 -d)
-        DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_APP_NAME) -o jsonpath='{.data.PATRONI_SUPERUSER_PASSWORD}' | base64 -d)
+        DB_USERNAME=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.user}' | base64 -d)
+        DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.password}' | base64 -d)
 
         echo "Running database migration in $PROJECT"
         oc run $(params.MIGRATION_IMAGE) \

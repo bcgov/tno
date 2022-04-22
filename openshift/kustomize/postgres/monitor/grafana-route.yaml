@@ -1,0 +1,15 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: crunchy-grafana
+spec:
+  to:
+    kind: Service
+    name: crunchy-grafana
+    weight: 100
+  port:
+    targetPort: grafana-proxy
+  tls:
+    termination: edge
+  wildcardPolicy: None

@@ -50,8 +50,8 @@ spec:
       params:
         - name: MIGRATION_IMAGE
           value: tno-db-migration
-        - name: DB_APP_NAME
-          value: tno-database
+        - name: DB_SECRET_NAME
+          value: postgres-cluster-pguser-postgres-cluster
         - name: API_NAME
           value: tno-api-editor
         - name: IMAGE_TAG

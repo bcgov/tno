@@ -1,0 +1,51 @@
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: postgres-cluster
+  namespace: default
+  labels:
+    name: postgres-cluster
+    solution: tno
+    app: tno-database
+    postgres-operator.crunchydata.com/cluster: postgres-cluster
+spec:
+  podSelector:
+    matchLabels:
+      postgres-operator.crunchydata.com/cluster: postgres-cluster
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              postgres-operator.crunchydata.com/cluster: postgres-cluster
+      ports:
+        - protocol: TCP
+          port: 5432
+        - protocol: TCP
+          port: 8008
+        - protocol: TCP
+          port: 2022
+
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: postgres-cluster-monitoring
+  namespace: default
+  labels:
+    name: postgres-cluster
+    solution: tno
+    app: tno-database
+    postgres-operator.crunchydata.com/cluster: postgres-cluster
+spec:
+  podSelector:
+    matchLabels:
+      postgres-operator.crunchydata.com/cluster: postgres-cluster
+  ingress:
+    - from:
+        - namespaceSelector:
+            name: 9b301c
+            environment: tools
+      ports:
+        - protocol: TCP
+          port: 9187

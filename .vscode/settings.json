@@ -9,7 +9,9 @@
   "yaml.schemaStore.enable": false,
   "cSpell.words": [
     "formik",
-    "insertable"
+    "insertable",
+    "Kustomization",
+    "kustomize"
   ],
   "java.configuration.updateBuildConfiguration": "interactive"
 }

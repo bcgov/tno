@@ -200,9 +200,9 @@ objects:
                           - ${SOLUTION_NAME}-${APP_NAME}-cluster
                   topologyKey: "kubernetes.io/hostname"
           volumes:
-            - name: backup
-              persistentVolumeClaim:
-                claimName: ${SOLUTION_NAME}-database-backup
+            # - name: backup
+            #   persistentVolumeClaim:
+            #     claimName: ${SOLUTION_NAME}-database-backup
           containers:
             - name: ${SOLUTION_NAME}-${APP_NAME}
               image: ${IMAGE}:${IMAGE_TAG}

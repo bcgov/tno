@@ -1,0 +1,107 @@
+---
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: postgres-cluster
+  namespace: default
+  labels:
+    name: postgres-cluster
+    solution: tno
+    app: tno-database
+spec:
+  monitoring:
+    pgmonitor:
+      exporter:
+        image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter:ubi8-5.0.4-0
+      resources:
+        requests:
+          cpu: 25m
+          memory: 100Mi
+        limits:
+          cpu: 50m
+          memory: 250Mi
+  image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:centos8-13.5-0
+  postgresVersion: 13
+  instances:
+    - name: tno-database
+      replicas: 3
+      resources:
+        requests:
+          cpu: 50m
+          memory: 250Mi
+        limits:
+          cpu: 250m
+          memory: 2Gi
+      dataVolumeClaimSpec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        storageClassName: netapp-block-standard
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster: hippo-ha
+                    postgres-operator.crunchydata.com/instance-set: postgres
+  backups:
+    pgbackrest:
+      global:
+        repo1-retention-full: "2"
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:centos8-2.35-0
+      repoHost:
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            cpu: 250m
+            memory: 1Gi
+      repos:
+        - name: repo1
+          schedules:
+            # Full backup every day at 8:00am UTC
+            full: "0 8 * * *"
+            # Incremental backup every 4 hours, except at 8am UTC (when the full backup is running)
+            incremental: "0 0,4,12,16,20 * * *"
+          volume:
+            volumeClaimSpec:
+              accessModes:
+                - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 5Gi
+              storageClassName: netapp-file-backup
+      manual:
+        repoName: repo1
+        options:
+          - --type=full
+  proxy:
+    pgBouncer:
+      config:
+        global:
+          client_tls_sslmode: disable
+      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:centos8-1.15-3
+      replicas: 2
+      resources:
+        requests:
+          cpu: 25m
+          memory: 100Mi
+        limits:
+          cpu: 50m
+          memory: 250Mi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    postgres-operator.crunchydata.com/cluster: hippo-ha
+                    postgres-operator.crunchydata.com/role: pgbouncer

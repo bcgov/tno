@@ -93,28 +93,28 @@ objects:
             - name: SERVICE
               value: ${SOLUTION_NAME}-${NGINX_NAME}
 
-        - name: database-backup
-          taskRef:
-            name: oc-backup
-            kind: Task
-          params:
-            - name: PROJECT_NAMESPACE
-              value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-            - name: DEPLOYMENT_CONFIG
-              value: ${SOLUTION_NAME}-${BACKUP_NAME}
+        # - name: database-backup
+        #   taskRef:
+        #     name: oc-backup
+        #     kind: Task
+        #   params:
+        #     - name: PROJECT_NAMESPACE
+        #       value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        #     - name: DEPLOYMENT_CONFIG
+        #       value: ${SOLUTION_NAME}-${BACKUP_NAME}
 
         - name: run-db-migration
           runAfter:
             - maintenance-on
-            - database-backup
+            # - database-backup
           taskRef:
             name: db-migration
             kind: Task
           params:
             - name: MIGRATION_IMAGE
               value: ${SOLUTION_NAME}-${MIGRATION_NAME}
-            - name: DB_APP_NAME
-              value: ${SOLUTION_NAME}-${DB_NAME}
+            - name: DB_SECRET_NAME
+              value: postgres-cluster-pguser-postgres-cluster
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
             - name: DEPLOY_TO

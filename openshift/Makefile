@@ -64,7 +64,7 @@ port-forward: ## Port forward to a pod (n=label name, i=pod index, l=local port,
 	@cd ./scripts; ./port-forward.sh $(n) $(if $(i),$(i),0) $(l) $(r)
 
 db-connect: ## Port forward to the database (e=environment, l=local port, r=remote port).
-	$(info Port forward to the database [e=$(if $(i),$(i),dev)] $(l):$(r))
-	@cd ./scripts; ./database-connect.sh $(if $(i),$(i),dev) $(l) $(r)
+	$(info Port forward to the database [e=$(if $(e),$(e),dev)] $(l):$(r))
+	@cd ./scripts; ./database-connect.sh $(if $(e),$(e),dev) $(l) $(r)
 
 .PHONY: local
