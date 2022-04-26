@@ -97,7 +97,7 @@ export const ContentForm: React.FC = () => {
                   alt="back"
                   src={process.env.PUBLIC_URL + '/assets/back_arrow.svg'}
                 />
-                <p>Back to List View</p>
+                Back to List View
               </Row>
             </Button>
           </Row>

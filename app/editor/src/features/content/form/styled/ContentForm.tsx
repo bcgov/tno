@@ -12,4 +12,8 @@ export const ContentForm = styled.div`
   .content-properties {
     padding-top: 1em;
   }
+
+  .licenses {
+    padding-left: 2em;
+  }
 `;
