@@ -12,6 +12,7 @@ export const Col = styled.div<IColProps>`
   flex-basis: ${(props) => props.basis};
   align-items: ${(props) => props.alignItems};
   align-content: ${(props) => props.alignContent};
+  align-self: ${(props) => props.alignSelf};
   gap: ${(props) => props.gap};
   row-gap: ${(props) => props.rowGap};
   column-gap: ${(props) => props.colGap};

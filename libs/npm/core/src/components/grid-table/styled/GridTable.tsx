@@ -6,6 +6,7 @@ export const GridTable = styled.div`
   border-radius: 0.25em;
   grid-auto-rows: auto;
   gap: 0.25em;
+  width: 100%;
 
   div[role='rowheader'] {
     div[role='row'] {

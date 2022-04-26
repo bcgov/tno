@@ -3,6 +3,7 @@ import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
+import { Col } from 'tno-core';
 
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import { scheduleTypeOptions } from './constants';
@@ -25,17 +26,19 @@ export const Schedule: React.FC<IScheduleProps> = () => {
   };
 
   return (
-    <styled.Schedule className="schedule">
-      <p>
-        A service schedule provides a way to manage when and how often source content is imported.
-      </p>
-      <FormikSelect
-        label="Schedule Type"
-        name="scheduleType"
-        options={scheduleTypeOptions}
-        width={FieldSize.Medium}
-      />
-      {form(values.scheduleType)}
+    <styled.Schedule className="schedule" alignItems="center">
+      <Col>
+        <p>
+          A service schedule provides a way to manage when and how often source content is imported.
+        </p>
+        <FormikSelect
+          label="Schedule Type"
+          name="scheduleType"
+          options={scheduleTypeOptions}
+          width={FieldSize.Medium}
+        />
+        {form(values.scheduleType)}
+      </Col>
     </styled.Schedule>
   );
 };

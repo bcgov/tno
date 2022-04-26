@@ -73,6 +73,14 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
             options={sources}
             placeholder="optional"
           />
+          <p>
+            A Kafka Topic is a category/feed name to which records are stored and published. If this
+            data-source has a running service, the content will be ingested and placed in the Kafka
+            Event Streaming data storage location.
+          </p>
+          <p>
+            The topic should be unique, or all content stored within it should be the same format.
+          </p>
           <FormikText label="Kafka Topic" name="topic" />
         </Col>
         <Col>

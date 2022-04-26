@@ -3,6 +3,7 @@ import React from 'react';
 import * as styled from './styled';
 
 export interface IRowProps extends React.HTMLAttributes<HTMLDivElement> {
+  width?: string;
   flex?: string;
   grow?: number;
   shrink?: number;

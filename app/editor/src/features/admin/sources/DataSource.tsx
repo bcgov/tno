@@ -32,12 +32,14 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
   }, [api, source?.id, sourceId]);
 
   const handleSubmit = async (values: IDataSourceModel) => {
-    const data = await api.updateDataSource({
-      ...values,
-      parentId: values.parentId ? values.parentId : undefined,
-    });
-    setSource({ ...data, parentId: data.parentId ? data.parentId : 0 });
-    toast.success(`${data.name} has successfully been saved.`);
+    try {
+      const data = await api.updateDataSource({
+        ...values,
+        parentId: values.parentId ? values.parentId : undefined,
+      });
+      setSource({ ...data, parentId: data.parentId ? data.parentId : 0 });
+      toast.success(`${data.name} has successfully been saved.`);
+    } catch {}
   };
 
   return (
