@@ -1,0 +1,41 @@
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: postgres-cluster-monitoring
+  namespace: default
+  labels:
+    name: postgres-cluster-monitoring
+    solution: tno
+    app: tno-database
+    app.kubernetes.io/name: postgres-operator-monitoring
+    vendor: crunchydata
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: postgres-cluster-monitoring
+  namespace: default
+  labels:
+    name: postgres-cluster-monitoring
+    solution: tno
+    app: tno-database
+    vendor: crunchydata
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: postgres-cluster-monitoring
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-sa
+    namespace: 9b301c-tools

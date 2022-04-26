@@ -1,0 +1,28 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grafana-config
+data:
+  grafana.ini: |+
+    [auth]
+    disable_login_form = true
+    disable_signout_menu = true
+    oauth_auto_login = true
+    [auth.anonymous]
+    enabled = false
+    [auth.basic]
+    enabled = true
+    [auth.proxy]
+    auto_sign_up = true
+    enabled = true
+    header_name = X-Forwarded-User
+    header_property = username
+    [log]
+    level = warn
+    mode = console
+    [paths]
+    data = /var/lib/grafana
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    provisioning = /etc/grafana/provisioning/

@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crunchy-grafana
+spec:
+  template:
+    spec:
+      containers:
+        - name: grafana
+          volumeMounts:
+            - name: grafana-config
+              mountPath: /etc/grafana/
+        - name: grafana-proxy
+          ports:
+            - name: grafana-proxy
+              containerPort: 9091
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          image: image-registry.openshift-image-registry.svc:5000/openshift/oauth-proxy:v4.4
+          args:
+            - "--provider=openshift"
+            - "--pass-basic-auth=false"
+            - "--https-address="
+            - "--http-address=:9091"
+            - "--email-domain=*"
+            - "--upstream=http://localhost:3000"
+            - "--cookie-secret=asdf"
+            - "--openshift-service-account=grafana"
+            - "--skip-auth-regex=^/metrics"
+            - '--openshift-sar={"namespace": "9b301c-tools", "resource": "services", "verb": "get"}'
+      volumes:
+        - name: grafana-config
+          configMap:
+            name: grafana-config
+            defaultMode: 420
