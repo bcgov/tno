@@ -29,6 +29,12 @@ COPY api/net/entrypoint.sh .
 RUN chmod +x /app/entrypoint.sh
 
 RUN useradd --create-home appuser
+
+# This volume is the local storage for uploaded files.
+RUN mkdir /data
+VOLUME /data
+RUN chmod -R 0777 /data
+
 USER appuser
 ENTRYPOINT ["/app/entrypoint.sh"]
 

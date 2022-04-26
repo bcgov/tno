@@ -103,4 +103,11 @@ db-script: ## Export an SQL script from the migration (from=0 to=Initial).
 	$(info Exporting script to 'db-migration.sql')
 	@cd dal; dotnet ef migrations script ${from} ${to} --output ../../db-migration.sql
 
+db-recreate: ## Rollback to the specified migration, remove the last migration, create a new migration, update the database (r=name of rollback migration, n=name of migration).
+	$(info Rollback to the specified migration, remove the last migration, create a new migration, update the database (r=$(if $(r),$(r),0), n=$(if $(n),$(n),Initial)))
+	@make db-rollback n=$(if $(r),$(r),0)
+	@make db-remove
+	@make db-add n=$(if $(n),$(n),Initial)
+	@make db-update
+
 .PHONY: local

@@ -45,7 +45,7 @@ spec:
         - name: PROJECT_NAMESPACE
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         - name: ROUTE
-          value: tno-api-editor
+          value: tno-api
         - name: SERVICE
           value: tno-nginx
 
@@ -57,7 +57,7 @@ spec:
         - name: SOLUTION_NAME
           value: tno
         - name: APP_NAME
-          value: api-editor
+          value: api
         - name: GIT_SOURCE
           value: $(params.GIT_SOURCE)
         - name: IMAGE_TAG
@@ -72,7 +72,7 @@ spec:
         kind: Task
       params:
         - name: IMAGE_NAME
-          value: tno-api-editor
+          value: tno-api
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: ENV
@@ -88,6 +88,6 @@ spec:
         - name: PROJECT_NAMESPACE
           value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         - name: ROUTE
-          value: tno-api-editor
+          value: tno-api
         - name: SERVICE
-          value: tno-api-editor
+          value: tno-api

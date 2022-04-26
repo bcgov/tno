@@ -1,0 +1,53 @@
+---
+# The final build image.
+kind: ImageStream
+apiVersion: v1
+metadata:
+  name: tno-api
+  annotations:
+    description: Destination for built images.
+  labels:
+    name: tno-api
+    solution: tno
+    app: api
+
+---
+# The build config that will be created will be named for the branch you created it for.
+kind: BuildConfig
+apiVersion: v1
+metadata:
+  name: tno-api.dev
+  annotations:
+    description: Build image from Dockerfile in git repo.
+  labels:
+    name: tno-api.dev
+    solution: tno
+    app: api
+    branch: dev
+spec:
+  completionDeadlineSeconds: 1800
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial
+  source:
+    git:
+      uri: https://github.com/bcgov/tno.git
+      ref: dev
+    contextDir: ./
+  strategy:
+    type: Docker
+    dockerStrategy:
+      imageOptimizationPolicy: SkipLayers
+      dockerfilePath: api/net/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: tno-api:latest
+  resources:
+    requests:
+      cpu: 20m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 2Gi

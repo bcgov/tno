@@ -36,5 +36,33 @@ export const useApiContents = (
     deleteContent: (content: IContentModel) => {
       return api.delete<IContentModel>(`/editor/contents/${content.id}`, { data: content });
     },
+    upload: (
+      content: IContentModel,
+      file: File,
+      onUploadProgress?: (progressEvent: any) => void,
+    ) => {
+      const formData = new FormData();
+      formData.append('files', file, file.name);
+      return api.post<IContentModel>(
+        `/editor/contents/${content.id}/upload?version=${content.version}`,
+        formData,
+        { onUploadProgress },
+      );
+    },
+    download: async (id: number, fileName: string) => {
+      const response = await api.get(`/editor/contents/${id}/download`, {
+        responseType: 'blob',
+        headers: { accept: '*.*' },
+      });
+
+      const uri = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = uri;
+      link.setAttribute('download', fileName ?? new Date().toDateString());
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return response;
+    },
   };
 };

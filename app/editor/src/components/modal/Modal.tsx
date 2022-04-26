@@ -56,13 +56,13 @@ export const Modal: React.FC<IModalProps> = ({
                 {!!!customButtons && (
                   <Row className="button-row">
                     <Button
-                      variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.action}
+                      variant={type === 'delete' ? ButtonVariant.danger : ButtonVariant.secondary}
                       onClick={onConfirm}
                     >
                       {confirmText ?? 'Continue'}
                     </Button>
                     <Button
-                      variant={type === 'delete' ? ButtonVariant.action : ButtonVariant.danger}
+                      variant={type === 'delete' ? ButtonVariant.secondary : ButtonVariant.danger}
                       onClick={hide}
                     >
                       {cancelText ?? 'Cancel'}

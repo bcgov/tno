@@ -1,0 +1,27 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: tno-api
+  namespace: default
+  labels:
+    name: tno-api
+    solution: tno
+    app: api
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+spec:
+  host: tno-dev.apps.silver.devops.gov.bc.ca
+  path: /api
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: tno-api
+    weight: 100

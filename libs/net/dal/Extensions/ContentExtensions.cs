@@ -48,7 +48,7 @@ public static class ContentExtensions
         });
         updated.ActionsManyToMany.ForEach(a =>
         {
-            var current = oactions.FirstOrDefault(o => o.ActionId == a.ActionId);
+            var current = a.ActionId != 0 ? oactions.FirstOrDefault(o => o.ActionId == a.ActionId) : null;
             if (current == null)
                 original.ActionsManyToMany.Add(a);
             else if (current.Value != a.Value)
@@ -64,7 +64,7 @@ public static class ContentExtensions
         });
         updated.CategoriesManyToMany.ForEach(a =>
         {
-            var current = ocategories.FirstOrDefault(o => o.CategoryId == a.CategoryId);
+            var current = a.CategoryId != 0 ? ocategories.FirstOrDefault(o => o.CategoryId == a.CategoryId) : null;
             if (current == null)
                 original.CategoriesManyToMany.Add(a);
             else if (current.Score != a.Score)
@@ -91,7 +91,7 @@ public static class ContentExtensions
         });
         updated.TonePoolsManyToMany.ForEach(a =>
         {
-            var current = otonepools.FirstOrDefault(o => o.TonePoolId == a.TonePoolId);
+            var current = a.TonePoolId != 0 ? otonepools.FirstOrDefault(o => o.TonePoolId == a.TonePoolId) : null;
             if (current == null)
                 original.TonePoolsManyToMany.Add(a);
             else if (current.Value != a.Value)
@@ -107,7 +107,7 @@ public static class ContentExtensions
         });
         updated.TimeTrackings.ForEach(a =>
         {
-            var current = otimetrackings.FirstOrDefault(o => o.Id == a.Id);
+            var current = a.Id != 0 ? otimetrackings.FirstOrDefault(o => o.Id == a.Id) : null;
             if (current == null)
                 original.TimeTrackings.Add(a);
             else if (current.UserId != a.UserId || current.Effort != a.Effort || current.Activity != a.Activity)
@@ -119,19 +119,23 @@ public static class ContentExtensions
             }
         });
 
+        // While the DB supports multiple files, presently the intent is only a single file for content.
         ofilereferences.Except(updated.FileReferences).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
         updated.FileReferences.ForEach(a =>
         {
-            var current = ofilereferences.FirstOrDefault(o => o.Id == a.Id);
+            var current = a.Id != 0 ? ofilereferences.FirstOrDefault(o => o.Id == a.Id) : null;
             if (current == null)
                 original.FileReferences.Add(a);
-            else if (current.MimeType != a.MimeType || current.Path != a.Path || current.Size != a.Size || current.RunningTime != a.RunningTime)
+            else if (current.ContentType != a.ContentType ||
+                current.FileName != a.FileName ||
+                current.Size != a.Size ||
+                current.RunningTime != a.RunningTime)
             {
-                current.MimeType = a.MimeType;
-                current.Path = a.Path;
+                current.ContentType = a.ContentType;
+                current.FileName = a.FileName;
                 current.Size = a.Size;
                 current.RunningTime = a.RunningTime;
                 current.Version = a.Version;
@@ -144,7 +148,7 @@ public static class ContentExtensions
         });
         updated.Links.ForEach(a =>
         {
-            var current = olinks.FirstOrDefault(o => o.LinkId == a.LinkId);
+            var current = a.LinkId != 0 ? olinks.FirstOrDefault(o => o.LinkId == a.LinkId) : null;
             if (current == null)
                 original.Links.Add(a);
         });

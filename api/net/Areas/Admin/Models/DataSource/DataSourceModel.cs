@@ -141,7 +141,7 @@ public class DataSourceModel : AuditColumnsModel
         this.Description = entity.Description;
         this.IsEnabled = entity.IsEnabled;
         this.DataLocationId = entity.DataLocationId;
-        this.DataLocation = entity.DataLocation != null ? new DataLocationModel(entity.DataLocation) : null;
+        this.DataLocation = entity.DataLocation != null ? new DataLocationModel(entity.DataLocation, options) : null;
         this.MediaTypeId = entity.MediaTypeId;
         this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.LicenseId = entity.LicenseId;

@@ -23,7 +23,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://dailyhive.com/feed/vancouver" }' -- connection
@@ -38,7 +38,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -53,7 +53,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://www.straight.com/xml/feeds/bcg/news" }' -- connection
@@ -68,7 +68,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -83,7 +83,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -98,7 +98,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -113,7 +113,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -128,7 +128,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -143,7 +143,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"https://www.castanet.net/rss/topheadlines.xml" }' -- connection
@@ -158,7 +158,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -173,7 +173,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -188,7 +188,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -203,7 +203,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -218,7 +218,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://www.ipolitics.ca/custom-feeds/bc-gov-feed.php" }' -- connection
@@ -233,7 +233,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -248,7 +248,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -263,7 +263,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -278,7 +278,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -293,7 +293,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -308,7 +308,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -323,7 +323,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -338,7 +338,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -353,7 +353,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 13 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -368,7 +368,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 13 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -383,7 +383,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 13 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -398,7 +398,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 13 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -413,7 +413,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -428,7 +428,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -443,7 +443,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -458,7 +458,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -473,7 +473,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -488,7 +488,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -503,7 +503,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -518,7 +518,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -533,7 +533,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -548,7 +548,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -563,7 +563,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -578,7 +578,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -593,7 +593,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -608,7 +608,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -623,7 +623,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -638,7 +638,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -653,7 +653,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -668,7 +668,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -683,7 +683,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -698,7 +698,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -713,7 +713,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -728,7 +728,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -743,7 +743,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -758,7 +758,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -773,7 +773,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -788,7 +788,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -803,7 +803,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -818,7 +818,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -833,7 +833,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -848,7 +848,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -863,7 +863,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -878,7 +878,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -893,7 +893,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -908,7 +908,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://biv.com/rss" }' -- connection
@@ -923,7 +923,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -938,7 +938,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -953,7 +953,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -968,7 +968,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -983,7 +983,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -998,7 +998,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1013,7 +1013,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1028,7 +1028,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1043,7 +1043,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1058,7 +1058,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1073,7 +1073,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1088,7 +1088,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1103,7 +1103,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1118,7 +1118,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1133,7 +1133,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1148,7 +1148,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1163,7 +1163,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1178,7 +1178,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1193,7 +1193,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1208,7 +1208,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1223,7 +1223,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1238,7 +1238,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1253,7 +1253,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1268,7 +1268,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1283,7 +1283,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1298,7 +1298,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1313,7 +1313,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1328,7 +1328,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1343,7 +1343,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1358,7 +1358,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1373,7 +1373,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1388,7 +1388,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1403,7 +1403,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1418,7 +1418,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1433,7 +1433,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"sftp://gamdelivery.globeandmail.ca/", "username":"", "password":"" }' -- connection
@@ -1448,7 +1448,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1463,7 +1463,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1478,7 +1478,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1493,7 +1493,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1508,7 +1508,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1523,7 +1523,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1538,7 +1538,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1553,7 +1553,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://library.pressdisplay.com/test/qa/Services/AdvancedSearchRssHandler.ashx?srchText=%2a&srchnewspaper=7254&extended=false" }' -- connection
@@ -1568,7 +1568,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1583,7 +1583,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1598,7 +1598,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1613,7 +1613,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 13 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1628,7 +1628,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1643,7 +1643,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1658,7 +1658,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1673,7 +1673,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1688,7 +1688,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1703,7 +1703,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1718,7 +1718,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1733,7 +1733,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1748,7 +1748,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1763,7 +1763,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1778,7 +1778,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1793,7 +1793,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1808,7 +1808,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1823,7 +1823,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1838,7 +1838,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1853,7 +1853,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1868,7 +1868,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1883,7 +1883,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1898,7 +1898,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1913,7 +1913,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1928,7 +1928,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1943,7 +1943,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1958,7 +1958,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1973,7 +1973,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -1988,7 +1988,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2003,7 +2003,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2018,7 +2018,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2033,7 +2033,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2048,7 +2048,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2063,7 +2063,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2078,7 +2078,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2093,7 +2093,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2108,7 +2108,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2123,7 +2123,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2138,7 +2138,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2153,7 +2153,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2168,7 +2168,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2183,7 +2183,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2198,7 +2198,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2213,7 +2213,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2228,7 +2228,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2243,7 +2243,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2258,7 +2258,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2273,7 +2273,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 16 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2288,7 +2288,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2303,7 +2303,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2318,7 +2318,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2333,7 +2333,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2348,7 +2348,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2363,7 +2363,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2378,7 +2378,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2393,7 +2393,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2408,7 +2408,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2423,7 +2423,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2438,7 +2438,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2453,7 +2453,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2468,7 +2468,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2483,7 +2483,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2498,7 +2498,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2513,7 +2513,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2528,7 +2528,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2543,7 +2543,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2558,7 +2558,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2573,7 +2573,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2588,7 +2588,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2603,7 +2603,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"https://www.cbc.ca/cmlink/rss-topstories" }' -- connection
@@ -2618,7 +2618,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2633,7 +2633,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2648,7 +2648,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2663,7 +2663,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2678,7 +2678,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2693,7 +2693,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr" }' -- connection
@@ -2708,7 +2708,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2723,7 +2723,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2738,7 +2738,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2753,7 +2753,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2768,7 +2768,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2783,7 +2783,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2798,7 +2798,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2813,7 +2813,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2828,7 +2828,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2843,7 +2843,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2858,7 +2858,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2873,7 +2873,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2888,7 +2888,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2903,7 +2903,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2918,7 +2918,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2933,7 +2933,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2948,7 +2948,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2963,7 +2963,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"http://www.victoriabuzz.com/feed/" }' -- connection
@@ -2978,7 +2978,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -2993,7 +2993,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3008,7 +3008,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3023,7 +3023,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3038,7 +3038,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3053,7 +3053,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3068,7 +3068,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3083,7 +3083,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3113,7 +3113,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3128,7 +3128,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3143,7 +3143,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3158,7 +3158,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3173,7 +3173,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3188,7 +3188,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"https://theorca.ca/feed/" }' -- connection
@@ -3203,7 +3203,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3218,7 +3218,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3233,7 +3233,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3248,7 +3248,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3263,7 +3263,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3278,7 +3278,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3293,7 +3293,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3308,7 +3308,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3323,7 +3323,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3338,7 +3338,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3353,7 +3353,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3368,7 +3368,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3383,7 +3383,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3398,7 +3398,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3413,7 +3413,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3428,7 +3428,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 3 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3443,7 +3443,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3458,7 +3458,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3473,7 +3473,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3488,7 +3488,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3503,7 +3503,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3518,7 +3518,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3533,7 +3533,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3548,7 +3548,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3563,7 +3563,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3578,7 +3578,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 2 -- media_type_id
-  , 4 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3593,7 +3593,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3608,7 +3608,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3623,7 +3623,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3638,7 +3638,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3653,7 +3653,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 7 -- media_type_id
-  , 3 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3668,7 +3668,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3683,7 +3683,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 15 -- media_type_id
-  , 5 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{}' -- connection
@@ -3698,7 +3698,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"https://thenarwhal.ca/feed/rss2" }' -- connection
@@ -3713,7 +3713,7 @@ INSERT INTO public.data_source (
   , ''
   , true -- is_enabled
   , 1 -- media_type_id
-  , 1 -- data_location_id
+  , 2 -- data_location_id
   , 3 -- license_id
   , 'topic'
   , '{ "url":"https://infotel.ca/govbcrssfeed" }' -- connection

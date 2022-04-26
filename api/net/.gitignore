@@ -2,6 +2,7 @@
 *.env
 connectionstrings.*json
 .vscode/settings.json
+uploads/
 
 *.swp
 *.*~

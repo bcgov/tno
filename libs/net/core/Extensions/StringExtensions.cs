@@ -19,7 +19,7 @@ public static class StringExtensions
         var split = text.Split(" ", StringSplitOptions.RemoveEmptyEntries);
         foreach (var part in split)
         {
-            var letter = part.Substring(0, 1);
+            var letter = part[..1];
             result.Append(uppercase ? letter.ToUpper() : letter);
         }
         return result.ToString();
@@ -42,7 +42,7 @@ public static class StringExtensions
     /// <returns>Postal with format XXX XXX.</returns>
     public static string? FormatAsPostal(this string postal)
     {
-        if (postal?.Length == 6 && (!postal?.Contains(" ") ?? false))
+        if (postal?.Length == 6 && (!postal?.Contains(' ') ?? false))
             return postal?.ToUpper().Insert(3, " ");
         return postal?.ToUpper();
     }
@@ -56,7 +56,7 @@ public static class StringExtensions
     {
         if (!String.IsNullOrWhiteSpace(word) && !char.IsUpper(word[0]))
         {
-            return char.ToLower(word[0]) + (word.Length > 1 ? word.Substring(1) : null);
+            return char.ToLower(word[0]) + (word.Length > 1 ? word[1..] : null);
         }
         return word;
     }
@@ -100,17 +100,20 @@ public static class StringExtensions
     public static string Truncate(this string value, int maxLength)
     {
         if (string.IsNullOrEmpty(value)) return value;
-        return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        return value.Length <= maxLength ? value : value[..maxLength];
     }
 
     /// <summary>
-    /// Clean up the project numbers array format and get rid of double quotes, brackets, and commas.
+    /// Remove the beginning and ending of the string of the specified 'remove'.
     /// </summary>
     /// <param name="value"></param>
+    /// <param name="remove"></param>
     /// <returns></returns>
-    public static string FormatProjectNumbers(this string value)
+    public static string? RemoveStartAndEnd(this string value, string remove)
     {
-        if (string.IsNullOrEmpty(value)) return value;
-        return value.Replace("\"", "").Replace("[", "").Replace("]", "").Replace(",", System.Environment.NewLine);
+        var result = value;
+        if (value?.StartsWith(remove) == true) result = result?[(remove.Length - 1)..];
+        if (result?.EndsWith(remove) == true) result = result?[..^remove.Length];
+        return result;
     }
 }

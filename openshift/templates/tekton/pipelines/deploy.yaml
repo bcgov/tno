@@ -18,7 +18,7 @@ parameters:
     displayName: API Application Name
     description: The name of the application.
     required: true
-    value: api-editor
+    value: api
   - name: APP_NAME
     displayName: Application Name
     description: The name of the application.

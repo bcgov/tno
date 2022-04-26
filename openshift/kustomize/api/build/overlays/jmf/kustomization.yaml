@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 9b301c-tools
+
+resources:
+  - ../../base
+
+patches:
+  - build.yaml
+
+patchesJson6902:
+  - target:
+      kind: BuildConfig
+      name: .*
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: tno-api.jmf

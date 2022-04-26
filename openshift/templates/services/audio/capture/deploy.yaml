@@ -67,6 +67,12 @@ parameters:
     required: true
     value: tno-services
 
+  - name: VOLUME_MOUNT_PATH
+    displayName: Volume Mount Path
+    description: The path to the shared volume location
+    required: true
+    value: /data
+
   - name: REPLICAS
     displayName: Pod Replicas
     description: Number of pod replicas to run

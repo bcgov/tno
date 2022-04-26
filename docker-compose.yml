@@ -178,6 +178,8 @@ services:
     depends_on:
       - database
       - keycloak
+    volumes:
+      - tno-upload:/data
     networks:
       - tno
     healthcheck:
@@ -204,7 +206,6 @@ services:
     volumes:
       - ./app/editor/src:/usr/app/src
       - ./app/editor/public:/usr/app/public
-      # - tno-editor-node-cache:/usr/app/node_modules
     ports:
       - ${APP_EDITOR_HTTP_PORT:-40082}:3000
       - ${APP_EDITOR_HTTPS_PORT:-40444}:3443
@@ -229,7 +230,6 @@ services:
     volumes:
       - ./app/subscriber/src:/usr/app/src
       - ./app/subscriber/public:/usr/app/public
-      - tno-subscriber-node-cache:/usr/app/node_modules
     ports:
       - ${APP_SUBSCRIBER_HTTP_PORT:-40083}:3000
       - ${APP_SUBSCRIBER_HTTPS_PORT:-40445}:3443
@@ -246,10 +246,8 @@ volumes:
     name: tno-database-data
   tno-elastic-data:
     name: tno-elastic-data
-  tno-editor-node-cache:
-    name: tno-editor-node-cache
-  tno-subscriber-node-cache:
-    name: tno-subscriber-node-cache
+  tno-upload:
+    name: tno-upload
 
   tno-azure-storage-data:
     name: tno-azure-storage-data

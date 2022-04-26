@@ -198,6 +198,8 @@ ConnectionStrings__TNO=Host=host.docker.internal:40000;Database=$dbName;Include 
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
+Storage__UploadPath=/data
+
 ELASTIC_URIS=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser
 ELASTIC_PASSWORD=$password

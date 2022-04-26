@@ -1105,6 +1105,11 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Connection")
+                        .IsRequired()
+                        .HasColumnType("json")
+                        .HasColumnName("connection");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1132,6 +1137,12 @@ namespace TNO.DAL.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
+
+                    b.Property<int>("LocationType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("location_type");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1529,6 +1540,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("content_id");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("content_type");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1545,11 +1562,15 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<string>("MimeType")
+                    b.Property<string>("FileName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("mime_type");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<bool>("IsUploaded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_uploaded");
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -1557,12 +1578,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("path");
 
-                    b.Property<int>("RunningTime")
-                        .HasColumnType("integer")
+                    b.Property<long>("RunningTime")
+                        .HasColumnType("bigint")
                         .HasColumnName("running_time");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("integer")
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
                         .HasColumnName("size");
 
                     b.Property<string>("UpdatedBy")

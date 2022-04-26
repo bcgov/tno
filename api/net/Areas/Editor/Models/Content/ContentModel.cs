@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -128,6 +129,12 @@ public class ContentModel : AuditColumnsModel
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
+
+    /// <summary>
+    /// get/set - Upload files with content.
+    /// </summary>
+    [DataType(DataType.Upload)]
+    public List<IFormFile>? Files { get; set; }
 
     /// <summary>
     /// get - An array of actions.

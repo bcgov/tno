@@ -701,7 +701,7 @@ public class CBRAReport
         return startRowIndex;
     }
 
-    private static double CalculateRunningTimePercent(int runningTime, int totalRunningTime)
+    private static double CalculateRunningTimePercent(long runningTime, long totalRunningTime)
     {
         if (runningTime <= 0)
             return runningTime;
@@ -709,12 +709,12 @@ public class CBRAReport
         return CalculateRunningTime(runningTime) / CalculateRunningTime(totalRunningTime);
     }
 
-    private static double CalculateRunningTime(int runningTime)
+    private static double CalculateRunningTime(long runningTime)
     {
         return ToFloat(ToDuration(runningTime));
     }
 
-    private static TimeSpan ToDuration(int milliseconds)
+    private static TimeSpan ToDuration(long milliseconds)
     {
         return TimeSpan.FromMilliseconds(milliseconds);
     }

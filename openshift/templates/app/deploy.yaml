@@ -40,7 +40,7 @@ parameters:
     displayName: API Component Group Name
     description: The name of the API component group
     required: true
-    value: api-editor
+    value: api
 
   - name: APP_PORT
     displayName: Application Port
@@ -139,7 +139,7 @@ objects:
       selector:
         name: ${SOLUTION_NAME}-${APP_NAME}
         solution: ${SOLUTION_NAME}
-        group: ${APP_NAME}
+        app: ${APP_NAME}
       sessionAffinity: None
       type: ClusterIP
 

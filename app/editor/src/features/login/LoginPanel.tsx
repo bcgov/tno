@@ -3,8 +3,6 @@ import { Button, useKeycloakWrapper } from 'tno-core';
 export const LoginPanel: React.FC = () => {
   const keycloak = useKeycloakWrapper();
 
-  console.debug(keycloak);
-
   const login = () => {
     const instance = keycloak.instance;
     const authority = instance.authServerUrl.replace(/\/$/, '');

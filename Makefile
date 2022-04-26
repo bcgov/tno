@@ -150,7 +150,8 @@ db-nuke: ## Stop and delete the database container and volume, then rebuild and 
 	@make stop n=database
 	@docker rm -f -v tno-database
 	@docker volume rm -f tno-database-data
-	@make build n=database
+	@make up n=database
+	@make db-update
 	@make up n=keycloak
 
 ##############################################################################

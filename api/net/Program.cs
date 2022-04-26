@@ -6,8 +6,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -31,6 +33,8 @@ builder
 var config = builder.Configuration;
 
 // Add services to the container.
+
+builder.Services.AddStorageConfig(config);
 
 var jsonSerializerOptions = new JsonSerializerOptions()
 {
@@ -64,6 +68,20 @@ builder.Services.AddControllers(options =>
       options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
       options.JsonSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
   });
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    var section = config.GetSection("Kestrel");
+    options.Limits.MaxRequestBodySize = (long)section.GetValue(typeof(long), "Limits:MaxRequestBodySize");
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    var section = config.GetSection("Form");
+    options.ValueLengthLimit = (int)section.GetValue(typeof(int), "ValueLengthLimit");
+    options.MultipartBodyLengthLimit = (long)section.GetValue(typeof(long), "MultipartBodyLengthLimit");
+    options.MultipartHeadersLengthLimit = (int)section.GetValue(typeof(int), "MultipartHeadersLengthLimit");
+});
 
 builder.Services.AddAuthentication(options =>
     {

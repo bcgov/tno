@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Npgsql;
+using TNO.DAL.Config;
 using TNO.DAL.Services;
 
 namespace TNO.DAL;
@@ -54,7 +56,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Add a PostgreSQL DbContext to the service collection and all the services.
+    /// Add a PostgreSQL DbContext to the service collection and all the related services.
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
@@ -76,6 +78,24 @@ public static class ServiceCollectionExtensions
             var sinterface = serviceType.GetInterface($"I{serviceType.Name}") ?? throw new InvalidOperationException($"Service type '{serviceType.Name}' is missing its interface.");
             services.AddScoped(sinterface, serviceType);
         }
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add the storage configuration to the service collection.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddStorageConfig(this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<StorageConfig>(config.GetSection("Storage"));
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<StorageConfig>>().Value);
+        services.AddOptions<StorageConfig>()
+            .Bind(config.GetSection("Storage"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         return services;
     }

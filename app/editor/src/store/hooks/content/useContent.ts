@@ -17,6 +17,8 @@ interface IContentController {
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
+  upload: (content: IContentModel, file: File) => Promise<IContentModel>;
+  download: (id: number, fileName: string) => Promise<unknown>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
   storeSortBy: (sortBy: ISortBy[]) => void;
@@ -46,6 +48,14 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
     },
     deleteContent: async (content: IContentModel) => {
       const result = await dispatch('delete-content', () => api.deleteContent(content));
+      return result;
+    },
+    upload: async (content: IContentModel, file: File) => {
+      const result = await dispatch('upload-content', () => api.upload(content, file));
+      return result;
+    },
+    download: async (id: number, fileName: string) => {
+      const result = await dispatch('download-content', () => api.download(id, fileName));
       return result;
     },
     storeFilter: actions.storeFilter,

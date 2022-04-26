@@ -28,17 +28,20 @@ namespace TNO.API.Areas.Editor.Controllers;
 public class ContentController : ControllerBase
 {
     #region Variables
-    private readonly IContentService _service;
+    private readonly IContentService _contentService;
+    private readonly IFileReferenceService _fileReferenceService;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a ContentController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="service"></param>
-    public ContentController(IContentService service)
+    /// <param name="contentService"></param>
+    /// <param name="fileReferenceService"></param>
+    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService)
     {
-        _service = service;
+        _contentService = contentService;
+        _fileReferenceService = fileReferenceService;
     }
     #endregion
 
@@ -55,7 +58,7 @@ public class ContentController : ControllerBase
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _service.Find(new ContentFilter(query));
+        var result = _contentService.Find(new ContentFilter(query));
         var page = new Paged<ContentModel>(result.Items.Select(i => new ContentModel(i)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
@@ -63,6 +66,7 @@ public class ContentController : ControllerBase
     /// <summary>
     /// Find content for the specified 'id'.
     /// </summary>
+    /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces("application/json")]
@@ -71,7 +75,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult FindById(long id)
     {
-        var result = _service.FindById(id);
+        var result = _contentService.FindById(id);
 
         if (result == null) return new NoContentResult();
         return new JsonResult(new ContentModel(result));
@@ -80,6 +84,7 @@ public class ContentController : ControllerBase
     /// <summary>
     /// Find content for the specified 'id'.
     /// </summary>
+    /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
     [Produces("application/json")]
@@ -88,13 +93,14 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult Add(ContentModel model)
     {
-        var result = _service.Add((Content)model);
+        var result = _contentService.Add((Content)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ContentModel(result));
     }
 
     /// <summary>
     /// Find content for the specified 'id'.
     /// </summary>
+    /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces("application/json")]
@@ -103,13 +109,14 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult Update(ContentModel model)
     {
-        var result = _service.Update((Content)model);
+        var result = _contentService.Update((Content)model);
         return new JsonResult(new ContentModel(result));
     }
 
     /// <summary>
     /// Find content for the specified 'id'.
     /// </summary>
+    /// <param name="model"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
     [Produces("application/json")]
@@ -118,8 +125,65 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult Delete(ContentModel model)
     {
-        _service.Delete((Content)model);
+        _contentService.Delete((Content)model);
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Upload a file and link it to the specified content.
+    /// Only a single file can be linked to content, each upload will overwrite.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="version"></param>
+    /// <param name="files"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/upload")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UploadFile([FromRoute] long id, [FromQuery] long version, [FromForm] List<IFormFile> files)
+    {
+        var content = _contentService.FindById(id);
+        if (content == null) return new JsonResult(new { Error = "Content does not exist" })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        if (!files.Any()) return new JsonResult(new { Error = "No file uploaded." })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        // If the content has a file reference, then update it.  Otherwise, add one.
+        content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
+        var reference = content.FileReferences.Any() ? new ContentFileReference(content.FileReferences.First(), files.First()) : new ContentFileReference(content, files.First());
+        await _fileReferenceService.Upload(reference);
+
+        return new JsonResult(new ContentModel(content));
+    }
+
+    /// <summary>
+    /// Find content for the specified 'id' and download the file it references.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/download")]
+    [Produces("application/octet-stream")]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult DownloadFile(long id)
+    {
+        var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault();
+
+        if (fileReference == null) return new JsonResult(new { Error = "File does not exist" })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        var stream = _fileReferenceService.Download(fileReference);
+        return File(stream, fileReference.ContentType);
     }
     #endregion
 }

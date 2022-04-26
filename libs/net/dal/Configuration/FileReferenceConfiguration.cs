@@ -11,7 +11,8 @@ public class FileReferenceConfiguration : AuditColumnsConfiguration<FileReferenc
         builder.HasKey(m => m.Id);
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.ContentId).IsRequired();
-        builder.Property(m => m.MimeType).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.ContentType).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.FileName).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Path).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Size).IsRequired();
         builder.Property(m => m.RunningTime).IsRequired();

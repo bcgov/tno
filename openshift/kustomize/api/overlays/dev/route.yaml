@@ -1,0 +1,7 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: tno-api
+spec:
+  host: tno-dev.apps.silver.devops.gov.bc.ca
