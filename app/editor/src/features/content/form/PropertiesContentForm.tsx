@@ -149,17 +149,15 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
             </Col>
           </Row>
         </Col>
-        <Row style={{ marginLeft: '10%', marginTop: '1%' }}>
-          <Col>
-            <RadioGroup
-              spaceUnderRadio
-              name="expireOptions"
-              options={licenseOptions}
-              value={licenseOptions.find((e) => e.value === values?.licenseId)}
-              onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
-            />
-          </Col>
-        </Row>
+        <Col className="licenses">
+          <RadioGroup
+            spaceUnderRadio
+            name="expireOptions"
+            options={licenseOptions}
+            value={licenseOptions.find((e) => e.value === values?.licenseId)}
+            onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
+          />
+        </Col>
       </Row>
       <Row>
         <FormikTextArea
