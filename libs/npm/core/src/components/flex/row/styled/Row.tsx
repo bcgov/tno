@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { IRowProps } from '..';
 
 export const Row = styled.div<IRowProps>`
+  width: ${(props) => props.width ?? '100%'};
   display: flex;
   flex-direction: ${(props) => props.direction};
   flex: ${(props) => props.flex};

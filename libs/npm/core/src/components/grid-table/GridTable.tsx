@@ -19,6 +19,8 @@ import * as styled from './styled';
  * GridTable properties.
  */
 export interface IGridTableProps<CT extends object = Record<string, unknown>> {
+  /** Class name */
+  className?: string;
   /**
    * An array of column definitions.
    */
@@ -97,6 +99,7 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
  * @returns GridTable component.
  */
 export const GridTable = <T extends object>({
+  className,
   columns,
   data,
   onRowClick,
@@ -187,7 +190,7 @@ export const GridTable = <T extends object>({
   }, [onChangeSort, sortBy]);
 
   return (
-    <styled.GridTable {...getTableProps()}>
+    <styled.GridTable className={`table${className ? ` ${className}` : ''}`} {...getTableProps()}>
       {Header && <Header {...instance} />}
       <div role="rowheader">
         {headerGroups.map((headerGroup) => (

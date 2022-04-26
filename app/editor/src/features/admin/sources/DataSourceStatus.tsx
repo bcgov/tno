@@ -14,7 +14,7 @@ export const DataSourceStatus: React.FC = (props) => {
   return (
     <styled.DataSourceStatus alignItems="flex-start">
       <FormikText label="Status" name="lastRanOn" disabled placeholder="Unknown" />
-      <FormikText label="last Run On" name="lastRanOn" disabled />
+      <FormikText label="Last Run On" name="lastRanOn" disabled />
       <Row alignItems="flex-end">
         <FormikText label="Attempts Made" name="failedAttempts" disabled width={FieldSize.Tiny}>
           <Button
