@@ -6,6 +6,10 @@ export const RadioGroup = styled.div<IRadioGroupProps<any>>`
   display: flex;
   flex-direction: column;
 
+  label {
+    cursor: pointer;
+  }
+
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};

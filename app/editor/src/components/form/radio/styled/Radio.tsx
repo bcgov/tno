@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { IRadioProps, RadioVariant } from '..';
 
 export const Radio = styled.input<IRadioProps>`
+  label {
+    cursor: hover;
+  }
   margin: 1px 2px 1px 2px;
   text-decoration: ${(props) => (props.variant === RadioVariant.link ? 'underline' : 'none')};
   font-weight: 400;

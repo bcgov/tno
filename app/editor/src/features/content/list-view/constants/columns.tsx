@@ -1,6 +1,7 @@
 import { ContentStatusName, IContentModel } from 'hooks/api-editor';
 import { Column, UseSortByColumnOptions } from 'react-table';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
+import { formatIdirUsername } from 'utils';
 
 export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
   {
@@ -32,7 +33,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     id: 'ownerId',
     Header: 'Username',
     accessor: (row) => row.owner?.displayName,
-    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
   },
   {
     id: 'status',
