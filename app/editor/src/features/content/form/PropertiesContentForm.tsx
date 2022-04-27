@@ -133,6 +133,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
               name="publishedOn"
               label="Published On"
               required
+              autoComplete="false"
               showTimeSelect
               dateFormat="MMMM D, yyyy hh:mm a"
               width={FieldSize.Medium}
