@@ -19,6 +19,7 @@ import ca.bc.gov.tno.services.data.config.DataSourceCollectionConfig;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
 import ca.bc.gov.tno.services.data.config.ScheduleConfig;
 import ca.bc.gov.tno.services.data.events.TransactionBeginEvent;
+import ca.bc.gov.tno.services.handlers.ErrorHandler;
 import ca.bc.gov.tno.services.capture.config.CaptureConfig;
 import ca.bc.gov.tno.services.capture.config.CaptureCollectionConfig;
 
@@ -105,7 +106,10 @@ public class ScheduledService
         .filter((ds) -> ds.getIsEnabled() &&
             ds.getConnection().get("url") != null)
         .toList();
-    approvedDataSources.forEach(ds -> sourceConfigs.getSources().add(new CaptureConfig(ds)));
+      
+    for (var ds : approvedDataSources) {
+      sourceConfigs.getSources().add(new CaptureConfig(ds));
+    }
   }
 
   /**

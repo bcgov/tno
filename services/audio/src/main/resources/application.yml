@@ -41,7 +41,7 @@ data:
 #      type: ${DATA_SOURCE_TYPE:AUDIO}
 #      delay: ${DATA_SOURCE_DELAY:5000}
 #      topic: ${DATA_SOURCE_TOPIC}
-#      audioUrl: ${DATA_SOURCE_URL}
+#      url: ${DATA_SOURCE_URL}
 #      captureCmd: ${MEDIA_CAPTURE_CMD}
 #      captureDir: ${MEDIA_CAPTURE_DIR}
 #      clipCmd: ${MEDIA_CLIP_CMD}

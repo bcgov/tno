@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import ca.bc.gov.tno.services.models.DataSource;
+import ca.bc.gov.tno.services.data.ApiException;
 
 /**
  * Configuration settings for Data Source.
@@ -79,7 +80,7 @@ public class DataSourceConfig {
    *
    * @param dataSource The data source object.
    */
-  public DataSourceConfig(DataSource dataSource) {
+  public DataSourceConfig(DataSource dataSource) throws ApiException {
     if (dataSource == null)
       throw new IllegalArgumentException("Parameter 'dataSource' is required.");
 

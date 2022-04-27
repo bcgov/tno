@@ -3,8 +3,9 @@ package ca.bc.gov.tno.services.audio.config;
 import org.springframework.context.annotation.Configuration;
 
 import ca.bc.gov.tno.services.models.DataSource;
+import ca.bc.gov.tno.services.data.TnoApi;
 import ca.bc.gov.tno.services.data.config.DataSourceConfig;
-
+import ca.bc.gov.tno.services.data.ApiException;
 /**
  * Configuration settings for the default Audio Feed. These values will be
  * used if a connection to the database cannot be made.
@@ -58,23 +59,25 @@ public class AudioConfig extends DataSourceConfig {
    * Creates a new instance of a AudioConfig object, initializes with
    * specified parameters.
    * 
-   * @param dataSource
+   * @param dataSource The data source for this configuration
+   * @param api The api based data service
    */
-  public AudioConfig(final DataSource dataSource) {
+  public AudioConfig(final DataSource dataSource, final TnoApi api) throws ApiException {
     super(dataSource);
 
     setAudioService((String) dataSource.getCode());
 
-    if (dataSource.getParent() != null) {
-      var parent = dataSource.getParent();
-      var connection = parent.getConnection();
-      setCaptureService(parent.getCode());
-      setStreamStartTime((long) connection.get("streamStart"));
-      setCaptureDir((String) connection.get("captureDir"));
-      setClipDir((String) connection.get("clipDir"));
-      setClipCmd((String) connection.get("clipCmd"));
-      setTimezone((String) connection.get("timeZone"));
-    }
+      if (dataSource.getParentId() != null) {
+        var thisDs = api.getDataSource(dataSource.getCode());
+        var parent = thisDs.getParent();
+        var connection = parent.getConnection();
+        setCaptureService(parent.getCode());
+        setStreamStartTime((long) connection.get("streamStart"));
+        setCaptureDir((String) connection.get("captureDir"));
+        setClipDir((String) connection.get("clipDir"));
+        setClipCmd((String) connection.get("clipCmd"));
+        setTimezone((String) connection.get("timeZone"));
+      }
   }
 
   /**

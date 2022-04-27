@@ -21,11 +21,7 @@ export const Audio: React.FC = (props) => {
         name="connection.frequency"
         value={values.connection.frequency}
       />
-      <FormikText
-        label="Stream URL"
-        name="connection.audioUrl"
-        value={values.connection.audioUrl}
-      />
+      <FormikText label="Stream URL" name="connection.url" value={values.connection.url} />
       <FormikText
         label="Capture Directory"
         name="connection.captureDir"

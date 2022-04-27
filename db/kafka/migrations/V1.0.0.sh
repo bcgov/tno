@@ -6,6 +6,7 @@ docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-elast
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-syndication --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-audio --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-video --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
+docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic logs-capture --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"
 
 # Topics for ingesting news
 docker exec -i tno-broker bash -c "/bin/kafka-topics --create --topic news-ghi --bootstrap-server $bootstrap --partitions $partitions --replication-factor $replication"

@@ -84,6 +84,11 @@ public class DataSource extends AuditColumns {
   private String topic;
 
   /**
+   * The Kafka topic that content will be pushed into.
+   */
+  private String scheduleType;
+
+  /**
    * The date and time this data source was successfully ingested on.
    */
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
@@ -610,6 +615,20 @@ public class DataSource extends AuditColumns {
    */
   public void setDataSourceMetrics(List<DataSourceMetric> dataSourceMetrics) {
     this.dataSourceMetrics = dataSourceMetrics;
+  }
+
+  /**
+   * @return String return the schedule type
+   */
+  public String getScheduleType() {
+    return scheduleType;
+  }
+
+  /**
+   * @param scheduleType the scheduleType to set
+   */
+  public void setScheduleType(String scheduleType) {
+    this.scheduleType = scheduleType;
   }
 
 }
