@@ -1,6 +1,11 @@
 import styled from 'styled-components';
 
 export const ContentForm = styled.div`
+  #txa-summary {
+    height: 150px;
+    width: 1000px;
+  }
+
   .checkbox-column {
     margin-left: 2em;
 

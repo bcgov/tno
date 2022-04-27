@@ -172,7 +172,6 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           required
           value={values.summary}
           onChange={handleChange}
-          style={{ width: '1000px', height: '400px' }}
           onBlur={(e) => {
             const value = e.currentTarget.value;
             if (!!value) {
