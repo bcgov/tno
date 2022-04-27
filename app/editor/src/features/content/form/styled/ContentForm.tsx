@@ -6,6 +6,10 @@ export const ContentForm = styled.div`
     width: 1000px;
   }
 
+  #txt-tags {
+    width: 880px;
+  }
+
   .checkbox-column {
     margin-left: 2em;
 
