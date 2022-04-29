@@ -76,7 +76,7 @@ parameters:
     displayName: Verification Volume Mount Path
     description: The path on which to mount the volume.
     required: true
-    value: "/data"
+    value: /data
 
   - name: REPLICAS
     displayName: Pod Replicas

@@ -1,0 +1,24 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: tno-api
+  namespace: default
+  annotations:
+    description: API configuration settings
+  labels:
+    name: tno-api
+    solution: tno
+    app: api
+type: Opaque
+data:
+  KEYCLOAK_AUTHORITY: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
+  KEYCLOAK_REALM: gcpe
+  KEYCLOAK_AUDIENCE: tno-api
+
+  CONNECTION_STRING: Host=postgres-cluster-primary:5432;Database=postgres-cluster;Include Error Detail=true;Log Parameters=true;
+
+  ELASTIC_URIS: tno-elastic:9200
+
+  KAFKA_BOOTSTRAP_SERVERS: tno-kafka-broker:29094

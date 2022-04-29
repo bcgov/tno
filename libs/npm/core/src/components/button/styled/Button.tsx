@@ -35,6 +35,8 @@ export const Button = styled.button<IButtonProps>`
 
   color: ${(props) => {
     switch (props.variant) {
+      case ButtonVariant.secondary:
+        return '#003366';
       case ButtonVariant.warning:
       case ButtonVariant.link:
         return '#1a5a96';
@@ -50,18 +52,15 @@ export const Button = styled.button<IButtonProps>`
     switch (props.variant) {
       case ButtonVariant.primary:
         return '#003366';
-      case ButtonVariant.secondary:
-        return '#6c757d';
       case ButtonVariant.success:
         return '#43893e';
       case ButtonVariant.info:
         return '#96c0e6';
       case ButtonVariant.warning:
         return '#f9ca54';
+      case ButtonVariant.secondary:
       case ButtonVariant.danger:
-        return 'transparent';
       case ButtonVariant.action:
-        return 'transparent';
       case ButtonVariant.link:
         return 'transparent';
       default:
@@ -71,9 +70,8 @@ export const Button = styled.button<IButtonProps>`
   border-color: ${(props) => {
     switch (props.variant) {
       case ButtonVariant.primary:
-        return '#003366';
       case ButtonVariant.secondary:
-        return '#6c757d';
+        return '#003366';
       case ButtonVariant.success:
         return '#43893e';
       case ButtonVariant.info:
@@ -94,6 +92,8 @@ export const Button = styled.button<IButtonProps>`
   &:hover:not([disabled]) {
     color: ${(props) => {
       switch (props.variant) {
+        case ButtonVariant.secondary:
+          return '#003366';
         case ButtonVariant.warning:
         case ButtonVariant.danger:
           return '#d93e45';
@@ -109,20 +109,18 @@ export const Button = styled.button<IButtonProps>`
       switch (props.variant) {
         case ButtonVariant.primary:
           return '#2d476f';
-        case ButtonVariant.secondary:
-          return '#5a6268';
         case ButtonVariant.success:
           return '#366f32';
         case ButtonVariant.info:
           return '#77addf';
         case ButtonVariant.warning:
           return '#f8bf2f';
-        case ButtonVariant.danger:
-          return '#F8F8F8';
         case ButtonVariant.link:
           return 'transparent';
+        case ButtonVariant.secondary:
         case ButtonVariant.action:
-          return '#F8F8F8';
+        case ButtonVariant.danger:
+          return '#ebe8e8';
         default:
           return '#fff';
       }
@@ -130,9 +128,8 @@ export const Button = styled.button<IButtonProps>`
     border-color: ${(props) => {
       switch (props.variant) {
         case ButtonVariant.primary:
-          return '#294266';
         case ButtonVariant.secondary:
-          return '#545b62';
+          return '#294266';
         case ButtonVariant.success:
           return '#32662e';
         case ButtonVariant.info:

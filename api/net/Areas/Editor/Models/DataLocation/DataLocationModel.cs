@@ -1,4 +1,5 @@
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.DataLocation;
 
@@ -8,6 +9,10 @@ namespace TNO.API.Areas.Editor.Models.DataLocation;
 public class DataLocationModel : BaseTypeModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public DataLocationType LocationType { get; set; }
     #endregion
 
     #region Constructors
@@ -22,7 +27,7 @@ public class DataLocationModel : BaseTypeModel<int>
     /// <param name="entity"></param>
     public DataLocationModel(Entities.DataLocation entity) : base(entity)
     {
-
+        this.LocationType = entity.LocationType;
     }
     #endregion
 }

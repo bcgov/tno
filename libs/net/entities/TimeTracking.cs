@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TNO.Entities;
 
 [Table("time_tracking")]
-public class TimeTracking : AuditColumns
+public class TimeTracking : AuditColumns, IEquatable<TimeTracking>
 {
     #region Properties
     [Column("id")]
@@ -46,5 +46,16 @@ public class TimeTracking : AuditColumns
         this.Effort = effort;
         this.Activity = activity ?? "";
     }
+    #endregion
+
+    #region Methods
+    public bool Equals(TimeTracking? other)
+    {
+        if (other == null) return false;
+        return this.Id == other.Id;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as TimeTracking);
+    public override int GetHashCode() => (this.Id).GetHashCode();
     #endregion
 }

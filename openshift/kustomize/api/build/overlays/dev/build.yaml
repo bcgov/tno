@@ -1,0 +1,21 @@
+---
+# The build config that will be created will be named for the branch you created it for.
+kind: BuildConfig
+apiVersion: v1
+metadata:
+  name: tno-api.dev
+spec:
+  source:
+    git:
+      uri: https://github.com/tno/tno.git
+      ref: dev
+    contextDir: ./
+  strategy:
+    type: Docker
+    dockerStrategy:
+      imageOptimizationPolicy: SkipLayers
+      dockerfilePath: api/net/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: tno-api:latest

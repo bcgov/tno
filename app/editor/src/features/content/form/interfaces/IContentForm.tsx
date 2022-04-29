@@ -36,6 +36,7 @@ export interface IContentForm {
   tonePool?: IOptionItem;
   timeTrackings: ITimeTrackingModel[];
   fileReferences: IFileReferenceModel[];
+  file?: File | null;
   links: IContentLinkModel[];
   publishedOn: string;
   version?: number;

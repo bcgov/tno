@@ -1,5 +1,0 @@
-.gitignore
-Dockerfile
-/logs
-flyway.conf
-.env

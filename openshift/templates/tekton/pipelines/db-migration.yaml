@@ -53,7 +53,7 @@ spec:
         - name: DB_SECRET_NAME
           value: postgres-cluster-pguser-postgres-cluster
         - name: API_NAME
-          value: tno-api-editor
+          value: tno-api
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: DEPLOY_TO

@@ -1,0 +1,8 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: tno-api
+data:
+  KEYCLOAK_AUTHORITY: https://dev.oidc.gov.bc.ca/auth/realms/gcpe

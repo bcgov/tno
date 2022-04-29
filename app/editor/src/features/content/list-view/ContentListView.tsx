@@ -369,7 +369,7 @@ export const ContentListView: React.FC = () => {
           <div style={{ marginTop: '2%' }} className="addition-actions">
             <Button
               name="create"
-              variant={ButtonVariant.action}
+              variant={ButtonVariant.secondary}
               disabled
               tooltip="Under Construction"
             >
@@ -377,7 +377,7 @@ export const ContentListView: React.FC = () => {
             </Button>
             <Button
               name="create"
-              variant={ButtonVariant.action}
+              variant={ButtonVariant.secondary}
               disabled
               tooltip="Under Construction"
             >
@@ -385,7 +385,7 @@ export const ContentListView: React.FC = () => {
             </Button>
             <Button
               name="create"
-              variant={ButtonVariant.action}
+              variant={ButtonVariant.secondary}
               disabled
               tooltip="Under Construction"
             >

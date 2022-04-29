@@ -2,13 +2,13 @@ import { FieldSize, IOptionItem, OptionItem, RadioGroup } from 'components/form'
 import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
-import { Upload } from 'components/upload';
+import { IFile, Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
 import { IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, useKeycloakWrapper } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex/col';
 import { Row } from 'tno-core/dist/components/flex/row';
@@ -31,6 +31,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [{ series, categories, licenses, tags, users }] = useLookup();
   const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
+  const [, { download }] = useContent();
 
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
@@ -38,6 +39,9 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
   const [effort, setEffort] = React.useState(0);
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
+  const file = values.fileReferences.length
+    ? ({ name: values.fileReferences[0].fileName, size: values.fileReferences[0].size } as IFile)
+    : undefined;
 
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
@@ -151,6 +155,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
         </Col>
         <Col className="licenses">
           <RadioGroup
+            label="License"
             spaceUnderRadio
             name="expireOptions"
             options={licenseOptions}
@@ -182,6 +187,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           disabled
           name="tags"
           label="Tags"
+          width={FieldSize.Big}
           value={values.tags.map((t) => t.id).join(', ')}
         />
         <Button
@@ -210,13 +216,27 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
         />
       </Row>
       <Row style={{ marginTop: '2%' }}>
-        <Upload />
+        <Upload
+          id="upload"
+          name="file"
+          file={file}
+          onSelect={(e) => {
+            const file = !!e.target?.files?.length ? e.target.files[0] : undefined;
+            setFieldValue('file', file);
+            // Remove file reference.
+            setFieldValue('fileReferences', []);
+          }}
+          onDownload={() => {
+            download(values.id, file?.name ?? `${values.source}-${values.id}`);
+          }}
+        />
       </Row>
       <Row style={{ marginTop: '2%' }}>
         <FormikText className="sm" name="prep" label="Prep Time (minutes)" type="number" />
         <Button
           style={{ marginTop: '1.16em', marginRight: '2%' }}
-          variant={ButtonVariant.action}
+          variant={ButtonVariant.secondary}
+          disabled={isNaN((values as any).prep)}
           onClick={() => {
             setEffort(effort!! + Number((values as any).prep));
             setFieldValue('timeTrackings', [
@@ -240,7 +260,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
             toggle();
           }}
           style={{ marginTop: '1.16em' }}
-          variant={ButtonVariant.action}
+          variant={ButtonVariant.secondary}
         >
           View Log
         </Button>
@@ -250,7 +270,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
           headerText="Prep Time Log"
           body={<TimeLogTable totalTime={effort} data={values.timeTrackings} />}
           customButtons={
-            <Button variant={ButtonVariant.action} onClick={toggle}>
+            <Button variant={ButtonVariant.secondary} onClick={toggle}>
               Close
             </Button>
           }

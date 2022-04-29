@@ -3,79 +3,165 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// DataSource class, provides a way to desribe and store a source of data.
+/// Includes information on how to connect to the data source and how services are run and scheduled.
+/// </summary>
 [Table("data_source")]
 public class DataSource : AuditColumns
 {
     #region Properties
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("name")]
     public string Name { get; set; } = "";
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("code")]
     public string Code { get; set; } = "";
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("short_name")]
     public string ShortName { get; set; } = "";
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("description")]
     public string Description { get; set; } = "";
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("is_enabled")]
     public bool IsEnabled { get; set; } = true;
 
+    /// <summary>
+    /// get/set - Foreign key to the data location.
+    /// </summary>
     [Column("data_location_id")]
     public int DataLocationId { get; set; }
 
+    /// <summary>
+    /// get/set - The data location where files will be uploaded.
+    /// This is not the source location, but rather the location files will be uploaded to when ingested.
+    /// </summary>
     public virtual DataLocation? DataLocation { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("media_type_id")]
     public int MediaTypeId { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public virtual MediaType? MediaType { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("license_id")]
     public int LicenseId { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public virtual License? License { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("schedule_type")]
     public DataSourceScheduleType ScheduleType { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("topic")]
     public string Topic { get; set; } = "";
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("connection")]
     public string Connection { get; set; } = "{}";
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("last_ran_on")]
     public DateTime? LastRanOn { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("retry_limit")]
     public int RetryLimit { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("failed_attempts")]
     public int FailedAttempts { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     [Column("parent_id")]
     public int? ParentId { get; set; }
 
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public virtual DataSource? Parent { get; set; }
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<SourceAction> Actions { get; } = new List<SourceAction>();
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<DataSourceAction> ActionsManyToMany { get; } = new List<DataSourceAction>();
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<SourceMetric> Metrics { get; } = new List<SourceMetric>();
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<DataSourceMetric> MetricsManyToMany { get; } = new List<DataSourceMetric>();
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<Schedule> Schedules { get; } = new List<Schedule>();
 
+    /// <summary>
+    /// get -
+    /// </summary>
     public virtual List<DataSourceSchedule> SchedulesManyToMany { get; } = new List<DataSourceSchedule>();
     #endregion
 

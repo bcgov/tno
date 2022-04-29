@@ -12,16 +12,16 @@ spec:
   monitoring:
     pgmonitor:
       exporter:
-        image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter:ubi8-5.0.4-0
-      resources:
-        requests:
-          cpu: 25m
-          memory: 100Mi
-        limits:
-          cpu: 50m
-          memory: 250Mi
-  image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:centos8-13.5-0
-  postgresVersion: 13
+        # image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter:ubi8-5.0.4-0
+        resources:
+          requests:
+            cpu: 25m
+            memory: 100Mi
+          limits:
+            cpu: 50m
+            memory: 250Mi
+  # image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:centos8-13.5-0
+  postgresVersion: 14
   instances:
     - name: tno-database
       replicas: 3
@@ -49,11 +49,20 @@ spec:
                   matchLabels:
                     postgres-operator.crunchydata.com/cluster: hippo-ha
                     postgres-operator.crunchydata.com/instance-set: postgres
+      sidecars:
+        replicaCertCopy:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 250m
+              memory: 250Mi
   backups:
     pgbackrest:
       global:
         repo1-retention-full: "2"
-      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:centos8-2.35-0
+      # image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:centos8-2.36-0
       repoHost:
         resources:
           requests:
@@ -81,12 +90,21 @@ spec:
         repoName: repo1
         options:
           - --type=full
+      sidecars:
+        pgbackrest:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 50Mi
+            limits:
+              cpu: 250m
+              memory: 500Mi
   proxy:
     pgBouncer:
       config:
         global:
           client_tls_sslmode: disable
-      image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:centos8-1.15-3
+      # image: registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:centos8-1.15-3
       replicas: 2
       resources:
         requests:

@@ -137,6 +137,8 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
+
+        // Extract all FileReferences marked for deletion.
         base.Update(original);
         return original;
     }

@@ -1,4 +1,6 @@
+using System.Text.Json;
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.DataSource;
 
@@ -8,6 +10,15 @@ namespace TNO.API.Areas.Admin.Models.DataSource;
 public class DataLocationModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public DataLocationType LocationType { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public Dictionary<string, object> Connection { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -20,9 +31,11 @@ public class DataLocationModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an DataLocationModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public DataLocationModel(Entities.DataLocation entity) : base(entity)
+    /// <param name="options"></param>
+    public DataLocationModel(Entities.DataLocation entity, JsonSerializerOptions options) : base(entity)
     {
-
+        this.LocationType = entity.LocationType;
+        this.Connection = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Connection, options) ?? new Dictionary<string, object>();
     }
     #endregion
 }

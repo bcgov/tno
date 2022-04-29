@@ -1,72 +1,117 @@
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks/modal';
-import React, { InputHTMLAttributes, useState } from 'react';
-import { Button, ButtonVariant, Col, Row } from 'tno-core';
+import React, { ButtonHTMLAttributes } from 'react';
+import { Button, ButtonVariant, Col } from 'tno-core';
 
+import { IFile } from '.';
 import * as styled from './styled';
+import { generateName } from './utils';
+
+const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+  window.HTMLInputElement.prototype,
+  'value',
+)?.set;
+
+export interface IUploadProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect' | 'value'> {
+  onSelect?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onDownload?: () => void;
+  file?: IFile;
+}
 
 /**
  * Upload component provides a way to upload files and captures the appropriate meta-data. WIP.
  * @returns Upload component.
  */
-export const Upload: React.FC<InputHTMLAttributes<HTMLButtonElement>> = ({
-  type = 'button',
+export const Upload: React.FC<IUploadProps> = ({
+  id,
+  name,
   className,
-  children,
+  file: initFile,
+  onClick,
+  onSelect,
+  onDownload,
   ...rest
 }) => {
-  const [fileName, setFileName] = useState('');
+  const { isShowing, toggle } = useModal();
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  const [file, setFile] = React.useState<File>();
+
+  React.useEffect(() => {
+    if (!!initFile) {
+      setFile(undefined);
+    }
+  }, [initFile]);
+
   /** Duration / metadata WIP */
   // const [duration, setDuration] = useState(0);
   var reader = new FileReader();
+  var fileName = generateName(file) ?? generateName(initFile);
 
-  const { isShowing, toggle } = useModal();
   return (
-    <styled.Upload>
-      <Row>
-        <div className="upl">
-          <label htmlFor="work">Attach a File</label>
-          <input
-            type={'file'}
-            id="work"
-            hidden
-            onChange={(e: any) => {
-              setFileName(e.target.files[0].name);
-              reader.readAsDataURL(e.target.files[0]);
-              var media = new Audio(reader.result as any);
-              media.onloadedmetadata = function () {
-                // setDuration(media.duration);
-              };
-            }}
-          />
-        </div>
-        <Col>
-          {!!fileName && fileName}
-          {!!fileName && (
-            <div className="msg">
-              <img
-                style={{ marginRight: '0.2em' }}
-                alt="back"
-                src={process.env.PUBLIC_URL + '/assets/check_mark.svg'}
-              />
-              File attached
-            </div>
-          )}
-        </Col>
-        <Button className="remove" variant={ButtonVariant.danger} onClick={toggle}>
+    <styled.Upload className={className ?? ''}>
+      <Button
+        variant={ButtonVariant.secondary}
+        {...rest}
+        onClick={(e) => {
+          onClick?.(e);
+          if (!onClick) fileRef.current?.click();
+        }}
+      >
+        Attach File
+      </Button>
+      <input
+        id={id}
+        type="file"
+        name={name}
+        ref={fileRef}
+        hidden
+        onChange={(e) => {
+          onSelect?.(e);
+          const files = e?.target?.files ?? [];
+          if (files.length) {
+            const file = files[0];
+            setFile(file);
+            reader.readAsDataURL(file);
+            var media = new Audio(reader.result as any);
+            media.onloadedmetadata = function () {
+              // setDuration(media.duration);
+            };
+          }
+        }}
+      />
+      <Col className="file">
+        {!!fileName && (
+          <Button
+            variant={ButtonVariant.link}
+            onClick={() => onDownload?.()}
+            disabled={!onDownload || !!file}
+          >
+            {fileName}
+          </Button>
+        )}
+      </Col>
+      {!!fileName && (
+        <Button variant={ButtonVariant.danger} onClick={toggle}>
           Remove File
         </Button>
-      </Row>
+      )}
       {/* Modal to appear when removing a file */}
       <Modal
         isShowing={isShowing}
         hide={toggle}
         type="delete"
-        headerText="Confirm Deletion"
-        body="Are you sure you want to delete this file?"
-        confirmText="Yes, Delete It"
+        headerText="Confirm Removal"
+        body="Are you sure you want to remove this file?"
+        confirmText="Yes, Remove It"
         onConfirm={() => {
-          setFileName('');
+          if (!!fileRef.current) {
+            nativeInputValueSetter?.call(fileRef.current, '');
+            const event = new Event('change', { bubbles: true });
+            fileRef.current.dispatchEvent(event);
+          }
+          setFile(undefined);
           toggle();
         }}
       />

@@ -35,7 +35,7 @@ export const ContentForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries }] = useLookup();
-  const [, { getContent, addContent, updateContent, deleteContent }] = useContent();
+  const [, { getContent, addContent, updateContent, deleteContent, upload }] = useContent();
   const { isShowing, toggle } = useModal();
 
   const [active, setActive] = React.useState('properties');
@@ -66,22 +66,37 @@ export const ContentForm: React.FC = () => {
   });
 
   const handleSubmit = async (values: IContentForm) => {
-    const originalId = values.id;
-    values.contentTypeId = 1; // TODO: This should be based on some logic.
-    values.ownerId = !content.id ? userId ?? 0 : values.ownerId;
-    const model = toModel(
-      values,
-      tonePools.find((t) => t.name === 'Default'),
-    );
-    const result = !content.id ? await addContent(model) : await updateContent(model);
-    setContent(toForm(result));
-    toast.success(`${result.headline} has successfully been saved.`);
+    var contentResult;
+    try {
+      const originalId = values.id;
+      values.contentTypeId = 1; // TODO: This should be based on some logic.
+      values.ownerId = !content.id ? userId ?? 0 : values.ownerId; // TODO: This shouldn't change depending on who saves the content.
+      const model = toModel(
+        values,
+        tonePools.find((t) => t.name === 'Default'),
+      ); // TODO: Shouldn't need to do this every single time.
 
-    if (!!originalId) navigate(`/contents/${result.id}`);
-    if (!!result.seriesId) {
-      // A dynamically added series has been added, fetch the latests series.
-      const newSeries = series.find((s) => s.id === result.seriesId);
-      if (!newSeries) getSeries();
+      const contentResult = !content.id ? await addContent(model) : await updateContent(model);
+
+      // Now upload the file if it exists.
+      if (!!values.file) {
+        const uploadResult = await upload(contentResult, values.file);
+        setContent(toForm(uploadResult));
+      } else {
+        setContent(toForm(contentResult));
+      }
+
+      toast.success(`${contentResult.headline} has successfully been saved.`);
+
+      if (!!originalId) navigate(`/contents/${contentResult.id}`);
+      if (!!contentResult.seriesId) {
+        // A dynamically added series has been added, fetch the latests series.
+        const newSeries = series.find((s) => s.id === contentResult.seriesId);
+        if (!newSeries) getSeries();
+      }
+    } catch {
+      // If the upload fails, we still need to update the form from the original update.
+      if (!!contentResult) setContent(toForm(contentResult));
     }
   };
 
@@ -90,7 +105,7 @@ export const ContentForm: React.FC = () => {
       <FormPage height="fit-content">
         <Area>
           <Row>
-            <Button variant={ButtonVariant.action} onClick={() => navigate('/contents')}>
+            <Button variant={ButtonVariant.secondary} onClick={() => navigate('/contents')}>
               <Row>
                 <img
                   style={{ marginRight: '0.5em' }}

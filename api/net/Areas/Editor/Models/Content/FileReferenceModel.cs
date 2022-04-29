@@ -21,7 +21,12 @@ public class FileReferenceModel : AuditColumnsModel
     /// <summary>
     /// get/set - The file mime type.
     /// </summary>
-    public string MimeType { get; set; } = "";
+    public string ContentType { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The friendly name or the name the user gave for the file.
+    /// </summary>
+    public string FileName { get; set; } = "";
 
     /// <summary>
     /// get/set - The path to the file.
@@ -31,12 +36,17 @@ public class FileReferenceModel : AuditColumnsModel
     /// <summary>
     /// get/set - The size of the file in bytes.
     /// </summary>
-    public int Size { get; set; }
+    public long Size { get; set; }
 
     /// <summary>
     /// get/set - The number of seconds this file runs.
     /// </summary>
-    public int RunningTime { get; set; }
+    public long RunningTime { get; set; }
+
+    /// <summary>
+    /// get/set - Whether the file has been uploaded and is available.
+    /// </summary>
+    public bool IsUploaded { get; set; }
     #endregion
 
     #region Constructors
@@ -53,7 +63,8 @@ public class FileReferenceModel : AuditColumnsModel
     {
         this.Id = entity.Id;
         this.ContentId = entity.ContentId;
-        this.MimeType = entity.MimeType;
+        this.ContentType = entity.ContentType;
+        this.FileName = entity.FileName;
         this.Path = entity.Path;
         this.Size = entity.Size;
         this.RunningTime = entity.RunningTime;
@@ -79,11 +90,12 @@ public class FileReferenceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.FileReference(FileReferenceModel model)
     {
-        return new Entities.FileReference(model.ContentId, model.MimeType, model.Path)
+        return new Entities.FileReference(model.ContentId, model.ContentType, model.FileName, model.Path)
         {
             Id = model.Id,
             Size = model.Size,
             RunningTime = model.RunningTime,
+            IsUploaded = model.IsUploaded,
             Version = model.Version ?? 0,
         };
     }
