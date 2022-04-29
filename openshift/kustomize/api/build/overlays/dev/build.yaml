@@ -7,7 +7,7 @@ metadata:
 spec:
   source:
     git:
-      uri: https://github.com/tno/tno.git
+      uri: https://github.com/bcgov/tno.git
       ref: dev
     contextDir: ./
   strategy:

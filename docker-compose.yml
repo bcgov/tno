@@ -185,9 +185,9 @@ services:
     healthcheck:
       test: curl -s -f http://localhost:8080/health
       interval: 5m
-      timeout: 10s
+      timeout: 30s
       retries: 3
-      start_period: 1m
+      start_period: 2m
 
   ####################### App - Editor #######################
   editor:

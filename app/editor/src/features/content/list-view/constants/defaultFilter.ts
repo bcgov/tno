@@ -7,10 +7,11 @@ export const defaultFilter: IContentListFilter = {
   mediaTypeId: 0,
   contentTypeId: 0,
   ownerId: 0,
-  userId: 0,
+  userId: '',
   timeFrame: 0,
   included: '',
   onTicker: '',
   commentary: '',
   topStory: '',
+  sort: [],
 };

@@ -1,3 +1,4 @@
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using TNO.Core.Extensions;
@@ -113,14 +114,15 @@ public static class QueryableExtensions
     /// Fetches the properties from cache so that it doesn't haven't to iterate with reflection each time it is is called.
     /// </summary>
     /// <param name="path"></param>
+    /// <param name="ignoreCase"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    private static Type GetPropertyPathType<T>(string path)
+    private static Type GetPropertyPathType<T>(string path, bool ignoreCase = true)
     {
         var type = typeof(T);
         foreach (var part in path.Split('.'))
         {
-            var prop = type?.GetCachedProperties().FirstOrDefault(p => p.Name == part) ?? throw new ArgumentException($"Property path '{type?.Name}.{path}' is invalid.", nameof(path));
+            var prop = type?.GetCachedProperties().FirstOrDefault(p => String.Equals(p.Name, part, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)) ?? throw new ArgumentException($"Property path '{type?.Name}.{path}' is invalid.", nameof(path));
             type = prop.PropertyType.IsEnumerable() && prop.PropertyType != typeof(string) ? prop.PropertyType.GetItemType() : prop.PropertyType;
         }
 

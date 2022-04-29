@@ -8,7 +8,7 @@ import {
   FormikText,
 } from 'components/formik';
 import { Modal } from 'components/modal';
-import { ContentStatusName, IUserModel, ValueType } from 'hooks/api-editor';
+import { ContentStatusName, IContentModel, IUserModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -66,7 +66,7 @@ export const ContentForm: React.FC = () => {
   });
 
   const handleSubmit = async (values: IContentForm) => {
-    var contentResult;
+    var contentResult: IContentModel | null = null;
     try {
       const originalId = values.id;
       values.contentTypeId = 1; // TODO: This should be based on some logic.
@@ -76,7 +76,7 @@ export const ContentForm: React.FC = () => {
         tonePools.find((t) => t.name === 'Default'),
       ); // TODO: Shouldn't need to do this every single time.
 
-      const contentResult = !content.id ? await addContent(model) : await updateContent(model);
+      contentResult = !content.id ? await addContent(model) : await updateContent(model);
 
       // Now upload the file if it exists.
       if (!!values.file) {
@@ -89,9 +89,9 @@ export const ContentForm: React.FC = () => {
       toast.success(`${contentResult.headline} has successfully been saved.`);
 
       if (!!originalId) navigate(`/contents/${contentResult.id}`);
-      if (!!contentResult.seriesId) {
+      if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
-        const newSeries = series.find((s) => s.id === contentResult.seriesId);
+        const newSeries = series.find((s) => s.id === contentResult?.seriesId);
         if (!newSeries) getSeries();
       }
     } catch {

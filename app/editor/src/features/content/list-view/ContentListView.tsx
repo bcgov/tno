@@ -9,38 +9,29 @@ import {
   Text,
 } from 'components/form';
 import { FormPage } from 'components/form/formpage';
-import { IContentModel, LogicalOperator } from 'hooks/api-editor';
+import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import ReactTooltip from 'react-tooltip';
-import { useContent, useLookup } from 'store/hooks';
-import { useApp } from 'store/hooks';
+import { useApp, useContent, useLookup } from 'store/hooks';
 import { initialContentState } from 'store/slices';
 import { Button, ButtonVariant, Loader } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 import { Page, PagedTable } from 'tno-core/dist/components/grid-table';
 import { getSortableOptions, getUserOptions } from 'utils';
 
-import {
-  columns,
-  defaultFilter,
-  defaultPage,
-  fieldTypes,
-  logicalOperators,
-  timeFrames,
-} from './constants';
-import { IContentListFilter, ISortBy } from './interfaces';
-import { makeFilter } from './makeFilter';
+import { columns, defaultFilter, defaultPage, fieldTypes, timeFrames } from './constants';
+import { IContentListFilter } from './interfaces';
 import * as styled from './styled';
+import { makeFilter } from './utils';
 
 export const ContentListView: React.FC = () => {
   const [{ userInfo, requests }, { isUserReady }] = useApp();
+  const userId = userInfo?.id ?? '';
   const [{ contentTypes, mediaTypes, users }] = useLookup();
-  const [
-    { filter, filterAdvanced, sortBy },
-    { findContent, storeFilter, storeFilterAdvanced, storeSortBy },
-  ] = useContent({ filter: { ...defaultFilter, userId: userInfo?.id ?? 0 } });
+  const [{ filter, filterAdvanced }, { findContent, storeFilter, storeFilterAdvanced }] =
+    useContent({ filter: { ...defaultFilter, userId } });
   const navigate = useNavigate();
 
   const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
@@ -73,14 +64,19 @@ export const ContentListView: React.FC = () => {
     );
   }, [users]);
 
+  React.useEffect(() => {
+    if (userId !== 0 && filter.userId === '' && filter.userId !== userId) {
+      storeFilter({ ...filter, userId });
+    }
+  }, [userId, filter, storeFilter]);
+
   const fetch = React.useCallback(
-    async (filter: IContentListFilter, sortBy: ISortBy[]) => {
+    async (filter: IContentListFilter) => {
       try {
         const data = await findContent(
           makeFilter({
             ...filter,
             ...filterAdvanced,
-            sortBy,
           }),
         );
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
@@ -97,12 +93,12 @@ export const ContentListView: React.FC = () => {
   React.useEffect(() => {
     // Only make a request if the user has been set.
     if (isUserReady() && filter.userId !== '') {
-      fetch(filter, sortBy);
+      fetch(filter);
     }
     // Only want to make a request when filter or sort change.
     // 'fetch' regrettably changes any time the advanced filter changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, sortBy]);
+  }, [filter]);
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
@@ -114,9 +110,16 @@ export const ContentListView: React.FC = () => {
 
   const handleChangeSort = React.useCallback(
     (sortBy: SortingRule<IContentModel>[]) => {
-      storeSortBy(sortBy.map((sb) => ({ id: sb.id, desc: sb.desc })));
+      const sorts = sortBy.map((sb) => ({ id: sb.id, desc: sb.desc }));
+      const same = sorts.every(
+        (val, i) => val.id === filter.sort[i]?.id && val.desc === filter.sort[i]?.desc,
+      );
+      if (!same) {
+        console.warn('sort change');
+        storeFilter({ ...filter, sort: sorts });
+      }
     },
-    [storeSortBy],
+    [storeFilter, filter],
   );
 
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -261,27 +264,13 @@ export const ContentListView: React.FC = () => {
                 label="Field Type"
                 options={fieldTypes}
                 value={filterAdvanced.fieldType}
+                width={FieldSize.Medium}
                 onChange={(newValue) => {
                   const value =
                     newValue instanceof OptionItem
                       ? newValue.toInterface()
                       : (newValue as IOptionItem);
                   storeFilterAdvanced({ ...filterAdvanced, fieldType: value });
-                }}
-              />
-              <Select
-                className="test"
-                name="logicalOperator"
-                label="Logical Operator"
-                options={logicalOperators}
-                value={logicalOperators.find(
-                  (lo) => (LogicalOperator as any)[lo.value] === filterAdvanced.logicalOperator,
-                )}
-                onChange={(newValue) => {
-                  const logicalOperator = (LogicalOperator as any)[
-                    (newValue as IOptionItem).value ?? 0
-                  ];
-                  storeFilterAdvanced({ ...filterAdvanced, logicalOperator });
                 }}
               />
               <Text
@@ -330,7 +319,7 @@ export const ContentListView: React.FC = () => {
             </Col>
             <Button
               name="search"
-              onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced }, sortBy)}
+              onClick={() => fetch({ ...filter, pageIndex: 0, ...filterAdvanced })}
             >
               Search
             </Button>
@@ -353,7 +342,7 @@ export const ContentListView: React.FC = () => {
             columns={columns}
             page={page}
             isLoading={!!requests.length}
-            sortBy={sortBy}
+            sortBy={filter.sort}
             onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
             onChangePage={handleChangePage}
             onChangeSort={handleChangeSort}

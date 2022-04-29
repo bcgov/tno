@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { Claim, Role, useKeycloakWrapper } from 'tno-core';
+import { Claim, NotAuthorized, Role, useKeycloakWrapper } from 'tno-core';
 
 /**
  * PrivateRoute properties.
@@ -7,8 +7,9 @@ import { Claim, Role, useKeycloakWrapper } from 'tno-core';
 interface IPrivateRouteProps {
   /**
    * The path to redirect to if user is unauthorized.
+   * Default value is '/login'.
    */
-  redirectTo: string;
+  redirectTo?: string;
   /**
    * A role the user belongs to.
    */
@@ -33,7 +34,7 @@ interface IPrivateRouteProps {
  * @returns PrivateRoute component.
  */
 export const PrivateRoute = ({
-  redirectTo,
+  redirectTo = '/login',
   claims,
   roles,
   element,
@@ -43,9 +44,14 @@ export const PrivateRoute = ({
 
   if (!keycloak.authenticated) {
     return <Navigate to={redirectTo} />;
+  } else if (!keycloak.isApproved()) {
+    return <Navigate to="/welcome" />;
   } else if ((!!claims && !keycloak.hasClaim(claims)) || (!!roles && !keycloak.hasRole(roles))) {
-    return <div>ERROR</div>;
+    return (
+      <div>
+        <NotAuthorized />
+      </div>
+    );
   }
-
   return element ? element : <>{children}</>;
 };

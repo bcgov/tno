@@ -3,7 +3,6 @@ import { fieldTypes } from 'features/content/list-view/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
-  ISortBy,
 } from 'features/content/list-view/interfaces';
 import { LogicalOperator } from 'hooks/api-editor';
 
@@ -23,13 +22,13 @@ export const initialContentState: IContentState = {
     onTicker: '',
     commentary: '',
     topStory: '',
+    sort: [],
   },
   filterAdvanced: {
     fieldType: fieldTypes[0].toInterface(),
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  sortBy: [],
 };
 
 export const contentSlice = createSlice({
@@ -46,10 +45,7 @@ export const contentSlice = createSlice({
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
     },
-    storeSortBy(state: IContentState, action: PayloadAction<ISortBy[]>) {
-      state.sortBy = action.payload;
-    },
   },
 });
 
-export const { init, storeFilter, storeFilterAdvanced, storeSortBy } = contentSlice.actions;
+export const { init, storeFilter, storeFilterAdvanced } = contentSlice.actions;
