@@ -133,6 +133,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
               name="publishedOn"
               label="Published On"
               required
+              autoComplete="false"
               showTimeSelect
               dateFormat="MMMM D, yyyy hh:mm a"
               width={FieldSize.Medium}
@@ -168,10 +169,10 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
         <FormikTextArea
           name="summary"
           label="Summary"
+          width={FieldSize.Large}
           required
           value={values.summary}
           onChange={handleChange}
-          style={{ width: '1000px', height: '400px' }}
           onBlur={(e) => {
             const value = e.currentTarget.value;
             if (!!value) {
@@ -185,9 +186,9 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
       <Row>
         <FormikText
           disabled
+          width={FieldSize.Large}
           name="tags"
           label="Tags"
-          width={FieldSize.Big}
           value={values.tags.map((t) => t.id).join(', ')}
         />
         <Button
