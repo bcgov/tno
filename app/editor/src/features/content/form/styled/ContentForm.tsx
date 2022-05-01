@@ -2,12 +2,7 @@ import styled from 'styled-components';
 
 export const ContentForm = styled.div`
   #txa-summary {
-    height: 150px;
-    width: 1000px;
-  }
-
-  #txt-tags {
-    width: 880px;
+    height: 6.25em;
   }
 
   .checkbox-column {

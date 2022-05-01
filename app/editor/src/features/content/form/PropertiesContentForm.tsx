@@ -169,6 +169,7 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
         <FormikTextArea
           name="summary"
           label="Summary"
+          width={FieldSize.Large}
           required
           value={values.summary}
           onChange={handleChange}
@@ -185,9 +186,9 @@ export const PropertiesContentForm: React.FC<IContentSubForms> = ({ setContent, 
       <Row>
         <FormikText
           disabled
+          width={FieldSize.Large}
           name="tags"
           label="Tags"
-          width={FieldSize.Big}
           value={values.tags.map((t) => t.id).join(', ')}
         />
         <Button
