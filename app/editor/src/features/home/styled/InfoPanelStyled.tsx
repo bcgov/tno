@@ -32,7 +32,7 @@ export const InfoPanel = styled.div<IInfoPanelProps>`
     .headerSection {
       margin-top: 100px;
       .signIn {
-        width: 96px;
+        text-align: center;
       }
     }
   }
