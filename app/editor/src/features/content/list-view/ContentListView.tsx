@@ -305,8 +305,6 @@ export const ContentListView: React.FC = () => {
                   selected={
                     !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
                   }
-                  showTimeSelect
-                  dateFormat="Pp"
                   width={FieldSize.Small}
                   onChange={(date) =>
                     storeFilterAdvanced({
@@ -319,15 +317,14 @@ export const ContentListView: React.FC = () => {
                   name="endDate"
                   placeholderText="YYYY MM DD"
                   selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
-                  showTimeSelect
-                  dateFormat="Pp"
                   width={FieldSize.Small}
-                  onChange={(date) =>
+                  onChange={(date) => {
+                    date?.setHours(23, 59, 59);
                     storeFilterAdvanced({
                       ...filterAdvanced,
                       endDate: !!date ? date.toString() : undefined,
-                    })
-                  }
+                    });
+                  }}
                 />
               </Row>
             </Col>
