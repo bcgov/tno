@@ -145,7 +145,7 @@ export const ContentForm: React.FC = () => {
                             props.setFieldValue('dataSourceId', e.value);
                             props.setFieldValue('source', e.label);
                           }}
-                          width={FieldSize.Medium}
+                          width={FieldSize.Big}
                           options={dataSourceOptions}
                           required={!props.values.source}
                           isDisabled={!!props.values.otherSource}
