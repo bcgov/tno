@@ -115,7 +115,6 @@ export const ContentListView: React.FC = () => {
         (val, i) => val.id === filter.sort[i]?.id && val.desc === filter.sort[i]?.desc,
       );
       if (!same) {
-        console.warn('sort change');
         storeFilter({ ...filter, sort: sorts });
       }
     },
@@ -187,7 +186,7 @@ export const ContentListView: React.FC = () => {
                   <Checkbox
                     name="isPrintContent"
                     label="Print Content"
-                    tooltip="Print Content"
+                    tooltip="Newspaper content without audio/video"
                     value={printContentId}
                     checked={filter.contentTypeId !== 0}
                     onChange={(e) => {
