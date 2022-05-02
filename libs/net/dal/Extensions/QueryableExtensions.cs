@@ -13,7 +13,9 @@ public static class QueryableExtensions
     #region Variables
     private static readonly string[] _orderByDescending = new[] { "desc", "descending" };
     private static readonly MethodInfo OrderByMethod = typeof(Queryable).GetMethods().Single(method => method.Name == "OrderBy" && method.GetParameters().Length == 2);
+    private static readonly MethodInfo ThenByMethod = typeof(Queryable).GetMethods().Single(method => method.Name == "ThenBy" && method.GetParameters().Length == 2);
     private static readonly MethodInfo OrderByDescendingMethod = typeof(Queryable).GetMethods().Single(method => method.Name == "OrderByDescending" && method.GetParameters().Length == 2);
+    private static readonly MethodInfo ThenByDescendingMethod = typeof(Queryable).GetMethods().Single(method => method.Name == "ThenByDescending" && method.GetParameters().Length == 2);
     private static readonly MethodInfo GeneratePropertyPathLambdaMethod = typeof(QueryableExtensions).GetMethod(nameof(GeneratePropertyPathLambda), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new InvalidOperationException("GeneratePropertyPathLambda extension method does not exist.");
     #endregion
 
@@ -38,6 +40,33 @@ public static class QueryableExtensions
     /// <returns></returns>
     public static IQueryable<T> OrderByProperty<T>(this IQueryable<T> source, params string[] propertyName)
     {
+        return source.OrderByProperty<T>(OrderByMethod, propertyName);
+    }
+
+    /// <summary>
+    /// Order the query results by the specified property names.
+    /// Each property can also specify the direction of the sort (i.e. "Name asc", "Name ascending", "Name desc", "Name descending").
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="source"></param>
+    /// <param name="propertyName"></param>
+    /// <returns></returns>
+    public static IQueryable<T> ThenByProperty<T>(this IQueryable<T> source, params string[] propertyName)
+    {
+        return source.OrderByProperty<T>(ThenByMethod, propertyName);
+    }
+
+    /// <summary>
+    /// Order the query results by the specified property names.
+    /// Each property can also specify the direction of the sort (i.e. "Name asc", "Name ascending", "Name desc", "Name descending").
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="source"></param>
+    /// <param name="method"></param>
+    /// <param name="propertyName"></param>
+    /// <returns></returns>
+    private static IQueryable<T> OrderByProperty<T>(this IQueryable<T> source, MethodInfo method, params string[] propertyName)
+    {
         if (propertyName == null) return source;
         var query = source;
         foreach (var prop in propertyName)
@@ -56,7 +85,7 @@ public static class QueryableExtensions
                 var orderExpression = convertMethod.Invoke(null, new[] { parts[0] });
                 if (orderExpression != null)
                 {
-                    var genericMethod = OrderByMethod.MakeGenericMethod(typeof(T), rType);
+                    var genericMethod = method.MakeGenericMethod(typeof(T), rType);
                     query = (IQueryable<T>)(genericMethod.Invoke(null, new[] { query, orderExpression }) ?? throw new InvalidOperationException("Order by method does not exist."));
                 }
                 else
@@ -65,7 +94,7 @@ public static class QueryableExtensions
                     ParameterExpression parameterExpression = Expression.Parameter(typeof(T));
                     Expression orderByProperty = Expression.Property(parameterExpression, parts[0]);
                     LambdaExpression lambda = Expression.Lambda(orderByProperty, parameterExpression);
-                    MethodInfo genericMethod = OrderByMethod.MakeGenericMethod(typeof(T), orderByProperty.Type);
+                    MethodInfo genericMethod = method.MakeGenericMethod(typeof(T), orderByProperty.Type);
                     query = (IQueryable<T>)(genericMethod.Invoke(null, new object[] { query, lambda }) ?? throw new InvalidOperationException("Order by method does not exist."));
                 }
             }
@@ -84,6 +113,33 @@ public static class QueryableExtensions
     /// <returns></returns>
     public static IQueryable<T> OrderByPropertyDescending<T>(this IQueryable<T> source, params string[] propertyName)
     {
+        return source.OrderByPropertyDescending<T>(OrderByDescendingMethod, propertyName);
+    }
+
+    /// <summary>
+    /// Order the query results by the specified property names.
+    /// Any property name that doesn't exist will be ignored.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="source"></param>
+    /// <param name="propertyName"></param>
+    /// <returns></returns>
+    public static IQueryable<T> ThenByPropertyDescending<T>(this IQueryable<T> source, params string[] propertyName)
+    {
+        return source.OrderByPropertyDescending<T>(ThenByDescendingMethod, propertyName);
+    }
+
+    /// <summary>
+    /// Order the query results by the specified property names.
+    /// Any property name that doesn't exist will be ignored.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="source"></param>
+    /// <param name="method"></param>
+    /// <param name="propertyName"></param>
+    /// <returns></returns>
+    private static IQueryable<T> OrderByPropertyDescending<T>(this IQueryable<T> source, MethodInfo method, params string[] propertyName)
+    {
         if (propertyName == null) return source;
         var query = source;
         foreach (var prop in propertyName)
@@ -93,7 +149,7 @@ public static class QueryableExtensions
             var orderExpression = convertMethod.Invoke(null, new[] { prop });
             if (orderExpression != null)
             {
-                var genericMethod = OrderByDescendingMethod.MakeGenericMethod(typeof(T), rType);
+                var genericMethod = method.MakeGenericMethod(typeof(T), rType);
                 query = (IQueryable<T>)(genericMethod.Invoke(null, new[] { query, orderExpression }) ?? throw new InvalidOperationException("Order by descending method does not exist."));
             }
             else
@@ -102,7 +158,7 @@ public static class QueryableExtensions
                 ParameterExpression parameterExpression = Expression.Parameter(typeof(T));
                 Expression orderByProperty = Expression.Property(parameterExpression, prop);
                 LambdaExpression lambda = Expression.Lambda(orderByProperty, parameterExpression);
-                MethodInfo genericMethod = OrderByDescendingMethod.MakeGenericMethod(typeof(T), orderByProperty.Type);
+                MethodInfo genericMethod = method.MakeGenericMethod(typeof(T), orderByProperty.Type);
                 query = (IQueryable<T>)(genericMethod.Invoke(null, new object[] { query, lambda }) ?? throw new InvalidOperationException("Order by descending method does not exist."));
             }
         }
