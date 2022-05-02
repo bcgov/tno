@@ -48,14 +48,14 @@ export const useSummon = ({
   const instance = React.useRef<AxiosInstance>((axiosInstances as any)[baseURL ?? 'default']);
 
   if (instance.current === undefined) {
-    const instance = axios.create({
+    const summon = axios.create({
       baseURL,
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
     });
 
-    instance.interceptors.request.use((config) => {
+    summon.interceptors.request.use((config) => {
       config!.headers!.Authorization = `Bearer ${getToken()}`;
       if (selector !== undefined) {
         const storedValue = selector(state);
@@ -70,7 +70,7 @@ export const useSummon = ({
       return config;
     });
 
-    instance.interceptors.response.use(
+    summon.interceptors.response.use(
       (response) => {
         if (lifecycleToasts?.successToast && response.status < 300) {
           loadingToastId && toast.dismiss(loadingToastId);
@@ -96,7 +96,8 @@ export const useSummon = ({
       },
     );
 
-    (axiosInstances as any)[baseURL ?? 'default'] = instance;
+    (axiosInstances as any)[baseURL ?? 'default'] = summon;
+    instance.current = summon;
   }
 
   return instance.current;
