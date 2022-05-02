@@ -10,7 +10,9 @@ export const sortDataSource = <T extends IDataSourceModel>(a: T, b: T) => {
 };
 
 const displayName = (dataSource: IDataSourceModel) => {
-  return dataSource.name;
+  return dataSource.name !== dataSource.code
+    ? `${dataSource.name} (${dataSource.code})`
+    : dataSource.name;
 };
 
 export const getDataSourceOptions = <T extends IDataSourceModel>(
