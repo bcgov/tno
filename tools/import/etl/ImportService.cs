@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TNO.Tools.Import.Destination;
-using TNO.Tools.Import.Destination.Entities;
+using TNO.DAL;
+using TNO.Entities;
 using TNO.Tools.Import.Source;
 using TNO.Tools.Import.Source.Entities;
 
@@ -15,14 +15,14 @@ public class ImportService
     #region Variables
     private readonly ILogger _logger;
     private readonly SourceContext _sourceContext;
-    private readonly DestinationContext _destinationContext;
+    private readonly TNOContext _destinationContext;
 
     private List<ContentType> _contentTypes = new();
     private List<MediaType> _mediaTypes = new();
     private List<DataSource> _dataSources = new();
     private List<License> _licenses = new();
     private List<Category> _categories = new();
-    private List<Destination.Entities.Action> _actions = new();
+    private List<Entities.Action> _actions = new();
     private List<User> _users = new();
     private List<Series> _series = new();
     private List<Tag> _tags = new();
@@ -40,7 +40,7 @@ public class ImportService
     /// <param name="logger"></param>
     /// <param name="sourceContext"></param>
     /// <param name="destinationContext"></param>
-    public ImportService(ILogger<ImportService> logger, SourceContext sourceContext, DestinationContext destinationContext)
+    public ImportService(ILogger<ImportService> logger, SourceContext sourceContext, TNOContext destinationContext)
     {
         _logger = logger;
         _sourceContext = sourceContext;
@@ -76,7 +76,7 @@ public class ImportService
         _defaultLicense = _licenses.First();
     }
 
-    private string GetMimeType(string fileName, string contentType)
+    private static string GetMimeType(string fileName, string contentType)
     {
         var ext = fileName.Split(".")[1];
         return ext switch
@@ -90,15 +90,11 @@ public class ImportService
     {
         var source = _dataSources.FirstOrDefault(ds => ds.Name.ToLower() == newsItem.Source.ToLower());
         var headline = String.IsNullOrWhiteSpace(newsItem.Title) ? "NO TITLE PROVIDED" : newsItem.Title;
-        var content = new Content(uid, headline, newsItem.Source)
+        var mediaType = GetMediaType(newsItem.Type);
+        var content = new Content(uid, headline, newsItem.Source, source?.Id, _defaultContentType.Id, mediaType.Id, source?.LicenseId ?? _defaultLicense.Id, _defaultUser.Id)
         {
             Status = newsItem.Published ? ContentStatus.Published : ContentStatus.Draft,
             WorkflowStatus = newsItem.Published ? WorkflowStatus.Published : WorkflowStatus.Success,
-            DataSourceId = source?.Id,
-            LicenseId = source?.LicenseId ?? _defaultLicense.Id,
-            MediaTypeId = GetMediaType(newsItem.Type).Id,
-            ContentTypeId = _defaultContentType.Id,
-            OwnerId = _defaultUser.Id,
             Page = "",
             PublishedOn = newsItem.ItemDateTime.ToUniversalTime(),
             Summary = newsItem.Summary ?? "",
@@ -117,46 +113,46 @@ public class ImportService
         if (newsItem.FrontPageStory)
         {
             var action = _actions.First(a => a.Name == "Front Page");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
         if (newsItem.ThisJustIn)
         {
             var action = _actions.First(a => a.Name == "Just In");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
         if (newsItem.Commentary)
         {
             var action = _actions.First(a => a.Name == "Commentary");
-            content.Actions.Add(new ContentAction(content, action, $"{newsItem.CommentaryTimeout}"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, $"{newsItem.CommentaryTimeout}"));
         }
         if (newsItem.OnTicker)
         {
             var action = _actions.First(a => a.Name == "On Ticker");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
         if (newsItem.WapTopStory)
         {
             var action = _actions.First(a => a.Name == "Top Story");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
         if (newsItem.Alert)
         {
             var action = _actions.First(a => a.Name == "Alert");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
         if (!String.IsNullOrWhiteSpace(newsItem.EodCategory))
         {
             var category = _categories.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodCategory.ToLower());
             if (category != null)
             {
-                content.Categories.Add(new ContentCategory(content, category, 0));
+                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
             }
             else
             {
                 category = new Category(newsItem.EodCategory);
                 _destinationContext.Add(category);
                 _categories.Add(category);
-                content.Categories.Add(new ContentCategory(content, category, 0));
+                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
             }
         }
 
@@ -184,49 +180,49 @@ public class ImportService
             content.FileReferences.Add(file);
         }
 
-        if (newsItem.FrontPageStory && !content.Actions.Any(a => a.Action?.Name == "Front Page"))
+        if (newsItem.FrontPageStory && !content.ActionsManyToMany.Any(a => a.Action?.Name == "Front Page"))
         {
             var action = _actions.First(a => a.Name == "Front Page");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (newsItem.ThisJustIn && !content.Actions.Any(a => a.Action?.Name == "Just In"))
+        if (newsItem.ThisJustIn && !content.ActionsManyToMany.Any(a => a.Action?.Name == "Just In"))
         {
             var action = _actions.First(a => a.Name == "Just In");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (newsItem.Commentary && !content.Actions.Any(a => a.Action?.Name == "Commentary"))
+        if (newsItem.Commentary && !content.ActionsManyToMany.Any(a => a.Action?.Name == "Commentary"))
         {
             var action = _actions.First(a => a.Name == "Commentary");
-            content.Actions.Add(new ContentAction(content, action, $"{newsItem.CommentaryTimeout}"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, $"{newsItem.CommentaryTimeout}"));
         }
-        if (newsItem.OnTicker && !content.Actions.Any(a => a.Action?.Name == "On Ticker"))
+        if (newsItem.OnTicker && !content.ActionsManyToMany.Any(a => a.Action?.Name == "On Ticker"))
         {
             var action = _actions.First(a => a.Name == "On Ticker");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (newsItem.WapTopStory && !content.Actions.Any(a => a.Action?.Name == "Top Story"))
+        if (newsItem.WapTopStory && !content.ActionsManyToMany.Any(a => a.Action?.Name == "Top Story"))
         {
             var action = _actions.First(a => a.Name == "Top Story");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (newsItem.Alert && !content.Actions.Any(a => a.Action?.Name == "Alert"))
+        if (newsItem.Alert && !content.ActionsManyToMany.Any(a => a.Action?.Name == "Alert"))
         {
             var action = _actions.First(a => a.Name == "Alert");
-            content.Actions.Add(new ContentAction(content, action, "true"));
+            content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (!String.IsNullOrWhiteSpace(newsItem.EodCategory) && !content.Categories.Any(a => a.Category?.Name == newsItem.EodCategory))
+        if (!String.IsNullOrWhiteSpace(newsItem.EodCategory) && !content.CategoriesManyToMany.Any(a => a.Category?.Name == newsItem.EodCategory))
         {
             var category = _categories.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodCategory.ToLower());
             if (category != null)
             {
-                content.Categories.Add(new ContentCategory(content, category, 0));
+                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
             }
             else
             {
                 category = new Category(newsItem.EodCategory);
                 _destinationContext.Add(category);
                 _categories.Add(category);
-                content.Categories.Add(new ContentCategory(content, category, 0));
+                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
             }
         }
 
