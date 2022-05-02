@@ -1,4 +1,3 @@
-import { FormPage } from 'components/form/formpage';
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
@@ -8,7 +7,7 @@ import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDataSources } from 'store/hooks/admin';
 import { Button, ButtonVariant } from 'tno-core';
-import { Col, Row } from 'tno-core/dist/components/flex';
+import { Row } from 'tno-core/dist/components/flex';
 import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 
 import { defaultDataSource } from './constants';
