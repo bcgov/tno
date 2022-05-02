@@ -102,7 +102,7 @@ export const ContentForm: React.FC = () => {
 
   return (
     <styled.ContentForm>
-      <FormPage height="fit-content">
+      <FormPage>
         <Area>
           <Row>
             <Button variant={ButtonVariant.secondary} onClick={() => navigate('/contents')}>
