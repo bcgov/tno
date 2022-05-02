@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using Oracle.ManagedDataAccess.Client;
-using TNO.Tools.Import.Destination;
+using TNO.DAL;
 using TNO.Tools.Import.Source;
 
 namespace TNO.Tools.Import.ETL.Config;
@@ -66,7 +66,7 @@ public static class ServiceCollectionExtensions
     {
         if (String.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(connectionString));
 
-        services.AddDbContext<DestinationContext>(options =>
+        services.AddDbContext<TNOContext>(options =>
         {
             var db = options.UseNpgsql(connectionString, options =>
             {

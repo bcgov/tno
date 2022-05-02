@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\source\TNO.Tools.Import.Source.csproj" />
-    <ProjectReference Include="..\destination\TNO.Tools.Import.Destination.csproj" />
+    <ProjectReference Include="..\..\..\libs\net\dal\TNO.DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

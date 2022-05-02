@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\core\TNO.Core.csproj" />
+    <ProjectReference Include="..\..\..\libs\net\core\TNO.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
