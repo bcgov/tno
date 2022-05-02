@@ -30,6 +30,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Series)
             .Include(c => c.License)
             .Include(c => c.Owner)
+            .Include(c => c.PrintContent)
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Source))
@@ -48,7 +49,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline, $"%{filter.Byline}%"));
 
         if (!String.IsNullOrWhiteSpace(filter.MediaType))
-            query = query.Where(c => EF.Functions.Like(c.MediaType.Name, $"%{filter.MediaType}%"));
+            query = query.Where(c => EF.Functions.Like(c.MediaType!.Name, $"%{filter.MediaType}%"));
 
         if (filter.ContentTypeId.HasValue)
             query = query.Where(c => c.ContentTypeId == filter.ContentTypeId);
@@ -100,7 +101,13 @@ public class ContentService : BaseService<Content, long>, IContentService
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)
-            query = query.OrderByProperty(filter.Sort);
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
         else
             query = query.OrderByDescending(c => c.Id);
 

@@ -9,6 +9,11 @@ metadata:
     solution: tno
     app: tno-database
 spec:
+  users:
+    - name: postgres
+    - name: admin
+      databases:
+        - tno
   monitoring:
     pgmonitor:
       exporter:
