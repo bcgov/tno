@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts, useSummon } from 'tno-core';
 import { Settings } from '.';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the APi.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApi = (
   options: {
