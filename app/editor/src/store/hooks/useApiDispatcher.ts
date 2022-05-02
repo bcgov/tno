@@ -18,7 +18,7 @@ export interface apiDispatcher<T> {
 export const useApiDispatcher = () => {
   const [, app] = useAppStore();
 
-  return async <T>(url: string, request: () => Promise<AxiosResponse<T, T>>) => {
+  return async <T>(url: string, request: () => Promise<AxiosResponse<T, any>>) => {
     try {
       app.addRequest(url);
       const response = await extractResponseData<T>(request);

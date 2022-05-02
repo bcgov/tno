@@ -10,7 +10,7 @@ export function useKeycloakWrapper(): IKeycloak {
   const token = keycloak.tokenParsed as IKeycloakUser;
 
   /**
-   * Determine if the user has the specified 'claim'
+   * Determine if the user has the specified 'claim', or one of the specified 'claims'.
    * @param claim - The name of the claim
    */
   const hasClaim = (claim?: Claim | Array<Claim>): boolean => {
@@ -24,7 +24,7 @@ export function useKeycloakWrapper(): IKeycloak {
   };
 
   /**
-   * Determine if the user belongs to the specified 'role'
+   * Determine if the user belongs to the specified 'role', or one of the specified 'roles'.
    * @param role - The role name or an array of role name
    */
   const hasRole = (role?: Role | Array<Role>): boolean => {
@@ -49,9 +49,18 @@ export function useKeycloakWrapper(): IKeycloak {
    * Extract the unique username of the user
    * @returns User's unique username
    */
-     const getUsername = () => {
-      return token?.username ?? '';
-    };
+  const getUsername = () => {
+    return token?.username ?? '';
+  };
+
+  /**
+   * Determine if the current use is a new account.
+   * This is performed by checking if they have any claims.
+   * @returns Whether the user is a new account.
+   */
+  const isApproved = () => {
+    return hasClaim([Claim.editor, Claim.subscriber, Claim.administrator]);
+  };
 
   return {
     instance: keycloak,
@@ -60,6 +69,7 @@ export function useKeycloakWrapper(): IKeycloak {
     getDisplayName,
     hasRole,
     hasClaim,
+    isApproved,
   };
 }
 

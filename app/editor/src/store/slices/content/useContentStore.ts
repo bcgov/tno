@@ -1,13 +1,12 @@
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
-  ISortBy,
 } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import { useDeepCompareEffect } from 'tno-core';
 
-import { init, storeFilter, storeFilterAdvanced, storeSortBy } from '.';
+import { init, storeFilter, storeFilterAdvanced } from '.';
 import { IContentState } from './interfaces';
 
 export interface IContentProps {
@@ -17,7 +16,6 @@ export interface IContentProps {
 export interface IContentStore {
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
-  storeSortBy: (sortBy: ISortBy[]) => void;
 }
 
 export const useContentStore = (props?: IContentProps): [IContentState, IContentStore] => {
@@ -31,9 +29,6 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       },
       storeFilterAdvanced: (filter: IContentListAdvancedFilter) => {
         dispatch(storeFilterAdvanced(filter));
-      },
-      storeSortBy: (sortBy: ISortBy[]) => {
-        dispatch(storeSortBy(sortBy));
       },
     }),
     [dispatch],

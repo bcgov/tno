@@ -36,14 +36,19 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => c.Source == filter.Source);
         if (!String.IsNullOrWhiteSpace(filter.Headline))
             query = query.Where(c => EF.Functions.Like(c.Headline, $"%{filter.Headline}%"));
+        if (!String.IsNullOrWhiteSpace(filter.PageName))
+            query = query.Where(c => EF.Functions.Like(c.Page, $"%{filter.PageName}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
-            query = query.Where(c => c.PrintContent != null && c.PrintContent.Section == filter.Section);
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Section, $"%{filter.Section}%"));
         if (!String.IsNullOrWhiteSpace(filter.Edition))
-            query = query.Where(c => c.PrintContent != null && c.PrintContent.Edition == filter.Edition);
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Edition, $"%{filter.Edition}%"));
         if (!String.IsNullOrWhiteSpace(filter.StoryType))
-            query = query.Where(c => c.PrintContent != null && c.PrintContent.StoryType == filter.StoryType);
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.StoryType, $"%{filter.StoryType}%"));
         if (!String.IsNullOrWhiteSpace(filter.Byline))
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline, $"%{filter.Byline}%"));
+
+        if (!String.IsNullOrWhiteSpace(filter.MediaType))
+            query = query.Where(c => EF.Functions.Like(c.MediaType.Name, $"%{filter.MediaType}%"));
 
         if (filter.ContentTypeId.HasValue)
             query = query.Where(c => c.ContentTypeId == filter.ContentTypeId);

@@ -1,7 +1,6 @@
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
-  ISortBy,
 } from 'features/content/list-view/interfaces';
 import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
 import { useApiContents } from 'hooks/api-editor';
@@ -21,7 +20,6 @@ interface IContentController {
   download: (id: number, fileName: string) => Promise<unknown>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
-  storeSortBy: (sortBy: ISortBy[]) => void;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
@@ -60,7 +58,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
     },
     storeFilter: actions.storeFilter,
     storeFilterAdvanced: actions.storeFilterAdvanced,
-    storeSortBy: actions.storeSortBy,
   }).current;
 
   return [state, controller];

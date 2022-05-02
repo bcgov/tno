@@ -22,16 +22,22 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
   const controller = React.useMemo(
     () => ({
       findAllDataSources: async () => {
-        const result = await dispatch('find-all-data-sources', () => api.findAllDataSources());
+        const result = await dispatch<IDataSourceModel[]>('find-all-data-sources', () =>
+          api.findAllDataSources(),
+        );
         store.storeDataSources(result);
         return result;
       },
       findDataSources: async () => {
-        const result = await dispatch('find-data-sources', () => api.findDataSources());
+        const result = await dispatch<IPaged<IDataSourceModel>>('find-data-sources', () =>
+          api.findDataSources(),
+        );
         return result;
       },
       getDataSource: async (id: number) => {
-        const result = await dispatch('get-data-source', () => api.getDataSource(id));
+        const result = await dispatch<IDataSourceModel>('get-data-source', () =>
+          api.getDataSource(id),
+        );
         store.storeDataSources(
           getSources().map((ds) => {
             if (ds.id === result.id) return result;
@@ -41,12 +47,16 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
         return result;
       },
       addDataSource: async (model: IDataSourceModel) => {
-        const result = await dispatch('add-data-source', () => api.addDataSource(model));
+        const result = await dispatch<IDataSourceModel>('add-data-source', () =>
+          api.addDataSource(model),
+        );
         store.storeDataSources([...getSources(), result]);
         return result;
       },
       updateDataSource: async (model: IDataSourceModel) => {
-        const result = await dispatch('update-data-source', () => api.updateDataSource(model));
+        const result = await dispatch<IDataSourceModel>('update-data-source', () =>
+          api.updateDataSource(model),
+        );
         store.storeDataSources(
           getSources().map((ds) => {
             if (ds.id === result.id) return result;
@@ -56,7 +66,9 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
         return result;
       },
       deleteDataSource: async (model: IDataSourceModel) => {
-        const result = await dispatch('delete-data-source', () => api.deleteDataSource(model));
+        const result = await dispatch<IDataSourceModel>('delete-data-source', () =>
+          api.deleteDataSource(model),
+        );
         store.storeDataSources(getSources().filter((ds) => ds.id !== result.id));
         return result;
       },

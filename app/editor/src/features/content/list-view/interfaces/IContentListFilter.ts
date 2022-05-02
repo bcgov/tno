@@ -1,3 +1,5 @@
+import { ISortBy } from '.';
+
 export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
@@ -11,4 +13,5 @@ export interface IContentListFilter {
   onTicker: string;
   commentary: string;
   topStory: string;
+  sort: ISortBy[];
 }
