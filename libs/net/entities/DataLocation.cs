@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
@@ -6,6 +7,7 @@ namespace TNO.Entities;
 /// DataLocation class, provides a way to identify and describe a location where data will be uploaded and stored.
 /// Note this is not the same thing as the data source location.
 /// </summary>
+[Cache("data_locations")]
 [Table("data_location")]
 public class DataLocation : BaseType<int>
 {

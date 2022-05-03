@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace TNO.DAL.Services;
 
-public class ActionService : BaseService<Action, int>, IActionService
+public class ActionService : BaseService<Entities.Action, int>, IActionService
 {
     #region Properties
     #endregion

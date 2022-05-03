@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("source_actions")]
 [Table("source_action")]
 public class SourceAction : BaseType<int>
 {

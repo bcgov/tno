@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 import { IUserModel, useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiUsers = (
   options: {
@@ -17,8 +17,9 @@ export const useApiUsers = (
   const api = useApi(options);
 
   return {
-    getUsers: () => {
-      return api.get<IUserModel[]>(`/editor/users`);
+    getUsers: (etag: string | undefined = undefined) => {
+      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      return api.get<IUserModel[]>(`/editor/users`, config);
     },
   };
 };

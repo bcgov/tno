@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("categories")]
 [Table("category")]
 public class Category : BaseType<int>
 {

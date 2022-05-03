@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 import { ISourceMetricModel, useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiSourceMetrics = (
   options: {
@@ -17,8 +17,9 @@ export const useApiSourceMetrics = (
   const api = useApi(options);
 
   return {
-    getMetrics: () => {
-      return api.get<ISourceMetricModel[]>(`/editor/source/metrics`);
+    getMetrics: (etag: string | undefined = undefined) => {
+      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      return api.get<ISourceMetricModel[]>(`/editor/source/metrics`, config);
     },
   };
 };

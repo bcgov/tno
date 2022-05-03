@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 import { IContentFilter, IContentModel, IPaged, useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiContents = (
   options: {

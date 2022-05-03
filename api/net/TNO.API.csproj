@@ -9,13 +9,14 @@
     <AssemblyVersion>0.0.0.1</AssemblyVersion>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0"/>
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0"/>
-		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.0"/>
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\libs\net\core\TNO.Core.csproj"/>
-		<ProjectReference Include="..\..\libs\net\dal\TNO.DAL.csproj"/>
-		<ProjectReference Include="..\..\libs\net\reports\TNO.Reports.csproj"/>
+		<ProjectReference Include="..\..\libs\net\core\TNO.Core.csproj" />
+		<ProjectReference Include="..\..\libs\net\dal\TNO.DAL.csproj" />
+		<ProjectReference Include="..\..\libs\net\reports\TNO.Reports.csproj" />
 	</ItemGroup>
 </Project>

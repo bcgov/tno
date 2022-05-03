@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("media_types")]
 [Table("media_type")]
 public class MediaType : BaseType<int>
 {

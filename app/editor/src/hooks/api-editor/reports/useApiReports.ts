@@ -4,8 +4,8 @@ import { defaultEnvelope, ILifecycleToasts, toQueryString, useDownload } from 't
 import { useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiReports = (
   options: {

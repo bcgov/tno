@@ -38,7 +38,7 @@ interface IAppController {
   /**
    * Initialize application lookups and settings.
    */
-  init: (refresh?: boolean) => void;
+  init: () => Promise<void>;
 }
 
 /**
@@ -63,8 +63,8 @@ export const useApp = (): [IAppState, IAppController] => {
       isUserReady: () => userInfo.id !== 0,
       removeError: store.removeError,
       clearErrors: store.clearErrors,
-      init: (refresh: boolean = false) => {
-        init(refresh);
+      init: async () => {
+        await init();
       },
     }),
     [api, dispatch, store, init],

@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("source_metrics")]
 [Table("source_metric")]
 public class SourceMetric : BaseType<int>
 {

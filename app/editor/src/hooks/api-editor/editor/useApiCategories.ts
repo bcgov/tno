@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 import { IContentTypeModel, useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiCategories = (
   options: {
@@ -17,8 +17,9 @@ export const useApiCategories = (
   const api = useApi(options);
 
   return {
-    getCategories: () => {
-      return api.get<IContentTypeModel[]>(`/editor/categories`);
+    getCategories: (etag: string | undefined = undefined) => {
+      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      return api.get<IContentTypeModel[]>(`/editor/categories`, config);
     },
   };
 };

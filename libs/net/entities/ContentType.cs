@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("content_types")]
 [Table("content_type")]
 public class ContentType : BaseType<int>
 {

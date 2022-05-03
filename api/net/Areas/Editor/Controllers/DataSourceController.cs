@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.DataSource;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
@@ -50,10 +51,13 @@ public class DataSourceController : ControllerBase
     /// Find a page of content for the specified query filter.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(IPaged<DataSourceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<DataSourceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "DataSource" })]
+    [ETagCacheTableFilter("data_sources")]
+    [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
