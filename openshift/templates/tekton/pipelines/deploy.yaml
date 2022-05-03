@@ -114,7 +114,7 @@ objects:
             - name: MIGRATION_IMAGE
               value: ${SOLUTION_NAME}-${MIGRATION_NAME}
             - name: DB_SECRET_NAME
-              value: postgres-cluster-pguser-postgres-cluster
+              value: postgres-cluster-pguser-admin
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
             - name: DEPLOY_TO

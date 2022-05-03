@@ -17,11 +17,11 @@ spec:
     - name: DB_SECRET_NAME
       description: The name of the database secrets.
       type: string
-      default: postgres-cluster-pguser-postgres-cluster
+      default: postgres-cluster-pguser-admin
     - name: API_NAME
       description: The name of the database.
       type: string
-      default: tno-api-editor
+      default: tno-api
     - name: PROJECT_SHORTNAME
       description: The shortname of the project namespace.
       type: string

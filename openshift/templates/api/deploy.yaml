@@ -45,7 +45,7 @@ parameters:
     displayName: Database Connection String
     description: PostgreSQL database connection string.
     required: true
-    value: Host=postgres-cluster-primary:5432;Database=postgres-cluster;Include Error Detail=true;Log Parameters=true;
+    value: Host=postgres-cluster-primary:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
   - name: KEYCLOAK_AUTHORITY
     displayName: Keycloak Authority URL
@@ -67,7 +67,7 @@ parameters:
     displayName: Database Secret Name
     description: Name of the database secrets object.
     required: true
-    value: postgres-cluster-pguser-postgres-cluster
+    value: postgres-cluster-pguser-admin
 
   - name: ELASTIC_SECRETS_NAME
     displayName: Elasticsearch Secret Name

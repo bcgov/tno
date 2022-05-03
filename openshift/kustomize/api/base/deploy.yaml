@@ -116,12 +116,12 @@ spec:
             - name: DB_POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: postgres-cluster-pguser-postgres-admin
+                  name: postgres-cluster-pguser-admin
                   key: user
             - name: DB_POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-cluster-pguser-postgres-admin
+                  name: postgres-cluster-pguser-admin
                   key: password
 
             - name: ELASTIC_URIS
