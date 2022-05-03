@@ -17,7 +17,7 @@ data:
   KEYCLOAK_REALM: gcpe
   KEYCLOAK_AUDIENCE: tno-api
 
-  CONNECTION_STRING: Host=postgres-cluster-primary:5432;Database=postgres-cluster;Include Error Detail=true;Log Parameters=true;
+  CONNECTION_STRING: Host=postgres-cluster-primary:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
   ELASTIC_URIS: tno-elastic:9200
 

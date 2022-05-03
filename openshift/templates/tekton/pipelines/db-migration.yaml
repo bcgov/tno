@@ -51,7 +51,7 @@ spec:
         - name: MIGRATION_IMAGE
           value: tno-db-migration
         - name: DB_SECRET_NAME
-          value: postgres-cluster-pguser-postgres-cluster
+          value: postgres-cluster-pguser-admin
         - name: API_NAME
           value: tno-api
         - name: IMAGE_TAG
