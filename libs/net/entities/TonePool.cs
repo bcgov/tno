@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("tone_pools")]
 [Table("tone_pool")]
 public class TonePool : BaseType<int>
 {

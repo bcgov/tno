@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("tags")]
 [Table("tag")]
 public class Tag : BaseType<string>
 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.ContentType;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
@@ -43,10 +44,13 @@ public class ContentTypeController : ControllerBase
     /// Return an array of ContentType.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<ContentTypeModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "ContentType" })]
+    [ETagCacheTableFilter("content_types")]
+    [ResponseCache(Duration = 7 * 24 * 60 * 60)]
     public IActionResult FindAll()
     {
         return new JsonResult(_service.FindAll().Select(c => new ContentTypeModel(c)));

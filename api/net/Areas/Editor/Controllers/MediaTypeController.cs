@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.MediaType;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
@@ -43,10 +44,13 @@ public class MediaTypeController : ControllerBase
     /// Return an array of MediaType.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<MediaTypeModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "MediaType" })]
+    [ETagCacheTableFilter("media_types")]
+    [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {
         return new JsonResult(_service.FindAll().Select(c => new MediaTypeModel(c)));

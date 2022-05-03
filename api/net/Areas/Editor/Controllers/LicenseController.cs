@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.License;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
@@ -43,10 +44,13 @@ public class LicenseController : ControllerBase
     /// Return an array of License.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<LicenseModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "License" })]
+    [ETagCacheTableFilter("licenses")]
+    [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {
         return new JsonResult(_service.FindAll().Select(c => new LicenseModel(c)));

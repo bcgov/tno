@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Action;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
@@ -43,10 +44,13 @@ public class ActionController : ControllerBase
     /// Return an array of Action.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<ActionModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Action" })]
+    [ETagCacheTableFilter("actions")]
+    [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {
         return new JsonResult(_service.FindAll().Select(m => new ActionModel(m)));

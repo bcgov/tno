@@ -1,4 +1,5 @@
 export * from './useApiActions';
+export * from './useApiCache';
 export * from './useApiCategories';
 export * from './useApiContents';
 export * from './useApiContentTypes';

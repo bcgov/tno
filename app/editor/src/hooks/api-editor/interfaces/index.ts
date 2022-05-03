@@ -1,5 +1,6 @@
 export * from './IActionModel';
 export * from './IAuditColumnsModel';
+export * from './ICacheModel';
 export * from './ICategoryModel';
 export * from './IContentActionModel';
 export * from './IContentCategoryModel';

@@ -39,6 +39,26 @@ namespace TNO.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "cache",
+                columns: table => new
+                {
+                    key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    value = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
+                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_cache", x => x.key);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "category",
                 columns: table => new
                 {
@@ -1319,6 +1339,9 @@ namespace TNO.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             PreDown(migrationBuilder);
+            migrationBuilder.DropTable(
+                name: "cache");
+
             migrationBuilder.DropTable(
                 name: "content_action");
 

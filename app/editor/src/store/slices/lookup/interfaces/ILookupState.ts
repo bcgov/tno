@@ -1,5 +1,6 @@
 import {
   IActionModel,
+  ICacheModel,
   ICategoryModel,
   IContentTypeModel,
   IDataSourceModel,
@@ -14,6 +15,7 @@ import {
 } from 'hooks/api-editor';
 
 export interface ILookupState {
+  cache: ICacheModel[];
   actions: IActionModel[];
   sourceActions: ISourceActionModel[];
   sourceMetrics: ISourceMetricModel[];

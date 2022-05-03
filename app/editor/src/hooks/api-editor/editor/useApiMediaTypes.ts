@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 import { IMediaTypeModel, useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiMediaTypes = (
   options: {
@@ -17,8 +17,9 @@ export const useApiMediaTypes = (
   const api = useApi(options);
 
   return {
-    getMediaTypes: () => {
-      return api.get<IMediaTypeModel[]>(`/editor/media/types`);
+    getMediaTypes: (etag: string | undefined = undefined) => {
+      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      return api.get<IMediaTypeModel[]>(`/editor/media/types`, config);
     },
   };
 };

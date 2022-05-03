@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Claim;
+using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
@@ -43,10 +44,13 @@ public class ClaimController : ControllerBase
     /// Return an array of Claim.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<ClaimModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Claim" })]
+    [ETagCacheTableFilter("claims")]
+    [ResponseCache(Duration = 5 * 60)]
     public IActionResult Find()
     {
         return new JsonResult(_service.FindAll().Select(c => new ClaimModel(c)));

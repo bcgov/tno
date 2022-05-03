@@ -1,5 +1,6 @@
 import {
   IActionModel,
+  ICacheModel,
   ICategoryModel,
   IContentTypeModel,
   IDataSourceModel,
@@ -16,6 +17,7 @@ import {
 } from 'hooks/api-editor';
 import {
   useApiActions,
+  useApiCache,
   useApiCategories,
   useApiContentTypes,
   useApiDataSources,
@@ -31,9 +33,10 @@ import { useLookupStore } from 'store/slices';
 import { ILookupState } from 'store/slices/lookup';
 
 import { useApiDispatcher } from '..';
-import { initFromLocalStorage } from './utils';
+import { fetchIfNoneMatch } from './utils';
 
 interface ILookupController {
+  getCache: () => Promise<ICacheModel[]>;
   getActions: (refresh?: boolean) => Promise<IActionModel[]>;
   getSourceActions: (refresh?: boolean) => Promise<ISourceActionModel[]>;
   getSourceMetrics: (refresh?: boolean) => Promise<ISourceMetricModel[]>;
@@ -46,12 +49,13 @@ interface ILookupController {
   getTags: (refresh?: boolean) => Promise<ITagModel[]>;
   getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
   getUsers: (refresh?: boolean) => Promise<IUserModel[]>;
-  init: (refresh?: boolean) => void;
+  init: (refresh?: boolean) => Promise<void>;
 }
 
 export const useLookup = (): [ILookupState, ILookupController] => {
   const [state, store] = useLookupStore();
   const dispatch = useApiDispatcher();
+  const cache = useApiCache();
   const actions = useApiActions();
   const sourceActions = useApiSourceActions();
   const sourceMetrics = useApiSourceMetrics();
@@ -66,145 +70,144 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const users = useApiUsers();
 
   // TODO: Handle situation where local storage has stale data.
-  const controller = React.useRef({
-    getActions: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<IActionModel[]>('actions', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-actions', () => actions.getActions())
-            : items;
-        if (refresh || !!items.length) store.storeActions(result);
+  const controller = React.useMemo(
+    () => ({
+      getCache: async () => {
+        const result = await dispatch('cache', () => cache.getCache());
+        store.storeCache(result);
         return result;
-      });
-    },
-    getSourceActions: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ISourceActionModel[]>(
-        'source-actions',
-        [],
-        async (items) => {
-          const result =
-            refresh || !items.length
-              ? await dispatch('get-source-actions', () => sourceActions.getActions())
-              : items;
-          if (refresh || !!items.length) store.storeSourceActions(result);
-          return result;
-        },
-      );
-    },
-    getSourceMetrics: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ISourceMetricModel[]>(
-        'source-metrics',
-        [],
-        async (items) => {
-          const result =
-            refresh || !items.length
-              ? await dispatch('get-source-metrics', () => sourceMetrics.getMetrics())
-              : items;
-          if (refresh || !!items.length) store.storeSourceMetrics(result);
-          return result;
-        },
-      );
-    },
-    getCategories: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ICategoryModel[]>('categories', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-categories', () => categories.getCategories())
-            : items;
-        if (refresh || !!items.length) store.storeCategories(result);
-        return result;
-      });
-    },
-    getContentTypes: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<IContentTypeModel[]>('content-types', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-content-types', () => contentTypes.getContentTypes())
-            : items;
-        if (refresh || !!items.length) store.storeContentTypes(result);
-        return result;
-      });
-    },
-    getLicenses: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ILicenseModel[]>('licenses', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-licenses', () => licenses.getLicenses())
-            : items;
-        if (refresh || !!items.length) store.storeLicenses(result);
-        return result;
-      });
-    },
-    getMediaTypes: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<IMediaTypeModel[]>('media-types', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-media-types', () => mediaTypes.getMediaTypes())
-            : items;
-        if (refresh || !!items.length) store.storeMediaTypes(result);
-        return result;
-      });
-    },
-    getDataSources: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<IDataSourceModel[]>('data-sources', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-data-sources', () => dataSources.getDataSources())
-            : items;
-        if (refresh || !!items.length) store.storeDataSources(result);
-        return result;
-      });
-    },
-    getSeries: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ISeriesModel[]>('series', [], async (items) => {
-        const result =
-          refresh || !items.length ? await dispatch('get-series', () => series.getSeries()) : items;
-        if (refresh || !!items.length) store.storeSeries(result);
-        return result;
-      });
-    },
-    getTags: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ITagModel[]>('tags', [], async (items) => {
-        const result =
-          refresh || !items.length ? await dispatch('get-tags', () => tags.getTags()) : items;
-        if (refresh || !!items.length) store.storeTags(result);
-        return result;
-      });
-    },
-    getTonePools: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<ITonePoolModel[]>('tone-pools', [], async (items) => {
-        const result =
-          refresh || !items.length
-            ? await dispatch('get-tone-pools', () => tonePools.getTonePools())
-            : items;
-        if (refresh || !!items.length) store.storeTonePools(result);
-        return result;
-      });
-    },
-    getUsers: async (refresh: boolean = false) => {
-      return await initFromLocalStorage<IUserModel[]>('users', [], async (items) => {
-        const result =
-          refresh || !items.length ? await dispatch('get-users', () => users.getUsers()) : items;
-        if (refresh || !!items.length) store.storeUsers(result);
-        return result;
-      });
-    },
-    init: (refresh: boolean = false) => {
-      // TODO: Handle failures
-      if (!state.actions.length || refresh) controller.getActions();
-      if (!state.sourceActions.length || refresh) controller.getSourceActions();
-      if (!state.sourceMetrics.length || refresh) controller.getSourceMetrics();
-      if (!state.categories.length || refresh) controller.getCategories();
-      if (!state.contentTypes.length || refresh) controller.getContentTypes();
-      if (!state.licenses.length || refresh) controller.getLicenses();
-      if (!state.mediaTypes.length || refresh) controller.getMediaTypes();
-      if (!state.dataSources.length || refresh) controller.getDataSources();
-      if (!state.series.length || refresh) controller.getSeries();
-      if (!state.tags.length || refresh) controller.getTags();
-      if (!state.tonePools.length || refresh) controller.getTonePools();
-      if (!state.users.length || refresh) controller.getUsers();
-    },
-  }).current;
+      },
+      getActions: async () => {
+        return await fetchIfNoneMatch<IActionModel>(
+          'actions',
+          dispatch,
+          (etag) => actions.getActions(etag),
+          (results) => store.storeActions(results),
+        );
+      },
+      getSourceActions: async () => {
+        return await fetchIfNoneMatch<ISourceActionModel>(
+          'source_actions',
+          dispatch,
+          (etag) => sourceActions.getActions(etag),
+          (results) => store.storeSourceActions(results),
+        );
+      },
+      getSourceMetrics: async () => {
+        return await fetchIfNoneMatch<ISourceMetricModel>(
+          'source_metrics',
+          dispatch,
+          (etag) => sourceMetrics.getMetrics(etag),
+          (results) => store.storeSourceMetrics(results),
+        );
+      },
+      getCategories: async () => {
+        return await fetchIfNoneMatch<ICategoryModel>(
+          'categories',
+          dispatch,
+          (etag) => categories.getCategories(etag),
+          (results) => store.storeCategories(results),
+        );
+      },
+      getContentTypes: async () => {
+        return await fetchIfNoneMatch<IContentTypeModel>(
+          'content_types',
+          dispatch,
+          (etag) => contentTypes.getContentTypes(etag),
+          (results) => store.storeContentTypes(results),
+        );
+      },
+      getLicenses: async () => {
+        return await fetchIfNoneMatch<ILicenseModel>(
+          'licenses',
+          dispatch,
+          (etag) => licenses.getLicenses(etag),
+          (results) => store.storeLicenses(results),
+        );
+      },
+      getMediaTypes: async () => {
+        return await fetchIfNoneMatch<IMediaTypeModel>(
+          'media_types',
+          dispatch,
+          (etag) => mediaTypes.getMediaTypes(etag),
+          (results) => store.storeMediaTypes(results),
+        );
+      },
+      getDataSources: async () => {
+        return await fetchIfNoneMatch<IDataSourceModel>(
+          'data_sources',
+          dispatch,
+          (etag) => dataSources.getDataSources(etag),
+          (results) => store.storeDataSources(results),
+        );
+      },
+      getSeries: async () => {
+        return await fetchIfNoneMatch<ISeriesModel>(
+          'series',
+          dispatch,
+          (etag) => series.getSeries(etag),
+          (results) => store.storeSeries(results),
+        );
+      },
+      getTags: async () => {
+        return await fetchIfNoneMatch<ITagModel>(
+          'tags',
+          dispatch,
+          (etag) => tags.getTags(etag),
+          (results) => store.storeTags(results),
+        );
+      },
+      getTonePools: async () => {
+        return await fetchIfNoneMatch<ITonePoolModel>(
+          'tone_pools',
+          dispatch,
+          (etag) => tonePools.getTonePools(etag),
+          (results) => store.storeTonePools(results),
+        );
+      },
+      getUsers: async () => {
+        return await fetchIfNoneMatch<IUserModel>(
+          'users',
+          dispatch,
+          (etag) => users.getUsers(etag),
+          (results) => store.storeUsers(results),
+        );
+      },
+      init: async () => {
+        // TODO: Handle failures
+        if (!state.actions.length) await controller.getActions();
+        if (!state.sourceActions.length) await controller.getSourceActions();
+        if (!state.sourceMetrics.length) await controller.getSourceMetrics();
+        if (!state.categories.length) await controller.getCategories();
+        if (!state.contentTypes.length) await controller.getContentTypes();
+        if (!state.licenses.length) await controller.getLicenses();
+        if (!state.mediaTypes.length) await controller.getMediaTypes();
+        if (!state.dataSources.length) await controller.getDataSources();
+        if (!state.series.length) await controller.getSeries();
+        if (!state.tags.length) await controller.getTags();
+        if (!state.tonePools.length) await controller.getTonePools();
+        if (!state.users.length) await controller.getUsers();
+      },
+    }),
+    [
+      actions,
+      cache,
+      categories,
+      contentTypes,
+      dataSources,
+      dispatch,
+      licenses,
+      mediaTypes,
+      series,
+      sourceActions,
+      sourceMetrics,
+      state,
+      store,
+      tags,
+      tonePools,
+      users,
+    ],
+  );
 
   return [state, controller];
 };

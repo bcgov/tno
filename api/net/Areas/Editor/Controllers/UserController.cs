@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.User;
+using TNO.API.Filters;
 using TNO.DAL.Services;
 
 namespace TNO.API.Areas.Editor.Controllers;
@@ -40,10 +41,13 @@ public class UserController : ControllerBase
     /// Return an array of User.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, HttpHead]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<UserModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "User" })]
+    [ETagCacheTableFilter("users")]
+    [ResponseCache(Duration = 5 * 60)]
     public IActionResult FindAll()
     {
         return new JsonResult(_service.FindAll().Select(c => new UserModel(c)));

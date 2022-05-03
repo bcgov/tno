@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TNO.Entities;
+using TNO.DAL.Extensions;
 
 namespace TNO.DAL.Services;
 
@@ -36,6 +36,8 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
 
         this.Context.Entry(entity).State = EntityState.Added;
         this.Context.Add(entity);
+        this.Context.UpdateCache<TEntity>();
+
         this.Context.CommitTransaction();
         return entity;
     }
@@ -46,6 +48,8 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
 
         this.Context.Entry(entity).State = EntityState.Modified;
         this.Context.Update(entity);
+        this.Context.UpdateCache<TEntity>();
+
         this.Context.CommitTransaction();
         return entity;
     }
@@ -56,6 +60,8 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
 
         this.Context.Entry(entity).State = EntityState.Deleted;
         this.Context.Remove(entity);
+        this.Context.UpdateCache<TEntity>();
+
         this.Context.CommitTransaction();
     }
     #endregion

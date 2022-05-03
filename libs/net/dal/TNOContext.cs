@@ -47,6 +47,7 @@ public class TNOContext : DbContext
     public DbSet<SourceAction> SourceActions => Set<SourceAction>();
     public DbSet<DataSourceSchedule> DataSourceSchedules => Set<DataSourceSchedule>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
+    public DbSet<Cache> Cache => Set<Cache>();
     public DbSet<User> Users => Set<User>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<Role> Roles => Set<Role>();

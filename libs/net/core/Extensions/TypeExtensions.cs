@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using TNO.Core.Data;
 
 namespace TNO.Core.Extensions
 {
@@ -230,6 +231,17 @@ namespace TNO.Core.Extensions
             if (type.IsValueType)
                 return Activator.CreateInstance(type);
             return null;
+        }
+
+        /// <summary>
+        /// Get the cache key of the specified type, if they type has the 'CacheAttribute'.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string? GetCacheKey(this Type type)
+        {
+            var attr = type.GetCustomAttribute<CacheAttribute>();
+            return attr?.Key;
         }
         #endregion
     }

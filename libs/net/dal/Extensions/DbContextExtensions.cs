@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using TNO.Core.Extensions;
 using TNO.Entities;
 
 namespace TNO.DAL.Extensions;
@@ -64,5 +65,63 @@ public static class DbContextExtensions
         entity.CreatedOn = createdOn;
         entity.OnModified(user);
         return context;
+    }
+
+    /// <summary>
+    /// Attempt to update cache for the cache key that matches the entity type name.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public static Cache? UpdateCache<T>(this TNOContext context, T entity)
+        where T : notnull
+    {
+        return context.UpdateCache(entity.GetType());
+    }
+
+    /// <summary>
+    /// Will update cache if they type has the `CacheAttribute`.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="context"></param>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public static Cache? UpdateCache<T>(this TNOContext context)
+        where T : notnull
+    {
+        return context.UpdateCache(typeof(T));
+    }
+
+    /// <summary>
+    /// Will update cache if they type has the `CacheAttribute`.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public static Cache? UpdateCache(this TNOContext context, Type type)
+    {
+        var key = type.GetCacheKey();
+        if (key != null)
+            return context.UpdateCache(key);
+        return null;
+    }
+
+    /// <summary>
+    /// Attempt to update cache for the specified cache key.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public static Cache? UpdateCache(this TNOContext context, string key)
+    {
+        // Update Cache
+        var cache = context.Cache.Find(key);
+        if (cache != null)
+        {
+            cache.Value = Guid.NewGuid().ToString();
+            context.Update(cache);
+        }
+        return cache;
     }
 }

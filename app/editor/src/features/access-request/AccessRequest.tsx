@@ -37,7 +37,6 @@ export const AccessRequest: React.FC = (props) => {
           <FormikForm
             initialValues={{}}
             onSubmit={(values, { setSubmitting }) => {
-              console.debug(values);
               setSubmitting(false);
             }}
           >
@@ -65,7 +64,6 @@ export const AccessRequest: React.FC = (props) => {
           <FormikForm
             initialValues={register}
             onSubmit={(values, { setSubmitting }) => {
-              console.debug(values);
               setSubmitting(false);
             }}
           >

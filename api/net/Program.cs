@@ -187,6 +187,7 @@ builder.Services.AddVersionedApiExplorer(options =>
     options.SubstituteApiVersionInUrl = true;
 
 });
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

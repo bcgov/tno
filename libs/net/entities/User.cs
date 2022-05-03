@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+[Cache("users")]
 [Table("user")]
 public class User : AuditColumns
 {

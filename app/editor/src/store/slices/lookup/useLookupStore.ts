@@ -1,5 +1,6 @@
 import {
   IActionModel,
+  ICacheModel,
   ICategoryModel,
   IContentTypeModel,
   IDataSourceModel,
@@ -17,6 +18,7 @@ import { useAppDispatch, useAppSelector } from 'store';
 
 import {
   storeActions,
+  storeCache,
   storeCategories,
   storeContentTypes,
   storeDataSources,
@@ -28,10 +30,13 @@ import {
   storeTags,
   storeTonePools,
   storeUsers,
+  updateCache,
 } from '.';
 import { ILookupState } from './interfaces';
 
 export interface ILookupStore {
+  storeCache: (cache: ICacheModel[]) => void;
+  updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeSourceActions: (actions: ISourceActionModel[]) => void;
   storeSourceMetrics: (metrics: ISourceMetricModel[]) => void;
@@ -52,6 +57,12 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
 
   const controller = React.useMemo(
     () => ({
+      storeCache: (cache: ICacheModel[]) => {
+        dispatch(storeCache(cache));
+      },
+      updateCache: (cache: ICacheModel) => {
+        dispatch(updateCache(cache));
+      },
       storeActions: (actions: IActionModel[]) => {
         dispatch(storeActions(actions));
       },

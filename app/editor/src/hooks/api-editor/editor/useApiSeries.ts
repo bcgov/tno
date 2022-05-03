@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 import { ISeriesModel, useApi } from '..';
 
 /**
- * Common hook to make requests to the PIMS APi.
- * @returns CustomAxios object setup for the PIMS API.
+ * Common hook to make requests to the API.
+ * @returns CustomAxios object setup for the API.
  */
 export const useApiSeries = (
   options: {
@@ -17,8 +17,9 @@ export const useApiSeries = (
   const api = useApi(options);
 
   return {
-    getSeries: () => {
-      return api.get<ISeriesModel[]>(`/editor/series`);
+    getSeries: (etag: string | undefined = undefined) => {
+      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      return api.get<ISeriesModel[]>(`/editor/series`, config);
     },
   };
 };

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   IActionModel,
+  ICacheModel,
   ICategoryModel,
   IContentTypeModel,
   IDataSourceModel,
@@ -17,6 +18,7 @@ import {
 import { ILookupState } from './interfaces';
 
 export const initialLookupState: ILookupState = {
+  cache: [],
   actions: [],
   sourceActions: [],
   sourceMetrics: [],
@@ -35,6 +37,20 @@ export const lookupSlice = createSlice({
   name: 'lookup',
   initialState: initialLookupState,
   reducers: {
+    storeCache(state: ILookupState, action: PayloadAction<ICacheModel[]>) {
+      state.cache = action.payload;
+    },
+    updateCache(state: ILookupState, action: PayloadAction<ICacheModel>) {
+      let keyFound = false;
+      state.cache = state.cache.map((c) => {
+        if (c.key === action.payload.key) {
+          keyFound = true;
+          return { ...c, value: action.payload.value };
+        }
+        return c;
+      });
+      if (!keyFound) state.cache.push(action.payload);
+    },
     storeActions(state: ILookupState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
     },
@@ -75,6 +91,7 @@ export const lookupSlice = createSlice({
 });
 
 export const {
+  storeCache,
   storeActions,
   storeSourceActions,
   storeSourceMetrics,
@@ -87,4 +104,5 @@ export const {
   storeTags,
   storeTonePools,
   storeUsers,
+  updateCache,
 } = lookupSlice.actions;
