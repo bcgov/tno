@@ -1,9 +1,9 @@
 import { FieldSize } from 'components/form';
-import { FormikSelect } from 'components/formik';
+import { FormikSelect, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
-import { Col } from 'tno-core';
+import { Col, Row } from 'tno-core';
 
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import { scheduleTypeOptions } from './constants';
@@ -12,7 +12,7 @@ import * as styled from './styled';
 interface IScheduleProps {}
 
 export const Schedule: React.FC<IScheduleProps> = () => {
-  const { values } = useFormikContext<IDataSourceModel>();
+  const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
 
   const form = (scheduleType: DataSourceScheduleTypeName) => {
     switch (scheduleType) {
@@ -26,19 +26,50 @@ export const Schedule: React.FC<IScheduleProps> = () => {
   };
 
   return (
-    <styled.Schedule className="schedule" alignItems="center">
-      <Col>
-        <p>
-          A service schedule provides a way to manage when and how often source content is imported.
-        </p>
-        <FormikSelect
-          label="Schedule Type"
-          name="scheduleType"
-          options={scheduleTypeOptions}
-          width={FieldSize.Medium}
-        />
-        {form(values.scheduleType)}
-      </Col>
+    <styled.Schedule className="schedule">
+      <p>
+        A service schedule provides a way to manage when and how often source content is imported.
+      </p>
+      <Row colGap="1em" nowrap>
+        <Col>
+          <FormikSelect
+            label="Schedule Type"
+            name="scheduleType"
+            options={scheduleTypeOptions}
+            width={FieldSize.Medium}
+            onChange={(newValue: any) => {
+              if (
+                newValue.value === DataSourceScheduleTypeName.None &&
+                values.schedules.some((s) => s.id === 0)
+              ) {
+                setFieldValue(
+                  'schedules',
+                  values.schedules.filter((s) => s.id !== 0),
+                );
+              }
+            }}
+          />
+          <FormikText
+            label="Kafka Topic"
+            name="topic"
+            width={FieldSize.Medium}
+            disabled={values.scheduleType === DataSourceScheduleTypeName.None}
+            required={values.scheduleType !== DataSourceScheduleTypeName.None}
+          />
+        </Col>
+        <Col flex="1 1 50%">
+          <p>
+            A Kafka Topic is a category/feed name to which records are stored and published. If this
+            data-source has a running service, the content will be ingested and placed in the Kafka
+            Event Streaming data storage location.
+          </p>
+          <p>
+            The topic should be unique, or all content stored within it should be the same format.
+          </p>
+        </Col>
+      </Row>
+      <hr />
+      {form(values.scheduleType)}
     </styled.Schedule>
   );
 };

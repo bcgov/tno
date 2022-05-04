@@ -1,15 +1,9 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core/dist/components/flex/col';
 
-export const Schedule = styled(Col)`
-  min-width: 30em;
-  width: 100%;
+export const Schedule = styled.div`
   display: flex;
   flex-direction: column;
-
-  p {
-    margin-right: 0.5em;
-  }
+  padding: 0 1em 0 1em;
 
   .actions {
     align-self: stretch;
@@ -17,5 +11,9 @@ export const Schedule = styled(Col)`
     div[direction='row'] {
       width: unset;
     }
+  }
+
+  hr {
+    width: 100%;
   }
 `;

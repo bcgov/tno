@@ -1,4 +1,4 @@
-import { IOptionItem, OptionItem } from 'components/form';
+import { FieldSize, IOptionItem, OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
@@ -53,43 +53,39 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
 
   return (
     <styled.DataSourceDetails alignItems="center">
-      <Row>
-        <Col>
-          <FormikText label="Name" name="name" required />
-          <FormikText label="Abbreviation" name="code" required placeholder="A unique code" />
-          <FormikText label="Common Call" name="shortName" />
-          <FormikTextArea label="Description" name="description" />
-          <FormikSelect
-            label="Media Type"
-            name="mediaTypeId"
-            options={mediaTypes}
-            required
-            onChange={handleMediaTypeChange}
-          />
-          <FormikSelect label="License" name="licenseId" options={licenses} required />
-          <FormikSelect
-            label="Parent Data Source"
-            name="parentId"
-            options={sources}
-            placeholder="optional"
-          />
-          <p>
-            A Kafka Topic is a category/feed name to which records are stored and published. If this
-            data-source has a running service, the content will be ingested and placed in the Kafka
-            Event Streaming data storage location.
-          </p>
-          <p>
-            The topic should be unique, or all content stored within it should be the same format.
-          </p>
-          <FormikText label="Kafka Topic" name="topic" />
-        </Col>
-        <Col>
-          <FormikCheckbox label="Enabled" name="isEnabled" />
-          <DataSourceActions />
-        </Col>
-        <Col>
-          <Connection />
-        </Col>
+      <Row nowrap>
+        <Row>
+          <Col>
+            <FormikText label="Name" name="name" required />
+            <FormikText label="Abbreviation" name="code" required placeholder="A unique code" />
+            <FormikText label="Common Call" name="shortName" />
+            <FormikTextArea label="Description" name="description" />
+          </Col>
+          <Col>
+            <FormikSelect
+              label="Media Type"
+              name="mediaTypeId"
+              options={mediaTypes}
+              required
+              onChange={handleMediaTypeChange}
+            />
+            <FormikSelect label="License" name="licenseId" options={licenses} required />
+            <FormikSelect
+              label="Parent Data Source"
+              name="parentId"
+              options={sources}
+              placeholder="optional"
+              width={FieldSize.Medium}
+            />
+          </Col>
+          <Col>
+            <FormikCheckbox label="Enabled" name="isEnabled" />
+            <DataSourceActions />
+          </Col>
+          <Col>
+            <Connection />
+          </Col>
+        </Row>
         <DataSourceStatus />
       </Row>
     </styled.DataSourceDetails>

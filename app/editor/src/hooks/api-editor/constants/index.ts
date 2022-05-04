@@ -1,6 +1,7 @@
 export * from './ActionName';
 export * from './ContentStatus';
 export * from './ContentStatusName';
+export * from './ContentType';
 export * from './DataLocationType';
 export * from './DataLocationTypeName';
 export * from './DataSourceScheduleType';

@@ -3,6 +3,11 @@ import { IContentModel } from 'hooks/api-editor';
 
 import { IContentForm } from '../interfaces';
 
+/**
+ * Converts the api model into form values.
+ * @param model The model from the api.
+ * @returns A new instance of form values.
+ */
 export function toForm(model: IContentModel): IContentForm {
   // return form values in valid API format on submit of ContentForm
   // not utilized properly right now - update coming
@@ -34,6 +39,7 @@ export function toForm(model: IContentModel): IContentForm {
     tonePool: defaultTonePool
       ? new OptionItem(`${defaultTonePool.value}`, defaultTonePool.value)
       : undefined,
+    tonePools: model.tonePools ?? [],
     timeTrackings: model.timeTrackings ?? [],
     fileReferences: model.fileReferences ?? [],
     links: model.links ?? [],

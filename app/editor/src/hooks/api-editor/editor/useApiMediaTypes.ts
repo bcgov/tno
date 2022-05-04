@@ -18,7 +18,7 @@ export const useApiMediaTypes = (
 
   return {
     getMediaTypes: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<IMediaTypeModel[]>(`/editor/media/types`, config);
     },
   };

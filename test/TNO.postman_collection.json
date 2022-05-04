@@ -945,7 +945,7 @@
 			]
 		},
 		{
-			"name": "api-editor",
+			"name": "api",
 			"item": [
 				{
 					"name": "health",
@@ -990,6 +990,31 @@
 									"path": [
 										"health",
 										"env"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "auth",
+					"item": [
+						{
+							"name": "userinfo",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/auth/userinfo",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"auth",
+										"userinfo"
 									]
 								}
 							},
@@ -1086,7 +1111,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"raw": "{\r\n    \"valueLabel\": \"\",\r\n    \"valueType\": \"Boolean\",\r\n    \"defaultValue\": \"true\",\r\n    \"id\": 1,\r\n    \"name\": \"Alert\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"sortOrder\": 0,\r\n    \"createdOn\": \"2022-05-02T20:25:15.335111Z\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-05-02T20:25:15.335111Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"version\": 0\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3537,7 +3562,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=1&quantity=1000&sort=MediaTypeId asc",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=1&quantity=1000&sort=page&sort=PrintContent.section",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -3577,13 +3602,17 @@
 													"disabled": true
 												},
 												{
-													"key": "sort",
-													"value": "MediaTypeId asc"
-												},
-												{
 													"key": "createdStartOn",
 													"value": "2022-04-08T07%3A00%3A00.000Z",
 													"disabled": true
+												},
+												{
+													"key": "sort",
+													"value": "page"
+												},
+												{
+													"key": "sort",
+													"value": "PrintContent.section"
 												}
 											]
 										}
@@ -3610,7 +3639,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "2"
+													"value": "1"
 												}
 											]
 										}
@@ -3810,6 +3839,81 @@
 									"response": []
 								},
 								{
+									"name": ":id/upload",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "files",
+													"type": "file",
+													"src": "/C:/Users/jfoster/Downloads/cbra(3).xlsx"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents/:id/upload?version=3",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents",
+												":id",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "version",
+													"value": "3"
+												}
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": ":id/download",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents/:id/download",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"contents",
+												":id",
+												"download"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "update",
 									"protocolProfileBehavior": {
 										"disabledSystemHeaders": {}
@@ -3819,7 +3923,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"id\": 2,\r\n    \"status\": \"Publish\",\r\n    \"workflowStatus\": \"Received\",\r\n    \"contentTypeId\": 1,\r\n    \"contentType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Snippet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 4,\r\n    \"mediaType\": {\r\n        \"id\": 4,\r\n        \"name\": \"News Radio\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 1,\r\n    \"license\": {\r\n        \"id\": 1,\r\n        \"name\": \"Never Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"ownerId\": 2,\r\n    \"owner\": {\r\n        \"id\": 2,\r\n        \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n        \"username\": \"admin\",\r\n        \"email\": \"admin@local.com\",\r\n        \"displayName\": \"Administrator\",\r\n        \"firstName\": \"\",\r\n        \"lastName\": \"\",\r\n        \"isEnabled\": true,\r\n        \"emailVerified\": true\r\n    },\r\n    \"dataSourceId\": 88,\r\n    \"dataSource\": {\r\n        \"id\": 88,\r\n        \"name\": \"AV Archive\",\r\n        \"code\": \"ARCHIVE\",\r\n        \"shortName\": \"\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"dataLocationId\": 5,\r\n        \"mediaTypeId\": 15,\r\n        \"licenseId\": 3,\r\n        \"topic\": \"topic\",\r\n        \"connection\": \"{}\",\r\n        \"retryLimit\": 3,\r\n        \"failedAttempts\": 0\r\n    },\r\n    \"source\": \"ARCHIVE\",\r\n    \"headline\": \"second\",\r\n    \"uid\": \"\",\r\n    \"page\": \"c1\",\r\n    \"summary\": \"test story this is clearly really slow\",\r\n    \"transcription\": \"asdfasdf\",\r\n    \"sourceUrl\": \"\",\r\n    \"publishedOn\": \"2022-04-11T14:00:00.545Z\",\r\n    \"actions\": [\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"true\",\r\n            \"defaultValue\": \"true\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 1,\r\n            \"name\": \"Alert\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124272Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 2,\r\n            \"name\": \"Just In\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 3,\r\n            \"name\": \"Front Page\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124272Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 4,\r\n            \"name\": \"Top Story\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 5,\r\n            \"name\": \"On Ticker\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"true\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 6,\r\n            \"name\": \"Non Qualified Subject\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124273Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 2,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"Commentary Timeout\",\r\n            \"valueType\": \"String\",\r\n            \"id\": 7,\r\n            \"name\": \"Commentary\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124274Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"categories\": [\r\n        {\r\n            \"contentId\": 2,\r\n            \"score\": 54,\r\n            \"id\": 13,\r\n            \"name\": \"BC crime\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T15:02:39.124312Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T15:02:39.12209Z\",\r\n            \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n            \"updatedBy\": \"\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"tags\": [],\r\n    \"tonePools\": [\r\n        {\r\n            \"contentId\": 2,\r\n            \"ownerId\": 1,\r\n            \"value\": 5,\r\n            \"id\": 1,\r\n            \"name\": \"Default\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-11T17:05:28.116552Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-11T17:39:28.752397Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 1\r\n        }\r\n    ],\r\n    \"timeTrackings\": [],\r\n    \"fileReferences\": [],\r\n    \"links\": [],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-11T18:03:11.44442Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account\",\r\n    \"version\": 11,\r\n    \"otherSeries\": \"test3\"\r\n}",
+											"raw": "{\r\n    \"id\": 1,\r\n    \"status\": \"Publish\",\r\n    \"workflowStatus\": \"Received\",\r\n    \"contentTypeId\": 1,\r\n    \"contentType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Snippet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 5,\r\n    \"mediaType\": {\r\n        \"id\": 5,\r\n        \"name\": \"CC News\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 1,\r\n    \"license\": {\r\n        \"id\": 1,\r\n        \"name\": \"Never Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"ownerId\": 2,\r\n    \"owner\": {\r\n        \"id\": 2,\r\n        \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n        \"username\": \"admin\",\r\n        \"email\": \"admin@local.com\",\r\n        \"displayName\": \"Administrator\",\r\n        \"firstName\": \"\",\r\n        \"lastName\": \"\",\r\n        \"isEnabled\": true,\r\n        \"emailVerified\": true\r\n    },\r\n    \"source\": \"test\",\r\n    \"headline\": \"test\",\r\n    \"uid\": \"\",\r\n    \"page\": \"\",\r\n    \"summary\": \"test\",\r\n    \"transcription\": \"\",\r\n    \"sourceUrl\": \"\",\r\n    \"publishedOn\": \"2022-04-28T22:00:00.366Z\",\r\n    \"actions\": [\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"true\",\r\n            \"defaultValue\": \"true\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 1,\r\n            \"name\": \"Alert\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557214Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557214Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"true\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 2,\r\n            \"name\": \"Just In\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557405Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557405Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 3,\r\n            \"name\": \"Front Page\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557402Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557402Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 4,\r\n            \"name\": \"Top Story\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557411Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557411Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 5,\r\n            \"name\": \"On Ticker\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557409Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557409Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"\",\r\n            \"valueType\": \"Boolean\",\r\n            \"id\": 6,\r\n            \"name\": \"Non Qualified Subject\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557407Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557407Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"contentId\": 1,\r\n            \"value\": \"\",\r\n            \"defaultValue\": \"\",\r\n            \"valueLabel\": \"Commentary Timeout\",\r\n            \"valueType\": \"String\",\r\n            \"id\": 7,\r\n            \"name\": \"Commentary\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557413Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557413Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"categories\": [],\r\n    \"tags\": [],\r\n    \"tonePools\": [\r\n        {\r\n            \"contentId\": 1,\r\n            \"ownerId\": 1,\r\n            \"value\": -2,\r\n            \"id\": 1,\r\n            \"name\": \"Default\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": false,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-04-28T22:38:49.557415Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.557415Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"timeTrackings\": [],\r\n    \"fileReferences\": [\r\n        {\r\n            \"id\": 1,\r\n            \"contentId\": 1,\r\n            \"contentType\": \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\r\n            \"fileName\": \"test-1.xlsx\",\r\n            \"size\": 5364,\r\n            \"runningTime\": 0,\r\n            \"isUploaded\": false,\r\n            \"createdOn\": \"2022-04-28T22:38:49.875089Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-04-28T22:38:49.875089Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"links\": [],\r\n    \"createdOn\": \"2022-04-28T22:38:49.557417Z\",\r\n    \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n    \"createdBy\": \"admin\",\r\n    \"updatedOn\": \"2022-04-28T22:38:49.557417Z\",\r\n    \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n    \"updatedBy\": \"admin\",\r\n    \"version\": 0\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3891,11 +3995,76 @@
 						},
 						{
 							"name": "actions",
+							"item": [
+								{
+									"name": "actions",
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "If-None-Match",
+												"value": "fccccc39-7e02-4997-9f0c-ed0ae9498c68",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/actions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"actions"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "etag",
+									"request": {
+										"method": "HEAD",
+										"header": [
+											{
+												"key": "If-None-Match",
+												"value": "fccccc39-7e02-4997-9f0c-ed0ae9498c68",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/actions",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"actions"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "cache",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/actions",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/cache",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -3903,7 +4072,7 @@
 									"port": "{{port}}{{root-path}}",
 									"path": [
 										"editor",
-										"actions"
+										"cache"
 									]
 								}
 							},
@@ -4138,9 +4307,15 @@
 							"name": "data/sources",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "If-None-Match",
+										"value": "d41b032b-b10d-4063-9fe9-17c17fb47bd1",
+										"type": "text"
+									}
+								],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/data/sources?quantity=300&mediaTypeId=1",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/data/sources",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -4150,15 +4325,177 @@
 										"editor",
 										"data",
 										"sources"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "services",
+					"item": [
+						{
+							"name": "data/sources/:code",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:code",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"services",
+										"data",
+										"sources",
+										":code"
+									],
+									"variable": [
+										{
+											"key": "code",
+											"value": "CASTANEt"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "data/sources/for/media/type/:name",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/for/media/type/:name",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"services",
+										"data",
+										"sources",
+										"for",
+										"media",
+										"type",
+										":name"
+									],
+									"variable": [
+										{
+											"key": "name",
+											"value": "News Radio"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "data/sources/:id",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": 9,\r\n    \"name\": \"Castanet\",\r\n    \"code\": \"CASTANET\",\r\n    \"shortName\": \"\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"id\": 1,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"topic\": \"topic\",\r\n    \"connection\": {\r\n        \"url\": \"https://www.castanet.net/rss/topheadlines.xml\"\r\n    },\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"dataSourceSchedules\": [\r\n        {\r\n            \"dataSourceId\": 9,\r\n            \"scheduleId\": 1,\r\n            \"schedule\": {\r\n                \"id\": 1,\r\n                \"name\": \"test\",\r\n                \"description\": \"tes\",\r\n                \"isEnabled\": true,\r\n                \"scheduleType\": 0,\r\n                \"delayMS\": 1000,\r\n                \"repeat\": 0,\r\n                \"runOnWeekDays\": [\r\n                    0,\r\n                    2,\r\n                    4,\r\n                    8,\r\n                    16,\r\n                    32\r\n                ],\r\n                \"runOnMonths\": [\r\n                    0\r\n                ],\r\n                \"dayOfMonth\": 0,\r\n                \"createdOn\": \"2022-04-13T23:38:28.887698Z\",\r\n                \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n                \"createdBy\": \"admin\",\r\n                \"updatedOn\": \"2022-04-13T23:38:28.899004Z\",\r\n                \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n                \"updatedBy\": \"\",\r\n                \"version\": 0\r\n            }\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-14T04:21:05.520534Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"version\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:id",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"services",
+										"data",
+										"sources",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "content/references/:source",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references/:source?uid=https://www.castanet.net/news/Canada/366018/Canadian-troops-heading-to-Poland-to-help-Ukrainian-refugees",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"services",
+										"content",
+										"references",
+										":source"
 									],
 									"query": [
 										{
-											"key": "quantity",
-											"value": "300"
-										},
+											"key": "uid",
+											"value": "https://www.castanet.net/news/Canada/366018/Canadian-troops-heading-to-Poland-to-help-Ukrainian-refugees"
+										}
+									],
+									"variable": [
 										{
-											"key": "mediaTypeId",
-											"value": "1"
+											"key": "source",
+											"value": "CASTANET"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "content/references/:source",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"source\": \"CASTANET\",\r\n    \"uid\": \"https://www.castanet.net/news/BC/365935/Powerful-geomagnetic-storm-could-cause-dazzling-northern-lights-in-BC\",\r\n    \"workflowStatus\": 0,\r\n    \"offset\": -1,\r\n    \"partition\": -1,\r\n    \"topic\": \"topic\",\r\n    \"publishedOn\": \"2022-04-13T19:25:00Z\",\r\n    \"createdOn\": \"2022-04-14T00:10:27.843153Z\",\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-04-14T00:10:27.844311Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"version\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references/:source",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"services",
+										"content",
+										"references",
+										":source"
+									],
+									"variable": [
+										{
+											"key": "source",
+											"value": "CASTANET"
 										}
 									]
 								}
@@ -4539,26 +4876,6 @@
 							"response": []
 						}
 					]
-				},
-				{
-					"name": "userinfo",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/auth/userinfo",
-							"protocol": "{{scheme}}",
-							"host": [
-								"{{host}}"
-							],
-							"port": "{{port}}{{root-path}}",
-							"path": [
-								"auth",
-								"userinfo"
-							]
-						}
-					},
-					"response": []
 				},
 				{
 					"name": "root",

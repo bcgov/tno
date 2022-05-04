@@ -17,48 +17,64 @@ import * as styled from './styled';
 
 interface IScheduleContinuousProps {
   index: number;
-  message?: string;
 }
 
-export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, message }) => {
+export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index }) => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const { field } = useNamespace('schedules', index);
+  const delayMS = getIn(values, field('delayMS'), '');
 
-  const schedule = values.schedules.length > index ? values.schedules[index] : defaultSchedule;
-  const runOnWeekDays = getIn(values, field('runOnWeekDays'), ScheduleWeekDayName.NA);
+  React.useEffect(() => {
+    if (index >= values.schedules.length)
+      setFieldValue(`schedules[${index}]`, {
+        ...defaultSchedule(ScheduleTypeName.Continuous),
+        startAt: '00:00:00',
+        stopAt: '23:59:59',
+      });
+    else if (values.schedules[index].scheduleType !== ScheduleTypeName.Continuous) {
+      setFieldValue(`schedules[${index}]`, {
+        ...values.schedules[index],
+        scheduleType: ScheduleTypeName.Continuous,
+        startAt: '00:00:00',
+        stopAt: '23:59:59',
+        delayMS: '',
+      });
+    }
+  }, [field, index, setFieldValue, values]);
 
   return (
-    <styled.Schedule className="schedule">
-      <Col>
-        {message && <p>{message}</p>}
-        <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Continuous} />
-        <Row alignItems="center" nowrap>
-          <FormikText label="Name" name={field('name')} required />
-          <FormikCheckbox label="Enabled" name={field('isEnabled')} />
-        </Row>
-        <FormikTextArea label="Description" name={field('description')} />
-        <Row nowrap>
-          <p>Run service every</p>
-          <Text
-            name={field('delayMS')}
-            type="number"
-            required
-            width={FieldSize.Tiny}
-            value={schedule.delayMS / 1000}
-            min={1}
-            onChange={(e) => {
-              const value = Number(e.target.value) * 1000;
-              setFieldValue(field('delayMS'), value);
-            }}
-          />
-          <p>seconds, on the following days;</p>
-        </Row>
-        <Col>
+    <styled.ScheduleForm className="schedule">
+      <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Continuous} />
+      <Row>
+        <Col grow={2}>
+          <Row alignItems="center" nowrap>
+            <FormikText label="Name" name={field('name')} required />
+            <FormikCheckbox label="Enabled" name={field('isEnabled')} />
+          </Row>
+          <FormikTextArea label="Description" name={field('description')} />
+          <Row nowrap className="timing">
+            <Text
+              name={field('delayMS')}
+              label="Delay (seconds)"
+              type="number"
+              required
+              width={FieldSize.Tiny}
+              value={!!delayMS ? +delayMS / 1000 : ''}
+              min={1}
+              onChange={(e) => {
+                const value = Number(e.target.value) * 1000;
+                setFieldValue(field('delayMS'), value);
+              }}
+            />
+            <p>Control how often the service will perform an action.</p>
+          </Row>
+        </Col>
+        <Col grow={1}>
+          <label>Run On</label>
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Monday"
             name={field('runOnWeekDays')}
             value={ScheduleWeekDayName.Monday}
-            checked={runOnWeekDays.includes(ScheduleWeekDayName.Monday)}
           />
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Tuesday"
@@ -91,7 +107,7 @@ export const ScheduleContinuous: React.FC<IScheduleContinuousProps> = ({ index, 
             value={ScheduleWeekDayName.Sunday}
           />
         </Col>
-      </Col>
-    </styled.Schedule>
+      </Row>
+    </styled.ScheduleForm>
   );
 };

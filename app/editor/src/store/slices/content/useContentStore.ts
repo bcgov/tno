@@ -2,11 +2,11 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
+import { IContentModel, IPaged } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
-import { useDeepCompareEffect } from 'tno-core';
 
-import { init, storeFilter, storeFilterAdvanced } from '.';
+import { storeContent, storeFilter, storeFilterAdvanced } from '.';
 import { IContentState } from './interfaces';
 
 export interface IContentProps {
@@ -16,6 +16,7 @@ export interface IContentProps {
 export interface IContentStore {
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
+  storeContent: (content: IPaged<IContentModel>) => void;
 }
 
 export const useContentStore = (props?: IContentProps): [IContentState, IContentStore] => {
@@ -30,15 +31,12 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       storeFilterAdvanced: (filter: IContentListAdvancedFilter) => {
         dispatch(storeFilterAdvanced(filter));
       },
+      storeContent: (content: IPaged<IContentModel>) => {
+        dispatch(storeContent(content));
+      },
     }),
     [dispatch],
   );
-
-  useDeepCompareEffect(() => {
-    if (!state.initialized && props?.filter) {
-      dispatch(init(props?.filter));
-    }
-  }, [controller, props?.filter]);
 
   return [state, controller];
 };

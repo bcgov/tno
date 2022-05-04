@@ -1,4 +1,4 @@
-import { getFromLocalStorage } from '.';
+import { getFromLocalStorage } from 'utils';
 
 /**
  * Initialize values from local storage, or from the specified action.
@@ -11,12 +11,8 @@ export const initFromLocalStorage = async <T>(
   name: string,
   action: (value: T[]) => Promise<T[]>,
 ) => {
-  const value = getFromLocalStorage<T[]>(name, []);
-  const result = await action(value);
-  if (value !== result) localStorage.setItem(name, JSON.stringify(result));
+  const values = getFromLocalStorage<T[]>(name, []);
+  const result = await action(values);
+  if (values !== result) localStorage.setItem(name, JSON.stringify(result));
   return result;
-};
-
-export const genericFactory = <T>(type: new () => T): T => {
-  return new type();
 };

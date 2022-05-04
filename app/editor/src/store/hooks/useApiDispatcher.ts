@@ -4,9 +4,9 @@ import { useAppStore } from 'store/slices';
 export interface apiDispatcher<T> {
   (
     /**
-     * URL to identify this specific request.
+     * URL or name to identify this specific request.
      */
-    url: string,
+    name: string,
     /**
      * Callback that will make the request.
      */
@@ -18,15 +18,16 @@ export const useApiDispatcher = () => {
   const [, app] = useAppStore();
 
   return async <T>(
-    url: string,
+    name: string,
     request: () => Promise<AxiosResponse<T, any>>,
     response: ((response: AxiosResponse<T, any>) => void) | undefined = undefined,
   ) => {
     try {
-      app.addRequest(url);
+      app.addRequest(name);
       const res = await request();
       response?.(res);
       const data = res.data as T;
+
       return data;
     } catch (error) {
       // TODO: Capture error information.
@@ -45,7 +46,7 @@ export const useApiDispatcher = () => {
       });
       throw error;
     } finally {
-      app.removeRequest(url);
+      app.removeRequest(name);
     }
   };
 };

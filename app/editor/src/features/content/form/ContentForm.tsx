@@ -6,36 +6,50 @@ import {
   FormikHidden,
   FormikSelect,
   FormikText,
+  FormikTextArea,
 } from 'components/formik';
 import { Modal } from 'components/modal';
-import { ContentStatusName, IContentModel, IUserModel, ValueType } from 'hooks/api-editor';
+import {
+  ContentStatusName,
+  ContentType,
+  IContentModel,
+  IUserModel,
+  ValueType,
+} from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonVariant, Col, Row, Tab, Tabs, useKeycloakWrapper } from 'tno-core';
+import { Button, ButtonVariant, Col, Row, Show, Tab, Tabs, useKeycloakWrapper } from 'tno-core';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { ContentFormSchema } from '../validation';
-import { ContentActions, PropertiesContentForm } from '.';
+import { ContentActions, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { TranscriptContentForm } from './TranscriptContentForm';
 import { toForm, toModel } from './utils';
+
+export interface IContentFormProps {
+  /** The content type this form will create */
+  contentType?: ContentType;
+}
 
 /**
  * Content Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC = () => {
+export const ContentForm: React.FC<IContentFormProps> = ({ contentType = ContentType.Snippet }) => {
   const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries }] = useLookup();
-  const [, { getContent, addContent, updateContent, deleteContent, upload }] = useContent();
+  const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries, getUsers }] =
+    useLookup();
+  const [{ content: page }, { getContent, addContent, updateContent, deleteContent, upload }] =
+    useContent();
   const { isShowing, toggle } = useModal();
 
   const [active, setActive] = React.useState('properties');
@@ -45,21 +59,34 @@ export const ContentForm: React.FC = () => {
     ...defaultFormValues,
     id: parseInt(id ?? '0'),
   });
-  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
+  const [fetchingUsers, setFetchingUsers] = React.useState(false);
+
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id ?? 0;
+  const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
+  const enablePrev = indexPosition > 0;
+  const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
   React.useEffect(() => {
     setDataSourceOptions(getDataSourceOptions(dataSources));
   }, [dataSources]);
 
   React.useEffect(() => {
-    if (!!content.id) {
-      getContent(content.id).then((data) => setContent(toForm(data)));
-    }
-  }, [content.id, getContent]);
-
-  React.useEffect(() => {
     setMediaTypeOptions(getSortableOptions(mediaTypes));
   }, [mediaTypes]);
+
+  React.useEffect(() => {
+    if (!!id) {
+      getContent(+id).then((data) => setContent(toForm(data)));
+    }
+  }, [id, getContent]);
+
+  React.useEffect(() => {
+    // If for some reason the current user does not exist in the local list, go fetch a new list from the api.
+    if (!userId && !fetchingUsers) {
+      setFetchingUsers(true);
+      getUsers(true);
+    }
+  }, [fetchingUsers, getUsers, userId]);
 
   React.useEffect(() => {
     ReactTooltip.rebuild();
@@ -69,13 +96,15 @@ export const ContentForm: React.FC = () => {
     var contentResult: IContentModel | null = null;
     try {
       const originalId = values.id;
-      values.contentTypeId = 1; // TODO: This should be based on some logic.
-      values.ownerId = !content.id ? userId ?? 0 : values.ownerId; // TODO: This shouldn't change depending on who saves the content.
-      const model = toModel(
-        values,
-        tonePools.find((t) => t.name === 'Default'),
-      ); // TODO: Shouldn't need to do this every single time.
+      if (!values.id) {
+        // Only new content is initialized.
+        values.contentTypeId = contentType;
+        values.ownerId = userId;
+        const defaultTonePool = tonePools.find((t) => t.name === 'Default');
+        values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
+      }
 
+      const model = toModel(values);
       contentResult = !content.id ? await addContent(model) : await updateContent(model);
 
       // Now upload the file if it exists.
@@ -96,7 +125,10 @@ export const ContentForm: React.FC = () => {
       }
     } catch {
       // If the upload fails, we still need to update the form from the original update.
-      if (!!contentResult) setContent(toForm(contentResult));
+      if (!!contentResult) {
+        setContent(toForm(contentResult));
+        toast.error(`${contentResult.headline} file was not uploaded successfully.`);
+      }
     }
   };
 
@@ -115,6 +147,30 @@ export const ContentForm: React.FC = () => {
                 Back to List View
               </Row>
             </Button>
+            <Show visible={!!id}>
+              <Button
+                variant={ButtonVariant.secondary}
+                tooltip="Previous"
+                onClick={() => {
+                  const id = page?.items[indexPosition - 1]?.id;
+                  if (!!id) navigate(`/contents/${id}`);
+                }}
+                disabled={!enablePrev}
+              >
+                <FaChevronLeft />
+              </Button>
+              <Button
+                variant={ButtonVariant.secondary}
+                tooltip="Next"
+                onClick={() => {
+                  const id = page?.items[indexPosition + 1]?.id;
+                  if (!!id) navigate(`/contents/${id}`);
+                }}
+                disabled={!enableNext}
+              >
+                <FaChevronRight />
+              </Button>
+            </Show>
           </Row>
           <FormikForm
             onSubmit={handleSubmit}
@@ -132,64 +188,84 @@ export const ContentForm: React.FC = () => {
                       value={props.values.headline}
                     />
                     <Row>
-                      <Col>
-                        <FormikSelect
-                          name="dataSourceId"
-                          label="Source"
-                          value={
-                            dataSourceOptions.find(
-                              (mt) => mt.value === props.values.dataSourceId,
-                            ) ?? ''
+                      <FormikSelect
+                        name="dataSourceId"
+                        label="Source"
+                        value={
+                          dataSourceOptions.find((mt) => mt.value === props.values.dataSourceId) ??
+                          ''
+                        }
+                        onChange={(newValue: any) => {
+                          props.setFieldValue('dataSourceId', newValue.value);
+                          props.setFieldValue('source', newValue.label);
+                          const dataSource = dataSources.find((ds) => ds.id === newValue.value);
+                          if (!!dataSource) {
+                            props.setFieldValue('mediaTypeId', dataSource.mediaTypeId);
+                            props.setFieldValue('licenseId', dataSource.licenseId);
                           }
-                          onChange={(e: any) => {
-                            props.setFieldValue('dataSourceId', e.value);
-                            props.setFieldValue('source', e.label);
-                          }}
-                          width={FieldSize.Big}
-                          options={dataSourceOptions}
-                          required={!props.values.source}
-                          isDisabled={!!props.values.otherSource}
-                        />
-                        <FormikHidden name="source" />
-                      </Col>
-                      <Col>
-                        <FormikText
-                          width={FieldSize.Medium}
-                          name="otherSource"
-                          label="Other Source"
-                          onChange={(e) => {
-                            const value = e.currentTarget.value;
-                            props.setFieldValue('otherSource', value);
-                            props.setFieldValue('source', value);
-                            if (!!value) {
-                              props.setFieldValue('dataSourceId', undefined);
-                            }
-                          }}
-                          required={!!props.values.otherSource}
-                        />
-                      </Col>
+                        }}
+                        width={FieldSize.Big}
+                        options={dataSourceOptions}
+                        required={!props.values.source}
+                        isDisabled={!!props.values.otherSource}
+                      />
+                      <FormikHidden name="source" />
+                      <FormikText
+                        name="otherSource"
+                        label="Other Source"
+                        width={FieldSize.Medium}
+                        onChange={(e) => {
+                          const value = e.currentTarget.value;
+                          props.setFieldValue('otherSource', value);
+                          props.setFieldValue('source', value);
+                          if (!!value) {
+                            props.setFieldValue('dataSourceId', undefined);
+                          }
+                        }}
+                        required={!!props.values.otherSource}
+                      />
                     </Row>
-                    <FormikSelect
-                      name="mediaTypeId"
-                      value={
-                        mediaTypeOptions.find((mt) => mt.value === props.values.mediaTypeId) ?? ''
-                      }
-                      label="Media Type"
-                      options={mediaTypeOptions}
-                      required
-                    />
-                    <FormikText
-                      name="sourceURL"
-                      label="Source URL"
-                      tooltip="The URL to the original source story"
-                      onChange={(e) => {
-                        props.handleChange(e);
-                        if (!!props.values.uid && !!e.currentTarget.value)
-                          props.setFieldValue('uid', e.currentTarget.value);
-                        else props.setFieldValue('uid', '');
-                      }}
-                    />
+                    <Row>
+                      <Col grow={1}>
+                        <FormikSelect
+                          name="mediaTypeId"
+                          value={
+                            mediaTypeOptions.find((mt) => mt.value === props.values.mediaTypeId) ??
+                            ''
+                          }
+                          label="Media Type"
+                          options={mediaTypeOptions}
+                          required
+                        />
+                      </Col>
+                      <Show visible={contentType === ContentType.Print}>
+                        <Col grow={1}>
+                          <FormikText name="edition" label="Edition" />
+                        </Col>
+                      </Show>
+                    </Row>
                     <FormikHidden name="uid" />
+                    <Show visible={contentType === ContentType.Print}>
+                      <Row>
+                        <FormikText name="section" label="Section" required />
+                        <FormikText name="storyType" label="Story Type" required />
+                        <FormikText name="page" label="Page" />
+                      </Row>
+                      <FormikTextArea name="byline" label="By Line" required />
+                    </Show>
+                    <Show visible={contentType === ContentType.Snippet}>
+                      <FormikText
+                        name="sourceURL"
+                        label="Source URL"
+                        tooltip="The URL to the original source story"
+                        onChange={(e) => {
+                          props.handleChange(e);
+                          if (!!props.values.uid && !!e.currentTarget.value)
+                            props.setFieldValue('uid', e.currentTarget.value);
+                          else props.setFieldValue('uid', '');
+                        }}
+                      />
+                    </Show>
                   </Col>
                   <Col className="checkbox-column" flex="1 1 auto">
                     <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
@@ -216,32 +292,45 @@ export const ContentForm: React.FC = () => {
                   </Col>
                 </Row>
                 <Row>
-                  <Tabs
-                    tabs={
-                      <>
-                        <Tab
-                          label="Properties"
-                          onClick={() => setActive('properties')}
-                          active={active === 'properties'}
+                  <Show visible={contentType === ContentType.Snippet}>
+                    <Tabs
+                      tabs={
+                        <>
+                          <Tab
+                            label="Properties"
+                            onClick={() => setActive('properties')}
+                            active={active === 'properties'}
+                          />
+                          <Tab
+                            label="Transcript"
+                            onClick={() => setActive('transcript')}
+                            active={active === 'transcript'}
+                          />
+                        </>
+                      }
+                    >
+                      {active === 'properties' ? (
+                        <ContentSummaryForm
+                          content={content}
+                          setContent={setContent}
+                          contentType={contentType}
                         />
-                        <Tab
-                          label="Transcript"
-                          onClick={() => setActive('transcript')}
-                          active={active === 'transcript'}
-                        />
-                      </>
-                    }
-                  >
-                    {active === 'properties' ? (
-                      <PropertiesContentForm content={content} setContent={setContent} />
-                    ) : (
-                      <TranscriptContentForm />
-                    )}
-                  </Tabs>
+                      ) : (
+                        <ContentTranscriptForm />
+                      )}
+                    </Tabs>
+                  </Show>
+                  <Show visible={contentType === ContentType.Print}>
+                    <ContentSummaryForm
+                      content={content}
+                      setContent={setContent}
+                      contentType={contentType}
+                    />
+                  </Show>
                 </Row>
                 <Row style={{ marginTop: '2%' }}>
                   <Button style={{ marginRight: '4%' }} type="submit" disabled={props.isSubmitting}>
-                    {!content.id ? 'Create Snippet' : 'Update Snippet'}
+                    {!id ? 'Create Snippet' : 'Update Snippet'}
                   </Button>
                   <Button onClick={toggle} variant={ButtonVariant.danger}>
                     Remove Snippet

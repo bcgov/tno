@@ -5,6 +5,7 @@ import {
   IContentCategoryModel,
   IContentLinkModel,
   IContentTagModel,
+  IContentTonePoolModel,
   IFileReferenceModel,
   ITimeTrackingModel,
   WorkflowStatusName,
@@ -34,6 +35,7 @@ export interface IContentForm {
   tags: IContentTagModel[];
   tone: number | '';
   tonePool?: IOptionItem;
+  tonePools: IContentTonePoolModel[];
   timeTrackings: ITimeTrackingModel[];
   fileReferences: IFileReferenceModel[];
   file?: File | null;

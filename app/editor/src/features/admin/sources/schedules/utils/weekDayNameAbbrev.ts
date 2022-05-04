@@ -3,7 +3,12 @@ import { ScheduleWeekDayName } from 'hooks/api-editor';
 export const weekDayNameAbbrev = (
   value: string | string[] | ScheduleWeekDayName | ScheduleWeekDayName[],
 ) => {
-  var values = Array.isArray(value) ? value : value.split(',').map((v) => v.trim());
+  var values = Array.isArray(value)
+    ? value
+    : value
+        .split(',')
+        .map((v) => v.trim())
+        .filter((v) => v !== ScheduleWeekDayName.NA);
 
   if (
     values.includes(ScheduleWeekDayName.Sunday) &&
