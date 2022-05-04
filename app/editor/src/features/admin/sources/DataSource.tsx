@@ -1,11 +1,13 @@
 import { FormikForm } from 'components/formik';
+import { Modal } from 'components/modal';
+import { useModal } from 'hooks';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
-import { Outlet, useLocation, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDataSources } from 'store/hooks/admin';
-import { Button } from 'tno-core';
-import { Col } from 'tno-core/dist/components/flex';
+import { Button, ButtonVariant } from 'tno-core';
+import { Row } from 'tno-core/dist/components/flex';
 import { Tab, Tabs } from 'tno-core/dist/components/tabs';
 
 import { defaultDataSource } from './constants';
@@ -17,11 +19,13 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
   const [, api] = useDataSources();
   const { state } = useLocation();
   const { id } = useParams();
+  const { isShowing, toggle } = useModal();
 
   const sourceId = Number(id);
   const [source, setSource] = React.useState<IDataSourceModel>(
     (state as any)?.source ?? defaultDataSource,
   );
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     if (source?.id !== sourceId) {
@@ -66,9 +70,28 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
             }
           >
             <Outlet />
-            <Col alignContent="flex-start" alignItems="flex-end">
+            <Row justify="flex-end">
               <Button type="submit">Save</Button>
-            </Col>
+              <Button onClick={toggle} variant={ButtonVariant.danger}>
+                Remove Data Source
+              </Button>
+            </Row>
+            <Modal
+              headerText="Confirm Removal"
+              body="Are you sure you wish to remove this data source?"
+              isShowing={isShowing}
+              hide={toggle}
+              type="delete"
+              confirmText="Yes, Remove It"
+              onConfirm={async () => {
+                try {
+                  await api.deleteDataSource(source);
+                } finally {
+                  toggle();
+                  navigate('/admin/data/sources');
+                }
+              }}
+            />
           </Tabs>
         )}
       </FormikForm>
