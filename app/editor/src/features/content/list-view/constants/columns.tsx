@@ -8,6 +8,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     id: 'headline',
     Header: 'Headline',
     accessor: 'headline',
+    width: 300,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
@@ -25,6 +26,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'section',
     Header: 'Section/Page',
+    width: 125,
     accessor: (row) =>
       row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
     Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
@@ -32,17 +34,20 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'ownerId',
     Header: 'Username',
+    width: 125,
     accessor: (row) => row.owner?.displayName,
     Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
   },
   {
     id: 'status',
     Header: 'Status',
+    width: 100,
     accessor: (row) => row.status,
   },
   {
     id: 'createdOn',
     Header: 'Date',
+    width: 100,
     accessor: (row) => row.createdOn,
     Cell: ({ value }: any) => <Date value={value} />,
   },
@@ -50,6 +55,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     id: 'use',
     Header: 'Use',
     disableSortBy: true,
+    width: 50,
     accessor: (row) =>
       row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
     Cell: ({ value }: { value: boolean }) => {

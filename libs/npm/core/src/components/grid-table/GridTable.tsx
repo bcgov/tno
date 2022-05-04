@@ -6,6 +6,7 @@ import {
   useFilters,
   useGlobalFilter,
   usePagination,
+  useFlexLayout,
   useSortBy,
   useTable,
 } from 'react-table';
@@ -139,6 +140,7 @@ export const GridTable = <T extends object>({
     useGlobalFilter,
     useSortBy,
     usePagination,
+    useFlexLayout,
   );
   const {
     getTableProps,
