@@ -5,15 +5,17 @@ import {
   ScheduleWeekDayName,
 } from 'hooks/api-editor';
 
-export const defaultSchedule: IScheduleModel = {
+export const defaultSchedule = (
+  scheduleType: ScheduleTypeName,
+): Omit<IScheduleModel, 'delayMS'> & { delayMS: number | '' } => ({
   id: 0,
   name: '',
   description: '',
   isEnabled: true,
-  scheduleType: ScheduleTypeName.Continuous,
-  delayMS: 0,
+  scheduleType: scheduleType,
+  delayMS: '',
   repeat: 0,
   runOnWeekDays: ScheduleWeekDayName.NA,
   runOnMonths: ScheduleMonthName.NA,
   dayOfMonth: 0,
-};
+});

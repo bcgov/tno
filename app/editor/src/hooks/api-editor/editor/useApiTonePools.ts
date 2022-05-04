@@ -18,7 +18,7 @@ export const useApiTonePools = (
 
   return {
     getTonePools: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<ITonePoolModel[]>(`/editor/tone/pools`, config);
     },
   };

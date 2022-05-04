@@ -1,9 +1,14 @@
-import { IContentModel, ITimeTrackingModel, ITonePoolModel } from 'hooks/api-editor';
+import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
 import moment from 'moment';
 
 import { IContentForm } from '../interfaces';
 
-export function toModel(values: IContentForm, tonePool?: ITonePoolModel): IContentModel {
+/**
+ * Convert the form to a model so that it can be sent to the api.
+ * @param values The form values.
+ * @returns A model that can be sent to the api.
+ */
+export function toModel(values: IContentForm): IContentModel {
   // return form values in valid API format on submit of ContentForm
   // not utilized properly right now - update coming
   return {
@@ -34,7 +39,7 @@ export function toModel(values: IContentForm, tonePool?: ITonePoolModel): IConte
       container.effort = x.effort;
       return container;
     }),
-    tonePools: !!tonePool ? [{ ...tonePool, value: +values.tone }] : [],
+    tonePools: values.tonePools,
     fileReferences: values.fileReferences,
     links: values.links,
     printContent: !values.section

@@ -41,7 +41,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 
   React.useEffect(() => {
     // Make sure the available actions are all included in the content.
-    if (!!init && values.actions.length !== actions.length) {
+    if (!!init && !!actions.length && values.actions.length !== actions.length) {
       const defaultActions = [...values.actions];
       actions.forEach((action) => {
         const found = values.actions.find((va) => va.id === action.id);

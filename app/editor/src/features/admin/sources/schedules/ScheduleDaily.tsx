@@ -1,4 +1,4 @@
-import { FieldSize, TimeInput } from 'components/form';
+import { FieldSize, Text, TimeInput } from 'components/form';
 import {
   FormikCheckbox,
   FormikHidden,
@@ -12,49 +12,85 @@ import { IDataSourceModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/a
 import React from 'react';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
+import { defaultSchedule } from '../constants';
 import * as styled from './styled';
 
 interface IScheduleDailyProps {
   index: number;
-  message?: string;
+  scheduleType?: ScheduleTypeName;
 }
 
-export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({ index, message }) => {
+export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
+  index,
+  scheduleType = ScheduleTypeName.Daily,
+}) => {
   const { setFieldValue, values } = useFormikContext<IDataSourceModel>();
   const { field } = useNamespace('schedules', index);
+  const delayMS = getIn(values, field('delayMS'), '');
+
+  React.useEffect(() => {
+    if (index >= values.schedules.length)
+      setFieldValue(`schedules[${index}]`, defaultSchedule(scheduleType));
+    else if (values.schedules[index].scheduleType !== scheduleType) {
+      setFieldValue(`schedules[${index}]`, {
+        ...values.schedules[index],
+        scheduleType,
+        startAt: '',
+        stopAt: '',
+        delayMS: '',
+      });
+    }
+  }, [field, index, scheduleType, setFieldValue, values.schedules]);
 
   return (
-    <styled.Schedule className="schedule" alignItems="center">
-      <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Daily} />
-      <Col>
-        {message && <p>{message}</p>}
-        <Row alignItems="center" nowrap>
-          <FormikText label="Name" name={field('name')} required />
-          <FormikCheckbox label="Enabled" name={field('isEnabled')} />
-        </Row>
-        <FormikTextArea label="Description" name={field('description')} />
-        <Row nowrap>
-          <p>Start the service at</p>
-          <TimeInput
-            name={field('startAt')}
-            value={getIn(values, field('startAt'))}
-            width={FieldSize.Small}
-            onChange={(e: any) => setFieldValue(field('startAt'), e.target.value)}
-            placeholder="HH:MM:SS"
-            required
-          />
-          <p>and stop it at</p>
-          <TimeInput
-            name={field('stopAt')}
-            value={getIn(values, field('stopAt'))}
-            width={FieldSize.Small}
-            onChange={(e: any) => setFieldValue(field('stopAt'), e.target.value)}
-            placeholder="HH:MM:SS"
-            required
-          />
-          <p>on the following days;</p>
-        </Row>
-        <Col>
+    <styled.ScheduleForm className="schedule">
+      <FormikHidden name={field('scheduleType')} value={scheduleType} />
+      <Row>
+        <Col grow={2}>
+          <Row alignItems="center" nowrap>
+            <FormikText label="Name" name={field('name')} required />
+            <FormikCheckbox label="Enabled" name={field('isEnabled')} />
+          </Row>
+          <FormikTextArea label="Description" name={field('description')} />
+          <Row nowrap className="timing">
+            <p>Start the service at</p>
+            <TimeInput
+              name={field('startAt')}
+              value={getIn(values, field('startAt')) ?? ''}
+              width={FieldSize.Tiny}
+              onChange={(e: any) => setFieldValue(field('startAt'), e.target.value)}
+              placeholder="HH:MM:SS"
+              required
+            />
+            <p>and stop it at</p>
+            <TimeInput
+              name={field('stopAt')}
+              value={getIn(values, field('stopAt')) ?? ''}
+              width={FieldSize.Tiny}
+              onChange={(e: any) => setFieldValue(field('stopAt'), e.target.value)}
+              placeholder="HH:MM:SS"
+              required
+            />
+            <p>on the following days;</p>
+          </Row>
+          <Row>
+            <Text
+              name={field('delayMS')}
+              label="Delay (seconds)"
+              type="number"
+              required
+              width={FieldSize.Tiny}
+              value={!!delayMS ? +delayMS / 1000 : ''}
+              min={1}
+              onChange={(e) => {
+                const value = Number(e.target.value) * 1000;
+                setFieldValue(field('delayMS'), value);
+              }}
+            />
+            <p>Control how often the service will perform an action.</p>
+          </Row>
+        </Col>
+        <Col grow={1}>
           <FormikStringEnumCheckbox<ScheduleWeekDayName>
             label="Monday"
             name={field('runOnWeekDays')}
@@ -91,7 +127,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({ index, message })
             value={ScheduleWeekDayName.Sunday}
           />
         </Col>
-      </Col>
-    </styled.Schedule>
+      </Row>
+    </styled.ScheduleForm>
   );
 };

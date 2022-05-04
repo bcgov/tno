@@ -18,7 +18,7 @@ export const useApiLicenses = (
 
   return {
     getLicenses: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<ILicenseModel[]>(`/editor/licenses`, config);
     },
   };

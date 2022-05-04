@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Primitives;
 using TNO.DAL.Services;
 
 namespace TNO.API.Filters;
@@ -48,7 +49,7 @@ public class ETagCacheTableFilterAttribute : ActionFilterAttribute
             var etag = context.HttpContext.Request.Headers.IfNoneMatch;
             var cache = cacheService.FindById(this.Key);
             this.Value = cache?.Value;
-            if (cache != null && cache.Value == etag)
+            if (cache != null && etag != StringValues.Empty && cache.Value == etag)
             {
                 context.HttpContext.Response.Headers.ETag = this.Value;
                 context.Result = new StatusCodeResult((int)HttpStatusCode.NotModified);

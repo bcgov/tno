@@ -4,12 +4,11 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { LogicalOperator } from 'hooks/api-editor';
+import { IContentModel, IPaged, LogicalOperator } from 'hooks/api-editor';
 
 import { IContentState } from './interfaces';
 
 export const initialContentState: IContentState = {
-  initialized: false,
   filter: {
     pageIndex: 0,
     pageSize: 10,
@@ -35,17 +34,16 @@ export const contentSlice = createSlice({
   name: 'content',
   initialState: initialContentState,
   reducers: {
-    init(state: IContentState, action: PayloadAction<IContentListFilter>) {
-      state.filter = action.payload;
-      state.initialized = true;
-    },
     storeFilter(state: IContentState, action: PayloadAction<IContentListFilter>) {
       state.filter = action.payload;
     },
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
     },
+    storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel>>) {
+      state.content = action.payload;
+    },
   },
 });
 
-export const { init, storeFilter, storeFilterAdvanced } = contentSlice.actions;
+export const { storeFilter, storeFilterAdvanced, storeContent } = contentSlice.actions;

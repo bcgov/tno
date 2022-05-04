@@ -8,6 +8,7 @@ export * from './loading';
 export * from './menu';
 export * from './navbar';
 export * from './section';
+export * from './show';
 export * from './spinners';
 export * from './tabs';
 export * from './user-menu';

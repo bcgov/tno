@@ -6,12 +6,12 @@ import * as styled from './styled';
 
 /**
  * The component to be displayed when the transcript tab is selected from the content form.
- * @returns the TranscriptContentForm
+ * @returns the ContentTranscriptForm
  */
-export const TranscriptContentForm: React.FC = () => {
+export const ContentTranscriptForm: React.FC = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   return (
-    <styled.TranscriptContentForm>
+    <styled.ContentTranscriptForm>
       <FormikTextArea
         name="transcription"
         label="Transcript"
@@ -19,6 +19,6 @@ export const TranscriptContentForm: React.FC = () => {
         onChange={(e: any) => setFieldValue('transcription', e.target.value)}
         style={{ width: '1000px', height: '500px' }}
       />
-    </styled.TranscriptContentForm>
+    </styled.ContentTranscriptForm>
   );
 };

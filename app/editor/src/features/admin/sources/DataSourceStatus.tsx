@@ -23,7 +23,7 @@ export const DataSourceStatus: React.FC = (props) => {
               setFieldValue('failedAttempts', 0);
             }}
           >
-            Reset Failures
+            Reset
           </Button>
         </FormikText>
       </Row>

@@ -18,7 +18,7 @@ export const useApiSourceActions = (
 
   return {
     getActions: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<ISourceActionModel[]>(`/editor/source/actions`, config);
     },
   };

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
 
-export const TranscriptContentForm = styled.div`
+export const ContentTranscriptForm = styled.div`
   margin: 1em;
 `;

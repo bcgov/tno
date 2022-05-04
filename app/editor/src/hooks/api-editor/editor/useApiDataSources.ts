@@ -18,7 +18,7 @@ export const useApiDataSources = (
 
   return {
     getDataSources: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<IDataSourceModel[]>(`/editor/data/sources`, config);
     },
   };

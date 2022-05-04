@@ -18,7 +18,7 @@ export const useApiSeries = (
 
   return {
     getSeries: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<ISeriesModel[]>(`/editor/series`, config);
     },
   };

@@ -34,6 +34,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
     },
     findContent: async (filter: IContentFilter) => {
       const result = await dispatch('find-contents', () => api.findContent(filter));
+      actions.storeContent(result);
       return result;
     },
     addContent: async (content: IContentModel) => {

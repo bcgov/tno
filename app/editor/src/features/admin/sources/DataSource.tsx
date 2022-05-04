@@ -5,6 +5,7 @@ import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useLookup } from 'store/hooks';
 import { useDataSources } from 'store/hooks/admin';
 import { Button, ButtonVariant } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
@@ -20,6 +21,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
   const { state } = useLocation();
   const { id } = useParams();
   const { isShowing, toggle } = useModal();
+  const [, { getDataSources }] = useLookup();
 
   const sourceId = Number(id);
   const [source, setSource] = React.useState<IDataSourceModel>(
@@ -42,6 +44,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
         parentId: values.parentId ? values.parentId : undefined,
       });
       setSource({ ...data, parentId: data.parentId ? data.parentId : 0 });
+      getDataSources();
       toast.success(`${data.name} has successfully been saved.`);
     } catch {}
   };
@@ -59,7 +62,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
           setSubmitting(false);
         }}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+        {({ isSubmitting }) => (
           <Tabs
             tabs={
               <>
@@ -70,10 +73,12 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
             }
           >
             <Outlet />
-            <Row justify="flex-end">
-              <Button type="submit">Save</Button>
-              <Button onClick={toggle} variant={ButtonVariant.danger}>
-                Remove Data Source
+            <Row justify="flex-end" className="form-actions">
+              <Button type="submit" disabled={isSubmitting}>
+                Save
+              </Button>
+              <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                Delete
               </Button>
             </Row>
             <Modal

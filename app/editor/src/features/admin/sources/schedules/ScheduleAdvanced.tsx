@@ -1,4 +1,3 @@
-import { FormikHidden } from 'components/formik';
 import { setIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, IScheduleModel, ScheduleTypeName } from 'hooks/api-editor';
@@ -23,13 +22,22 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
   const [index, setIndex] = React.useState<number>();
   const [schedule, setSchedule] = React.useState<IScheduleModel>();
 
+  React.useEffect(() => {
+    if (values.schedules.some((s) => s.scheduleType !== ScheduleTypeName.Advanced)) {
+      setFieldValue(
+        'schedules',
+        values.schedules.filter((s) => s.scheduleType === ScheduleTypeName.Advanced),
+      );
+    }
+  }, [setFieldValue, values.schedules]);
+
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    setFieldValue(`schedules`, [...values.schedules, defaultSchedule]);
+    setFieldValue('schedules', [...values.schedules, defaultSchedule(ScheduleTypeName.Advanced)]);
     setIndex(values.schedules.length);
   };
 
   const handleDone = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (!!index) {
+    if (index !== undefined) {
       try {
         // TODO: Validation doesn't work.
         await ScheduleSchema.validate(values.schedules[index], { abortEarly: false });
@@ -58,8 +66,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
   };
 
   return (
-    <styled.Schedule className="schedule" alignItems="center">
-      <FormikHidden name={field('scheduleType')} value={ScheduleTypeName.Advanced} />
+    <styled.ScheduleForm className="schedule">
       <GridTable
         className="schedules"
         columns={columns}
@@ -71,12 +78,18 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
         paging={{ showPaging: false }}
       ></GridTable>
       <Col className="actions">
-        {index !== undefined && <ScheduleDaily index={index} />}
+        {index !== undefined && (
+          <ScheduleDaily index={index} scheduleType={ScheduleTypeName.Advanced} />
+        )}
         <Row alignItems="flex-end" style={{ marginLeft: 'auto' }}>
-          {index === undefined && <Button onClick={handleAdd}>Add</Button>}
+          {index === undefined && (
+            <Button onClick={handleAdd} variant={ButtonVariant.secondary}>
+              Add
+            </Button>
+          )}
           {index !== undefined && (
-            <Button onClick={handleDone}>
-              {values.schedules[index].id === 0 ? 'Add' : 'Update'}
+            <Button onClick={handleDone} variant={ButtonVariant.secondary}>
+              Done
             </Button>
           )}
           {index !== undefined && (
@@ -84,13 +97,13 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
               Remove
             </Button>
           )}
-          {index !== undefined && (
+          {index !== undefined && values.schedules[index].id !== 0 && (
             <Button variant={ButtonVariant.secondary} onClick={handleCancel}>
               Cancel
             </Button>
           )}
         </Row>
       </Col>
-    </styled.Schedule>
+    </styled.ScheduleForm>
   );
 };

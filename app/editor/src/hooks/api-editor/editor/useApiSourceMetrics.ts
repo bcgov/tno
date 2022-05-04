@@ -18,7 +18,7 @@ export const useApiSourceMetrics = (
 
   return {
     getMetrics: (etag: string | undefined = undefined) => {
-      const config = !!etag ? { headers: { 'If-None-Match': etag } } : undefined;
+      const config = { headers: { 'If-None-Match': etag ?? '' } };
       return api.get<ISourceMetricModel[]>(`/editor/source/metrics`, config);
     },
   };
