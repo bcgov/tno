@@ -20,6 +20,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'mediaType',
     Header: 'Type',
+    width: 125,
     accessor: (row) => row.mediaType?.name,
     Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
   },
