@@ -109,42 +109,6 @@ public class ContentFileReference : IReadonlyFileReference
     #region Constructors
     /// <summary>
     /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
-    /// Use this to update an existing FileReference.
-    /// Only use this contructor when the 'content' already exists in the database.
-    /// </summary>
-    /// <param name="fileReference"></param>
-    /// <param name="file"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public ContentFileReference(FileReference fileReference, IFormFile file)
-    {
-        this.Content = fileReference?.Content ?? throw new ArgumentNullException(nameof(fileReference), "Parameter 'fileReference' and 'fileReference.Content' cannot be null");
-        this.ContentId = fileReference.ContentId;
-        this.ContentVersion = fileReference.Content.Version;
-
-        this.File = file ?? throw new ArgumentNullException(nameof(file));
-        this.Id = fileReference.Id;
-        this.FileName = file.FileName;
-        this.Path = GenerateFileName(this.Content, file);
-        this.ContentType = file.ContentType;
-        this.Size = file.Length;
-        this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
-        this.CreatedBy = fileReference.CreatedBy;
-        this.CreatedById = fileReference.CreatedById;
-        this.CreatedOn = fileReference.CreatedOn;
-        this.UpdatedBy = fileReference.UpdatedBy;
-        this.UpdatedById = fileReference.UpdatedById;
-        this.UpdatedOn = fileReference.UpdatedOn;
-        this.Version = fileReference.Version;
-
-        fileReference.FileName = this.FileName;
-        fileReference.Path = this.Path;
-        fileReference.Size = this.Size;
-        fileReference.ContentType = this.ContentType;
-        this.FileReference = fileReference;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
     /// Use this to create a new FileReference.
     /// Only use this contructor when the 'content' already exists in the database.
     /// </summary>
@@ -158,7 +122,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.ContentVersion = content.Version;
 
         this.File = file ?? throw new ArgumentNullException(nameof(file));
-        this.Path = GenerateFileName(content, file);
+        this.Path = GenerateFilePath(content, file);
         this.FileName = file.FileName;
         this.ContentType = file.ContentType;
         this.Size = file.Length;
@@ -177,9 +141,57 @@ public class ContentFileReference : IReadonlyFileReference
             RunningTime = this.RunningTime
         };
     }
+
+    /// <summary>
+    /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
+    /// Use this to update an existing FileReference.
+    /// Only use this contructor when the 'content' already exists in the database.
+    /// </summary>
+    /// <param name="fileReference"></param>
+    /// <param name="file"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ContentFileReference(FileReference fileReference, IFormFile file)
+    {
+        this.Content = fileReference?.Content ?? throw new ArgumentNullException(nameof(fileReference), "Parameter 'fileReference' and 'fileReference.Content' cannot be null");
+        this.ContentId = fileReference.ContentId;
+        this.ContentVersion = fileReference.Content.Version;
+
+        this.File = file ?? throw new ArgumentNullException(nameof(file));
+        this.Id = fileReference.Id;
+        this.FileName = file.FileName;
+        this.Path = GenerateFilePath(this.Content, file);
+        this.ContentType = file.ContentType;
+        this.Size = file.Length;
+        this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
+        this.CreatedBy = fileReference.CreatedBy;
+        this.CreatedById = fileReference.CreatedById;
+        this.CreatedOn = fileReference.CreatedOn;
+        this.UpdatedBy = fileReference.UpdatedBy;
+        this.UpdatedById = fileReference.UpdatedById;
+        this.UpdatedOn = fileReference.UpdatedOn;
+        this.Version = fileReference.Version;
+
+        fileReference.FileName = this.FileName;
+        fileReference.Path = this.Path;
+        fileReference.Size = this.Size;
+        fileReference.ContentType = this.ContentType;
+        this.FileReference = fileReference;
+    }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Generate the file path and name.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public static string GenerateFilePath(Content content, IFormFile file)
+    {
+        var fileName = GenerateFileName(content, file);
+        return System.IO.Path.Combine(content.Source, fileName);
+    }
+
     /// <summary>
     /// Generate a unique name based on the content information.
     /// </summary>
@@ -200,7 +212,15 @@ public class ContentFileReference : IReadonlyFileReference
     /// <param name="obj"></param>
     public static explicit operator FileReference(ContentFileReference obj)
     {
-        return obj.FileReference;
+        var fileReference = obj.FileReference;
+        fileReference.FileName = obj.FileName;
+        fileReference.Path = obj.Path;
+        fileReference.Size = obj.Size;
+        fileReference.RunningTime = obj.RunningTime;
+        fileReference.ContentType = obj.ContentType;
+        fileReference.IsUploaded = obj.IsUploaded;
+        fileReference.Version = obj.Version;
+        return fileReference;
     }
     #endregion
 }

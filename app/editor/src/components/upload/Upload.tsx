@@ -103,7 +103,7 @@ export const Upload: React.FC<IUploadProps> = ({
         hide={toggle}
         type="delete"
         headerText="Confirm Removal"
-        body="Are you sure you want to remove this file?"
+        body="Are you sure you want to remove this file?  You will still need to save before it is deleted."
         confirmText="Yes, Remove It"
         onConfirm={() => {
           if (!!fileRef.current) {

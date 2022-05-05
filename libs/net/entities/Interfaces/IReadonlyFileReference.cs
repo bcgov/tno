@@ -13,6 +13,8 @@ public interface IReadonlyFileReference : IReadonlyAuditColumns
 
     string FileName { get; }
 
+    string Path { get; }
+
     long Size { get; }
 
     long RunningTime { get; }
