@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -20,14 +20,10 @@ let axiosInstances = {
 /**
  * useSummon hook properties.
  */
-export interface ISummonProps {
+export interface ISummonProps extends AxiosRequestConfig<any> {
   lifecycleToasts?: ILifecycleToasts;
   selector?: Function;
   envelope?: typeof defaultEnvelope;
-  /**
-   * The base URL all requests will use.
-   */
-  baseURL?: string;
 }
 
 /**
@@ -39,6 +35,7 @@ export const useSummon = ({
   selector,
   envelope = defaultEnvelope,
   baseURL,
+  ...rest
 }: ISummonProps = {}) => {
   const state = React.useContext(SummonContext);
   let loadingToastId: React.ReactText | undefined = undefined;
@@ -49,8 +46,10 @@ export const useSummon = ({
 
   if (instance.current === undefined) {
     const summon = axios.create({
+      ...rest,
       baseURL,
       headers: {
+        ...rest.headers,
         'Access-Control-Allow-Origin': '*',
       },
     });

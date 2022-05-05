@@ -127,7 +127,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       // If the upload fails, we still need to update the form from the original update.
       if (!!contentResult) {
         setContent(toForm(contentResult));
-        toast.error(`${contentResult.headline} file was not uploaded successfully.`);
         if (!originalId) navigate(`/contents/${contentResult.id}`);
       }
     }
@@ -197,9 +196,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                           ''
                         }
                         onChange={(newValue: any) => {
-                          props.setFieldValue('dataSourceId', newValue.value);
-                          props.setFieldValue('source', newValue.label);
                           const dataSource = dataSources.find((ds) => ds.id === newValue.value);
+                          props.setFieldValue('dataSourceId', newValue.value);
+                          props.setFieldValue('source', dataSource?.code ?? '');
                           if (!!dataSource) {
                             props.setFieldValue('mediaTypeId', dataSource.mediaTypeId);
                             props.setFieldValue('licenseId', dataSource.licenseId);

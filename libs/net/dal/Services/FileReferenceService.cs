@@ -47,11 +47,9 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// <returns></returns>
     public FileStream Download(FileReference entity)
     {
-        // TODO: Don't allow users to manually set paths to a location.
-        var filePath = $"{entity.GetFilePath(this.Context, _storageConfig)}{entity.Path}";
-        var stream = System.IO.File.OpenRead(filePath);
-
-        return stream;
+        // TODO: Handle different data locations.
+        var path = entity.GetFilePath(this.Context, _storageConfig);
+        return File.OpenRead(path);
     }
 
     /// <summary>
@@ -63,31 +61,25 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     {
         // TODO: Handle different data locations.
         var path = model.GetFilePath(this.Context, _storageConfig);
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
+        var directory = Path.GetDirectoryName(path);
+        if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
 
         if (model.File?.Length > 0)
         {
-            // TODO: Don't allow user to overwrite the generated filename as this will result in unexpected results.
-            var filePath = $"{path}{model.Path}";
-            using var stream = System.IO.File.Open(filePath, FileMode.Create);
+            using var stream = File.Open(path, FileMode.Create);
             await model.File.CopyToAsync(stream);
             model.IsUploaded = true;
         }
 
+        var entity = (FileReference)model;
         if (model.Id == 0)
-        {
-            this.Context.Add((FileReference)model);
-        }
+            this.Context.Add(entity);
         else
-        {
-            this.Context.Update((FileReference)model);
-        }
+            this.Context.Update(entity);
 
         this.Context.CommitTransaction();
-        return (FileReference)model;
+        return entity;
     }
 
     /// <summary>
@@ -97,10 +89,10 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     public override void Delete(FileReference entity)
     {
         // TODO: Handle different data locations.
-        var filePath = $"{entity.GetFilePath(this.Context, _storageConfig)}{entity.Path}";
-        if (File.Exists(filePath))
+        var path = entity.GetFilePath(this.Context, _storageConfig);
+        if (File.Exists(path))
         {
-            File.Delete(filePath);
+            File.Delete(path);
         }
 
         base.Delete(entity);
