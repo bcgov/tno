@@ -75,7 +75,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   }, [mediaTypes]);
 
   React.useEffect(() => {
-    if (!!id) {
+    if (!!id && +id > 0) {
       getContent(+id).then((data) => setContent(toForm(data)));
     }
   }, [id, getContent]);
@@ -94,8 +94,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
 
   const handleSubmit = async (values: IContentForm) => {
     var contentResult: IContentModel | null = null;
+    const originalId = values.id;
     try {
-      const originalId = values.id;
       if (!values.id) {
         // Only new content is initialized.
         values.contentTypeId = contentType;
@@ -117,7 +117,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
 
       toast.success(`${contentResult.headline} has successfully been saved.`);
 
-      if (!!originalId) navigate(`/contents/${contentResult.id}`);
+      if (!originalId) navigate(`/contents/${contentResult.id}`);
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
         const newSeries = series.find((s) => s.id === contentResult?.seriesId);
@@ -128,6 +128,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       if (!!contentResult) {
         setContent(toForm(contentResult));
         toast.error(`${contentResult.headline} file was not uploaded successfully.`);
+        if (!originalId) navigate(`/contents/${contentResult.id}`);
       }
     }
   };
@@ -270,7 +271,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                   <Col className="checkbox-column" flex="1 1 auto">
                     <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
                       <FormikCheckbox
-                        className="chk"
                         name="publish"
                         label="Publish"
                         checked={
