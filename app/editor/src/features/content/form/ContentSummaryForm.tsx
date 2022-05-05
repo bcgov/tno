@@ -88,7 +88,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 options={seriesOptions}
                 isDisabled={!!values.otherSeries}
                 onChange={(e) => {
-                  handleChange(e);
                   setFieldValue('otherSeries', '');
                 }}
               />
@@ -105,7 +104,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                   const found = series.find(
                     (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
                   );
-                  if (found) {
+                  if (!!found) {
                     setFieldValue('seriesId', found.id);
                     setFieldValue('otherSeries', '');
                   }

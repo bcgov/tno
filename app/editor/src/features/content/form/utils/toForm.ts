@@ -31,7 +31,7 @@ export function toForm(model: IContentModel): IContentForm {
     ownerId: model.ownerId,
     seriesId: model.seriesId,
     otherSeries: '',
-    publishedOn: model.publishedOn ? model.publishedOn.toString() : '',
+    publishedOn: model.publishedOn?.toString() ?? '',
     actions: model.actions ?? [],
     categories: model.categories ?? [],
     tags: model.tags ?? [],
