@@ -27,7 +27,7 @@ export const MediaTypeFilter: React.FC<IMediaTypeFilterProps> = ({ setGlobalFilt
             setFilter(e.target.value);
             setGlobalFilter(e.target.value);
           }}
-          placeholder="Seach by keyword"
+          placeholder="Search by keyword"
           name="search"
           value={filter}
         />
