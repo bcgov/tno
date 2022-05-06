@@ -31,7 +31,6 @@ public class MediaTypeController : ControllerBase
 {
     #region Variables
     private readonly IMediaTypeService _service;
-    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -39,11 +38,9 @@ public class MediaTypeController : ControllerBase
     /// Creates a new instance of a MediaTypeController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    /// <param name="serializerOptions"></param>
-    public MediaTypeController(IMediaTypeService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public MediaTypeController(IMediaTypeService service)
     {
         _service = service;
-        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 

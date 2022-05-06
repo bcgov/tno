@@ -3,9 +3,15 @@ import styled from 'styled-components';
 
 export const DataSourceList = styled(FormPage)`
   .filter {
-    button {
-      margin-top: auto;
-      margin-bottom: 0.5em;
+    display: flex;
+    align-items: center;
+    input {
+      margin-top: 3.5%;
     }
+    button {
+      background-color: white;
+    }
+    margin-top: 3%;
+    background-color: #f5f5f5;
   }
 `;

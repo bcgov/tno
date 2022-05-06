@@ -1,3 +1,4 @@
+import { IconButton } from 'components/form';
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
@@ -51,6 +52,12 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
 
   return (
     <styled.DataSource>
+      <IconButton
+        iconType="back"
+        label="Back to Sources"
+        className="back-button"
+        onClick={() => navigate('/admin/data/sources')}
+      />
       <FormikForm
         initialValues={source}
         validate={(values) => {

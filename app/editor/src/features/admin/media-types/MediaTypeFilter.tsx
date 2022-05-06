@@ -17,7 +17,7 @@ export const MediaTypeFilter: React.FC<IMediaTypeFilterProps> = ({ setGlobalFilt
       <Row className="add-media" justify="flex-end">
         <IconButton
           iconType="plus"
-          label="Add New Media Source"
+          label="Add New Media Type"
           onClick={() => navigate(NEW_MEDIA_TYPE_ROUTE)}
         />
       </Row>
