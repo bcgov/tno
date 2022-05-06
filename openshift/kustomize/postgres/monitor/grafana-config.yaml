@@ -3,6 +3,13 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: grafana-config
+  labels:
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
 data:
   grafana.ini: |+
     [auth]

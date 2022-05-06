@@ -7,7 +7,6 @@ resources:
   - ../../base
 
 patches:
-  - deploy.yaml
   # - target:
   #     kind: PostgresCluster
   #     name: .*

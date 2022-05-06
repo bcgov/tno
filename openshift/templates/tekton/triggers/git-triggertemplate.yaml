@@ -8,25 +8,19 @@ metadata:
     tags: git,trigger,tekton
 
 parameters:
-  - name: SOLUTION_NAME
-    displayName: Solution Name
-    description: The name of the solution.
-    required: true
-    value: tno
   - name: APP_NAME
     displayName: Application Name
     description: The name of the application.
     required: true
-    value: app-editor
+    value: editor
 
 objects:
   # Create a pipeline run object.
   - apiVersion: triggers.tekton.dev/v1alpha1
     kind: TriggerTemplate
     metadata:
-      name: git-${SOLUTION_NAME}-${APP_NAME}
-      solution: ${SOLUTION_NAME}
-      app: ${APP_NAME}
+      name: git-${APP_NAME}
+      component: ${APP_NAME}
     spec:
       params:
         - name: GIT_SOURCE
@@ -34,21 +28,20 @@ objects:
         - name: VERSION
           description: The version to tag the image with
         - name: DEPLOY_TO
-          description: The environment to depoloy to
+          description: The environment to deploy to
       resourcetemplates:
         - apiVersion: tekton.dev/v1beta1
           kind: PipelineRun
           metadata:
-            generateName: ${SOLUTION_NAME}-${APP_NAME}-$(tt.params.VERSION)-
+            generateName: ${APP_NAME}-$(tt.params.VERSION)-
             labels:
-              name: ${SOLUTION_NAME}-${APP_NAME}-$(tt.params.VERSION)
-              solution: ${SOLUTION_NAME}
-              app: ${APP_NAME}
+              name: ${APP_NAME}-$(tt.params.VERSION)
+              component: ${APP_NAME}
               version: $(tt.params.VERSION)
-              tekton.dev/pipeline: tno-pipeline
+              tekton.dev/pipeline: full-pipeline
           spec:
             pipelineRef:
-              name: tno-pipeline
+              name: full-pipeline
             serviceAccountName: pipeline
             timeout: 0h45m0s
             params:

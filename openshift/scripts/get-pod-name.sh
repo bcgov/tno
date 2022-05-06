@@ -6,7 +6,7 @@ die () {
 }
 
 if [ ! $1 ]; then
-  die "First argument require to specify the label [name=?]."
+  die "First argument require to specify the label [?=?]."
 fi
 
-oc get pod -l name=$1 --no-headers -o custom-columns=POD:.metadata.name
+oc get pod -l $1 --no-headers -o custom-columns=POD:.metadata.name

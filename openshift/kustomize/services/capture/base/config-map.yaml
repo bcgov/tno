@@ -1,0 +1,22 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: capture-service
+  namespace: default
+  annotations:
+    description: Audio Capture service configuration settings
+  labels:
+    name: capture-service
+    part-of: tno
+    version: 1.0.0
+    component: capture-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+type: Opaque
+data:
+  KAFKA_CLIENT_ID: audio-capture
+  KAFKA_LOGS_TOPIC: logs-audio-capture
+  MAX_FAILED_ATTEMPTS: "5"
+  DATA_SOURCE_MEDIA_TYPE: News Radio

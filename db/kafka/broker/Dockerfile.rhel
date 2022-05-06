@@ -1,15 +1,17 @@
-FROM confluentinc/cp-kafka:7.0.3
+FROM confluentinc/cp-kafka:7.1.1
 
-# Fix Openshift logging permission issue
 USER root
 
 RUN chgrp -R root /var/log/kafka && \
   chmod -R g=u /var/log/kafka
 
-RUN chown -R appuser:root /var/log/kafka /var/log/confluent
+WORKDIR /app
+COPY ./entrypoint.sh .
+RUN chmod +x entrypoint.sh
+RUN chown -R appuser:root /var/log/kafka /var/log/confluent /var/lib/kafka/data /app
 
 USER appuser
 
-COPY ./scripts /home/scripts
+ENTRYPOINT ["/app/entrypoint.sh"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-CMD [ "/home/scripts/init.sh" ]

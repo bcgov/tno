@@ -2,12 +2,15 @@
 apiVersion: postgres-operator.crunchydata.com/v1beta1
 kind: PostgresCluster
 metadata:
-  name: postgres-cluster
+  name: crunchy
   namespace: default
   labels:
-    name: postgres-cluster
-    solution: tno
-    app: tno-database
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
 spec:
   users:
     - name: postgres
@@ -28,7 +31,7 @@ spec:
   # image: registry.developers.crunchydata.com/crunchydata/crunchy-postgres:centos8-13.5-0
   postgresVersion: 14
   instances:
-    - name: tno-database
+    - name: postgres
       replicas: 3
       resources:
         requests:

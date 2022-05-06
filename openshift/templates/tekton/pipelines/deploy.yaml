@@ -8,12 +8,6 @@ metadata:
     tags: oc,pipeline
 
 parameters:
-  - name: SOLUTION_NAME
-    displayName: Solution Group Name
-    description: The name of the solution (e.g tno).
-    required: true
-    value: tno
-
   - name: API_NAME
     displayName: API Application Name
     description: The name of the application.
@@ -23,7 +17,7 @@ parameters:
     displayName: Application Name
     description: The name of the application.
     required: true
-    value: app-editor
+    value: editor
   - name: MIGRATION_NAME
     displayName: Database Migration Name
     description: The name of the database migration.
@@ -89,9 +83,9 @@ objects:
             - name: PROJECT_NAMESPACE
               value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
             - name: ROUTE
-              value: ${SOLUTION_NAME}-${APP_NAME}
+              value: ${APP_NAME}
             - name: SERVICE
-              value: ${SOLUTION_NAME}-${NGINX_NAME}
+              value: ${NGINX_NAME}
 
         # - name: database-backup
         #   taskRef:
@@ -101,7 +95,7 @@ objects:
         #     - name: PROJECT_NAMESPACE
         #       value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
         #     - name: DEPLOYMENT_CONFIG
-        #       value: ${SOLUTION_NAME}-${BACKUP_NAME}
+        #       value: ${BACKUP_NAME}
 
         - name: run-db-migration
           runAfter:
@@ -112,9 +106,9 @@ objects:
             kind: Task
           params:
             - name: MIGRATION_IMAGE
-              value: ${SOLUTION_NAME}-${MIGRATION_NAME}
+              value: ${MIGRATION_NAME}
             - name: DB_SECRET_NAME
-              value: postgres-cluster-pguser-admin
+              value: crunchy-pguser-admin
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
             - name: DEPLOY_TO
@@ -129,7 +123,7 @@ objects:
             kind: Task
           params:
             - name: IMAGE_NAME
-              value: ${SOLUTION_NAME}-${API_NAME}
+              value: ${API_NAME}
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
             - name: ENV
@@ -144,7 +138,7 @@ objects:
             kind: Task
           params:
             - name: IMAGE_NAME
-              value: ${SOLUTION_NAME}-${APP_NAME}
+              value: ${APP_NAME}
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
             - name: ENV
@@ -160,6 +154,6 @@ objects:
             - name: PROJECT_NAMESPACE
               value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
             - name: ROUTE
-              value: ${SOLUTION_NAME}-${APP_NAME}
+              value: ${APP_NAME}
             - name: SERVICE
-              value: ${SOLUTION_NAME}-${APP_NAME}
+              value: ${APP_NAME}

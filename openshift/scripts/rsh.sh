@@ -6,13 +6,13 @@ die () {
 }
 
 if [ ! $1 ]; then
-  die "First argument require to specify the label [name=?]."
+  die "First argument require to specify the label [?=?]."
 fi
 INDEX=${2:-0}
 
 POD=($(./get-pod-name.sh $1))
 if [ ! ${POD[$INDEX]} ]; then
-  die "No pod was found with the label [name='$1']"
+  die "No pod was found with the label ['$1']"
 fi
 
 echo "The following ${#POD[@]} pods were found"

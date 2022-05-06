@@ -70,19 +70,19 @@ For a basic setup where TOOLS provides images the following projects need to hav
 Enable the **Service Account** to pull images from external sources.
 
 ```bash
-oc policy add-role-to-user system:image-puller system:serviceaccount:$(oc project --short):default -n 9b301c-tools
-oc policy add-role-to-user system:image-puller system:serviceaccount:$(oc project --short):default -n 9b301c-tools
-oc policy add-role-to-user system:image-puller system:serviceaccount:$(oc project --short):default -n 9b301c-tools
+oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-dev:default -n 9b301c-tools
+oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-test:default -n 9b301c-tools
+oc policy add-role-to-user system:image-puller system:serviceaccount:9b301c-prod:default -n 9b301c-tools
 ```
 
-There are additional default configurations in the `./templates/nsp` folder.
+There are additional default configurations in the `./templates/network-policy` folder.
 These should be applied to each project.
 
 ```bash
-oc process -f ./nsp/default.yaml --param-file=${pathToFile:default.dev.env} | oc create --save-config=true -f -
-oc process -f ./nsp/default.yaml --param-file=${pathToFile:default.test.env} | oc create --save-config=true -f -
-oc process -f ./nsp/default.yaml --param-file=${pathToFile:default.prod.env} | oc create --save-config=true -f -
-oc process -f ./nsp/default.yaml --param-file=${pathToFile:default.tools.env} | oc create --save-config=true -f -
+oc process -f ./network-policy/default.yaml --param-file=${pathToFile:default.dev.env} | oc create --save-config=true -f -
+oc process -f ./network-policy/default.yaml --param-file=${pathToFile:default.test.env} | oc create --save-config=true -f -
+oc process -f ./network-policy/default.yaml --param-file=${pathToFile:default.prod.env} | oc create --save-config=true -f -
+oc process -f ./network-policy/default.yaml --param-file=${pathToFile:default.tools.env} | oc create --save-config=true -f -
 ```
 
 ## Find images
@@ -198,4 +198,10 @@ oc run some-pod --overrides='{"spec": {"containers": [{"command": ["/bin/bash", 
 
 ```bash
 oc rsh <pod>
+```
+
+## Delete all Pods in Error State
+
+```bash
+for pod in $(oc get pods | grep Error | awk '{print $1}'); do oc delete pod --grace-period=1 ${pod}; done
 ```

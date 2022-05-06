@@ -1,0 +1,27 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: elastic
+  namespace: default
+  annotations:
+    haproxy.router.openshift.io/rewrite-target: /
+  labels:
+    name: elastic
+    part-of: tno
+    version: 1.0.0
+    component: elastic
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: tno-dev.apps.silver.devops.gov.bc.ca
+  path: /elastic
+  to:
+    kind: Service
+    name: elastic
+    weight: 100
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""

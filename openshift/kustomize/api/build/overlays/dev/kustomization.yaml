@@ -7,4 +7,13 @@ resources:
   - ../../base
 
 patches:
-  - build.yaml
+  - target:
+      kind: BuildConfig
+      name: api.dev
+    patch: |-
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/bcgov/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: dev

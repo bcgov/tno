@@ -1,9 +1,0 @@
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: file-storage
-spec:
-  resources:
-    requests:
-      storage: 10Gi

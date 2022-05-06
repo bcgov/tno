@@ -12,7 +12,7 @@ spec:
       description: >-
         Identify the git source for this build.
         A git source name is applied to the end of a BuildConfig to
-        identify the source (i.e. tno-app-editor.{GIT_SOURCE}).
+        identify the source (i.e. editor.{GIT_SOURCE}).
       type: string
 
     - name: IMAGE_TAG
@@ -32,8 +32,6 @@ spec:
         name: oc-build
         kind: Task
       params:
-        - name: SOLUTION_NAME
-          value: tno
         - name: APP_NAME
           value: db-migration
         - name: GIT_SOURCE
@@ -49,11 +47,11 @@ spec:
         kind: Task
       params:
         - name: MIGRATION_IMAGE
-          value: tno-db-migration
+          value: db-migration
         - name: DB_SECRET_NAME
-          value: postgres-cluster-pguser-admin
+          value: crunchy-pguser-admin
         - name: API_NAME
-          value: tno-api
+          value: api
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
         - name: DEPLOY_TO

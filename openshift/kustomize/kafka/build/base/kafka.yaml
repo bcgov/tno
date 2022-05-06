@@ -1,0 +1,54 @@
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: kafka
+  annotations:
+    description: Destination for built images.
+  labels:
+    name: kafka
+    part-of: tno
+    version: 1.0.0
+    component: kafka
+    managed-by: kustomize
+    created-by: jeremy.foster
+
+---
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: kafka.dev
+  annotations:
+    description: Build image from Dockerfile in git repo.
+  labels:
+    name: kafka
+    part-of: tno
+    version: 1.0.0
+    component: kafka
+    managed-by: kustomize
+    created-by: jeremy.foster
+    branch: dev
+spec:
+  completionDeadlineSeconds: 1800
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial
+  source:
+    git:
+      uri: https://github.com/bcgov/tno.git
+      ref: dev
+    contextDir: db/kafka/broker
+  strategy:
+    type: Docker
+    dockerStrategy:
+      imageOptimizationPolicy: SkipLayers
+      dockerfilePath: Dockerfile.rhel
+  output:
+    to:
+      kind: ImageStreamTag
+      name: kafka:latest
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi

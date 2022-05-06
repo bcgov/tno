@@ -15,7 +15,7 @@ spec:
     - name: DEPLOYMENT_CONFIG
       description: The name of the database backup DeploymentConfig.
       type: string
-      default: tno-backup
+      default: backup
     - name: ARGS
       description: >-
         The arguments to include when executing the backup.sh script.
@@ -25,7 +25,7 @@ spec:
         -1 : Run a single backup
         -r <spec> : Restore the database with the specified <spec>
       type: string
-      default: '-1'
+      default: "-1"
 
   tasks:
     - name: backup
