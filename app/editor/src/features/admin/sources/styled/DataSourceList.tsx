@@ -1,7 +1,7 @@
+import { FormPage } from 'components/form/formpage';
 import styled from 'styled-components';
-import { Col } from 'tno-core/dist/components/flex/col';
 
-export const DataSourceList = styled(Col)`
+export const DataSourceList = styled(FormPage)`
   .filter {
     button {
       margin-top: auto;

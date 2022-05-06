@@ -45,6 +45,11 @@ export const NavBar: React.FC = () => {
               label="CBRA Report"
               claim={Claim.administrator}
             />
+            <NavBarItem
+              navigateTo="/admin/media/types"
+              label="Media Types"
+              claim={Claim.administrator}
+            />
           </Row>
         )}
       </NavBarGroup>

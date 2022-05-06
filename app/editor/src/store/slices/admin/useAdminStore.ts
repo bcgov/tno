@@ -1,14 +1,15 @@
-import { IDataSourceModel } from 'hooks/api-editor';
+import { IDataSourceModel, IMediaTypeModel } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 
-import { storeAdminDataSources } from '.';
+import { storeAdminDataSources, storeAdminMediaTypes } from '.';
 import { IAdminState } from './interfaces';
 
 export interface IAdminProps {}
 
 export interface IAdminStore {
   storeDataSources: (dataSources: IDataSourceModel[]) => void;
+  storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -19,6 +20,9 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
     () => ({
       storeDataSources: (dataSources: IDataSourceModel[]) => {
         dispatch(storeAdminDataSources(dataSources));
+      },
+      storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => {
+        dispatch(storeAdminMediaTypes(mediaTypes));
       },
     }),
     [dispatch],

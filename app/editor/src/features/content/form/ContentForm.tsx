@@ -1,4 +1,4 @@
-import { Area, FieldSize, IOptionItem } from 'components/form';
+import { Area, FieldSize, IconButton, IOptionItem } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
   FormikCheckbox,
@@ -137,16 +137,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       <FormPage>
         <Area>
           <Row>
-            <Button variant={ButtonVariant.secondary} onClick={() => navigate('/contents')}>
-              <Row>
-                <img
-                  style={{ marginRight: '0.5em' }}
-                  alt="back"
-                  src={process.env.PUBLIC_URL + '/assets/back_arrow.svg'}
-                />
-                Back to List View
-              </Row>
-            </Button>
+            <IconButton
+              label="Back to List View"
+              onClick={() => navigate('/contents')}
+              iconType="back"
+            />
             <Show visible={!!id}>
               <Button
                 variant={ButtonVariant.secondary}

@@ -1,0 +1,20 @@
+import styled from 'styled-components';
+
+export const MediaTypeList = styled.div`
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    input {
+      margin-top: 3.5%;
+    }
+    button {
+      background-color: white;
+    }
+    margin-top: 3%;
+    background-color: #f5f5f5;
+  }
+`;

@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IDataSourceModel } from 'hooks/api-editor';
+import { IDataSourceModel, IMediaTypeModel } from 'hooks/api-editor';
 
 import { IAdminState } from './interfaces';
 
 export const initialAdminState: IAdminState = {
   dataSources: [],
+  mediaTypes: [],
 };
 
 export const adminSlice = createSlice({
@@ -14,7 +15,11 @@ export const adminSlice = createSlice({
     storeDataSources(state: IAdminState, action: PayloadAction<IDataSourceModel[]>) {
       state.dataSources = action.payload;
     },
+    storeMediaTypes(state: IAdminState, action: PayloadAction<IMediaTypeModel[]>) {
+      state.mediaTypes = action.payload;
+    },
   },
 });
 
-export const { storeDataSources: storeAdminDataSources } = adminSlice.actions;
+export const { storeDataSources: storeAdminDataSources, storeMediaTypes: storeAdminMediaTypes } =
+  adminSlice.actions;

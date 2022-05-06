@@ -3,8 +3,8 @@ import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 import { IDataSourceModel, IPaged, useApi } from '..';
 
 /**
- * Common hook to make requests to the API.
- * @returns CustomAxios object setup for the API.
+ * Common hook to make requests to the PIMS API.
+ * @returns CustomAxios object setup for the PIMS API.
  */
 export const useApiAdminDataSources = (
   options: {
