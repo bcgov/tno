@@ -34,16 +34,22 @@ public class MediaTypeService : BaseService<MediaType, int>, IMediaTypeService
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(c => EF.Functions.Like(c.Name, $"%{filter.Name}%"));
+            query = query.Where(c => EF.Functions.Like(c.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Description))
             query = query.Where(c => c.Description == filter.Description);
 
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)
-            query = query.OrderByProperty(filter.Sort);
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
         else
-            query = query.OrderBy(c => c.Name).ThenBy(c => c.IsEnabled);
+            query = query.OrderBy(c => c.SortOrder).ThenBy(c => c.Name);
 
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);

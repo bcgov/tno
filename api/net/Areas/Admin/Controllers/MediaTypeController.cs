@@ -55,8 +55,6 @@ public class MediaTypeController : ControllerBase
     [SwaggerOperation(Tags = new[] { "MediaType" })]
     public IActionResult FindAll()
     {
-        var uri = new Uri(this.Request.GetDisplayUrl());
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         return new JsonResult(_service.FindAll().Select(ds => new MediaTypeModel(ds)));
     }
 

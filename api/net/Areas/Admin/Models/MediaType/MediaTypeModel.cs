@@ -12,7 +12,7 @@ public class MediaTypeModel : AuditColumnsModel
     /// <summary>
     /// get/set - The primary key of the type model.
     /// </summary>
-    public int Id { get; set; } = default!;
+    public int Id { get; set; }
 
     /// <summary>
     /// get/set - The unique name of the model.
@@ -69,6 +69,7 @@ public class MediaTypeModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
+            Version = model.Version ?? 0,
         };
         return entity;
     }

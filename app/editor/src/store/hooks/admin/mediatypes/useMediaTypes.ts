@@ -73,8 +73,7 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return result;
       },
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
+    [api, dispatch, getMediaTypes, store],
   );
 
   return [state, controller];
