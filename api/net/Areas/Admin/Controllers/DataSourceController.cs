@@ -96,7 +96,7 @@ public class DataSourceController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Add content for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -112,7 +112,7 @@ public class DataSourceController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Update content for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -128,7 +128,7 @@ public class DataSourceController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Delete content for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

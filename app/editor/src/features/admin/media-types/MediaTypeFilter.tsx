@@ -3,8 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Row } from 'tno-core/dist/components/flex';
 
-import { NEW_MEDIA_TYPE_ROUTE } from './constants';
-
 interface IMediaTypeFilterProps {
   setGlobalFilter: (filterValue: any) => void;
 }
@@ -18,7 +16,7 @@ export const MediaTypeFilter: React.FC<IMediaTypeFilterProps> = ({ setGlobalFilt
         <IconButton
           iconType="plus"
           label="Add New Media Type"
-          onClick={() => navigate(NEW_MEDIA_TYPE_ROUTE)}
+          onClick={() => navigate('/admin/media/types/0')}
         />
       </Row>
       <Row className="filter-bar" justify="center">

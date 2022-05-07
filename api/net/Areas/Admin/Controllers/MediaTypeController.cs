@@ -94,7 +94,7 @@ public class MediaTypeController : ControllerBase
     }
 
     /// <summary>
-    /// Find media type for the specified 'id'.
+    /// Add media type for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

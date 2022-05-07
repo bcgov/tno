@@ -34,7 +34,7 @@ public abstract class AuditColumnsModel
     public Guid? UpdatedById { get; set; }
 
     /// <summary>
-    /// get/set - The naem of the user who last updated the model.
+    /// get/set - The name of the user who last updated the model.
     /// </summary>
     public string? UpdatedBy { get; set; }
 

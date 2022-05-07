@@ -10,7 +10,7 @@ import { useMediaTypes } from 'store/hooks/admin';
 import { Button, ButtonVariant } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
 
-import { defaultMediaType, MEDIA_LIST_VIEW_ROUTE } from './constants';
+import { defaultMediaType } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit media types in the administrative section. */
@@ -113,7 +113,7 @@ export const MediaType: React.FC = () => {
                 } finally {
                   toggle();
                   toast.success(`${mediaType.name} has successfully been deleted.`);
-                  navigate(MEDIA_LIST_VIEW_ROUTE);
+                  navigate('/admin/media/types');
                 }
               }}
             />
