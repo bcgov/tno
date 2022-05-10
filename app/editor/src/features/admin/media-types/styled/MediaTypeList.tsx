@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const MediaTypeList = styled.div`
-  width: 100%;
+  width: auto;
   min-height: 100%;
   display: flex;
   justify-content: center;

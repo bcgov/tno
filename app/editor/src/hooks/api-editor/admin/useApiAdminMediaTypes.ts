@@ -1,6 +1,7 @@
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IMediaTypeModel, IPaged, useApi } from '..';
+import { IMediaTypeFilter } from '../interfaces/IMediaTypeFilter';
 
 /**
  * Common hook to make requests to the PIMS API.
@@ -18,10 +19,10 @@ export const useApiAdminMediaTypes = (
 
   return {
     findAllMediaTypes: () => {
-      return api.get<IMediaTypeModel[]>(`/admin/media/types`);
+      return api.get<IMediaTypeModel[]>(`/admin/media/types/all`);
     },
-    findMediaTypes: () => {
-      return api.get<IPaged<IMediaTypeModel>>(`/admin/media/types/find`);
+    findMediaTypes: (filter: IMediaTypeFilter) => {
+      return api.get<IPaged<IMediaTypeModel>>(`/admin/media/types`, { data: filter });
     },
     getMediaType: (id: number) => {
       return api.get<IMediaTypeModel>(`/admin/media/types/${id}`);

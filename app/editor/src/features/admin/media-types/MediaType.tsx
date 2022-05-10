@@ -59,10 +59,6 @@ export const MediaType: React.FC = () => {
       />
       <FormikForm
         initialValues={mediaType}
-        validate={(values) => {
-          const errors = {};
-          return errors;
-        }}
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);

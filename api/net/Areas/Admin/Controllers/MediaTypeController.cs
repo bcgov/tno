@@ -49,7 +49,7 @@ public class MediaTypeController : ControllerBase
     /// Find a page of media type for the specified query filter.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("all")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPaged<MediaTypeModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "MediaType" })]
@@ -62,7 +62,7 @@ public class MediaTypeController : ControllerBase
     /// Find a page of media type for the specified query filter.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("find")]
+    [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IPaged<MediaTypeModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "MediaType" })]

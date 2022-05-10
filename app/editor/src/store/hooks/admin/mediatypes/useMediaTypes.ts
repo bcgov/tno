@@ -1,11 +1,12 @@
 import { IMediaTypeModel, IPaged, useApiAdminMediaTypes } from 'hooks/api-editor';
+import { IMediaTypeFilter } from 'hooks/api-editor/interfaces/IMediaTypeFilter';
 import React from 'react';
 import { useApiDispatcher } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IMediaTypeController {
   findAllMediaTypes: () => Promise<IMediaTypeModel[]>;
-  findMediaTypes: () => Promise<IPaged<IMediaTypeModel>>;
+  findMediaTypes: (filter: IMediaTypeFilter) => Promise<IPaged<IMediaTypeModel>>;
   getMediaType: (id: number) => Promise<IMediaTypeModel>;
   addMediaType: (model: IMediaTypeModel) => Promise<IMediaTypeModel>;
   updateMediaType: (model: IMediaTypeModel) => Promise<IMediaTypeModel>;
@@ -17,8 +18,6 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
   const dispatch = useApiDispatcher();
   const [state, store] = useAdminStore();
 
-  const getMediaTypes = () => state.mediaTypes;
-
   const controller = React.useMemo(
     () => ({
       findAllMediaTypes: async () => {
@@ -28,9 +27,9 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         store.storeMediaTypes(result);
         return result;
       },
-      findMediaTypes: async () => {
+      findMediaTypes: async (filter: IMediaTypeFilter) => {
         const result = await dispatch<IPaged<IMediaTypeModel>>('find-media-types', () =>
-          api.findMediaTypes(),
+          api.findMediaTypes(filter),
         );
         return result;
       },
@@ -39,7 +38,7 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
           api.getMediaType(id),
         );
         store.storeMediaTypes(
-          getMediaTypes().map((ds) => {
+          state.mediaTypes.map((ds) => {
             if (ds.id === result.id) return result;
             return ds;
           }),
@@ -50,7 +49,7 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         const result = await dispatch<IMediaTypeModel>('add-data-source', () =>
           api.addMediaType(model),
         );
-        store.storeMediaTypes([...getMediaTypes(), result]);
+        store.storeMediaTypes([...state.mediaTypes, result]);
         return result;
       },
       updateMediaType: async (model: IMediaTypeModel) => {
@@ -58,7 +57,7 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
           api.updateMediaType(model),
         );
         store.storeMediaTypes(
-          getMediaTypes().map((ds) => {
+          state.mediaTypes.map((ds) => {
             if (ds.id === result.id) return result;
             return ds;
           }),
@@ -69,11 +68,11 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         const result = await dispatch<IMediaTypeModel>('delete-data-source', () =>
           api.deleteMediaType(model),
         );
-        store.storeMediaTypes(getMediaTypes().filter((ds) => ds.id !== result.id));
+        store.storeMediaTypes(state.mediaTypes.filter((ds) => ds.id !== result.id));
         return result;
       },
     }),
-    [api, dispatch, getMediaTypes, store],
+    [api, dispatch, state.mediaTypes, store],
   );
 
   return [state, controller];
