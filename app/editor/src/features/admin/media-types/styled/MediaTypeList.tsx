@@ -1,8 +1,11 @@
-import { FormPage } from 'components/form/formpage';
 import styled from 'styled-components';
 
-export const DataSourceList = styled(FormPage)`
-  .filter {
+export const MediaTypeList = styled.div`
+  width: auto;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  .filter-bar {
     display: flex;
     align-items: center;
     input {

@@ -4,6 +4,7 @@ import {
   ICacheModel,
   ICategoryModel,
   IContentTypeModel,
+  IDataLocationModel,
   IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
@@ -20,6 +21,7 @@ import { ILookupState } from './interfaces';
 export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
+  dataLocations: [],
   sourceActions: [],
   sourceMetrics: [],
   categories: [],
@@ -53,6 +55,9 @@ export const lookupSlice = createSlice({
     },
     storeActions(state: ILookupState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
+    },
+    storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
+      state.dataLocations = action.payload;
     },
     storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
       state.sourceActions = action.payload;
@@ -93,6 +98,7 @@ export const lookupSlice = createSlice({
 export const {
   storeCache,
   storeActions,
+  storeDataLocations,
   storeSourceActions,
   storeSourceMetrics,
   storeCategories,

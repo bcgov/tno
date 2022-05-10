@@ -8,4 +8,5 @@ export const FormPage = styled.div<IFormPageProps>`
   padding: 2em;
   width: 70em;
   min-width: fit-content;
+  margin: 0px auto;
 `;

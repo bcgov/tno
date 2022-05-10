@@ -3,6 +3,7 @@ import {
   ICacheModel,
   ICategoryModel,
   IContentTypeModel,
+  IDataLocationModel,
   IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
@@ -12,18 +13,17 @@ import {
   ITagModel,
   ITonePoolModel,
   IUserModel,
-  useApiSourceActions,
-  useApiSourceMetrics,
-} from 'hooks/api-editor';
-import {
   useApiActions,
   useApiCache,
   useApiCategories,
   useApiContentTypes,
+  useApiDataLocations,
   useApiDataSources,
   useApiLicenses,
   useApiMediaTypes,
   useApiSeries,
+  useApiSourceActions,
+  useApiSourceMetrics,
   useApiTags,
   useApiTonePools,
   useApiUsers,
@@ -38,6 +38,7 @@ import { fetchIfNoneMatch } from './utils';
 interface ILookupController {
   getCache: () => Promise<ICacheModel[]>;
   getActions: (refresh?: boolean) => Promise<IActionModel[]>;
+  getDataLocations: (refresh?: boolean) => Promise<IDataLocationModel[]>;
   getSourceActions: (refresh?: boolean) => Promise<ISourceActionModel[]>;
   getSourceMetrics: (refresh?: boolean) => Promise<ISourceMetricModel[]>;
   getCategories: (refresh?: boolean) => Promise<ICategoryModel[]>;
@@ -57,6 +58,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const dispatch = useApiDispatcher();
   const cache = useApiCache();
   const actions = useApiActions();
+  const dataLocations = useApiDataLocations();
   const sourceActions = useApiSourceActions();
   const sourceMetrics = useApiSourceMetrics();
   const categories = useApiCategories();
@@ -83,6 +85,14 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           dispatch,
           (etag) => actions.getActions(etag),
           (results) => store.storeActions(results),
+        );
+      },
+      getDataLocations: async () => {
+        return await fetchIfNoneMatch<IDataLocationModel>(
+          'data_locations',
+          dispatch,
+          (etag) => dataLocations.getDataLocations(etag),
+          (results) => store.storeDataLocations(results),
         );
       },
       getSourceActions: async () => {
@@ -176,6 +186,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       init: async () => {
         // TODO: Handle failures
         if (!state.actions.length) await controller.getActions();
+        if (!state.dataLocations.length) await controller.getDataLocations();
         if (!state.sourceActions.length) await controller.getSourceActions();
         if (!state.sourceMetrics.length) await controller.getSourceMetrics();
         if (!state.categories.length) await controller.getCategories();
@@ -194,6 +205,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       cache,
       categories,
       contentTypes,
+      dataLocations,
       dataSources,
       dispatch,
       licenses,
@@ -201,7 +213,19 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       series,
       sourceActions,
       sourceMetrics,
-      state,
+      state.actions.length,
+      state.categories.length,
+      state.contentTypes.length,
+      state.dataLocations.length,
+      state.dataSources.length,
+      state.licenses.length,
+      state.mediaTypes.length,
+      state.series.length,
+      state.sourceActions.length,
+      state.sourceMetrics.length,
+      state.tags.length,
+      state.tonePools.length,
+      state.users.length,
       store,
       tags,
       tonePools,

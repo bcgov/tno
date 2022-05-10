@@ -5,8 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import ReactTooltip from 'react-tooltip';
 import { useApp, useContent } from 'store/hooks';
-import { Button, ButtonVariant } from 'tno-core';
-import { Page, PagedTable } from 'tno-core/dist/components/grid-table';
+import { Button, ButtonVariant, Page, PagedTable } from 'tno-core';
 
 import { ContentFilter } from '.';
 import { columns, defaultPage } from './constants';

@@ -3,6 +3,7 @@ import {
   ICacheModel,
   ICategoryModel,
   IContentTypeModel,
+  IDataLocationModel,
   IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
@@ -17,6 +18,7 @@ import {
 export interface ILookupState {
   cache: ICacheModel[];
   actions: IActionModel[];
+  dataLocations: IDataLocationModel[];
   sourceActions: ISourceActionModel[];
   sourceMetrics: ISourceMetricModel[];
   categories: ICategoryModel[];

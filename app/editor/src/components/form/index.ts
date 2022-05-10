@@ -2,6 +2,7 @@ export * from './area';
 export * from './checkbox';
 export * from './constants';
 export * from './datepicker';
+export * from './iconbutton';
 export * from './options';
 export * from './radio';
 export * from './select';

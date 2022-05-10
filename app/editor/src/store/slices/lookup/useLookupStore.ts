@@ -3,6 +3,7 @@ import {
   ICacheModel,
   ICategoryModel,
   IContentTypeModel,
+  IDataLocationModel,
   IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
@@ -21,6 +22,7 @@ import {
   storeCache,
   storeCategories,
   storeContentTypes,
+  storeDataLocations,
   storeDataSources,
   storeLicenses,
   storeMediaTypes,
@@ -38,6 +40,7 @@ export interface ILookupStore {
   storeCache: (cache: ICacheModel[]) => void;
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
+  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
   storeSourceActions: (actions: ISourceActionModel[]) => void;
   storeSourceMetrics: (metrics: ISourceMetricModel[]) => void;
   storeCategories: (categories: ICategoryModel[]) => void;
@@ -65,6 +68,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeActions: (actions: IActionModel[]) => {
         dispatch(storeActions(actions));
+      },
+      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
+        dispatch(storeDataLocations(dataLocations));
       },
       storeSourceActions: (actions: ISourceActionModel[]) => {
         dispatch(storeSourceActions(actions));

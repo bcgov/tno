@@ -46,6 +46,9 @@ export const Schedule: React.FC<IScheduleProps> = () => {
                   'schedules',
                   values.schedules.filter((s) => s.id !== 0),
                 );
+              } else if (!values.topic) {
+                // Default value to unique code, but allow override.
+                setFieldValue('topic', values.code);
               }
             }}
           />

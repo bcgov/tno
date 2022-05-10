@@ -7,6 +7,8 @@ import {
   DataSource,
   DataSourceDetails,
   DataSourceList,
+  MediaType,
+  MediaTypeList,
   ReachEarnedMedia,
   Schedule,
   UserList,
@@ -19,6 +21,8 @@ export const AdminPage: React.FC = () => {
       <Routes>
         <Route index element={<Navigate to="reports/cbra" />} />
         <Route path="users" element={<UserList />} />
+        <Route path="media/types/:id" element={<MediaType />} />
+        <Route path="media/types" element={<MediaTypeList />} />
         <Route path="data/sources" element={<DataSourceList />} />
         <Route path="data/sources/:id" element={<DataSource />}>
           <Route index element={<DataSourceDetails />} />
