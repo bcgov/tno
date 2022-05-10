@@ -29,12 +29,6 @@ export const NavBar: React.FC = () => {
         )}
         {showAdmin && (
           <Row>
-            <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
-            <NavBarItem
-              navigateTo="/admin/data/sources"
-              label="Sources"
-              claim={Claim.administrator}
-            />
             <NavBarItem
               navigateTo="/admin/contents/log"
               label="Linked Snippet Log"
@@ -43,6 +37,12 @@ export const NavBar: React.FC = () => {
             <NavBarItem
               navigateTo="/admin/reports/cbra"
               label="CBRA Report"
+              claim={Claim.administrator}
+            />
+            <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/data/sources"
+              label="Sources"
               claim={Claim.administrator}
             />
             <NavBarItem

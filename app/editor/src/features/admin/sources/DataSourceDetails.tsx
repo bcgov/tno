@@ -27,6 +27,7 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
 
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
   const licenses = getSortableOptions(lookups.licenses);
+  const dataLocations = getSortableOptions(lookups.dataLocations);
 
   React.useEffect(() => {
     if (init && !dataSources.length) {
@@ -70,6 +71,12 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
               onChange={handleMediaTypeChange}
             />
             <FormikSelect label="License" name="licenseId" options={licenses} required />
+            <FormikSelect
+              label="Data Location"
+              name="dataLocationId"
+              options={dataLocations}
+              required
+            />
             <FormikSelect
               label="Parent Data Source"
               name="parentId"

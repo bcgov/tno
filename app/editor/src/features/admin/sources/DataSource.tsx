@@ -31,7 +31,7 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    if (source?.id !== sourceId) {
+    if (!!sourceId && source?.id !== sourceId) {
       api.getDataSource(sourceId).then((data) => {
         setSource({ ...data, parentId: data.parentId ? data.parentId : undefined });
       });
@@ -40,13 +40,19 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
 
   const handleSubmit = async (values: IDataSourceModel) => {
     try {
-      const data = await api.updateDataSource({
+      const originalId = values.id;
+      const model: IDataSourceModel = {
         ...values,
         parentId: values.parentId ? values.parentId : undefined,
-      });
-      setSource({ ...data, parentId: data.parentId ? data.parentId : 0 });
+        connection: values.connection ? values.connection : {},
+      };
+      const result = !values.id
+        ? await api.addDataSource(model)
+        : await api.updateDataSource(model);
+      setSource({ ...result, parentId: result.parentId ? result.parentId : 0 });
       getDataSources();
-      toast.success(`${data.name} has successfully been saved.`);
+      toast.success(`${result.name} has successfully been saved.`);
+      if (!originalId) navigate(`/admin/data/sources/${result.id}`);
     } catch {}
   };
 
@@ -98,9 +104,10 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
               onConfirm={async () => {
                 try {
                   await api.deleteDataSource(source);
+                  toast.success(`${source.name} has successfully been deleted.`);
+                  navigate('/admin/data/sources');
                 } finally {
                   toggle();
-                  navigate('/admin/data/sources');
                 }
               }}
             />

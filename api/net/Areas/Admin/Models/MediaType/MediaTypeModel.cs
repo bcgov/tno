@@ -1,5 +1,4 @@
 using TNO.API.Models;
-using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.MediaType;
 

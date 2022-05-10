@@ -1,5 +1,5 @@
 import { FieldSize, IconButton, LabelPosition } from 'components/form';
-import { FormikCheckbox, FormikForm, FormikText } from 'components/formik';
+import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
 import { IMediaTypeModel } from 'hooks/api-editor';
@@ -27,7 +27,7 @@ export const MediaType: React.FC = () => {
   const { toggle, isShowing } = useModal();
 
   React.useEffect(() => {
-    if (mediaType?.id !== mediaTypeId) {
+    if (!!mediaTypeId && mediaType?.id !== mediaTypeId) {
       api.getMediaType(mediaTypeId).then((data) => {
         setMediaType(data);
       });
@@ -36,16 +36,13 @@ export const MediaType: React.FC = () => {
 
   const handleSubmit = async (values: IMediaTypeModel) => {
     try {
-      if (!!mediaType.id) {
-        const data = await api.updateMediaType(values);
-        setMediaType(data);
-        toast.success(`${data.name} has successfully been saved.`);
-      } else {
-        const data = await api.addMediaType(values);
-        setMediaType(data);
-        toast.success(`${data.name} has successfully been created.`);
-        navigate(`/admin/media/types/${data.id}`);
-      }
+      const originalId = values.id;
+      const result = !mediaType.id
+        ? await api.addMediaType(values)
+        : await api.updateMediaType(values);
+      setMediaType(result);
+      toast.success(`${result.name} has successfully been saved.`);
+      if (!originalId) navigate(`/admin/media/types/${result.id}`);
     } catch {}
   };
 
@@ -70,7 +67,7 @@ export const MediaType: React.FC = () => {
               <FormikText name="name" label="Name" />
             </Row>
             <Row>
-              <FormikText name="description" label="Description" />
+              <FormikTextArea name="description" label="Description" width={FieldSize.Medium} />
             </Row>
             <Row>
               <FormikText
@@ -106,10 +103,10 @@ export const MediaType: React.FC = () => {
               onConfirm={async () => {
                 try {
                   await api.deleteMediaType(mediaType);
-                } finally {
-                  toggle();
                   toast.success(`${mediaType.name} has successfully been deleted.`);
                   navigate('/admin/media/types');
+                } finally {
+                  toggle();
                 }
               }}
             />

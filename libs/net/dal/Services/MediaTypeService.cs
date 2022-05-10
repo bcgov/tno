@@ -28,13 +28,10 @@ public class MediaTypeService : BaseService<MediaType, int>, IMediaTypeService
     public IPaged<MediaType> Find(MediaTypeFilter filter)
     {
         var query = this.Context.MediaTypes
-            .Include(c => c.Name)
-            .Include(c => c.Description)
-            .Include(c => c.IsEnabled)
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(c => EF.Functions.Like(c.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
+            query = query.Where(c => EF.Functions.Like(c.Name, $"%{filter.Name}%"));
         if (!String.IsNullOrWhiteSpace(filter.Description))
             query = query.Where(c => c.Description == filter.Description);
 
@@ -66,17 +63,6 @@ public class MediaTypeService : BaseService<MediaType, int>, IMediaTypeService
     public MediaType? FindByName(string name)
     {
         return this.Context.MediaTypes.FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
-    }
-
-    public override MediaType Add(MediaType entity)
-    {
-        base.Add(entity);
-        return entity;
-    }
-
-    public override MediaType Update(MediaType entity)
-    {
-        return this.Update(entity);
     }
     #endregion
 }

@@ -18,12 +18,14 @@ export const MediaTypeList: React.FC = () => {
   const [items, setItems] = React.useState<IMediaTypeModel[]>([]);
 
   React.useEffect(() => {
-    if (!items.length) {
+    if (!mediaTypes.length) {
       api.findAllMediaTypes().then((data) => {
         setItems(data);
       });
+    } else {
+      setItems(mediaTypes);
     }
-  }, [api, items.length, mediaTypes]);
+  }, [api, mediaTypes]);
 
   return (
     <styled.MediaTypeList>
