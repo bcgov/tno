@@ -13,15 +13,15 @@ spec:
     - name: MIGRATION_IMAGE
       description: The name of the database migration image.
       type: string
-      default: tno-db-migration
+      default: db-migration
     - name: DB_SECRET_NAME
       description: The name of the database secrets.
       type: string
-      default: postgres-cluster-pguser-admin
+      default: crunchy-pguser-admin
     - name: API_NAME
       description: The name of the database.
       type: string
-      default: tno-api
+      default: api
     - name: PROJECT_SHORTNAME
       description: The shortname of the project namespace.
       type: string
@@ -58,7 +58,7 @@ spec:
           --image-pull-policy=Always \
           --attach \
           --rm \
-          --labels='role=migration,solution=tno,app=database' \
+          --labels='role=migration,part-of=tno,component=database' \
           --restart=Never \
           --env=ConnectionStrings__TNO="$CONNECTION_STRING" \
           --env=DB_POSTGRES_USERNAME="$DB_USERNAME" \

@@ -1,0 +1,118 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elastic
+  namespace: default
+  annotations:
+    description: Deploy Elasticsearch cluster
+  labels:
+    name: elastic
+    part-of: tno
+    version: 1.0.0
+    component: elastic
+    managed-by: kustomize
+    created-by: jeremy.foster
+    cluster: elastic-cluster
+spec:
+  serviceName: elastic-headless
+  replicas: 3
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      statefulset: elastic-cluster
+  template:
+    metadata:
+      labels:
+        part-of: tno
+        component: elastic
+        statefulset: elastic-cluster
+    spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: tno
+      terminationGracePeriodSeconds: 0
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: statefulset
+                    operator: In
+                    values:
+                      - elastic-cluster
+              topologyKey: "kubernetes.io/hostname"
+      volumes:
+        # - name: backup
+        #   persistentVolumeClaim:
+        #     claimName: tno-database-backup
+      containers:
+        - name: elastic
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+          resources:
+            requests:
+              cpu: 10m
+              memory: 500Mi
+            limits:
+              cpu: 100m
+              memory: 2Gi
+          ports:
+            - containerPort: 9200
+              name: 9200-tcp
+              protocol: TCP
+            - containerPort: 9300
+              name: 9300-com
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+            # - name: backup
+            #   mountPath: /backups
+          env:
+            - name: cluster.name
+              value: elastic
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: cluster.initial_master_nodes
+              value: "elastic-0,elastic-1,elastic-2"
+            - name: discovery.seed_hosts
+              value: "elastic-headless"
+            - name: network.host
+              value: "0.0.0.0"
+            - name: node.data
+              value: "true"
+            - name: node.ingest
+              value: "true"
+            - name: node.master
+              value: "true"
+            # - name: discovery.zen.ping.unicast.hosts
+            #   value: "elastic-0.elastic,elastic-1.elastic,elastic-2.elastic"
+            # - name: discovery.zen.minimum_master_nodes
+            #   value: "2"
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elastic
+                  key: PASSWORD
+            - name: ES_JAVA_OPTS
+              value: -Xms512m -Xmx512m
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          name: elastic-data
+          part-of: tno
+          component: elastic
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: netapp-block-standard
+        resources:
+          requests:
+            storage: 2Gi

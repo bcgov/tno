@@ -2,12 +2,15 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: postgres-cluster-monitoring
+  name: crunchy-monitoring
   namespace: default
   labels:
-    name: postgres-cluster-monitoring
-    solution: tno
-    app: tno-database
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
     app.kubernetes.io/name: postgres-operator-monitoring
     vendor: crunchydata
 rules:
@@ -24,17 +27,20 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: postgres-cluster-monitoring
+  name: crunchy-monitoring
   namespace: default
   labels:
-    name: postgres-cluster-monitoring
-    solution: tno
-    app: tno-database
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
     vendor: crunchydata
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: postgres-cluster-monitoring
+  name: crunchy-monitoring
 subjects:
   - kind: ServiceAccount
     name: prometheus-sa

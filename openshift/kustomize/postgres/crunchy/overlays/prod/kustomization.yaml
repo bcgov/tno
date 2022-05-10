@@ -7,4 +7,3 @@ resources:
   - ../../base
 
 patches:
-  - deploy.yaml

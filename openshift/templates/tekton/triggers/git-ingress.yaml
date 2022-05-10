@@ -7,27 +7,21 @@ metadata:
     description: Ingress object to enable git webhook
     tags: tno,webhook
 parameters:
-  - name: SOLUTION_NAME
-    displayName: Solution Name
-    description: The name of the solution.
-    required: true
-    value: tno
   - name: APP_NAME_1
     displayName: Application Name
     description: The name of the application event listening trigger.
     required: true
-    value: api-editor
+    value: api
   - name: APP_NAME_2
     displayName: Application Name
     description: The name of the application event listening trigger.
     required: true
-    value: app-editor
+    value: editor
 objects:
   - apiVersion: networking.k8s.io/v1
     kind: Ingress
     metadata:
-      name: git-webhook-${SOLUTION_NAME}
-      solution: ${SOLUTION_NAME}
+      name: git-webhook
       annotations:
         kubernetes.io/ingress.class: nginx
         nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -40,13 +34,13 @@ objects:
                 pathType: Exact
                 backend:
                   service:
-                    name: el-git-${SOLUTION_NAME}-${APP_NAME_1}
+                    name: el-git-${APP_NAME_1}
                     port:
                       number: 8080
               - path: /hooks/${APP_NAME_2}
                 pathType: Exact
                 backend:
                   service:
-                    name: el-git-${SOLUTION_NAME}-${APP_NAME_2}
+                    name: el-git-${APP_NAME_2}
                     port:
                       number: 8080

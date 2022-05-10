@@ -8,7 +8,7 @@ Configuration:
       - name: topic
         value: ${env:KAFKA_LOGS_TOPIC}
 
-  status: warn
+  status: debug
 
   appenders:
     Console:

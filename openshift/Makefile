@@ -55,9 +55,9 @@ logs: ## Show logs for all containers within a pod the label (n=label name, i=po
 	$(info Show logs for all containers within a pod with the label [name=$(n)])
 	@cd ./scripts; ./get-logs.sh $(n) $(i)
 
-rsh: ## Remote shell into pod with the label (n=label name, i=pod index).
-	$(info Remote shell into pod with the label [name=$(n)])
-	@cd ./scripts; ./rsh.sh $(n) $(i)
+rsh: ## Remote shell into pod with the label (l=label, i=pod index).
+	$(info Remote shell into pod with the label [l=$(l), i=$(i)])
+	@cd ./scripts; ./rsh.sh $(l) $(i)
 
 port-forward: ## Port forward to a pod (n=label name, i=pod index, l=local port, r=remote port).
 	$(info Port forward to a port [name=$(n)] $(l):$(r))

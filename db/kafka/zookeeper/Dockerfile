@@ -1,1 +1,1 @@
-FROM confluentinc/cp-zookeeper:7.0.1
+FROM confluentinc/cp-zookeeper:7.1.1

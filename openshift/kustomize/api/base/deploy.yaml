@@ -1,47 +1,24 @@
 ---
-# Open up ports to communicate with the app.
-kind: Service
-apiVersion: v1
-metadata:
-  name: tno-api
-  namespace: default
-  annotations:
-    description: Exposes and load balances the application pods.
-  labels:
-    name: tno-api
-    solution: tno
-    app: api
-spec:
-  ports:
-    - name: 8080-tcp
-      port: 8080
-      protocol: TCP
-      targetPort: 8080
-  selector:
-    solution: tno
-    app: api
-  sessionAffinity: None
-  type: ClusterIP
-
----
 # How the app will be deployed to the pod.
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: tno-api
+  name: api
   namespace: default
   annotations:
-    description: Defines how to deploy tno-api
+    description: Defines how to deploy api
   labels:
-    name: tno-api
-    solution: tno
-    app: api
+    name: api
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
 spec:
   replicas: 3
   selector:
-    name: tno-api
-    solution: tno
-    app: api
+    part-of: tno
+    component: api
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -52,18 +29,17 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: tno-api
+      name: api
       labels:
-        name: tno-api
-        solution: tno
-        app: api
+        part-of: tno
+        component: api
     spec:
       volumes:
         - name: file-storage
           persistentVolumeClaim:
             claimName: file-storage
       containers:
-        - name: tno-api
+        - name: api
           image: ""
           imagePullPolicy: Always
           ports:
@@ -89,93 +65,93 @@ spec:
             - name: Keycloak__Authority
               valueFrom:
                 configMapKeyRef:
-                  name: tno-api
+                  name: api
                   key: KEYCLOAK_AUTHORITY
             - name: Keycloak__Realm
               valueFrom:
                 configMapKeyRef:
-                  name: tno-api
+                  name: api
                   key: KEYCLOAK_REALM
             - name: Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
-                  name: tno-api
+                  name: api
                   key: KEYCLOAK_AUDIENCE
 
             - name: KAFKA_BOOTSTRAP_SERVERS
               valueFrom:
                 configMapKeyRef:
-                  name: tno-api
+                  name: api
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             - name: ConnectionStrings__TNO
               valueFrom:
                 configMapKeyRef:
-                  name: tno-api
+                  name: api
                   key: CONNECTION_STRING
             - name: DB_POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: postgres-cluster-pguser-admin
+                  name: crunchy-pguser-admin
                   key: user
             - name: DB_POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-cluster-pguser-admin
+                  name: crunchy-pguser-admin
                   key: password
 
             - name: ELASTIC_URIS
               valueFrom:
                 configMapKeyRef:
-                  name: tno-api
+                  name: api
                   key: ELASTIC_URIS
             - name: ELASTIC_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: tno-elastic
-                  key: ELASTIC_USERNAME
+                  name: elastic
+                  key: USERNAME
             - name: ELASTIC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: tno-elastic
-                  key: ELASTIC_PASSWORD
+                  name: elastic
+                  key: PASSWORD
 
             - name: AZURE_STORAGE_CONTAINER_NAME
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: AZURE_STORAGE_CONTAINER_NAME
             - name: AZURE_STORAGE_CONNECTION_STRING
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: AZURE_STORAGE_CONNECTION_STRING
 
             - name: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
             - name: COGNITIVE_SERVICES_SPEECH_REGION
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: COGNITIVE_SERVICES_SPEECH_REGION
 
             - name: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
             - name: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
             - name: AZURE_VIDEO_ANALYZER_LOCATION
               valueFrom:
                 secretKeyRef:
-                  name: tno-api
+                  name: api
                   key: AZURE_VIDEO_ANALYZER_LOCATION
           livenessProbe:
             httpGet:
@@ -208,8 +184,8 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - tno-api
+          - api
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools
-          name: tno-api:dev
+          name: api:dev

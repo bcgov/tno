@@ -78,7 +78,10 @@ public class ScheduledService
     var approvedDataSources = dataSources.stream()
         .filter((ds) -> ds.getIsEnabled() && ds.getConnection().get("url") != null)
         .toList();
-    approvedDataSources.forEach(ds -> sourceConfigs.getSources().add(new SyndicationConfig(ds)));
+
+    for (var ds : approvedDataSources) {
+      sourceConfigs.getSources().add(new SyndicationConfig(ds));
+    }
   }
 
   /**

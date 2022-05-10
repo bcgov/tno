@@ -6,13 +6,14 @@ resources:
   - pvc.yaml
   - config-map.yaml
   - deploy.yaml
+  - service.yaml
   - route.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
 
 secretGenerator:
-  - name: tno-api
+  - name: api
     literals:
       - AZURE_STORAGE_CONTAINER_NAME=
       - AZURE_STORAGE_CONNECTION_STRING=true

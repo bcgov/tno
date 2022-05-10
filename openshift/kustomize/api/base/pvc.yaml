@@ -5,9 +5,12 @@ metadata:
   name: file-storage
   namespace: default
   labels:
-    name: file-storage
-    solution: tno
-    app: api
+    name: api
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
 spec:
   # Storage class name is the type of storage [netapp-file-standard, netapp-file-extended, netapp-file-backup, netapp-block-standard, netapp-block-extended]
   storageClassName: netapp-file-standard

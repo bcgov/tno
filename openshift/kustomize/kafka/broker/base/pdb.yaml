@@ -1,0 +1,18 @@
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kafka
+  labels:
+    name: kafka-broker
+    part-of: tno
+    version: 1.0.0
+    component: kafka-broker
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  selector:
+    matchLabels:
+    part-of: tno
+    component: kafka-broker
+  maxUnavailable: 1

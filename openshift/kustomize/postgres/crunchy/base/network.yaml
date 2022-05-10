@@ -2,22 +2,25 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: postgres-cluster
+  name: crunchy
   namespace: default
   labels:
-    name: postgres-cluster
-    solution: tno
-    app: tno-database
-    postgres-operator.crunchydata.com/cluster: postgres-cluster
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
+    postgres-operator.crunchydata.com/cluster: crunchy
 spec:
   podSelector:
     matchLabels:
-      postgres-operator.crunchydata.com/cluster: postgres-cluster
+      postgres-operator.crunchydata.com/cluster: crunchy
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              postgres-operator.crunchydata.com/cluster: postgres-cluster
+              postgres-operator.crunchydata.com/cluster: crunchy
       ports:
         - protocol: TCP
           port: 5432
@@ -30,17 +33,20 @@ spec:
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: postgres-cluster-monitoring
+  name: crunchy-monitoring
   namespace: default
   labels:
-    name: postgres-cluster
-    solution: tno
-    app: tno-database
-    postgres-operator.crunchydata.com/cluster: postgres-cluster
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
+    postgres-operator.crunchydata.com/cluster: crunchy
 spec:
   podSelector:
     matchLabels:
-      postgres-operator.crunchydata.com/cluster: postgres-cluster
+      postgres-operator.crunchydata.com/cluster: crunchy
   ingress:
     - from:
         - namespaceSelector:

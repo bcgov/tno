@@ -24,7 +24,7 @@ spec:
     - name: IMAGE_TAG
       description: The tag given to the built image.
       type: string
-      default: "latest"
+      default: latest
     - name: ENV
       description: The environment to deploy to.
       type: string

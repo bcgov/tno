@@ -1,0 +1,159 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-broker
+  namespace: default
+  labels:
+    name: kafka-broker
+    part-of: tno
+    version: 1.0.0
+    component: kafka-broker
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      statefulset: kafka-cluster
+  serviceName: kafka-headless
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-data
+        annotations:
+          volume.beta.kubernetes.io/storage-class: netapp-block-standard
+        labels:
+          name: kafka-broker
+          part-of: tno
+          component: kafka-broker
+      spec:
+        storageClassName: netapp-block-standard
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+  template:
+    metadata:
+      labels:
+        name: kafka-broker
+        part-of: tno
+        component: kafka-broker
+        statefulset: kafka-cluster
+    spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccountName: tno
+      terminationGracePeriodSeconds: 0
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: statefulset
+                    operator: In
+                    values:
+                      - kafka-cluster
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: kafka-broker
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/kafka:dev
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: kafka-data
+              mountPath: /var/lib/kafka/data
+          ports:
+            - containerPort: 9092
+              protocol: TCP
+            - containerPort: 29092
+              protocol: TCP
+            - containerPort: 29094
+              protocol: TCP
+            - containerPort: 9101
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 500Mi
+            limits:
+              cpu: 100m
+              memory: 1Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            # Set by entrypoint script.
+            # - name: KAFKA_BROKER_ID
+            #   valueFrom:
+            #     fieldRef:
+            #       apiVersion: v1
+            #       fieldPath: metadata.annotations['spec.pod.beta.kubernetes.io/statefulset-index']
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2181
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "3"
+            - name: KAFKA_AUTO_CREATE_TOPICS_ENABLE
+              value: "false"
+            # - name: KAFKA_ADVERTISED_LISTENERS
+            #   value: PLAINTEXT://kafka-headless:29092
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: INTERNAL://kafka-headless:29092,HOST://kafka-headless:9092,EXTERNAL://kafka-host:29094
+            - name: KAFKA_LISTENERS
+              value: INTERNAL://0.0.0.0:29092,HOST://0.0.0.0:9092,EXTERNAL://0.0.0.0:29094
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: INTERNAL:PLAINTEXT,HOST:PLAINTEXT,EXTERNAL:PLAINTEXT
+            - name: KAFKA_INTER_BROKER_LISTENER_NAME
+              value: INTERNAL
+            - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+              value: "0"
+            # - name: KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL
+            #   value: http://tno-schema-registry:8081
+
+            - name: KAFKA_JMX_PORT
+              value: "9101"
+            - name: KAFKA_JMX_HOSTNAME
+              value: kafka-headless
+
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xmx8G -Xms6G"
+            - name: KAFKA_JVM_PERFORMANCE_OPTS
+              value: "-server -XX:MetaspaceSize=96m  -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true"
+
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - bin/kafka-topics
+          #       - --zookeeper
+          #       - "zookeeper:2181"
+          #       - --list
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #       - bin/kafka-topics
+          #       - --zookeeper
+          #       - "zookeeper:2181"
+          #       - --list
+          #   initialDelaySeconds: 60
+          #   timeoutSeconds: 5

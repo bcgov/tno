@@ -478,8 +478,8 @@ MAX_FAILED_ATTEMPTS=5" >> ./services/capture/.env
 fi
 
 ## Audio - Clip Producer
-if test -f "./services/audio/.env"; then
-    echo "./services/audio/.env exists"
+if test -f "./services/clip/.env"; then
+    echo "./services/clip/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
@@ -491,10 +491,10 @@ KEYCLOAK_CLIENT_SECRET=
 KAFKA_LOGS_TOPIC=logs-audio
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
-KAFKA_CLIENT_ID=audio-capture-01
+KAFKA_CLIENT_ID=audio-clip-01
 
-MAX_FAILED_ATTEMPTS=5" >> ./services/audio/.env
-    echo "./services/audio/.env created"
+MAX_FAILED_ATTEMPTS=5" >> ./services/clip/.env
+    echo "./services/clip/.env created"
 fi
 
 ## NLP Consumer/Producer
@@ -525,8 +525,8 @@ MAX_FAILED_ATTEMPTS=5" >> ./services/nlp/.env
 fi
 
 ## Elasticsearch Consumer
-if test -f "./services/elastic/.env"; then
-    echo "./services/elastic/.env exists"
+if test -f "./services/indexing/.env"; then
+    echo "./services/indexing/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
@@ -548,6 +548,6 @@ MAX_FAILED_ATTEMPTS=5
 
 ELASTIC_URL=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password" >> ./services/elastic/.env
-    echo "./services/elastic/.env created"
+ELASTIC_PASSWORD=$password" >> ./services/indexing/.env
+    echo "./services/indexing/.env created"
 fi

@@ -2,14 +2,17 @@
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: tno-api
+  name: api
   namespace: default
-  labels:
-    name: tno-api
-    solution: tno
-    app: api
   annotations:
     haproxy.router.openshift.io/rewrite-target: /
+  labels:
+    name: api
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
 spec:
   host: tno-dev.apps.silver.devops.gov.bc.ca
   path: /api
@@ -23,5 +26,5 @@ spec:
     # key: ""
   to:
     kind: Service
-    name: tno-api
+    name: api
     weight: 100

@@ -1,28 +1,34 @@
 ---
 # The final build image.
 kind: ImageStream
-apiVersion: v1
+apiVersion: image.openshift.io/v1
 metadata:
-  name: tno-api
+  name: api
   annotations:
     description: Destination for built images.
   labels:
-    name: tno-api
-    solution: tno
-    app: api
+    name: api
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
 
 ---
 # The build config that will be created will be named for the branch you created it for.
 kind: BuildConfig
-apiVersion: v1
+apiVersion: build.openshift.io/v1
 metadata:
-  name: tno-api.dev
+  name: api.dev
   annotations:
     description: Build image from Dockerfile in git repo.
   labels:
-    name: tno-api.dev
-    solution: tno
-    app: api
+    name: api
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
     branch: dev
 spec:
   completionDeadlineSeconds: 1800
@@ -43,7 +49,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: tno-api:latest
+      name: api:latest
   resources:
     requests:
       cpu: 20m

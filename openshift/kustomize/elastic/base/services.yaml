@@ -1,0 +1,63 @@
+---
+# Expose the elastic port to the pod.
+kind: Service
+apiVersion: v1
+metadata:
+  name: elastic
+  namespace: default
+  annotations:
+    description: Exposes the elastic server
+  labels:
+    name: elastic
+    part-of: tno
+    version: 1.0.0
+    component: elastic
+    managed-by: kustomize
+    created-by: jeremy.foster
+    cluster: elastic-cluster
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: 9200-tcp
+      protocol: TCP
+      port: 9200
+      targetPort: 9200
+    - name: 9300-com
+      protocol: TCP
+      port: 9300
+      targetPort: 9300
+  selector:
+    part-of: tno
+    component: elastic
+    statefulset: elastic-cluster
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: elastic-headless
+  namespace: default
+  labels:
+    name: elastic
+    part-of: tno
+    version: 1.0.0
+    component: elastic
+    managed-by: kustomize
+    created-by: jeremy.foster
+    cluster: elastic-cluster
+spec:
+  clusterIP: None
+  ports:
+    - name: 9200-tcp
+      protocol: TCP
+      port: 9200
+      targetPort: 9200
+    - name: 9300-com
+      protocol: TCP
+      port: 9300
+      targetPort: 9300
+  selector:
+    part-of: tno
+    component: elastic
+    statefulset: elastic-cluster

@@ -1,4 +1,4 @@
-FROM confluentinc/cp-zookeeper:7.0.1
+FROM confluentinc/cp-zookeeper:7.1.1
 
 # Fix Openshift logging permission issue
 USER root
@@ -6,6 +6,11 @@ USER root
 RUN chgrp -R root /var/log/kafka && \
   chmod -R g=u /var/log/kafka
 
-RUN chown -R appuser:root /etc/kafka /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper /etc/zookeeper/secrets
+WORKDIR /app
+COPY ./entrypoint.sh .
+RUN chmod +x /app/entrypoint.sh
+RUN chown -R appuser:root /etc/kafka /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper /etc/zookeeper/secrets /app
 
 USER appuser
+
+ENTRYPOINT ["/app/entrypoint.sh"]

@@ -1,0 +1,22 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: syndication-service
+  namespace: default
+  annotations:
+    description: Audio Capture service configuration settings
+  labels:
+    name: syndication-service
+    part-of: tno
+    version: 1.0.0
+    component: syndication-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+type: Opaque
+data:
+  KAFKA_CLIENT_ID: syndication
+  KAFKA_LOGS_TOPIC: logs-syndication
+  MAX_FAILED_ATTEMPTS: "5"
+  DATA_SOURCE_MEDIA_TYPE: Syndication

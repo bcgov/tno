@@ -55,29 +55,29 @@ services:
     networks:
       - tno
 
-  schema-registry:
-    image: tno:kafka-schema-registry
-    profiles:
-      - all
-      - kafka
-      - service
-      - data
-      - utility
-    restart: "no"
-    hostname: schema-registry
-    container_name: tno-schema-registry
-    build:
-      context: db/kafka/schema-registry
-    env_file:
-      - db/kafka/schema-registry/.env
-    depends_on:
-      - broker
-    ports:
-      - ${KAFKA_SCHEMA_REGISTRY_PORT:-40103}:8081
-    volumes:
-      - tno-schema-secrets:/etc/schema-registry/secrets
-    networks:
-      - tno
+  # schema-registry:
+  #   image: tno:kafka-schema-registry
+  #   profiles:
+  #     - all
+  #     - kafka
+  #     - service
+  #     - data
+  #     - utility
+  #   restart: "no"
+  #   hostname: schema-registry
+  #   container_name: tno-schema-registry
+  #   build:
+  #     context: db/kafka/schema-registry
+  #   env_file:
+  #     - db/kafka/schema-registry/.env
+  #   depends_on:
+  #     - broker
+  #   ports:
+  #     - ${KAFKA_SCHEMA_REGISTRY_PORT:-40103}:8081
+  #   volumes:
+  #     - tno-schema-secrets:/etc/schema-registry/secrets
+  #   networks:
+  #     - tno
 
   rest-proxy:
     image: tno:kafka-rest-proxy
@@ -96,60 +96,60 @@ services:
       - db/kafka/rest-proxy/.env
     depends_on:
       - broker
-      - schema-registry
+      # - schema-registry
     ports:
       - ${KAFKA_REST_PROXY_PORT:-40104}:8082
     networks:
       - tno
 
-  connect:
-    image: tno:kafka-connect
-    profiles:
-      - all
-      - kafka
-      - data
-      - utility
-    restart: "no"
-    hostname: connect
-    container_name: tno-connect
-    build:
-      context: db/kafka/connect
-    env_file:
-      - db/kafka/connect/.env
-    depends_on:
-      - broker
-      - schema-registry
-    ports:
-      - ${KAFKA_CONNECT_PORT:-40105}:8083
-    volumes:
-      - ./db/kafka/connect/jars:/etc/kafka-connect/jars
-      - tno-connect-secrets:/etc/kafka-connect/secrets
-      - tno-connect-data:/var/lib/kafka/data
-      - tno-broker-secrets:/etc/kafka/secrets
-    networks:
-      - tno
+  # connect:
+  #   image: tno:kafka-connect
+  #   profiles:
+  #     - all
+  #     - kafka
+  #     - data
+  #     - utility
+  #   restart: "no"
+  #   hostname: connect
+  #   container_name: tno-connect
+  #   build:
+  #     context: db/kafka/connect
+  #   env_file:
+  #     - db/kafka/connect/.env
+  #   depends_on:
+  #     - broker
+  #     - schema-registry
+  #   ports:
+  #     - ${KAFKA_CONNECT_PORT:-40105}:8083
+  #   volumes:
+  #     - ./db/kafka/connect/jars:/etc/kafka-connect/jars
+  #     - tno-connect-secrets:/etc/kafka-connect/secrets
+  #     - tno-connect-data:/var/lib/kafka/data
+  #     - tno-broker-secrets:/etc/kafka/secrets
+  #   networks:
+  #     - tno
 
-  ksqldb:
-    image: tno:kafka-ksqldb
-    profiles:
-      - all
-      - kafka
-      - data
-      - utility
-    restart: "no"
-    hostname: ksqldb
-    container_name: tno-ksqldb
-    build:
-      context: db/kafka/ksqldb
-    env_file:
-      - db/kafka/ksqldb/.env
-    depends_on:
-      - broker
-      - connect
-    ports:
-      - ${KAFKA_KSQLDB_PORT:-40106}:8088
-    networks:
-      - tno
+  # ksqldb:
+  #   image: tno:kafka-ksqldb
+  #   profiles:
+  #     - all
+  #     - kafka
+  #     - data
+  #     - utility
+  #   restart: "no"
+  #   hostname: ksqldb
+  #   container_name: tno-ksqldb
+  #   build:
+  #     context: db/kafka/ksqldb
+  #   env_file:
+  #     - db/kafka/ksqldb/.env
+  #   depends_on:
+  #     - broker
+  #     - connect
+  #   ports:
+  #     - ${KAFKA_KSQLDB_PORT:-40106}:8088
+  #   networks:
+  #     - tno
 
   # cat:
   #   image: tno:kafkacat
@@ -185,8 +185,8 @@ services:
       - ./db/kafka/kowl/.env:/etc/kowl/config.yaml
     depends_on:
       - broker
-      - connect
-      - schema-registry
+      # - connect
+      # - schema-registry
     ports:
       - ${KAFKA_KOWL_PORT:-40180}:8080
     networks:

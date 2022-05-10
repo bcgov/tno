@@ -1,0 +1,142 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: indexing-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy indexing-service
+  labels:
+    name: indexing-service
+    part-of: tno
+    version: 1.0.0
+    component: indexing-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: indexing-service
+    part-of: tno
+    component: indexing-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: indexing-service
+      labels:
+        name: indexing-service
+        part-of: tno
+        component: indexing-service
+    spec:
+      containers:
+        - name: indexing-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 250Mi
+            limits:
+              cpu: 100m
+              memory: 500Mi
+          env:
+            - name: API_HOST_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTH_SERVER_URL
+            - name: KEYCLOAK_REALM
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_REALM
+            - name: KEYCLOAK_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_ID
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: KAFKA_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: KAFKA_CLIENT_ID
+            - name: KAFKA_LOGS_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: KAFKA_LOGS_TOPIC
+            - name: MAX_FAILED_ATTEMPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: MAX_FAILED_ATTEMPTS
+            - name: DATA_SOURCE_MEDIA_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: indexing-service
+                  key: DATA_SOURCE_MEDIA_TYPE
+          # livenessProbe:
+          #   httpGet:
+          #     path: '/health'
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 60
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   failureThreshold: 3
+          # readinessProbe:
+          #   httpGet:
+          #     path: '/health'
+          #     port: 8080
+          #     scheme: HTTP
+          #   initialDelaySeconds: 120
+          #   timeoutSeconds: 60
+          #   periodSeconds: 30
+          #   successThreshold: 1
+          #   failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - indexing-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: indexing-service:dev

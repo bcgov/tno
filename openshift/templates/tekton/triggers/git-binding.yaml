@@ -8,12 +8,6 @@ metadata:
     tags: git,trigger,tekton
 
 parameters:
-  - name: SOLUTION_NAME
-    displayName: Solution Name
-    description: The name of the solution.
-    required: true
-    value: tno
-
   - name: GIT_SOURCE
     displayName: Git Source Name
     description: Identify the git source.
@@ -30,8 +24,7 @@ objects:
   - apiVersion: triggers.tekton.dev/v1alpha1
     kind: TriggerBinding
     metadata:
-      name: git-${SOLUTION_NAME}-${GIT_SOURCE}
-      solution: ${SOLUTION_NAME}
+      name: git-${GIT_SOURCE}
     spec:
       params:
         - name: GIT_URL

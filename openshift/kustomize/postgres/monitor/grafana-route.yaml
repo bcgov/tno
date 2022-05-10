@@ -3,6 +3,13 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: crunchy-grafana
+  labels:
+    name: crunchy
+    part-of: tno
+    version: 1.0.0
+    component: postgres
+    managed-by: kustomize
+    created-by: jeremy.foster
 spec:
   to:
     kind: Service
