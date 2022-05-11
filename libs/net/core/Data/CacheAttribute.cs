@@ -10,18 +10,21 @@ public class CacheAttribute : Attribute
     /// <summary>
     /// get/set - Unique key to identify this cache item.
     /// </summary>
-    public string Key { get; set; }
+    public List<string> Keys { get; set; } = new List<string>();
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a CacheAttribute object, initializes with specified parameter.
     /// </summary>
-    /// <param name="key">Unique key to identify this cache item.</param>
+    /// <param name="keys">Unique key to identify this cache item.  Multiple keys allow for updating multiple cache values.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public CacheAttribute(string key)
+    public CacheAttribute(params string[] keys)
     {
-        this.Key = key ?? throw new ArgumentNullException(nameof(key));
+        foreach (var key in keys)
+        {
+            this.Keys.Add(key ?? throw new ArgumentNullException(nameof(keys)));
+        }
     }
 
     /// <summary>
@@ -31,7 +34,7 @@ public class CacheAttribute : Attribute
     /// <exception cref="ArgumentNullException"></exception>
     public CacheAttribute(Type type)
     {
-        this.Key = type?.Name ?? throw new ArgumentNullException(nameof(type));
+        this.Keys.Add(type?.Name ?? throw new ArgumentNullException(nameof(type)));
     }
     #endregion
 }

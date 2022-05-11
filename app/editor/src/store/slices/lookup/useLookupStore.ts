@@ -2,11 +2,13 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
+  IClaimModel,
   IContentTypeModel,
   IDataLocationModel,
   IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
+  IRoleModel,
   ISeriesModel,
   ISourceActionModel,
   ISourceMetricModel,
@@ -21,11 +23,13 @@ import {
   storeActions,
   storeCache,
   storeCategories,
+  storeClaims,
   storeContentTypes,
   storeDataLocations,
   storeDataSources,
   storeLicenses,
   storeMediaTypes,
+  storeRoles,
   storeSeries,
   storeSourceActions,
   storeSourceMetrics,
@@ -40,15 +44,17 @@ export interface ILookupStore {
   storeCache: (cache: ICacheModel[]) => void;
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
-  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
-  storeSourceActions: (actions: ISourceActionModel[]) => void;
-  storeSourceMetrics: (metrics: ISourceMetricModel[]) => void;
   storeCategories: (categories: ICategoryModel[]) => void;
+  storeClaims: (claims: IClaimModel[]) => void;
   storeContentTypes: (contentTypes: IContentTypeModel[]) => void;
+  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
+  storeDataSources: (dataSources: IDataSourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
   storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
-  storeDataSources: (dataSources: IDataSourceModel[]) => void;
+  storeRoles: (roles: IRoleModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
+  storeSourceActions: (actions: ISourceActionModel[]) => void;
+  storeSourceMetrics: (metrics: ISourceMetricModel[]) => void;
   storeTags: (tags: ITagModel[]) => void;
   storeTonePools: (contentTypes: ITonePoolModel[]) => void;
   storeUsers: (users: IUserModel[]) => void;
@@ -69,20 +75,20 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeActions: (actions: IActionModel[]) => {
         dispatch(storeActions(actions));
       },
-      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
-        dispatch(storeDataLocations(dataLocations));
-      },
-      storeSourceActions: (actions: ISourceActionModel[]) => {
-        dispatch(storeSourceActions(actions));
-      },
-      storeSourceMetrics: (metrics: ISourceMetricModel[]) => {
-        dispatch(storeSourceMetrics(metrics));
-      },
       storeCategories: (categories: ICategoryModel[]) => {
         dispatch(storeCategories(categories));
       },
+      storeClaims: (claims: IClaimModel[]) => {
+        dispatch(storeClaims(claims));
+      },
       storeContentTypes: (contentTypes: IContentTypeModel[]) => {
         dispatch(storeContentTypes(contentTypes));
+      },
+      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
+        dispatch(storeDataLocations(dataLocations));
+      },
+      storeDataSources: (dataSources: IDataSourceModel[]) => {
+        dispatch(storeDataSources(dataSources));
       },
       storeLicenses: (licenses: ILicenseModel[]) => {
         dispatch(storeLicenses(licenses));
@@ -90,11 +96,17 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => {
         dispatch(storeMediaTypes(mediaTypes));
       },
-      storeDataSources: (dataSources: IDataSourceModel[]) => {
-        dispatch(storeDataSources(dataSources));
+      storeRoles: (roles: IRoleModel[]) => {
+        dispatch(storeRoles(roles));
       },
       storeSeries: (series: ISeriesModel[]) => {
         dispatch(storeSeries(series));
+      },
+      storeSourceActions: (actions: ISourceActionModel[]) => {
+        dispatch(storeSourceActions(actions));
+      },
+      storeSourceMetrics: (metrics: ISourceMetricModel[]) => {
+        dispatch(storeSourceMetrics(metrics));
       },
       storeTags: (tags: ITagModel[]) => {
         dispatch(storeTags(tags));

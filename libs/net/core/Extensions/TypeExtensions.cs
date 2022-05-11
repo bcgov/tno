@@ -234,14 +234,14 @@ namespace TNO.Core.Extensions
         }
 
         /// <summary>
-        /// Get the cache key of the specified type, if they type has the 'CacheAttribute'.
+        /// Get the cache keys of the specified type, if they type has the 'CacheAttribute'.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static string? GetCacheKey(this Type type)
+        public static IEnumerable<string>? GetCacheKeys(this Type type)
         {
             var attr = type.GetCustomAttribute<CacheAttribute>();
-            return attr?.Key;
+            return attr?.Keys;
         }
         #endregion
     }

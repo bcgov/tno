@@ -1,11 +1,9 @@
 import {
   IActionModel,
-  ICacheModel,
   ICategoryModel,
   IClaimModel,
   IContentTypeModel,
   IDataLocationModel,
-  IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
   IRoleModel,
@@ -15,16 +13,16 @@ import {
   ITagModel,
   ITonePoolModel,
   IUserModel,
-} from 'hooks/api-editor';
+} from '.';
+import { IDataSourceModel } from './IDataSourceModel';
 
-export interface ILookupState {
-  cache: ICacheModel[];
+export interface ILookupModel {
   actions: IActionModel[];
   categories: ICategoryModel[];
   claims: IClaimModel[];
   contentTypes: IContentTypeModel[];
-  dataLocations: IDataLocationModel[];
   dataSources: IDataSourceModel[];
+  dataLocations: IDataLocationModel[];
   licenses: ILicenseModel[];
   mediaTypes: IMediaTypeModel[];
   roles: IRoleModel[];

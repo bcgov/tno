@@ -130,6 +130,14 @@ INSERT INTO public.cache (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+  'lookups' -- key
+  , gen_random_uuid() -- value
+  , '' -- description
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 END $$;

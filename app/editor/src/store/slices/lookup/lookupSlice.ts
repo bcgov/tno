@@ -3,11 +3,13 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
+  IClaimModel,
   IContentTypeModel,
   IDataLocationModel,
   IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
+  IRoleModel,
   ISeriesModel,
   ISourceActionModel,
   ISourceMetricModel,
@@ -21,15 +23,17 @@ import { ILookupState } from './interfaces';
 export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
-  dataLocations: [],
-  sourceActions: [],
-  sourceMetrics: [],
   categories: [],
+  claims: [],
   contentTypes: [],
+  dataLocations: [],
+  dataSources: [],
   licenses: [],
   mediaTypes: [],
-  dataSources: [],
+  roles: [],
   series: [],
+  sourceActions: [],
+  sourceMetrics: [],
   tags: [],
   tonePools: [],
   users: [],
@@ -56,20 +60,20 @@ export const lookupSlice = createSlice({
     storeActions(state: ILookupState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
     },
-    storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
-      state.dataLocations = action.payload;
-    },
-    storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
-      state.sourceActions = action.payload;
-    },
-    storeSourceMetrics(state: ILookupState, action: PayloadAction<ISourceMetricModel[]>) {
-      state.sourceMetrics = action.payload;
-    },
     storeCategories(state: ILookupState, action: PayloadAction<ICategoryModel[]>) {
       state.categories = action.payload;
     },
+    storeClaims(state: ILookupState, action: PayloadAction<IClaimModel[]>) {
+      state.claims = action.payload;
+    },
     storeContentTypes(state: ILookupState, action: PayloadAction<IContentTypeModel[]>) {
       state.contentTypes = action.payload;
+    },
+    storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
+      state.dataLocations = action.payload;
+    },
+    storeDataSources(state: ILookupState, action: PayloadAction<IDataSourceModel[]>) {
+      state.dataSources = action.payload;
     },
     storeLicenses(state: ILookupState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
@@ -77,11 +81,17 @@ export const lookupSlice = createSlice({
     storeMediaTypes(state: ILookupState, action: PayloadAction<IMediaTypeModel[]>) {
       state.mediaTypes = action.payload;
     },
-    storeDataSources(state: ILookupState, action: PayloadAction<IDataSourceModel[]>) {
-      state.dataSources = action.payload;
+    storeRoles(state: ILookupState, action: PayloadAction<IRoleModel[]>) {
+      state.roles = action.payload;
     },
     storeSeries(state: ILookupState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
+    },
+    storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
+      state.sourceActions = action.payload;
+    },
+    storeSourceMetrics(state: ILookupState, action: PayloadAction<ISourceMetricModel[]>) {
+      state.sourceMetrics = action.payload;
     },
     storeTags(state: ILookupState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
@@ -97,18 +107,20 @@ export const lookupSlice = createSlice({
 
 export const {
   storeCache,
+  updateCache,
   storeActions,
-  storeDataLocations,
-  storeSourceActions,
-  storeSourceMetrics,
   storeCategories,
+  storeClaims,
   storeContentTypes,
+  storeDataLocations,
+  storeDataSources,
   storeLicenses,
   storeMediaTypes,
-  storeDataSources,
+  storeRoles,
   storeSeries,
+  storeSourceActions,
+  storeSourceMetrics,
   storeTags,
   storeTonePools,
   storeUsers,
-  updateCache,
 } = lookupSlice.actions;

@@ -3,7 +3,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("series")]
+[Cache("series", "lookups")]
 [Table("series")]
 public class Series : BaseType<int>
 {

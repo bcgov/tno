@@ -74,7 +74,7 @@ public static class DbContextExtensions
     /// <param name="context"></param>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public static Cache? UpdateCache<T>(this TNOContext context, T entity)
+    public static IEnumerable<Cache> UpdateCache<T>(this TNOContext context, T entity)
         where T : notnull
     {
         return context.UpdateCache(entity.GetType());
@@ -87,7 +87,7 @@ public static class DbContextExtensions
     /// <param name="context"></param>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public static Cache? UpdateCache<T>(this TNOContext context)
+    public static IEnumerable<Cache> UpdateCache<T>(this TNOContext context)
         where T : notnull
     {
         return context.UpdateCache(typeof(T));
@@ -99,12 +99,19 @@ public static class DbContextExtensions
     /// <param name="context"></param>
     /// <param name="type"></param>
     /// <returns></returns>
-    public static Cache? UpdateCache(this TNOContext context, Type type)
+    public static IEnumerable<Cache> UpdateCache(this TNOContext context, Type type)
     {
-        var key = type.GetCacheKey();
-        if (key != null)
-            return context.UpdateCache(key);
-        return null;
+        var result = new List<Cache>();
+        var keys = type.GetCacheKeys();
+        if (keys != null)
+        {
+            foreach (var key in keys)
+            {
+                var cache = context.UpdateCache(key);
+                if (cache != null) result.Add(cache);
+            }
+        }
+        return result;
     }
 
     /// <summary>
@@ -121,6 +128,10 @@ public static class DbContextExtensions
         {
             cache.Value = Guid.NewGuid().ToString();
             context.Update(cache);
+        }
+        else
+        {
+            context.Add(new Cache(key, Guid.NewGuid()));
         }
         return cache;
     }
