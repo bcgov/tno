@@ -160,7 +160,7 @@ namespace TNO.API.Middleware
 
             if (!context.Response.HasStarted)
             {
-                var result = JsonSerializer.Serialize(new Models.ErrorResponseModel(_env, ex, message, details), _options.JsonSerializerOptions);
+                var result = JsonSerializer.Serialize(new Models.ErrorResponseModel(ex, message, details, !_env.IsProduction()), _options.JsonSerializerOptions);
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)code;
                 await context.Response.WriteAsync(result);

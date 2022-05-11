@@ -72,7 +72,9 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return result;
       },
     }),
-    [api, dispatch, state.mediaTypes, store],
+    // The state.mediaTypes will cause it to fire twice!
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [api, dispatch, store],
   );
 
   return [state, controller];

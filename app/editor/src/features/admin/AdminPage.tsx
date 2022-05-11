@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import {
   CBRAReport,
   ContentLogs,
+  ContentReferenceList,
   DataSource,
   DataSourceDetails,
   DataSourceList,
@@ -29,6 +30,7 @@ export const AdminPage: React.FC = () => {
           <Route path="details" element={<DataSourceDetails />} />
           <Route path="schedule" element={<Schedule />} />
           <Route path="metrics" element={<ReachEarnedMedia />} />
+          <Route path="ingesting" element={<ContentReferenceList />} />
         </Route>
         <Route path="contents/log" element={<ContentLogs />} />
         <Route path="reports/cbra" element={<CBRAReport />} />

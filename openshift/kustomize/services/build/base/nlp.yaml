@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./services/nlp
+    contextDir: ./services/java/nlp
   strategy:
     type: Docker
     dockerStrategy:

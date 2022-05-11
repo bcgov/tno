@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./services/indexing
+    contextDir: ./services/java/indexing
   strategy:
     type: Docker
     dockerStrategy:

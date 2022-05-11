@@ -16,6 +16,9 @@ public class ContentReferenceFilter : PageFilter
     public DateTime? PublishedOn { get; set; }
     public DateTime? PublishedStartOn { get; set; }
     public DateTime? PublishedEndOn { get; set; }
+    public DateTime? UpdatedOn { get; set; }
+    public DateTime? UpdatedStartOn { get; set; }
+    public DateTime? UpdatedEndOn { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
     #endregion
 
@@ -36,6 +39,10 @@ public class ContentReferenceFilter : PageFilter
         this.PublishedOn = filter.GetDateTimeNullValue(nameof(this.PublishedOn));
         this.PublishedStartOn = filter.GetDateTimeNullValue(nameof(this.PublishedStartOn));
         this.PublishedEndOn = filter.GetDateTimeNullValue(nameof(this.PublishedEndOn));
+
+        this.UpdatedOn = filter.GetDateTimeNullValue(nameof(this.UpdatedOn));
+        this.UpdatedStartOn = filter.GetDateTimeNullValue(nameof(this.UpdatedStartOn));
+        this.UpdatedEndOn = filter.GetDateTimeNullValue(nameof(this.UpdatedEndOn));
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }

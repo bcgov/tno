@@ -6,7 +6,7 @@ import { useApp } from 'store/hooks/app/useApp';
 import { GridTable } from 'tno-core/dist/components/grid-table';
 
 import { DataSourceFilter } from '.';
-import { columns } from './constants';
+import { dataSourceColumns } from './constants';
 import * as styled from './styled';
 
 interface IDataSourceListProps {}
@@ -32,7 +32,7 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
   return (
     <styled.DataSourceList>
       <GridTable
-        columns={columns}
+        columns={dataSourceColumns}
         isLoading={!!requests.length}
         data={items}
         header={DataSourceFilter}

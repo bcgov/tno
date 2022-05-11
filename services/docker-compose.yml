@@ -11,18 +11,19 @@ services:
     restart: "no"
     container_name: tno-syndication
     build:
-      context: services/syndication
+      context: ./
+      dockerfile: services/net/syndication/Dockerfile
     env_file:
-      - services/syndication/.env
+      - services/net/syndication/.env
     ports:
-      - ${SYNDICATION_PORT:-40020}:8080
+      - ${SYNDICATION_PORT:-40020}:8081
     depends_on:
       - database
       - broker
     networks:
       - tno
     healthcheck:
-      test: curl -s -f http://localhost:8080/health || exit 1
+      test: curl -s -f http://localhost:8081/health || exit 1
       interval: 1m
       timeout: 10s
       retries: 3
@@ -37,13 +38,13 @@ services:
     restart: "no"
     container_name: tno-nlp
     build:
-      context: services/nlp
+      context: services/java/nlp
     env_file:
-      - services/nlp/.env
+      - services/java/nlp/.env
     ports:
       - ${NLP_PORT:-40022}:8080
     volumes:
-      - ./services/nlp/src/main/resources/models:/app/classes/models
+      - ./services/java/nlp/src/main/resources/models:/app/classes/models
     depends_on:
       - database
     networks:
@@ -65,9 +66,9 @@ services:
     restart: "no"
     container_name: tno-indexing
     build:
-      context: services/indexing
+      context: services/java/indexing
     env_file:
-      - services/indexing/.env
+      - services/java/indexing/.env
     ports:
       - ${INDEXING_PORT:-40023}:8080
     depends_on:
@@ -91,9 +92,9 @@ services:
     restart: "no"
     container_name: tno-clip
     build:
-      context: services/clip
+      context: services/java/clip
     env_file:
-      - services/clip/.env
+      - services/java/clip/.env
     ports:
       - ${AUDIO_PORT:-40024}:8080
     depends_on:
@@ -119,9 +120,9 @@ services:
     restart: "no"
     container_name: tno-capture
     build:
-      context: services/capture
+      context: services/java/capture
     env_file:
-      - services/capture/.env
+      - services/java/capture/.env
     ports:
       - ${AUDIO_PORT:-40025}:8080
     depends_on:

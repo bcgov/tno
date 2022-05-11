@@ -36,17 +36,17 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(filter.Source))
             query = query.Where(c => c.Source == filter.Source);
         if (!String.IsNullOrWhiteSpace(filter.Headline))
-            query = query.Where(c => EF.Functions.Like(c.Headline, $"%{filter.Headline}%"));
+            query = query.Where(c => EF.Functions.Like(c.Headline.ToLower(), $"%{filter.Headline.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.PageName))
-            query = query.Where(c => EF.Functions.Like(c.Page, $"%{filter.PageName}%"));
+            query = query.Where(c => EF.Functions.Like(c.Page.ToLower(), $"%{filter.PageName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Section, $"%{filter.Section}%"));
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Section.ToLower(), $"%{filter.Section.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Edition))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Edition, $"%{filter.Edition}%"));
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Edition.ToLower(), $"%{filter.Edition.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.StoryType))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.StoryType, $"%{filter.StoryType}%"));
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.StoryType.ToLower(), $"%{filter.StoryType.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Byline))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline, $"%{filter.Byline}%"));
+            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline.ToLower(), $"%{filter.Byline.ToLower()}%"));
 
         if (!String.IsNullOrWhiteSpace(filter.MediaType))
             query = query.Where(c => EF.Functions.Like(c.MediaType!.Name, $"%{filter.MediaType}%"));

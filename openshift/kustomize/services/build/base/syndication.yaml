@@ -40,7 +40,7 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./services/syndication
+    contextDir: ./services/java/syndication
   strategy:
     type: Docker
     dockerStrategy:

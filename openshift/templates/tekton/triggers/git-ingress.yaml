@@ -44,3 +44,33 @@ objects:
                     name: el-git-${APP_NAME_2}
                     port:
                       number: 8080
+
+  - kind: Route
+    apiVersion: route.openshift.io/v1
+    metadata:
+      name: git-webhook-${APP_NAME_1}
+    spec:
+      host: tno-tekton.apps.silver.devops.gov.bc.ca
+      path: /hooks/${APP_NAME_1}
+      to:
+        kind: Service
+        name: el-git-${APP_NAME_1}
+        weight: 100
+      port:
+        targetPort: http-listener
+      wildcardPolicy: None
+
+  - kind: Route
+    apiVersion: route.openshift.io/v1
+    metadata:
+      name: git-webhook-${APP_NAME_2}
+    spec:
+      host: tno-tekton.apps.silver.devops.gov.bc.ca
+      path: /hooks/${APP_NAME_2}
+      to:
+        kind: Service
+        name: el-git-${APP_NAME_2}
+        weight: 100
+      port:
+        targetPort: http-listener
+      wildcardPolicy: None

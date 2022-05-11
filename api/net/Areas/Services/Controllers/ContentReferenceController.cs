@@ -65,7 +65,7 @@ public class ContentReferenceController : ControllerBase
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [HttpPost("{source}")]
+    [HttpPost]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]

@@ -31,9 +31,9 @@ public class MediaTypeService : BaseService<MediaType, int>, IMediaTypeService
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(c => EF.Functions.Like(c.Name, $"%{filter.Name}%"));
+            query = query.Where(c => EF.Functions.Like(c.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Description))
-            query = query.Where(c => c.Description == filter.Description);
+            query = query.Where(c => EF.Functions.Like(c.Description.ToLower(), $"%{filter.Description.ToLower()}%"));
 
         var total = query.Count();
 

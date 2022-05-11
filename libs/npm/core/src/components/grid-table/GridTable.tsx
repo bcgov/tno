@@ -4,9 +4,9 @@ import {
   Row,
   SortingRule,
   useFilters,
+  useFlexLayout,
   useGlobalFilter,
   usePagination,
-  useFlexLayout,
   useSortBy,
   useTable,
 } from 'react-table';

@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -12,25 +13,27 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
 using TNO.DAL;
 
-var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder
     .Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{env}.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
     .AddJsonFile("connectionstrings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"connectionstrings.{env}.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"connectionstrings.{environment}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()
     .AddCommandLine(args);
 var config = builder.Configuration;
+var env = builder.Environment;
 
 // Add services to the container.
 
@@ -83,6 +86,7 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartHeadersLengthLimit = (int)section.GetValue(typeof(int), "MultipartHeadersLengthLimit");
 });
 
+IdentityModelEventSource.ShowPII = true;
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -167,7 +171,7 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddTNOServices(config);
+builder.Services.AddTNOServices(config, env);
 
 builder.Services.AddApiVersioning(options =>
 {

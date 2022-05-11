@@ -99,7 +99,7 @@ export const ContentListView: React.FC = () => {
             onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
             onChangePage={handleChangePage}
             onChangeSort={handleChangeSort}
-          ></PagedTable>
+          />
         </div>
         <div className="content-actions">
           <Button name="create" onClick={() => navigate('/contents/0')}>

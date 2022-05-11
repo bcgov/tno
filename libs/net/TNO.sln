@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.DAL", "dal\TNO.DAL.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Reports", "reports\TNO.Reports.csproj", "{EAB3D198-CD94-42F8-A41F-E436D1ADBCE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Models", "models\TNO.Models.csproj", "{1FF8B02A-481C-4646-B1F8-E7AC7000589E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services", "services\TNO.Services.csproj", "{09E5BF16-D131-4FFD-BD2C-AEA8AFF9F73B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{EAB3D198-CD94-42F8-A41F-E436D1ADBCE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAB3D198-CD94-42F8-A41F-E436D1ADBCE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAB3D198-CD94-42F8-A41F-E436D1ADBCE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FF8B02A-481C-4646-B1F8-E7AC7000589E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FF8B02A-481C-4646-B1F8-E7AC7000589E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FF8B02A-481C-4646-B1F8-E7AC7000589E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FF8B02A-481C-4646-B1F8-E7AC7000589E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09E5BF16-D131-4FFD-BD2C-AEA8AFF9F73B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09E5BF16-D131-4FFD-BD2C-AEA8AFF9F73B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09E5BF16-D131-4FFD-BD2C-AEA8AFF9F73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09E5BF16-D131-4FFD-BD2C-AEA8AFF9F73B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

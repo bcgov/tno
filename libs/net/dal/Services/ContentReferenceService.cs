@@ -29,9 +29,9 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         if (!String.IsNullOrWhiteSpace(filter.Source))
             query = query.Where(c => c.Source == filter.Source);
         if (!String.IsNullOrWhiteSpace(filter.Uid))
-            query = query.Where(c => c.Uid == filter.Uid);
+            query = query.Where(c => EF.Functions.Like(c.Uid.ToLower(), $"%{filter.Uid.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Topic))
-            query = query.Where(c => EF.Functions.Like(c.Topic, $"{filter.Topic}"));
+            query = query.Where(c => EF.Functions.Like(c.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
 
         if (filter.Offset.HasValue)
             query = query.Where(c => c.Offset == filter.Offset);
@@ -47,10 +47,25 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         else if (filter.PublishedEndOn.HasValue)
             query = query.Where(c => c.PublishedOn <= filter.PublishedEndOn.Value.ToUniversalTime());
 
+        if (filter.UpdatedOn.HasValue)
+            query = query.Where(c => c.SourceUpdateOn == filter.UpdatedOn.Value.ToUniversalTime());
+        if (filter.UpdatedStartOn.HasValue && filter.UpdatedEndOn.HasValue)
+            query = query.Where(c => c.SourceUpdateOn >= filter.UpdatedStartOn.Value.ToUniversalTime() && c.SourceUpdateOn <= filter.UpdatedEndOn.Value.ToUniversalTime());
+        else if (filter.UpdatedStartOn.HasValue)
+            query = query.Where(c => c.SourceUpdateOn >= filter.UpdatedStartOn.Value.ToUniversalTime());
+        else if (filter.UpdatedEndOn.HasValue)
+            query = query.Where(c => c.SourceUpdateOn <= filter.UpdatedEndOn.Value.ToUniversalTime());
+
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)
-            query = query.OrderByProperty(filter.Sort);
+        {
+            query = query.OrderByProperty(filter.Sort.First());
+            foreach (var sort in filter.Sort.Skip(1))
+            {
+                query = query.ThenByProperty(sort);
+            }
+        }
         else
             query = query.OrderByDescending(c => c.PublishedOn).ThenBy(c => c.Source);
 

@@ -8,9 +8,7 @@ import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useDataSources } from 'store/hooks/admin';
-import { Button, ButtonVariant } from 'tno-core';
-import { Row } from 'tno-core/dist/components/flex';
-import { Tab, Tabs } from 'tno-core/dist/components/tabs';
+import { Button, ButtonVariant, Col, Row, Tab, Tabs } from 'tno-core';
 
 import { defaultDataSource } from './constants';
 import * as styled from './styled';
@@ -58,12 +56,21 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
 
   return (
     <styled.DataSource>
-      <IconButton
-        iconType="back"
-        label="Back to Sources"
-        className="back-button"
-        onClick={() => navigate('/admin/data/sources')}
-      />
+      <Row>
+        <IconButton
+          iconType="back"
+          label="Back to Sources"
+          className="back-button"
+          onClick={() => navigate('/admin/data/sources')}
+        />
+        <Col flex="1" className="info">
+          <p>
+            Sources provide a way to identify and manage different content sources and where they
+            are ingested from. Each source represents one type of media. A service associated with
+            the media type will ingest content which will become available when published.
+          </p>
+        </Col>
+      </Row>
       <FormikForm
         initialValues={source}
         validate={(values) => {
@@ -80,8 +87,9 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
             tabs={
               <>
                 <Tab navigateTo="details" label="Details" exact activePaths={[`${id}`]} />
-                <Tab navigateTo="schedule" label="Schedule" />
                 <Tab navigateTo="metrics" label="Reach/Earned Media" />
+                <Tab navigateTo="schedule" label="Service Schedule" />
+                <Tab navigateTo="ingesting" label="Ingesting" />
               </>
             }
           >

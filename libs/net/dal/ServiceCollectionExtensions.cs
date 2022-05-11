@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -19,9 +21,10 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="connectionString"></param>
+    /// <param name="env"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static IServiceCollection AddTNOContext(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddTNOContext(this IServiceCollection services, string connectionString, IWebHostEnvironment env)
     {
         if (String.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(connectionString));
 
@@ -31,9 +34,13 @@ public static class ServiceCollectionExtensions
             {
                 options.CommandTimeout((int)TimeSpan.FromMinutes(5).TotalSeconds);
             });
-            var debugLoggerFactory = LoggerFactory.Create(builder => { builder.AddDebug(); }); // NOSONAR
-            db.UseLoggerFactory(debugLoggerFactory);
-            options.EnableSensitiveDataLogging();
+            options.EnableSensitiveDataLogging(env.IsDevelopment());
+            options.EnableDetailedErrors(env.IsDevelopment());
+            if (env.IsDevelopment())
+            {
+                var debugLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole().AddDebug(); });
+                db.UseLoggerFactory(debugLoggerFactory);
+            }
         });
 
         return services;
@@ -44,15 +51,16 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
+    /// <param name="env"></param>
     /// <returns></returns>
-    public static IServiceCollection AddTNOContext(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddTNOContext(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env)
     {
         var postgresBuilder = new NpgsqlConnectionStringBuilder(config["ConnectionStrings:TNO"])
         {
             Username = config["DB_POSTGRES_USERNAME"],
             Password = config["DB_POSTGRES_PASSWORD"]
         };
-        return services.AddTNOContext(postgresBuilder.ConnectionString);
+        return services.AddTNOContext(postgresBuilder.ConnectionString, env);
     }
 
     /// <summary>
@@ -60,14 +68,15 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="config"></param>
+    /// <param name="env"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    public static IServiceCollection AddTNOServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddTNOServices(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env)
     {
         if (config == null) throw new ArgumentNullException(nameof(config));
 
-        services.AddTNOContext(config);
+        services.AddTNOContext(config, env);
 
         // Find all the configuration classes.
         var assembly = typeof(BaseService).Assembly;
