@@ -3,7 +3,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("tags")]
+[Cache("tags", "lookups")]
 [Table("tag")]
 public class Tag : BaseType<string>
 {

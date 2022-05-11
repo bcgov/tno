@@ -4,7 +4,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("users")]
+[Cache("users", "lookups")]
 [Table("user")]
 public class User : AuditColumns
 {

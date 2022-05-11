@@ -3,7 +3,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("source_metrics")]
+[Cache("source_metrics", "lookups")]
 [Table("source_metric")]
 public class SourceMetric : BaseType<int>
 {

@@ -8,7 +8,7 @@ namespace TNO.Entities;
 /// DataSource class, provides a way to desribe and store a source of data.
 /// Includes information on how to connect to the data source and how services are run and scheduled.
 /// </summary>
-[Cache("data_sources")]
+[Cache("data_sources", "lookups")]
 [Table("data_source")]
 public class DataSource : AuditColumns
 {

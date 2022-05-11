@@ -3,7 +3,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("tone_pools")]
+[Cache("tone_pools", "lookups")]
 [Table("tone_pool")]
 public class TonePool : BaseType<int>
 {

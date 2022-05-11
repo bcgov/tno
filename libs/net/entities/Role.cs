@@ -4,7 +4,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("roles")]
+[Cache("roles", "lookups")]
 [Table("role")]
 public class Role : AuditColumns
 {

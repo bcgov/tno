@@ -3,7 +3,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("licenses")]
+[Cache("licenses", "lookups")]
 [Table("license")]
 public class License : BaseType<int>
 {

@@ -3,7 +3,7 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
-[Cache("content_types")]
+[Cache("content_types", "lookups")]
 [Table("content_type")]
 public class ContentType : BaseType<int>
 {
