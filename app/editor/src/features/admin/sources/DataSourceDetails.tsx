@@ -10,7 +10,6 @@ import { Col, Row } from 'tno-core/dist/components/flex';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { DataSourceActions, DataSourceStatus } from '.';
-import { Connection } from './media-types';
 import * as styled from './styled';
 
 interface IDataSourceDetailsProps {}
@@ -88,9 +87,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
           <Col>
             <FormikCheckbox label="Enabled" name="isEnabled" />
             <DataSourceActions />
-          </Col>
-          <Col>
-            <Connection />
           </Col>
         </Row>
         <DataSourceStatus />

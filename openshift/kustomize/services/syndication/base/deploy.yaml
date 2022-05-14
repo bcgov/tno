@@ -46,10 +46,10 @@ spec:
           resources:
             requests:
               cpu: 20m
-              memory: 250Mi
+              memory: 100Mi
             limits:
-              cpu: 100m
-              memory: 500Mi
+              cpu: 50m
+              memory: 150Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -90,14 +90,26 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Syndication Service Configuration
+            - name: KAKFA_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: syndication-service
+                  key: KAKFA_CLIENT_ID
+            - name: IngestService__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: syndication-service
+                  key: MAX_FAIL_LIMIT
           livenessProbe:
             httpGet:
               path: "/health"
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 120
-            timeoutSeconds: 60
-            periodSeconds: 30
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            periodSeconds: 20
             successThreshold: 1
             failureThreshold: 3
           readinessProbe:
@@ -105,9 +117,9 @@ spec:
               path: "/health"
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 120
-            timeoutSeconds: 60
-            periodSeconds: 30
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            periodSeconds: 20
             successThreshold: 1
             failureThreshold: 3
       dnsPolicy: ClusterFirst

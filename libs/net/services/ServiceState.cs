@@ -62,14 +62,6 @@ public class ServiceState
     }
 
     /// <summary>
-    /// Change the status to stopped.
-    /// </summary>
-    public void Stop()
-    {
-        this.Status = ServiceStatus.Stopped;
-    }
-
-    /// <summary>
     /// Change the status to sleeping.
     /// </summary>
     public void Sleep()
