@@ -36,8 +36,6 @@ export const fetchIfNoneMatch = async <T>(
             ? getFromLocalStorage<ICacheModel[]>('etags', []).find((c) => c.key === key)?.value
             : undefined;
 
-        console.debug(key, etag, cacheItems, saveResults);
-
         const result = await dispatch(
           key,
           () => fetch(etag),

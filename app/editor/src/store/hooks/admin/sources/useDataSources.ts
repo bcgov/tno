@@ -17,8 +17,6 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
   const dispatch = useApiDispatcher();
   const [state, store] = useAdminStore();
 
-  const getSources = () => state.dataSources;
-
   const controller = React.useMemo(
     () => ({
       findAllDataSources: async () => {
@@ -39,7 +37,7 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
           api.getDataSource(id),
         );
         store.storeDataSources(
-          getSources().map((ds) => {
+          state.dataSources.map((ds) => {
             if (ds.id === result.id) return result;
             return ds;
           }),
@@ -50,7 +48,7 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
         const result = await dispatch<IDataSourceModel>('add-data-source', () =>
           api.addDataSource(model),
         );
-        store.storeDataSources([...getSources(), result]);
+        store.storeDataSources([...state.dataSources, result]);
         return result;
       },
       updateDataSource: async (model: IDataSourceModel) => {
@@ -58,7 +56,7 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
           api.updateDataSource(model),
         );
         store.storeDataSources(
-          getSources().map((ds) => {
+          state.dataSources.map((ds) => {
             if (ds.id === result.id) return result;
             return ds;
           }),
@@ -69,12 +67,13 @@ export const useDataSources = (): [IAdminState, IDataSourceController] => {
         const result = await dispatch<IDataSourceModel>('delete-data-source', () =>
           api.deleteDataSource(model),
         );
-        store.storeDataSources(getSources().filter((ds) => ds.id !== result.id));
+        store.storeDataSources(state.dataSources.filter((ds) => ds.id !== result.id));
         return result;
       },
     }),
+    // The state.dataSources will cause it to fire twice!
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [store],
+    [dispatch, store, api],
   );
 
   return [state, controller];

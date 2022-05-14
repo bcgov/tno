@@ -42,17 +42,16 @@ namespace TNO.API.Models
         /// <summary>
         /// Creates a new instance of an ErrorResponseModel object, initializes with specified arguments.
         /// </summary>
-        /// <param name="environment"></param>
         /// <param name="ex"></param>
         /// <param name="message"></param>
         /// <param name="details"></param>
-        public ErrorResponseModel(IWebHostEnvironment environment, Exception ex, string? message = null, string? details = null)
+        /// <param name="isDevelopment">Is the environment configured for development.  If so, show all error information.</param>
+        public ErrorResponseModel(Exception ex, string? message = null, string? details = null, bool isDevelopment = false)
         {
-            var showError = !environment.IsProduction();
-            this.Error = showError ? ex.Message : message;
+            this.Error = isDevelopment ? ex.Message : message;
             this.Type = ex.GetType().Name;
-            this.Details = showError ? details ?? ex.GetAllMessages() : null;
-            this.StackTrace = showError ? ex.StackTrace : null;
+            this.Details = isDevelopment ? details ?? ex.GetAllMessages() : null;
+            this.StackTrace = isDevelopment ? ex.StackTrace : null;
         }
 
         /// <summary>

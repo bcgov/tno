@@ -5,14 +5,15 @@ using TNO.Core.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using TNO.Core;
 using TNO.DAL.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace TNO.DAL;
 
 public class TNOContext : DbContext
 {
     #region Variables
+    private readonly ILogger? _logger;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly JsonSerializerOptions? _serializerOptions;
     #endregion
@@ -59,9 +60,10 @@ public class TNOContext : DbContext
     /// <summary>
     /// Creates a new instance of a TNOContext object, initializes with specified parameters.
     /// </summary>
-    protected TNOContext()
+    /// <param name="logger"></param>
+    protected TNOContext(ILogger<TNOContext> logger)
     {
-
+        _logger = logger;
     }
 
     /// <summary>
@@ -70,9 +72,11 @@ public class TNOContext : DbContext
     /// <param name="options"></param>
     /// <param name="httpContextAccessor"></param>
     /// <param name="serializerOptions"></param>
-    public TNOContext(DbContextOptions<TNOContext> options, IHttpContextAccessor? httpContextAccessor = null, IOptions<JsonSerializerOptions>? serializerOptions = null)
+    /// <param name="logger"></param>
+    public TNOContext(DbContextOptions<TNOContext> options, IHttpContextAccessor? httpContextAccessor = null, IOptions<JsonSerializerOptions>? serializerOptions = null, ILogger<TNOContext>? logger = null)
       : base(options)
     {
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
         _serializerOptions = serializerOptions?.Value;
     }

@@ -38,11 +38,11 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(c => EF.Functions.Like(c.Name, $"%{filter.Name}%"));
+            query = query.Where(c => EF.Functions.Like(c.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Code))
             query = query.Where(c => c.Code == filter.Code);
         if (!String.IsNullOrWhiteSpace(filter.Topic))
-            query = query.Where(c => c.Topic == filter.Topic);
+            query = query.Where(c => EF.Functions.Like(c.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
 
         if (filter.DataLocationId.HasValue)
             query = query.Where(c => c.DataLocationId == filter.DataLocationId);

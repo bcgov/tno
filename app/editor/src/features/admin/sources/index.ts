@@ -1,3 +1,4 @@
+export * from './ContentReferenceList';
 export * from './DataSource';
 export * from './DataSourceActions';
 export * from './DataSourceDetails';

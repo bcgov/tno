@@ -20,10 +20,10 @@ To automate Pipelines use Triggers.
 
 ## Pipelines
 
-| Name                                          | Trigger | Description                                                                |
-| --------------------------------------------- | ------- | -------------------------------------------------------------------------- |
-| [DEV:app-editor](#build-deploy-with-template) | Git     | Builds the `dev` branch app-editor and deploys to the **DEV** environment. |
-| [DEV:api-editor](#build-deploy-with-template) | Git     | Builds the `dev` branch api-editor and deploys to the **DEV** environment. |
+| Name                                      | Trigger | Description                                                                |
+| ----------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| [DEV:editor](#build-deploy-with-template) | Git     | Builds the `dev` branch app-editor and deploys to the **DEV** environment. |
+| [DEV:api](#build-deploy-with-template)    | Git     | Builds the `dev` branch api-editor and deploys to the **DEV** environment. |
 
 ## GitHub Triggers
 

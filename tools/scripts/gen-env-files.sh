@@ -428,19 +428,42 @@ kafka:
 fi
 
 ###########################################################################
-# Services Configuration
+# .NET Services Configuration
 ###########################################################################
 
 ## Syndication Producer
-if test -f "./services/syndication/.env"; then
-    echo "./services/syndication/.env exists"
+if test -f "./services/net/syndication/.env"; then
+    echo "./services/net/syndication/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Client=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Syndication__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/syndication/.env
+    echo "./services/net/syndication/.env created"
+fi
+
+###########################################################################
+# Java Services Configuration
+###########################################################################
+
+## Syndication Producer
+if test -f "./services/java/syndication/.env"; then
+    echo "./services/java/syndication/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
 KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
 KEYCLOAK_REALM=tno
 KEYCLOAK_CLIENT_ID=tno-service-account
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 KAFKA_LOGS_TOPIC=logs-syndication
 
@@ -453,60 +476,60 @@ DATA_SOURCE_MEDIA_TYPE=Syndication
 DATA_SOURCE_LOCATION=Internet
 # DATA_SOURCE_ID=GHI
 # DATA_SOURCE_URL=https://www.globalhungerindex.org/atom.xml
-# DATA_SOURCE_TOPIC=news-ghi" >> ./services/syndication/.env
-    echo "./services/syndication/.env created"
+# DATA_SOURCE_TOPIC=news-ghi" >> ./services/java/syndication/.env
+    echo "./services/java/syndication/.env created"
 fi
 
 ## Capture service
-if test -f "./services/capture/.env"; then
-    echo "./services/capture/.env exists"
+if test -f "./services/java/capture/.env"; then
+    echo "./services/java/capture/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
 KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
 KEYCLOAK_REALM=tno
 KEYCLOAK_CLIENT_ID=tno-service-account
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 KAFKA_LOGS_TOPIC=logs-capture
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 KAFKA_CLIENT_ID=audio-capture-01
 
-MAX_FAILED_ATTEMPTS=5" >> ./services/capture/.env
-    echo "./services/capture/.env created"
+MAX_FAILED_ATTEMPTS=5" >> ./services/java/capture/.env
+    echo "./services/java/capture/.env created"
 fi
 
 ## Audio - Clip Producer
-if test -f "./services/clip/.env"; then
-    echo "./services/clip/.env exists"
+if test -f "./services/java/clip/.env"; then
+    echo "./services/java/clip/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
 KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
 KEYCLOAK_REALM=tno
 KEYCLOAK_CLIENT_ID=tno-service-account
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 KAFKA_LOGS_TOPIC=logs-audio
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 KAFKA_CLIENT_ID=audio-clip-01
 
-MAX_FAILED_ATTEMPTS=5" >> ./services/clip/.env
-    echo "./services/clip/.env created"
+MAX_FAILED_ATTEMPTS=5" >> ./services/java/clip/.env
+    echo "./services/java/clip/.env created"
 fi
 
 ## NLP Consumer/Producer
-if test -f "./services/nlp/.env"; then
-    echo "./services/nlp/.env exists"
+if test -f "./services/java/nlp/.env"; then
+    echo "./services/java/nlp/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
 KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
 KEYCLOAK_REALM=tno
 KEYCLOAK_CLIENT_ID=tno-service-account
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 KAFKA_LOGS_TOPIC=logs-nlp
 
@@ -520,20 +543,20 @@ AUTO_OFFSET_RESET=latest
 KAFKA_CLIENT_ID=nlp-01
 KAFKA_PRODUCER_TOPIC=news-nlp
 
-MAX_FAILED_ATTEMPTS=5" >> ./services/nlp/.env
-    echo "./services/nlp/.env created"
+MAX_FAILED_ATTEMPTS=5" >> ./services/java/nlp/.env
+    echo "./services/java/nlp/.env created"
 fi
 
 ## Elasticsearch Consumer
-if test -f "./services/indexing/.env"; then
-    echo "./services/indexing/.env exists"
+if test -f "./services/java/indexing/.env"; then
+    echo "./services/java/indexing/.env exists"
 else
 echo \
 "API_HOST_URL=http://host.docker.internal:$portApi
 KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
 KEYCLOAK_REALM=tno
 KEYCLOAK_CLIENT_ID=tno-service-account
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 KAFKA_LOGS_TOPIC=logs-elastic
 
@@ -548,6 +571,6 @@ MAX_FAILED_ATTEMPTS=5
 
 ELASTIC_URL=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser
-ELASTIC_PASSWORD=$password" >> ./services/indexing/.env
-    echo "./services/indexing/.env created"
+ELASTIC_PASSWORD=$password" >> ./services/java/indexing/.env
+    echo "./services/java/indexing/.env created"
 fi
