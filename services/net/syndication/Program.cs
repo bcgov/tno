@@ -97,8 +97,8 @@ public class Program
         services
             .AddSingleton<IConfiguration>(this.Configuration)
             .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka"))
-            .Configure<IngestServiceOptions>(this.Configuration.GetSection("Syndication"))
-            .Configure<SyndicationOptions>(this.Configuration.GetSection("Syndication"))
+            .Configure<IngestServiceOptions>(this.Configuration.GetSection("IngestService"))
+            .Configure<SyndicationOptions>(this.Configuration.GetSection("IngestService"))
             .Configure<AuthClientOptions>(this.Configuration.GetSection("Auth:Keycloak"))
             .Configure<OpenIdConnectOptions>(this.Configuration.GetSection("Auth:OIDC"))
             .Configure<JsonSerializerOptions>(options =>

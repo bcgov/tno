@@ -51,79 +51,65 @@ spec:
               cpu: 100m
               memory: 500Mi
           env:
-            - name: API_HOST_URL
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Staging
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            # Common Service Configuration
+            - name: IngestService__ApiUrl
               valueFrom:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
 
-            - name: KEYCLOAK_AUTH_SERVER_URL
+            - name: Auth__Keycloak__Authority
               valueFrom:
                 configMapKeyRef:
                   name: services
-                  key: KEYCLOAK_AUTH_SERVER_URL
-            - name: KEYCLOAK_REALM
+                  key: AUTH_URL
+            - name: Auth__Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
                   name: services
-                  key: KEYCLOAK_REALM
-            - name: KEYCLOAK_CLIENT_ID
+                  key: AUTH_AUDIENCE
+            - name: Auth__Keycloak__Client
               valueFrom:
                 configMapKeyRef:
                   name: services
                   key: KEYCLOAK_CLIENT_ID
-            - name: KEYCLOAK_CLIENT_SECRET
+            - name: Auth__Keycloak__Secret
               valueFrom:
                 configMapKeyRef:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__BootstrapServers
               valueFrom:
                 configMapKeyRef:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
-
-            - name: KAFKA_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: syndication-service
-                  key: KAFKA_CLIENT_ID
-            - name: KAFKA_LOGS_TOPIC
-              valueFrom:
-                configMapKeyRef:
-                  name: syndication-service
-                  key: KAFKA_LOGS_TOPIC
-            - name: MAX_FAILED_ATTEMPTS
-              valueFrom:
-                configMapKeyRef:
-                  name: syndication-service
-                  key: MAX_FAILED_ATTEMPTS
-            - name: DATA_SOURCE_MEDIA_TYPE
-              valueFrom:
-                configMapKeyRef:
-                  name: syndication-service
-                  key: DATA_SOURCE_MEDIA_TYPE
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/health'
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 60
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   failureThreshold: 3
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/health'
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 60
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 120
+            timeoutSeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 120
+            timeoutSeconds: 60
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext: {}

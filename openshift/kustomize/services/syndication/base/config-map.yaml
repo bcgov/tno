@@ -16,7 +16,7 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: syndication
-  KAFKA_LOGS_TOPIC: logs-syndication
-  MAX_FAILED_ATTEMPTS: "5"
-  DATA_SOURCE_MEDIA_TYPE: Syndication
+  Kafka__ClientId: Syndication
+  IngestService__MaxFailLimit: "5"
+  IngestService__MediaTypes:
+    - Syndication
