@@ -102,6 +102,13 @@
       "simple-import-sort/exports": "error"
     }
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!tno-core/)"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.ts"
+  }},
   "browserslist": {
     "production": [
       ">0.2%",
