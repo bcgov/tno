@@ -17,8 +17,10 @@ type: Opaque
 data:
   API_HOST_URL: http://api:8080
 
+  KEYCLOAK_AUTH_URL: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
   KEYCLOAK_AUTH_SERVER_URL: https://dev.oidc.gov.bc.ca/auth
   KEYCLOAK_REALM: gcpe
+  KEYCLOAK_AUDIENCE: tno-service-account
   KEYCLOAK_CLIENT_ID: tno-service-account
   KEYCLOAK_CLIENT_SECRET:
 
