@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using TNO.API.Areas.Services.Models.DataSource;
+using TNO.Services.Actions.Managers;
 using TNO.Services.Syndication.Config;
 
 namespace TNO.Services.Syndication;
@@ -8,7 +8,7 @@ namespace TNO.Services.Syndication;
 /// <summary>
 /// SyndicationDataSourceManager class, provides a way to manage the syndication ingestion process for this data source.
 /// </summary>
-public class SyndicationDataSourceManager : DataSourceManager<SyndicationOptions>
+public class SyndicationDataSourceManager : DataSourceIngestManager<SyndicationOptions>
 {
     #region Constructors
     /// <summary>
@@ -17,8 +17,8 @@ public class SyndicationDataSourceManager : DataSourceManager<SyndicationOptions
     /// <param name="dataSource"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
-    /// <param name="logger"></param>
-    public SyndicationDataSourceManager(DataSourceModel dataSource, IIngestAction<SyndicationOptions> action, IApiService api, ILogger<IDataSourceManager> logger) : base(dataSource, action, api, logger)
+    public SyndicationDataSourceManager(DataSourceModel dataSource, IApiService api, IIngestAction<SyndicationOptions> action)
+        : base(dataSource, api, action)
     {
     }
     #endregion

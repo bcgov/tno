@@ -1,9 +1,7 @@
 namespace TNO.Services;
 
 /// <summary>
-/// IServiceManager interface, provides a way to manage several data source schedules.
-/// It will fetch all data sources for the configured media types.
-/// It will ensure all data sources are being run based on their schedules.
+/// IServiceManager interface, provides the starting point for the service that runs beside the service api.
 /// </summary>
 public interface IServiceManager
 {

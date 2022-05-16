@@ -53,6 +53,16 @@ public class DataSourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public int ContentTypeId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public ContentTypeModel? ContentType { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public int MediaTypeId { get; set; }
 
     /// <summary>
@@ -69,6 +79,11 @@ public class DataSourceModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public LicenseModel? License { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? OwnerId { get; set; }
 
     /// <summary>
     /// get/set -
@@ -137,10 +152,13 @@ public class DataSourceModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.DataLocationId = entity.DataLocationId;
         this.DataLocation = entity.DataLocation != null ? new DataLocationModel(entity.DataLocation) : null;
+        this.ContentTypeId = entity.ContentTypeId;
+        this.ContentType = entity.ContentType != null ? new ContentTypeModel(entity.ContentType) : null;
         this.MediaTypeId = entity.MediaTypeId;
         this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
+        this.OwnerId = entity.OwnerId;
         this.ScheduleType = entity.ScheduleType;
         this.Topic = entity.Topic;
         this.ParentId = entity.ParentId;
@@ -173,12 +191,13 @@ public class DataSourceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.DataSource(DataSourceModel model)
     {
-        var entity = new Entities.DataSource(model.Name, model.Code, model.DataLocationId, model.MediaTypeId, model.LicenseId, model.ScheduleType, model.Topic)
+        var entity = new Entities.DataSource(model.Name, model.Code, model.DataLocationId, model.MediaTypeId, model.LicenseId, model.ContentTypeId, model.ScheduleType, model.Topic)
         {
             Id = model.Id,
             ShortName = model.ShortName,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            OwnerId = model.OwnerId,
             Connection = JsonSerializer.Serialize(model.Connection),
             ParentId = model.ParentId,
             LastRanOn = model.LastRanOn,

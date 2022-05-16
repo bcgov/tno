@@ -5,10 +5,27 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "name": "Run Content Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-content",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/content/bin/Debug/net6.0/TNO.Services.Content.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/content",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "envFile": "${workspaceFolder}/content/.env"
+    },
+    {
+      // Use IntelliSense to find out which attributes exist for C# debugging
+      // Use hover for the description of the existing attributes
+      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
       "name": "Run Syndication Service",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "build-syndication",
       // If you have changed target frameworks, make sure to update the program path.
       "program": "${workspaceFolder}/syndication/bin/Debug/net6.0/TNO.Services.Syndication.dll",
       "args": [],

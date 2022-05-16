@@ -58,7 +58,7 @@ spec:
               value: http://+:8080
 
             # Common Service Configuration
-            - name: IngestService__ApiUrl
+            - name: Service__ApiUrl
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -85,19 +85,19 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: Kafka__BootstrapServers
+            - name: Kafka__Producer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             # Syndication Service Configuration
-            - name: KAKFA_CLIENT_ID
+            - name: Kafka__Producer__ClientId
               valueFrom:
                 configMapKeyRef:
                   name: syndication-service
                   key: KAKFA_CLIENT_ID
-            - name: IngestService__MaxFailLimit
+            - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
                   name: syndication-service

@@ -1,0 +1,142 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: content-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy content-service
+  labels:
+    name: content-service
+    part-of: tno
+    version: 1.0.0
+    component: content-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: content-service
+    part-of: tno
+    component: content-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: content-service
+      labels:
+        name: content-service
+        part-of: tno
+        component: content-service
+    spec:
+      containers:
+        - name: content-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 150Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Staging
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: AUTH_URL
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: AUTH_AUDIENCE
+            - name: Auth__Keycloak__Client
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_ID
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Content Service Configuration
+            - name: Service__Topics__0
+              value: CASTANET
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: MAX_FAIL_LIMIT
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: KAKFA_GROUP_ID
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - content-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: content-service:dev

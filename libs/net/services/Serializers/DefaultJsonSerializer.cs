@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
@@ -9,7 +8,7 @@ namespace TNO.Services.Serializers;
 /// DefaultJsonSerializer class, provides a default json serializer.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DefaultJsonSerializer<T> : ISerializer<T>, IDeserializer<T?>
+public class DefaultJsonSerializer<T> : ISerializer<T>, IDeserializer<T>
 {
     #region Variables
     private readonly JsonSerializerOptions _options;
@@ -61,9 +60,11 @@ public class DefaultJsonSerializer<T> : ISerializer<T>, IDeserializer<T?>
     /// <param name="context"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public T? Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
+    public T Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
     {
-        return !isNull ? JsonSerializer.Deserialize<T>(data.ToArray()) : default;
+        if (isNull) throw new InvalidOperationException("Cannot deserialize null value");
+
+        return JsonSerializer.Deserialize<T>(data.ToArray(), _options) ?? throw new InvalidOperationException("Cannot return a deserialized null value");
     }
     #endregion
 }

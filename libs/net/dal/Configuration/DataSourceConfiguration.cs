@@ -17,6 +17,7 @@ public class DataSourceConfiguration : AuditColumnsConfiguration<DataSource>
         builder.Property(m => m.DataLocationId).IsRequired();
         builder.Property(m => m.MediaTypeId).IsRequired();
         builder.Property(m => m.LicenseId).IsRequired();
+        builder.Property(m => m.ContentTypeId).IsRequired();
         builder.Property(m => m.Topic).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Connection).IsRequired().HasColumnType("json");
         builder.Property(m => m.ParentId);
@@ -25,6 +26,8 @@ public class DataSourceConfiguration : AuditColumnsConfiguration<DataSource>
         builder.Property(m => m.FailedAttempts).HasDefaultValue(0);
         builder.Property(m => m.ScheduleType).HasDefaultValue(DataSourceScheduleType.None);
 
+        builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.ContentType).WithMany(m => m.DataSources).HasForeignKey(m => m.ContentTypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.DataLocation).WithMany(m => m.DataSources).HasForeignKey(m => m.DataLocationId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.MediaType).WithMany(m => m.DataSources).HasForeignKey(m => m.MediaTypeId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.License).WithMany(m => m.DataSources).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);

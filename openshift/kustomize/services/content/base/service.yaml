@@ -1,0 +1,27 @@
+---
+# Open up ports to communicate with the app.
+kind: Service
+apiVersion: v1
+metadata:
+  name: content-service
+  namespace: default
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    name: content-service
+    part-of: tno
+    version: 1.0.0
+    component: content-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: content-service
+  sessionAffinity: None
+  type: ClusterIP

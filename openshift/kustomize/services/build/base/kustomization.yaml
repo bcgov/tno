@@ -4,6 +4,7 @@ kind: Kustomization
 
 resources:
   - syndication.yaml
+  - content.yaml
   - nlp.yaml
   - capture.yaml
   - clip.yaml

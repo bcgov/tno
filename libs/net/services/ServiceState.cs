@@ -30,7 +30,7 @@ public class ServiceState
     /// Creates a new instance of a ServiceState object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
-    public ServiceState(IngestServiceOptions options)
+    public ServiceState(ServiceOptions options)
     {
         this.MaxRetryLimit = options.MaxRetryLimit;
     }

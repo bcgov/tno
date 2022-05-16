@@ -1,3 +1,4 @@
+import { FieldSize } from 'components/form';
 import { FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
@@ -11,10 +12,15 @@ export const Syndication: React.FC = (props) => {
   return (
     <styled.MediaType>
       <h3>Connection Settings</h3>
-      <FormikText label="URL" name="connection.url" value={values.connection.url} />
-      <FormikText label="username" name="connection.username" value={values.connection.username} />
       <FormikText
-        label="password"
+        label="URL"
+        name="connection.url"
+        value={values.connection.url}
+        width={FieldSize.Medium}
+      />
+      <FormikText label="Username" name="connection.username" value={values.connection.username} />
+      <FormikText
+        label="Password"
         name="connection.password"
         value={values.connection.password}
         type="password"
