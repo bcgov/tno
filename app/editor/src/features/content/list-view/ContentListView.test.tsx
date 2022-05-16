@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
-import { ContentListView } from './ContentListView';
 import { mockContent, TestWrapper } from 'test/utils';
+
+import { ContentListView } from './ContentListView';
 
 jest.mock('store', () => ({
   useAppDispatch: jest.fn(),
@@ -27,10 +28,10 @@ const mockUseContent = [
           source: 'TEST',
           createdOn: '2022-05-12T16:11:15.756251Z',
           mediaType: {
-            name: 'Television'
+            name: 'Television',
           },
           status: 'Publish',
-          page: 'A32'
+          page: 'A32',
         },
       ],
       page: 1,

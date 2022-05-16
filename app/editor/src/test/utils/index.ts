@@ -1,2 +1,2 @@
-export * from './TestWrapper';
 export * from './testData';
+export * from './TestWrapper';

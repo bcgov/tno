@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
-import css from './css/_variables.module.scss';
 import { ThemeProvider } from 'styled-components';
+
+import css from './css/_variables.module.scss';
 
 export interface ITestWrapperProps {
   children?: React.ReactNode;
