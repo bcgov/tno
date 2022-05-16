@@ -5,6 +5,7 @@ import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { Col, Row } from 'tno-core';
 
+import { Connection } from '../media-types';
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import { scheduleTypeOptions } from './constants';
 import * as styled from './styled';
@@ -69,6 +70,9 @@ export const Schedule: React.FC<IScheduleProps> = () => {
           <p>
             The topic should be unique, or all content stored within it should be the same format.
           </p>
+        </Col>
+        <Col>
+          <Connection />
         </Col>
       </Row>
       <hr />

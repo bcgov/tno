@@ -60,19 +60,5 @@ public class StatusController : ControllerBase
         _service.State.Resume();
         return new JsonResult(_service.State);
     }
-
-    /// <summary>
-    /// Request service to stop.
-    /// </summary>
-    /// <returns></returns>
-    [HttpPut("stop")]
-    [Produces("application/json")]
-    [ProducesResponseType(typeof(ServiceStateModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public IActionResult StopService()
-    {
-        _service.State.Stop();
-        return new JsonResult(_service.State);
-    }
     #endregion
 }

@@ -3,10 +3,6 @@ Configuration:
     property:
       - name: filename
         value: logs/app.log
-      - name: bootstrapServers
-        value: ${env:KAFKA_BOOTSTRAP_SERVERS}
-      - name: topic
-        value: ${env:KAFKA_LOGS_TOPIC}
 
   status: warn
 
@@ -34,16 +30,6 @@ Configuration:
     #     DefaultRollOverStrategy:
     #       max: 10
 
-    Kafka:
-      name: LogToKafka
-      topic: ${topic}
-      key: ${sys:pid}
-      Property:
-        - name: bootstrap.servers
-          value: ${bootstrapServers}
-      PatternLayout:
-        pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%-7t] %c{1}:%L - %m%n"
-
   Loggers:
     logger:
       - name: ca.bc.gov.tno
@@ -52,7 +38,6 @@ Configuration:
         AppenderRef:
           # - ref: LogToRollingFile
           - ref: LogToConsole
-          - ref: LogToKafka
 
     Root:
       level: error

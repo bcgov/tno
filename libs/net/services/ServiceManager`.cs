@@ -74,7 +74,8 @@ public abstract class ServiceManager<TDataSourceManager, TOption> : IServiceMana
         // Run at the shortest interval of all schedules.
         var delay = dataSources.Min(ds => ds.DataSourceSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? _options.DefaultDelayMS;
 
-        while (this.State.Status != ServiceStatus.Stopped)
+        // Always keep looping until an unexpected failure occurs.
+        while (true)
         {
             if (this.State.Status != ServiceStatus.Running)
             {
@@ -137,8 +138,6 @@ public abstract class ServiceManager<TDataSourceManager, TOption> : IServiceMana
             // Fetch all data sources again to determine if there are any changes to the list.
             dataSources = await GetDataSourcesAsync();
         }
-
-        _logger.LogInformation("Service stopping");
     }
 
     /// <summary>
