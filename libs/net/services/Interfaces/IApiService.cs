@@ -1,3 +1,5 @@
+using TNO.API.Areas.Editor.Models.Lookup;
+using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
 
@@ -51,4 +53,17 @@ public interface IApiService
     /// <param name="contentReference"></param>
     /// <returns></returns>
     public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference);
+
+    /// <summary>
+    /// Make an AJAX request to the api to add the specified content.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public Task<ContentModel?> AddContentAsync(ContentModel content);
+
+    /// <summary>
+    /// Make an AJAX request to the api to get the lookups.
+    /// </summary>
+    /// <returns></returns>
+    public Task<LookupModel?> GetLookupsAsync();
 }

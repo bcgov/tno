@@ -28,7 +28,7 @@ export function toForm(model: IContentModel): IContentForm {
     source: model.source,
     otherSource: !!model.dataSourceId ? '' : model.source,
     page: model.page,
-    ownerId: model.ownerId,
+    ownerId: model.ownerId ?? '',
     seriesId: model.seriesId,
     otherSeries: '',
     publishedOn: model.publishedOn?.toString() ?? '',

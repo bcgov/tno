@@ -11,7 +11,7 @@ import {
   MediaType,
   MediaTypeList,
   ReachEarnedMedia,
-  Schedule,
+  ServiceConfig,
   UserList,
 } from '.';
 import * as styled from './styled';
@@ -28,7 +28,7 @@ export const AdminPage: React.FC = () => {
         <Route path="data/sources/:id" element={<DataSource />}>
           <Route index element={<DataSourceDetails />} />
           <Route path="details" element={<DataSourceDetails />} />
-          <Route path="schedule" element={<Schedule />} />
+          <Route path="service" element={<ServiceConfig />} />
           <Route path="metrics" element={<ReachEarnedMedia />} />
           <Route path="ingesting" element={<ContentReferenceList />} />
         </Route>

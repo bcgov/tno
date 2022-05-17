@@ -72,3 +72,16 @@ patches:
       - op: replace
         path: /spec/source/git/ref
         value: dev
+  - target:
+      kind: BuildConfig
+      name: content-service.dev
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: content-service.jmf
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/fosol/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: dev

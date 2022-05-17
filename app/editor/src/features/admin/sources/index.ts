@@ -7,4 +7,4 @@ export * from './DataSourceLists';
 export * from './DataSourceMetrics';
 export * from './DataSourceStatus';
 export * from './ReachEarnedMedia';
-export * from './schedules';
+export * from './services';

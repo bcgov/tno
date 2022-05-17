@@ -36,7 +36,7 @@ export interface IContentModel extends IAuditColumnsModel {
   seriesId?: number;
   series?: ISeriesModel;
   otherSeries?: string;
-  ownerId: number;
+  ownerId?: number;
   owner?: IUserModel;
   headline: string;
   uid?: string;

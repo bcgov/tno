@@ -4,6 +4,7 @@ BEGIN
 
 INSERT INTO public.content_type (
   "name"
+  , "description"
   , "is_enabled"
   , "created_by_id"
   , "created_by"
@@ -11,6 +12,7 @@ INSERT INTO public.content_type (
   , "updated_by"
 ) VALUES (
   'Snippet'
+  , 'Audio/Video content representing a clip from a larger AV stream.'
   , true
   , DEFAULT_USER_ID
   , ''
@@ -18,20 +20,15 @@ INSERT INTO public.content_type (
   , ''
 ), (
   'Print'
+  , 'Newspaper content that came from a physical source.'
   , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Radio'
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'TV'
+  'Internet'
+  , 'Content originated from the internet and contains a URL.'
   , true
   , DEFAULT_USER_ID
   , ''

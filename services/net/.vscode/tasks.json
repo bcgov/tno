@@ -2,7 +2,43 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build",
+      "label": "build-content",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/content/TNO.Services.Content.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-content",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/content/TNO.Services.Content.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-content",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/content/TNO.Services.Content.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-syndication",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -14,7 +50,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "publish",
+      "label": "publish-syndication",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -26,7 +62,7 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "watch",
+      "label": "watch-syndication",
       "command": "dotnet",
       "type": "process",
       "args": [

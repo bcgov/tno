@@ -9,6 +9,7 @@ using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Http;
 using TNO.Entities;
 using TNO.Models.Kafka;
+using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 
 namespace TNO.Services.Syndication;
@@ -23,7 +24,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 {
     #region Variables
     private readonly IHttpRequestClient _httpClient;
-    private readonly IKafkaProducerService _kafka;
+    private readonly IKafkaMessenger _kafka;
     private readonly ILogger _logger;
     #endregion
 
@@ -36,7 +37,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="kafka"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public SyndicationAction(IHttpRequestClient httpClient, IApiService api, IKafkaProducerService kafka, IOptions<SyndicationOptions> options, ILogger<SyndicationAction> logger) : base(api, options)
+    public SyndicationAction(IHttpRequestClient httpClient, IApiService api, IKafkaMessenger kafka, IOptions<SyndicationOptions> options, ILogger<SyndicationAction> logger) : base(api, options)
     {
         _httpClient = httpClient;
         _kafka = kafka;
@@ -48,15 +49,15 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <summary>
     /// Perform the ingestion service action.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="manager"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync(IDataSourceManager dataSource)
+    public override async Task PerformActionAsync(IDataSourceIngestManager manager)
     {
-        _logger.LogDebug("Performing ingestion service action for data source", dataSource.DataSource.Code);
-        var url = GetUrl(dataSource.DataSource);
+        _logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+        var url = GetUrl(manager.DataSource);
 
         var feed = await GetFeedAsync(url);
-        await ImportFeedAsync(dataSource, feed);
+        await ImportFeedAsync(manager, feed);
     }
 
     /// <summary>
@@ -65,7 +66,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="dataSource"></param>
     /// <param name="feed"></param>
     /// <returns></returns>
-    private async Task ImportFeedAsync(IDataSourceManager dataSource, SyndicationFeed feed)
+    private async Task ImportFeedAsync(IDataSourceIngestManager dataSource, SyndicationFeed feed)
     {
         foreach (var item in feed.Items)
         {

@@ -92,6 +92,8 @@ export const Select = <OptionType extends IOptionItem>({
             onClear?.();
           }
         }}
+        data-for="main-tooltip"
+        data-tip={tooltip}
       >
         <styled.SelectField
           ref={selectRef}
@@ -99,8 +101,6 @@ export const Select = <OptionType extends IOptionItem>({
           name={name}
           className={`${className ?? ''}${!!error ? ' alert' : ''}`}
           classNamePrefix={classNamePrefix ?? 'rs'}
-          data-for="main-tooltip"
-          data-tip={tooltip}
           variant={variant}
           required={required}
           width={width}

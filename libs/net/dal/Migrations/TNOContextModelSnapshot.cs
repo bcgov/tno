@@ -17,7 +17,7 @@ namespace TNO.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "6.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -397,7 +397,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("media_type_id");
 
-                    b.Property<int>("OwnerId")
+                    b.Property<int?>("OwnerId")
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
 
@@ -1272,6 +1272,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("json")
                         .HasColumnName("connection");
 
+                    b.Property<int>("ContentTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("content_type_id");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1327,6 +1331,10 @@ namespace TNO.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
+
+                    b.Property<int?>("OwnerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("owner_id");
 
                     b.Property<int?>("ParentId")
                         .HasColumnType("integer")
@@ -1386,6 +1394,8 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
+                    b.HasIndex("ContentTypeId");
+
                     b.HasIndex("DataLocationId");
 
                     b.HasIndex("LicenseId");
@@ -1394,6 +1404,8 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("OwnerId");
 
                     b.HasIndex("ParentId");
 
@@ -2849,8 +2861,7 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany("Contents")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TNO.Entities.Series", "Series")
                         .WithMany("Contents")
@@ -3008,6 +3019,12 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.DataSource", b =>
                 {
+                    b.HasOne("TNO.Entities.ContentType", "ContentType")
+                        .WithMany("DataSources")
+                        .HasForeignKey("ContentTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("TNO.Entities.DataLocation", "DataLocation")
                         .WithMany("DataSources")
                         .HasForeignKey("DataLocationId")
@@ -3026,15 +3043,24 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TNO.Entities.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("TNO.Entities.DataSource", "Parent")
                         .WithMany()
                         .HasForeignKey("ParentId");
+
+                    b.Navigation("ContentType");
 
                     b.Navigation("DataLocation");
 
                     b.Navigation("License");
 
                     b.Navigation("MediaType");
+
+                    b.Navigation("Owner");
 
                     b.Navigation("Parent");
                 });
@@ -3234,6 +3260,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("ActionsManyToMany");
 
                     b.Navigation("Contents");
+
+                    b.Navigation("DataSources");
                 });
 
             modelBuilder.Entity("TNO.Entities.DataLocation", b =>

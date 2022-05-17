@@ -8,6 +8,7 @@ export const defaultDataSource: IDataSourceModel = {
   description: '',
   isEnabled: false,
   dataLocationId: 0,
+  contentTypeId: 0,
   mediaTypeId: 0,
   licenseId: 0,
   scheduleType: DataSourceScheduleTypeName.None,

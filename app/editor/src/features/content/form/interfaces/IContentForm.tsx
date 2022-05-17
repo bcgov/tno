@@ -18,7 +18,7 @@ export interface IContentForm {
   headline: string;
   status: ContentStatusName;
   workflowStatus: WorkflowStatusName;
-  ownerId: number;
+  ownerId: number | '';
   contentTypeId: number;
   mediaTypeId: number;
   licenseId: number;

@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Syndication", "syndication\TNO.Services.Syndication.csproj", "{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.NLP", "nlp\TNO.Services.NLP.csproj", "{9F920C1C-1D67-4D34-A60E-5608D4989762}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Content", "content\TNO.Services.Content.csproj", "{F57E61B8-C192-4FF9-B211-77FEAB8890B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F920C1C-1D67-4D34-A60E-5608D4989762}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -12,7 +12,7 @@ namespace TNO.Services.Controllers;
 public class HealthController : ControllerBase
 {
     #region Variables
-    private readonly IServiceManager _service;
+    private readonly IDataSourceManager _service;
     #endregion
 
     #region Constructors
@@ -20,7 +20,7 @@ public class HealthController : ControllerBase
     /// Creates a new instance of a HealthController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public HealthController(IServiceManager service)
+    public HealthController(IDataSourceManager service)
     {
         _service = service;
     }

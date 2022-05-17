@@ -8,6 +8,7 @@ namespace TNO.Entities;
 public class ContentType : BaseType<int>
 {
     #region Properties
+    public virtual List<DataSource> DataSources { get; } = new List<DataSource>();
     public virtual List<Content> Contents { get; } = new List<Content>();
     public virtual List<Action> Actions { get; } = new List<Action>();
     public virtual List<ContentTypeAction> ActionsManyToMany { get; } = new List<ContentTypeAction>();
