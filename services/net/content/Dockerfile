@@ -10,12 +10,12 @@ USER 0
 # RUN dotnet tool install --global dotnet-ef
 
 WORKDIR /src
-COPY services/net/syndication services/net/syndication
+COPY services/net/content services/net/content
 COPY libs/net libs/net
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
     fix_permissions "/app" "/tmp"
 
-WORKDIR /src/services/net/syndication
+WORKDIR /src/services/net/content
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as deploy
