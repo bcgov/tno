@@ -12,7 +12,7 @@ namespace TNO.Services.Controllers;
 public class StatusController : ControllerBase
 {
     #region Variables
-    private readonly IDataSourceManager _service;
+    private readonly IServiceManager _service;
     #endregion
 
     #region Constructors
@@ -20,7 +20,7 @@ public class StatusController : ControllerBase
     /// Creates a new instance of a StatusController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public StatusController(IDataSourceManager service)
+    public StatusController(IServiceManager service)
     {
         _service = service;
     }
