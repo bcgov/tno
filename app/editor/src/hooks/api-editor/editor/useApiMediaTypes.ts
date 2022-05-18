@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IMediaTypeModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiMediaTypes = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getMediaTypes: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IMediaTypeModel[]>(`/editor/media/types`, config);
+      return api.get<IMediaTypeModel[], AxiosResponse<IMediaTypeModel[], never>, any>(
+        `/editor/media/types`,
+        config,
+      );
     },
-  };
+  }).current;
 };

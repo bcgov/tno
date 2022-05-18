@@ -11,7 +11,7 @@ import { IContentState } from './interfaces';
 export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 100,
     mediaTypeId: 0,
     contentTypeId: 0,
     ownerId: '',

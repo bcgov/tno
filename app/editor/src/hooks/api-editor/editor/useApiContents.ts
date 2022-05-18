@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 
 import { IContentFilter, IContentModel, IPaged, useApi } from '..';
@@ -16,25 +18,38 @@ export const useApiContents = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     findContent: (filter?: IContentFilter) => {
       const params = {
         ...filter,
         actions: filter?.actions?.length ? filter.actions : undefined,
       };
-      return api.get<IPaged<IContentModel>>(`/editor/contents?${toQueryString(params)}`);
+      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>, never>, any>(
+        `/editor/contents?${toQueryString(params)}`,
+      );
     },
     getContent: (id: number) => {
-      return api.get<IContentModel>(`/editor/contents/${id}`);
+      return api.get<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${id}`,
+      );
     },
     addContent: (content: IContentModel) => {
-      return api.post<IContentModel>('/editor/contents', content);
+      return api.post<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        '/editor/contents',
+        content,
+      );
     },
     updateContent: (content: IContentModel) => {
-      return api.put<IContentModel>(`/editor/contents/${content.id}`, content);
+      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${content.id}`,
+        content,
+      );
     },
     deleteContent: (content: IContentModel) => {
-      return api.delete<IContentModel>(`/editor/contents/${content.id}`, { data: content });
+      return api.delete<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${content.id}`,
+        { data: content },
+      );
     },
     upload: (
       content: IContentModel,
@@ -43,17 +58,20 @@ export const useApiContents = (
     ) => {
       const formData = new FormData();
       formData.append('files', file, file.name);
-      return api.post<IContentModel>(
+      return api.post<IContentModel, AxiosResponse<IContentModel, never>, any>(
         `/editor/contents/${content.id}/upload?version=${content.version}`,
         formData,
         { onUploadProgress },
       );
     },
     download: async (id: number, fileName: string) => {
-      const response = await api.get(`/editor/contents/${id}/download`, {
-        responseType: 'blob',
-        headers: { accept: '*.*' },
-      });
+      const response = await api.get<any, AxiosResponse<any, never>, any>(
+        `/editor/contents/${id}/download`,
+        {
+          responseType: 'blob',
+          headers: { accept: '*.*' },
+        },
+      );
 
       const uri = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -64,5 +82,5 @@ export const useApiContents = (
       document.body.removeChild(link);
       return response;
     },
-  };
+  }).current;
 };

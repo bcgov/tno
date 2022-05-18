@@ -1,6 +1,6 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
-import { AdminPage } from 'features/admin';
+import { AdminRouter } from 'features/admin';
 import { ContentForm, ContentListView } from 'features/content';
 import { Login } from 'features/login';
 import React from 'react';
@@ -22,13 +22,14 @@ export interface IAppRouter {
  */
 export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
   const [, { init, isUserReady }] = useApp();
+  const isReady = isUserReady();
 
   React.useEffect(() => {
-    if (!isInitialized && isUserReady()) {
+    if (!isInitialized && isReady) {
       isInitialized = true;
       init();
     }
-  }, [init, isUserReady]);
+  }, [init, isReady]);
 
   return (
     <Routes>
@@ -38,7 +39,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
         <Route path="welcome" element={<AccessRequest />} />
         <Route
           path="admin/*"
-          element={<PrivateRoute claims={Claim.administrator} element={<AdminPage />} />}
+          element={<PrivateRoute claims={Claim.administrator} element={<AdminRouter />} />}
         />
         <Route
           path="contents"

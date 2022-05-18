@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ILicenseModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiLicenses = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getLicenses: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ILicenseModel[]>(`/editor/licenses`, config);
+      return api.get<ILicenseModel[], AxiosResponse<ILicenseModel[], never>, any>(
+        `/editor/licenses`,
+        config,
+      );
     },
-  };
+  }).current;
 };

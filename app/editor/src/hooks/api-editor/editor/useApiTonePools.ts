@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ITonePoolModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiTonePools = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getTonePools: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ITonePoolModel[]>(`/editor/tone/pools`, config);
+      return api.get<ITonePoolModel[], AxiosResponse<ITonePoolModel[], never>, any>(
+        `/editor/tone/pools`,
+        config,
+      );
     },
-  };
+  }).current;
 };

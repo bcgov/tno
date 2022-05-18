@@ -98,9 +98,11 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
               <Button type="submit" disabled={isSubmitting}>
                 Save
               </Button>
-              <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                Delete
-              </Button>
+              {!!sourceId && (
+                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                  Delete
+                </Button>
+              )}
             </Row>
             <Modal
               headerText="Confirm Removal"

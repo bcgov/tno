@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
@@ -19,7 +20,7 @@ export const useApiAuth = (
 
   return React.useRef({
     getUserInfo: () => {
-      return api.post<IUserInfoModel>(`/auth/userinfo`);
+      return api.post<IUserInfoModel, AxiosResponse<IUserInfoModel, never>, any>(`/auth/userinfo`);
     },
   }).current;
 };

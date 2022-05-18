@@ -42,9 +42,10 @@ export const useSummon = ({
 
   // Need to set this globally so that all useSummon instances have the latest token.
   getToken = () => state.token;
-  const instance = React.useRef<AxiosInstance>((axiosInstances as any)[baseURL ?? 'default']);
+  const instances = React.useRef<any>(axiosInstances);
+  const instance = (instances.current as any)[baseURL ?? 'default'] as AxiosInstance;
 
-  if (instance.current === undefined) {
+  if (instance === undefined) {
     const summon = axios.create({
       ...rest,
       baseURL,
@@ -96,10 +97,8 @@ export const useSummon = ({
     );
 
     (axiosInstances as any)[baseURL ?? 'default'] = summon;
-    instance.current = summon;
+    return summon;
   }
 
-  return instance.current;
+  return instance;
 };
-
-export default useSummon;

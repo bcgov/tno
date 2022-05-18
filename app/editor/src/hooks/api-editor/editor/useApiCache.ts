@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ICacheModel, useApi } from '..';
@@ -16,9 +18,9 @@ export const useApiCache = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getCache: () => {
-      return api.get<ICacheModel[]>(`/editor/cache`);
+      return api.get<ICacheModel[], AxiosResponse<ICacheModel[], never>, any>(`/editor/cache`);
     },
-  };
+  }).current;
 };

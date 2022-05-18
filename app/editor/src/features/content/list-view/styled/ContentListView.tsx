@@ -5,6 +5,12 @@ export const ContentListView = styled.div`
     table {
       background: transparent;
     }
+
+    div[role='rowgroup'] {
+      max-height: 200px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
   }
 
   .content-actions {

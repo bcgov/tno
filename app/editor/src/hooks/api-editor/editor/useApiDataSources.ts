@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IDataSourceModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiDataSources = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getDataSources: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IDataSourceModel[]>(`/editor/data/sources`, config);
+      return api.get<IDataSourceModel[], AxiosResponse<IDataSourceModel[], never>, any>(
+        `/editor/data/sources`,
+        config,
+      );
     },
-  };
+  }).current;
 };

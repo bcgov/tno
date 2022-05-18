@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ILookupModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiLookups = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getLookups: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ILookupModel>(`/editor/lookups`, config);
+      return api.get<ILookupModel, AxiosResponse<ILookupModel, never>, any>(
+        `/editor/lookups`,
+        config,
+      );
     },
-  };
+  }).current;
 };

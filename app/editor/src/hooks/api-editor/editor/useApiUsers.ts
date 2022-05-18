@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IUserModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiUsers = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getUsers: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IUserModel[]>(`/editor/users`, config);
+      return api.get<IUserModel[], AxiosResponse<IUserModel[], never>, any>(
+        `/editor/users`,
+        config,
+      );
     },
-  };
+  }).current;
 };

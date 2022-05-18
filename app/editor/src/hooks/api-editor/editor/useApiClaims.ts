@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { useApi } from '..';
@@ -17,10 +19,13 @@ export const useApiClaims = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getClaims: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IClaimModel[]>(`/editor/claims`, config);
+      return api.get<IClaimModel[], AxiosResponse<IClaimModel[], never>, any>(
+        `/editor/claims`,
+        config,
+      );
     },
-  };
+  }).current;
 };

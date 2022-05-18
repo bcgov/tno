@@ -1,4 +1,5 @@
 import moment from 'moment';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString, useDownload } from 'tno-core';
 
 import { useApi } from '..';
@@ -18,7 +19,7 @@ export const useApiReports = (
   const api = useApi(options);
   const download = useDownload(api);
 
-  return {
+  return React.useRef({
     // Lookups
     generateCBRAReport: (from: Date, to?: Date | null) => {
       const params = {
@@ -31,5 +32,5 @@ export const useApiReports = (
         fileName: 'cbra.xlsx',
       });
     },
-  };
+  }).current;
 };

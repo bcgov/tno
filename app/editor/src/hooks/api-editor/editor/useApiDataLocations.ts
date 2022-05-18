@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IDataLocationModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiDataLocations = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getDataLocations: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IDataLocationModel[]>(`/editor/data/locations`, config);
+      return api.get<IDataLocationModel[], AxiosResponse<IDataLocationModel[], never>, any>(
+        `/editor/data/locations`,
+        config,
+      );
     },
-  };
+  }).current;
 };
