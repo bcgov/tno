@@ -22,7 +22,7 @@ public class ServiceState
     /// <summary>
     /// get - Maximum number of retries after a failure.
     /// </summary>
-    public int MaxRetryLimit { get; private set; }
+    public int MaxRetryLimit { get; private set; } = 3;
     #endregion
 
     #region Constructors
@@ -51,13 +51,9 @@ public class ServiceState
 
     /// <summary>
     /// Reset the failures back to zero.
-    /// Change status to resume if not running.
     /// </summary>
     public void ResetFailures()
     {
-        if (this.Status != ServiceStatus.Running && this.Failures >= this.MaxRetryLimit)
-            this.Status = ServiceStatus.Running;
-
         this.Failures = 0;
     }
 
@@ -78,10 +74,11 @@ public class ServiceState
     }
 
     /// <summary>
-    /// Change the status to paused.
+    /// Change the status to running.
     /// </summary>
     public void Resume()
     {
+        this.State.ResetFailures();
         this.Status = ServiceStatus.Running;
     }
     #endregion
