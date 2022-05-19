@@ -3,6 +3,7 @@ import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
 import { IDataSourceModel } from 'hooks/api-editor';
+import { DataSourceSchema } from 'hooks/api-editor/validation';
 import React from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -73,16 +74,13 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
       </Row>
       <FormikForm
         initialValues={source}
-        validate={(values) => {
-          const errors = {};
-          return errors;
-        }}
+        validationSchema={DataSourceSchema}
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, errors }) => (
           <Tabs
             tabs={
               <>

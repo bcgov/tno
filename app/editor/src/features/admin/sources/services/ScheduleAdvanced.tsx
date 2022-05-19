@@ -1,6 +1,7 @@
 import { setIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, IScheduleModel, ScheduleTypeName } from 'hooks/api-editor';
+import { AdvancedScheduleSchema } from 'hooks/api-editor/validation';
 import React from 'react';
 import { Button, ButtonVariant } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
@@ -11,7 +12,6 @@ import { defaultSchedule } from '../constants';
 import { ScheduleDaily } from '.';
 import { columns } from './constants';
 import * as styled from './styled';
-import { ScheduleSchema } from './validation';
 
 interface IScheduleAdvancedProps {}
 
@@ -40,7 +40,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
     if (index !== undefined) {
       try {
         // TODO: Validation doesn't work.
-        await ScheduleSchema.validate(values.schedules[index], { abortEarly: false });
+        await AdvancedScheduleSchema.validate(values.schedules[index], { abortEarly: false });
         setIndex(undefined);
       } catch (error) {
         if (error instanceof ValidationError) {

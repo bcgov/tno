@@ -1,6 +1,7 @@
 using System.ServiceModel.Syndication;
 using System.Text.Json;
 using System.Xml;
+using System.Xml.Linq;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ using TNO.Entities;
 using TNO.Models.Kafka;
 using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
+using TNO.Services.Syndication.Xml;
 
 namespace TNO.Services.Syndication;
 
@@ -56,7 +58,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         _logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
         var url = GetUrl(manager.DataSource);
 
-        var feed = await GetFeedAsync(url);
+        var feed = await GetFeedAsync(url, manager);
         await ImportFeedAsync(manager, feed);
     }
 
@@ -183,15 +185,38 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Make AJAX request to fetch syndication feed.
     /// </summary>
     /// <param name="url"></param>
+    /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task<SyndicationFeed> GetFeedAsync(Uri url)
+    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IDataSourceIngestManager manager)
     {
         var response = await _httpClient.GetAsync(url);
         var data = await response.Content.ReadAsStringAsync();
-        var xmlr = XmlReader.Create(new StringReader(data));
-        var feed = SyndicationFeed.Load(xmlr);
 
-        return feed;
+        try
+        {
+            var xmlr = XmlReader.Create(new StringReader(data));
+            return SyndicationFeed.Load(xmlr);
+
+            // var feed = SyndicationFeed.Load(xmlr);
+            // var rss = new Rss20FeedFormatter();
+            // rss.ReadFrom(xmlr);
+            // var feed = rss.Feed;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, "Syndication feed for data source '{Code}' is invalid.", manager.DataSource.Code);
+
+            var settings = new XmlReaderSettings()
+            {
+                IgnoreComments = false,
+                IgnoreWhitespace = true,
+            };
+            var xmlr = XmlReader.Create(new StringReader(data), settings);
+            // var rss = RssFeed.Load(xmlr);
+            var document = XDocument.Load(xmlr);
+            var isRss = RssFeed.IsRssFeed(document);
+            return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
+        }
     }
 
     /// <summary>

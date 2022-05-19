@@ -17,7 +17,8 @@ export const FormikText = <T,>({
 }: IFormikTextProps) => {
   const { values, errors, touched, handleBlur, handleChange, isSubmitting } = useFormikContext<T>();
 
-  const error = (errors as any)[name] && (touched as any)[name] && (errors as any)[name];
+  const errorMessage = getIn(errors, name);
+  const error = errorMessage && getIn(touched, name) && errorMessage;
   const fieldValue = getIn(values, name);
 
   return (

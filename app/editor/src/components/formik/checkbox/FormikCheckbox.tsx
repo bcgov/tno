@@ -22,7 +22,8 @@ export const FormikCheckbox = <T,>({
   const { values, errors, touched, handleBlur, handleChange, isSubmitting } = useFormikContext<T>();
 
   field = field ?? name;
-  const error = (errors as any)[field] && (touched as any)[field] && (errors as any)[field];
+  const errorMessage = getIn(errors, field);
+  const error = errorMessage && getIn(touched, field) && errorMessage;
   const fieldValue = getIn(values, field);
 
   return (

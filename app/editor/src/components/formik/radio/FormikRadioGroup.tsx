@@ -18,7 +18,8 @@ export const FormikRadioGroup = <T, OT extends string | number | IOptionItem | H
   const { values, errors, touched, handleBlur, isSubmitting, setFieldValue } =
     useFormikContext<T>();
 
-  const error = (errors as any)[name] && (touched as any)[name] && (errors as any)[name];
+  const errorMessage = getIn(errors, name);
+  const error = errorMessage && getIn(touched, name) && errorMessage;
   const fieldValue = getIn(values, name);
 
   return (

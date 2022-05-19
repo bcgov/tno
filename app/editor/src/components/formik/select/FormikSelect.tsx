@@ -1,6 +1,6 @@
 import { IOptionItem } from 'components/form/options';
 import { ISelectProps, Select } from 'components/form/select';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { ActionMeta } from 'react-select';
 
 import * as styled from './styled';
@@ -28,8 +28,10 @@ export const FormikSelect = <OptionType extends IOptionItem>({
   const { values, errors, touched, handleBlur, isSubmitting, setFieldValue } =
     useFormikContext<IFormikSelectProps<OptionType>>();
 
-  const error = (errors as any)[name] && (touched as any)[name] && (errors as any)[name];
+  const errorMessage = getIn(errors, name);
+  const error = errorMessage && getIn(touched, name) && errorMessage;
   const value = options.find((option) => option.value === (values as any)[name]);
+
   return (
     <styled.FormikSelect>
       <Select

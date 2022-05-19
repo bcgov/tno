@@ -9,8 +9,8 @@ export interface IScheduleModel extends IAuditColumnsModel {
   scheduleType: ScheduleTypeName;
   delayMS: number;
   runOn?: Date;
-  startAt?: Date;
-  stopAt?: Date;
+  startAt?: string;
+  stopAt?: string;
   repeat: number;
   runOnWeekDays: string;
   runOnMonths: string;
