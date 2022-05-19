@@ -78,7 +78,7 @@ public class ServiceState
     /// </summary>
     public void Resume()
     {
-        this.State.ResetFailures();
+        ResetFailures();
         this.Status = ServiceStatus.Running;
     }
     #endregion
