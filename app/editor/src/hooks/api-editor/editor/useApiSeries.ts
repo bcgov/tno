@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ISeriesModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiSeries = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getSeries: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ISeriesModel[]>(`/editor/series`, config);
+      return api.get<ISeriesModel[], AxiosResponse<ISeriesModel[], never>, any>(
+        `/editor/series`,
+        config,
+      );
     },
-  };
+  }).current;
 };

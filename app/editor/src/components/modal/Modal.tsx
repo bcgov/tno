@@ -50,9 +50,7 @@ export const Modal: React.FC<IModalProps> = ({
                 <Row className="modal-header">
                   <h1>{headerText}</h1>
                 </Row>
-                <Row>
-                  <p>{body}</p>
-                </Row>
+                <Row>{body}</Row>
                 {!!!customButtons && (
                   <Row className="button-row">
                     <Button

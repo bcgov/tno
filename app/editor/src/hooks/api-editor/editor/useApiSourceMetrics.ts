@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ISourceMetricModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiSourceMetrics = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getMetrics: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ISourceMetricModel[]>(`/editor/source/metrics`, config);
+      return api.get<ISourceMetricModel[], AxiosResponse<ISourceMetricModel[], never>, any>(
+        `/editor/source/metrics`,
+        config,
+      );
     },
-  };
+  }).current;
 };

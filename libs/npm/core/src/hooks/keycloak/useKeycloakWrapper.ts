@@ -72,5 +72,3 @@ export function useKeycloakWrapper(): IKeycloak {
     isApproved,
   };
 }
-
-export default useKeycloakWrapper;

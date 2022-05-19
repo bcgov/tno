@@ -11,7 +11,6 @@ export const DataSourceList = styled(FormPage)`
     button {
       background-color: white;
     }
-    margin-top: 3%;
     background-color: #f5f5f5;
   }
 `;

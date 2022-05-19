@@ -28,5 +28,3 @@ export const useKeycloakEventHandler = () => {
       }
     };
 };
-
-export default useKeycloakEventHandler;

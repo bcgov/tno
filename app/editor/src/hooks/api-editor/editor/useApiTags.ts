@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ITagModel, useApi } from '..';
@@ -16,10 +18,10 @@ export const useApiTags = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getTags: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ITagModel[]>(`/editor/tags`, config);
+      return api.get<ITagModel[], AxiosResponse<ITagModel[], never>, any>(`/editor/tags`, config);
     },
-  };
+  }).current;
 };

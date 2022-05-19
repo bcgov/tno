@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { useApi } from '..';
@@ -17,10 +19,13 @@ export const useApiRoles = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getRoles: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IRoleModel[]>(`/editor/roles`, config);
+      return api.get<IRoleModel[], AxiosResponse<IRoleModel[], never>, any>(
+        `/editor/roles`,
+        config,
+      );
     },
-  };
+  }).current;
 };

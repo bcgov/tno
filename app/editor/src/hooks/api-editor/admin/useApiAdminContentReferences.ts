@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 
@@ -17,25 +18,32 @@ export const useApiAdminContentReferences = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      findContentReferences: (filter: IContentReferenceFilter) => {
-        return api.get<IPaged<IContentReferenceModel>>(
-          `/admin/content/references?${toQueryString(filter)}`,
-        );
-      },
-      getContentReference: (source: string, uid: string) => {
-        return api.get<IContentReferenceModel>(`/admin/content/references/${source}?uid={uid}`);
-      },
-      updateContentReference: (model: IContentReferenceModel) => {
-        return api.put<IContentReferenceModel>(`/admin/content/references/${model.source}`, model);
-      },
-      deleteContentReference: (model: IContentReferenceModel) => {
-        return api.delete<IContentReferenceModel>(`/admin/content/references/${model.source}`, {
+  return React.useRef({
+    findContentReferences: (filter: IContentReferenceFilter) => {
+      return api.get<
+        IPaged<IContentReferenceModel>,
+        AxiosResponse<IPaged<IContentReferenceModel>, never>,
+        any
+      >(`/admin/content/references?${toQueryString(filter)}`);
+    },
+    getContentReference: (source: string, uid: string) => {
+      return api.get<IContentReferenceModel, AxiosResponse<IContentReferenceModel, never>, any>(
+        `/admin/content/references/${source}?uid={uid}`,
+      );
+    },
+    updateContentReference: (model: IContentReferenceModel) => {
+      return api.put<IContentReferenceModel, AxiosResponse<IContentReferenceModel, never>, any>(
+        `/admin/content/references/${model.source}`,
+        model,
+      );
+    },
+    deleteContentReference: (model: IContentReferenceModel) => {
+      return api.delete<IContentReferenceModel, AxiosResponse<IContentReferenceModel, never>, any>(
+        `/admin/content/references/${model.source}`,
+        {
           data: model,
-        });
-      },
-    }),
-    [api],
-  );
+        },
+      );
+    },
+  }).current;
 };

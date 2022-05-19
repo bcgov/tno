@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
@@ -17,27 +18,39 @@ export const useApiAdminDataSources = (
 ) => {
   const api = useApi(options);
 
-  return React.useMemo(
-    () => ({
-      findAllDataSources: () => {
-        return api.get<IDataSourceModel[]>(`/admin/data/sources`);
-      },
-      findDataSources: () => {
-        return api.get<IPaged<IDataSourceModel>>(`/admin/data/sources/find`);
-      },
-      getDataSource: (id: number) => {
-        return api.get<IDataSourceModel>(`/admin/data/sources/${id}`);
-      },
-      addDataSource: (model: IDataSourceModel) => {
-        return api.post<IDataSourceModel>(`/admin/data/sources`, model);
-      },
-      updateDataSource: (model: IDataSourceModel) => {
-        return api.put<IDataSourceModel>(`/admin/data/sources/${model.id}`, model);
-      },
-      deleteDataSource: (model: IDataSourceModel) => {
-        return api.delete<IDataSourceModel>(`/admin/data/sources/${model.id}`, { data: model });
-      },
-    }),
-    [api],
-  );
+  return React.useRef({
+    findAllDataSources: () => {
+      return api.get<IDataSourceModel[], AxiosResponse<IDataSourceModel[], never>, any>(
+        `/admin/data/sources`,
+      );
+    },
+    findDataSources: () => {
+      return api.get<IPaged<IDataSourceModel>, AxiosResponse<IPaged<IDataSourceModel>, never>, any>(
+        `/admin/data/sources/find`,
+      );
+    },
+    getDataSource: (id: number) => {
+      return api.get<IDataSourceModel, AxiosResponse<IDataSourceModel, never>, any>(
+        `/admin/data/sources/${id}`,
+      );
+    },
+    addDataSource: (model: IDataSourceModel) => {
+      return api.post<IDataSourceModel, AxiosResponse<IDataSourceModel, never>, any>(
+        `/admin/data/sources`,
+        model,
+      );
+    },
+    updateDataSource: (model: IDataSourceModel) => {
+      return api.put<IDataSourceModel, AxiosResponse<IDataSourceModel, never>, any>(
+        `/admin/data/sources/${model.id}`,
+        model,
+      );
+    },
+    deleteDataSource: (model: IDataSourceModel) => {
+      return api.delete<IDataSourceModel, AxiosResponse<IDataSourceModel, never>, any>(
+        `/admin/data/sources/${model.id}`,
+        { data: model },
+      );
+    },
+  }).current;
 };

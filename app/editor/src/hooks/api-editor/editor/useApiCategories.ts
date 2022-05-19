@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IContentTypeModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiCategories = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getCategories: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IContentTypeModel[]>(`/editor/categories`, config);
+      return api.get<IContentTypeModel[], AxiosResponse<IContentTypeModel[], never>, any>(
+        `/editor/categories`,
+        config,
+      );
     },
-  };
+  }).current;
 };

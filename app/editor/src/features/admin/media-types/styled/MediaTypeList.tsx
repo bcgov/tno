@@ -14,7 +14,6 @@ export const MediaTypeList = styled.div`
     button {
       background-color: white;
     }
-    margin-top: 3%;
     background-color: #f5f5f5;
   }
 `;

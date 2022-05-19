@@ -11,7 +11,7 @@ export interface apiDispatcher<T> {
     /**
      * Callback that will make the request.
      */
-    request: () => Promise<AxiosResponse<T, T>>,
+    request: () => Promise<AxiosResponse<T, any>>,
   ): Promise<T>;
 }
 
@@ -39,8 +39,9 @@ export const useApiDispatcher = () => {
           if (ae.response?.status === 304) throw error;
 
           let message = 'An unexpected error has occurred.';
-          if (typeof ae.response?.data === 'string') message = ae.response?.data;
-          else if (ae.response?.data?.error) message = ae.response?.data?.error;
+          const data = ae.response?.data as any;
+          if (typeof data === 'string') message = data;
+          else if (data?.error) message = data?.error;
           app.addError({
             status: ae.response?.status,
             statusText: ae.response?.statusText,

@@ -1,3 +1,5 @@
+import { AxiosResponse } from 'axios';
+import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { ISourceActionModel, useApi } from '..';
@@ -16,10 +18,13 @@ export const useApiSourceActions = (
 ) => {
   const api = useApi(options);
 
-  return {
+  return React.useRef({
     getActions: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ISourceActionModel[]>(`/editor/source/actions`, config);
+      return api.get<ISourceActionModel[], AxiosResponse<ISourceActionModel[], never>, any>(
+        `/editor/source/actions`,
+        config,
+      );
     },
-  };
+  }).current;
 };
