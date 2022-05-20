@@ -66,4 +66,12 @@ public interface IApiService
     /// </summary>
     /// <returns></returns>
     public Task<LookupModel?> GetLookupsAsync();
+
+    /// <summary>
+    /// Make an AJAX request to the api to find the specified content.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    Task<ContentModel?> FindContentByUidAsync(string uid, string? source);
 }

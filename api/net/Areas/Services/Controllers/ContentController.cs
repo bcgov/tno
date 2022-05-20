@@ -1,6 +1,5 @@
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Content;
@@ -8,7 +7,6 @@ using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
-using TNO.Entities.Models;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -46,6 +44,24 @@ public class ContentController : ControllerBase
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Find content for the specified 'uid' and 'source'.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    [HttpGet("find")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult FindByUid([FromQuery] string uid, [FromQuery] string? source)
+    {
+        var result = _contentService.FindByUid(uid, source);
+        if (result == null) return new NoContentResult();
+        return new JsonResult(new ContentModel(result));
+    }
+
     /// <summary>
     /// Find content for the specified 'id'.
     /// </summary>

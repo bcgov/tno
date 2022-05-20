@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
@@ -49,6 +50,7 @@ public abstract class BaseService
         this.Configuration = Configure(builder).Build();
         ConfigureServices(builder.Services);
         this.App = builder.Build();
+        Console.OutputEncoding = Encoding.UTF8;
         _logger = this.App.Services.GetRequiredService<ILogger<BaseService>>();
     }
     #endregion

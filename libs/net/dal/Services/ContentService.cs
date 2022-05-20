@@ -138,6 +138,31 @@ public class ContentService : BaseService<Content, long>, IContentService
             .FirstOrDefault(c => c.Id == id);
     }
 
+    public Content? FindByUid(string uid, string? source)
+    {
+        var query = this.Context.Contents
+            .Include(c => c.ContentType)
+            .Include(c => c.MediaType)
+            .Include(c => c.Series)
+            .Include(c => c.License)
+            .Include(c => c.DataSource)
+            .Include(c => c.Owner)
+            .Include(c => c.PrintContent)
+            .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
+            .Include(c => c.CategoriesManyToMany).ThenInclude(cc => cc.Category)
+            .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
+            .Include(c => c.TagsManyToMany).ThenInclude(ct => ct.Tag)
+            .Include(c => c.TimeTrackings)
+            .Include(c => c.FileReferences)
+            .Include(c => c.Links)
+            .Where(c => c.Uid == uid);
+
+        if (!String.IsNullOrWhiteSpace(source))
+            query = query.Where(c => c.Source == source);
+
+        return query.FirstOrDefault();
+    }
+
     public override Content Add(Content entity)
     {
         entity.AddToContext(this.Context);

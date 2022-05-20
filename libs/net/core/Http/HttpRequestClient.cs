@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net;
 
 namespace TNO.Core.Http
 {
@@ -439,6 +440,9 @@ namespace TNO.Core.Http
 
             if (response.IsSuccessStatusCode)
             {
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                    return default;
+
                 return await DeserializeAsync<TModel>(response);
             }
 
@@ -446,7 +450,7 @@ namespace TNO.Core.Http
             if ((onError?.Invoke(response) ?? false) == false)
             {
                 var error = new HttpClientRequestException(response);
-                _logger.LogError(error, error.Message);
+                _logger.LogError(error, "Request failed: {Message}", error.Message);
                 throw error;
             }
 

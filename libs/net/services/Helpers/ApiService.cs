@@ -127,6 +127,18 @@ public class ApiService : IApiService
 
     #region Content Methods
     /// <summary>
+    /// Make an AJAX request to the api to find the specified content.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public async Task<ContentModel?> FindContentByUidAsync(string uid, string? source)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/contents/find?uid={uid}&source={source}");
+        return await _client.GetAsync<ContentModel?>(url);
+    }
+
+    /// <summary>
     /// Make an AJAX request to the api to add the specified content.
     /// </summary>
     /// <param name="content"></param>
