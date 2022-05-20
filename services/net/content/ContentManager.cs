@@ -112,7 +112,11 @@ public class ContentManager : ServiceManager<ContentOptions>
             TonePools = Array.Empty<ContentTonePoolModel>(),
             FileReferences = Array.Empty<FileReferenceModel>()
         };
-        await _api.AddContentAsync(content);
+
+        // Only add if doesn't already exist.
+        var exists = await _api.FindContentByUidAsync(content.Uid, content.Source);
+        if (exists == null)
+            await _api.AddContentAsync(content);
     }
     #endregion
 }

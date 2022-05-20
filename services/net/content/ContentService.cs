@@ -37,7 +37,6 @@ public class ContentService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
-            // .AddTransient<IServiceAction<ContentOptions>, ContentAction>()
             .AddSingleton<IServiceManager, ContentManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
