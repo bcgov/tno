@@ -1,0 +1,30 @@
+---
+# Keycloak configuration settings.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kafka-broker
+  namespace: default
+  annotations:
+    description: Kafka broker configuration
+  labels:
+    name: kafka-broker
+    part-of: tno
+    version: 1.0.0
+    component: kafka-broker
+    managed-by: kustomize
+    created-by: jeremy.foster
+data:
+  KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "3"
+  KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+  KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-headless:29092,HOST://kafka-headless:9092,EXTERNAL://kafka-host:29094
+  KAFKA_LISTENERS: INTERNAL://0.0.0.0:29092,HOST://0.0.0.0:9092,EXTERNAL://0.0.0.0:29094
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,HOST:PLAINTEXT,EXTERNAL:PLAINTEXT
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+  KAFKA_JMX_PORT: "9101"
+  KAFKA_JMX_HOSTNAME: kafka-headless
+  KAFKA_HEAP_OPTS: "-Xmx8G -Xms6G"
+  KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:MetaspaceSize=96m  -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80 -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -Djava.awt.headless=true"
+  #KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081

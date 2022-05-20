@@ -8,6 +8,9 @@ import { SelectDateVariant } from '.';
 import * as styled from './styled';
 
 export interface ISelectDateProps {
+  /**
+   * The label to display with the input.
+   */
   label?: string;
   /**
    * The styled variant.
@@ -39,7 +42,7 @@ export interface IDatePickerProps extends ISelectDateProps, ReactDatePickerProps
  */
 export const SelectDate: React.FC<IDatePickerProps> = ({
   id,
-  name,
+  name = 'date',
   label,
   variant = SelectDateVariant.primary,
   tooltip,

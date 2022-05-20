@@ -8,7 +8,7 @@ import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
 import { Col, Row } from 'tno-core';
 
-import { Connection } from '../media-types';
+import { Connection } from '../connections';
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import { scheduleTypeOptions } from './constants';
 import * as styled from './styled';

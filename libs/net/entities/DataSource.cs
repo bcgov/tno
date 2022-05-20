@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using TNO.Core.Data;
+using TNO.Entities.Validation;
 
 namespace TNO.Entities;
 
@@ -117,6 +118,7 @@ public class DataSource : AuditColumns
     /// get/set - The Kafka topic this data source is ingested to.
     /// </summary>
     [Column("topic")]
+    [KafkaTopic]
     public string Topic { get; set; } = "";
 
     /// <summary>

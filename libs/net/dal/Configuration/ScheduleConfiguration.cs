@@ -8,7 +8,7 @@ public class ScheduleConfiguration : AuditColumnsConfiguration<Schedule>
     public override void Configure(EntityTypeBuilder<Schedule> builder)
     {
         builder.HasKey(m => m.Id);
-        builder.Property(m => m.Id).IsRequired().HasMaxLength(6).ValueGeneratedOnAdd();
+        builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.Name).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000);
         builder.Property(m => m.IsEnabled);
