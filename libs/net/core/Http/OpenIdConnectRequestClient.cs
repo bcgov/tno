@@ -91,25 +91,27 @@ namespace TNO.Core.Http
         public async Task<string> RequestAccessToken()
         {
             HttpResponseMessage response;
-            if (_accessToken == null || String.IsNullOrWhiteSpace(_accessToken.AccessToken) || (!String.IsNullOrWhiteSpace(_accessToken.RefreshToken) && _tokenHandler.ReadJwtToken(_accessToken.RefreshToken).ValidTo <= DateTime.UtcNow))
+            var now = DateTime.UtcNow;
+            var accessToken = _accessToken?.AccessToken != null ? _tokenHandler.ReadJwtToken(_accessToken.AccessToken) : null;
+            var refreshToken = _accessToken?.RefreshToken != null ? _tokenHandler.ReadJwtToken(_accessToken.RefreshToken) : null;
+            if (accessToken == null ||
+                (accessToken?.ValidTo <= now && (refreshToken == null || refreshToken?.ValidTo <= now))
+            )
             {
                 // If there is no access token, or the refresh token has expired.
                 response = await RequestToken();
             }
-            else if (_accessToken != null
-                && !String.IsNullOrWhiteSpace(_accessToken.AccessToken)
-                && _tokenHandler.ReadJwtToken(_accessToken.AccessToken).ValidTo <= DateTime.UtcNow
-                && !String.IsNullOrWhiteSpace(_accessToken.RefreshToken)
-                && _tokenHandler.ReadJwtToken(_accessToken.RefreshToken).ValidTo > DateTime.UtcNow)
+            else if (accessToken?.ValidTo <= now && refreshToken?.ValidTo > now)
             {
                 // If the access token has expired, but not the refresh token has not expired.
-                response = await RefreshToken(_accessToken.RefreshToken);
+                response = await RefreshToken(refreshToken.RawData);
             }
-            else
+            else if (accessToken != null)
             {
                 // We have a valid token, keep on using it.
-                return $"Bearer {_accessToken?.AccessToken}"; // NOSONAR
+                return $"Bearer {accessToken.RawData}";
             }
+            else return String.Empty;
 
             // Extract the JWT token to use when making the request.
             if (response.IsSuccessStatusCode)
