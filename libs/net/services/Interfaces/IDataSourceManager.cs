@@ -1,3 +1,5 @@
+using TNO.API.Areas.Services.Models.DataSource;
+
 namespace TNO.Services;
 
 /// <summary>
@@ -11,5 +13,6 @@ public interface IDataSourceManager : IServiceManager
     #endregion
 
     #region Methods
+    public Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync();
     #endregion
 }

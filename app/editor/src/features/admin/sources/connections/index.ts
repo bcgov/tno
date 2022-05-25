@@ -1,4 +1,7 @@
 export * from './Audio';
+export * from './AudioClip';
+export * from './AudioStream';
+export * from './AudioTuner';
 export * from './AVArchive';
 export * from './Connection';
 export * from './Newspaper';

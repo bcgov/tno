@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.NLP", "nlp\TNO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Content", "content\TNO.Services.Content.csproj", "{F57E61B8-C192-4FF9-B211-77FEAB8890B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Capture", "capture\TNO.Services.Capture.csproj", "{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Command", "command\TNO.Services.Command.csproj", "{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F57E61B8-C192-4FF9-B211-77FEAB8890B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

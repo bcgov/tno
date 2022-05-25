@@ -23,5 +23,10 @@ public class ServiceOptions
     /// </summary>
     [Required]
     public Uri ApiUrl { get; set; } = default!;
+
+    /// <summary>
+    /// get/set - The service timezone.
+    /// </summary>
+    public string TimeZone { get; set; } = "Pacific Standard Time";
     #endregion
 }

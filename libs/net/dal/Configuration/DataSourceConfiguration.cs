@@ -21,9 +21,7 @@ public class DataSourceConfiguration : AuditColumnsConfiguration<DataSource>
         builder.Property(m => m.Topic).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Connection).IsRequired().HasColumnType("json");
         builder.Property(m => m.ParentId);
-        builder.Property(m => m.LastRanOn);
         builder.Property(m => m.RetryLimit).HasDefaultValue(3);
-        builder.Property(m => m.FailedAttempts).HasDefaultValue(0);
         builder.Property(m => m.ScheduleType).HasDefaultValue(DataSourceScheduleType.None);
 
         builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);

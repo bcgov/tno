@@ -21,11 +21,6 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// Configuration options for this service.
     /// </summary>
     protected readonly TOption _options;
-
-    /// <summary>
-    /// Logger for this service.
-    /// </summary>
-    protected readonly ILogger _logger;
     #endregion
 
     #region Properties
@@ -33,6 +28,11 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// get - The state of the service.
     /// </summary>
     public ServiceState State { get; private set; }
+
+    /// <summary>
+    /// get - Logger for this service.
+    /// </summary>
+    public ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -50,7 +50,7 @@ public abstract class ServiceManager<TOption> : IServiceManager
     {
         _api = api;
         _options = options.Value;
-        _logger = logger;
+        this.Logger = logger;
         this.State = new ServiceState(_options);
     }
     #endregion

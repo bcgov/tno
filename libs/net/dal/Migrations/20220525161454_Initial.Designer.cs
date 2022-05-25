@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20220517143947_Initial")]
+    [Migration("20220525161454_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1254,6 +1254,27 @@ namespace TNO.DAL.Migrations
                     b.ToTable("data_location");
                 });
 
+            modelBuilder.Entity("TNO.Entities.DataService", b =>
+                {
+                    b.Property<int>("DataSourceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("date_source_id");
+
+                    b.Property<int>("FailedAttempts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("failed_attempts");
+
+                    b.Property<DateTime?>("LastRanOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_ran_on");
+
+                    b.HasKey("DataSourceId");
+
+                    b.ToTable("data_service");
+                });
+
             modelBuilder.Entity("TNO.Entities.DataSource", b =>
                 {
                     b.Property<int>("Id")
@@ -1306,19 +1327,9 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("description")
                         .HasDefaultValueSql("''");
 
-                    b.Property<int>("FailedAttempts")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("failed_attempts");
-
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
-
-                    b.Property<DateTime?>("LastRanOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_ran_on");
 
                     b.Property<int>("LicenseId")
                         .HasColumnType("integer")
@@ -2076,7 +2087,6 @@ namespace TNO.DAL.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(6)
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
@@ -3019,6 +3029,17 @@ namespace TNO.DAL.Migrations
                     b.Navigation("ContentType");
                 });
 
+            modelBuilder.Entity("TNO.Entities.DataService", b =>
+                {
+                    b.HasOne("TNO.Entities.DataSource", "DataSource")
+                        .WithOne("DataService")
+                        .HasForeignKey("TNO.Entities.DataService", "DataSourceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DataSource");
+                });
+
             modelBuilder.Entity("TNO.Entities.DataSource", b =>
                 {
                     b.HasOne("TNO.Entities.ContentType", "ContentType")
@@ -3276,6 +3297,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("ActionsManyToMany");
 
                     b.Navigation("Contents");
+
+                    b.Navigation("DataService");
 
                     b.Navigation("MetricsManyToMany");
 

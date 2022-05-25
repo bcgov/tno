@@ -128,22 +128,10 @@ public class DataSource : AuditColumns
     public string Connection { get; set; } = "{}";
 
     /// <summary>
-    /// get/set - When the data source was ingested last.
-    /// </summary>
-    [Column("last_ran_on")]
-    public DateTime? LastRanOn { get; set; }
-
-    /// <summary>
     /// get/set - Maximum number of attempts after a failure.
     /// </summary>
     [Column("retry_limit")]
     public int RetryLimit { get; set; }
-
-    /// <summary>
-    /// get/set - Number of sequential failures that have occurred.
-    /// </summary>
-    [Column("failed_attempts")]
-    public int FailedAttempts { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to parent data source.  This provides a way to create a relationship between data sources.
@@ -155,6 +143,11 @@ public class DataSource : AuditColumns
     /// get/set -
     /// </summary>
     public virtual DataSource? Parent { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public virtual DataService? DataService { get; set; }
 
     /// <summary>
     /// get -

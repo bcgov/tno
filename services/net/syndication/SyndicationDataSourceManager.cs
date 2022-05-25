@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Services.Actions.Managers;
@@ -17,8 +18,9 @@ public class SyndicationDataSourceManager : DataSourceIngestManager<SyndicationO
     /// <param name="dataSource"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
-    public SyndicationDataSourceManager(DataSourceModel dataSource, IApiService api, IIngestAction<SyndicationOptions> action)
-        : base(dataSource, api, action)
+    /// <param name="options"></param>
+    public SyndicationDataSourceManager(DataSourceModel dataSource, IApiService api, IIngestAction<SyndicationOptions> action, IOptions<SyndicationOptions> options)
+        : base(dataSource, api, action, options)
     {
     }
     #endregion
@@ -28,13 +30,12 @@ public class SyndicationDataSourceManager : DataSourceIngestManager<SyndicationO
     /// <summary>
     /// Verify that the specified data source ingestion action should be run.
     /// </summary>
-    /// <param name="dataSource"></param>
     /// <returns></returns>
-    public override bool VerifyDataSource(DataSourceModel dataSource)
+    public override bool VerifyDataSource()
     {
-        if (!dataSource.Connection.ContainsKey("url")) return false;
+        if (!this.DataSource.Connection.ContainsKey("url")) return false;
 
-        var url = (JsonElement)dataSource.Connection["url"];
+        var url = (JsonElement)this.DataSource.Connection["url"];
 
         if (url.ValueKind == JsonValueKind.String)
             return !String.IsNullOrWhiteSpace(url.GetString());

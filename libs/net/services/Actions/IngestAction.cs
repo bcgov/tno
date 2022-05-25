@@ -32,16 +32,18 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// Perform the action for the specified data source.
     /// </summary>
     /// <param name="manager"></param>
-    public abstract Task PerformActionAsync(IDataSourceIngestManager manager);
+    /// <param name="name"></param>
+    public abstract Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null);
 
     /// <summary>
     /// Perform the action for the specified data source.
     /// Override the PeformActionAsync(IDataSourceIngestManager manager) method instead of this one.
     /// </summary>
     /// <param name="manager"></param>
-    public override Task PerformActionAsync(IServiceActionManager manager)
+    /// <param name="name"></param>
+    public override Task PerformActionAsync(IServiceActionManager manager, string? name = null)
     {
-        return PerformActionAsync((IDataSourceIngestManager)manager);
+        return PerformActionAsync((IDataSourceIngestManager)manager, name);
     }
     #endregion
 }

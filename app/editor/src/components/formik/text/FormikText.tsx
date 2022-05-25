@@ -5,6 +5,12 @@ import * as styled from './styled';
 
 export interface IFormikTextProps extends ITextProps {}
 
+/**
+ * FormikText component provides a formik controlled text input.
+ * If you override `onBlur` or `onChange` you will need to possibly handle the formik integration.
+ * @param param0 Component properties.
+ * @returns
+ */
 export const FormikText = <T,>({
   id,
   name,

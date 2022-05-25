@@ -42,8 +42,9 @@ public class NLPAction : ServiceAction<NLPOptions>
     /// Perform the ingestion service action.
     /// </summary>
     /// <param name="manager"></param>
+    /// <param name="name"></param>
     /// <returns></returns>
-    public override Task PerformActionAsync(IServiceActionManager manager)
+    public override Task PerformActionAsync(IServiceActionManager manager, string? name = null)
     {
         _logger.LogDebug("Performing NLP service action for ...");
 

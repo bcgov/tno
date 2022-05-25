@@ -12,14 +12,18 @@ public interface IDataSourceIngestManager : IServiceActionManager
     /// get - The data source managed by this object.
     /// </summary>
     public DataSourceModel DataSource { get; }
+
+    /// <summary>
+    /// get - A dictionary of values that can be stored with this manager.
+    /// </summary>
+    public Dictionary<string, object> Values { get; }
     #endregion
 
     #region Methods
     /// <summary>
     /// Verify that the specified data source ingestion action should be run.
     /// </summary>
-    /// <param name="dataSource"></param>
     /// <returns></returns>
-    public bool VerifyDataSource(DataSourceModel dataSource);
+    public bool VerifyDataSource();
     #endregion
 }

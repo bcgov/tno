@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using TNO.Services.Config;
 
 namespace TNO.Services.Actions.Managers;
@@ -16,12 +17,17 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <summary>
     /// get - Whether the current manager is running.
     /// </summary>
-    public bool IsRunning { get; private set; }
+    public bool IsRunning { get; protected set; }
 
     /// <summary>
     /// get - The number of times this data source process has been run.
     /// </summary>
-    public int RanCounter { get; private set; }
+    public int RanCounter { get; protected set; }
+
+    /// <summary>
+    /// get - Configuration options for the service.
+    /// </summary>
+    protected TOptions Options { get; private set; }
     #endregion
 
     #region Constructors
@@ -29,9 +35,11 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// Creates a new instance of a DataSourceIngestManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="action"></param>
-    public ServiceActionManager(IServiceAction<TOptions> action)
+    /// <param name="options"></param>
+    public ServiceActionManager(IServiceAction<TOptions> action, IOptions<TOptions> options)
     {
         _action = action;
+        this.Options = options.Value;
     }
     #endregion
 
@@ -39,7 +47,7 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <summary>
     /// Based on the schedule run the process for this data source.
     /// </summary>
-    public async Task RunAsync()
+    public virtual async Task RunAsync()
     {
         var run = await PreRunAsync();
         if (run && !this.IsRunning)
@@ -66,6 +74,15 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     }
 
     /// <summary>
+    /// Stop the running action.
+    /// </summary>
+    /// <returns></returns>
+    public virtual Task StopAsync()
+    {
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
     /// Determine if the run should be executed.
     /// </summary>
     /// <returns></returns>
@@ -77,11 +94,12 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// <summary>
     /// Call the configured action.
     /// </summary>
+    /// <param name="name"></param>
     /// <returns></returns>
-    protected virtual async Task PerformActionAsync()
+    protected virtual async Task PerformActionAsync(string? name = null)
     {
         // Perform configured action.
-        await _action.PerformActionAsync(this);
+        await _action.PerformActionAsync(this, name);
     }
 
     /// <summary>

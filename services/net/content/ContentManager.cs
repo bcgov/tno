@@ -35,7 +35,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         IKafkaListener kafka,
         IApiService api,
         IOptions<ContentOptions> options,
-        ILogger<ServiceManager<ContentOptions>> logger)
+        ILogger<ContentManager> logger)
         : base(api, options, logger)
     {
         this.Consumer = kafka;
@@ -52,7 +52,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             if (this.State.Status != ServiceStatus.Running)
             {
-                _logger.LogDebug("The service is not running '{Status}'", this.State.Status);
+                this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
             }
             else
             {
@@ -69,14 +69,14 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Content manager had an unexpected failure.");
+                    this.Logger.LogError(ex, "Content manager had an unexpected failure.");
                     this.State.RecordFailure();
                 }
             }
 
             // The delay ensures we don't have a run away thread.
             // With a minimum delay for all data source schedules, it could mean some data sources are pinged more often then required.
-            _logger.LogDebug("Service sleeping for {delay} ms", delay);
+            this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
             // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
         }

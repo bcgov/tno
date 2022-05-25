@@ -23,7 +23,7 @@ public class NLPManager : ServiceManager<NLPOptions>
         IApiService api,
         IServiceActionManager manager,
         IOptions<NLPOptions> options,
-        ILogger<ServiceManager<NLPOptions>> logger)
+        ILogger<NLPManager> logger)
         : base(api, options, logger)
     {
         _manager = manager;

@@ -10,6 +10,8 @@ project.lock.json
 *.pyc
 nupkg/
 
+capture/data
+
 # IDE - VSCode
 .vscode/*
 !.vscode/settings.json

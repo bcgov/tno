@@ -149,12 +149,15 @@ public abstract class BaseService
     /// Run the ingestion service.
     /// </summary>
     /// <returns></returns>
-    public int Run()
+    public async Task<int> RunAsync()
     {
         try
         {
             _logger.LogInformation("Service started");
-            return Task.WaitAny(RunApiAsync(), RunServiceAsync());
+            var tasks = new[] { RunApiAsync(), RunServiceAsync() };
+            var task = await Task.WhenAny(tasks);
+            if (task.Status == TaskStatus.Faulted) throw task.Exception ?? new Exception("An unhandled exception has occured.");
+            return 0;
         }
         catch (Exception ex)
         {

@@ -10,10 +10,10 @@ public static class Program
     /// </summary>
     /// <param name="args"></param>
     /// <returns></returns>
-    public static int Main(string[] args)
+    public static Task<int> Main(string[] args)
     {
         // Run the NLP service console program.
         var program = new NLPService(args);
-        return program.Run();
+        return program.RunAsync();
     }
 }

@@ -27,6 +27,12 @@ public interface IServiceActionManager
     public Task RunAsync();
 
     /// <summary>
+    /// Ask the process action(s) to stop.
+    /// </summary>
+    /// <returns></returns>
+    public Task StopAsync();
+
+    /// <summary>
     /// Inform action of successful run.
     /// </summary>
     /// <returns></returns>

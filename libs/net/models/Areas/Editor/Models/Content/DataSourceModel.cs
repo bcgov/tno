@@ -120,9 +120,9 @@ public class DataSourceModel
         this.Topic = entity.Topic;
         this.ParentId = entity.ParentId;
         this.Connection = entity.Connection;
-        this.LastRanOn = entity.LastRanOn;
+        this.LastRanOn = entity.DataService?.LastRanOn;
         this.RetryLimit = entity.RetryLimit;
-        this.FailedAttempts = entity.FailedAttempts;
+        this.FailedAttempts = entity.DataService?.FailedAttempts ?? 0;
     }
     #endregion
 
@@ -141,9 +141,12 @@ public class DataSourceModel
             IsEnabled = model.IsEnabled,
             ParentId = model.ParentId,
             Connection = model.Connection,
-            LastRanOn = model.LastRanOn,
             RetryLimit = model.RetryLimit,
-            FailedAttempts = model.FailedAttempts,
+            DataService = new Entities.DataService(model.Id)
+            {
+                LastRanOn = model.LastRanOn,
+                FailedAttempts = model.FailedAttempts,
+            },
         };
     }
     #endregion
