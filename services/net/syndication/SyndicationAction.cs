@@ -52,8 +52,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Perform the ingestion service action.
     /// </summary>
     /// <param name="manager"></param>
+    /// <param name="name"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync(IDataSourceIngestManager manager)
+    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null)
     {
         _logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
         var url = GetUrl(manager.DataSource);
@@ -232,15 +233,15 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var value = (JsonElement)element;
         if (value.ValueKind == JsonValueKind.String)
         {
-            var url = value.GetString() ?? throw new InvalidOperationException("Data source connection url cannot be null, empty or whitespace.");
+            var url = value.GetString() ?? throw new InvalidOperationException("Data source connection 'url' cannot be null, empty or whitespace.");
 
             var options = new UriCreationOptions();
-            if (!Uri.TryCreate(url, options, out Uri? uri)) throw new InvalidOperationException("Data source connection url is not a valid format.");
+            if (!Uri.TryCreate(url, options, out Uri? uri)) throw new InvalidOperationException("Data source connection 'url' is not a valid format.");
 
             return uri;
         }
 
-        throw new InvalidOperationException("Data source connection url is not a valid string value");
+        throw new InvalidOperationException("Data source connection 'url' is not a valid string value");
     }
     #endregion
 }

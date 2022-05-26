@@ -22,7 +22,7 @@ public class SyndicationManager : DataSourceManager<SyndicationDataSourceManager
         IApiService api,
         DataSourceIngestManagerFactory<SyndicationDataSourceManager, SyndicationOptions> factory,
         IOptions<SyndicationOptions> options,
-        ILogger<DataSourceManager<SyndicationDataSourceManager, SyndicationOptions>> logger)
+        ILogger<SyndicationManager> logger)
         : base(api, factory, options, logger)
     {
     }

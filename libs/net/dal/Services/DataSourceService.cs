@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
@@ -79,6 +77,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Include(ds => ds.DataLocation)
             .Include(ds => ds.MediaType)
             .Include(ds => ds.License)
+            .Include(ds => ds.DataService)
             .Include(ds => ds.Parent)
             .Include(ds => ds.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
             .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
@@ -93,6 +92,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Include(ds => ds.DataLocation)
             .Include(ds => ds.MediaType)
             .Include(ds => ds.License)
+            .Include(ds => ds.DataService)
             .Include(ds => ds.Parent)
             .Include(ds => ds.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
             .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
@@ -107,6 +107,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Include(ds => ds.DataLocation)
             .Include(ds => ds.MediaType)
             .Include(ds => ds.License)
+            .Include(ds => ds.DataService)
             .Include(ds => ds.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
             .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
             .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)

@@ -45,7 +45,7 @@ public class ServiceState
     {
         this.Failures++;
 
-        if (this.Failures >= this.MaxRetryLimit) this.Status = ServiceStatus.Sleeping;
+        if (this.Failures >= this.MaxRetryLimit) this.Status = ServiceStatus.RequestSleep;
         return this.Failures;
     }
 
@@ -62,7 +62,7 @@ public class ServiceState
     /// </summary>
     public void Sleep()
     {
-        this.Status = ServiceStatus.Sleeping;
+        this.Status = ServiceStatus.RequestSleep;
     }
 
     /// <summary>
@@ -70,7 +70,19 @@ public class ServiceState
     /// </summary>
     public void Pause()
     {
-        this.Status = ServiceStatus.Paused;
+        this.Status = ServiceStatus.RequestPause;
+    }
+
+    /// <summary>
+    /// Change the status to either Paused or Sleeping depending on current state.
+    /// </summary>
+    public void Stop()
+    {
+        if (this.Status == ServiceStatus.RequestSleep)
+            this.Status = ServiceStatus.Sleeping;
+        else if (this.Status == ServiceStatus.RequestPause)
+            this.Status = ServiceStatus.Paused;
+        else Sleep();
     }
 
     /// <summary>

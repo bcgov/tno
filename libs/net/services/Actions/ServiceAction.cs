@@ -43,6 +43,7 @@ public abstract class ServiceAction<TOptions> : IServiceAction<TOptions>
     /// Perform the action for the specified manager.
     /// </summary>
     /// <param name="manager"></param>
-    public abstract Task PerformActionAsync(IServiceActionManager manager);
+    /// <param name="name"></param>
+    public abstract Task PerformActionAsync(IServiceActionManager manager, string? name = null);
     #endregion
 }

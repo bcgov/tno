@@ -251,7 +251,7 @@ namespace TNO.DAL.Migrations
                 name: "schedule",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", maxLength: 6, nullable: false)
+                    id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
@@ -508,9 +508,7 @@ namespace TNO.DAL.Migrations
                     schedule_type = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     topic = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     connection = table.Column<string>(type: "json", nullable: false),
-                    last_ran_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     retry_limit = table.Column<int>(type: "integer", nullable: false, defaultValue: 3),
-                    failed_attempts = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     parent_id = table.Column<int>(type: "integer", nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
@@ -691,6 +689,25 @@ namespace TNO.DAL.Migrations
                         principalTable: "user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "data_service",
+                columns: table => new
+                {
+                    date_source_id = table.Column<int>(type: "integer", nullable: false),
+                    last_ran_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    failed_attempts = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_data_service", x => x.date_source_id);
+                    table.ForeignKey(
+                        name: "FK_data_service_data_source_date_source_id",
+                        column: x => x.date_source_id,
+                        principalTable: "data_source",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1389,6 +1406,9 @@ namespace TNO.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "content_type_action");
+
+            migrationBuilder.DropTable(
+                name: "data_service");
 
             migrationBuilder.DropTable(
                 name: "data_source_action");

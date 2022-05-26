@@ -16,6 +16,7 @@ public interface IIngestAction<TOptions> : IServiceAction<TOptions>
     /// Perform the action for the specified data source.
     /// </summary>
     /// <param name="dataSource"></param>
-    public Task PerformActionAsync(IDataSourceIngestManager dataSource);
+    /// <param name="name"></param>
+    public Task PerformActionAsync(IDataSourceIngestManager dataSource, string? name = null);
     #endregion
 }

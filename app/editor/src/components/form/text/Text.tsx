@@ -30,6 +30,12 @@ export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
    * Form field size.
    */
   width?: FieldSize;
+  /**
+   * Function to format the value.
+   */
+  formatter?: (
+    value: string | number | readonly string[] | undefined,
+  ) => string | number | readonly string[] | undefined;
 }
 
 /**
@@ -48,6 +54,8 @@ export const Text: React.FC<ITextProps> = ({
   className,
   error,
   width = FieldSize.Stretch,
+  value,
+  formatter = (value) => value,
   onInput,
   onInvalid,
   ...rest
@@ -70,6 +78,7 @@ export const Text: React.FC<ITextProps> = ({
           data-tip={tooltip}
           width={width}
           role={error ? 'alert' : 'none'}
+          value={formatter(value)}
           onInput={(e) => {
             if (onInput) onInput(e);
             else {

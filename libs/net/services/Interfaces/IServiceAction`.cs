@@ -16,6 +16,7 @@ public interface IServiceAction<TOptions>
     /// Perform the action for the specified manager.
     /// </summary>
     /// <param name="manager"></param>
-    public Task PerformActionAsync(IServiceActionManager manager);
+    /// <param name="name"></param>
+    public Task PerformActionAsync(IServiceActionManager manager, string? name = null);
     #endregion
 }

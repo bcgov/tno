@@ -131,6 +131,15 @@ remove: ## Remove all containers
 	$(info Remove all containers)
 	@docker-compose rm -sv
 
+renew: ## Refresh all relevant services that were impacted by prior Pull Request.
+	$(info Refresh all relevant services that were impacted by prior Pull Request.)
+	@make db-refresh
+	@make refresh n=api
+	@make refresh n=editor
+	@make refresh n=syndication
+	@make refresh n=content
+	@make refresh n=capture
+
 ##############################################################################
 # Database Commands
 ##############################################################################

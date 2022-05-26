@@ -23,7 +23,7 @@ public class NLPActionManager : ServiceActionManager<NLPOptions>
         IServiceAction<NLPOptions> action,
         IOptions<NLPOptions> options,
         ILogger<NLPActionManager> logger)
-        : base(action)
+        : base(action, options)
     {
     }
     #endregion

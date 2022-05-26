@@ -164,9 +164,9 @@ public class DataSourceModel : AuditColumnsModel
         this.ParentId = entity.ParentId;
         this.Parent = entity.Parent != null ? new DataSourceModel(entity.Parent, options) : null;
         this.Connection = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Connection, options) ?? new Dictionary<string, object>();
-        this.LastRanOn = entity.LastRanOn;
+        this.LastRanOn = entity.DataService?.LastRanOn;
         this.RetryLimit = entity.RetryLimit;
-        this.FailedAttempts = entity.FailedAttempts;
+        this.FailedAttempts = entity.DataService?.FailedAttempts ?? 0;
 
         this.DataSourceSchedules = entity.SchedulesManyToMany.Select(s => new SourceScheduleModel(s));
     }
@@ -200,9 +200,12 @@ public class DataSourceModel : AuditColumnsModel
             OwnerId = model.OwnerId,
             Connection = JsonSerializer.Serialize(model.Connection),
             ParentId = model.ParentId,
-            LastRanOn = model.LastRanOn,
             RetryLimit = model.RetryLimit,
-            FailedAttempts = model.FailedAttempts,
+            DataService = new Entities.DataService(model.Id)
+            {
+                LastRanOn = model.LastRanOn,
+                FailedAttempts = model.FailedAttempts,
+            },
             Version = model.Version ?? 0
         };
 

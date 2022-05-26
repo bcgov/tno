@@ -1,53 +1,40 @@
-import { FormikText } from 'components/formik';
+import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 
+import { AudioClip, AudioStream, AudioTuner } from '.';
+import { ServiceTypes } from './constants';
 import * as styled from './styled';
 
 export const Audio: React.FC = (props) => {
   const { values } = useFormikContext<IDataSourceModel>();
 
+  const ConnectionSettings = () => {
+    switch (values.connection.serviceType) {
+      case 'stream':
+        return <AudioStream />;
+      case 'clip':
+        return <AudioClip />;
+      case 'tuner':
+        return <AudioTuner />;
+      default:
+        return null;
+    }
+  };
+
+  const serviceType = ServiceTypes.find((t) => t.value === values.connection.serviceType);
+
   return (
     <styled.MediaType>
       <h3>Connection Settings</h3>
-      <FormikText
-        label="Volume Range"
-        name="connection.volumeRange"
-        value={values.connection.volumeRange}
+      <FormikSelect
+        label="Service Type"
+        name="connection.serviceType"
+        options={ServiceTypes}
+        value={serviceType}
       />
-      <FormikText
-        label="Frequency"
-        name="connection.frequency"
-        value={values.connection.frequency}
-      />
-      <FormikText label="Stream URL" name="connection.url" value={values.connection.url} />
-      <FormikText
-        label="Capture Directory"
-        name="connection.captureDir"
-        value={values.connection.captureDir}
-      />
-      <FormikText
-        label="Clip Directory"
-        name="connection.clipDir"
-        value={values.connection.clipDir}
-      />
-      <FormikText
-        label="Capture Command"
-        name="connection.captureCmd"
-        value={values.connection.captureCmd}
-      />
-      <FormikText
-        label="Stream Timeout"
-        name="connection.streamTimeout"
-        value={values.connection.streamTimeout}
-      />
-      <FormikText
-        label="Clip Command"
-        name="connection.clipCmd"
-        value={values.connection.clipCmd}
-      />
-      <FormikText label="Timezone" name="connection.timeZone" value={values.connection.timeZone} />
+      {ConnectionSettings()}
     </styled.MediaType>
   );
 };

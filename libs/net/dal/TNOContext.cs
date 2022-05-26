@@ -41,6 +41,7 @@ public class TNOContext : DbContext
     public DbSet<ContentTag> ContentTags => Set<ContentTag>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<DataSource> DataSources => Set<DataSource>();
+    public DbSet<DataService> DataServices => Set<DataService>();
     public DbSet<DataLocation> DataLocations => Set<DataLocation>();
     public DbSet<DataSourceMetric> DataSourceMetrics => Set<DataSourceMetric>();
     public DbSet<SourceMetric> SourceMetrics => Set<SourceMetric>();

@@ -1,5 +1,9 @@
+using System.Text.Json;
+using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.DataSource;
+using TNO.Core.Extensions;
 using TNO.Entities;
+using TNO.Models.Extensions;
 using TNO.Services.Config;
 
 namespace TNO.Services.Actions.Managers;
@@ -19,6 +23,11 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// get - The data source managed by this object.
     /// </summary>
     public DataSourceModel DataSource { get; private set; }
+
+    /// <summary>
+    /// get - A dictionary of values that can be stored with this manager.
+    /// </summary>
+    public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -28,8 +37,9 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="dataSource"></param>
     /// <param name="api"></param>
     /// <param name="action"></param>
-    public DataSourceIngestManager(DataSourceModel dataSource, IApiService api, IIngestAction<TOptions> action)
-        : base(action)
+    /// <param name="options"></param>
+    public DataSourceIngestManager(DataSourceModel dataSource, IApiService api, IIngestAction<TOptions> action, IOptions<TOptions> options)
+        : base(action, options)
     {
         this.DataSource = dataSource;
         _api = api;
@@ -49,8 +59,17 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
         if (dataSource != null)
             this.DataSource = dataSource;
 
-        var now = DateTime.UtcNow;
-        return VerifyDataSource(this.DataSource) && this.DataSource.DataSourceSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(now, s.Schedule!));
+        return VerifyDataSource() && this.DataSource.DataSourceSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(GetSourceDateTime(DateTime.UtcNow), s.Schedule!));
+    }
+
+    /// <summary>
+    /// Get the date and time for the source timezone.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    protected virtual DateTime GetSourceDateTime(DateTime date)
+    {
+        return date.ToTimeZone(GetTimeZone());
     }
 
     /// <summary>
@@ -85,51 +104,57 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <summary>
     /// Verify that the specified data source ingestion action should be run.
     /// </summary>
-    /// <param name="dataSource"></param>
     /// <returns></returns>
-    public virtual bool VerifyDataSource(DataSourceModel dataSource)
+    public virtual bool VerifyDataSource()
     {
         return true;
     }
 
     /// <summary>
-    /// Determine if the schedule allows for the process to run at the specified 'time'.
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
+    /// Make certain the date is valid for the source timezone.
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifySchedule(DateTime time, ScheduleModel schedule)
+    public bool VerifySchedule(DateTime date, ScheduleModel schedule)
     {
         if (!this.DataSource.IsEnabled || !this.DataSource.DataSourceSchedules.Any(s => s.Schedule?.IsEnabled == true)) return false;
-        return VerifyDelay(time, schedule) &&
-            VerifyRunOn(time, schedule) &&
-            VerifyDayOfMonth(time, schedule) &&
-            VerifyWeekDay(time, schedule) &&
-            VerifyMonth(time, schedule);
+        return VerifyDelay(date, schedule) &&
+            VerifyRunOn(date, schedule) &&
+            VerifyStartAt(date, schedule) &&
+            VerifyDayOfMonth(date, schedule) &&
+            VerifyWeekDay(date, schedule) &&
+            VerifyMonth(date, schedule);
     }
 
     /// <summary>
-    /// Determine if the schedule allows for the process to run at the specified 'time'.
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
+    /// If the schedule type is 'Daily' or 'Advanced' the DelayMS is used to slow down the process rather than to determine if it should run.
+    /// * This will always return true for those schedule types.
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyDelay(DateTime time, ScheduleModel schedule)
+    public bool VerifyDelay(DateTime date, ScheduleModel schedule)
     {
-        if (schedule.DelayMS == 0 || this.DataSource.LastRanOn == null)
+        if (schedule.DelayMS == 0 ||
+            this.DataSource.LastRanOn == null ||
+            this.DataSource.ScheduleType == DataSourceScheduleType.Daily ||
+            this.DataSource.ScheduleType == DataSourceScheduleType.Advanced)
             return true;
 
         var next = this.DataSource.LastRanOn.Value.AddMilliseconds(schedule.DelayMS);
-        return next <= time;
+        return next <= date.ToUniversalTime();
     }
 
     /// <summary>
-    /// Determine if the schedule allows for the process to run at the specified 'time'.
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyRunOn(DateTime time, ScheduleModel schedule)
+    public bool VerifyRunOn(DateTime date, ScheduleModel schedule)
     {
         // Only run the configured number of times.
         if (schedule.Repeat > 0 && this.RanCounter >= schedule.Repeat) return false;
@@ -138,34 +163,53 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
         if (schedule.RunOn == null) return true;
 
         // RunOn is in the future.
-        if (schedule.RunOn > time) return false;
+        if (schedule.RunOn > date) return false;
 
         // If RunOn is in the past we are only interested in the time.
-        return schedule.RunOn.Value.TimeOfDay <= time.TimeOfDay;
+        return schedule.RunOn.Value.TimeOfDay <= date.TimeOfDay;
     }
 
     /// <summary>
-    /// Determine if the schedule allows for the process to run at the specified 'time'.
+    /// Determine if the schedule allows for the process to run at the specified 'date' and time.
+    /// Compares the schedule 'StartAt' and 'StopAt' values with the specified 'date' and time.
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public static bool VerifyDayOfMonth(DateTime time, ScheduleModel schedule)
+    public bool VerifyStartAt(DateTime date, ScheduleModel schedule)
     {
-        return schedule.DayOfMonth == 0 || time.Day == schedule.DayOfMonth;
+        // Run always.
+        if (schedule.StartAt == null) return true;
+
+        // Current time is between start and stop.
+        var time = date.TimeOfDay;
+        if (schedule.StartAt <= time && schedule.StopAt > time) return true;
+
+        return false;
     }
 
     /// <summary>
-    /// Determine if the schedule allows for the process to run at the specified 'time'.
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public static bool VerifyWeekDay(DateTime time, ScheduleModel schedule)
+    public bool VerifyDayOfMonth(DateTime date, ScheduleModel schedule)
+    {
+        return schedule.DayOfMonth == 0 || date.Day == schedule.DayOfMonth;
+    }
+
+    /// <summary>
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    public bool VerifyWeekDay(DateTime date, ScheduleModel schedule)
     {
         if (!schedule.RunOnWeekDays.Any() || (schedule.RunOnWeekDays.Length == 1) && schedule.RunOnWeekDays.Contains((int)ScheduleWeekDay.NA)) return true;
 
-        return time.DayOfWeek switch
+        return date.DayOfWeek switch
         {
             DayOfWeek.Sunday => schedule.RunOnWeekDays.Any(d => d == (int)ScheduleWeekDay.Sunday),
             DayOfWeek.Monday => schedule.RunOnWeekDays.Any(d => d == (int)ScheduleWeekDay.Monday),
@@ -179,16 +223,16 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     }
 
     /// <summary>
-    /// Determine if the schedule allows for the process to run at the specified 'time'.
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
     /// </summary>
-    /// <param name="time"></param>
+    /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public static bool VerifyMonth(DateTime time, ScheduleModel schedule)
+    public bool VerifyMonth(DateTime date, ScheduleModel schedule)
     {
         if (!schedule.RunOnMonths.Any() || (schedule.RunOnMonths.Length == 1) && schedule.RunOnMonths.Contains((int)ScheduleMonth.NA)) return true;
 
-        return time.Month switch
+        return date.Month switch
         {
             1 => schedule.RunOnMonths.Any(d => d == (int)ScheduleMonth.January),
             2 => schedule.RunOnMonths.Any(d => d == (int)ScheduleMonth.February),
@@ -204,6 +248,30 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
             12 => schedule.RunOnMonths.Any(d => d == (int)ScheduleMonth.December),
             _ => false,
         };
+    }
+
+    /// <summary>
+    /// Get the timezone arguments from the connection settings.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    protected string GetTimeZone()
+    {
+        return GetTimeZone(this.DataSource, this.Options.TimeZone);
+    }
+
+    /// <summary>
+    /// Get the timezone arguments from the connection settings.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <param name="defaultTimeZone"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static string GetTimeZone(DataSourceModel dataSource, string defaultTimeZone)
+    {
+        var value = dataSource.GetConnectionValue("timeZone");
+        return String.IsNullOrWhiteSpace(value) ? defaultTimeZone : value;
     }
     #endregion
 }

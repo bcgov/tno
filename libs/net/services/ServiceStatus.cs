@@ -10,13 +10,21 @@ public enum ServiceStatus
     /// </summary>
     Running = 0,
     /// <summary>
+    /// The service has been asked to pause, but it hasn't paused yet.
+    /// </summary>
+    RequestPause = 1,
+    /// <summary>
     /// The service is paused.
     /// A pause will only occur if a user has requested it.
     /// </summary>
-    Paused = 1,
+    Paused = 2,
+    /// <summary>
+    /// The service is has been asked to sleep, but it hasn't gone to sleep yet.
+    /// </summary>
+    RequestSleep = 3,
     /// <summary>
     /// The service is sleeping.
     /// Sleeping can occur if failures have reached their maximum.
     /// </summary>
-    Sleeping = 2,
+    Sleeping = 4,
 }

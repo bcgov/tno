@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.API.Models;
-using TNO.Core.Extensions;
 using TNO.DAL.Services;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -27,8 +26,8 @@ namespace TNO.API.Areas.Services.Controllers;
 public class DataSourceController : ControllerBase
 {
     #region Variables
+    private readonly IDataServiceService _serviceDataService;
     private readonly IDataSourceService _serviceDataSource;
-    private readonly IScheduleService _serviceSchedule;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -36,13 +35,13 @@ public class DataSourceController : ControllerBase
     /// <summary>
     /// Creates a new instance of a DataSourceController object, initializes with specified parameters.
     /// </summary>
+    /// <param name="serviceDataService"></param>
     /// <param name="serviceDataSource"></param>
-    /// <param name="serviceSchedule"></param>
     /// <param name="serializerOptions"></param>
-    public DataSourceController(IDataSourceService serviceDataSource, IScheduleService serviceSchedule, IOptions<JsonSerializerOptions> serializerOptions)
+    public DataSourceController(IDataServiceService serviceDataService, IDataSourceService serviceDataSource, IOptions<JsonSerializerOptions> serializerOptions)
     {
+        _serviceDataService = serviceDataService;
         _serviceDataSource = serviceDataSource;
-        _serviceSchedule = serviceSchedule;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -79,7 +78,7 @@ public class DataSourceController : ControllerBase
     }
 
     /// <summary>
-    /// Update data-source in database.
+    /// Update data-service associated with the specified data source in database.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -87,26 +86,14 @@ public class DataSourceController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(typeof(DataSourceModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "DataSource" })]
     public IActionResult Update(DataSourceModel model)
     {
-        var result = _serviceDataSource.Update(model.ToEntity(_serializerOptions));
+        _serviceDataService.AddOrUpdate(model.ToEntity(_serializerOptions).DataService!);
 
-        // Update any schedules that have changed.
-        // TODO: This is a bad design, services should not be changing the schedule.
-        model.DataSourceSchedules.ForEach(dss =>
-        {
-            if (dss.Schedule != null)
-            {
-                var schedule = result.SchedulesManyToMany.FirstOrDefault(s => s.ScheduleId == dss.ScheduleId)?.Schedule;
-                if (schedule != null && schedule.RunOn != dss.Schedule.RunOn)
-                {
-                    schedule.RunOn = dss.Schedule.RunOn;
-                    _serviceSchedule.Update(schedule);
-                }
-            }
-        });
-
+        var result = _serviceDataSource.FindById(model.Id);
+        if (result == null) return new NoContentResult();
         return new JsonResult(new DataSourceModel(result, _serializerOptions));
     }
     #endregion
