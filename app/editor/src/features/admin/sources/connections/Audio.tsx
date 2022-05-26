@@ -27,7 +27,6 @@ export const Audio: React.FC = (props) => {
 
   return (
     <styled.MediaType>
-      <h3>Connection Settings</h3>
       <FormikSelect
         label="Service Type"
         name="connection.serviceType"

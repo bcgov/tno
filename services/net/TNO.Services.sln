@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Capture", "cap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Command", "command\TNO.Services.Command.csproj", "{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Clip", "clip\TNO.Services.Clip.csproj", "{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

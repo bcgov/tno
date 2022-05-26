@@ -29,6 +29,64 @@ services:
       retries: 3
       start_period: 30s
 
+  capture:
+    image: tno:capture
+    profiles:
+      - all
+      - service
+      - data
+    restart: "no"
+    container_name: tno-capture
+    build:
+      context: ./
+      dockerfile: services/net/capture/Dockerfile
+    env_file:
+      - services/net/capture/.env
+    ports:
+      - ${CAPTURE_PORT:-40024}:8081
+    depends_on:
+      - database
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-file-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  clip:
+    image: tno:clip
+    profiles:
+      - all
+      - service
+      - data
+    restart: "no"
+    container_name: tno-clip
+    build:
+      context: ./
+      dockerfile: services/net/clip/Dockerfile
+    env_file:
+      - services/net/clip/.env
+    ports:
+      - ${CLIP_PORT:-40025}:8081
+    depends_on:
+      - database
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-file-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   nlp:
     image: tno:nlp
     profiles:
@@ -83,62 +141,6 @@ services:
       retries: 3
       start_period: 30s
 
-  clip:
-    image: tno:clip
-    profiles:
-      - all
-      - service
-      - data
-    restart: "no"
-    container_name: tno-clip
-    build:
-      context: services/java/clip
-    env_file:
-      - services/java/clip/.env
-    ports:
-      - ${AUDIO_PORT:-40024}:8080
-    depends_on:
-      - database
-      - broker
-    networks:
-      - tno
-    volumes:
-      - tno-audio-data:/data
-    healthcheck:
-      test: curl -s -f http://localhost:8080/health || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
-  capture:
-    image: tno:capture
-    profiles:
-      - all
-      - service
-      - data
-    restart: "no"
-    container_name: tno-capture
-    build:
-      context: services/java/capture
-    env_file:
-      - services/java/capture/.env
-    ports:
-      - ${AUDIO_PORT:-40025}:8080
-    depends_on:
-      - database
-      - broker
-    networks:
-      - tno
-    volumes:
-      - tno-audio-data:/data
-    healthcheck:
-      test: curl -s -f http://localhost:8080/health || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
 volumes:
-  tno-audio-data:
-    name: tno-audio-data
+  tno-file-data:
+    name: tno-file-data

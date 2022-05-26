@@ -75,7 +75,7 @@ export const MediaType: React.FC = () => {
                 name="sortOrder"
                 label="Sort Order"
                 type="number"
-                className="sord-order"
+                className="sort-order"
               />
             </Row>
             <Row className="form-inputs">
@@ -85,7 +85,7 @@ export const MediaType: React.FC = () => {
                 name="isEnabled"
               />
             </Row>
-            <Row justify="center" className="form-inputs">
+            <Row justifyContent="center" className="form-inputs">
               <Button variant={ButtonVariant.action} type="submit">
                 Save
               </Button>

@@ -27,12 +27,12 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public long Offset { get; set; }
+    public long Offset { get; set; } = -1;
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int Partition { get; set; }
+    public int Partition { get; set; } = -1;
 
     /// <summary>
     /// get/set -

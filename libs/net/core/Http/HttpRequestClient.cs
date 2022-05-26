@@ -155,7 +155,7 @@ namespace TNO.Core.Http
                 }
             }
 
-            _logger.LogInformation($"HTTP request made '{message.RequestUri}'");
+            _logger.LogInformation("HTTP request made '{RequestUri}'", message.RequestUri);
             return await this.Client.SendAsync(message);
         }
 

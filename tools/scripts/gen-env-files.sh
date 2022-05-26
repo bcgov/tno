@@ -61,7 +61,8 @@ APP_SUBSCRIBER_HTTPS_PORT=$portAppSubscriberHttps
 SYNDICATION_PORT=$portSyndication
 NLP_PORT=$portNlp
 INDEXING_PORT=$portIndexing
-AUDIO_PORT=$portAudio
+CAPTURE_PORT=$portCapture
+CLIP_PORT=$portClip
 
 #############################
 # Kafka Configuration
@@ -444,10 +445,48 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Client=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
-Syndication__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ApiUrl=http://host.docker.internal:$portApi/api
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/syndication/.env
     echo "./services/net/syndication/.env created"
+fi
+
+## Capture
+if test -f "./services/net/capture/.env"; then
+    echo "./services/net/capture/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Client=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/capture/.env
+    echo "./services/net/capture/.env created"
+fi
+
+## Clip
+if test -f "./services/net/clip/.env"; then
+    echo "./services/net/clip/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Client=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/clip/.env
+    echo "./services/net/clip/.env created"
 fi
 
 ###########################################################################

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Extensions;
@@ -88,6 +87,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     public override async Task RecordFailureAsync()
     {
         this.DataSource = await UpdateDataSourceAsync(this.DataSource.FailedAttempts + 1);
+        this.IsRunning = false;
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifySchedule(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifySchedule(DateTime date, ScheduleModel schedule)
     {
         if (!this.DataSource.IsEnabled || !this.DataSource.DataSourceSchedules.Any(s => s.Schedule?.IsEnabled == true)) return false;
         return VerifyDelay(date, schedule) &&
@@ -136,7 +136,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyDelay(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifyDelay(DateTime date, ScheduleModel schedule)
     {
         if (schedule.DelayMS == 0 ||
             this.DataSource.LastRanOn == null ||
@@ -150,11 +150,14 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
 
     /// <summary>
     /// Determine if the schedule allows for the process to run at the specified 'date'.
+    /// This setting can be used to ensure a service action is only performed after this date has been reached and there-after.
+    /// After the date has been reached, it will use the time of day as a limiter.
+    /// Note that if the 'RunOn' is set at 8:00AM, then it will ignore any earlier 'StartAt' values.
     /// </summary>
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyRunOn(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifyRunOn(DateTime date, ScheduleModel schedule)
     {
         // Only run the configured number of times.
         if (schedule.Repeat > 0 && this.RanCounter >= schedule.Repeat) return false;
@@ -176,10 +179,9 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyStartAt(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifyStartAt(DateTime date, ScheduleModel schedule)
     {
-        // Run always.
-        if (schedule.StartAt == null) return true;
+        if (schedule.ScheduleType == (int)ScheduleType.Continuous && schedule.StartAt == null) return true;
 
         // Current time is between start and stop.
         var time = date.TimeOfDay;
@@ -194,7 +196,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyDayOfMonth(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifyDayOfMonth(DateTime date, ScheduleModel schedule)
     {
         return schedule.DayOfMonth == 0 || date.Day == schedule.DayOfMonth;
     }
@@ -205,7 +207,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyWeekDay(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifyWeekDay(DateTime date, ScheduleModel schedule)
     {
         if (!schedule.RunOnWeekDays.Any() || (schedule.RunOnWeekDays.Length == 1) && schedule.RunOnWeekDays.Contains((int)ScheduleWeekDay.NA)) return true;
 
@@ -228,7 +230,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public bool VerifyMonth(DateTime date, ScheduleModel schedule)
+    public virtual bool VerifyMonth(DateTime date, ScheduleModel schedule)
     {
         if (!schedule.RunOnMonths.Any() || (schedule.RunOnMonths.Length == 1) && schedule.RunOnMonths.Contains((int)ScheduleMonth.NA)) return true;
 

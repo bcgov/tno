@@ -12,14 +12,14 @@ export const DataSourceFilter: React.FC<IDataSourceFilterProps> = ({ setGlobalFi
   const navigate = useNavigate();
   return (
     <>
-      <Row justify="flex-end">
+      <Row justifyContent="flex-end">
         <IconButton
           iconType="plus"
           label="Add New Data Source"
           onClick={() => navigate('/admin/data/sources/0')}
         />
       </Row>
-      <Row className="filter" justify="center">
+      <Row className="filter" justifyContent="center">
         <Text
           name="search"
           placeholder="Search by keyword"

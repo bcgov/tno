@@ -110,6 +110,9 @@ public static class DataSourceExtensions
                     current.Schedule.Version = a.Schedule.Version;
                 }
             });
+
+            if (original.DataService != null && updated.DataService != null)
+                context.Entry(original.DataService).CurrentValues.SetValues(updated.DataService);
         }
 
         context.Entry(original).CurrentValues.SetValues(updated);

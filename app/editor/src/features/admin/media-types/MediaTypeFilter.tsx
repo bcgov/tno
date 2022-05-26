@@ -12,14 +12,14 @@ export const MediaTypeFilter: React.FC<IMediaTypeFilterProps> = ({ setGlobalFilt
   const navigate = useNavigate();
   return (
     <>
-      <Row className="add-media" justify="flex-end">
+      <Row className="add-media" justifyContent="flex-end">
         <IconButton
           iconType="plus"
           label="Add New Media Type"
           onClick={() => navigate('/admin/media/types/0')}
         />
       </Row>
-      <Row className="filter-bar" justify="center">
+      <Row className="filter-bar" justifyContent="center">
         <Text
           onChange={(e) => {
             setFilter(e.target.value);

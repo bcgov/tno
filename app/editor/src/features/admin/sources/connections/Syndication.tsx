@@ -11,7 +11,6 @@ export const Syndication: React.FC = (props) => {
 
   return (
     <styled.MediaType>
-      <h3>Connection Settings</h3>
       <FormikText
         label="URL"
         name="connection.url"

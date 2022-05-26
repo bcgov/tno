@@ -44,6 +44,9 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
     #region Methods
     /// <summary>
     /// Run the service manager.
+    /// Fetch the data sources for this service.
+    /// Iterate through each data source and run or stop the action managers associated with each.
+    /// Keep track of errors and respond to API state changes.
     /// </summary>
     /// <returns></returns>
     public override async Task RunAsync()
@@ -103,9 +106,17 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
                         // Successful run clears any errors.
                         this.State.ResetFailures();
                     }
+                    catch (HttpRequestException ex)
+                    {
+                        this.Logger.LogError(ex, "Data source '{Code}' failed to run: {Data}", dataSource.Code, ex.Data["Body"]);
+
+                        // Update data source with failure.
+                        await manager.RecordFailureAsync();
+                        this.State.RecordFailure();
+                    }
                     catch (Exception ex)
                     {
-                        this.Logger.LogError(ex, "Failed to process data source '{Code}'", dataSource.Code);
+                        this.Logger.LogError(ex, "Data source '{Code}' failed to run", dataSource.Code);
 
                         // Update data source with failure.
                         await manager.RecordFailureAsync();
@@ -114,9 +125,10 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
                 }
             }
 
-            // The delay ensures we don't have a run away thread.
+            // The delay ensures we don't have a run-away thread.
             // With a minimum delay for all data source schedules, it could mean some data sources are pinged more often then required.
-            this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
+            // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
+            this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
 

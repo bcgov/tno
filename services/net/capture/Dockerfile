@@ -10,8 +10,11 @@ USER 0
 # RUN dotnet tool install --global dotnet-ef
 
 WORKDIR /src
+
+COPY services/net/command services/net/command
 COPY services/net/capture services/net/capture
 COPY libs/net libs/net
+
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
     fix_permissions "/app" "/tmp"
 
@@ -25,6 +28,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 COPY --from=build /build .
+
+# This volume is the local storage for uploaded files.
+RUN mkdir /data
+VOLUME /data
+RUN chmod -R 0777 /data
 
 # Run container by default as user with id 1001 (default)
 USER 1001

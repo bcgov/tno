@@ -10,8 +10,10 @@ USER 0
 # RUN dotnet tool install --global dotnet-ef
 
 WORKDIR /src
+
 COPY services/net/syndication services/net/syndication
 COPY libs/net libs/net
+
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
     fix_permissions "/app" "/tmp"
 
