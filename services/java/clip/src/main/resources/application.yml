@@ -34,7 +34,7 @@ kafka:
 
 data:
   source:
-    mediaType: ${DATA_SOURCE_MEDIA_TYPE:News Radio}
+    mediaType: ${DATA_SOURCE_MEDIA_TYPE:Talk Radio}
     timeZone: ${DATA_SOURCE_TIMEZONE:America/Los_Angeles}
 #sources:
 #    - id: ${DATA_SOURCE_ID}

@@ -29,7 +29,6 @@
 		"redhat.fabric8-analytics",
 		"vscjava.vscode-spring-initializr",
 		"vscjava.vscode-spring-boot-dashboard",
-		"vscjava.vscode-java-pack",
 		"pivotal.vscode-spring-boot",
 		"pivotal.vscode-boot-dev-pack",
 		"shengchen.vscode-checkstyle",

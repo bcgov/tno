@@ -89,6 +89,21 @@ public class DataSource extends AuditColumns {
   private String scheduleType;
 
   /**
+   * Foreign key to the type of content in this data source.
+   */
+  private int contentTypeId;
+
+  /**
+   * Foreign key to the type of content in this data source.
+   */
+  private int ownerId;
+
+  /**
+   * The contentType reference.
+   */
+  ContentType contentType;
+
+  /**
    * The date and time this data source was successfully ingested on.
    */
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Settings.dateTimeFormat)
@@ -631,4 +646,45 @@ public class DataSource extends AuditColumns {
     this.scheduleType = scheduleType;
   }
 
+  /**
+   * @return int return the content type id
+   */
+  public int getContentTypeId() {
+    return contentTypeId;
+  }
+
+  /**
+   * @param contentTypeId the content type to set
+   */
+  public void setContentTypeId(int contentTypeId) {
+    this.contentTypeId = contentTypeId;
+  }
+
+  /**
+   * @return int return the owner id
+   */
+  public int getOwnerId() {
+    return ownerId;
+  }
+
+  /**
+   * @param ownerId the owner id to set
+   */
+  public void setOwnerId(int ownerId) {
+    this.ownerId = ownerId;
+  }
+
+  /**
+   * @return int return the content type reference
+   */
+  public ContentType getContentType() {
+    return contentType;
+  }
+
+  /**
+   * @param contentType the content type reference to set
+   */
+  public void setContentTypeId(ContentType contentType) {
+    this.contentType = contentType;
+  }
 }
