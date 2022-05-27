@@ -19,6 +19,8 @@ export const Checkbox = styled.div<ICheckboxProps>`
     }};
   }
 
+  margin-bottom: 1%;
+
   p[role='alert'] {
     font-size: 0.85em;
     color: ${(props) => props.theme.css.dangerColor};
