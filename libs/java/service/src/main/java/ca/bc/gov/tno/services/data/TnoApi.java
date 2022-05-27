@@ -209,7 +209,7 @@ public final class TnoApi {
    */
   public ContentReference add(ContentReference contentReference)
       throws ApiException, ResourceAccessException {
-    var url = config.getHostUrl() + "/api/services/content/references/" + contentReference.getSource();
+    var url = config.getHostUrl() + "/api/services/content/references";
     return request(url, HttpMethod.POST, contentReference, ContentReference.class);
   }
 
