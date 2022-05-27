@@ -1,4 +1,4 @@
-import { FieldSize, IOptionItem, OptionItem, RadioGroup } from 'components/form';
+import { FieldSize, IOptionItem, OptionItem, RadioGroup, TimeInput } from 'components/form';
 import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
@@ -46,6 +46,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
   const [effort, setEffort] = React.useState(0);
+  const [publishedOnTime, setPublishedOnTime] = React.useState<string>();
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
   const file = values.fileReferences.length
@@ -55,6 +56,16 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
   }, [values.timeTrackings]);
+
+  React.useEffect(() => {
+    const date = new Date(values.publishedOn);
+    const hours = publishedOnTime?.split(':');
+    if (!!hours && !publishedOnTime?.includes('_') && publishedOnTime !== '') {
+      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+      setPublishedOnTime('');
+      setFieldValue('publishedOn', date);
+    }
+  }, [publishedOnTime, setFieldValue, values.publishedOn]);
 
   React.useEffect(() => {
     setCategoryOptions(getSortableOptions(categories));
@@ -144,8 +155,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               label="Published On"
               required
               autoComplete="false"
-              showTimeSelect
-              dateFormat="MMMM D, yyyy hh:mm a"
               width={FieldSize.Medium}
               selectedDate={
                 !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
@@ -158,6 +167,13 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               onChange={(date: any) => {
                 setFieldValue('publishedOn', date);
               }}
+            />
+            <TimeInput
+              disabled={!values.publishedOn}
+              placeholder="HH:MM:SS"
+              required
+              label="Time"
+              onChange={(e) => setPublishedOnTime(e.target.value)}
             />
             <Show visible={contentType === ContentType.Snippet}>
               <FormikText name="page" label="Page" onChange={handleChange} />
@@ -179,7 +195,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         <FormikTextArea
           name="summary"
           label="Summary"
-          width={FieldSize.Large}
+          width={FieldSize.Stretch}
           required
           value={values.summary}
           onChange={handleChange}

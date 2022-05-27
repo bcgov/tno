@@ -278,9 +278,32 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                           );
                         }}
                       />
-                      <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
+                      {/* section one of actions */}
+                      <Col alignSelf="stretch">
+                        <ContentActions
+                          init
+                          filter={(a) =>
+                            a.valueType === ValueType.Boolean &&
+                            a.name !== 'Top Story' &&
+                            a.name !== 'On Ticker' &&
+                            a.name !== 'Non Qualified Subject'
+                          }
+                        />
+                      </Col>
+                      {/* section two of actions */}
+                      <Col alignSelf="stretch">
+                        <ContentActions
+                          init
+                          filter={(a) =>
+                            a.valueType === ValueType.Boolean &&
+                            a.name !== 'Alert' &&
+                            a.name !== 'Front Page' &&
+                            a.name !== 'Just In'
+                          }
+                        />
+                      </Col>
                     </Col>
-                    <Row>
+                    <Row className="commentary">
                       <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
                     </Row>
                   </Col>
