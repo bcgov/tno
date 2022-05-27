@@ -117,6 +117,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
     public override DataSource Add(DataSource entity)
     {
         entity.AddToContext(this.Context);
+        ValidateScheduleNames(entity);
         base.Add(entity);
         return entity;
     }
@@ -128,10 +129,35 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
 
     public DataSource Update(DataSource entity, bool updateChildren = false)
     {
+        ValidateScheduleNames(entity);
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
         base.Update(original);
         return original;
+    }
+
+    /// <summary>
+    /// Ensures schedules have unique names.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <exception cref="InvalidOperationException"></exception>
+    private static void ValidateScheduleNames(DataSource entity)
+    {
+        // TODO: This should become a validation attribute for a data source if possible.
+        if (entity.SchedulesManyToMany
+            .Select(s => s.Schedule?.Name)
+            .Where(s => !String.IsNullOrWhiteSpace(s))
+            .Distinct()
+            .GroupBy(v => v)
+            .Any(g => g.Count() > 1))
+            throw new InvalidOperationException("Data source schedules must have unique names");
+        if (entity.Schedules
+            .Select(s => s.Name)
+            .Where(s => !String.IsNullOrWhiteSpace(s))
+            .Distinct()
+            .GroupBy(v => v)
+            .Any(g => g.Count() > 1))
+            throw new InvalidOperationException("Data source schedules must have unique names");
     }
     #endregion
 }

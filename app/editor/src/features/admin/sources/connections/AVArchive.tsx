@@ -10,7 +10,6 @@ export const AVArchive: React.FC = (props) => {
 
   return (
     <styled.MediaType>
-      <h3>Connection Settings</h3>
       <FormikText
         label="Volume Range"
         name="connection.volumeRange"

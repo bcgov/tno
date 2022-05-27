@@ -10,7 +10,7 @@ import { useDataSources } from 'store/hooks/admin';
 import { Col } from 'tno-core/dist/components/flex';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
-import { DataSourceActions, DataSourceStatus } from '.';
+import { DataSourceActions } from '.';
 import * as styled from './styled';
 
 interface IDataSourceDetailsProps {}
@@ -25,7 +25,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
     getDataSourceOptions(dataSources, [new OptionItem('No Parent', 0)]),
   );
 
-  const contentTypes = getSortableOptions(lookups.contentTypes);
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
   const licenses = getSortableOptions(lookups.licenses);
   const dataLocations = getSortableOptions(lookups.dataLocations);
@@ -63,43 +62,37 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
     setFieldValue('mediaType', mediaType);
   };
 
-  const handleContentTypeChange = (newValue: unknown, actionMeta: ActionMeta<unknown>) => {
-    // Change so that the connection settings can display the correct form.
-    const option = newValue as IOptionItem;
-    const contentType = lookups.contentTypes.find((mt) => mt.id === option.value);
-    setFieldValue('contentType', contentType);
-  };
-
   return (
     <styled.DataSourceDetails>
       <Col>
-        <FormikText label="Name" name="name" tooltip="The full name of the data source" required />
         <FormikText
-          label="Abbreviation"
+          label="Legal Name"
+          name="name"
+          tooltip="The full name of the data source"
+          required
+        />
+        <FormikText
+          label="Code"
           name="code"
           tooltip="A unique code to identify this data source"
           required
           placeholder="A unique code"
         />
-        <FormikText label="Common Call" name="shortName" />
+        <FormikText
+          label="Friendly Name"
+          name="shortName"
+          tooltip="A common name used instead of the full legal name"
+        />
         <FormikTextArea label="Description" name="description" />
       </Col>
       <Col>
         <FormikSelect
           label="Media Type"
           name="mediaTypeId"
-          tooltip="The type of media this data source represents"
+          tooltip="The type of media this data source provides"
           options={mediaTypes}
           required
           onChange={handleMediaTypeChange}
-        />
-        <FormikSelect
-          label="Content Type"
-          name="contentTypeId"
-          tooltip="The type of content that is created when ingesting"
-          options={contentTypes}
-          required
-          onChange={handleContentTypeChange}
         />
         <FormikSelect
           label="License"
@@ -120,7 +113,8 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
           name="parentId"
           tooltip="Organize related data sources"
           options={sources}
-          placeholder="optional"
+          placeholder={values.connection.serviceType === 'clip' ? 'required' : 'optional'}
+          required={values.connection.serviceType === 'clip'}
           width={FieldSize.Medium}
         />
       </Col>
@@ -128,7 +122,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
         <FormikCheckbox label="Enabled" name="isEnabled" />
         <DataSourceActions />
       </Col>
-      <DataSourceStatus />
     </styled.DataSourceDetails>
   );
 };

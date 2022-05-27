@@ -53,8 +53,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null)
+    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
         var url = GetUrl(manager.DataSource);
@@ -65,6 +66,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
     /// <summary>
     /// Iterate through feed and import content into api.
+    /// Checks if a content reference has already been created for each item before deciding whether to import it or not.
+    /// Sends message to kafka if content has been added or updated.
+    /// Informs API of content reference status.
     /// </summary>
     /// <param name="dataSource"></param>
     /// <param name="feed"></param>
@@ -77,6 +81,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             {
                 // Fetch content reference.
                 var reference = await this.Api.FindContentReferenceAsync(dataSource.DataSource.Code, item.Id);
+                var sendMessage = true;
 
                 if (reference == null)
                 {
@@ -92,14 +97,19 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     // more than an hour old. Assumption is that it is stuck.
                     reference = await UpdateContentReferenceAsync(reference, item);
                 }
+                else sendMessage = false;
 
-                // Send item to Kafka.
-                var content = CreateSourceContent(dataSource.DataSource.Code, item);
-                var result = await _kafka.SendMessageAsync(dataSource.DataSource.Topic, content);
+                // Only send a message to Kafka if this process added/updated the content reference.
+                if (sendMessage && reference != null)
+                {
+                    // Send item to Kafka.
+                    var content = CreateSourceContent(dataSource.DataSource.Code, item);
+                    var result = await _kafka.SendMessageAsync(dataSource.DataSource.Topic, content);
 
-                // Update content reference with Kafka response.
-                if (reference != null && result != null)
-                    await UpdateContentReferenceAsync(reference, result);
+                    // Update content reference with Kafka response.
+                    if (result != null)
+                        await UpdateContentReferenceAsync(reference, result);
+                }
             }
             catch (Exception ex)
             {
@@ -147,8 +157,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Uid = item.Id,
             Topic = dataSource.Topic,
             WorkflowStatus = (int)WorkflowStatus.InProgress,
-            Offset = -1,
-            Partition = -1,
             PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null,
             SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
         });

@@ -86,7 +86,10 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
 
   return (
     <styled.ContentReferenceList>
-      <p>Content being ingested by this data source.</p>
+      <p>
+        Content identified by this data source. This table only represents a reference to the
+        content, it is used for debugging.
+      </p>
       <Row alignContent="flex-end" alignItems="flex-end" className="filter">
         <Text
           name="uid"

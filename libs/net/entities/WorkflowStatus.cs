@@ -12,7 +12,6 @@ public enum WorkflowStatus
     /// </summary>
     Failed = -1,
 
-
     /// <summary>
     /// Content has been received from data source and is in progress of being
     /// ingested. It has not yet been added to TNO.

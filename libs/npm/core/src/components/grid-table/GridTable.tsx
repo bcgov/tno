@@ -207,7 +207,7 @@ export const GridTable = <T extends object>({
         ))}
       </div>
       {isLoading ? (
-        <FlexRow justify="center">
+        <FlexRow justifyContent="center">
           <Spinner />
         </FlexRow>
       ) : (

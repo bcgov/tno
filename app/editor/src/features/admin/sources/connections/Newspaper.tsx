@@ -10,7 +10,6 @@ export const Newspaper: React.FC = (props) => {
 
   return (
     <styled.MediaType>
-      <h3>Connection Settings</h3>
       <FormikText
         label="Page Numbers"
         name="connection.pageNumbers"

@@ -17,6 +17,7 @@ public interface IServiceAction<TOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
-    public Task PerformActionAsync(IServiceActionManager manager, string? name = null);
+    /// <param name="cancellationToken"></param>
+    public Task PerformActionAsync(IServiceActionManager manager, string? name = null, CancellationToken cancellationToken = default);
     #endregion
 }

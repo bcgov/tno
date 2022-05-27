@@ -151,8 +151,8 @@ export portAppSubscriberHttps=40445
 export portSyndication=40020
 export portNlp=40022
 export portIndexing=40023
-export portAudio=40024
-export portCapture=40025
+export portCapture=40024
+export portClip=40025
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101

@@ -1,6 +1,5 @@
-using System.Globalization;
 using System.Reflection;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Services.Config;
 
@@ -14,9 +13,7 @@ public class DataSourceIngestManagerFactory<TDataSourceIngestManager, TOption>
     where TOption : IngestServiceOptions
 {
     #region Variables
-    private readonly IApiService _api;
-    private readonly IIngestAction<TOption> _action;
-    private readonly IOptions<TOption> _options;
+    private readonly IServiceProvider _serviceProvider;
     #endregion
 
     #region Properties
@@ -26,14 +23,10 @@ public class DataSourceIngestManagerFactory<TDataSourceIngestManager, TOption>
     /// <summary>
     /// Creates a new instance of a DataSourceIngestManagerFactory object, initializes with specified parameters.
     /// </summary>
-    /// <param name="api"></param>
-    /// <param name="action"></param>
-    /// <param name="options"></param>
-    public DataSourceIngestManagerFactory(IApiService api, IIngestAction<TOption> action, IOptions<TOption> options)
+    /// <param name="serviceProvider"></param>
+    public DataSourceIngestManagerFactory(IServiceProvider serviceProvider)
     {
-        _api = api;
-        _action = action;
-        _options = options;
+        _serviceProvider = serviceProvider;
     }
     #endregion
 
@@ -46,8 +39,20 @@ public class DataSourceIngestManagerFactory<TDataSourceIngestManager, TOption>
     public TDataSourceIngestManager Create(DataSourceModel dataSource)
     {
         // var type = typeof(TDataSourceIngestManager).MakeGenericType(new[] { typeof(DataSourceModel), typeof(IIngestAction<TOption>), typeof(IApiService), typeof(ILogger<TDataSourceIngestManager>) });]
-        return (TDataSourceIngestManager)(Activator.CreateInstance(typeof(TDataSourceIngestManager), new object[] { dataSource, _api, _action, _options })
-            ?? throw new InvalidOperationException($"Unable to create instance of type '{typeof(TDataSourceIngestManager).Name}'"));
+        var type = typeof(TDataSourceIngestManager);
+        var con = type.GetConstructors().First();
+
+        var args = new List<object>();
+        foreach (var cparam in con.GetParameters())
+        {
+            if (cparam.ParameterType == typeof(DataSourceModel))
+                args.Add(dataSource);
+            else
+                args.Add(_serviceProvider.GetRequiredService(cparam.ParameterType));
+        }
+
+        return (TDataSourceIngestManager)(Activator.CreateInstance(type, args.ToArray())
+            ?? throw new InvalidOperationException($"Unable to create instance of type '{type.Name}'"));
     }
     #endregion
 }

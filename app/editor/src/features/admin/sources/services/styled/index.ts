@@ -1,2 +1,3 @@
 export * from './ScheduleForm';
-export * from './ServiceConfig';
+export * from './ServiceConnection';
+export * from './ServiceSchedule';

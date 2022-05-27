@@ -14,7 +14,20 @@ export interface IRowProps extends React.HTMLAttributes<HTMLDivElement> {
   gap?: string;
   rowGap?: string;
   colGap?: string;
-  justify?:
+  justifyItems?:
+    | 'normal'
+    | 'stretch'
+    | 'baseline'
+    | 'first baseline'
+    | 'last baseline'
+    | 'start'
+    | 'end'
+    | 'legacy'
+    | 'legacy'
+    | 'left'
+    | 'right'
+    | 'center';
+  justifyContent?:
     | 'flex-start'
     | 'flex-end'
     | 'center'

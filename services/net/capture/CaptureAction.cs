@@ -1,7 +1,8 @@
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
+using TNO.Entities;
 using TNO.Models.Extensions;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
@@ -10,9 +11,7 @@ namespace TNO.Services.Capture;
 
 /// <summary>
 /// CaptureAction class, performs the capture ingestion action.
-/// Fetch capture feed.
-/// Send message to Kafka.
-/// Inform api of new content.
+/// Execute ffmpeg command to capture audio/video.
 /// </summary>
 public class CaptureAction : CommandAction<CaptureOptions>
 {
@@ -32,23 +31,92 @@ public class CaptureAction : CommandAction<CaptureOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Perform the ingestion service action.
+    ///
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="name"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null, CancellationToken cancellationToken = default)
+    {
+        this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+
+        // Each schedule will have its own process.
+        foreach (var schedule in GetSchedules(manager.DataSource))
+        {
+            var process = await GetProcessAsync(manager, schedule);
+            var isRunning = IsRunning(process);
+
+            var content = CreateContentReference(manager.DataSource, schedule);
+            var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
+
+            if (name == "start" && !isRunning)
+            {
+                if (reference == null)
+                {
+                    await this.Api.AddContentReferenceAsync(content);
+                }
+                else if (reference.WorkflowStatus != (int)WorkflowStatus.InProgress)
+                {
+                    // Change back to in progress.
+                    reference.WorkflowStatus = (int)WorkflowStatus.InProgress;
+                    await this.Api.UpdateContentReferenceAsync(reference);
+                }
+
+                // Do not wait for process to exit.
+                // This allows multiple schedules and data sources to be running in parallel.
+                RunProcess(process);
+            }
+            else if (name == "stop")
+            {
+                await StopProcessAsync(process, cancellationToken);
+                RemoveProcess(manager, schedule);
+
+                if (reference != null)
+                {
+                    // Assuming some success at this point, even though a stop command can be called for different reasons.
+                    reference.WorkflowStatus = (int)WorkflowStatus.Received;
+                    await this.Api.UpdateContentReferenceAsync(reference);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Create a content reference for this capture.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    private ContentReferenceModel CreateContentReference(DataSourceModel dataSource, ScheduleModel schedule)
+    {
+        var today = GetLocalDateTime(dataSource, DateTime.UtcNow);
+        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, DateTimeKind.Local) + schedule.StartAt;
+        return new ContentReferenceModel()
+        {
+            Source = dataSource.Code,
+            Uid = $"{schedule.Name}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
+            PublishedOn = publishedOn?.ToUniversalTime(),
+            Topic = dataSource.Topic,
+            WorkflowStatus = (int)WorkflowStatus.InProgress
+        };
+    }
 
     /// <summary>
     /// Generate the command for the service action.
     /// </summary>
     /// <param name="manager"></param>
+    /// <param name="schedule"></param>
     /// <returns></returns>
-    protected override string GenerateCommand(IDataSourceIngestManager manager)
+    protected override string GenerateCommand(IDataSourceIngestManager manager, ScheduleModel schedule)
     {
-        var input = GetUrl(manager.DataSource);
-        var path = GetOutputPath(manager.DataSource);
-        var fileName = GetFileName(manager.DataSource);
+        var input = GetInput(manager.DataSource);
         var format = GetFormat(manager.DataSource);
         var volume = GetVolume(manager.DataSource);
         var otherArgs = GetOtherArgs(manager.DataSource);
-        var output = Path.Combine(path, fileName);
-
-        Directory.CreateDirectory(path);
+        var output = GetOutput(manager.DataSource, schedule);
 
         return $"{this.Options.Command} {input}{volume}{format}{otherArgs} {output}";
     }
@@ -69,7 +137,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="dataSource"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetUrl(DataSourceModel dataSource)
+    private static string GetInput(DataSourceModel dataSource)
     {
         var value = dataSource.GetConnectionValue("url");
         var options = new UriCreationOptions();
@@ -79,17 +147,26 @@ public class CaptureAction : CommandAction<CaptureOptions>
 
     /// <summary>
     /// Get the file name from the connection settings.
+    /// This will generate a unique name for each time it has to start.
     /// </summary>
     /// <param name="dataSource"></param>
+    /// <param name="schedule"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private string GetFileName(DataSourceModel dataSource)
+    private string GetOutput(DataSourceModel dataSource, ScheduleModel schedule)
     {
-        var value = dataSource.GetConnectionValue("ffileNamermat");
-        var filename = String.IsNullOrWhiteSpace(value) ? "stream.mp3" : value;
-        var name = Path.GetFileName(filename);
+        var path = GetOutputPath(dataSource);
+        Directory.CreateDirectory(path);
+
+        var value = dataSource.GetConnectionValue("fileName");
+        var filename = String.IsNullOrWhiteSpace(value) ? $"{schedule.Name}.mp3" : $"{schedule.Name}-{value}";
+        var name = Path.GetFileNameWithoutExtension(filename);
         var ext = Path.GetExtension(filename);
-        return $"{name}-{GetLocalDateTime(dataSource, DateTime.Now):HH-mm-ss}.{ext}";
+        var fullname = $"{schedule.StartAt?.Hours:00}-{schedule.StartAt?.Minutes:00}-{schedule.StartAt?.Seconds:00}-{name}";
+
+        // If the file already exists, create a new version.
+        var versions = Directory.GetFiles(path, $"{fullname}*{ext}").Length;
+        return Path.Combine(path, $"{fullname}{(versions == 0 ? "" : $"-{versions}")}{ext}");
     }
 
     /// <summary>

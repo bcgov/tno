@@ -4,10 +4,13 @@ import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
+import ReactTooltip from 'react-tooltip';
 import { Button, ButtonVariant } from 'tno-core';
-import { Row } from 'tno-core/dist/components/flex';
+import { IColProps, Row } from 'tno-core';
 
 import * as styled from './styled';
+
+export interface IDataSourceStatusProps extends IColProps {}
 
 /**
  * DataSourceStatus component provides a way to display the current status of the data source service.
@@ -16,8 +19,12 @@ import * as styled from './styled';
  * @param props Component properties.
  * @returns DataSourceStatus Component.
  */
-export const DataSourceStatus: React.FC = (props) => {
+export const DataSourceStatus: React.FC<IDataSourceStatusProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
+
+  React.useEffect(() => {
+    ReactTooltip.rebuild();
+  });
 
   const getStatus = () => {
     if (!values.schedules.length) return 'No Service Schedule';
@@ -37,7 +44,7 @@ export const DataSourceStatus: React.FC = (props) => {
   };
 
   return (
-    <styled.DataSourceStatus alignItems="flex-start">
+    <styled.DataSourceStatus {...props}>
       <Text label="Status" name="lastRanOn" disabled value={getStatus()} />
       <FormikText
         label="Last Run On"
@@ -46,7 +53,20 @@ export const DataSourceStatus: React.FC = (props) => {
         formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
       />
       <Row alignItems="flex-end">
-        <FormikText label="Attempts Made" name="failedAttempts" disabled width={FieldSize.Tiny}>
+        <FormikText
+          label="Failure Limit"
+          name="retryLimit"
+          tooltip="Maximum number of failure before the service goes to sleep"
+          type="number"
+          width={FieldSize.Tiny}
+        />
+        <FormikText
+          label="Failures"
+          name="failedAttempts"
+          tooltip="Number of sequential failures"
+          disabled
+          width={FieldSize.Tiny}
+        >
           <Button
             variant={ButtonVariant.secondary}
             onClick={() => {
@@ -57,7 +77,6 @@ export const DataSourceStatus: React.FC = (props) => {
           </Button>
         </FormikText>
       </Row>
-      <FormikText label="Attempts Limit" name="retryLimit" type="number" width={FieldSize.Tiny} />
     </styled.DataSourceStatus>
   );
 };

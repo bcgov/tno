@@ -11,6 +11,7 @@ project.lock.json
 nupkg/
 
 capture/data
+data
 
 # IDE - VSCode
 .vscode/*

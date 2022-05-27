@@ -17,6 +17,7 @@ public interface IIngestAction<TOptions> : IServiceAction<TOptions>
     /// </summary>
     /// <param name="dataSource"></param>
     /// <param name="name"></param>
-    public Task PerformActionAsync(IDataSourceIngestManager dataSource, string? name = null);
+    /// <param name="cancellationToken"></param>
+    public Task PerformActionAsync(IDataSourceIngestManager dataSource, string? name = null, CancellationToken cancellationToken = default);
     #endregion
 }

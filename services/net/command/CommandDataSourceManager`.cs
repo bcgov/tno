@@ -33,10 +33,9 @@ public abstract class CommandDataSourceManager<TOptions> : DataSourceIngestManag
     public override async Task RunAsync()
     {
         var run = await PreRunAsync();
-        var hasExited = (this.Values.GetValueOrDefault(CommandAction.PROCESS_KEY) as System.Diagnostics.Process)?.HasExited ?? false;
         try
         {
-            if (run && (!this.IsRunning || hasExited))
+            if (run)
             {
                 this.IsRunning = true;
                 await HandleActionAsync("start");

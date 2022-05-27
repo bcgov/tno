@@ -11,6 +11,7 @@ import { useLookup } from 'store/hooks';
 import { useDataSources } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, Row, Tab, Tabs } from 'tno-core';
 
+import { DataSourceStatus } from '.';
 import { defaultDataSource } from './constants';
 import * as styled from './styled';
 
@@ -81,45 +82,51 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
         }}
       >
         {({ isSubmitting, errors }) => (
-          <Tabs
-            tabs={
-              <>
-                <Tab navigateTo="details" label="Details" exact activePaths={[`${id}`]} />
-                <Tab navigateTo="metrics" label="Reach/Earned Media" />
-                <Tab navigateTo="service" label="Service Settings" />
-                <Tab navigateTo="ingesting" label="Ingesting" />
-              </>
-            }
-          >
-            <Outlet />
-            <Row justify="flex-end" className="form-actions">
-              <Button type="submit" disabled={isSubmitting}>
-                Save
-              </Button>
-              {!!sourceId && (
-                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                  Delete
-                </Button>
-              )}
-            </Row>
-            <Modal
-              headerText="Confirm Removal"
-              body="Are you sure you wish to remove this data source?"
-              isShowing={isShowing}
-              hide={toggle}
-              type="delete"
-              confirmText="Yes, Remove It"
-              onConfirm={async () => {
-                try {
-                  await api.deleteDataSource(source);
-                  toast.success(`${source.name} has successfully been deleted.`);
-                  navigate('/admin/data/sources');
-                } finally {
-                  toggle();
+          <Row>
+            <Col flex="2 1">
+              <Tabs
+                tabs={
+                  <>
+                    <Tab navigateTo="details" label="Details" exact activePaths={[`${id}`]} />
+                    <Tab navigateTo="metrics" label="Reach/Earned Media" />
+                    <Tab navigateTo="connection" label="Connection Settings" />
+                    <Tab navigateTo="schedule" label="Service Schedule" />
+                    <Tab navigateTo="ingesting" label="Ingesting" />
+                  </>
                 }
-              }}
-            />
-          </Tabs>
+              >
+                <Outlet />
+                <Row justifyContent="flex-end" className="form-actions">
+                  <Button type="submit" disabled={isSubmitting}>
+                    Save
+                  </Button>
+                  {!!sourceId && (
+                    <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                      Delete
+                    </Button>
+                  )}
+                </Row>
+                <Modal
+                  headerText="Confirm Removal"
+                  body="Are you sure you wish to remove this data source?"
+                  isShowing={isShowing}
+                  hide={toggle}
+                  type="delete"
+                  confirmText="Yes, Remove It"
+                  onConfirm={async () => {
+                    try {
+                      await api.deleteDataSource(source);
+                      toast.success(`${source.name} has successfully been deleted.`);
+                      navigate('/admin/data/sources');
+                    } finally {
+                      toggle();
+                    }
+                  }}
+                />
+              </Tabs>
+            </Col>
+            <DataSourceStatus className="status" flex="1 1" />
+          </Row>
         )}
       </FormikForm>
     </styled.DataSource>

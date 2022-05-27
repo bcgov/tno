@@ -6,9 +6,7 @@ namespace TNO.Services.Command;
 
 /// <summary>
 /// CommandAction class, performs the command ingestion action.
-/// Fetch command feed.
-/// Send message to Kafka.
-/// Inform api of new content.
+/// Execute configured cli command.
 /// </summary>
 public class CommandAction : CommandAction<CommandOptions>
 {

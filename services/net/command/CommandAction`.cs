@@ -1,8 +1,8 @@
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Extensions;
+using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Command.Config;
 
@@ -10,19 +10,16 @@ namespace TNO.Services.Command;
 
 /// <summary>
 /// CommandAction class, performs the command ingestion action.
-/// Fetch command feed.
-/// Send message to Kafka.
-/// Inform api of new content.
+/// Execute configured cli command.
 /// </summary>
 public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     where TOptions : CommandOptions
 {
-    #region Variables
+    #region Properties
     /// <summary>
-    /// The 'cmd' values key name.
+    /// get - The logger for the command action.
     /// </summary>
-    public const string PROCESS_KEY = "cmd";
-    private readonly ILogger _logger;
+    public ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -34,7 +31,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="logger"></param>
     public CommandAction(IApiService api, IOptions<TOptions> options, ILogger<CommandAction<TOptions>> logger) : base(api, options)
     {
-        _logger = logger;
+        this.Logger = logger;
     }
     #endregion
 
@@ -44,38 +41,97 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null)
+    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+        this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
 
-        var process = GetProcess(manager, PROCESS_KEY);
-
-        // TODO: Not sure if a terminated process is considered running.
-        var isRunning = IsRunning(process);
-
-        if (name == "start" && !isRunning)
+        // Each schedule will have its own process.
+        foreach (var schedule in GetSchedules(manager.DataSource))
         {
-            var cmd = process.StartInfo.Arguments;
-            _logger.LogInformation("Starting process for command: {cmd}", cmd);
-            if (!process.Start()) _logger.LogError("Unable to start service command for data source '{Code}'.", manager.DataSource.Code);
+            var process = await GetProcessAsync(manager, schedule);
+            var isRunning = IsRunning(process);
 
-            // We can't wait because it would block all other Command service cmds.  So we test for an early exit.
-            // The exit failure should be commandd and logged by the event listener.
-            if (process.HasExited) throw new Exception($"Failed to start command: {cmd}");
-        }
-        else if (name == "stop")
-        {
-            if (!process.HasExited)
+            if (name == "start" && !isRunning)
             {
-                process.Kill(true);
-                await process.WaitForExitAsync();
+                RunProcess(process);
             }
-            process.Exited -= OnExited;
-            process.ErrorDataReceived -= OnError;
-            process.Dispose();
-            manager.Values.Remove(PROCESS_KEY);
+            else if (name == "stop")
+            {
+                await StopProcessAsync(process, cancellationToken);
+                RemoveProcess(manager, schedule);
+            }
         }
+    }
+
+    /// <summary>
+    /// Only return schedules that relevant.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <returns></returns>
+    protected virtual IEnumerable<ScheduleModel> GetSchedules(DataSourceModel dataSource)
+    {
+        return dataSource.DataSourceSchedules.Where(s =>
+            s.Schedule != null
+        ).Select(ds => ds.Schedule!);
+    }
+
+    /// <summary>
+    /// Generate a process key to identify it.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    protected virtual string GenerateProcessKey(DataSourceModel dataSource, ScheduleModel schedule)
+    {
+        return $"{dataSource.Code}-{schedule.Name}={schedule.Id}";
+    }
+
+    /// <summary>
+    /// Run the specified process.
+    /// Do not wait for the process to exit.
+    /// This will leave a process running.
+    /// </summary>
+    /// <param name="process"></param>
+    /// <exception cref="Exception"></exception>
+    protected void RunProcess(System.Diagnostics.Process process)
+    {
+        var cmd = process.StartInfo.Arguments;
+        this.Logger.LogInformation("Starting process for command: {cmd}", cmd);
+        if (!process.Start()) this.Logger.LogError("Unable to start service command for data source '{Code}'.", process.StartInfo.Verb);
+
+        // We can't wait because it would block all other Command service cmds.  So we test for an early exit.
+        if (process.HasExited) throw new Exception($"Failed to start command: {cmd}");
+    }
+
+    /// <summary>
+    /// Run the specified process and wait for it to complete.
+    /// Wait for the process to exit.
+    /// </summary>
+    /// <param name="process"></param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="Exception"></exception>
+    protected async Task RunProcessAsync(System.Diagnostics.Process process, CancellationToken cancellationToken = default)
+    {
+        RunProcess(process);
+        await process.WaitForExitAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Stop the specified process.
+    /// </summary>
+    /// <param name="process"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected async Task StopProcessAsync(System.Diagnostics.Process process, CancellationToken cancellationToken = default)
+    {
+        if (!process.HasExited)
+        {
+            process.Kill(true);
+            await process.WaitForExitAsync(cancellationToken);
+        }
+        process.Dispose();
     }
 
     /// <summary>
@@ -83,19 +139,22 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// Creates a new one if it doesn't already exist.
     /// </summary>
     /// <param name="manager"></param>
-    /// <param name="key"></param>
+    /// <param name="schedule"></param>
     /// <returns></returns>
-    private System.Diagnostics.Process GetProcess(IDataSourceIngestManager manager, string key)
+    protected virtual System.Diagnostics.Process GetProcess(IDataSourceIngestManager manager, ScheduleModel schedule)
     {
+        var key = GenerateProcessKey(manager.DataSource, schedule);
         if (manager.Values.GetValueOrDefault(key) is not System.Diagnostics.Process process)
         {
+            var cmd = GenerateCommandAsync(manager, schedule).Result;
             process = new System.Diagnostics.Process();
-            process.StartInfo.Verb = $"Command={manager.DataSource.Code}";
+            process.StartInfo.Verb = key;
             process.StartInfo.FileName = "/bin/sh";
-            process.StartInfo.Arguments = $"-c \"{GenerateCommand(manager)}\"";
+            process.StartInfo.Arguments = $"-c \"{cmd}\"";
             process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
             process.EnableRaisingEvents = true;
-            process.Exited += OnExited;
+            process.Exited += async (sender, e) => await OnExitedAsync(sender, manager, e);
             process.ErrorDataReceived += OnError;
             // process.StartInfo.RedirectStandardOutput = true;
             // process.StartInfo.RedirectStandardError = true;
@@ -108,22 +167,46 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     }
 
     /// <summary>
+    /// Get the process for the specified data source.
+    /// Creates a new one if it doesn't already exist.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    protected virtual Task<System.Diagnostics.Process> GetProcessAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
+    {
+        return Task.FromResult(GetProcess(manager, schedule));
+    }
+
+    /// <summary>
+    /// Remove the process from memory.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="schedule"></param>
+    protected virtual void RemoveProcess(IDataSourceIngestManager manager, ScheduleModel schedule)
+    {
+        manager.Values.Remove(GenerateProcessKey(manager.DataSource, schedule));
+    }
+
+    /// <summary>
     /// Log exit information for the process.
     /// </summary>
     /// <param name="sender"></param>
+    /// <param name="manager"></param>
     /// <param name="e"></param>
-    private void OnExited(object? sender, EventArgs e)
+    protected async Task OnExitedAsync(object? sender, IDataSourceIngestManager manager, EventArgs e)
     {
         if (sender is System.Diagnostics.Process process)
         {
             var cmd = process.StartInfo.Arguments;
             if (process.ExitCode != 0 && process.ExitCode != 137)
             {
-                _logger.LogError("Service command '{cmd}' exited", cmd);
+                this.Logger.LogError("Service command '{cmd}' exited", cmd);
+                await manager.RecordFailureAsync();
             }
             else
             {
-                _logger.LogDebug("Service command '{cmd}' exited", cmd);
+                this.Logger.LogDebug("Service command '{cmd}' exited", cmd);
             }
         }
     }
@@ -133,12 +216,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void OnError(object? sender, System.Diagnostics.DataReceivedEventArgs e)
+    protected void OnError(object? sender, System.Diagnostics.DataReceivedEventArgs e)
     {
         if (sender is System.Diagnostics.Process process)
         {
             var cmd = process.StartInfo.Arguments;
-            _logger.LogError("Service command '{cmd}' failure: {Data}", cmd, e.Data);
+            this.Logger.LogError("Service command '{cmd}' failure: {Data}", cmd, e.Data);
         }
     }
 
@@ -152,12 +235,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
         try
         {
             System.Diagnostics.Process.GetProcessById(process.Id);
+            return true;
         }
         catch
         {
             return false;
         }
-        return true;
     }
 
     /// <summary>
@@ -176,10 +259,22 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// Generate the command for this service action.
     /// </summary>
     /// <param name="manager"></param>
+    /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual string GenerateCommand(IDataSourceIngestManager manager)
+    protected virtual string GenerateCommand(IDataSourceIngestManager manager, ScheduleModel schedule)
     {
         return GetCommand(manager.DataSource).Replace("\"", "'");
+    }
+
+    /// <summary>
+    /// Generate the command for the service action.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    protected virtual Task<string> GenerateCommandAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
+    {
+        return Task.FromResult(GenerateCommand(manager, schedule));
     }
 
     /// <summary>
@@ -190,16 +285,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private static string GetCommand(DataSourceModel dataSource)
     {
-        if (!dataSource.Connection.TryGetValue("cmd", out object? element)) throw new InvalidOperationException("Data source connection information is missing 'cmd'.");
-
-        var value = (JsonElement)element;
-        if (value.ValueKind == JsonValueKind.String)
-        {
-            if (String.IsNullOrWhiteSpace(value.GetString())) throw new InvalidOperationException("Data source connection information is missing 'cmd'.");
-            return value.GetString()!;
-        }
-
-        throw new InvalidOperationException("Data source connection 'cmd' is not a valid string value");
+        return dataSource.GetConnectionValue("cmd");
     }
     #endregion
 }

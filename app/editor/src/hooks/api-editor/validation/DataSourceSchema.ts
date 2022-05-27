@@ -30,9 +30,9 @@ export const DataSourceSchema = object().shape({
       );
     })
     .test('length', 'Maximum length is 50', (val) => (val?.length ?? 0) <= 50),
-  mediaTypeId: number().required(),
-  contentTypeId: number().required(),
-  licenseId: number().required(),
-  dataLocationId: number().required(),
+  mediaTypeId: number().integer().min(1, 'Media Type required').required(),
+  contentTypeId: number().integer().min(1, 'Content Type required').required(),
+  licenseId: number().integer().min(1, 'License required').required(),
+  dataLocationId: number().integer().min(1, 'Data Location required').required(),
   schedules: array().of(ScheduleSchema),
 });

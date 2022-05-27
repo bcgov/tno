@@ -4,7 +4,7 @@ import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
 
-import { TimeZones } from './constants';
+import { Languages, TimeZones } from './constants';
 import * as styled from './styled';
 
 export const AudioStream: React.FC = (props) => {
@@ -15,6 +15,7 @@ export const AudioStream: React.FC = (props) => {
   });
 
   const timeZone = TimeZones.find((t) => t.value === values.connection.timeZone);
+  const language = Languages.find((t) => t.value === values.connection.language);
 
   return (
     <styled.MediaType>
@@ -29,35 +30,36 @@ export const AudioStream: React.FC = (props) => {
         label="Stream URL"
         name="connection.url"
         tooltip="URL to the source stream"
-        value={values.connection.url}
         required
       />
       <FormikText
         label="Format"
         name="connection.format"
         tooltip="Format of the stream"
-        value={values.connection.format}
         placeholder="mp3"
       />
       <FormikText
         label="File Name"
         name="connection.fileName"
         tooltip="File name and output format"
-        value={values.connection.fileName}
-        placeholder="stream.mp3"
+        placeholder="{schedule name}.mp3"
       />
       <FormikText
         label="Volume"
         name="connection.volume"
         tooltip="Volume in percent or dB (1 = 100%)"
-        value={values.connection.volume}
         placeholder="1"
       />
       <FormikText
         label="Other Arguments"
         name="connection.otherArgs"
         tooltip="Any other arguments to pass to the command"
-        value={values.connection.otherArgs}
+      />
+      <FormikSelect
+        label="Language"
+        name="connection.language"
+        options={Languages}
+        defaultValue={language}
       />
     </styled.MediaType>
   );
