@@ -180,6 +180,41 @@
         "${workspaceFolder}/syndication/TNO.Services.Syndication.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },    {
+      "label": "build-cpnews",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/cpnews/TNO.Services.CPNews.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-cpnews",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/cpnews/TNO.Services.CPNews.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-cpnews",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/cpnews/TNO.Services.CPNews.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }
