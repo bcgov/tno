@@ -40,12 +40,12 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./services/java/clip
+    contextDir: ./
   strategy:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: Dockerfile
+      dockerfilePath: services/net/clip/Dockerfile
   output:
     to:
       kind: ImageStreamTag

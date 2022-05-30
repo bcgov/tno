@@ -6,7 +6,7 @@ metadata:
   name: capture-service
   namespace: default
   annotations:
-    description: Audio Capture service configuration settings
+    description: Capture service configuration settings
   labels:
     name: capture-service
     part-of: tno
@@ -16,7 +16,6 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: audio-capture
-  KAFKA_LOGS_TOPIC: logs-audio-capture
-  MAX_FAILED_ATTEMPTS: "5"
-  DATA_SOURCE_MEDIA_TYPE: News Radio
+  KAKFA_CLIENT_ID: Capture
+  MAX_FAIL_LIMIT: "5"
+  OUTPUT_PATH: /data/capture

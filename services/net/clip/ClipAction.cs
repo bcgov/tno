@@ -65,7 +65,7 @@ public class ClipAction : CommandAction<ClipOptions>
         // Each schedule will have its own process.
         foreach (var schedule in GetSchedules(manager.DataSource))
         {
-            var process = GetProcess(manager, schedule);
+            var process = await GetProcessAsync(manager, schedule);
             var isRunning = IsRunning(process);
 
             // The assumption is that if a file has been created it was successfully generated.

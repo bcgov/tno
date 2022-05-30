@@ -28,113 +28,6 @@ spec:
       timeoutSeconds: 600
       updatePeriodSeconds: 1
     type: Rolling
-  template:
-    metadata:
-      name: capture-service
-      labels:
-        name: capture-service
-        part-of: tno
-        component: capture-service
-    spec:
-      volumes:
-        - name: av-storage
-          persistentVolumeClaim:
-            claimName: av-storage
-      containers:
-        - name: capture-service
-          image: ""
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-          resources:
-            requests:
-              cpu: 20m
-              memory: 250Mi
-            limits:
-              cpu: 100m
-              memory: 500Mi
-          volumeMounts:
-            - name: av-storage
-              mountPath: /data
-          env:
-            - name: API_HOST_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: API_HOST_URL
-
-            - name: KEYCLOAK_AUTH_SERVER_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_AUTH_SERVER_URL
-            - name: KEYCLOAK_REALM
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_REALM
-            - name: KEYCLOAK_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_CLIENT_ID
-            - name: KEYCLOAK_CLIENT_SECRET
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_CLIENT_SECRET
-
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KAFKA_BOOTSTRAP_SERVERS
-
-            - name: KAFKA_CLIENT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: capture-service
-                  key: KAFKA_CLIENT_ID
-            - name: KAFKA_LOGS_TOPIC
-              valueFrom:
-                configMapKeyRef:
-                  name: capture-service
-                  key: KAFKA_LOGS_TOPIC
-            - name: MAX_FAILED_ATTEMPTS
-              valueFrom:
-                configMapKeyRef:
-                  name: capture-service
-                  key: MAX_FAILED_ATTEMPTS
-            - name: DATA_SOURCE_MEDIA_TYPE
-              valueFrom:
-                configMapKeyRef:
-                  name: capture-service
-                  key: DATA_SOURCE_MEDIA_TYPE
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/health'
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 60
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   failureThreshold: 3
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/health'
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 60
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   failureThreshold: 3
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
   test: false
   triggers:
     - type: ConfigChange
@@ -147,3 +40,113 @@ spec:
           kind: ImageStreamTag
           namespace: 9b301c-tools
           name: capture-service:dev
+  template:
+    metadata:
+      name: capture-service
+      labels:
+        name: capture-service
+        part-of: tno
+        component: capture-service
+    spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: av-storage
+          persistentVolumeClaim:
+            claimName: av-storage
+      containers:
+        - name: capture-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: av-storage
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 20m
+              memory: 120Mi
+            limits:
+              cpu: 50m
+              memory: 200Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: AUTH_URL
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: AUTH_AUDIENCE
+            - name: Auth__Keycloak__Client
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_ID
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Kafka__Producer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Capture Service Configuration
+            - name: Kafka__Producer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: capture-service
+                  key: KAKFA_CLIENT_ID
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: capture-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__OutputPath
+              valueFrom:
+                configMapKeyRef:
+                  name: capture-service
+                  key: OUTPUT_PATH
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3

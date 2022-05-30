@@ -11,7 +11,7 @@ import {
   MediaType,
   MediaTypeList,
   ReachEarnedMedia,
-  ServiceConnection,
+  ServiceIngestSettings,
   ServiceSchedule,
   UserList,
 } from '.';
@@ -28,8 +28,8 @@ export const AdminRouter: React.FC = () => {
         <Route index element={<DataSourceDetails />} />
         <Route path="details" element={<DataSourceDetails />} />
         <Route path="metrics" element={<ReachEarnedMedia />} />
-        <Route path="schedule" element={<ServiceSchedule />} />
-        <Route path="connection" element={<ServiceConnection />} />
+        <Route path="ingest/schedule" element={<ServiceSchedule />} />
+        <Route path="ingest/settings" element={<ServiceIngestSettings />} />
         <Route path="ingesting" element={<ContentReferenceList />} />
       </Route>
       <Route path="contents/log" element={<ContentLogs />} />

@@ -44,3 +44,6 @@ patches:
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: capture-service:prod
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: Production

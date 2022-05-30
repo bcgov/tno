@@ -55,6 +55,7 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
 
         // Run at the shortest interval of all schedules.
         var delay = dataSources.Min(ds => ds.DataSourceSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? _options.DefaultDelayMS;
+        if (delay == 0) delay = _options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)

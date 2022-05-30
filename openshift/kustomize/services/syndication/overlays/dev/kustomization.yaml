@@ -37,3 +37,6 @@ patches:
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: syndication-service:dev
+      - op: replace
+        path: /spec/template/spec/containers/0/env/0/value
+        value: Development

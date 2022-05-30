@@ -16,7 +16,7 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: audio-clip
-  KAFKA_LOGS_TOPIC: logs-audio-clip
-  MAX_FAILED_ATTEMPTS: "5"
-  DATA_SOURCE_MEDIA_TYPE: News Radio
+  KAKFA_CLIENT_ID: Clip
+  MAX_FAIL_LIMIT: "5"
+  OUTPUT_PATH: /data/clip
+  CAPTURE_PATH: /data/capture
