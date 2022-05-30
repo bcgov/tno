@@ -28,6 +28,18 @@ spec:
       timeoutSeconds: 600
       updatePeriodSeconds: 1
     type: Rolling
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - syndication-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: syndication-service:dev
   template:
     metadata:
       name: syndication-service
@@ -36,6 +48,10 @@ spec:
         part-of: tno
         component: syndication-service
     spec:
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
       containers:
         - name: syndication-service
           image: ""
@@ -53,7 +69,7 @@ spec:
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
-              value: Staging
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
 
@@ -122,19 +138,3 @@ spec:
             periodSeconds: 20
             successThreshold: 1
             failureThreshold: 3
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - syndication-service
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: syndication-service:dev

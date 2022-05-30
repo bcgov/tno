@@ -12,9 +12,9 @@ import { getSortableOptions } from 'utils';
 import { Connection } from '../connections';
 import * as styled from './styled';
 
-interface IServiceConnectionProps {}
+interface IServiceIngestSettingsProps {}
 
-export const ServiceConnection: React.FC<IServiceConnectionProps> = () => {
+export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
 
@@ -50,7 +50,8 @@ export const ServiceConnection: React.FC<IServiceConnectionProps> = () => {
   };
 
   return (
-    <styled.ServiceConnection className="schedule">
+    <styled.ServiceIngestSettings className="schedule">
+      <h2>{values.name}</h2>
       <p>
         Data source connection settings provide the configuration that enables the service to ingest
         content.
@@ -97,6 +98,6 @@ export const ServiceConnection: React.FC<IServiceConnectionProps> = () => {
           <Connection />
         </Col>
       </Row>
-    </styled.ServiceConnection>
+    </styled.ServiceIngestSettings>
   );
 };

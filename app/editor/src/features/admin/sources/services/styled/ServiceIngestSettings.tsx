@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const ServiceConnection = styled.div`
+export const ServiceIngestSettings = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 1em 0 1em;

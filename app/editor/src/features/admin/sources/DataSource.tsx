@@ -89,8 +89,8 @@ export const DataSource: React.FC<IDataSourceProps> = (props) => {
                   <>
                     <Tab navigateTo="details" label="Details" exact activePaths={[`${id}`]} />
                     <Tab navigateTo="metrics" label="Reach/Earned Media" />
-                    <Tab navigateTo="connection" label="Connection Settings" />
-                    <Tab navigateTo="schedule" label="Service Schedule" />
+                    <Tab navigateTo="ingest/settings" label="Ingest Settings" />
+                    <Tab navigateTo="ingest/schedule" label="Ingest Schedule" />
                     <Tab navigateTo="ingesting" label="Ingesting" />
                   </>
                 }

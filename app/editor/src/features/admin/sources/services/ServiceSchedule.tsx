@@ -40,6 +40,7 @@ export const ServiceSchedule: React.FC<IServiceScheduleProps> = () => {
 
   return (
     <styled.ServiceSchedule className="schedule">
+      <h2>{values.name}</h2>
       <p>
         A service schedule provides a way to manage when and how often source content is imported.
       </p>

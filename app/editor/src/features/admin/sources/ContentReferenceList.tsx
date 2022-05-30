@@ -86,6 +86,7 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
 
   return (
     <styled.ContentReferenceList>
+      <h2>{values.name}</h2>
       <p>
         Content identified by this data source. This table only represents a reference to the
         content, it is used for debugging.

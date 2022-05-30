@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 using TNO.API.Areas.Services.Models.DataSource;
+using TNO.Models.Extensions;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 
@@ -32,14 +32,8 @@ public class CaptureDataSourceManager : CommandDataSourceManager<CaptureOptions>
     /// <returns></returns>
     public override bool VerifyDataSource()
     {
-        if (!this.DataSource.Connection.ContainsKey("url")) return false;
-
-        var url = (JsonElement)this.DataSource.Connection["url"];
-
-        if (url.ValueKind == JsonValueKind.String)
-            return !String.IsNullOrWhiteSpace(url.GetString());
-
-        return false;
+        var url = this.DataSource.GetConnectionValue("url");
+        return !String.IsNullOrWhiteSpace(url);
     }
     #endregion
 }
