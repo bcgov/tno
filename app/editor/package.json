@@ -6,7 +6,7 @@
   "homepage": "/",
   "packageManager": "yarn@3.2.0",
   "dependencies": {
-    "@headlessui/react": "1.6.3",
+    "@headlessui/react": "1.6.4",
     "@react-keycloak/web": "3.4.0",
     "@reduxjs/toolkit": "1.8.2",
     "axios": "0.27.2",
@@ -31,22 +31,22 @@
     "react-select": "5.3.2",
     "react-table": "7.8.0",
     "react-text-mask": "5.4.3",
-    "react-toastify": "9.0.1",
+    "react-toastify": "9.0.2",
     "react-tooltip": "4.2.21",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.5",
-    "tno-core": "0.0.130",
+    "tno-core": "0.0.133",
     "yup": "0.32.11"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.4",
-    "@testing-library/react": "13.2.0",
+    "@testing-library/react": "13.3.0",
     "@testing-library/user-event": "14.2.0",
     "@types/customize-cra": "1.0.2",
     "@types/history": "5.0.0",
     "@types/jest": "27.5.1",
     "@types/lodash.throttle": "4.1.7",
-    "@types/node": "17.0.35",
+    "@types/node": "17.0.36",
     "@types/pretty": "2.0.1",
     "@types/react": "18.0.9",
     "@types/react-datepicker": "4.4.1",
@@ -75,7 +75,7 @@
     "sass-extract": "2.1.0",
     "sass-extract-js": "0.4.0",
     "sass-extract-loader": "1.1.0",
-    "typescript": "4.6.4"
+    "typescript": "4.7.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -108,7 +108,8 @@
     ],
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.ts"
-  }},
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",

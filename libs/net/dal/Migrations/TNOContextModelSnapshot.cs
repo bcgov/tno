@@ -2678,6 +2678,18 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("code")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<DateTime?>("CodeCreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("code_created_on");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -2742,6 +2754,20 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("last_name")
                         .HasDefaultValueSql("''");
 
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("note")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -2772,9 +2798,6 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DisplayName")
-                        .IsUnique();
 
                     b.HasIndex("Email");
 

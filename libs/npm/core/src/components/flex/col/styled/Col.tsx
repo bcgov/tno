@@ -4,18 +4,18 @@ import { IColProps } from '..';
 
 export const Col = styled.div<IColProps>`
   display: flex;
-  flex-direction: ${(props) => props.direction};
-  flex: ${(props) => props.flex};
-  flex-wrap: ${(props) => props.wrap};
-  flex-grow: ${(props) => props.grow};
-  flex-shrink: ${(props) => props.shrink};
-  flex-basis: ${(props) => props.basis};
-  justify-content: ${(props) => props.justifyContent};
-  justify-items: ${(props) => props.justifyItems};
-  align-items: ${(props) => props.alignItems};
-  align-content: ${(props) => props.alignContent};
-  align-self: ${(props) => props.alignSelf};
-  gap: ${(props) => props.gap};
-  row-gap: ${(props) => props.rowGap};
-  column-gap: ${(props) => props.colGap};
+  flex-wrap: ${(props) => (props.nowrap ? 'no-wrap' : props.wrap ?? 'wrap')};
+  ${(props) => props.direction !== undefined && `flex-direction: ${props.direction};`}
+  ${(props) => props.grow !== undefined && `flex-grow: ${props.grow};`}
+  ${(props) => props.shrink !== undefined && `flex-shrink: ${props.shrink};`}
+  ${(props) => props.basis !== undefined && `flex-basis: ${props.basis};`}
+  ${(props) => props.flex !== undefined && `flex: ${props.flex};`}
+  ${(props) => props.justifyContent !== undefined && `justify-content: ${props.justifyContent};`}
+  ${(props) => props.justifyItems !== undefined && `justify-items: ${props.justifyItems};`}
+  ${(props) => props.alignItems !== undefined && `align-items: ${props.alignItems};`}
+  ${(props) => props.alignContent !== undefined && `align-content: ${props.alignContent};`}
+  ${(props) => props.alignSelf !== undefined && `align-self: ${props.alignSelf};`}
+  ${(props) => props.rowGap !== undefined && `row-gap: ${props.rowGap};`}
+  ${(props) => props.colGap !== undefined && `column-gap: ${props.colGap};`}
+  ${(props) => props.gap !== undefined && `gap: ${props.gap};`}
 `;

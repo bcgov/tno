@@ -133,11 +133,15 @@ remove: ## Remove all containers
 
 renew: ## Refresh all relevant services that were impacted by prior Pull Request.
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
+	@make db-nuke
+	@make refresh n=keycloak
 	@make refresh n=api
 	@make refresh n=editor
-	@make refresh n=syndication
-	@make refresh n=content
-	@make refresh n=capture
+	@make refresh n=kafka
+	@make build n=syndication
+	@make build n=content
+	@make build n=capture
+	@make build n=clip
 
 ##############################################################################
 # Database Commands

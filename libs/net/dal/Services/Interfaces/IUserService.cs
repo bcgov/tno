@@ -1,5 +1,7 @@
 
+using TNO.DAL.Models;
 using TNO.Entities;
+using TNO.Entities.Models;
 
 namespace TNO.DAL.Services;
 
@@ -7,5 +9,11 @@ public interface IUserService : IBaseService<User, int>
 {
     IEnumerable<User> FindAll();
 
-    User? FindByKey(Guid? key);
+    IPaged<User> Find(UserFilter filter);
+
+    User? FindByKey(Guid key);
+
+    User? FindByUsername(string username);
+
+    IEnumerable<User> FindByEmail(string email);
 }

@@ -46,14 +46,14 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return result;
       },
       addMediaType: async (model: IMediaTypeModel) => {
-        const result = await dispatch<IMediaTypeModel>('add-data-source', () =>
+        const result = await dispatch<IMediaTypeModel>('add-media-type', () =>
           api.addMediaType(model),
         );
         store.storeMediaTypes([...state.mediaTypes, result]);
         return result;
       },
       updateMediaType: async (model: IMediaTypeModel) => {
-        const result = await dispatch<IMediaTypeModel>('update-data-source', () =>
+        const result = await dispatch<IMediaTypeModel>('update-media-type', () =>
           api.updateMediaType(model),
         );
         store.storeMediaTypes(
@@ -65,7 +65,7 @@ export const useMediaTypes = (): [IAdminState, IMediaTypeController] => {
         return result;
       },
       deleteMediaType: async (model: IMediaTypeModel) => {
-        const result = await dispatch<IMediaTypeModel>('delete-data-source', () =>
+        const result = await dispatch<IMediaTypeModel>('delete-media-type', () =>
           api.deleteMediaType(model),
         );
         store.storeMediaTypes(state.mediaTypes.filter((ds) => ds.id !== result.id));

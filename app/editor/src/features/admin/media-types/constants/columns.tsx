@@ -1,6 +1,6 @@
 import { IMediaTypeModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
+import { Checkbox, Ellipsis } from 'tno-core/dist/components/cell';
 
 export const columns: (Column<IMediaTypeModel> &
   UseSortByColumnOptions<IMediaTypeModel> &
@@ -14,19 +14,6 @@ export const columns: (Column<IMediaTypeModel> &
   {
     Header: 'Description',
     accessor: 'description',
-  },
-  {
-    Header: 'Updated By',
-    accessor: 'updatedBy',
-  },
-  {
-    Header: 'Created By',
-    accessor: 'createdBy',
-  },
-  {
-    Header: 'Created On',
-    accessor: 'createdOn',
-    Cell: ({ value }: any) => <Date value={value} />,
   },
   {
     Header: 'Enabled',

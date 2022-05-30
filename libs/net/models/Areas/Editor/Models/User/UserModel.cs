@@ -1,4 +1,4 @@
-using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.User;
 
@@ -49,6 +49,11 @@ public class UserModel
     public bool IsEnabled { get; set; }
 
     /// <summary>
+    /// get/set - The status of the user.
+    /// </summary>
+    public UserStatus Status { get; set; }
+
+    /// <summary>
     /// get/set - Whether the user email is verified.
     /// </summary>
     public bool EmailVerified { get; set; }
@@ -84,6 +89,7 @@ public class UserModel
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
         this.IsEnabled = entity.IsEnabled;
+        this.Status = entity.Status;
         this.IsSystemAccount = entity.IsSystemAccount;
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;

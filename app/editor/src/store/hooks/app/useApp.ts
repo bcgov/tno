@@ -1,6 +1,7 @@
 import { IUserInfoModel, useApiAuth } from 'hooks/api-editor';
 import React from 'react';
 import { IAppState, IErrorModel, useAppStore } from 'store/slices';
+import { useKeycloakWrapper } from 'tno-core';
 
 import { useApiDispatcher } from '..';
 import { useLookup } from '../lookup';
@@ -14,8 +15,8 @@ let userInfo: IUserInfoModel = {
   username: '',
   email: '',
   displayName: '',
-  roles: [],
   groups: [],
+  roles: [],
 };
 
 interface IAppController {
@@ -46,6 +47,7 @@ interface IAppController {
  * @returns Hook with application state and api.
  */
 export const useApp = (): [IAppState, IAppController] => {
+  const keycloak = useKeycloakWrapper();
   const [state, store] = useAppStore();
   const [, { init }] = useLookup();
   const dispatch = useApiDispatcher();
@@ -58,6 +60,11 @@ export const useApp = (): [IAppState, IAppController] => {
         const result = await dispatch('get-user-info', () => api.getUserInfo());
         userInfo = result;
         store.storeUserInfo(userInfo);
+        if (
+          (!keycloak.isApproved() || refresh) &&
+          (!!result.groups.length || !!result.roles.length)
+        )
+          await keycloak.instance.updateToken(86400);
         return userInfo;
       },
       isUserReady: () => userInfo.id !== 0,
@@ -67,7 +74,7 @@ export const useApp = (): [IAppState, IAppController] => {
         await init();
       },
     }),
-    [api, dispatch, store, init],
+    [api, dispatch, store, init, keycloak],
   );
 
   return [state, controller];

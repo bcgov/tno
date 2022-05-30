@@ -9,6 +9,7 @@ export interface IColProps extends React.HTMLAttributes<HTMLDivElement> {
   basis?: string | 'auto';
   direction?: 'column' | 'column-reverse';
   wrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
+  nowrap?: boolean;
   gap?: string;
   rowGap?: string;
   colGap?: string;

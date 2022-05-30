@@ -5,26 +5,28 @@ import {
   CBRAReport,
   ContentLogs,
   ContentReferenceList,
-  DataSource,
   DataSourceDetails,
+  DataSourceForm,
   DataSourceList,
-  MediaType,
+  MediaTypeForm,
   MediaTypeList,
   ReachEarnedMedia,
   ServiceIngestSettings,
   ServiceSchedule,
+  UserForm,
   UserList,
 } from '.';
 
 export const AdminRouter: React.FC = () => {
   return (
     <Routes>
-      <Route index element={<Navigate to="data/sources" />} />
+      <Route index element={<Navigate to="users" />} />
       <Route path="users" element={<UserList />} />
-      <Route path="media/types/:id" element={<MediaType />} />
+      <Route path="users/:id" element={<UserForm />} />
       <Route path="media/types" element={<MediaTypeList />} />
+      <Route path="media/types/:id" element={<MediaTypeForm />} />
       <Route path="data/sources" element={<DataSourceList />} />
-      <Route path="data/sources/:id" element={<DataSource />}>
+      <Route path="data/sources/:id" element={<DataSourceForm />}>
         <Route index element={<DataSourceDetails />} />
         <Route path="details" element={<DataSourceDetails />} />
         <Route path="metrics" element={<ReachEarnedMedia />} />

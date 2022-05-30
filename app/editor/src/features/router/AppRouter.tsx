@@ -37,6 +37,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
         <Route path="/" element={<Navigate to="/contents" />} />
         <Route path="login" element={<Login />} />
         <Route path="welcome" element={<AccessRequest />} />
+        <Route path="access/request" element={<AccessRequest />} />
         <Route
           path="admin/*"
           element={<PrivateRoute claims={Claim.administrator} element={<AdminRouter />} />}

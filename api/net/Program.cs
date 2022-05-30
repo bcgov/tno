@@ -19,6 +19,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
 using TNO.DAL;
+using TNO.Keycloak;
+using System.IdentityModel.Tokens.Jwt;
+using TNO.Core.Http;
+using TNO.API.Keycloak;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -94,16 +98,18 @@ builder.Services.AddAuthentication(options =>
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false;
-        options.Authority = config["Keycloak:Authority"];
-        options.Audience = config["Keycloak:Audience"];
+        var section = config.GetSection("Keycloak");
+        options.RequireHttpsMetadata = !env.IsDevelopment();
+        options.Authority = section.GetValue<string>("Authority");
+        options.Audience = section.GetValue<string>("Audience");
         options.SaveToken = true;
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+        options.TokenValidationParameters = new TokenValidationParameters()
         {
             ValidateIssuerSigningKey = true,
-            // ValidIssuer = config["Keycloak:Issuer"] ?? options.Authority,
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidIssuer = section.GetValue<string>("Issuer"),
+            ValidateIssuer = section.GetValue<bool>("ValidateIssuer"),
+            ValidAudience = section.GetValue<string>("Audience"),
+            ValidateAudience = section.GetValue<bool>("ValidateAudience"),
             ValidateLifetime = true
         };
         var secret = config["Keycloak:Secret"];
@@ -172,6 +178,14 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddTNOServices(config, env);
+
+builder.Services
+    .AddHttpClient()
+    .AddTransient<JwtSecurityTokenHandler>()
+    .AddTransient<IHttpRequestClient, HttpRequestClient>()
+    .AddTransient<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
+    .AddTransient<IKeycloakHelper, KeycloakHelper>()
+    .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"));
 
 builder.Services.AddApiVersioning(options =>
 {

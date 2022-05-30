@@ -1,2 +1,2 @@
-export * from './MediaType';
+export * from './MediaTypeForm';
 export * from './MediaTypeList';

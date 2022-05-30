@@ -1,36 +1,11 @@
-import { Column, Row, SortingRule } from 'react-table';
+import { GridTable, IGridTableProps, IPage } from '.';
 
-import { GridTable, IPage } from '.';
-
-export interface IPagedTableProps<CT extends object = {}> {
-  /**
-   * An array of column definitions.
-   */
-  columns: Column<CT>[];
+export interface IPagedTableProps<CT extends object = Record<string, unknown>>
+  extends Omit<IGridTableProps<CT>, 'data'> {
   /**
    * A page of data.
    */
   page: IPage<CT>;
-  /**
-   * Handle row click event.
-   */
-  onRowClick?: (row: Row<CT>) => void;
-  /**
-   * Event fires when pageIndex or pageSize changes.
-   */
-  onChangePage?: (pageIndex: number, pageSize?: number) => void;
-  /**
-   * The sort has changed.
-   */
-  onChangeSort?: (sortBy: Array<SortingRule<CT>>) => void;
-  /**
-   * Initial sorting rules.
-   */
-  sortBy?: Array<SortingRule<CT>>;
-  /**
-   * Flag to indicate whether table is loading data or not.
-   */
-  isLoading?: boolean;
 }
 
 /**
@@ -38,20 +13,22 @@ export interface IPagedTableProps<CT extends object = {}> {
  * @param param0 Component properties.
  * @returns A component that displays a page of data.
  */
-export const PagedTable = <CT extends object>({
+export const PagedTable = <CT extends object = Record<string, unknown>>({
   page,
   columns,
   onRowClick,
   onChangePage,
   onChangeSort,
   isLoading,
-  sortBy,
+  header,
+  sorting,
 }: IPagedTableProps<CT>) => {
   return (
     <GridTable
       columns={columns}
       data={page.items}
       isLoading={isLoading}
+      header={header}
       paging={{
         manualPagination: true,
         pageIndex: page.pageIndex,
@@ -60,7 +37,7 @@ export const PagedTable = <CT extends object>({
       }}
       sorting={{
         manualSortBy: true,
-        sortBy: sortBy,
+        sortBy: sorting?.sortBy,
       }}
       filters={{
         manualFilters: true,
