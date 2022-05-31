@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ISelectDateProps, SelectDateVariant } from '..';
 
 export const SelectDate = styled.div<ISelectDateProps>`
+  box-sizing: border-box;
   padding-right: 0.5em;
 
   .required:after {
