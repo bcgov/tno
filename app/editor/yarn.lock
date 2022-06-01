@@ -1754,13 +1754,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@headlessui/react@npm:1.6.3":
-  version: 1.6.3
-  resolution: "@headlessui/react@npm:1.6.3"
+"@headlessui/react@npm:1.6.4":
+  version: 1.6.4
+  resolution: "@headlessui/react@npm:1.6.4"
   peerDependencies:
     react: ^16 || ^17 || ^18
     react-dom: ^16 || ^17 || ^18
-  checksum: be809e713697047b62e5cc3765e8dea957367d3a8cbaac390ff0f2f389c498c98a0855eff607d354db4f21126fd6c0d8f2d8cee069caf89de6611166c63245d0
+  checksum: f24dd2f5bd4de5954b2fd40998627b58a650a874894a90f96320ae5bad1b961a140e85ce821b92dc8cbed0628523df57ae9533137467d867788eac907bd396d7
   languageName: node
   linkType: hard
 
@@ -2446,9 +2446,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:13.2.0":
-  version: 13.2.0
-  resolution: "@testing-library/react@npm:13.2.0"
+"@testing-library/react@npm:13.3.0":
+  version: 13.3.0
+  resolution: "@testing-library/react@npm:13.3.0"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@testing-library/dom": ^8.5.0
@@ -2456,7 +2456,7 @@ __metadata:
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
-  checksum: 29f4a97c932a7fd78a55791a0ae0ba8d33c5241acbade98b6714440981e6e3d86a243e0b22161d3323b549ce059c175ae56d6b5053ad44083ab6e40ca211f19e
+  checksum: 98fd8616a7cae0ecfcbe97b5b3c5b91fbafccf449c04875395ccc0e3f0b139e53b3261b9536ec2169a5e2883a1be2098907209064061fe0c2ff21dfbc785dd40
   languageName: node
   linkType: hard
 
@@ -2802,10 +2802,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:17.0.35":
-  version: 17.0.35
-  resolution: "@types/node@npm:17.0.35"
-  checksum: 7a24946ae7fd20267ed92466384f594e448bfb151081158d565cc635d406ecb29ea8fb85fcd2a1f71efccf26fb5bd3c6f509bde56077eb8b832b847a6664bc62
+"@types/node@npm:17.0.36":
+  version: 17.0.36
+  resolution: "@types/node@npm:17.0.36"
+  checksum: 11055fde0a1e1421113849b5e32c7022911efc0be670729947bf0162970e79962d804b1eb8a9afb291380cac97cf0e684511415d586ae5fe1560322c940fe188
   languageName: node
   linkType: hard
 
@@ -11518,7 +11518,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toastify@npm:9.0.1, react-toastify@npm:^9.0.1":
+"react-toastify@npm:9.0.2":
+  version: 9.0.2
+  resolution: "react-toastify@npm:9.0.2"
+  dependencies:
+    clsx: ^1.1.1
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
+  checksum: 29de1c965fe6d3c40a4f1c58559ba6fd1482e6c256f78789d549823754a096cee6a1c060fc3c3a2ae90eb45236606865853af07b2de22d55cefc8c437284ee8c
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^9.0.1":
   version: 9.0.1
   resolution: "react-toastify@npm:9.0.1"
   dependencies:
@@ -13023,9 +13035,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.130":
-  version: 0.0.130
-  resolution: "tno-core@npm:0.0.130"
+"tno-core@npm:0.0.133":
+  version: 0.0.133
+  resolution: "tno-core@npm:0.0.133"
   dependencies:
     "@headlessui/react": ^1.6.1
     "@react-keycloak/web": ^3.4.0
@@ -13047,7 +13059,7 @@ __metadata:
     react-toastify: ^9.0.1
     react-tooltip: ^4.2.21
     styled-components: ^5.3.5
-  checksum: 83ac1b302f0c74104de4630c8cee159e0507233f9109e10d53419475671246f1fe2b9e0ff11ad4eb9b0c5b15d0cfa0d234f2c2c160c70e93a8115e8af619a6ab
+  checksum: 5e8dba46b32b6fb84d6ad83d5e98d80d4593259526a8b587e12617f24310171212993c9632e51334e8040e9e0eab60926d40a577dc8df6ffa622774b20248c07
   languageName: node
   linkType: hard
 
@@ -13055,17 +13067,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tno-editor-app@workspace:."
   dependencies:
-    "@headlessui/react": 1.6.3
+    "@headlessui/react": 1.6.4
     "@react-keycloak/web": 3.4.0
     "@reduxjs/toolkit": 1.8.2
     "@testing-library/jest-dom": 5.16.4
-    "@testing-library/react": 13.2.0
+    "@testing-library/react": 13.3.0
     "@testing-library/user-event": 14.2.0
     "@types/customize-cra": 1.0.2
     "@types/history": 5.0.0
     "@types/jest": 27.5.1
     "@types/lodash.throttle": 4.1.7
-    "@types/node": 17.0.35
+    "@types/node": 17.0.36
     "@types/pretty": 2.0.1
     "@types/react": 18.0.9
     "@types/react-datepicker": 4.4.1
@@ -13112,7 +13124,7 @@ __metadata:
     react-select: 5.3.2
     react-table: 7.8.0
     react-text-mask: 5.4.3
-    react-toastify: 9.0.1
+    react-toastify: 9.0.2
     react-tooltip: 4.2.21
     redux-logger: 3.0.6
     sass: 1.52.1
@@ -13120,8 +13132,8 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.5
-    tno-core: 0.0.130
-    typescript: 4.6.4
+    tno-core: 0.0.133
+    typescript: 4.7.2
     yup: 0.32.11
   languageName: unknown
   linkType: soft
@@ -13294,23 +13306,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:4.6.4":
-  version: 4.6.4
-  resolution: "typescript@npm:4.6.4"
+"typescript@npm:4.7.2":
+  version: 4.7.2
+  resolution: "typescript@npm:4.7.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
+  checksum: 5163585e6b56410f77d5483b698d9489bbee8902c99029eb70cf6d21525a186530ce19a00951af84eefd4a131cc51d0959f5118e25e70ab61f45ac4057dbd1ef
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@4.6.4#~builtin<compat/typescript>":
-  version: 4.6.4
-  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=bda367"
+"typescript@patch:typescript@4.7.2#~builtin<compat/typescript>":
+  version: 4.7.2
+  resolution: "typescript@patch:typescript@npm%3A4.7.2#~builtin<compat/typescript>::version=4.7.2&hash=bda367"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
+  checksum: 09d93fc0983d38eadd9b0427f790b49b4437f45002a87d447be3fbe53120880e87a91dd03e1d900498f99205d6e0b7c9784fe41fca11d56f4bbce371f74bb160
   languageName: node
   linkType: hard
 

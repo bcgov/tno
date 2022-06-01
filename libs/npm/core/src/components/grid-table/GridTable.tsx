@@ -99,7 +99,7 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
  * @param param1 GridTable properties.
  * @returns GridTable component.
  */
-export const GridTable = <T extends object>({
+export const GridTable = <T extends object = Record<string, unknown>>({
   className,
   columns,
   data,

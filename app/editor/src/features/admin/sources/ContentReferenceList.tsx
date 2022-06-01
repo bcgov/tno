@@ -143,7 +143,7 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
         columns={contentReferenceColumns}
         page={page}
         isLoading={!!requests.length}
-        sortBy={filter.sort}
+        sorting={{ sortBy: filter.sort }}
         onChangePage={handleChangePage}
         onChangeSort={handleChangeSort}
       />

@@ -1,2 +1,2 @@
-export * from './InfoPanelStyled';
-export * from './LogoPanelStyled';
+export * from './InfoPanel';
+export * from './LogoPanel';

@@ -18,7 +18,9 @@ type: Opaque
 data:
   KEYCLOAK_AUTHORITY: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
   KEYCLOAK_REALM: gcpe
-  KEYCLOAK_AUDIENCE: api
+  KEYCLOAK_AUDIENCE: tno-api
+  KEYCLOAK_CLIENT_AUTHORITY: https://dev.oidc.gov.bc.ca
+  KEYCLOAK_CLIENT_AUDIENCE: tno-service-account
 
   CONNECTION_STRING: Host=crunchy-primary:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 

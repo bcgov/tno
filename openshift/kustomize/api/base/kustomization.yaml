@@ -22,3 +22,5 @@ secretGenerator:
       - AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=
       - AZURE_VIDEO_ANALYZER_ACCOUNT_ID=
       - AZURE_VIDEO_ANALYZER_LOCATION=
+    envs:
+      - .env

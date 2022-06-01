@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IDataSourceModel, IMediaTypeModel } from 'hooks/api-editor';
+import { IDataSourceModel, IMediaTypeModel, IPaged, IUserModel } from 'hooks/api-editor';
 
 import { IAdminState } from './interfaces';
 
 export const initialAdminState: IAdminState = {
   dataSources: [],
   mediaTypes: [],
+  users: { page: 1, quantity: 10, items: [], total: 0 },
 };
 
 export const adminSlice = createSlice({
@@ -18,8 +19,14 @@ export const adminSlice = createSlice({
     storeMediaTypes(state: IAdminState, action: PayloadAction<IMediaTypeModel[]>) {
       state.mediaTypes = action.payload;
     },
+    storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
+      state.users = action.payload;
+    },
   },
 });
 
-export const { storeDataSources: storeAdminDataSources, storeMediaTypes: storeAdminMediaTypes } =
-  adminSlice.actions;
+export const {
+  storeDataSources: storeAdminDataSources,
+  storeMediaTypes: storeAdminMediaTypes,
+  storeUsers: storeAdminUsers,
+} = adminSlice.actions;

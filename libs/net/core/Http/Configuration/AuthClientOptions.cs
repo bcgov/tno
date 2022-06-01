@@ -14,10 +14,10 @@ namespace TNO.Core.Http.Configuration
         /// </summary>
         /// <value></value>
         [Required(ErrorMessage = "Configuration 'Authority' is required.")]
-        public string? Authority { get; set; }
+        public string Authority { get; set; } = "";
 
         /// <summary>
-        /// get/set - The open id connect 'audience'.
+        /// get/set - The open id connect 'audience' or the client id that identifies the API.
         /// </summary>
         /// <value></value>
         [Required(ErrorMessage = "Configuration 'Audience' is required.")]
@@ -28,28 +28,19 @@ namespace TNO.Core.Http.Configuration
         /// </summary>
         /// <value></value>
         public string? Secret { get; set; }
-
-        /// <summary>
-        /// get/set - The open id connect 'client' id.
-        /// </summary>
-        /// <value></value>
-        [Required(ErrorMessage = "Configuration 'Client' is required.")]
-        public string? Client { get; set; }
         #endregion
 
         #region Methods
         /// <summary>
         /// Validates the configuration for keycloak.
         /// </summary>
-        /// <exception type="ConfigurationException">If the configuration property is invald.</exception>
+        /// <exception type="ConfigurationException">If a configuration property is invald.</exception>
         public virtual void Validate()
         {
             if (String.IsNullOrWhiteSpace(this.Authority))
                 throw new ConfigurationException("The configuration for OpenIdConnect:Authority is invalid or missing.");
             if (String.IsNullOrWhiteSpace(this.Audience))
                 throw new ConfigurationException("The configuration for OpenIdConnect:Audience is invalid or missing.");
-            if (String.IsNullOrWhiteSpace(this.Client))
-                throw new ConfigurationException("The configuration for OpenIdConnect:Client is invalid or missing.");
         }
         #endregion
     }

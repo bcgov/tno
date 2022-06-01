@@ -1,6 +1,6 @@
 export * from './ContentReferenceList';
-export * from './DataSource';
 export * from './DataSourceDetails';
+export * from './DataSourceForm';
 export * from './DataSourceList';
 export * from './DataSourceMetrics';
 export * from './DataSourceStatus';

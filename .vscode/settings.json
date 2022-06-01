@@ -12,7 +12,8 @@
     "insertable",
     "kowl",
     "Kustomization",
-    "kustomize"
+    "kustomize",
+    "Swashbuckle"
   ],
   "java.configuration.updateBuildConfiguration": "interactive"
 }

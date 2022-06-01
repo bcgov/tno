@@ -95,7 +95,7 @@ export const ContentListView: React.FC = () => {
             columns={columns}
             page={page}
             isLoading={!!requests.length}
-            sortBy={filter.sort}
+            sorting={{ sortBy: filter.sort }}
             onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
             onChangePage={handleChangePage}
             onChangeSort={handleChangeSort}

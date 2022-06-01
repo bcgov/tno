@@ -78,6 +78,27 @@ spec:
                   name: api
                   key: KEYCLOAK_AUDIENCE
 
+            - name: Keycloak__ServiceAccount__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: KEYCLOAK_CLIENT_AUTHORITY
+            - name: Keycloak__ServiceAccount__Realm
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: KEYCLOAK_REALM
+            - name: Keycloak__ServiceAccount__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: KEYCLOAK_CLIENT_AUDIENCE
+            - name: Keycloak__ServiceAccount__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: api
+                  key: KEYCLOAK_CLIENT_SECRET
+
             - name: KAFKA_BOOTSTRAP_SERVERS
               valueFrom:
                 configMapKeyRef:

@@ -34,6 +34,9 @@ public class User : AuditColumns
     [Column("is_enabled")]
     public bool IsEnabled { get; set; }
 
+    [Column("status")]
+    public UserStatus Status { get; set; } = UserStatus.Preapproved;
+
     [Column("email_verified")]
     public bool EmailVerified { get; set; }
 
@@ -42,6 +45,15 @@ public class User : AuditColumns
 
     [Column("last_login_on")]
     public DateTime? LastLoginOn { get; set; }
+
+    [Column("note")]
+    public string Note { get; set; } = "";
+
+    [Column("code")]
+    public string Code { get; set; } = "";
+
+    [Column("code_created_on")]
+    public DateTime? CodeCreatedOn { get; set; }
 
     public virtual List<Role> Roles { get; } = new List<Role>();
 
