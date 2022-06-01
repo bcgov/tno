@@ -170,6 +170,8 @@ public class KeycloakHelper : IKeycloakHelper
                 kuser.Enabled = user.IsEnabled;
                 await _keycloakService.UpdateUserAsync(kuser);
 
+                var roles = _roleService.FindAll();
+
                 // Update groups.
                 var userGroups = await _keycloakService.GetUserGroupsAsync(user.Key);
                 foreach (var role in user.RolesManyToMany.Where(r => r.Role?.Key != Guid.Empty).Select(r => r.Role!))
@@ -179,7 +181,9 @@ public class KeycloakHelper : IKeycloakHelper
                 }
                 foreach (var group in userGroups.Where(ug => !user.RolesManyToMany.Select(r => r.Role?.Key).Any(k => k == ug.Id)))
                 {
-                    await _keycloakService.RemoveGroupFromUserAsync(user.Key, group.Id);
+                    // Only remove TNO roles from the keycloak groups.
+                    if (roles.Any(r => r.Name == group.Name))
+                        await _keycloakService.RemoveGroupFromUserAsync(user.Key, group.Id);
                 }
             }
         }
