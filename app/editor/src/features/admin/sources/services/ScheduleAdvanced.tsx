@@ -1,7 +1,6 @@
 import { FormikTouched, setIn, setNestedObjectValues, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, IScheduleModel, ScheduleTypeName } from 'hooks/api-editor';
-import { AdvancedScheduleSchema } from 'hooks/api-editor/validation';
 import React from 'react';
 import { Button, ButtonVariant } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
