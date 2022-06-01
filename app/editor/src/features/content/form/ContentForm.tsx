@@ -208,7 +208,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       <FormikText
                         name="otherSource"
                         label="Other Source"
-                        width={FieldSize.Medium}
+                        width={FieldSize.Big}
                         onChange={(e) => {
                           const value = e.currentTarget.value;
                           props.setFieldValue('otherSource', value);

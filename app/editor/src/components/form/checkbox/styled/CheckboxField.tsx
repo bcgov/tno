@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { CheckboxVariant, ICheckboxProps } from '..';
 
 export const CheckboxField = styled.input<ICheckboxProps>`
+  box-sizing: border-box;
   cursor: pointer;
   margin: 1px 2px 1px 2px;
   text-decoration: ${(props) => (props.variant === CheckboxVariant.link ? 'underline' : 'none')};

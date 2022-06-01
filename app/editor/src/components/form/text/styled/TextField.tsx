@@ -5,6 +5,7 @@ import { ITextProps, TextVariant } from '..';
 
 export const TextField = styled.input<ITextProps>`
   padding: 0.375rem 0.75rem;
+  box-sizing: border-box;
   text-decoration: ${(props) => (props.variant === TextVariant.link ? 'underline' : 'none')};
   display: inline-block;
   width: ${(props) => props.width};

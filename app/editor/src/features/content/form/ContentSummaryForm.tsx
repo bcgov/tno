@@ -145,7 +145,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               name="categories[0].score"
               label="Score"
               type="number"
-              width={FieldSize.Stretch}
+              width={FieldSize.Medium}
               disabled={!values.categories.length}
             />
           </Row>
