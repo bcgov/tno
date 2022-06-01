@@ -18,7 +18,7 @@ type: Opaque
 data:
   KEYCLOAK_AUTHORITY: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
   KEYCLOAK_REALM: gcpe
-  KEYCLOAK_AUDIENCE: tno-api
+  KEYCLOAK_AUDIENCE: tno-app
   KEYCLOAK_CLIENT_AUTHORITY: https://dev.oidc.gov.bc.ca
   KEYCLOAK_CLIENT_AUDIENCE: tno-service-account
 

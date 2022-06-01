@@ -60,6 +60,7 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause) this.State.Stop();
             if (this.State.Status == ServiceStatus.Sleeping || this.State.Status == ServiceStatus.Paused)
             {
                 this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
