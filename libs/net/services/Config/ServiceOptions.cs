@@ -14,9 +14,9 @@ public class ServiceOptions
     public int MaxRetryLimit { get; set; } = 5;
 
     /// <summary>
-    /// get/set - Default millisecond delay between process cycle.  This stops run-away threads (default: 1 second).
+    /// get/set - Default millisecond delay between process cycle.  This stops run-away threads (default: 30 second).
     /// </summary>
-    public int DefaultDelayMS { get; set; } = 1000;
+    public int DefaultDelayMS { get; set; } = 30000;
 
     /// <summary>
     /// get/set - The URL to the API.
