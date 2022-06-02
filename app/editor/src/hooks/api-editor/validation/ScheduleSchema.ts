@@ -21,7 +21,6 @@ export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.s
     .default(undefined)
     .transform((curr, orig) => (!orig ? undefined : curr)),
   stopAt: Yup.string().when('scheduleType', (scheduleType) => {
-    console.log(scheduleType === ScheduleType.Daily);
     if (scheduleType === ScheduleTypeName.Daily || scheduleType === ScheduleTypeName.Advanced) {
       return Yup.string().required(`Required for ${scheduleType} schedules.`);
     } else {
