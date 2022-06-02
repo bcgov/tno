@@ -187,15 +187,20 @@ ES_JAVA_OPTS='-Xms512m -Xmx512m'" >> ./db/elasticsearch/.env
     echo "./db/elasticsearch/.env created"
 fi
 
-# API
+# API - .NET
 if test -f "./api/net/.env"; then
     echo "./api/net/.env exists"
 else
 echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8080
-KEYCLOAK__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+
+keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+keycloak__ServiceAccount__Authority=http://host.docker.internal:$portKeycloak
+keycloak__ServiceAccount__Secret=
+
 ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
@@ -219,7 +224,7 @@ KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal"
     echo "./api/net/.env created"
 fi
 
-# API - Editor
+# API - Editor - Java
 if test -f "./api/java/editor/.env"; then
     echo "./api/java/editor/.env exists"
 else
@@ -442,7 +447,6 @@ ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
 Auth__Keycloak__Audience=tno-service-account
-Auth__Keycloak__Client=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
@@ -461,7 +465,6 @@ ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
 Auth__Keycloak__Audience=tno-service-account
-Auth__Keycloak__Client=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
@@ -480,7 +483,6 @@ ASPNETCORE_URLS=http://+:8081
 
 Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
 Auth__Keycloak__Audience=tno-service-account
-Auth__Keycloak__Client=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api

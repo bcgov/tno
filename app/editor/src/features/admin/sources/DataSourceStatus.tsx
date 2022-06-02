@@ -31,15 +31,8 @@ export const DataSourceStatus: React.FC<IDataSourceStatusProps> = (props) => {
     if (!values.lastRanOn || !values.isEnabled || values.schedules.every((s) => !s.isEnabled))
       return 'Not Running';
 
-    const minDelay =
-      Math.min.apply(
-        Math,
-        values.schedules.map((s) => s.delayMS),
-      ) * -1;
     const lastDelay = moment();
-    lastDelay.add(minDelay, 'ms');
-
-    const lastRanOn = moment(values.lastRanOn);
+    const lastRanOn = moment(values.lastRanOn).add(5, 'minutes');
     return lastRanOn.isValid() && lastRanOn >= lastDelay ? 'Running' : 'Sleeping';
   };
 
