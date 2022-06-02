@@ -91,7 +91,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
             </Button>
           )}
           {index !== undefined && (
-            <Button type="submit" onClick={handleDone} variant={ButtonVariant.secondary}>
+            <Button onClick={handleDone} variant={ButtonVariant.secondary}>
               Done
             </Button>
           )}
