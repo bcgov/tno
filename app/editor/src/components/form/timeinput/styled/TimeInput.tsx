@@ -5,6 +5,15 @@ export const TimeInput = styled(Col)`
   label {
     font-weight: 700;
   }
+
+  margin-right: 0.5em;
+
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+    font-weight: 700;
+  }
+
   .masked-input {
     :required {
       border-color: ${(props) => props.theme.css.inputRequiredBorderColor};
@@ -17,6 +26,5 @@ export const TimeInput = styled(Col)`
 
     border-radius: 0.25rem;
     height: 2.125rem;
-    margin-right: 5%;
   }
 `;

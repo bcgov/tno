@@ -21,7 +21,7 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, ...rest }) => {
   return (
     <styled.TimeInput>
       <Show visible={!!label}>
-        <label>{label}</label>
+        <label className={rest.required ? 'required' : ''}>{label}</label>
       </Show>
       <MaskedInput className="masked-input" {...rest} mask={formatTime} />
     </styled.TimeInput>
