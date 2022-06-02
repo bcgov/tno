@@ -80,6 +80,7 @@ export const Pager: React.FC<IPagerProps> = ({
               gotoPage(i);
             }}
             disabled={pageIndex === pageOptions[i]}
+            className={pageIndex === pageOptions[i] ? 'active' : ''}
           >
             {pageOptions[i] + 1}
           </Button>,

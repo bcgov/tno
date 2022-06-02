@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const Pager = styled.div`
-  margin-top: 0.5em;
   margin-bottom: 0.5em;
 
   display: flex;
@@ -16,5 +15,9 @@ export const Pager = styled.div`
     background-color: transparent;
     color: black;
     border-color: black;
+  }
+
+  .active {
+    background-color: #3498db;
   }
 `;
