@@ -203,13 +203,16 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
         try
         {
-            var xmlr = XmlReader.Create(new StringReader(data));
-            return SyndicationFeed.Load(xmlr);
+            // Reformat dates because timezone abbreviations don't work...
 
-            // var feed = SyndicationFeed.Load(xmlr);
-            // var rss = new Rss20FeedFormatter();
-            // rss.ReadFrom(xmlr);
-            // var feed = rss.Feed;
+            var xmlr = XmlReader.Create(new StringReader(data));
+            var feed = SyndicationFeed.Load(xmlr);
+
+            // Need to manually test if `pubDate` is valid.  Microsoft didn't bother providing a way to work with valid dates...
+            // Essentially timezone values are context sensitive.
+            var pubDate = feed.Items.FirstOrDefault()?.PublishDate;
+
+            return feed;
         }
         catch (Exception ex)
         {

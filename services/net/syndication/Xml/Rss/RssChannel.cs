@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using TNO.Core.Extensions;
 
 namespace TNO.Services.Syndication.Xml;
 
@@ -180,8 +181,9 @@ public class RssChannel
         var docs = element.Element("docs")?.Value;
         if (Uri.TryCreate(docs, UriKind.Absolute, out Uri? docsUri)) this.Documentation = docsUri;
 
-        if (DateTime.TryParse(element.Element("pubDate")?.Value, out DateTime pubDate)) this.PublishedOn = pubDate;
-        if (DateTime.TryParse(element.Element("lastBuildDate")?.Value, out DateTime lastBuildDate)) this.LastBuildDate = lastBuildDate;
+        if (element.Element("pubDate")?.Value.TryParseDateTimeExact(CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime pubDate, RssFeed.PUB_DATE_FORMATS) == true) this.PublishedOn = pubDate;
+        if (element.Element("lastBuildDate")?.Value.TryParseDateTimeExact(CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime lastBuildDate, RssFeed.PUB_DATE_FORMATS) == true) this.LastBuildDate = lastBuildDate;
+
         if (Int32.TryParse(element.Element("ttl")?.Value, out int ttl)) this.TimeToLive = ttl;
 
         this.Categories = RssCategory.LoadAll(element, enforceSpec);
