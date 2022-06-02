@@ -14,6 +14,19 @@ namespace TNO.Services.Syndication.Xml;
 public class RssFeed
 {
     #region Variables
+    /// <summary>
+    /// Published Date formats used to parse date values.
+    /// .NET has an issue with parsing valid dates because it doesn't know how to apply the timezone.
+    /// </summary>
+    public readonly static string[] PUB_DATE_FORMATS = new[]
+    {
+        "ddd, dd MMM yyyy HH:mm:ss z",
+        "ddd, d MMM yyyy HH:mm:ss z",
+        "ddd, d MMM yyyy HH:mm:ss ZZZ",
+        "ddd dd MMM yyyy HH:mm:ss z",
+        "ddd d MMM yyyy HH:mm:ss z",
+        "ddd d MMM yyyy HH:mm:ss ZZZ"
+    };
     #endregion
 
     #region Properties

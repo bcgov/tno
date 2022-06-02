@@ -27,6 +27,6 @@ public class ServiceOptions
     /// <summary>
     /// get/set - The service timezone.
     /// </summary>
-    public string TimeZone { get; set; } = "Pacific Standard Time";
+    public string TimeZone { get; set; } = "UTC";
     #endregion
 }

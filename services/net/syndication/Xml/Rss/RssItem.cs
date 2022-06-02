@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.ServiceModel.Syndication;
 using System.Xml;
 using System.Xml.Linq;
@@ -111,7 +112,7 @@ public class RssItem
         this.Categories = RssCategory.LoadAll(element, enforceSpec);
         this.Source = RssSource.Load(element, enforceSpec);
 
-        if (DateTime.TryParse(element.Element("pubDate")?.Value, out DateTime pubDate)) this.PublishedOn = pubDate;
+        if (element.Element("pubDate")?.Value.TryParseDateTimeExact(CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out DateTime pubDate, RssFeed.PUB_DATE_FORMATS) == true) this.PublishedOn = pubDate;
     }
     #endregion
 
