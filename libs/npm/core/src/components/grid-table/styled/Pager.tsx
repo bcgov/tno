@@ -16,4 +16,8 @@ export const Pager = styled.div`
     color: black;
     border-color: black;
   }
+
+  .active {
+    background-color: #3498db;
+  }
 `;
