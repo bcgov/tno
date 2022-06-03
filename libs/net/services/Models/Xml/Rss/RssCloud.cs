@@ -2,7 +2,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace TNO.Services.CPNews.Xml;
+namespace TNO.Services.Models.Xml;
 
 /// <summary>
 /// RssCloud class, provides an object to read and write RSS cloud element.

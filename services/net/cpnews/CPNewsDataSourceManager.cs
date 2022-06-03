@@ -7,7 +7,7 @@ using TNO.Services.CPNews.Config;
 namespace TNO.Services.CPNews;
 
 /// <summary>
-/// CPNewsDataSourceManager class, provides a way to manage the cobews ingestion process for this data source.
+/// CPNewsDataSourceManager class, provides a way to manage the cpnews ingestion process for this data source.
 /// </summary>
 public class CPNewsDataSourceManager : DataSourceIngestManager<CPNewsOptions>
 {

@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace TNO.Services.CPNews.Xml;
+namespace TNO.Services.Models.Xml;
 
 /// <summary>
 /// RssCategory class, provides an object to read or write RSS category element.

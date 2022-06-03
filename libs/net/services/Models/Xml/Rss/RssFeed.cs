@@ -4,7 +4,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using TNO.Core.Extensions;
 
-namespace TNO.Services.CPNews.Xml;
+namespace TNO.Services.Models.Xml;
 
 /// <summary>
 /// RssFeed class, provides an object to read and write RSS syndication feed.

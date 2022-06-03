@@ -1,7 +1,6 @@
 using System;
 using System.ServiceModel.Syndication;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using Confluent.Kafka;
@@ -10,11 +9,12 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Http;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Models.Kafka;
 using TNO.Services.Actions;
 using TNO.Services.CPNews.Config;
-using TNO.Services.CPNews.Xml;
+using TNO.Services.Models.Xml;
 using System.Security.Cryptography;
 
 namespace TNO.Services.CPNews;
@@ -89,7 +89,7 @@ public class CPNewsAction : IngestAction<CPNewsOptions>
                 var articleContent = await this.GetContentAsync(link);
 
                 item.Id = link;
-                articleContent = SanitizeContent(articleContent);
+                articleContent = StringExtensions.SanitizeContent(articleContent);
                 item.Summary = new TextSyndicationContent(articleContent);
 
                 if (reference == null)
@@ -215,7 +215,6 @@ public class CPNewsAction : IngestAction<CPNewsOptions>
             var xmlr = XmlReader.Create(new StringReader(data));
             return SyndicationFeed.Load(xmlr);
 
-            // var feed = SyndicationFeed.Load(xmlr);
             // var rss = new Rss20FeedFormatter();
             // rss.ReadFrom(xmlr);
             // var feed = rss.Feed;
@@ -248,29 +247,6 @@ public class CPNewsAction : IngestAction<CPNewsOptions>
         var data = await response.Content.ReadAsStringAsync();
 
         return data;
-    }
-
-    /// <summary>
-    /// Extract the article text from the HTML document articleContent and remove all tags. This produces a rather
-    /// monolithic block of text. This method can be modified to refine the appearance of the output once we have
-    /// a subscriber interface to work with.
-    /// </summary>
-    /// <param name="articleContent">HTML encoded news article</param>
-    /// <returns>Article text only with tags removed</returns>
-    private static string SanitizeContent(string articleContent)
-    {
-        int startPos = articleContent.IndexOf("<ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
-        int endPos = articleContent.IndexOf("</ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
-        string articleStr = "";
-
-		if(startPos > 0)
-		{
-			articleStr = articleContent.Substring(startPos + 9, endPos - (startPos + 9));
-		}
-
-        articleStr = Regex.Replace(articleContent, @"<[^>]*>", String.Empty);
-
-        return articleStr;
     }
 
     /// <summary>

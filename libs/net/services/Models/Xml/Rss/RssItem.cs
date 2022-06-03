@@ -4,7 +4,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using TNO.Core.Extensions;
 
-namespace TNO.Services.CPNews.Xml;
+namespace TNO.Services.Models.Xml;
 
 /// <summary>
 /// RssItem class, provides an object to read or write RSS category element.
