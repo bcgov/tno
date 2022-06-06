@@ -1,7 +1,6 @@
 import { IScheduleModel, ScheduleTypeName } from 'hooks';
 import * as Yup from 'yup';
 
-import { ScheduleType } from '../constants';
 import { AuditColumnsSchema } from './AuditColumnsSchema';
 
 /**
@@ -28,7 +27,6 @@ export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.s
     }
   }),
   startAt: Yup.string().when('scheduleType', (scheduleType) => {
-    console.log(scheduleType === ScheduleType.Daily);
     if (scheduleType === ScheduleTypeName.Daily || scheduleType === ScheduleTypeName.Advanced) {
       return Yup.string().required(`Required for ${scheduleType} schedules.`);
     } else {
