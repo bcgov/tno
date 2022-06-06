@@ -161,7 +161,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               }
               value={
                 !!values.publishedOn
-                  ? moment(values.publishedOn).format('MMMM D, yyyy hh:mm a')
+                  ? moment(values.publishedOn).format('MMMM D, yyyy HH:mm:ss')
                   : ''
               }
               onChange={(date: any) => {
@@ -169,8 +169,11 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               }}
             />
             <TimeInput
+              name="publishedOnTime"
               disabled={!values.publishedOn}
-              placeholder="HH:MM:SS"
+              placeholder={
+                !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : 'HH:MM:SS'
+              }
               required
               label="Time"
               onChange={(e) => setPublishedOnTime(e.target.value)}

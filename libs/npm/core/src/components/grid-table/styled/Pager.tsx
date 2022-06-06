@@ -18,6 +18,7 @@ export const Pager = styled.div`
   }
 
   .active {
-    background-color: #3498db;
+    background-color: ${(props) => props.theme.css.primaryLightColor ?? '#fff'};
+    color: white;
   }
 `;
