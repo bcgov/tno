@@ -3,6 +3,7 @@ import { AccessRequest } from 'features/access-request';
 import { AdminRouter } from 'features/admin';
 import { ContentForm, ContentListView } from 'features/content';
 import { Login } from 'features/login';
+import { StorageListView } from 'features/storage';
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -46,6 +47,12 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           path="contents"
           element={
             <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="storage"
+          element={
+            <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
           }
         />
         <Route

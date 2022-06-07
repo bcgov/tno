@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 
 namespace TNO.Core.Extensions;
 
@@ -172,5 +173,75 @@ public static class StringExtensions
 
         result = DateTime.MinValue;
         return false;
+    }
+
+    /// <summary>
+    /// Replace the first found occurance of the 'search' with 'replace' value.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="search"></param>
+    /// <param name="replace"></param>
+    /// <returns></returns>
+    public static string? ReplaceFirst(this string? text, string search, string replace)
+    {
+        if (String.IsNullOrEmpty(text) || String.IsNullOrEmpty(search)) return text;
+
+        var pos = text.IndexOf(search);
+        if (pos < 0) return text;
+        return $"{replace}{text[(pos + search.Length)..]}";
+    }
+
+    /// <summary>
+    /// Ensures the specified path is relative.
+    /// Removes ':' character to reduce risk of a drive request.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static string MakeRelativePath(this string? path)
+    {
+        path = path?.Replace('\\', Path.DirectorySeparatorChar).Replace(":", "") ?? "";
+
+        if (path.StartsWith(Path.DirectorySeparatorChar)) return path[1..];
+
+        return path;
+    }
+
+    /// <summary>
+    /// Extracts the full directory path.
+    /// Removes ':' character to reduce risk of a drive request.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static string? GetDirectoryPath(this string? path)
+    {
+        path = path?.Replace('\\', Path.DirectorySeparatorChar).Replace(":", "") ?? "";
+        if (path?.EndsWith(Path.DirectorySeparatorChar) == true) return path[..^1];
+        return Path.GetDirectoryName($"{path}{Path.DirectorySeparatorChar}");
+    }
+
+    /// <summary>
+    /// Determines if file exists at the specified 'path'.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="ignoreCase"></param>
+    /// <returns></returns>
+    public static bool FileExists(this string path, bool ignoreCase = false)
+    {
+        var directory = Path.GetDirectoryName(path) ?? "";
+        return directory.DirectoryExists() && File.Exists(path) && Directory.GetFiles(directory).Any(f => String.Compare(f, path, ignoreCase) == 0);
+    }
+
+    /// <summary>
+    /// Determines if directory exists at the specified 'path'.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="ignoreCase"></param>
+    /// <returns></returns>
+    public static bool DirectoryExists(this string path, bool ignoreCase = false)
+    {
+        var parent = Directory.GetParent(path.GetDirectoryPath() ?? "")?.Name ?? "";
+        if (String.IsNullOrWhiteSpace(parent)) parent = $"{Path.DirectorySeparatorChar}";
+        else if (!parent.StartsWith(Path.DirectorySeparatorChar) && path.StartsWith(Path.DirectorySeparatorChar)) parent = $"{Path.DirectorySeparatorChar}{parent}";
+        return Directory.Exists(path) && Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
     }
 }

@@ -17,6 +17,7 @@ export interface IUploadProps
   onSelect?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDownload?: () => void;
   file?: IFile;
+  verifyDelete?: boolean;
 }
 
 /**
@@ -28,6 +29,7 @@ export const Upload: React.FC<IUploadProps> = ({
   name,
   className,
   file: initFile,
+  verifyDelete = true,
   onClick,
   onSelect,
   onDownload,
@@ -46,8 +48,17 @@ export const Upload: React.FC<IUploadProps> = ({
 
   /** Duration / metadata WIP */
   // const [duration, setDuration] = useState(0);
-  var reader = new FileReader();
-  var fileName = generateName(file) ?? generateName(initFile);
+  const reader = new FileReader();
+  const fileName = generateName(file) ?? generateName(initFile);
+
+  const onDelete = () => {
+    if (!!fileRef.current) {
+      nativeInputValueSetter?.call(fileRef.current, '');
+      const event = new Event('change', { bubbles: true });
+      fileRef.current.dispatchEvent(event);
+    }
+    setFile(undefined);
+  };
 
   return (
     <styled.Upload className={className ?? ''}>
@@ -93,7 +104,13 @@ export const Upload: React.FC<IUploadProps> = ({
         )}
       </Col>
       {!!fileName && (
-        <Button variant={ButtonVariant.danger} onClick={toggle}>
+        <Button
+          variant={ButtonVariant.danger}
+          onClick={() => {
+            if (verifyDelete) toggle();
+            else onDelete();
+          }}
+        >
           Remove File
         </Button>
       )}
@@ -106,12 +123,7 @@ export const Upload: React.FC<IUploadProps> = ({
         body="Are you sure you want to remove this file?  You will still need to save before it is deleted."
         confirmText="Yes, Remove It"
         onConfirm={() => {
-          if (!!fileRef.current) {
-            nativeInputValueSetter?.call(fileRef.current, '');
-            const event = new Event('change', { bubbles: true });
-            fileRef.current.dispatchEvent(event);
-          }
-          setFile(undefined);
+          onDelete();
           toggle();
         }}
       />

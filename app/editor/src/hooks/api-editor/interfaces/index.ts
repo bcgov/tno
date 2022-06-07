@@ -16,6 +16,8 @@ export * from './IContentTypeModel';
 export * from './IDataLocationModel';
 export * from './IDataSourceModel';
 export * from './IFileReferenceModel';
+export * from './IFolderModel';
+export * from './IItemModel';
 export * from './ILicenseModel';
 export * from './ILookupModel';
 export * from './ILookupModel';

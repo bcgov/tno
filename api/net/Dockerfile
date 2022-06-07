@@ -35,6 +35,11 @@ RUN mkdir /data
 VOLUME /data
 RUN chmod -R 0777 /data
 
+# This volume is the local storage for capture A/V files.
+RUN mkdir /av
+VOLUME /av
+RUN chmod -R 0777 /av
+
 USER appuser
 ENTRYPOINT ["/app/entrypoint.sh"]
 

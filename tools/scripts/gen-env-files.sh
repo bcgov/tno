@@ -204,7 +204,10 @@ ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
-Storage__UploadPath=/data
+# Only required when running in devcontainer for debugging.
+# Storage__UploadPath=uploads
+# Storage__CapturePath=uploads
+# Keycloak__Issuer=http://localhost:$portKeycloak/auth/realms/tno
 
 ELASTIC_URIS=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser

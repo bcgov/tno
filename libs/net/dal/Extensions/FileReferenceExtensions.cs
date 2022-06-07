@@ -53,7 +53,7 @@ public static class FileReferenceExtensions
         // TODO: Handle when the original file uploaded has different path than the new one.
         var dataConnection = JsonSerializer.Deserialize<Dictionary<string, object>>(location.Connection) ?? new Dictionary<string, object>();
         var connectionPath = dataConnection.ContainsKey("path") ? $"{((string?)dataConnection["path"])?.RemoveStartAndEnd("/")}" : "";
-        var path = Path.Combine(storageConfig.GetPath(), connectionPath);
+        var path = Path.Combine(storageConfig.GetUploadPath(), connectionPath);
         return path.EndsWith('/') ? path : $"{path}/";
     }
 }

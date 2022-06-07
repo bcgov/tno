@@ -165,6 +165,8 @@ public class CaptureAction : CommandAction<CaptureOptions>
         var fullname = $"{schedule.StartAt?.Hours:00}-{schedule.StartAt?.Minutes:00}-{schedule.StartAt?.Seconds:00}-{name}";
 
         // If the file already exists, create a new version.
+        // This ensures we don't overwrite a prior recording.
+        // If multiple services are sharing the same pvc it will result in multiple versions of the same capture.
         var versions = Directory.GetFiles(path, $"{fullname}*{ext}").Length;
         return Path.Combine(path, $"{fullname}{(versions == 0 ? "" : $"-{versions}")}{ext}");
     }
