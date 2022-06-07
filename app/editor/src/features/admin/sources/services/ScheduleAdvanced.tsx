@@ -1,7 +1,6 @@
-import { setIn, useFormikContext } from 'formik';
+import { FormikTouched, setIn, setNestedObjectValues, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, IScheduleModel, ScheduleTypeName } from 'hooks/api-editor';
-import { AdvancedScheduleSchema } from 'hooks/api-editor/validation';
 import React from 'react';
 import { Button, ButtonVariant } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
@@ -16,7 +15,7 @@ import * as styled from './styled';
 interface IScheduleAdvancedProps {}
 
 export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
-  const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
+  const { values, setFieldValue, validateForm, setTouched } = useFormikContext<IDataSourceModel>();
   const { field } = useNamespace('schedules');
 
   const [index, setIndex] = React.useState<number>();
@@ -39,9 +38,13 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
   const handleDone = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     if (index !== undefined) {
       try {
-        // TODO: Validation doesn't work.
-        await AdvancedScheduleSchema.validate(values.schedules[index], { abortEarly: false });
-        setIndex(undefined);
+        // Mock what formik does on submit, values must be "touched" for validation to fire.
+        const errors = await validateForm();
+        if (Object.keys(errors).length === 0) {
+          setIndex(undefined);
+        } else {
+          setTouched(setNestedObjectValues<FormikTouched<IDataSourceModel>>(errors, true));
+        }
       } catch (error) {
         if (error instanceof ValidationError) {
           error.inner.reduce((formError, innerError) => {

@@ -1,4 +1,4 @@
-import { FieldSize, Text, TimeInput } from 'components/form';
+import { FieldSize } from 'components/form';
 import {
   FormikCheckbox,
   FormikHidden,
@@ -6,6 +6,7 @@ import {
   FormikText,
   FormikTextArea,
 } from 'components/formik';
+import { FormikTimeInput } from 'components/formik/timeinput';
 import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
@@ -54,7 +55,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
           <FormikTextArea label="Description" name={field('description')} />
           <Row nowrap className="timing">
             <p>Start the service at</p>
-            <TimeInput
+            <FormikTimeInput
               name={field('startAt')}
               value={getIn(values, field('startAt')) ?? ''}
               width={FieldSize.Tiny}
@@ -63,7 +64,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
               required
             />
             <p>and stop it at</p>
-            <TimeInput
+            <FormikTimeInput
               name={field('stopAt')}
               value={getIn(values, field('stopAt')) ?? ''}
               width={FieldSize.Tiny}
@@ -74,7 +75,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
             <p>on the following days;</p>
           </Row>
           <Row>
-            <Text
+            <FormikText
               name={field('delayMS')}
               label="Delay (seconds)"
               type="number"

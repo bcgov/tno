@@ -14,13 +14,25 @@ export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.s
   name: Yup.string()
     .required('Name is a required field')
     .test('length', 'Maximum length is 50', (val) => (val?.length ?? 0) <= 50),
-  delayMS: Yup.number().defined(),
+  delayMS: Yup.number().defined('Must be defined'),
   runOn: Yup.date()
     .optional()
     .default(undefined)
     .transform((curr, orig) => (!orig ? undefined : curr)),
-  startAt: Yup.string().optional().default(undefined),
-  stopAt: Yup.string().optional().default(undefined),
+  stopAt: Yup.string().when('scheduleType', (scheduleType) => {
+    if (scheduleType === ScheduleTypeName.Daily || scheduleType === ScheduleTypeName.Advanced) {
+      return Yup.string().required(`Required for ${scheduleType} schedules.`);
+    } else {
+      return Yup.string().optional().default(undefined);
+    }
+  }),
+  startAt: Yup.string().when('scheduleType', (scheduleType) => {
+    if (scheduleType === ScheduleTypeName.Daily || scheduleType === ScheduleTypeName.Advanced) {
+      return Yup.string().required(`Required for ${scheduleType} schedules.`);
+    } else {
+      return Yup.string().optional().default(undefined);
+    }
+  }),
   repeat: Yup.number().defined(),
   runOnWeekDays: Yup.string().defined(),
   runOnMonths: Yup.string().defined(),
