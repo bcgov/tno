@@ -40,11 +40,7 @@ public class FolderModel
         var files = System.IO.Directory.GetFileSystemEntries(safePath);
         foreach (var fullName in files)
         {
-            if (fullName.FileExists())
-            {
-                result.Add(new ItemModel(fullName));
-            }
-            else if (fullName.DirectoryExists())
+            if (fullName.FileExists() || fullName.DirectoryExists())
             {
                 result.Add(new ItemModel(fullName));
             }
