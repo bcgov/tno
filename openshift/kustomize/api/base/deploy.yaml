@@ -38,6 +38,9 @@ spec:
         - name: file-storage
           persistentVolumeClaim:
             claimName: file-storage
+        - name: av-storage
+          persistentVolumeClaim:
+            claimName: av-storage
       containers:
         - name: api
           image: ""
@@ -48,6 +51,8 @@ spec:
           volumeMounts:
             - name: file-storage
               mountPath: /data
+            - name: av-storage
+              mountPath: /av
           resources:
             requests:
               cpu: 20m
@@ -61,6 +66,8 @@ spec:
 
             - name: Storage__UploadPath
               value: /data
+            - name: Storage__CapturePath
+              value: /av
 
             - name: Keycloak__Authority
               valueFrom:

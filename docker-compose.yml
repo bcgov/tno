@@ -179,7 +179,8 @@ services:
       - database
       - keycloak
     volumes:
-      - tno-upload:/data
+      - tno-api-data:/data
+      - tno-av-data:/av
     networks:
       - tno
     healthcheck:
@@ -240,14 +241,14 @@ services:
 
 ####################### Volumes Definition #######################
 volumes:
-  tno-audio-data:
-    name: tno-audio-data
   tno-database-data:
     name: tno-database-data
   tno-elastic-data:
     name: tno-elastic-data
-  tno-upload:
-    name: tno-upload
+  tno-api-data:
+    name: tno-api-data
+  tno-av-data:
+    name: tno-av-data
 
   tno-azure-storage-data:
     name: tno-azure-storage-data

@@ -13,6 +13,7 @@ export * from './useApiRoles';
 export * from './useApiSeries';
 export * from './useApiSourceActions';
 export * from './useApiSourceMetrics';
+export * from './useApiStorage';
 export * from './useApiTags';
 export * from './useApiTonePools';
 export * from './useApiUsers';

@@ -50,7 +50,7 @@ services:
     networks:
       - tno
     volumes:
-      - tno-file-data:/data
+      - tno-av-data:/data
     healthcheck:
       test: curl -s -f http://localhost:8081/health || exit 1
       interval: 1m
@@ -79,7 +79,7 @@ services:
     networks:
       - tno
     volumes:
-      - tno-file-data:/data
+      - tno-av-data:/data
     healthcheck:
       test: curl -s -f http://localhost:8081/health || exit 1
       interval: 1m
@@ -140,7 +140,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-
-volumes:
-  tno-file-data:
-    name: tno-file-data

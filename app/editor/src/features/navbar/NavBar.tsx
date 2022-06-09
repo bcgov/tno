@@ -10,7 +10,8 @@ import { NavBarGroup, NavBarItem } from 'tno-core/dist/components/navbar';
 export const NavBar: React.FC = () => {
   const location = useLocation();
 
-  const showEditor = location.pathname.startsWith('/contents');
+  const showEditor =
+    location.pathname.startsWith('/contents') || location.pathname.startsWith('/storage');
   const showAdmin = location.pathname.startsWith('/admin');
 
   return (
@@ -25,6 +26,7 @@ export const NavBar: React.FC = () => {
         {showEditor && (
           <Row>
             <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
+            <NavBarItem navigateTo="/storage" label="Storage" claim={Claim.editor} />
           </Row>
         )}
         {showAdmin && (
