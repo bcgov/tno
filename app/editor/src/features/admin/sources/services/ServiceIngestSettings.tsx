@@ -6,8 +6,9 @@ import React from 'react';
 import { ActionMeta } from 'react-select';
 import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
-import { Col, Row } from 'tno-core';
-import { getSortableOptions } from 'utils';
+import { useDataSources } from 'store/hooks/admin';
+import { Col, Row, Show } from 'tno-core';
+import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { Connection } from '../connections';
 import * as styled from './styled';
@@ -17,6 +18,12 @@ interface IServiceIngestSettingsProps {}
 export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
+  const [{ dataSources }, api] = useDataSources();
+
+  const [init, setInit] = React.useState(true);
+  const [sources, setSources] = React.useState(
+    getDataSourceOptions(dataSources, [new OptionItem('No Parent', 0)]),
+  );
 
   const showKafkaTopic = values.connection.serviceType !== 'stream';
   const users = [
@@ -24,6 +31,17 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
     ...lookups.users.map((u) => new OptionItem(u.username, u.id)),
   ];
   const contentTypes = getSortableOptions(lookups.contentTypes);
+  const dataLocations = getSortableOptions(lookups.dataLocations);
+
+  React.useEffect(() => {
+    if (init && !dataSources.length) {
+      api.findDataSources().then((page) => {
+        setSources(getDataSourceOptions(page.items, [new OptionItem('No Parent', 0)]));
+      });
+      setInit(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataSources.length, init]);
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
@@ -58,6 +76,16 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
       </p>
       <Row colGap="1em" nowrap>
         <Col flex="1 1">
+          <Show visible={values.connection.serviceType === 'clip'}>
+            <FormikSelect
+              label="Capture Source"
+              name="parentId"
+              tooltip="Source of capture files for this clip service"
+              options={sources}
+              placeholder={values.connection.serviceType === 'clip' ? 'required' : 'optional'}
+              required={values.connection.serviceType === 'clip'}
+            />
+          </Show>
           <FormikSelect
             label="Content Type"
             name="contentTypeId"
@@ -65,6 +93,13 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
             options={contentTypes}
             required
             onChange={handleContentTypeChange}
+          />
+          <FormikSelect
+            label="Data Location"
+            name="dataLocationId"
+            tooltip="The physical location that data is stored"
+            options={dataLocations}
+            required
           />
           <FormikSelect
             label="Owner"

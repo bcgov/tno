@@ -1,4 +1,4 @@
-import { FieldSize, IOptionItem, OptionItem } from 'components/form';
+import { IOptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
@@ -6,9 +6,8 @@ import React from 'react';
 import { ActionMeta } from 'react-select';
 import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
-import { useDataSources } from 'store/hooks/admin';
 import { Col } from 'tno-core/dist/components/flex';
-import { getDataSourceOptions, getSortableOptions } from 'utils';
+import { getSortableOptions } from 'utils';
 
 import { DataSourceActions } from '.';
 import * as styled from './styled';
@@ -18,26 +17,9 @@ interface IDataSourceDetailsProps {}
 export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
-  const [{ dataSources }, api] = useDataSources();
-
-  const [init, setInit] = React.useState(true);
-  const [sources, setSources] = React.useState(
-    getDataSourceOptions(dataSources, [new OptionItem('No Parent', 0)]),
-  );
 
   const mediaTypes = getSortableOptions(lookups.mediaTypes);
   const licenses = getSortableOptions(lookups.licenses);
-  const dataLocations = getSortableOptions(lookups.dataLocations);
-
-  React.useEffect(() => {
-    if (init && !dataSources.length) {
-      api.findDataSources().then((page) => {
-        setSources(getDataSourceOptions(page.items, [new OptionItem('No Parent', 0)]));
-      });
-      setInit(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataSources.length, init]);
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
@@ -100,22 +82,6 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
           tooltip="Manage the length of time content will be stored"
           options={licenses}
           required
-        />
-        <FormikSelect
-          label="Data Location"
-          name="dataLocationId"
-          tooltip="The physical location that data is stored"
-          options={dataLocations}
-          required
-        />
-        <FormikSelect
-          label="Parent Data Source"
-          name="parentId"
-          tooltip="Organize related data sources"
-          options={sources}
-          placeholder={values.connection.serviceType === 'clip' ? 'required' : 'optional'}
-          required={values.connection.serviceType === 'clip'}
-          width={FieldSize.Medium}
         />
       </Col>
       <Col>

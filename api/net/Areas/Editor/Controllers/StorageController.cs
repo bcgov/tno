@@ -114,7 +114,7 @@ public class StorageController : ControllerBase
     public IActionResult Stream(string path, [FromRoute] string? location = "capture")
     {
         var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
-        if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
+        if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
 
         var info = new ItemModel(safePath);
         var stream = System.IO.File.OpenRead(safePath);
@@ -136,7 +136,7 @@ public class StorageController : ControllerBase
     public IActionResult Download(string path, [FromRoute] string? location = "capture")
     {
         var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
-        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException("Does not exist");
+        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
         // TODO: download a full folder as a ZIP
         var info = new ItemModel(safePath);
@@ -161,10 +161,10 @@ public class StorageController : ControllerBase
     {
         var rootPath = _config.GetRootPath(location);
         var safePath = System.IO.Path.Combine(rootPath, path.MakeRelativePath());
-        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException("Does not exist");
+        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File does not exist: '{path}'");
 
         var safeDestination = System.IO.Path.Combine(rootPath, destination.MakeRelativePath());
-        if (safeDestination.FileExists()) throw new InvalidOperationException("File exists, cannot rename");
+        if (safeDestination.FileExists()) throw new InvalidOperationException("File already exists, cannot rename");
 
         var directory = Path.GetDirectoryName(safeDestination);
         if (directory?.DirectoryExists() == false)
@@ -190,7 +190,7 @@ public class StorageController : ControllerBase
     public IActionResult Delete(string path, [FromRoute] string? location = "capture")
     {
         var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
-        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException("Does not exist");
+        if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
         var info = new ItemModel(safePath);
         System.IO.File.Delete(safePath);

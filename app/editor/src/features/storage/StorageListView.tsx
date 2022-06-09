@@ -35,9 +35,7 @@ export const StorageListView: React.FC = (props) => {
   const selectItem = (item?: IItemModel) => {
     setItem(item);
     setStreamUrl(
-      !!item
-        ? `http://localhost:40080/api/editor/storage/stream?path=${folder.path}/${item.name}`
-        : undefined,
+      !!item ? `/api/editor/storage/stream?path=${folder.path}/${item.name}` : undefined,
     );
   };
 
