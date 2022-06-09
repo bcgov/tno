@@ -165,7 +165,20 @@ export const StorageListView: React.FC = (props) => {
       </Row>
       <Col className="video" alignItems="stretch">
         <video ref={videoRef} className={!streamUrl ? 'hidden' : ''} controls>
-          <source type="video/mp3" />
+          <source type="audio/m4a" />
+          <source type="audio/flac" />
+          <source type="audio/mp3" />
+          <source type="audio/mp4" />
+          <source type="audio/wav" />
+          <source type="audio/wma" />
+          <source type="audio/aac" />
+          <source type="video/wmv" />
+          <source type="video/mov" />
+          <source type="video/mpeg" />
+          <source type="video/mpg" />
+          <source type="video/avi" />
+          <source type="video/mp4" />
+          <source type="video/gif" />
           HTML5 Video is required for this example
         </video>
       </Col>
