@@ -2,13 +2,17 @@ using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
+using TNO.API.Areas.Editor.Models.Storage;
 using TNO.API.Areas.Editor.Models.Content;
 using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
+using TNO.DAL.Config;
 using TNO.Entities;
 using TNO.Entities.Models;
+using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -30,6 +34,7 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
+    private readonly StorageConfig _config;
     #endregion
 
     #region Constructors
@@ -38,10 +43,11 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
-    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService)
+    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService, IOptions<StorageConfig> options)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
+        _config = options.Value;
     }
     #endregion
 
@@ -184,6 +190,30 @@ public class ContentController : ControllerBase
 
         var stream = _fileReferenceService.Download(fileReference);
         return File(stream, fileReference.ContentType);
+    }
+
+    /// <summary>
+    /// Stream the file for the specified path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="location"></param>
+    /// <returns></returns>
+    [AllowAnonymous] // TODO: Temporary to test HTML 5 video
+    [HttpGet("stream")]
+    [HttpGet("{location}/stream")]
+    [Produces("application/octet-stream")]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult Stream(string path, [FromRoute] string? location = "capture")
+    {
+        var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
+        if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
+
+        var info = new ItemModel(safePath);
+        var stream = System.IO.File.OpenRead(safePath);
+        return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
     }
     #endregion
 }
