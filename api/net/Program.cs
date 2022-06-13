@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Prometheus;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
 using TNO.DAL;
@@ -237,6 +238,9 @@ app.UseMiddleware(typeof(ResponseTimeMiddleware));
 // app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors();
+
+app.UseMetricServer();
+app.UseHttpMetrics();
 
 app.UseMiddleware(typeof(LogRequestMiddleware));
 
