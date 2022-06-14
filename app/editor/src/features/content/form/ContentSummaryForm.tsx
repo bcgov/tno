@@ -49,9 +49,16 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [publishedOnTime, setPublishedOnTime] = React.useState<string>();
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
+  // Removed 'as IFile' awaiting type handling explanation
   const file = values.fileReferences.length
-    ? ({ name: values.fileReferences[0].fileName, size: values.fileReferences[0].size } as IFile)
+    ? {
+        name: values.fileReferences[0].fileName,
+        size: values.fileReferences[0].size,
+        path: values.fileReferences[0].path,
+      }
     : undefined;
+  const [streamUrl, setStreamUrl] = React.useState<string>();
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
@@ -79,10 +86,24 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
     setLicenseOptions(licenses.map((m: any) => new OptionItem(m.name, m.id)));
   }, [licenses]);
 
+  React.useEffect(() => {
+    if (!!streamUrl && !!videoRef.current) {
+      videoRef.current.src = streamUrl;
+    }
+  }, [streamUrl, videoRef]);
+
   const extractTags = (values: string[]) => {
     return tags
       .filter((tag) => values.some((value: string) => value.toLowerCase() === tag.id.toLowerCase()))
       .map((tag) => ({ ...tag }));
+  };
+
+  const setMedia = () => {
+    if (!!streamUrl) {
+      setStreamUrl('');
+    } else {
+      setStreamUrl(`http://localhost:40010/api/editor/contents/upload/stream?path=${file?.path}`);
+    }
   };
 
   return (
@@ -251,6 +272,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             id="upload"
             name="file"
             file={file}
+            setStreamUrl={setStreamUrl}
             onSelect={(e) => {
               const file = !!e.target?.files?.length ? e.target.files[0] : undefined;
               setFieldValue('file', file);
@@ -261,7 +283,22 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               download(values.id, file?.name ?? `${values.source}-${values.id}`);
             }}
           />
+          <Button
+            onClick={() => {
+              setMedia();
+            }}
+            style={{ marginTop: '2 px', marginLeft: '10px' }}
+            variant={ButtonVariant.secondary}
+            className={!file ? 'hidden' : ''}
+          >
+            {!!streamUrl ? 'Hide Player' : 'Show Player'}
+          </Button>
         </Row>
+        <Col className="video" alignItems="stretch">
+          <video ref={videoRef} className={!streamUrl ? 'hidden' : ''} controls>
+            HTML5 Video is required for this example
+          </video>
+        </Col>
         <Row style={{ marginTop: '2%' }}>
           <FormikText className="sm" name="prep" label="Prep Time (minutes)" type="number" />
           <Button

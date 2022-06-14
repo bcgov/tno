@@ -18,6 +18,7 @@ export interface IUploadProps
   onDownload?: () => void;
   file?: IFile;
   verifyDelete?: boolean;
+  setStreamUrl?: (url: string) => void;
 }
 
 /**
@@ -30,6 +31,7 @@ export const Upload: React.FC<IUploadProps> = ({
   className,
   file: initFile,
   verifyDelete = true,
+  setStreamUrl,
   onClick,
   onSelect,
   onDownload,
@@ -54,6 +56,7 @@ export const Upload: React.FC<IUploadProps> = ({
   const onDelete = () => {
     if (!!fileRef.current) {
       nativeInputValueSetter?.call(fileRef.current, '');
+      setStreamUrl?.('');
       const event = new Event('change', { bubbles: true });
       fileRef.current.dispatchEvent(event);
     }
