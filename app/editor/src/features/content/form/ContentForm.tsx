@@ -39,7 +39,7 @@ import {
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { ContentFormSchema } from '../validation';
-import { ContentActions, ContentSummaryForm, ContentTranscriptForm } from '.';
+import { ContentActions, ContentClipForm, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -362,6 +362,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             onClick={() => setActive('transcript')}
                             active={active === 'transcript'}
                           />
+                          <Tab
+                            label="Clips"
+                            onClick={() => setActive('clips')}
+                            active={active === 'clips'}
+                          />
                         </>
                       }
                     >
@@ -374,6 +379,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
+                      </Show>
+                      <Show visible={active === 'clips'}>
+                        <ContentClipForm content={content} />
                       </Show>
                     </Tabs>
                   </Show>

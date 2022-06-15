@@ -4,4 +4,5 @@ export interface IItemModel {
   isDirectory: boolean;
   size?: number;
   mimeType?: string;
+  modified?: string;
 }

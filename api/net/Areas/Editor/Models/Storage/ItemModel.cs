@@ -1,4 +1,5 @@
 using MimeTypes;
+using System.Globalization;
 
 namespace TNO.API.Areas.Editor.Models.Storage;
 
@@ -32,6 +33,12 @@ public class ItemModel
     /// get/set - The media-type of the file.
     /// </summary>
     public string? MimeType { get; set; }
+
+    /// <summary>
+    /// get/set - The media-type of the file.
+    /// </summary>
+    public string? modified { get; set; }
+
     #endregion
 
     #region Constructors
@@ -55,6 +62,7 @@ public class ItemModel
             var info = new System.IO.FileInfo(path);
             this.Size = info.Length;
             this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
+            this.modified = info.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.CreateSpecificCulture("en-US"));
         }
     }
     #endregion

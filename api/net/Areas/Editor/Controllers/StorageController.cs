@@ -1,4 +1,5 @@
 using System.Net;
+using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -195,6 +196,175 @@ public class StorageController : ControllerBase
         var info = new ItemModel(safePath);
         System.IO.File.Delete(safePath);
         return new JsonResult(info);
+    }
+
+    /// <summary>
+    /// Make a clip from the target file identified in the clip parameter.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="directory"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="clipNbr"></param>
+    /// <returns></returns>
+    [HttpGet("clip")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public IActionResult CreateClip(string fileName, string directory, int start, int end, int clipNbr, string target)
+    {
+        var path = _config.CapturePath + directory;
+        var process = GetClipProcess(fileName, path, start, end, clipNbr, target);
+
+        process.Start();
+        process.WaitForExit();
+
+        var listing = new FolderModel(_config.CapturePath, directory);
+        return new JsonResult(listing);
+    }
+
+    /// <summary>
+    /// Make a clip from the target file identified in the clip parameter.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="directory"></param>
+    /// <returns></returns>
+    [HttpPut("join")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public IActionResult JoinClips(string fileName, string directory, string target)
+    {
+        var safePath = System.IO.Path.Combine(_config.GetRootPath("storage"), directory.MakeRelativePath());
+        var format = Path.GetExtension(fileName).Replace(".", "");
+
+        var muxFile = GenerateMuxfile(fileName, safePath, format, target);
+        var process = GetJoinProcess(directory, fileName, safePath, muxFile, format, target);
+
+        process.Start();
+        process.WaitForExit();
+
+        System.IO.File.Delete(muxFile);
+
+        var listing = new FolderModel(_config.CapturePath, directory);
+        return new JsonResult(listing);
+    }
+    #endregion
+
+    #region Support Routines
+    /// <summary>
+    /// Get the process for the specified clip command.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="directory"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="clipNbr"></param>
+    /// <returns>System.Diagnostics.Process</returns>
+    protected virtual System.Diagnostics.Process GetClipProcess(string fileName, string directory, int start, int end, int clipNbr, string target)
+    {
+        var cmd = GenerateClipCommand(fileName, directory, start, end, clipNbr, target);
+        var process = new System.Diagnostics.Process();
+        process = InitializeProcess(process, cmd, "clip");
+
+        return process;
+    }
+
+    /// <summary>
+    /// Generate the command for the clip process.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="directory"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="clipNbr"></param>
+    /// <returns></returns>
+    protected string GenerateClipCommand(string fileName, string directory, int start, int end, int clipNbr, string target)
+    {
+        var format = Path.GetExtension(fileName).Replace(".", "");
+        var duration = end - start;
+        var input = directory + "/" + fileName;
+        var output = directory + "/" + target + "_" + clipNbr + "." + format;
+        var otherArgs = "-ab 64k -ar 22050 -vol 400";
+
+        return $"ffmpeg -ss {start} -f {format} -t {duration} -i {input} {otherArgs} -y {output}";
+    }
+
+    /// <summary>
+    /// Get the process for the specified clip command.
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <param name="fileName"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    protected virtual System.Diagnostics.Process GetJoinProcess(string directory, string fileName, string path, string muxFile, string format, string target)
+    {
+        var cmd = GenerateJoinCommand(directory, fileName, path, muxFile, format, target);
+        var process = new System.Diagnostics.Process();
+        process = InitializeProcess(process, cmd, "join");
+
+        return process;
+    }
+
+    /// <summary>
+    /// Get the process for the specified clip command.
+    /// </summary>
+    /// <param name="process"></param>
+    /// <param name="cmd"></param>
+    /// <param name="verb"></param>
+    /// <returns></returns>
+    protected virtual System.Diagnostics.Process InitializeProcess(System.Diagnostics.Process process, string cmd, string verb)
+    {
+        process.StartInfo.Verb = verb;
+        process.StartInfo.FileName = "/bin/sh";
+        process.StartInfo.Arguments = $"-c \"{cmd}\"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+        process.EnableRaisingEvents = true;
+
+        return process;
+    }
+
+    /// <summary>
+    /// Generate the command for the clip process.
+    /// </summary>
+    /// <param name="directory"></param>
+    /// <param name="fileName"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    protected string GenerateJoinCommand(string directory, string fileName, string path, string muxFile, string format, string target)
+    {
+        var input = directory + "/" + fileName;
+        var output = path + "/" + target + "-snippet." + format;
+
+        return $"ffmpeg -f concat -safe 0 -i {muxFile} {output}";
+    }
+
+    /// <summary>
+    /// Create a muxfile that joins multiple clips into a snippet.
+    /// </summary>
+    /// <param name="listing"></param>
+    /// <param name="fileName"></param>
+    /// <param name="format"></param>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    protected string GenerateMuxfile(string fileName, string safepath, string format, string target)
+    {
+        var clips = System.IO.Directory.GetFileSystemEntries(safepath, target + "_*." + format);
+        var path = "/tmp/" + target + ".txt";
+        Array.Sort(clips, string.CompareOrdinal);
+        var sw = System.IO.File.CreateText(path);
+
+        foreach (string file in clips)
+        {
+            sw.WriteLine("file " + file);
+        }
+
+        sw.Close();
+
+        return path;
     }
     #endregion
 }

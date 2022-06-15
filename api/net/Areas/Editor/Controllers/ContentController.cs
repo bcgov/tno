@@ -170,6 +170,40 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Attach an existing video/audio clip as the content of this snippet.
+    /// Only a single file can be linked to content, each new attachment will overwrite.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="version"></param>
+    /// <param name="files"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/attach")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> AttachFile([FromRoute] long id, [FromQuery] long version, [FromQuery] string path)
+    {
+        var content = _contentService.FindById(id);
+        if (content == null) return new JsonResult(new { Error = "Content does not exist" })
+        {
+            StatusCode = StatusCodes.Status400BadRequest
+        };
+
+        // If the content has a file reference, then update it.  Otherwise, add one.
+        content.Version = version;
+        // Attachment source is always "storage"
+        var safePath = System.IO.Path.Combine(_config.GetRootPath("storage"), path.MakeRelativePath());
+        if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
+
+        var file = new System.IO.FileInfo(safePath);
+        var reference = content.FileReferences.Any() ? new ContentFileReference(content.FileReferences.First(), file) : new ContentFileReference(content, file);
+        await _fileReferenceService.Attach(reference);
+
+        return new JsonResult(new ContentModel(content));
+    }
+
+    /// <summary>
     /// Find content for the specified 'id' and download the file it references.
     /// </summary>
     /// <param name="id"></param>

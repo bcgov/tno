@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
+import { FaOldRepublic } from 'react-icons/fa';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 import { extractFileName } from 'utils';
 
@@ -112,6 +113,44 @@ export const useApiStorage = (
       };
       return api.delete<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
+      );
+    },
+    clip: (
+      fileName: string,
+      directory: string,
+      start: string,
+      end: string,
+      clipNbr: number,
+      target: string,
+    ) => {
+      const params = {
+        fileName,
+        directory,
+        start,
+        end,
+        clipNbr,
+        target,
+      };
+      return api.get<IItemModel, AxiosResponse<IFolderModel, never>, any>(
+        `/editor/storage/clip?${toQueryString(params)}`,
+      );
+    },
+    join: (fileName: string, directory: string, target: string) => {
+      const params = {
+        fileName,
+        directory,
+        target,
+      };
+      return api.put<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
+        `/editor/storage/join?${toQueryString(params)}`,
+      );
+    },
+    attach: (id: number, path: string) => {
+      const params = {
+        path,
+      };
+      return api.put<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
+        `/editor/contents/${id}/attach?${toQueryString(params)}`,
       );
     },
   }).current;

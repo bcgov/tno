@@ -83,6 +83,32 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     }
 
     /// <summary>
+    /// Copy the file to the configured data location and add or update the specified file reference.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public async Task<FileReference> Attach(ContentFileReference model)
+    {
+        // TODO: Handle different data locations.
+        var path = model.GetFilePath(this.Context, _storageConfig);
+        var directory = Path.GetDirectoryName(path);
+        if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
+
+        var file = new System.IO.FileInfo(model.SourceFile);
+        file.CopyTo(path, true);
+
+        var entity = (FileReference)model;
+        if (model.Id == 0)
+            this.Context.Add(entity);
+        else
+            this.Context.Update(entity);
+
+        this.Context.CommitTransaction();
+        return entity;
+    }
+
+    /// <summary>
     /// Delete the specified file reference and the file from the configured data location.
     /// </summary>
     /// <param name="entity"></param>

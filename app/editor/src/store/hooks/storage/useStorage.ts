@@ -16,6 +16,16 @@ interface IStorageController {
   stream: (path: string, location?: string) => Promise<unknown>;
   move: (path: string, destination: string, location?: string) => Promise<IItemModel>;
   delete: (path: string, location?: string) => Promise<IItemModel>;
+  clip: (
+    fileName: string,
+    directory: string,
+    start: string,
+    end: string,
+    clipNbr: number,
+    target: string,
+  ) => Promise<IFolderModel>;
+  join: (directory: string, fileName: string, target: string) => Promise<IFolderModel>;
+  attach: (id: number, path: string) => Promise<IFolderModel>;
 }
 
 export const useStorage = (): IStorageController => {
@@ -51,6 +61,26 @@ export const useStorage = (): IStorageController => {
       },
       delete: async (path: string, location?: string) => {
         return await dispatch<IItemModel>('storage-delete', () => api.delete(path, location));
+      },
+      clip: async (
+        fileName: string,
+        directory: string,
+        start: string,
+        end: string,
+        clipNbr: number,
+        target: string,
+      ) => {
+        return await dispatch<IFolderModel>('storage-clip', () =>
+          api.clip(fileName, directory, start, end, clipNbr, target),
+        );
+      },
+      join: async (filename: string, directory: string, target: string) => {
+        return await dispatch<IFolderModel>('storage-join', () =>
+          api.join(filename, directory, target),
+        );
+      },
+      attach: async (id: number, path: string) => {
+        return await dispatch<IFolderModel>('storage-attach', () => api.attach(id, path));
       },
     }),
     [dispatch, api],
