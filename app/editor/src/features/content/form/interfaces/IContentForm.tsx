@@ -47,4 +47,5 @@ export interface IContentForm {
   edition: string;
   storyType: string;
   byline: string;
+  showOther?: boolean;
 }

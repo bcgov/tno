@@ -37,7 +37,8 @@ export const Modal = styled(Col)`
     position: relative;
     margin: 10% auto;
     border-radius: 3px;
-    max-width: 600px;
+    min-width: fit-content;
+    max-width: 750px;
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
   }

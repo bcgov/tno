@@ -25,9 +25,16 @@ import * as styled from './styled';
 export interface IContentFilterProps {
   search: (filter: IContentListFilter) => Promise<Page<IContentModel>>;
   onReady?: (isReady: boolean) => void;
+  updated?: boolean;
+  setUpdated?: (updated: boolean) => void;
 }
 
-export const ContentFilter: React.FC<IContentFilterProps> = ({ search, onReady }) => {
+export const ContentFilter: React.FC<IContentFilterProps> = ({
+  search,
+  onReady,
+  updated,
+  setUpdated,
+}) => {
   const [{ contentTypes, mediaTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
 
@@ -38,6 +45,13 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search, onReady }
 
   const printContentId = (contentTypeOptions.find((ct) => ct.label === 'Print')?.value ??
     0) as number;
+
+  React.useEffect(() => {
+    if (!!updated) {
+      search({ ...filter, pageIndex: 0, ...filterAdvanced });
+      setUpdated && setUpdated(false);
+    }
+  }, [updated, filter, storeFilterAdvanced, search, setUpdated, filterAdvanced]);
 
   React.useEffect(() => {
     setContentTypeOptions(getSortableOptions(contentTypes));

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Column,
   Row,
@@ -10,9 +11,9 @@ import {
   useSortBy,
   useTable,
 } from 'react-table';
-
 import { Row as FlexRow } from '../flex';
 import { Spinner } from '../spinners';
+
 import { Pager, SortIndicator } from '.';
 import * as styled from './styled';
 
@@ -191,6 +192,8 @@ export const GridTable = <T extends object = Record<string, unknown>>({
     onChangeSort(sortBy);
   }, [onChangeSort, sortBy]);
 
+  const { id } = useParams();
+
   return (
     <styled.GridTable className={`table${className ? ` ${className}` : ''}`} {...getTableProps()}>
       {Header && <Header {...instance} />}
@@ -215,7 +218,11 @@ export const GridTable = <T extends object = Record<string, unknown>>({
           {page.map((row) => {
             prepareRow(row);
             return (
-              <div {...row.getRowProps()} onClick={() => onRowClick && onRowClick(row)}>
+              <div
+                className={Number(id) === (row.original as any).id ? 'active' : ''}
+                {...row.getRowProps()}
+                onClick={() => onRowClick && onRowClick(row)}
+              >
                 {row.cells.map((cell) => {
                   return (
                     <div {...cell.getCellProps()}>

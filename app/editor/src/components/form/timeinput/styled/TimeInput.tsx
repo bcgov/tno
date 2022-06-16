@@ -25,7 +25,9 @@ export const TimeInput = styled(Col)`
     }
 
     border-radius: 0.25rem;
-    height: 2.125rem;
+    height: 2.225rem;
+    border: 1px solid #606060;
+    line-height: 1.6;
   }
 
   p[role='alert'] {

@@ -11,11 +11,13 @@ export const NavBar: React.FC = () => {
   const location = useLocation();
 
   const showEditor =
-    location.pathname.startsWith('/contents') || location.pathname.startsWith('/storage');
+    location.pathname.startsWith('/contents') ||
+    location.pathname.startsWith('/storage') ||
+    location.pathname.startsWith('/combined');
   const showAdmin = location.pathname.startsWith('/admin');
-
+  const [activeHover, setActiveHover] = React.useState(false);
   return (
-    <>
+    <div onMouseOver={() => setActiveHover(true)} onMouseLeave={() => setActiveHover(false)}>
       <NavBarGroup className="navbar">
         <Row>
           <NavBarItem navigateTo="/contents" label="Editor" claim={Claim.editor} />
@@ -23,13 +25,13 @@ export const NavBar: React.FC = () => {
         </Row>
       </NavBarGroup>
       <NavBarGroup className="navbar">
-        {showEditor && (
+        {showEditor && activeHover && (
           <Row>
             <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
             <NavBarItem navigateTo="/storage" label="Storage" claim={Claim.editor} />
           </Row>
         )}
-        {showAdmin && (
+        {showAdmin && activeHover && (
           <Row>
             <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
             <NavBarItem
@@ -55,6 +57,6 @@ export const NavBar: React.FC = () => {
           </Row>
         )}
       </NavBarGroup>
-    </>
+    </div>
   );
 };

@@ -26,16 +26,19 @@ export const GridTable = styled.div`
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
     border-bottom: solid 1px #efefef;
-
+    &.active {
+      background-color: #38598a;
+      color: white;
+    }
     &:not(.rh):hover {
       background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15));
     }
 
-    &:nth-child(even) {
+    &:nth-child(even):not(.active) {
       background-color: ${(props) => props.theme.css.tableEvenRowColor ?? '#fff'};
     }
 
-    &:nth-child(odd) {
+    &:nth-child(odd):not(.active) {
       background-color: ${(props) => props.theme.css.tableOddRowColor ?? '#fff'};
     }
   }

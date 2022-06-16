@@ -4,22 +4,19 @@ import { Center } from 'tno-core';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 import { formatIdirUsername } from 'utils';
 
-export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
+export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
   {
     id: 'headline',
     Header: () => <Center>Headline</Center>,
     accessor: 'headline',
-    width: 300,
-    Cell: ({ value }) => (
-      <Ellipsis>
-        <Center>{value}</Center>
-      </Ellipsis>
-    ),
+    width: 180,
+    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     id: 'source',
     Header: () => <Center>Source</Center>,
     accessor: 'source',
+    width: 100,
     Cell: ({ value }) => (
       <Ellipsis>
         <Center>{value}</Center>
@@ -29,7 +26,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'mediaType',
     Header: () => <Center>Type</Center>,
-    width: 125,
+    width: 100,
     accessor: (row) => row.mediaType?.name,
     Cell: ({ value }: { value: string }) => (
       <Ellipsis>
@@ -38,21 +35,16 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     ),
   },
   {
-    id: 'section',
-    Header: () => <Center>Section/Page</Center>,
-    width: 125,
-    accessor: (row) =>
-      row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
-    Cell: ({ value }: { value: string }) => (
-      <Ellipsis>
-        <Center>{value}</Center>
-      </Ellipsis>
-    ),
+    id: 'page',
+    Header: () => <Center>Page</Center>,
+    width: 70,
+    accessor: (row) => row.page,
+    Cell: ({ value }: { value: string }) => <Center>{value}</Center>,
   },
   {
     id: 'ownerId',
     Header: () => <Center>Username</Center>,
-    width: 125,
+    width: 100,
     accessor: (row) => row.owner?.displayName,
     Cell: ({ value }: { value: string }) => (
       <Ellipsis>
@@ -68,11 +60,15 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Cell: ({ value }: { value: string }) => <Center>{value}</Center>,
   },
   {
-    id: 'publishedOn',
-    Header: 'Date',
+    id: 'createdOn',
+    Header: () => <Center>Date</Center>,
     width: 100,
-    accessor: (row) => row.publishedOn ?? row.createdOn,
-    Cell: ({ value }: any) => <Date value={value} />,
+    accessor: (row) => row.createdOn,
+    Cell: ({ value }: any) => (
+      <Center>
+        <Date value={value} />
+      </Center>
+    ),
   },
   {
     id: 'use',
