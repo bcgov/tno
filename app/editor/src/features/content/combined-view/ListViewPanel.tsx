@@ -1,6 +1,6 @@
 import { IContentModel } from 'hooks';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useApp, useContent } from 'store/hooks';
 import { Page, PagedTable } from 'tno-core';
@@ -13,7 +13,7 @@ export interface IListViewPanel {}
 export const ListViewPanel: React.FC<IListViewPanel> = () => {
   const navigate = useNavigate();
   const [{ filter, content }, { storeFilter }] = useContent();
-
+  const { id } = useParams();
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
       if (filter.pageIndex !== pi || filter.pageSize !== ps)
@@ -45,6 +45,7 @@ export const ListViewPanel: React.FC<IListViewPanel> = () => {
     <styled.ListViewPanel>
       <PagedTable
         columns={condensedColumns}
+        activeId={Number(id)}
         page={page}
         isLoading={!!requests.length}
         sorting={{ sortBy: filter.sort }}

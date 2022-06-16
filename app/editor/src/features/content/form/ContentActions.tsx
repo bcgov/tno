@@ -5,7 +5,6 @@ import { useNamespace } from 'hooks';
 import { IActionModel, IContentActionModel, ValueType } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { Row } from 'tno-core';
 
 import { IContentForm } from './interfaces';
 
@@ -94,14 +93,12 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           />
         )}
         {a.valueType === ValueType.String && (
-          <Row>
-            <FormikText
-              name={field('value', index)}
-              label={a.valueLabel}
-              disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
-              required={!!hidden.find((h) => h.id === a.id)?.value}
-            />
-          </Row>
+          <FormikText
+            name={field('value', index)}
+            label={a.valueLabel}
+            disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+            required={!!hidden.find((h) => h.id === a.id)?.value}
+          />
         )}
         {a.valueType === ValueType.Text && (
           <FormikTextArea

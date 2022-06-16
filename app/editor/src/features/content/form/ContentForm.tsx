@@ -37,21 +37,15 @@ import { toForm, toModel } from './utils';
 export interface IContentFormProps {
   /** The content type this form will create */
   contentType?: ContentType;
-  /** whether or not to used the condensed version of the form */
-  condensed?: boolean;
 }
 
 /**
  * Content Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC<IContentFormProps> = ({
-  contentType = ContentType.Snippet,
-  condensed,
-}) => {
+export const ContentForm: React.FC<IContentFormProps> = ({ contentType = ContentType.Snippet }) => {
   const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
-  const [otherSource, setOtherSource] = React.useState(false);
   const { id } = useParams();
   const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries, getUsers }] =
     useLookup();
@@ -194,7 +188,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   <Col flex="1 1 auto">
                     <FormikText
                       name="headline"
-                      width={!!condensed ? FieldSize.Big : FieldSize.Large}
+                      width={FieldSize.Large}
                       required
                       label="Headline"
                       value={props.values.headline}
@@ -222,58 +216,37 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         isDisabled={!!props.values.otherSource}
                       />
                       <FormikHidden name="source" />
-                      <Show visible={!condensed}>
-                        <FormikText
-                          name="otherSource"
-                          label="Other Source"
-                          width={FieldSize.Big}
-                          onChange={(e) => {
-                            const value = e.currentTarget.value;
-                            props.setFieldValue('otherSource', value);
-                            props.setFieldValue('source', value);
-                            if (!!value) {
-                              props.setFieldValue('dataSourceId', undefined);
-                            }
-                          }}
-                          required={!!props.values.otherSource}
-                        />
-                      </Show>
+                      <FormikText
+                        name="otherSource"
+                        label="Other Source"
+                        width={FieldSize.Big}
+                        onChange={(e) => {
+                          const value = e.currentTarget.value;
+                          props.setFieldValue('otherSource', value);
+                          props.setFieldValue('source', value);
+                          if (!!value) {
+                            props.setFieldValue('dataSourceId', undefined);
+                          }
+                        }}
+                        required={!!props.values.otherSource}
+                      />
                     </Row>
                     <Row>
-                      <Show visible={!!condensed}>
-                        <FormikCheckbox
-                          name="showOther"
-                          label="Other Source"
-                          checked={props.values.showOther}
-                          onChange={(e: any) => {
-                            if (e.target.checked) {
-                              setOtherSource(true);
-                            } else {
-                              setOtherSource(!otherSource);
-                            }
-                            props.setFieldValue('showOther', e.target.checked);
-                          }}
-                        />
-                      </Show>
+                      <FormikText
+                        name="otherSource"
+                        label="Other Source"
+                        width={FieldSize.Big}
+                        onChange={(e) => {
+                          const value = e.currentTarget.value;
+                          props.setFieldValue('otherSource', value);
+                          props.setFieldValue('source', value);
+                          if (!!value) {
+                            props.setFieldValue('dataSourceId', undefined);
+                          }
+                        }}
+                        required={!!props.values.otherSource}
+                      />
                     </Row>
-                    <Show visible={otherSource && !!condensed}>
-                      <Row>
-                        <FormikText
-                          name="otherSource"
-                          label="Other Source"
-                          width={FieldSize.Big}
-                          onChange={(e) => {
-                            const value = e.currentTarget.value;
-                            props.setFieldValue('otherSource', value);
-                            props.setFieldValue('source', value);
-                            if (!!value) {
-                              props.setFieldValue('dataSourceId', undefined);
-                            }
-                          }}
-                          required={!!props.values.otherSource}
-                        />
-                      </Row>
-                    </Show>
                     <Row>
                       <Col grow={1}>
                         <FormikSelect
@@ -283,7 +256,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             ''
                           }
                           label="Media Type"
-                          width={!!condensed ? FieldSize.Big : FieldSize.Large}
+                          width={FieldSize.Large}
                           options={mediaTypeOptions}
                           required
                         />
@@ -307,7 +280,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       <FormikText
                         name="sourceURL"
                         label="Source URL"
-                        width={!!condensed ? FieldSize.Big : FieldSize.Large}
+                        width={FieldSize.Large}
                         tooltip="The URL to the original source story"
                         onChange={(e) => {
                           props.handleChange(e);

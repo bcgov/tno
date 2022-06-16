@@ -6,6 +6,8 @@ export interface IPagedTableProps<CT extends object = Record<string, unknown>>
    * A page of data.
    */
   page: IPage<CT>;
+  /** Pass the table the active row id to highlight it */
+  activeId?: number;
 }
 
 /**
@@ -22,12 +24,14 @@ export const PagedTable = <CT extends object = Record<string, unknown>>({
   isLoading,
   header,
   sorting,
+  activeId,
 }: IPagedTableProps<CT>) => {
   return (
     <GridTable
       columns={columns}
       data={page.items}
       isLoading={isLoading}
+      activeId={activeId}
       header={header}
       paging={{
         manualPagination: true,
