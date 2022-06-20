@@ -56,55 +56,66 @@ public class ClipAction : CommandAction<ClipOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
+    /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null, CancellationToken cancellationToken = default)
+    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
 
         // Each schedule will have its own process.
         foreach (var schedule in GetSchedules(manager.DataSource))
         {
-            var process = await GetProcessAsync(manager, schedule);
-            var isRunning = IsRunning(process);
-
-            // The assumption is that if a file has been created it was successfully generated.
-            // TODO: Handle failures when a clip file was created but errored out.
-            if (name == "start" && !isRunning && !FileExists(manager, schedule))
+            try
             {
-                // Fetch content reference.
-                var content = CreateContentReference(manager.DataSource, schedule);
-                var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
-                var sendMessage = true;
+                var process = await GetProcessAsync(manager, schedule);
+                var isRunning = IsRunning(process);
 
-                if (reference == null)
+                // The assumption is that if a file has been created it was successfully generated.
+                // TODO: Handle failures when a clip file was created but errored out.
+                if (name == "start" && !isRunning && !FileExists(manager, schedule))
                 {
-                    reference = await this.Api.AddContentReferenceAsync(content);
+                    // Fetch content reference.
+                    var content = CreateContentReference(manager.DataSource, schedule);
+                    var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
+                    var sendMessage = true;
+
+                    if (reference == null)
+                    {
+                        reference = await this.Api.AddContentReferenceAsync(content);
+                    }
+                    else if (reference.WorkflowStatus == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                    {
+                        // If another process has it in progress only attempt to do an import if it's
+                        // more than an 2 minutes old. Assumption is that it is stuck.
+                        reference = await this.Api.UpdateContentReferenceAsync(reference);
+                    }
+                    else sendMessage = false;
+
+                    if (sendMessage && reference != null)
+                    {
+                        // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
+                        await RunProcessAsync(process, cancellationToken);
+                        var messageResult = await SendMessageAsync(manager.DataSource, schedule, reference);
+
+                        reference.WorkflowStatus = (int)WorkflowStatus.Received;
+                        reference.Partition = messageResult.Partition;
+                        reference.Offset = messageResult.Offset;
+                        await this.Api.UpdateContentReferenceAsync(reference);
+                    }
                 }
-                else if (reference.WorkflowStatus == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                else if (name == "stop")
                 {
-                    // If another process has it in progress only attempt to do an import if it's
-                    // more than an 2 minutes old. Assumption is that it is stuck.
-                    reference = await this.Api.UpdateContentReferenceAsync(reference);
-                }
-                else sendMessage = false;
-
-                if (sendMessage && reference != null)
-                {
-                    // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
-                    await RunProcessAsync(process, cancellationToken);
-                    var messageResult = await SendMessageAsync(manager.DataSource, schedule, reference);
-
-                    reference.WorkflowStatus = (int)WorkflowStatus.Received;
-                    reference.Partition = messageResult.Partition;
-                    reference.Offset = messageResult.Offset;
-                    await this.Api.UpdateContentReferenceAsync(reference);
+                    await StopProcessAsync(process, cancellationToken);
+                    RemoveProcess(manager, schedule);
                 }
             }
-            else if (name == "stop")
+            catch (Exception ex)
             {
-                await StopProcessAsync(process, cancellationToken);
-                RemoveProcess(manager, schedule);
+                if ((ex is MissingFileException || (ex is AggregateException && ex.InnerException is MissingFileException)) &&
+                    !manager.DataSource.GetConnectionValue<bool>("throwOnMissingFile")) continue;
+
+                throw;
             }
         }
     }

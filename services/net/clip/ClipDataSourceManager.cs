@@ -52,18 +52,18 @@ public class ClipDataSourceManager : CommandDataSourceManager<ClipOptions>
 
                 await PostRunAsync();
             }
-            catch (MissingFileException ex)
+            catch (Exception ex)
             {
-                var throwOnMissingFile = this.DataSource.GetConnectionValue<bool>("throwOnMissingFile");
-                if (throwOnMissingFile)
+                if ((ex is MissingFileException || (ex is AggregateException && ex.InnerException is MissingFileException)) &&
+                    !this.DataSource.GetConnectionValue<bool>("throwOnMissingFile"))
+                {
+                    _logger.LogWarning(ex, "File missing for clip service");
+                }
+                else
+                {
+                    this.IsRunning = false;
                     throw;
-
-                _logger.LogWarning(ex, "File missing for clip service");
-            }
-            catch
-            {
-                this.IsRunning = false;
-                throw;
+                }
             }
         }
     }

@@ -37,9 +37,10 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
+    /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync(IDataSourceIngestManager manager, string? name = null, CancellationToken cancellationToken = default)
+    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
 
