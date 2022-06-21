@@ -34,6 +34,7 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
       <GridTable
         columns={dataSourceColumns}
         isLoading={!!requests.length}
+        sorting={{ sortBy: [{ id: 'id', desc: false }] }}
         data={items}
         header={DataSourceFilter}
         onRowClick={(row) => navigate(`${row.original.id}`)}
