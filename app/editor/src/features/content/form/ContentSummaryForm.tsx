@@ -57,7 +57,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         path: values.fileReferences[0].path,
       }
     : undefined;
-  const [streamUrl, setStreamUrl] = React.useState<string>();
+  const [streamUrl, setStreamUrl] = React.useState<string>('');
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
@@ -99,11 +99,8 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   };
 
   const setMedia = () => {
-    if (!!streamUrl) {
-      setStreamUrl('');
-    } else {
-      setStreamUrl(`http://localhost:40010/api/editor/contents/upload/stream?path=${file?.path}`);
-    }
+    setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/upload/stream?path=${file?.path}`);
+    let x = 1;
   };
 
   return (
@@ -272,7 +269,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             id="upload"
             name="file"
             file={file}
-            setStreamUrl={setStreamUrl}
             onSelect={(e) => {
               const file = !!e.target?.files?.length ? e.target.files[0] : undefined;
               setFieldValue('file', file);
