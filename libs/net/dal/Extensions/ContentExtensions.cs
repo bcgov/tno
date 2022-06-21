@@ -1,5 +1,7 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using TNO.Core.Extensions;
+using TNO.DAL.Config;
 using TNO.Entities;
 
 namespace TNO.DAL.Extensions;
@@ -164,5 +166,53 @@ public static class ContentExtensions
         }
         context.ResetVersion(original);
         return context;
+    }
+
+
+    /// <summary>
+    /// Determine the full path to the file including the configured storage location.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="path">The path to the file not including the storage location.</param>
+    /// <param name="context"></param>
+    /// <param name="storageConfig"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static string GetFilePath(this Content content, string path, TNOContext context, StorageConfig storageConfig)
+    {
+        return Path.Combine(content.GetStoragePath(context, storageConfig), path);
+    }
+
+    /// <summary>
+    /// Determine the full path to the file for the specified 'content' including the configured storage location.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="context"></param>
+    /// <param name="storageConfig"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public static string GetStoragePath(this Content content, TNOContext context, StorageConfig storageConfig)
+    {
+        // Determine the DataLocation that will be used to store the file.
+        var source = content.DataSource?.Code ?? content.Source;
+        if (String.IsNullOrWhiteSpace(source) && content.DataSourceId != null) source = context.DataSources.Find(content.DataSourceId)?.Code;
+
+        DataLocation location;
+        if (content.DataSource?.DataLocationId != null)
+            location = context.DataLocations.Find(content.DataSource.DataLocationId) ?? throw new ArgumentException("DataLocation does not exist");
+        else if (!String.IsNullOrWhiteSpace(source)) // This isn't an ideal situation, as it means the user can loosely link the datasource with the content.
+            location = context.DataSources
+                .Include(ds => ds.DataLocation)
+                .FirstOrDefault(ds => ds.Code.ToLower() == source.ToLower())?.DataLocation
+                ?? context.DataLocations.FirstOrDefault(dl => dl.Name == "Default") ?? throw new ArgumentException("The 'Default' DataLocation has not been configured");
+        else
+            location = context.DataLocations.FirstOrDefault(dl => dl.Name == "Default") ?? throw new ArgumentException("The 'Default' DataLocation has not been configured");
+
+        // TODO: Handle different data locations.
+        // TODO: Handle when the original file uploaded has different path than the new one.
+        var dataConnection = JsonSerializer.Deserialize<Dictionary<string, object>>(location.Connection) ?? new Dictionary<string, object>();
+        var connectionPath = dataConnection.ContainsKey("path") ? $"{((string?)dataConnection["path"])?.RemoveStartAndEnd("/")}" : "";
+        var path = Path.Combine(storageConfig.GetUploadPath(), connectionPath);
+        return path.EndsWith('/') ? path : $"{path}/";
     }
 }

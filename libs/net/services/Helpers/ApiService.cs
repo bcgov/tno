@@ -1,7 +1,10 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using MimeTypes;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
@@ -147,6 +150,27 @@ public class ApiService : IApiService
     {
         var url = new Uri(_options.ApiUrl, $"services/contents");
         return await _client.PostAsync<ContentModel>(url, JsonContent.Create(content));
+    }
+
+    /// <summary>
+    /// Make an AJAX request to the api to upload the file and link to specified content.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="version"></param>
+    /// <param name="file"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public async Task<ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/contents/{contentId}/upload?version={version}");
+        var fileContent = new StreamContent(file);
+        var ext = Path.GetExtension(fileName).Replace(".", "");
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(MimeTypeMap.GetMimeType(ext));
+        var form = new MultipartFormDataContent
+        {
+            { fileContent, "files", fileName }
+        };
+        return await _client.PostAsync<ContentModel>(url, form);
     }
     #endregion
 

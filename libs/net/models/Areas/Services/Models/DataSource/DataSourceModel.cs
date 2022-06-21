@@ -53,7 +53,7 @@ public class DataSourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int ContentTypeId { get; set; }
+    public int? ContentTypeId { get; set; }
 
     /// <summary>
     /// get/set -
@@ -151,7 +151,7 @@ public class DataSourceModel : AuditColumnsModel
         this.Description = entity.Description;
         this.IsEnabled = entity.IsEnabled;
         this.DataLocationId = entity.DataLocationId;
-        this.DataLocation = entity.DataLocation != null ? new DataLocationModel(entity.DataLocation) : null;
+        this.DataLocation = entity.DataLocation != null ? new DataLocationModel(entity.DataLocation, options) : null;
         this.ContentTypeId = entity.ContentTypeId;
         this.ContentType = entity.ContentType != null ? new ContentTypeModel(entity.ContentType) : null;
         this.MediaTypeId = entity.MediaTypeId;

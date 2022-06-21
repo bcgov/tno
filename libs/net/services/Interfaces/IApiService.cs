@@ -62,6 +62,16 @@ public interface IApiService
     public Task<ContentModel?> AddContentAsync(ContentModel content);
 
     /// <summary>
+    /// Make an AJAX request to the api to upload the file and link to specified content.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="version"></param>
+    /// <param name="file"></param>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    Task<ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName);
+
+    /// <summary>
     /// Make an AJAX request to the api to get the lookups.
     /// </summary>
     /// <returns></returns>

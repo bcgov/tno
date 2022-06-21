@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -46,8 +47,9 @@ public abstract class BaseService
     /// <param name="args"></param>
     public BaseService(string[] args)
     {
+        DotNetEnv.Env.Load();
         var builder = WebApplication.CreateBuilder(args);
-        this.Configuration = Configure(builder).Build();
+        this.Configuration = Configure(builder, args).Build();
         ConfigureServices(builder.Services);
         this.App = builder.Build();
         Console.OutputEncoding = Encoding.UTF8;
@@ -59,17 +61,20 @@ public abstract class BaseService
     /// <summary>
     /// Configure application.
     /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="args"></param>
     /// <returns></returns>
-    protected virtual IConfigurationBuilder Configure(WebApplicationBuilder builder)
+    protected virtual IConfigurationBuilder Configure(WebApplicationBuilder builder, string[]? args)
     {
-        DotNetEnv.Env.Load();
         string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
+        string urls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS") ?? "http://+:5000";
+        builder.WebHost.UseUrls(urls);
         return builder.Configuration
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .AddJsonFile($"appsettings.{environment}.json", optional: true)
-            .AddEnvironmentVariables();
+            .AddEnvironmentVariables()
+            .AddCommandLine(args ?? Array.Empty<string>());
     }
 
     /// <summary>

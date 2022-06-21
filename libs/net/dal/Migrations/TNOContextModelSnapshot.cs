@@ -1293,7 +1293,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("json")
                         .HasColumnName("connection");
 
-                    b.Property<int>("ContentTypeId")
+                    b.Property<int?>("ContentTypeId")
                         .HasColumnType("integer")
                         .HasColumnName("content_type_id");
 
@@ -3066,8 +3066,7 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.ContentType", "ContentType")
                         .WithMany("DataSources")
                         .HasForeignKey("ContentTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TNO.Entities.DataLocation", "DataLocation")
                         .WithMany("DataSources")

@@ -6,15 +6,22 @@ using TNO.API.Areas.Services.Models.Content;
 using TNO.Models.Kafka;
 using Confluent.Kafka;
 using TNO.API.Areas.Editor.Models.Lookup;
+using System.Text.Json;
 
 namespace TNO.Services.Content;
 
+/// <summary>
+/// ContentManager class, provides a Kafka Consumer service which imports content from all active topics.
+/// </summary>
 public class ContentManager : ServiceManager<ContentOptions>
 {
     #region Variables
     #endregion
 
     #region Properties
+    /// <summary>
+    /// get - Kafka Consumer object.
+    /// </summary>
     protected IKafkaListener Consumer { get; private set; }
 
     /// <summary>
@@ -43,6 +50,10 @@ public class ContentManager : ServiceManager<ContentOptions>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Listen to active topics and import content.
+    /// </summary>
+    /// <returns></returns>
     public override async Task RunAsync()
     {
         var delay = _options.DefaultDelayMS;
@@ -62,10 +73,22 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // TODO: Update on some kind of interval.
                     this.Lookups = await _api.GetLookupsAsync();
 
-                    await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, _options.Topics.ToArray());
+                    // Listen to every enabled data source with a topic.
+                    var topics = !String.IsNullOrWhiteSpace(_options.Topics) ? _options.GetTopics() : this.Lookups?.DataSources
+                        .Where(ds => ds.IsEnabled &&
+                            ds.ContentTypeId != null &&
+                            !String.IsNullOrWhiteSpace(ds.Topic) &&
+                            ds.Connection.ContainsKey("import") &&
+                            ((JsonElement)ds.Connection["import"]).GetBoolean()).Select(ds => ds.Topic).ToArray() ?? Array.Empty<string>();
 
-                    // Successful run clears any errors.
-                    this.State.ResetFailures();
+                    // Just keep looping until a topic has been configured.
+                    if (topics.Length != 0)
+                    {
+                        await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, topics);
+
+                        // Successful run clears any errors.
+                        this.State.ResetFailures();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -75,9 +98,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             }
 
             // The delay ensures we don't have a run away thread.
-            // With a minimum delay for all data source schedules, it could mean some data sources are pinged more often then required.
             this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
-            // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
         }
     }
@@ -87,11 +108,13 @@ public class ContentManager : ServiceManager<ContentOptions>
         // TODO: Handle e-tag.
         var source = await _api.GetDataSourceAsync(result.Topic) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Topic}'");
 
+        if (source.ContentTypeId == null) throw new InvalidOperationException($"Data source not configured to import content correctly");
+
         var content = new ContentModel()
         {
             Status = Entities.ContentStatus.Draft,
             WorkflowStatus = Entities.WorkflowStatus.Received,
-            ContentTypeId = source.ContentTypeId,
+            ContentTypeId = source.ContentTypeId.Value,
             MediaTypeId = source.MediaTypeId,
             LicenseId = source.LicenseId,
             SeriesId = null, // TODO: Provide default series from Data Source config settings.
@@ -106,17 +129,28 @@ public class ContentManager : ServiceManager<ContentOptions>
             Transcription = "",
             SourceUrl = result.Message.Value.Link,
             PublishedOn = result.Message.Value.PublishedOn,
-            Actions = Array.Empty<ContentActionModel>(),
-            Categories = Array.Empty<ContentCategoryModel>(),
-            Tags = Array.Empty<ContentTagModel>(),
-            TonePools = Array.Empty<ContentTonePoolModel>(),
-            FileReferences = Array.Empty<FileReferenceModel>()
         };
 
         // Only add if doesn't already exist.
         var exists = await _api.FindContentByUidAsync(content.Uid, content.Source);
         if (exists == null)
-            await _api.AddContentAsync(content);
+        {
+            content = await _api.AddContentAsync(content);
+
+            // Upload the file to the API.
+            if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
+            {
+                // TODO: Handle different storage locations.
+                // Remote storage locations may not be easily accessible by this service.
+                var sourcePath = Path.Join(_options.ClipPath, result.Message.Value.FilePath);
+                if (File.Exists(sourcePath))
+                {
+                    var file = File.OpenRead(sourcePath);
+                    var fileName = Path.GetFileName(sourcePath);
+                    await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
+                }
+            }
+        }
     }
     #endregion
 }

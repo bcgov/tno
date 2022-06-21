@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Models.Extensions;
 using TNO.Models.Kafka;
@@ -94,7 +95,7 @@ public class ClipAction : CommandAction<ClipOptions>
 
                     if (sendMessage && reference != null)
                     {
-                        // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
+                        // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.  However it is pretty quick at creating clips.
                         await RunProcessAsync(process, cancellationToken);
                         var messageResult = await SendMessageAsync(manager.DataSource, schedule, reference);
 
@@ -156,12 +157,23 @@ public class ClipAction : CommandAction<ClipOptions>
         var content = new SourceContent(mediaType, reference.Source, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
         {
             StreamUrl = dataSource.Parent?.GetConnectionValue("url") ?? "",
-            FilePath = file,
+            FilePath = GetFilePath(file),
             Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
         };
         var result = await this.Kafka.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
+    }
+
+    /// <summary>
+    /// Remove the configured mapping path.
+    /// Any pods which need access to this file will need to know the original mapping path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    private string GetFilePath(string path)
+    {
+        return path.ReplaceFirst($"{this.Options.OutputPath}{Path.DirectorySeparatorChar}", "")!;
     }
 
     /// <summary>

@@ -1,5 +1,5 @@
 import { FieldSize } from 'components/form';
-import { FormikText } from 'components/formik';
+import { FormikCheckbox, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
@@ -7,7 +7,7 @@ import React from 'react';
 import * as styled from './styled';
 
 export const Syndication: React.FC = (props) => {
-  const { values } = useFormikContext<IDataSourceModel>();
+  const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
 
   return (
     <styled.MediaType>
@@ -24,6 +24,15 @@ export const Syndication: React.FC = (props) => {
         value={values.connection.password}
         type="password"
         autoComplete="off"
+      />
+      <p>Do not turn on "Import Content" until you have successfully ingested content.</p>
+      <FormikCheckbox
+        label="Import Content"
+        name="connection.import"
+        tooltip="Whether ingested content should be imported"
+        onChange={(e) => {
+          setFieldValue('connection.import', e.currentTarget.checked);
+        }}
       />
     </styled.MediaType>
   );
