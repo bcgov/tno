@@ -17,7 +17,8 @@ public interface IIngestAction<TOptions> : IServiceAction<TOptions>
     /// </summary>
     /// <param name="dataSource"></param>
     /// <param name="name"></param>
+    /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
-    public Task PerformActionAsync(IDataSourceIngestManager dataSource, string? name = null, CancellationToken cancellationToken = default);
+    public Task PerformActionAsync<T>(IDataSourceIngestManager dataSource, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
     #endregion
 }

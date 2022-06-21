@@ -43,9 +43,10 @@ public class NLPAction : ServiceAction<NLPOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
+    /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override Task PerformActionAsync(IServiceActionManager manager, string? name = null, CancellationToken cancellationToken = default)
+    public override Task PerformActionAsync<T>(IServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         _logger.LogDebug("Performing NLP service action for ...");
 

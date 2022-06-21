@@ -99,7 +99,20 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     protected virtual async Task PerformActionAsync(string? name = null)
     {
         // Perform configured action.
-        await _action.PerformActionAsync(this, name);
+        await PerformActionAsync<object>(name, null);
+    }
+
+    /// <summary>
+    /// Call the configured action.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    protected virtual async Task PerformActionAsync<T>(string? name = null, T? data = null)
+        where T : class
+    {
+        // Perform configured action.
+        await _action.PerformActionAsync(this, name, data);
     }
 
     /// <summary>
