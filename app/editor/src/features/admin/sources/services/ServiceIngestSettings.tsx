@@ -18,8 +18,8 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
 
-  const showKafkaTopic =
-    !!values.connection.serviceType && values.connection.serviceType !== 'stream';
+  // TODO: Need a more selective condition to determine if this section should be visible.
+  const showImportContent = values.connection.serviceType !== 'stream';
   const users = [
     new OptionItem('None', 0),
     ...lookups.users.map((u) => new OptionItem(u.username, u.id)),
@@ -81,7 +81,7 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
             options={dataLocations}
             required
           />
-          {showKafkaTopic && (
+          {showImportContent && (
             <>
               <FormikSelect
                 label="Generated Content Type"
