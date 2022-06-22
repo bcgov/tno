@@ -1,5 +1,7 @@
-import { FaSortDown, FaSortUp } from 'react-icons/fa';
+import { FaFilter, FaSortDown, FaSortUp } from 'react-icons/fa';
 import { HeaderGroup } from 'react-table';
+
+import { Show } from '../show';
 
 export interface ISortIndicatorProps<T extends object> {
   /**
@@ -16,5 +18,9 @@ export interface ISortIndicatorProps<T extends object> {
 export const SortIndicator = <T extends object>({ column }: ISortIndicatorProps<T>) => {
   return column.isSorted ? (
     <span>{column.isSortedDesc ? <FaSortDown color="blue" /> : <FaSortUp color="blue" />}</span>
-  ) : null;
+  ) : (
+    <Show visible={column.canSort}>
+      <FaFilter className="filterable" size="10px" />
+    </Show>
+  );
 };
