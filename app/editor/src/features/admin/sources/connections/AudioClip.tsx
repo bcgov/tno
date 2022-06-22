@@ -28,7 +28,7 @@ export const AudioClip: React.FC = (props) => {
       <FormikText
         label="Format"
         name="connection.format"
-        tooltip="Format of the stream"
+        tooltip="Format of the clip"
         placeholder="mp3"
       />
       <FormikText
@@ -68,6 +68,15 @@ export const AudioClip: React.FC = (props) => {
         tooltip="The service will throw an error if the capture file is not found or is missing data"
         onChange={(e) => {
           setFieldValue('connection.throwOnMissingFile', e.currentTarget.checked);
+        }}
+      />
+      <p>Do not turn on "Import Content" until you have successfully ingested content.</p>
+      <FormikCheckbox
+        label="Import Content"
+        name="connection.import"
+        tooltip="Whether ingested content should be imported"
+        onChange={(e) => {
+          setFieldValue('connection.import', e.currentTarget.checked);
         }}
       />
     </styled.MediaType>

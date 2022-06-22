@@ -146,7 +146,7 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
     public virtual async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync()
     {
         var dataSources = new List<DataSourceModel>();
-        foreach (var mediaType in _options.MediaTypes)
+        foreach (var mediaType in _options.GetMediaTypes())
         {
             try
             {

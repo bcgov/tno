@@ -18,7 +18,7 @@ services:
     ports:
       - ${SYNDICATION_PORT:-40020}:8081
     depends_on:
-      - database
+      - api
       - broker
     networks:
       - tno
@@ -45,7 +45,7 @@ services:
     ports:
       - ${CAPTURE_PORT:-40024}:8081
     depends_on:
-      - database
+      - api
       - broker
     networks:
       - tno
@@ -74,7 +74,36 @@ services:
     ports:
       - ${CLIP_PORT:-40025}:8081
     depends_on:
-      - database
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  content:
+    image: tno:content
+    profiles:
+      - all
+      - service
+      - data
+    restart: "no"
+    container_name: tno-content
+    build:
+      context: ./
+      dockerfile: services/net/content/Dockerfile
+    env_file:
+      - services/net/content/.env
+    ports:
+      - ${CONTENT_PORT:-40026}:8081
+    depends_on:
+      - api
       - broker
     networks:
       - tno

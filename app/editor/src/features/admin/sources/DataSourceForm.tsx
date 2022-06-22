@@ -43,7 +43,9 @@ export const DataSourceForm: React.FC<IDataSourceProps> = (props) => {
       const originalId = values.id;
       const model: IDataSourceModel = {
         ...values,
+        contentTypeId: values.contentTypeId ? values.contentTypeId : undefined,
         parentId: values.parentId ? values.parentId : undefined,
+        ownerId: values.ownerId ? values.ownerId : undefined,
         connection: values.connection ? values.connection : {},
       };
       const result = !values.id

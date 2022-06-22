@@ -92,8 +92,6 @@ spec:
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             # Content Service Configuration
-            - name: Service__Topics__0
-              value: CASTANET
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:

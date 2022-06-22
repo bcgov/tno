@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using MimeTypes;
 using TNO.Entities;
 
 namespace TNO.DAL.Models;
@@ -36,7 +37,7 @@ public class ContentFileReference : IReadonlyFileReference
     public string FileName { get; }
 
     /// <summary>
-    /// get - The path to the location the file is stored.
+    /// get - The full path to the location the file.
     /// </summary>
     public string Path { get; }
 
@@ -121,10 +122,11 @@ public class ContentFileReference : IReadonlyFileReference
         this.ContentId = content.Id;
         this.ContentVersion = content.Version;
 
+        var ext = System.IO.Path.GetExtension(file.FileName).Replace(".", "");
         this.File = file ?? throw new ArgumentNullException(nameof(file));
         this.Path = GenerateFilePath(content, file);
         this.FileName = file.FileName;
-        this.ContentType = file.ContentType;
+        this.ContentType = !String.IsNullOrWhiteSpace(file.ContentType) ? file.ContentType : MimeTypeMap.GetMimeType(ext);
         this.Size = file.Length;
         this.RunningTime = 0; // TODO: Calculate this somehow.
         this.CreatedBy = content.CreatedBy;

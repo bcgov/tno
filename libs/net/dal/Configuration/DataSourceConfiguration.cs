@@ -17,7 +17,7 @@ public class DataSourceConfiguration : AuditColumnsConfiguration<DataSource>
         builder.Property(m => m.DataLocationId).IsRequired();
         builder.Property(m => m.MediaTypeId).IsRequired();
         builder.Property(m => m.LicenseId).IsRequired();
-        builder.Property(m => m.ContentTypeId).IsRequired();
+        builder.Property(m => m.ContentTypeId);
         builder.Property(m => m.Topic).IsRequired().HasMaxLength(50);
         builder.Property(m => m.Connection).IsRequired().HasColumnType("json");
         builder.Property(m => m.ParentId);

@@ -506,7 +506,7 @@ namespace TNO.DAL.Migrations
                     is_enabled = table.Column<bool>(type: "boolean", nullable: false),
                     data_location_id = table.Column<int>(type: "integer", nullable: false),
                     media_type_id = table.Column<int>(type: "integer", nullable: false),
-                    content_type_id = table.Column<int>(type: "integer", nullable: false),
+                    content_type_id = table.Column<int>(type: "integer", nullable: true),
                     license_id = table.Column<int>(type: "integer", nullable: false),
                     owner_id = table.Column<int>(type: "integer", nullable: true),
                     schedule_type = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),

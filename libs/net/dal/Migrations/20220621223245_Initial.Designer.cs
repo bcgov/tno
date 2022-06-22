@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20220531235230_Initial")]
+    [Migration("20220621223245_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1295,7 +1295,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("json")
                         .HasColumnName("connection");
 
-                    b.Property<int>("ContentTypeId")
+                    b.Property<int?>("ContentTypeId")
                         .HasColumnType("integer")
                         .HasColumnName("content_type_id");
 
@@ -3068,8 +3068,7 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.ContentType", "ContentType")
                         .WithMany("DataSources")
                         .HasForeignKey("ContentTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("TNO.Entities.DataLocation", "DataLocation")
                         .WithMany("DataSources")

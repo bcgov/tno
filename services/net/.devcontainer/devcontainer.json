@@ -66,8 +66,8 @@
 	"remoteUser": "vscode",
 	"features": {
 		"git": "latest"
-	},
-  "mounts": [
-    "source=${localWorkspaceFolder}/capture/data,target=/data,type=bind,consistency=cached"
-  ]
+	}
+  // "mounts": [
+  //   "source=${localWorkspaceFolder}/data,target=/data,type=bind,consistency=cached"
+  // ]
 }

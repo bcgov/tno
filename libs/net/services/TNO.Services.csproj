@@ -19,5 +19,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
     <PackageReference Include="Confluent.Kafka" Version="1.8.2" />
+    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17"/>
   </ItemGroup>
 </Project>

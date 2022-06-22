@@ -23,6 +23,10 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 as deploy
 WORKDIR /app
 COPY --from=build /build .
 
+# This volume is the local storage for uploaded files.
+RUN mkdir /data
+VOLUME /data
+
 # Run container by default as user with id 1001 (default)
 USER 1001
 

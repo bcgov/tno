@@ -61,7 +61,9 @@ public class KafkaListener : IKafkaListener
             builder.SetKeyDeserializer(new DefaultJsonSerializer<TKey>(_serializerOptions));
         if (typeof(TValue).IsClass && typeof(TValue) != typeof(string))
             builder.SetValueDeserializer(new DefaultJsonSerializer<TValue>(_serializerOptions));
+
         using var consumer = builder.Build();
+
         consumer.Subscribe(topic);
         this.IsRunning = true;
 
