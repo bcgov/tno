@@ -9,6 +9,9 @@ export const GridTable = styled.div`
   width: 100%;
 
   div[role='rowheader'] {
+    .filterable {
+      margin-bottom: 0.25em;
+    }
     div[role='row'] {
       &:first-child {
         background-color: transparent;
