@@ -16,6 +16,7 @@ export interface IUploadProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect' | 'value'> {
   onSelect?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDownload?: () => void;
+  onPostDelete?: () => void;
   file?: IFile;
   verifyDelete?: boolean;
 }
@@ -33,12 +34,13 @@ export const Upload: React.FC<IUploadProps> = ({
   onClick,
   onSelect,
   onDownload,
+  onPostDelete,
   ...rest
 }) => {
   const { isShowing, toggle } = useModal();
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  const [file, setFile] = React.useState<File>();
+  const [file, setFile] = React.useState<IFile>();
 
   React.useEffect(() => {
     if (!!initFile) {
@@ -52,11 +54,11 @@ export const Upload: React.FC<IUploadProps> = ({
   const fileName = generateName(file) ?? generateName(initFile);
 
   const onDelete = () => {
-    debugger;
     if (!!fileRef.current) {
       nativeInputValueSetter?.call(fileRef.current, '');
       const event = new Event('change', { bubbles: true });
       fileRef.current.dispatchEvent(event);
+      onPostDelete?.();
     }
     setFile(undefined);
   };
@@ -129,7 +131,5 @@ export const Upload: React.FC<IUploadProps> = ({
         }}
       />
     </styled.Upload>
-  );
-};
   );
 };
