@@ -1,92 +1,66 @@
 import { ContentStatusName, IContentModel } from 'hooks/api-editor';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Center } from 'tno-core';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 import { formatIdirUsername } from 'utils';
 
 export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
   {
     id: 'headline',
-    Header: () => <Center>Headline</Center>,
+    Header: 'Headline',
     accessor: 'headline',
     width: 300,
-    Cell: ({ value }) => (
-      <Ellipsis>
-        <Center>{value}</Center>
-      </Ellipsis>
-    ),
+    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     id: 'source',
-    Header: () => <Center>Source</Center>,
+    Header: 'Source',
     accessor: 'source',
-    Cell: ({ value }) => (
-      <Ellipsis>
-        <Center>{value}</Center>
-      </Ellipsis>
-    ),
+    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     id: 'mediaType',
-    Header: () => <Center>Type</Center>,
+    Header: 'Type',
     width: 125,
     accessor: (row) => row.mediaType?.name,
-    Cell: ({ value }: { value: string }) => (
-      <Ellipsis>
-        <Center>{value}</Center>
-      </Ellipsis>
-    ),
+    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     id: 'section',
-    Header: () => <Center>Section/Page</Center>,
+    Header: 'Section/Page',
     width: 125,
     accessor: (row) =>
       row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
-    Cell: ({ value }: { value: string }) => (
-      <Ellipsis>
-        <Center>{value}</Center>
-      </Ellipsis>
-    ),
+    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     id: 'ownerId',
-    Header: () => <Center>Username</Center>,
+    Header: 'Username',
     width: 125,
     accessor: (row) => row.owner?.displayName,
-    Cell: ({ value }: { value: string }) => (
-      <Ellipsis>
-        <Center>{formatIdirUsername(value)}</Center>
-      </Ellipsis>
-    ),
+    Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
   },
   {
     id: 'status',
-    Header: () => <Center>Status</Center>,
+    Header: 'Status',
     width: 100,
     accessor: (row) => row.status,
-    Cell: ({ value }: { value: string }) => <Center>{value}</Center>,
   },
   {
-    id: 'publishedOn',
+    id: 'createdOn',
     Header: 'Date',
     width: 100,
-    accessor: (row) => row.publishedOn ?? row.createdOn,
+    accessor: (row) => row.createdOn,
     Cell: ({ value }: any) => <Date value={value} />,
   },
   {
     id: 'use',
-    Header: () => <Center>Use</Center>,
+    Header: 'Use',
     disableSortBy: true,
     width: 50,
     accessor: (row) =>
       row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
     Cell: ({ value }: { value: boolean }) => {
-      return (
-        <Center>
-          <Checkbox checked={value} />
-        </Center>
-      );
+      return <Checkbox checked={value} />;
     },
   },
 ];

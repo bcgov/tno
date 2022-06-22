@@ -1,87 +1,86 @@
 import { ContentStatusName, IContentModel } from 'hooks/api-editor';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Center } from 'tno-core';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 import { formatIdirUsername } from 'utils';
 
 export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
   {
     id: 'headline',
-    Header: () => <Center>Headline</Center>,
+    Header: () => <div className="center">Headline</div>,
     accessor: 'headline',
     width: 180,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     id: 'source',
-    Header: () => <Center>Source</Center>,
+    Header: () => <div className="center">Source</div>,
     accessor: 'source',
     width: 100,
     Cell: ({ value }) => (
       <Ellipsis>
-        <Center>{value}</Center>
+        <div className="center">{value}</div>
       </Ellipsis>
     ),
   },
   {
     id: 'mediaType',
-    Header: () => <Center>Type</Center>,
+    Header: () => <div className="center">Type</div>,
     width: 100,
     accessor: (row) => row.mediaType?.name,
     Cell: ({ value }: { value: string }) => (
       <Ellipsis>
-        <Center>{value}</Center>
+        <div className="center">{value}</div>
       </Ellipsis>
     ),
   },
   {
     id: 'page',
-    Header: () => <Center>Page</Center>,
+    Header: () => <div className="center">Page</div>,
     width: 70,
     accessor: (row) => row.page,
-    Cell: ({ value }: { value: string }) => <Center>{value}</Center>,
+    Cell: ({ value }: { value: string }) => <div className="center">{value}</div>,
   },
   {
     id: 'ownerId',
-    Header: () => <Center>Username</Center>,
+    Header: () => <div className="center">Username</div>,
     width: 100,
     accessor: (row) => row.owner?.displayName,
     Cell: ({ value }: { value: string }) => (
       <Ellipsis>
-        <Center>{formatIdirUsername(value)}</Center>
+        <div className="center">{formatIdirUsername(value)}</div>
       </Ellipsis>
     ),
   },
   {
     id: 'status',
-    Header: () => <Center>Status</Center>,
+    Header: () => <div className="center">Status</div>,
     width: 100,
     accessor: (row) => row.status,
-    Cell: ({ value }: { value: string }) => <Center>{value}</Center>,
+    Cell: ({ value }: { value: string }) => <div className="center">{value}</div>,
   },
   {
     id: 'createdOn',
-    Header: () => <Center>Date</Center>,
+    Header: () => <div className="center">Date</div>,
     width: 100,
     accessor: (row) => row.createdOn,
     Cell: ({ value }: any) => (
-      <Center>
+      <div className="center">
         <Date value={value} />
-      </Center>
+      </div>
     ),
   },
   {
     id: 'use',
-    Header: () => <Center>Use</Center>,
+    Header: () => <div className="center">Use</div>,
     disableSortBy: true,
     width: 50,
     accessor: (row) =>
       row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
     Cell: ({ value }: { value: boolean }) => {
       return (
-        <Center>
+        <div className="center">
           <Checkbox checked={value} />
-        </Center>
+        </div>
       );
     },
   },

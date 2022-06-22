@@ -2,7 +2,6 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
 import { Column } from 'react-table';
-import { Center } from 'tno-core';
 
 import { getTotalTime } from '../utils';
 
@@ -14,36 +13,38 @@ export const timeLogColumns = (
 ): Column<ITimeTrackingModel>[] => [
   {
     id: 'effort',
-    Header: () => <Center>TIME</Center>,
+    Header: () => <div className="center">TIME</div>,
     accessor: 'effort',
-    Cell: ({ value }) => <Center>{value}</Center>,
+    Cell: ({ value }) => <div className="center">{value}</div>,
   },
   {
     id: 'user',
-    Header: () => <Center>USER</Center>,
+    Header: () => <div className="center">USER</div>,
     accessor: 'userName',
-    Cell: ({ value }) => <Center>{value}</Center>,
+    Cell: ({ value }) => <div className="center">{value}</div>,
   },
   {
     id: 'activity',
-    Header: () => <Center>TASK</Center>,
+    Header: () => <div className="center">TASK</div>,
     accessor: 'activity',
-    Cell: ({ value }) => <Center>{value}</Center>,
+    Cell: ({ value }) => <div className="center">{value}</div>,
   },
   {
     id: 'content',
-    Header: () => <Center>DATE</Center>,
+    Header: () => <div className="center">DATE</div>,
     accessor: 'createdOn',
     Cell: ({ value }: any) => {
       const date = new Date(value);
-      return <Center>{`${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`}</Center>;
+      return (
+        <div className="center">{`${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`}</div>
+      );
     },
   },
   {
     id: 'actions',
-    Header: () => <Center>ACTION</Center>,
+    Header: () => <div className="center">ACTION</div>,
     Cell: ({ row, data }: any) => (
-      <Center>
+      <div className="center">
         <FontAwesomeIcon
           onClick={() => {
             values.timeTrackings?.splice(row.id, 1);
@@ -52,7 +53,7 @@ export const timeLogColumns = (
           }}
           icon={faTrash}
         />
-      </Center>
+      </div>
     ),
   },
 ];

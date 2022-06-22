@@ -8,6 +8,10 @@ export const GridTable = styled.div`
   gap: 0.25em;
   width: 100%;
 
+  .center {
+    text-align: center;
+  }
+
   div[role='rowheader'] {
     .filterable {
       margin-bottom: 0.25em;
@@ -44,6 +48,7 @@ export const GridTable = styled.div`
   }
 
   div[role='columnheader'] {
+    display: flex;
     font-weight: bold;
     padding: 0.25em;
   }
