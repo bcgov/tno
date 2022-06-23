@@ -279,7 +279,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               onDownload={() => {
                 download(values.id, file?.name ?? `${values.source}-${values.id}`);
               }}
-              onPostDelete={() => {
+              onDelete={() => {
                 setStreamUrl('');
                 if (!!videoRef.current) {
                   videoRef.current.src = '';
