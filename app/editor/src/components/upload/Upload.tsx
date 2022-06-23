@@ -16,6 +16,7 @@ export interface IUploadProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect' | 'value'> {
   onSelect?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDownload?: () => void;
+  onDelete?: () => void;
   file?: IFile;
   verifyDelete?: boolean;
 }
@@ -33,12 +34,13 @@ export const Upload: React.FC<IUploadProps> = ({
   onClick,
   onSelect,
   onDownload,
+  onDelete,
   ...rest
 }) => {
   const { isShowing, toggle } = useModal();
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  const [file, setFile] = React.useState<File>();
+  const [file, setFile] = React.useState<IFile>();
 
   React.useEffect(() => {
     if (!!initFile) {
@@ -51,11 +53,12 @@ export const Upload: React.FC<IUploadProps> = ({
   const reader = new FileReader();
   const fileName = generateName(file) ?? generateName(initFile);
 
-  const onDelete = () => {
+  const handleDelete = () => {
     if (!!fileRef.current) {
       nativeInputValueSetter?.call(fileRef.current, '');
       const event = new Event('change', { bubbles: true });
       fileRef.current.dispatchEvent(event);
+      onDelete?.();
     }
     setFile(undefined);
   };
@@ -108,7 +111,7 @@ export const Upload: React.FC<IUploadProps> = ({
           variant={ButtonVariant.danger}
           onClick={() => {
             if (verifyDelete) toggle();
-            else onDelete();
+            else handleDelete();
           }}
         >
           Remove File
@@ -123,7 +126,7 @@ export const Upload: React.FC<IUploadProps> = ({
         body="Are you sure you want to remove this file?  You will still need to save before it is deleted."
         confirmText="Yes, Remove It"
         onConfirm={() => {
-          onDelete();
+          handleDelete();
           toggle();
         }}
       />

@@ -20,4 +20,8 @@ export const ContentForm = styled.div`
   .licenses {
     padding-left: 2em;
   }
+
+  .hidden {
+    display: none;
+  }
 `;
