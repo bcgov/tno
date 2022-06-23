@@ -50,13 +50,13 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [publishedOnTime, setPublishedOnTime] = React.useState<string>();
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
-  // Removed 'as IFile' awaiting type handling explanation
+
+  const path = values.fileReferences.length ? values.fileReferences[0].path : undefined;
   const file = values.fileReferences.length
-    ? {
+    ? ({
         name: values.fileReferences[0].fileName,
         size: values.fileReferences[0].size,
-        path: values.fileReferences[0].path,
-      }
+      } as IFile)
     : undefined;
   const [streamUrl, setStreamUrl] = React.useState<string>('');
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -100,7 +100,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   };
 
   const setMedia = () => {
-    setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/upload/stream?path=${file?.path}`);
+    setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/upload/stream?path=${path}`);
   };
 
   return (

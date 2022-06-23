@@ -35,7 +35,6 @@ export function register(config?: Config) {
     }
 
     window.addEventListener('load', () => {
-      debugger;
       const swUrl = `${process.env.PUBLIC_URL}/service-worker.js`;
 
       if (isLocalhost) {
