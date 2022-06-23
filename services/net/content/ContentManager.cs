@@ -81,9 +81,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                             ds.Connection.ContainsKey("import") &&
                             ((JsonElement)ds.Connection["import"]).GetBoolean()).Select(ds => ds.Topic).ToArray() ?? Array.Empty<string>();
 
-                    // Just keep looping until a topic has been configured.
                     if (topics.Length != 0)
                     {
+                        var tps = String.Join(',', topics);
+                        this.Logger.LogInformation("Consuming topics: {tps}", tps);
                         await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, topics);
 
                         // Successful run clears any errors.
@@ -92,7 +93,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.LogError(ex, "Content manager had an unexpected failure.");
+                    this.Logger.LogError(ex, "Service had an unexpected failure.");
                     this.State.RecordFailure();
                 }
             }
@@ -103,8 +104,18 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
     }
 
+    /// <summary>
+    /// Import the content.
+    /// Copy any file associated with source content.
+    /// </summary>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
+        this.Logger.LogInformation("Importing Content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
+
+        // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
         // TODO: Handle e-tag.
         var source = await _api.GetDataSourceAsync(result.Topic) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Topic}'");
 
@@ -112,8 +123,8 @@ public class ContentManager : ServiceManager<ContentOptions>
 
         var content = new ContentModel()
         {
-            Status = Entities.ContentStatus.Draft,
-            WorkflowStatus = Entities.WorkflowStatus.Received,
+            Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
+            WorkflowStatus = Entities.WorkflowStatus.Received, // TODO: Automatically extract based on lifecycle of content reference.
             ContentTypeId = source.ContentTypeId.Value,
             MediaTypeId = source.MediaTypeId,
             LicenseId = source.LicenseId,
@@ -136,6 +147,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (exists == null)
         {
             content = await _api.AddContentAsync(content);
+            this.Logger.LogDebug("Content Imported.  Content ID: {Id}", content?.Id);
 
             // Upload the file to the API.
             if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
@@ -149,7 +161,15 @@ public class ContentManager : ServiceManager<ContentOptions>
                     var fileName = Path.GetFileName(sourcePath);
                     await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
                 }
+                else
+                {
+                    this.Logger.LogError("File not found.  Content ID: {Id}, File: {sourcePath}", content.Id, sourcePath);
+                }
             }
+        }
+        else
+        {
+            this.Logger.LogDebug("Content already exists. Content Source: {Source}, UID: {Uid}", content.Source, content.Uid);
         }
     }
     #endregion
