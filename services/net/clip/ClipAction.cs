@@ -240,7 +240,7 @@ public class ClipAction : CommandAction<ClipOptions>
 
         var input = await GetInputFileAsync(manager.DataSource, schedule);
         var start = GetStart(manager.DataSource, schedule, input);
-        var duration = GetDuration(manager.DataSource, schedule);
+        var duration = GetDuration(schedule);
         var format = GetFormat(manager.DataSource);
         var volume = GetVolume(manager.DataSource);
         var otherArgs = GetOtherArgs(manager.DataSource);
@@ -317,8 +317,9 @@ public class ClipAction : CommandAction<ClipOptions>
         if (schedule.StartAt == null) throw new InvalidOperationException($"Data source schedule must have a 'StartAt' configured for {dataSource.Code}.{schedule.Name}");
         if (schedule.StopAt == null) throw new InvalidOperationException($"Data source schedule must have a 'StopAt' configured for {dataSource.Code}.{schedule.Name}");
 
-        //var captureStart = ParseTimeFromFileName(inputFile);
-        var createdOn = GetLocalDateTime(dataSource, File.GetCreationTimeUtc(inputFile)).TimeOfDay;
+        // Linux doesn't have the file created time value, which means we need to get it from convention.
+        var createdOn = ParseTimeFromFileName(inputFile);
+        //var createdOn = GetLocalDateTime(dataSource, File.GetCreationTimeUtc(inputFile)).TimeOfDay;
         var clipStartAt = schedule.StartAt.Value;
         return clipStartAt.Subtract(createdOn);
     }
@@ -370,11 +371,10 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Get the duration of the clip.
     /// </summary>
-    /// <param name="dataSource"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetDuration(DataSourceModel dataSource, ScheduleModel schedule)
+    private static string GetDuration(ScheduleModel schedule)
     {
         var duration = schedule.CalcDuraction();
         return $" -t {duration.Hours}:{duration.Minutes}:{duration.Seconds}";

@@ -9,6 +9,16 @@ namespace TNO.Services;
 public interface IKafkaListener
 {
     /// <summary>
+    /// Change the status to running.
+    /// </summary>
+    void Start();
+
+    /// <summary>
+    /// Change the status to not running.
+    /// </summary>
+    void Stop();
+
+    /// <summary>
     /// Listen for messages from Kafka for the specified topics.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>

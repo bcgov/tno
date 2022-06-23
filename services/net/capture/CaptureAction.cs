@@ -159,11 +159,13 @@ public class CaptureAction : CommandAction<CaptureOptions>
         var path = GetOutputPath(dataSource);
         Directory.CreateDirectory(path);
 
+        // This should be the time for the timezone configured for the schedule.
+        var now = GetLocalDateTime(dataSource, DateTime.UtcNow);
         var value = dataSource.GetConnectionValue("fileName");
         var filename = String.IsNullOrWhiteSpace(value) ? $"{schedule.Name}.mp3" : $"{schedule.Name}-{value}";
         var name = Path.GetFileNameWithoutExtension(filename);
         var ext = Path.GetExtension(filename);
-        var fullname = $"{schedule.StartAt?.Hours:00}-{schedule.StartAt?.Minutes:00}-{schedule.StartAt?.Seconds:00}-{name}";
+        var fullname = $"{now.Hour:00}-{now.Minute:00}-{now.Second:00}-{name}";
 
         // If the file already exists, create a new version.
         // This ensures we don't overwrite a prior recording.
