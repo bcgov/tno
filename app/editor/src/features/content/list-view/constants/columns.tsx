@@ -46,10 +46,10 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: (row) => row.status,
   },
   {
-    id: 'createdOn',
+    id: 'publishedOn',
     Header: 'Date',
     width: 100,
-    accessor: (row) => row.createdOn,
+    accessor: (row) => row.publishedOn ?? row.createdOn,
     Cell: ({ value }: any) => <Date value={value} />,
   },
   {
