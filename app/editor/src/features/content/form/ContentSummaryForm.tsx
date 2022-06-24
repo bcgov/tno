@@ -241,39 +241,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           />
           <Button
             variant={ButtonVariant.danger}
-            style={{ marginTop: '1.16em' }}
-            onClick={() => {
-              const regex = /\[.*\]/; // TODO: This is far too eager and could remove value content.
-              setFieldValue('summary', values.summary.replace(regex, ''));
-              setFieldValue('tags', []);
-            }}
-          >
-            Clear Tags
-          </Button>
-        </Row>
-        <Row style={{ marginTop: '2%' }}>
-          <FormikRadioGroup
-            label="Toning"
-            direction="row"
-            name="tonePool"
-            required
-            options={toningOptions}
-            onChange={(e, value) => {
-              setFieldValue('tonePool', value);
-              setFieldValue('tone', value?.value);
-            }}
-          />
-        </Row>
-        <Row>
-          <FormikText
-            disabled
-            width={FieldSize.Large}
-            name="tags"
-            label="Tags"
-            value={values.tags.map((t) => t.id).join(', ')}
-          />
-          <Button
-            variant={ButtonVariant.danger}
             className="top-spacer"
             onClick={() => {
               const regex = /\[.*\]/; // TODO: This is far too eager and could remove value content.
