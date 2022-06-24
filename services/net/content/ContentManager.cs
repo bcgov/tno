@@ -85,6 +85,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                     {
                         var tps = String.Join(',', topics);
                         this.Logger.LogInformation("Consuming topics: {tps}", tps);
+
+                        // TODO: Need to learn how to safely stop listening without losing content.  Every time a service goes down it will most likely lose content.
                         await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, topics);
 
                         // Successful run clears any errors.
@@ -113,6 +115,12 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
+        if (this.State.Status != ServiceStatus.Running)
+        {
+            this.Consumer.Stop();
+            this.State.Stop();
+        }
+
         this.Logger.LogInformation("Importing Content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
 
         // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.

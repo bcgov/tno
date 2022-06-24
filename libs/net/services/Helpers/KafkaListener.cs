@@ -22,7 +22,7 @@ public class KafkaListener : IKafkaListener
     /// <summary>
     /// get/set - Whether the listern is currently running.
     /// </summary>
-    public bool IsRunning { get; set; }
+    public bool IsRunning { get; protected set; }
     #endregion
 
     #region Constructors
@@ -41,6 +41,22 @@ public class KafkaListener : IKafkaListener
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Change the status to running.
+    /// </summary>
+    public void Start()
+    {
+        this.IsRunning = true;
+    }
+
+    /// <summary>
+    /// Change the status to not running.
+    /// </summary>
+    public void Stop()
+    {
+        this.IsRunning = true;
+    }
+
     /// <summary>
     /// Listen for messages from Kafka for the specified topics.
     /// </summary>
@@ -65,7 +81,7 @@ public class KafkaListener : IKafkaListener
         using var consumer = builder.Build();
 
         consumer.Subscribe(topic);
-        this.IsRunning = true;
+        Start();
 
         try
         {
@@ -86,7 +102,7 @@ public class KafkaListener : IKafkaListener
         }
         finally
         {
-            this.IsRunning = false;
+            Stop();
             consumer.Close();
         }
     }
