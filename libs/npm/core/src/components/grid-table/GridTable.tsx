@@ -92,6 +92,8 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
    * Flag to indicate whether table is loading data or not.
    */
   isLoading?: boolean;
+  /** Pass the table the active row id to highlight it */
+  activeId?: number;
 }
 
 /**
@@ -112,6 +114,7 @@ export const GridTable = <T extends object = Record<string, unknown>>({
   sorting,
   isLoading,
   filters,
+  activeId,
 }: IGridTableProps<T>) => {
   const {
     showPaging = true,
@@ -215,7 +218,11 @@ export const GridTable = <T extends object = Record<string, unknown>>({
           {page.map((row) => {
             prepareRow(row);
             return (
-              <div {...row.getRowProps()} onClick={() => onRowClick && onRowClick(row)}>
+              <div
+                className={activeId === (row.original as any).id ? 'active' : ''}
+                {...row.getRowProps()}
+                onClick={() => onRowClick && onRowClick(row)}
+              >
                 {row.cells.map((cell) => {
                   return (
                     <div {...cell.getCellProps()}>

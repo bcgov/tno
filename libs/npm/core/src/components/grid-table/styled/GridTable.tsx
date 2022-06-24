@@ -8,6 +8,10 @@ export const GridTable = styled.div`
   gap: 0.25em;
   width: 100%;
 
+  .center {
+    text-align: center;
+  }
+
   div[role='rowheader'] {
     .filterable {
       margin-bottom: 0.25em;
@@ -26,21 +30,25 @@ export const GridTable = styled.div`
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
     border-bottom: solid 1px #efefef;
-
+    &.active {
+      background-color: #38598a;
+      color: white;
+    }
     &:not(.rh):hover {
       background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15));
     }
 
-    &:nth-child(even) {
+    &:nth-child(even):not(.active) {
       background-color: ${(props) => props.theme.css.tableEvenRowColor ?? '#fff'};
     }
 
-    &:nth-child(odd) {
+    &:nth-child(odd):not(.active) {
       background-color: ${(props) => props.theme.css.tableOddRowColor ?? '#fff'};
     }
   }
 
   div[role='columnheader'] {
+    display: flex;
     font-weight: bold;
     padding: 0.25em;
   }

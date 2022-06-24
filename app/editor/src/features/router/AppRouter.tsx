@@ -2,6 +2,7 @@ import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { AdminRouter } from 'features/admin';
 import { ContentForm, ContentListView } from 'features/content';
+import { CombinedView } from 'features/content/combined-view/CombinedView';
 import { Login } from 'features/login';
 import { StorageListView } from 'features/storage';
 import React from 'react';
@@ -54,6 +55,10 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           element={
             <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
           }
+        />
+        <Route
+          path="/contents/combined/:id"
+          element={<PrivateRoute claims={Claim.editor} element={<CombinedView />}></PrivateRoute>}
         />
         <Route
           path="contents/:id"

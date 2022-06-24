@@ -1,4 +1,6 @@
-import { ITimeTrackingModel } from 'hooks';
+import { useFormikContext } from 'formik';
+import { IContentModel, ITimeTrackingModel } from 'hooks';
+import React from 'react';
 import { useLookup } from 'store/hooks';
 import { GridTable, Row } from 'tno-core';
 
@@ -9,11 +11,16 @@ export interface ITimeLogTableProps {
   /** the data to be displayed in the table */
   data: ITimeTrackingModel[];
   /** the total time logged against the content */
-  totalTime: number;
+  totalEffort: number;
+  setTotalEffort: (effort: number) => void;
 }
 
 /** Table used to display time log for users creating and updating content. */
-export const TimeLogTable: React.FC<ITimeLogTableProps> = ({ data, totalTime }) => {
+export const TimeLogTable: React.FC<ITimeLogTableProps> = ({
+  data,
+  totalEffort,
+  setTotalEffort,
+}) => {
   const [{ users }] = useLookup();
   const parsedData = data.map((d: ITimeTrackingModel) => ({
     userName: users.find((u) => u.id === d.userId)?.displayName,
@@ -23,15 +30,18 @@ export const TimeLogTable: React.FC<ITimeLogTableProps> = ({ data, totalTime }) 
     contentId: d.contentId,
     createdOn: d.createdOn,
   }));
+
+  const { values, setFieldValue } = useFormikContext<IContentModel>();
+
   return (
     <styled.TimeLogTable>
       <GridTable
         paging={{ showPaging: false }}
-        columns={timeLogColumns}
+        columns={timeLogColumns(setTotalEffort, setFieldValue, values)}
         data={parsedData!!}
       ></GridTable>
       <Row>
-        <p className="total-text">{`Total: ${totalTime} Min`}</p>
+        <p className="total-text">{`Total: ${totalEffort} Min`}</p>
       </Row>
     </styled.TimeLogTable>
   );

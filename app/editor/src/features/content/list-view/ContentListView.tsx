@@ -96,7 +96,7 @@ export const ContentListView: React.FC = () => {
             page={page}
             isLoading={!!requests.length}
             sorting={{ sortBy: filter.sort }}
-            onRowClick={(row) => navigate(`/contents/${row.original.id}`)}
+            onRowClick={(row) => navigate(`/contents/combined/${row.original.id}`)}
             onChangePage={handleChangePage}
             onChangeSort={handleChangeSort}
           />

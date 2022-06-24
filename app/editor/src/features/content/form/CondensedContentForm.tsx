@@ -1,6 +1,6 @@
-import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
+import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Area, FieldSize, IconButton, IOptionItem } from 'components/form';
+import { Area, FieldSize, IOptionItem } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
   FormikCheckbox,
@@ -20,7 +20,6 @@ import {
 } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
@@ -34,23 +33,28 @@ import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
-export interface IContentFormProps {
+
+export interface ICondensedContentFormProps {
   /** The content type this form will create */
   contentType?: ContentType;
+  setUpdated: (updated: boolean) => void;
 }
 
 /**
  * Content Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC<IContentFormProps> = ({ contentType = ContentType.Snippet }) => {
+export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
+  contentType = ContentType.Snippet,
+  setUpdated,
+}) => {
   const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
+  const [otherSource, setOtherSource] = React.useState(false);
   const { id } = useParams();
   const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries, getUsers }] =
     useLookup();
-  const [{ content: page }, { getContent, addContent, updateContent, deleteContent, upload }] =
-    useContent();
+  const [, { getContent, addContent, updateContent, deleteContent, upload }] = useContent();
   const { isShowing, toggle } = useModal();
 
   const [active, setActive] = React.useState('properties');
@@ -63,9 +67,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const [fetchingUsers, setFetchingUsers] = React.useState(false);
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id ?? 0;
-  const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
-  const enablePrev = indexPosition > 0;
-  const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
   React.useEffect(() => {
     setDataSourceOptions(getDataSourceOptions(dataSources));
@@ -117,7 +118,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       }
 
       toast.success(`${contentResult.headline} has successfully been saved.`);
-
       if (!originalId) navigate(`/contents/${contentResult.id}`);
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
@@ -130,53 +130,15 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
         setContent(toForm(contentResult));
         if (!originalId) navigate(`/contents/${contentResult.id}`);
       }
+    } finally {
+      setUpdated(true);
     }
   };
 
   return (
     <styled.ContentForm>
-      <FormPage>
+      <FormPage className="condensed">
         <Area>
-          <Row>
-            <IconButton
-              label="Back to List View"
-              onClick={() => navigate('/contents')}
-              iconType="back"
-            />
-            <Show visible={!!id}>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Previous"
-                onClick={() => {
-                  const id = page?.items[indexPosition - 1]?.id;
-                  if (!!id) navigate(`/contents/${id}`);
-                }}
-                disabled={!enablePrev}
-              >
-                <FaChevronLeft />
-              </Button>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Next"
-                onClick={() => {
-                  const id = page?.items[indexPosition + 1]?.id;
-                  if (!!id) navigate(`/contents/${id}`);
-                }}
-                disabled={!enableNext}
-              >
-                <FaChevronRight />
-              </Button>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Combined View"
-                onClick={() => {
-                  navigate(`/contents/combined/${id}`);
-                }}
-              >
-                <FontAwesomeIcon icon={faTableColumns} />
-              </Button>
-            </Show>
-          </Row>
           <FormikForm
             onSubmit={handleSubmit}
             validationSchema={ContentFormSchema}
@@ -188,7 +150,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                   <Col flex="1 1 auto">
                     <FormikText
                       name="headline"
-                      width={FieldSize.Large}
+                      width={FieldSize.Big}
                       required
                       label="Headline"
                       value={props.values.headline}
@@ -216,37 +178,40 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                         isDisabled={!!props.values.otherSource}
                       />
                       <FormikHidden name="source" />
-                      <FormikText
-                        name="otherSource"
-                        label="Other Source"
-                        width={FieldSize.Big}
-                        onChange={(e) => {
-                          const value = e.currentTarget.value;
-                          props.setFieldValue('otherSource', value);
-                          props.setFieldValue('source', value);
-                          if (!!value) {
-                            props.setFieldValue('dataSourceId', undefined);
-                          }
-                        }}
-                        required={!!props.values.otherSource}
-                      />
                     </Row>
                     <Row>
-                      <FormikText
-                        name="otherSource"
+                      <FormikCheckbox
+                        name="showOther"
                         label="Other Source"
-                        width={FieldSize.Big}
-                        onChange={(e) => {
-                          const value = e.currentTarget.value;
-                          props.setFieldValue('otherSource', value);
-                          props.setFieldValue('source', value);
-                          if (!!value) {
-                            props.setFieldValue('dataSourceId', undefined);
+                        checked={props.values.showOther}
+                        onChange={(e: any) => {
+                          if (e.target.checked) {
+                            setOtherSource(true);
+                          } else {
+                            setOtherSource(!otherSource);
                           }
+                          props.setFieldValue('showOther', e.target.checked);
                         }}
-                        required={!!props.values.otherSource}
                       />
                     </Row>
+                    <Show visible={otherSource}>
+                      <Row>
+                        <FormikText
+                          name="otherSource"
+                          label="Other Source"
+                          width={FieldSize.Big}
+                          onChange={(e) => {
+                            const value = e.currentTarget.value;
+                            props.setFieldValue('otherSource', value);
+                            props.setFieldValue('source', value);
+                            if (!!value) {
+                              props.setFieldValue('dataSourceId', undefined);
+                            }
+                          }}
+                          required={!!props.values.otherSource}
+                        />
+                      </Row>
+                    </Show>
                     <Row>
                       <Col grow={1}>
                         <FormikSelect
@@ -256,7 +221,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             ''
                           }
                           label="Media Type"
-                          width={FieldSize.Large}
+                          width={FieldSize.Big}
                           options={mediaTypeOptions}
                           required
                         />
@@ -280,7 +245,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       <FormikText
                         name="sourceURL"
                         label="Source URL"
-                        width={FieldSize.Large}
+                        width={FieldSize.Big}
                         tooltip="The URL to the original source story"
                         onChange={(e) => {
                           props.handleChange(e);
@@ -309,33 +274,19 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       />
                       {/* section one of actions */}
                       <Col alignSelf="stretch">
-                        <ContentActions
-                          init
-                          filter={(a) =>
-                            a.valueType === ValueType.Boolean &&
-                            a.name !== 'Top Story' &&
-                            a.name !== 'On Ticker' &&
-                            a.name !== 'Non Qualified Subject'
-                          }
-                        />
-                      </Col>
-                      {/* section two of actions */}
-                      <Col alignSelf="stretch">
-                        <ContentActions
-                          init
-                          filter={(a) =>
-                            a.valueType === ValueType.Boolean &&
-                            a.name !== 'Alert' &&
-                            a.name !== 'Front Page' &&
-                            a.name !== 'Just In'
-                          }
-                        />
+                        <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
                       </Col>
                     </Col>
                     <Row className="commentary">
                       <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
                     </Row>
                   </Col>
+                  <FontAwesomeIcon
+                    onClick={() => navigate(`/contents/${id}`)}
+                    size="lg"
+                    className="popout"
+                    icon={faUpRightFromSquare}
+                  />
                 </Row>
                 <Row>
                   <Show visible={contentType === ContentType.Snippet}>

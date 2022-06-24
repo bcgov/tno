@@ -344,7 +344,13 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               hide={toggle}
               isShowing={isShowing}
               headerText="Prep Time Log"
-              body={<TimeLogTable totalTime={effort} data={values.timeTrackings} />}
+              body={
+                <TimeLogTable
+                  setTotalEffort={setEffort}
+                  totalEffort={effort}
+                  data={values.timeTrackings}
+                />
+              }
               customButtons={
                 <Button variant={ButtonVariant.secondary} onClick={toggle}>
                   Close

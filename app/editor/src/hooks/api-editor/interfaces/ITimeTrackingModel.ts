@@ -5,4 +5,5 @@ export interface ITimeTrackingModel {
   activity: string;
   userName?: string;
   createdOn?: any;
+  id?: number;
 }
