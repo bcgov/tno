@@ -1,0 +1,62 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: purge-service
+  namespace: default
+  annotations:
+    description: CronJob purge-service delete script.
+  labels:
+    name: purge-service
+    part-of: tno
+    version: 1.0.0
+    component: purge-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+data:
+  entrypoint.sh: |-
+    #!/bin/sh
+
+    # *********************************************************************************
+    # Delete folders that are older than the specified number of days.
+    # Folder convention requires folders to be named with the date (i.e. yyyy-mm-dd).
+    # arg1: Folder path to purge (i.e. /data/capture)
+    # arg2: Number of days to keep in storage (i.e 2 = Delete everything two days old)
+    # *********************************************************************************
+    purge_folders () {
+      echo "************************************"
+      echo "Purging $1"
+
+      for d in $1/*/*/ ; do
+        [ -L "${d%/}" ] && continue
+
+        DELETE=1
+
+        # Loop through each day to determine if the folder should be deleted.
+        i=0
+        while [ $i -lt $2 ]; do
+          DAY=$(date -D %s -d $(( $(date +%s) - (24*60*60*$i))) +"%Y-%m-%d")
+          MATCH=$(echo $d | grep -iE "^${1}/.*/${DAY}/$" | wc -l)
+
+          # Find a match, mark for keep.
+          if [ $MATCH -eq 1 ]; then
+            DELETE=0
+          fi
+          i=$(( $i + 1 ))
+        done
+
+        if [ $DELETE -eq 1 ]; then
+          echo "Delete - $d"
+          rm -rf $d
+        else
+          echo "Keep - $d"
+        fi
+
+      done
+
+      echo "************************************"
+    }
+
+    purge_folders "/data/capture" 2
+    purge_folders "/data/clip" 2

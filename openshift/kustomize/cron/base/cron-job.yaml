@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: purge-service
+  namespace: default
+  annotations:
+    description: CronJob service to delete files from PVC
+  labels:
+    name: purge-service
+    part-of: tno
+    version: 1.0.0
+    component: purge-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  schedule: "0 0 * * *" # Midnight
+  # schedule: "* * * * *" # Immediately
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+            - name: entrypoint
+              configMap:
+                defaultMode: 0700
+                name: purge-service
+            - name: av-storage
+              persistentVolumeClaim:
+                claimName: av-storage
+          containers:
+            - name: purge-service
+              image: busybox:1.35.0
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 120Mi
+                limits:
+                  cpu: 50m
+                  memory: 200Mi
+              volumeMounts:
+                - name: entrypoint
+                  mountPath: /bin/entrypoint.sh
+                  readonly: true
+                  subPath: entrypoint.sh
+                - name: av-storage
+                  mountPath: /data
+              command:
+                - /bin/entrypoint.sh
