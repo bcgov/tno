@@ -45,11 +45,7 @@ export const MediaTypeForm: React.FC = () => {
       setMediaType(result);
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/media/types/${result.id}`);
-    } catch (err: any) {
-      if (err.response.data.details.includes('duplicate key value violates unique constraint')) {
-        toast.error(`The name ${values.name} is already in use, please choose another.`);
-      }
-    }
+    } catch {}
   };
 
   return (
@@ -143,13 +139,6 @@ export const MediaTypeForm: React.FC = () => {
                   await api.deleteMediaType(mediaType);
                   toast.success(`${mediaType.name} has successfully been deleted.`);
                   navigate('/admin/media/types');
-                } catch (err: any) {
-                  console.log(err);
-                  if (err.response.data.details.includes('is still referenced from table')) {
-                    toast.error(
-                      `${mediaType.name} is referenced by a data source and cannot be deleted.`,
-                    );
-                  }
                 } finally {
                   toggle();
                 }

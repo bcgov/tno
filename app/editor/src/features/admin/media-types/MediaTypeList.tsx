@@ -4,7 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaTypes } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { GridTable } from 'tno-core/dist/components/grid-table';
+import { Claim, GridTable, useKeycloakWrapper } from 'tno-core';
 
 import { columns } from './constants';
 import { MediaTypeFilter } from './MediaTypeFilter';
@@ -16,6 +16,7 @@ export const MediaTypeList: React.FC = () => {
   const [{ requests }] = useApp();
 
   const [items, setItems] = React.useState<IMediaTypeModel[]>([]);
+  const keycloak = useKeycloakWrapper();
 
   React.useEffect(() => {
     if (!mediaTypes.length) {
@@ -33,7 +34,7 @@ export const MediaTypeList: React.FC = () => {
         <GridTable
           columns={columns}
           header={MediaTypeFilter}
-          manualPageSize
+          manualPageSize={keycloak.hasClaim(Claim.administrator)}
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}
