@@ -94,6 +94,10 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
   isLoading?: boolean;
   /** Pass the table the active row id to highlight it */
   activeId?: number;
+  /**
+   * Whether to include manual page sizing on the pager
+   */
+  manualPageSize?: boolean;
 }
 
 /**
@@ -101,7 +105,7 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
  * @param param1 GridTable properties.
  * @returns GridTable component.
  */
-export const GridTable = <T extends object = Record<string, unknown>>({
+export const GridTable = <T extends object>({
   className,
   columns,
   data,
@@ -115,6 +119,7 @@ export const GridTable = <T extends object = Record<string, unknown>>({
   isLoading,
   filters,
   activeId,
+  manualPageSize,
 }: IGridTableProps<T>) => {
   const {
     showPaging = true,
@@ -249,7 +254,7 @@ export const GridTable = <T extends object = Record<string, unknown>>({
           ))}
         </div>
       )}
-      {showPaging && <Pager {...pager} />}
+      {showPaging && <Pager manualPageSize={manualPageSize} {...pager} />}
     </styled.GridTable>
   );
 };

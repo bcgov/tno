@@ -355,15 +355,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                         </>
                       }
                     >
-                      {active === 'properties' ? (
+                      <Show visible={active === 'properties'}>
                         <ContentSummaryForm
                           content={content}
                           setContent={setContent}
                           contentType={contentType}
                         />
-                      ) : (
+                      </Show>
+                      <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
-                      )}
+                      </Show>
                     </Tabs>
                   </Show>
                   <Show visible={contentType === ContentType.Print}>

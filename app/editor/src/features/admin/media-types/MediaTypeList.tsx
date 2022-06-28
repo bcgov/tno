@@ -33,6 +33,7 @@ export const MediaTypeList: React.FC = () => {
         <GridTable
           columns={columns}
           header={MediaTypeFilter}
+          manualPageSize
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}

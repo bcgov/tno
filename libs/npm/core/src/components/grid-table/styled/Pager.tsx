@@ -1,14 +1,16 @@
 import styled from 'styled-components';
 
 export const Pager = styled.div`
-  margin-bottom: 0.5em;
+  .button-container {
+    margin-bottom: 0.5em;
+  }
 
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
+  .page-size {
+    margin-top: 0.1em;
+    margin-left: 0.5em;
+  }
 
-  & > button {
+  button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,7 +18,6 @@ export const Pager = styled.div`
     color: black;
     border-color: black;
   }
-
   .active {
     background-color: ${(props) => props.theme.css.primaryLightColor ?? '#fff'};
     color: white;

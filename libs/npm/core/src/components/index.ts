@@ -11,5 +11,6 @@ export * from './section';
 export * from './show';
 export * from './spinners';
 export * from './tabs';
+export * from './text';
 export * from './user-menu';
 export * from './view';
