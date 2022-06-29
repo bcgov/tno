@@ -96,14 +96,14 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// </summary>
     /// <param name="process"></param>
     /// <exception cref="Exception"></exception>
-    protected void RunProcess(System.Diagnostics.Process process)
+    protected void RunProcess(ICommandProcess process)
     {
-        var cmd = process.StartInfo.Arguments;
+        var cmd = process.Process.StartInfo.Arguments;
         this.Logger.LogInformation("Starting process for command: {cmd}", cmd);
-        if (!process.Start()) this.Logger.LogError("Unable to start service command for data source '{Code}'.", process.StartInfo.Verb);
+        if (!process.Process.Start()) this.Logger.LogError("Unable to start service command for data source '{Code}'.", process.Process.StartInfo.Verb);
 
         // We can't wait because it would block all other Command service cmds.  So we test for an early exit.
-        if (process.HasExited) throw new Exception($"Failed to start command: {cmd}");
+        if (process.Process.HasExited) throw new Exception($"Failed to start command: {cmd}");
     }
 
     /// <summary>
@@ -113,10 +113,10 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="process"></param>
     /// <param name="cancellationToken"></param>
     /// <exception cref="Exception"></exception>
-    protected async Task RunProcessAsync(System.Diagnostics.Process process, CancellationToken cancellationToken = default)
+    protected async Task RunProcessAsync(ICommandProcess process, CancellationToken cancellationToken = default)
     {
         RunProcess(process);
-        await process.WaitForExitAsync(cancellationToken);
+        await process.Process.WaitForExitAsync(cancellationToken);
     }
 
     /// <summary>
@@ -125,14 +125,16 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="process"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected async Task StopProcessAsync(System.Diagnostics.Process process, CancellationToken cancellationToken = default)
+    protected async Task StopProcessAsync(ICommandProcess process, CancellationToken cancellationToken = default)
     {
-        if (!process.HasExited)
+        var cmd = process.Process.StartInfo.Arguments;
+        this.Logger.LogInformation("Stopping process for command '{cmd}'", cmd);
+        if (!process.Process.HasExited)
         {
-            process.Kill(true);
-            await process.WaitForExitAsync(cancellationToken);
+            process.Process.Kill(true);
+            await process.Process.WaitForExitAsync(cancellationToken);
         }
-        process.Dispose();
+        process.Process.Dispose();
     }
 
     /// <summary>
@@ -142,13 +144,13 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual System.Diagnostics.Process GetProcess(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual ICommandProcess GetProcess(IDataSourceIngestManager manager, ScheduleModel schedule)
     {
         var key = GenerateProcessKey(manager.DataSource, schedule);
-        if (manager.Values.GetValueOrDefault(key) is not System.Diagnostics.Process process)
+        if (manager.Values.GetValueOrDefault(key) is not ICommandProcess value)
         {
             var cmd = GenerateCommandAsync(manager, schedule).Result;
-            process = new System.Diagnostics.Process();
+            var process = new System.Diagnostics.Process();
             process.StartInfo.Verb = key;
             process.StartInfo.FileName = "/bin/sh";
             process.StartInfo.Arguments = $"-c \"{cmd}\"";
@@ -161,10 +163,11 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
             // process.StartInfo.RedirectStandardError = true;
 
             // Keep a reference to the running process.
-            manager.Values[key] = process;
+            value = new CommandProcess(process);
+            manager.Values[key] = value;
         }
 
-        return process;
+        return value;
     }
 
     /// <summary>
@@ -174,7 +177,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual Task<System.Diagnostics.Process> GetProcessAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual Task<ICommandProcess> GetProcessAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
     {
         return Task.FromResult(GetProcess(manager, schedule));
     }
@@ -209,6 +212,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
             {
                 this.Logger.LogDebug("Service command '{cmd}' exited", cmd);
             }
+
+            // The process has exited, remove it from the manager so that it can get recreated again.
+            var key = process.StartInfo.Verb;
+            if (manager.Values.ContainsKey(key))
+                manager.Values.Remove(key);
+            process.Dispose();
         }
     }
 
@@ -231,11 +240,11 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// </summary>
     /// <param name="process"></param>
     /// <returns></returns>
-    protected static bool IsRunning(System.Diagnostics.Process process)
+    protected static bool IsRunning(ICommandProcess process)
     {
         try
         {
-            System.Diagnostics.Process.GetProcessById(process.Id);
+            System.Diagnostics.Process.GetProcessById(process.Process.Id);
             return true;
         }
         catch
