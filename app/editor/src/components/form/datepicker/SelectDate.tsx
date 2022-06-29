@@ -2,8 +2,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import React, { useState } from 'react';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
+import { FieldSize } from 'tno-core';
 
-import { FieldSize } from '../constants';
 import { SelectDateVariant } from '.';
 import * as styled from './styled';
 

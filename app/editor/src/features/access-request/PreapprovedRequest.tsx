@@ -1,11 +1,10 @@
-import { FieldSize } from 'components/form';
 import { FormikForm, FormikText } from 'components/formik';
 import { IRegisterModel, IUserModel, UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useUsers } from 'store/hooks';
-import { Button, ButtonVariant, Col, Row } from 'tno-core';
+import { Button, ButtonVariant, Col, FieldSize, Row } from 'tno-core';
 
 export interface IPreapprovedRequestProps {
   user: IUserModel;

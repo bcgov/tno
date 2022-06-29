@@ -1,12 +1,10 @@
-import { FieldSize, formatDate, Text } from 'components/form';
 import { FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
-import { Button, ButtonVariant } from 'tno-core';
-import { IColProps, Row } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, formatDate, IColProps, Row, Text } from 'tno-core';
 
 import * as styled from './styled';
 

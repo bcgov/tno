@@ -1,6 +1,6 @@
 import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Area, FieldSize, IconButton, IOptionItem } from 'components/form';
+import { Area, IconButton, IOptionItem } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
   FormikCheckbox,
@@ -25,7 +25,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonVariant, Col, Row, Show, Tab, Tabs, useKeycloakWrapper } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  Row,
+  Show,
+  Tab,
+  Tabs,
+  useKeycloakWrapper,
+} from 'tno-core';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { ContentFormSchema } from '../validation';

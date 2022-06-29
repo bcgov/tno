@@ -1,5 +1,5 @@
-import { ITextProps, Text, TextVariant } from 'components/form';
 import { getIn, useFormikContext } from 'formik';
+import { ITextProps, Text, TextVariant } from 'tno-core';
 
 import * as styled from './styled';
 

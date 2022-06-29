@@ -13124,9 +13124,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.154":
-  version: 0.0.154
-  resolution: "tno-core@npm:0.0.154"
+"tno-core@npm:0.0.156":
+  version: 0.0.156
+  resolution: "tno-core@npm:0.0.156"
   dependencies:
     "@headlessui/react": ^1.6.1
     "@react-keycloak/web": ^3.4.0
@@ -13148,7 +13148,7 @@ __metadata:
     react-toastify: ^9.0.1
     react-tooltip: ^4.2.21
     styled-components: ^5.3.5
-  checksum: 63b08b16f797606988fb9722b0b5784edd00ef47cd20991b4efac7c290042bb713714a0f2602e1772fd978be2da982f5693ceef22cefaf75d6b8af99f4dda35d
+  checksum: 8494017544031f8b7b7628c33c5f161a5c68f54eddf61cea53b596b1730dfe28b0a44b505e37bc6a4f5ca7454eb4ebc9f2c872ceb5ac2afde0af7072bab02cff
   languageName: node
   linkType: hard
 
@@ -13225,7 +13225,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.5
-    tno-core: 0.0.154
+    tno-core: 0.0.156
     typescript: 4.7.2
     yup: 0.32.11
   languageName: unknown

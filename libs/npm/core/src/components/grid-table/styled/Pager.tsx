@@ -8,6 +8,7 @@ export const Pager = styled.div`
   .page-size {
     margin-top: 0.1em;
     margin-left: 0.5em;
+    width: 5em;
   }
 
   button {

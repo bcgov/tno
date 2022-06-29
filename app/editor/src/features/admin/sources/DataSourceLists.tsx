@@ -37,7 +37,7 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
         columns={dataSourceColumns}
         isLoading={!!requests.length}
         sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-        manualPageSize={keycloak.hasClaim(Claim.administrator)}
+        manualPageSize
         data={items}
         header={DataSourceFilter}
         onRowClick={(row) => navigate(`${row.original.id}`)}

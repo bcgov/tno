@@ -1,6 +1,6 @@
-import { FieldSize } from 'components/form/constants';
 import styled from 'styled-components';
 
+import { FieldSize } from '../../constants';
 import { ITextProps, TextVariant } from '..';
 
 export const TextField = styled.input<ITextProps>`

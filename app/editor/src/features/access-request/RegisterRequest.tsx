@@ -1,10 +1,9 @@
-import { FieldSize } from 'components/form';
 import { FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { IUserModel } from 'hooks/api-editor';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useUsers } from 'store/hooks';
-import { Button, Col, Row } from 'tno-core';
+import { Button, Col, FieldSize, Row } from 'tno-core';
 
 export interface IRegisterRequestProps {
   user: IUserModel;

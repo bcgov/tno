@@ -1,9 +1,10 @@
 import React, { Ref } from 'react';
 import { ActionMeta, GroupBase, Props } from 'react-select';
 import ReactSelect from 'react-select/dist/declarations/src/Select';
+import { FieldSize } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
 
-import { FieldSize, IOptionItem } from '..';
+import { IOptionItem } from '..';
 import { SelectVariant } from '.';
 import * as styled from './styled';
 

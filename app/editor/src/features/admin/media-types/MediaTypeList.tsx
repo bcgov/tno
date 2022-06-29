@@ -34,7 +34,7 @@ export const MediaTypeList: React.FC = () => {
         <GridTable
           columns={columns}
           header={MediaTypeFilter}
-          manualPageSize={keycloak.hasClaim(Claim.administrator)}
+          manualPageSize
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}

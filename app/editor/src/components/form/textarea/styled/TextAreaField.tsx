@@ -1,7 +1,6 @@
-import { FieldSize } from 'components/form/constants';
 import styled from 'styled-components';
+import { FieldSize, TextVariant } from 'tno-core';
 
-import { TextVariant } from '../../text';
 import { ITextAreaProps } from '..';
 
 export const TextAreaField = styled.textarea<ITextAreaProps>`

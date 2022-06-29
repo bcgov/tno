@@ -1,19 +1,10 @@
-import {
-  Checkbox,
-  FieldSize,
-  IOptionItem,
-  OptionItem,
-  RadioGroup,
-  Select,
-  SelectDate,
-  Text,
-} from 'components/form';
+import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select, SelectDate } from 'components/form';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
 import { initialContentState } from 'store/slices';
-import { Button, ButtonVariant, Loader } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, Loader, Text } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 import { Page } from 'tno-core/dist/components/grid-table';
 import { getSortableOptions, getUserOptions } from 'utils';

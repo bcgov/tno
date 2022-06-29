@@ -1,8 +1,8 @@
-import { FieldSize } from 'components/form';
 import { FormikCheckbox, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
+import { FieldSize } from 'tno-core';
 
 import * as styled from './styled';
 

@@ -1,4 +1,4 @@
-import { FieldSize, IOptionItem, OptionItem, RadioGroup, TimeInput } from 'components/form';
+import { IOptionItem, OptionItem, RadioGroup, TimeInput } from 'components/form';
 import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
@@ -9,7 +9,7 @@ import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonVariant, Show, useKeycloakWrapper } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, Show, useKeycloakWrapper } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex/col';
 import { Row } from 'tno-core/dist/components/flex/row';
 import { getSortableOptions } from 'utils';

@@ -3,8 +3,8 @@ import { BiFirstPage, BiLastPage } from 'react-icons/bi';
 
 import { Button, ButtonVariant } from '../button';
 import { Row } from '../flex';
+import { Text } from '../form/text';
 import { Show } from '../show';
-import { Text } from '../text';
 import * as styled from './styled';
 
 export interface IPagerProps {
@@ -141,7 +141,6 @@ export const Pager: React.FC<IPagerProps> = ({
         <Show visible={!!manualPageSize}>
           <Text
             className="page-size"
-            width="5em"
             tooltip="Choose page size"
             defaultValue={10}
             type="number"

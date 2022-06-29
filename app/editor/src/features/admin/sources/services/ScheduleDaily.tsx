@@ -1,4 +1,3 @@
-import { FieldSize } from 'components/form';
 import {
   FormikCheckbox,
   FormikHidden,
@@ -11,6 +10,7 @@ import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { IDataSourceModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
+import { FieldSize } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 
 import { defaultSchedule } from '../constants';

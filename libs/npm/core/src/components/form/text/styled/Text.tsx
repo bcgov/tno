@@ -1,5 +1,6 @@
 import styled from 'styled-components';
-import { Col } from 'tno-core/dist/components/flex';
+
+import { Col } from '../../../flex';
 
 export const Text = styled(Col)`
   padding-right: 0.5em;

@@ -1,6 +1,6 @@
-import { FieldSize } from 'components/form/constants';
 import { IDatePickerProps, SelectDate, SelectDateVariant } from 'components/form/datepicker';
 import { getIn, useFormikContext } from 'formik';
+import { FieldSize } from 'tno-core';
 
 /**
  * Formik wrapped date picker.
