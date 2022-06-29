@@ -4,7 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaTypes } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Claim, GridTable, useKeycloakWrapper } from 'tno-core';
+import { GridTable } from 'tno-core';
 
 import { columns } from './constants';
 import { MediaTypeFilter } from './MediaTypeFilter';
@@ -16,7 +16,6 @@ export const MediaTypeList: React.FC = () => {
   const [{ requests }] = useApp();
 
   const [items, setItems] = React.useState<IMediaTypeModel[]>([]);
-  const keycloak = useKeycloakWrapper();
 
   React.useEffect(() => {
     if (!mediaTypes.length) {

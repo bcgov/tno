@@ -3,7 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataSources } from 'store/hooks/admin/sources';
 import { useApp } from 'store/hooks/app/useApp';
-import { Claim, useKeycloakWrapper } from 'tno-core';
 import { GridTable } from 'tno-core/dist/components/grid-table';
 
 import { DataSourceFilter } from '.';
@@ -18,7 +17,6 @@ export const DataSourceList: React.FC<IDataSourceListProps> = (props) => {
   const [{ requests }] = useApp();
 
   const [items, setItems] = React.useState<IDataSourceModel[]>([]);
-  const keycloak = useKeycloakWrapper();
 
   React.useEffect(() => {
     if (dataSources.length) {
