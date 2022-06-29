@@ -2,6 +2,9 @@ import React from 'react';
 import { BiFirstPage, BiLastPage } from 'react-icons/bi';
 
 import { Button, ButtonVariant } from '../button';
+import { Row } from '../flex';
+import { Text } from '../form/text';
+import { Show } from '../show';
 import * as styled from './styled';
 
 export interface IPagerProps {
@@ -17,6 +20,10 @@ export interface IPagerProps {
    * Total number of pages.
    */
   pageCount: number;
+  /**
+   * Manual control for page sizing
+   */
+  manualPageSize?: boolean;
   /**
    * Number of pages to show in pager.
    */
@@ -56,6 +63,7 @@ export const Pager: React.FC<IPagerProps> = ({
   nextPage,
   previousPage,
   setPageSize,
+  manualPageSize,
 }) => {
   const rows = React.useCallback(() => {
     // TODO: Handle dynamic pageLimit.  Calculate center.
@@ -92,43 +100,65 @@ export const Pager: React.FC<IPagerProps> = ({
 
   return (
     <styled.Pager>
-      <Button
-        name="firstPage"
-        variant={ButtonVariant.info}
-        onClick={() => gotoPage(0)}
-        disabled={!canPreviousPage}
-      >
-        <BiFirstPage />
-      </Button>
-      {showPageGroup && (
+      <Row justifyContent="center" className="button-container">
         <Button
-          name="previousPageGroup"
+          name="firstPage"
           variant={ButtonVariant.info}
-          onClick={() => previousPage()}
+          onClick={() => gotoPage(0)}
           disabled={!canPreviousPage}
         >
-          ...
+          <BiFirstPage />
         </Button>
-      )}
-      {rows()}
-      {showPageGroup && (
+        {showPageGroup && (
+          <Button
+            name="previousPageGroup"
+            variant={ButtonVariant.info}
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+          >
+            ...
+          </Button>
+        )}
+        {rows()}
+        {showPageGroup && (
+          <Button
+            name="nextPageGroup"
+            variant={ButtonVariant.info}
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+          >
+            ...
+          </Button>
+        )}
         <Button
-          name="nextPageGroup"
+          name="lastPage"
           variant={ButtonVariant.info}
-          onClick={() => nextPage()}
+          onClick={() => gotoPage(pageCount - 1)}
           disabled={!canNextPage}
         >
-          ...
+          <BiLastPage />
         </Button>
-      )}
-      <Button
-        name="lastPage"
-        variant={ButtonVariant.info}
-        onClick={() => gotoPage(pageCount - 1)}
-        disabled={!canNextPage}
-      >
-        <BiLastPage />
-      </Button>
+        <Show visible={!!manualPageSize}>
+          <Text
+            className="page-size"
+            tooltip="Choose page size"
+            defaultValue={10}
+            type="number"
+            name="pageSize"
+            onChange={(e) => {
+              if (Number(e.target.value) > 100) {
+                setPageSize(100);
+              }
+              if (!!e.target.value) {
+                setPageSize(Number(e.target.value));
+              }
+              if (Number(e.target.value) === 0) {
+                setPageSize(1);
+              }
+            }}
+          />
+        </Show>
+      </Row>
     </styled.Pager>
   );
 };

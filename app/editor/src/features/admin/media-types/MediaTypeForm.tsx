@@ -1,13 +1,16 @@
-import { FieldSize, IconButton, LabelPosition } from 'components/form';
+import { IconButton, LabelPosition } from 'components/form';
 import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
+import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
 import { IMediaTypeModel } from 'hooks/api-editor';
+import { noop } from 'lodash';
+import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useMediaTypes } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, Row } from 'tno-core';
+import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
 import { defaultMediaType } from './constants';
 import * as styled from './styled';
@@ -60,11 +63,11 @@ export const MediaTypeForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values }) => (
           <div className="form-container">
             <Col className="form-inputs">
-              <FormikText name="name" label="Name" />
-              <FormikTextArea name="description" label="Description" width={FieldSize.Medium} />
+              <FormikText width={FieldSize.Large} name="name" label="Name" />
+              <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"
@@ -77,6 +80,44 @@ export const MediaTypeForm: React.FC = () => {
                 label="Is Enabled"
                 name="isEnabled"
               />
+              <Show visible={!!values.id}>
+                <Row>
+                  <FormikText
+                    width={FieldSize.Small}
+                    disabled
+                    name="updatedBy"
+                    label="Updated By"
+                  />
+                  <FormikDatePicker
+                    selectedDate={
+                      !!values.updatedOn ? moment(values.updatedOn).toString() : undefined
+                    }
+                    onChange={noop}
+                    name="updatedOn"
+                    label="Updated On"
+                    disabled
+                    width={FieldSize.Small}
+                  />
+                </Row>
+                <Row>
+                  <FormikText
+                    width={FieldSize.Small}
+                    disabled
+                    name="createdBy"
+                    label="Created By"
+                  />
+                  <FormikDatePicker
+                    selectedDate={
+                      !!values.createdOn ? moment(values.createdOn).toString() : undefined
+                    }
+                    onChange={noop}
+                    name="createdOn"
+                    label="Created On"
+                    disabled
+                    width={FieldSize.Small}
+                  />
+                </Row>
+              </Show>
             </Col>
             <Row justifyContent="center" className="form-inputs">
               <Button type="submit" disabled={isSubmitting}>

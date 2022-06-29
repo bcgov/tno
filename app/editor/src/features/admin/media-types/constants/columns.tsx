@@ -14,6 +14,7 @@ export const columns: (Column<IMediaTypeModel> &
   {
     Header: 'Description',
     accessor: 'description',
+    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Enabled',

@@ -1,11 +1,10 @@
-import { FieldSize } from 'components/form';
 import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { Col, FieldSize, Row } from 'tno-core';
 
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import { scheduleTypeOptions } from './constants';

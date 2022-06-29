@@ -1,7 +1,7 @@
-import { IconButton, Text } from 'components/form';
+import { IconButton } from 'components/form';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row } from 'tno-core/dist/components/flex';
+import { Row, Text } from 'tno-core';
 
 interface IUserFilterProps {
   setGlobalFilter: (filterValue: any) => void;

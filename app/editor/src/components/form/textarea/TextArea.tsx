@@ -1,8 +1,7 @@
 import { InputHTMLAttributes } from 'react';
 import React from 'react';
+import { FieldSize, TextVariant } from 'tno-core';
 
-import { TextVariant } from '..';
-import { FieldSize } from '../constants';
 import * as styled from './styled';
 
 export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement> {

@@ -4,7 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaTypes } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { GridTable } from 'tno-core/dist/components/grid-table';
+import { GridTable } from 'tno-core';
 
 import { columns } from './constants';
 import { MediaTypeFilter } from './MediaTypeFilter';
@@ -33,6 +33,7 @@ export const MediaTypeList: React.FC = () => {
         <GridTable
           columns={columns}
           header={MediaTypeFilter}
+          manualPageSize
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}
