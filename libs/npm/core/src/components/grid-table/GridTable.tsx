@@ -196,8 +196,9 @@ export const GridTable = <T extends object>({
   }, [onChangePage, pageIndex, pageSize, currentPage]);
 
   React.useEffect(() => {
-    onChangeSort(sortBy);
-  }, [onChangeSort, sortBy]);
+    if (sortBy.length !== initialSortBy.length || !sortBy.every((v, i) => v === initialSortBy[i]))
+      onChangeSort(sortBy);
+  }, [initialSortBy, onChangeSort, sortBy]);
 
   return (
     <styled.GridTable className={`table${className ? ` ${className}` : ''}`} {...getTableProps()}>
