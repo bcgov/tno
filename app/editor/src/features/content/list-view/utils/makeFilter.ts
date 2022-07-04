@@ -62,8 +62,6 @@ const applySortBy = (sortBy?: ISortBy[]) => {
 
   var sort: string[] = [];
   for (let i = 0; i < sortBy.length; i++) {
-    console.log(sortBy[i]);
-    console.log(`page${sortBy[i].desc ? ' desc' : ''}`);
     let column = sortBy[i].id;
     if (column === 'section') {
       sort.push(`PrintContent.${column}${sortBy[i].desc ? ' desc' : ''}`);
