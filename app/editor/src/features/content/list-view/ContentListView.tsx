@@ -37,6 +37,7 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter) => {
       try {
+        alert('try');
         const data = await findContent(
           makeFilter({
             ...filter,

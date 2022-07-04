@@ -1,13 +1,25 @@
-import { IDataSourceModel, IMediaTypeModel, IPaged, IUserModel } from 'hooks/api-editor';
+import {
+  IDataSourceModel,
+  IMediaTypeModel,
+  IPaged,
+  IUserFilter,
+  IUserModel,
+} from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 
-import { storeAdminDataSources, storeAdminMediaTypes, storeAdminUsers } from '.';
+import {
+  storeAdminDataSources,
+  storeAdminMediaTypes,
+  storeAdminUserFilter,
+  storeAdminUsers,
+} from '.';
 import { IAdminState } from './interfaces';
 
 export interface IAdminProps {}
 
 export interface IAdminStore {
+  storeUserFilter: (filter: IUserFilter) => void;
   storeDataSources: (dataSources: IDataSourceModel[]) => void;
   storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
@@ -27,6 +39,9 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeUsers: (users: IPaged<IUserModel>) => {
         dispatch(storeAdminUsers(users));
+      },
+      storeUserFilter: (filter: IUserFilter) => {
+        dispatch(storeAdminUserFilter(filter));
       },
     }),
     [dispatch],

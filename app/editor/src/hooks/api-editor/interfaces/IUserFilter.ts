@@ -1,3 +1,5 @@
+import { ISortBy } from 'features/content/list-view/interfaces';
+
 import { UserStatusName } from '../constants';
 
 export interface IUserFilter {
@@ -8,5 +10,9 @@ export interface IUserFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSystemAccount?: boolean;
-  status?: UserStatusName;
+  // status?: UserStatusName;
+  status?: string;
+  sort: any;
+  role?: string;
+  keyword?: string;
 }
