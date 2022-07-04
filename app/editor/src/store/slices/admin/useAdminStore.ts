@@ -6,6 +6,7 @@ import {
   IPaged,
   ISeriesModel,
   ITagModel,
+  IUserFilter,
   IUserModel,
 } from 'hooks/api-editor';
 import React from 'react';
@@ -18,6 +19,7 @@ import {
   storeAdminMediaTypes,
   storeAdminSeries,
   storeAdminTags,
+  storeAdminUserFilter,
   storeAdminUsers,
 } from '.';
 import { IAdminState } from './interfaces';
@@ -25,6 +27,7 @@ import { IAdminState } from './interfaces';
 export interface IAdminProps {}
 
 export interface IAdminStore {
+  storeUserFilter: (filter: IUserFilter) => void;
   storeDataSources: (dataSources: IDataSourceModel[]) => void;
   storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
   storeCategories: (categories: ICategoryModel[]) => void;
@@ -60,6 +63,9 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeSeries: (series: ISeriesModel[]) => {
         dispatch(storeAdminSeries(series));
+      },
+      storeUserFilter: (filter: IUserFilter) => {
+        dispatch(storeAdminUserFilter(filter));
       },
     }),
     [dispatch],

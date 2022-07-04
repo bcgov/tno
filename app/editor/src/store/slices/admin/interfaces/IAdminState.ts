@@ -6,6 +6,7 @@ import {
   IPaged,
   ISeriesModel,
   ITagModel,
+  IUserFilter,
   IUserModel,
 } from 'hooks/api-editor';
 
@@ -17,4 +18,5 @@ export interface IAdminState {
   tags: ITagModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
+  userFilter: IUserFilter;
 }
