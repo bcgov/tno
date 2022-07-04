@@ -1763,7 +1763,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-svg-core@npm:^6.1.1":
+"@fortawesome/fontawesome-svg-core@npm:6.1.1":
   version: 6.1.1
   resolution: "@fortawesome/fontawesome-svg-core@npm:6.1.1"
   dependencies:
@@ -1772,7 +1772,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/free-solid-svg-icons@npm:^6.1.1":
+"@fortawesome/free-solid-svg-icons@npm:6.1.1":
   version: 6.1.1
   resolution: "@fortawesome/free-solid-svg-icons@npm:6.1.1"
   dependencies:
@@ -1781,7 +1781,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/react-fontawesome@npm:^0.1.18":
+"@fortawesome/react-fontawesome@npm:0.1.18":
   version: 0.1.18
   resolution: "@fortawesome/react-fontawesome@npm:0.1.18"
   dependencies:
@@ -11450,7 +11450,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-reflex@npm:^4.0.9":
+"react-reflex@npm:4.0.9":
   version: 4.0.9
   resolution: "react-reflex@npm:4.0.9"
   dependencies:
@@ -13156,9 +13156,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "tno-editor-app@workspace:."
   dependencies:
-    "@fortawesome/fontawesome-svg-core": ^6.1.1
-    "@fortawesome/free-solid-svg-icons": ^6.1.1
-    "@fortawesome/react-fontawesome": ^0.1.18
+    "@fortawesome/fontawesome-svg-core": 6.1.1
+    "@fortawesome/free-solid-svg-icons": 6.1.1
+    "@fortawesome/react-fontawesome": 0.1.18
     "@headlessui/react": 1.6.4
     "@react-keycloak/web": 3.4.0
     "@reduxjs/toolkit": 1.8.2
@@ -13211,7 +13211,7 @@ __metadata:
     react-icons: 4.3.1
     react-redux: 8.0.2
     react-redux-loading-bar: 5.0.4
-    react-reflex: ^4.0.9
+    react-reflex: 4.0.9
     react-router-dom: 6.3.0
     react-scripts: 5.0.1
     react-select: 5.3.2

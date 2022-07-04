@@ -3,7 +3,7 @@ export * from './DataSourceActions';
 export * from './DataSourceDetails';
 export * from './DataSourceFilter';
 export * from './DataSourceForm';
-export * from './DataSourceLists';
+export * from './DataSourceList';
 export * from './DataSourceMetrics';
 export * from './DataSourceStatus';
 export * from './ReachEarnedMedia';
