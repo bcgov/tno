@@ -37,7 +37,6 @@ export const UserList: React.FC = () => {
     async (filter: IUserFilter) => {
       try {
         const data = await findUsers(makeUserFilter(filter));
-        console.log(data);
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
 
         setPage(page);
