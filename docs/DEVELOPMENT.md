@@ -114,9 +114,7 @@ Or if you choose to run everything use the `make up` command.
 ```bash
 # Start up containers for the web applications.
 make up p=editor
-# Start up containers for ingestion services.
-make up p=ingest
-# Start up containers for Kafka only.
+# Start up containers for Kafka.
 make up p=kafka
 ```
 
@@ -158,6 +156,9 @@ Below is a list of all the additional services and utilities.
 | kowl        | 40180 | Kafka UI to view cluster                                       |
 | dejavu      | 40005 | Elasticsearch UI to view cluster                               |
 | syndication | 40020 | Kafka Producer to ingest syndication feeds                     |
+| capture     | 40024 | Listens to audio/video streams and captures a file             |
+| clip        | 40025 | Creates clips from capture files based on schedule             |
+| content     | 40026 | Kafka Consumer to create content for Editors                   |
 | nlp         | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
 | indexing    | 40023 | Kafka Consumer to index content for search                     |
 | transcribe  |       | Kafka Consumer/Producer to transcribe audio/video content      |

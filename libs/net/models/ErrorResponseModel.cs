@@ -48,9 +48,9 @@ namespace TNO.API.Models
         /// <param name="isDevelopment">Is the environment configured for development.  If so, show all error information.</param>
         public ErrorResponseModel(Exception ex, string? message = null, string? details = null, bool isDevelopment = false)
         {
-            this.Error = isDevelopment ? ex.Message : message;
+            this.Error = message ?? (isDevelopment ? ex.Message : "An unhandled error has occurred");
             this.Type = ex.GetType().Name;
-            this.Details = isDevelopment ? details ?? ex.GetAllMessages() : null;
+            this.Details = details ?? (isDevelopment ? ex.GetAllMessages() : null);
             this.StackTrace = isDevelopment ? ex.StackTrace : null;
         }
 

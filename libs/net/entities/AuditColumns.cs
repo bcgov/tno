@@ -4,6 +4,9 @@ using TNO.Core.Extensions;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// AuditColumns abstract class, provides common audit columns for entities.
+/// </summary>
 public abstract class AuditColumns : ISaveChanges
 {
     [Column("created_by_id")]
@@ -30,6 +33,7 @@ public abstract class AuditColumns : ISaveChanges
     [Column("version")]
     public long Version { get; set; }
 
+    #region Methods
     public void OnAdded(User user)
     {
         var now = DateTime.UtcNow;
@@ -69,4 +73,5 @@ public abstract class AuditColumns : ISaveChanges
         this.UpdatedOn = DateTime.UtcNow;
         this.Version++;
     }
+    #endregion
 }

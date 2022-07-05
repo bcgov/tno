@@ -17,6 +17,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services", "services\TN
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Keycloak", "keycloak\TNO.Keycloak.csproj", "{4DCA789D-6005-4BA3-A7C1-1139647F70B7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{062EACFE-9CC0-42F7-B6B5-4556892C36CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Test.DAL", "tests\dal\TNO.Test.DAL.csproj", "{DE579C2E-05C3-4B91-8CEA-B59E430A2C53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Test.Entities", "tests\entities\TNO.Test.Entities.csproj", "{EA915F28-0021-4D32-833F-7C67230235FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +60,17 @@ Global
 		{4DCA789D-6005-4BA3-A7C1-1139647F70B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DCA789D-6005-4BA3-A7C1-1139647F70B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DCA789D-6005-4BA3-A7C1-1139647F70B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA915F28-0021-4D32-833F-7C67230235FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA915F28-0021-4D32-833F-7C67230235FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA915F28-0021-4D32-833F-7C67230235FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA915F28-0021-4D32-833F-7C67230235FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}
+		{EA915F28-0021-4D32-833F-7C67230235FC} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}
 	EndGlobalSection
 EndGlobal

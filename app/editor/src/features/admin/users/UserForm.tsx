@@ -22,7 +22,10 @@ import { Col, Row } from 'tno-core';
 import { defaultUser } from './constants';
 import * as styled from './styled';
 
-/** The page used to view and edit media types in the administrative section. */
+/**
+ * Provides a User Form to manage, create, update and delete a user.
+ * @returns React component containing administrative user form.
+ */
 export const UserForm: React.FC = () => {
   const [, api] = useUsers();
   const { id } = useParams();
@@ -88,7 +91,12 @@ export const UserForm: React.FC = () => {
           <div className="form-container">
             <Row>
               <Col className="form-inputs">
-                <FormikText name="username" label="Username" disabled={isLinkedToKeycloak} />
+                <FormikText
+                  name="username"
+                  label="Username"
+                  disabled={isLinkedToKeycloak}
+                  required={!values.id}
+                />
               </Col>
               <Col
                 className="form-inputs"
@@ -104,7 +112,13 @@ export const UserForm: React.FC = () => {
                 </Show>
               </Col>
             </Row>
-            <FormikText name="email" label="Email" disabled={isLinkedToKeycloak} />
+            <FormikText
+              name="email"
+              label="Email"
+              type="email"
+              disabled={isLinkedToKeycloak}
+              required={!values.id}
+            />
             <Row>
               <Col className="form-inputs">
                 <FormikText
