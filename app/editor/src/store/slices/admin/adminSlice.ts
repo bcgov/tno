@@ -1,11 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {
-  IDataSourceModel,
-  IMediaTypeModel,
-  IPaged,
-  IUserFilter,
-  IUserModel,
-} from 'hooks/api-editor';
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
+import { IDataSourceModel, IMediaTypeModel, IPaged, IUserModel } from 'hooks/api-editor';
 
 import { IAdminState } from './interfaces';
 
@@ -31,7 +26,7 @@ export const adminSlice = createSlice({
     storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
       state.users = action.payload;
     },
-    storeUserFilter(state: IAdminState, action: PayloadAction<IUserFilter>) {
+    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
       state.userFilter = action.payload;
     },
   },

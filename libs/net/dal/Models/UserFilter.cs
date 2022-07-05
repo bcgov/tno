@@ -15,7 +15,7 @@ public class UserFilter : PageFilter
     public bool? IsSystemAccount { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
     public string? Keyword { get; set; }
-    public IEnumerable<Entities.Role> Roles { get; set; } = Array.Empty<Entities.Role>();
+    public string? RoleName { get; set; }
 
     #endregion
 
@@ -35,7 +35,7 @@ public class UserFilter : PageFilter
         this.Status = filter.GetEnumNullValue<Entities.UserStatus>(nameof(this.Status));
         this.IsSystemAccount = filter.GetBoolNullValue(nameof(this.IsSystemAccount));
         this.Keyword = filter.GetStringValue(nameof(this.Keyword));
-        // this.Roles = filter.GetStringArrayValue(nameof(this.Sort));
+        this.RoleName = filter.GetStringValue(nameof(this.RoleName));
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
