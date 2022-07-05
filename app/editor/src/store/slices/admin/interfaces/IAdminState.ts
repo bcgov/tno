@@ -9,6 +9,7 @@ import {
   IUserFilter,
   IUserModel,
 } from 'hooks/api-editor';
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 
 export interface IAdminState {
   dataSources: IDataSourceModel[];
@@ -18,5 +19,5 @@ export interface IAdminState {
   tags: ITagModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
-  userFilter: IUserFilter;
+  userFilter: IUserListFilter;
 }

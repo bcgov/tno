@@ -10,6 +10,7 @@ import {
   IUserFilter,
   IUserModel,
 } from 'hooks/api-editor';
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 
 import { IAdminState } from './interfaces';
 
@@ -50,7 +51,8 @@ export const adminSlice = createSlice({
     },
     storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
-    storeUserFilter(state: IAdminState, action: PayloadAction<IUserFilter>) {
+    },
+    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
       state.userFilter = action.payload;
     },
   },

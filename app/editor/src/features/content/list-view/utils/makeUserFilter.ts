@@ -1,10 +1,13 @@
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IUserFilter } from 'hooks';
 
-export const makeUserFilter = (filter: IUserFilter) => {
+import { ISortBy } from '../interfaces';
+
+export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
   return {
     username: filter.username,
     status: filter.status,
-    role: filter.role,
+    roles: filter.roles,
     keyword: filter.keyword,
     sort: applySortBy(filter.sort),
   };
@@ -16,7 +19,7 @@ export const makeUserFilter = (filter: IUserFilter) => {
  * @param sortBy An array of sort objects.
  * @returns An array of sort parameters.
  */
-const applySortBy = (sortBy?: any[]) => {
+const applySortBy = (sortBy?: ISortBy[]) => {
   if (sortBy === undefined || sortBy.length === 0) return undefined;
 
   var sort: string[] = [];

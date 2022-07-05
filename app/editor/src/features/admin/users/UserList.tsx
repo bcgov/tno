@@ -1,6 +1,6 @@
 import { FormPage } from 'components/form/formpage/styled';
 import { makeUserFilter } from 'features/content/list-view/utils/makeUserFilter';
-import { IUserFilter, IUserModel } from 'hooks';
+import { IUserModel } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
@@ -9,13 +9,14 @@ import { useApp } from 'store/hooks/app/useApp';
 import { Page, PagedTable } from 'tno-core';
 
 import { columns } from './constants';
+import { IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';
 import { UserFilter } from './UserFilter';
 
 export const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [{ users, userFilter }, { findUsers, storeFilter }] = useUsers();
-  const [{ requests }, { isUserReady }] = useApp();
+  const [{ requests }] = useApp();
   const [page, setPage] = React.useState(
     new Page(users.page - 1, users.quantity, users.items, users.total),
   );
@@ -34,7 +35,7 @@ export const UserList: React.FC = () => {
   );
 
   const fetch = React.useCallback(
-    async (filter: IUserFilter) => {
+    async (filter: IUserListFilter) => {
       try {
         const data = await findUsers(makeUserFilter(filter));
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
@@ -50,14 +51,8 @@ export const UserList: React.FC = () => {
   );
 
   React.useEffect(() => {
-    // Only make a request if the user has been set.
-    if (isUserReady()) {
-      fetch(userFilter);
-    }
-    // Only want to make a request when filter or sort change.
-    // 'fetch' regrettably changes any time the advanced filter changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userFilter, isUserReady()]);
+    fetch(userFilter);
+  }, [fetch, userFilter]);
 
   return (
     <styled.UserList>

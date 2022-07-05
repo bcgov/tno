@@ -1,4 +1,7 @@
-export interface IUserFilter {
+import { ISortBy } from 'features/content/list-view/interfaces';
+import { UserStatusName } from 'hooks';
+
+export interface IUserListFilter {
   username?: string;
   email?: string;
   name?: string;
@@ -6,8 +9,8 @@ export interface IUserFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSystemAccount?: boolean;
-  status?: string;
-  sort?: string[];
+  status?: UserStatusName;
+  sort: ISortBy[];
   roles?: string[];
   keyword?: string;
 }

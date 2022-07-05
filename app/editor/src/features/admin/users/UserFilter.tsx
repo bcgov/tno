@@ -1,23 +1,25 @@
 import { IconButton, OptionItem, Select } from 'components/form';
-import { IUserFilter, UserStatus, UserStatusName } from 'hooks';
+import { UserStatus, UserStatusName } from 'hooks';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from 'store/hooks/admin';
 import { FieldSize, Text } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
 
+import { IUserListFilter } from './interfaces/IUserListFilter';
+
 interface IUserFilterProps {}
 
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
-  const [filter, setFilter] = useState<IUserFilter>(userFilter);
+  const [filter, setFilter] = useState<IUserListFilter>(userFilter);
   const statusOptions = [
-    new OptionItem<number>(UserStatusName.Preapproved, UserStatus.Preapproved),
-    new OptionItem<number>(UserStatusName.Approved, UserStatus.Approved),
-    new OptionItem<number>(UserStatusName.Activated, UserStatus.Activated),
-    new OptionItem<number>(UserStatusName.Authenticated, UserStatus.Authenticated),
-    new OptionItem<number>(UserStatusName.Denied, UserStatus.Denied),
-    new OptionItem<number>(UserStatusName.Requested, UserStatus.Requested),
+    new OptionItem(UserStatusName.Preapproved, UserStatus.Preapproved),
+    new OptionItem(UserStatusName.Approved, UserStatus.Approved),
+    new OptionItem(UserStatusName.Activated, UserStatus.Activated),
+    new OptionItem(UserStatusName.Authenticated, UserStatus.Authenticated),
+    new OptionItem(UserStatusName.Denied, UserStatus.Denied),
+    new OptionItem(UserStatusName.Requested, UserStatus.Requested),
   ];
 
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           }}
           placeholder="Search by keyword"
           name="keyword"
+          value={filter.keyword}
         />
         <Select
           onChange={(e: any) => {
@@ -46,13 +49,15 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           options={statusOptions}
           name="status"
           placeholder="Search by status"
+          value={statusOptions.find((s) => s.value === Number(filter.status))}
         />
         <Text
           onChange={(e) => {
-            setFilter({ ...filter, role: e.target.value });
+            setFilter({ ...filter, roles: [e.target.value] });
           }}
           name="role"
           placeholder="Search by role"
+          value={filter.roles}
         />
         <IconButton
           iconType="search"
@@ -63,7 +68,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
         <IconButton
           iconType="reset"
           onClick={() => {
-            setFilter({ sort: [] });
+            setFilter({ sort: [], roles: [], keyword: '', status: undefined });
             storeFilter({ sort: [] });
           }}
         />
