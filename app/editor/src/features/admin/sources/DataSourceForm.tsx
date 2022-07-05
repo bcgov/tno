@@ -58,6 +58,10 @@ export const DataSourceForm: React.FC<IDataSourceProps> = (props) => {
     } catch {}
   };
 
+  const hasErrors = (errors: any, props: string[]) => {
+    return props.some((p) => !!errors[p]);
+  };
+
   return (
     <styled.DataSourceForm>
       <Row>
@@ -82,16 +86,34 @@ export const DataSourceForm: React.FC<IDataSourceProps> = (props) => {
           handleSubmit(values);
           setSubmitting(false);
         }}
+        validateOnBlur={true}
+        validateOnChange={false}
+        validateOnMount={false}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, errors }) => (
           <Row>
             <Col flex="2 1">
               <Tabs
                 tabs={
                   <>
-                    <Tab navigateTo="details" label="Details" exact activePaths={[`${id}`]} />
+                    <Tab
+                      navigateTo="details"
+                      label="Details"
+                      exact
+                      activePaths={[`${id}`]}
+                      hasErrors={hasErrors(errors, ['name', 'code', 'mediaTypeId', 'licenseId'])}
+                    />
                     <Tab navigateTo="metrics" label="Reach/Earned Media" />
-                    <Tab navigateTo="ingest/settings" label="Ingest Settings" />
+                    <Tab
+                      navigateTo="ingest/settings"
+                      label="Ingest Settings"
+                      hasErrors={hasErrors(errors, [
+                        'dataLocationId',
+                        'contentTypeId',
+                        'topic',
+                        'connection',
+                      ])}
+                    />
                     <Tab navigateTo="ingest/schedule" label="Ingest Schedule" />
                     <Tab navigateTo="ingesting" label="Ingesting" />
                   </>

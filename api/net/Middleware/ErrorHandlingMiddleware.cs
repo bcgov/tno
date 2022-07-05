@@ -91,30 +91,30 @@ namespace TNO.API.Middleware
             else if (ex is DbUpdateConcurrencyException)
             {
                 code = HttpStatusCode.BadRequest;
-                message = "Data may have been modified or deleted since item was loaded.";
+                message = "Data may have been modified or deleted since item was loaded.  Refresh your data and reapply your changes.";
 
-                _logger.LogDebug(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogDebug(ex, "Optimistic concurrency error", ex.Message);
             }
             else if (ex is DbUpdateException)
             {
                 code = HttpStatusCode.BadRequest;
-                message = "An error occurred while updating this item.";
+                message = "A database error occurred while updating.";
 
-                _logger.LogDebug(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogDebug(ex, "Database update error", ex.Message);
             }
             else if (ex is KeyNotFoundException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = "Item does not exist.";
 
-                _logger.LogDebug(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogDebug(ex, "Key not found error", ex.Message);
             }
             else if (ex is RowVersionMissingException)
             {
                 code = HttpStatusCode.BadRequest;
                 message = "Item cannot be updated without a row version.";
 
-                _logger.LogDebug(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogDebug(ex, "Row version missing error", ex.Message);
             }
             else if (ex is ArgumentException)
             {
@@ -128,14 +128,14 @@ namespace TNO.API.Middleware
                 code = HttpStatusCode.Forbidden;
                 message = "User is not authorized to perform this action.";
 
-                _logger.LogWarning(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogWarning(ex, "Not authorized error", ex.Message);
             }
             else if (ex is ConfigurationException)
             {
                 code = HttpStatusCode.InternalServerError;
                 message = "Application configuration details invalid or missing.";
 
-                _logger.LogError(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogError(ex, "Configuration error", ex.Message);
             }
             else if (ex is BadRequestException || ex is InvalidOperationException)
             {

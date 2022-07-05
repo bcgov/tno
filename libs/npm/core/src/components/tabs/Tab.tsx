@@ -29,6 +29,10 @@ export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
    * The user requires at least one of the specified claims to see this nav item.
    */
   claim?: Claim | Claim[];
+  /**
+   * Whether the tab has any errors.
+   */
+  hasErrors?: boolean;
 }
 
 /**
@@ -46,6 +50,7 @@ export const Tab: React.FC<ITabProps> = ({
   active = false,
   activePaths = [],
   exact = false,
+  hasErrors = false,
   onClick,
 }) => {
   const navigate = useNavigate();
@@ -63,6 +68,7 @@ export const Tab: React.FC<ITabProps> = ({
       onClick={(e) => (onClick ? onClick(e as any) : navigate(navigateTo!!))}
       active={isActive}
       className={`${className ?? 'tab'}`}
+      hasErrors={hasErrors}
     >
       <span>{label}</span>
       {children}

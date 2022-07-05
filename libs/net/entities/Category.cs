@@ -3,6 +3,9 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// Category class, provides an entity model used to categorize content.
+/// </summary>
 [Cache("categories", "lookups")]
 [Table("category")]
 public class Category : BaseType<int>

@@ -3,6 +3,10 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// Action class, provides an entity for content actions.
+/// An action is a way to identify content for processes, or filtering.
+/// </summary>
 [Cache("actions", "lookups")]
 [Table("action")]
 public class Action : BaseType<int>
