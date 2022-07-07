@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Test.DAL", "tests\dal\T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Test.Entities", "tests\entities\TNO.Test.Entities.csproj", "{EA915F28-0021-4D32-833F-7C67230235FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Test.Services", "tests\services\TNO.Test.Services.csproj", "{CFFE2050-0837-4B0F-8C7E-F65B91C8256F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,9 +70,14 @@ Global
 		{EA915F28-0021-4D32-833F-7C67230235FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA915F28-0021-4D32-833F-7C67230235FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA915F28-0021-4D32-833F-7C67230235FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFFE2050-0837-4B0F-8C7E-F65B91C8256F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFFE2050-0837-4B0F-8C7E-F65B91C8256F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFFE2050-0837-4B0F-8C7E-F65B91C8256F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFFE2050-0837-4B0F-8C7E-F65B91C8256F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}
 		{EA915F28-0021-4D32-833F-7C67230235FC} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}
+		{CFFE2050-0837-4B0F-8C7E-F65B91C8256F} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}
 	EndGlobalSection
 EndGlobal

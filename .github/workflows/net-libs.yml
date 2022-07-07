@@ -79,14 +79,23 @@ jobs:
           mkdir -p TestResults
           rm -rf dal/TestResults
           rm -rf entities/TestResults
+          rm -rf services/TestResults
+
           cd dal
           dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings --no-restore
           mv TestResults/*/* ../TestResults/
           cd ..
+
           cd entities
           dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings --no-restore
           mv TestResults/*/* ../TestResults/
           cd ..
+
+          cd services
+          dotnet test --collect:"XPlat Code Coverage" --settings coverlet.runsettings --no-restore
+          mv TestResults/*/* ../TestResults/
+          cd ..
+
           head TestResults/coverage.opencover.xml
 
       - name: Codecov
@@ -98,7 +107,7 @@ jobs:
           # Repository upload token - get it from codecov.io. Required only for private repositories
           token: ${{env.codeCov-token}}
           # Path to coverage file to upload
-          file: ${{env.working-directory}}/tests/unit/TestResults/coverage.opencover.xml
+          file: ${{env.working-directory}}/tests/TestResults/coverage.opencover.xml
           # Flag upload to group coverage metrics (e.g. unittests | integration | ui,chrome)
           flags: unittests
           # Environment variables to tag the upload with (e.g. PYTHON | OS,PYTHON)
