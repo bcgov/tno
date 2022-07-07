@@ -65,6 +65,22 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
     onReady?.(!!users.length && !!contentTypes.length && !!mediaTypes.length);
   }, [users, contentTypes, mediaTypes, onReady]);
 
+  /** Handle enter key pressed for advanced filter */
+  React.useEffect(() => {
+    const keyDownHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        search({ ...filter, pageIndex: 0, ...filterAdvanced });
+      }
+    };
+
+    document.addEventListener('keydown', keyDownHandler);
+
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+    };
+  }, [filter, filterAdvanced, search]);
+
   React.useEffect(() => {
     ReactTooltip.rebuild();
   });
