@@ -10,6 +10,7 @@ export const isActive = (
   if (!path || !match) return false;
   if (match.startsWith('/') && activeHover === '') return path.startsWith(match);
   if (activeHover === label?.toLowerCase()) return true;
+  if (activeHover !== label?.toLowerCase() && !!activeHover) return false;
 
   return path.endsWith(match);
 };

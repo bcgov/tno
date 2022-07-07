@@ -6,9 +6,7 @@ import { Row } from 'tno-core/dist/components/flex/row';
  * The navigation bar that is used throughout the TNO editor application. Add or remove navigation bar items here.
  */
 export const NavBar: React.FC = () => {
-  const [activeHover, setActiveHover] = useState<'admin' | 'editor' | ''>('');
-  console.log(activeHover);
-
+  const [activeHover, setActiveHover] = useState<string>('');
   return (
     <div onMouseLeave={() => setActiveHover('')}>
       <NavBarGroup className="navbar">
@@ -32,7 +30,7 @@ export const NavBar: React.FC = () => {
         </Row>
       </NavBarGroup>
       <NavBarGroup hover className="navbar">
-        <Row hidden={activeHover === ''}>
+        <Row hidden={!activeHover}>
           <Show visible={activeHover === 'editor'}>
             <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
             <NavBarItem navigateTo="/storage" label="Storage" claim={Claim.editor} />

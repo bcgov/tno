@@ -12,10 +12,6 @@ export interface INavBarGroupProps extends React.HTMLAttributes<HTMLDivElement> 
  * @param children the navigation bar items
  * @returns navigation bar group
  */
-export const NavBarGroup: React.FC<INavBarGroupProps> = ({ children, hover, ...rest }) => {
-  return (
-    <styled.NavBarGroup hover={hover} {...rest}>
-      {children}
-    </styled.NavBarGroup>
-  );
+export const NavBarGroup: React.FC<INavBarGroupProps> = ({ children, ...rest }) => {
+  return <styled.NavBarGroup {...rest}>{children}</styled.NavBarGroup>;
 };
