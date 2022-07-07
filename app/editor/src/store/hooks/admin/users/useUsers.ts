@@ -1,3 +1,4 @@
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IPaged, IUserModel, useApiAdminUsers } from 'hooks/api-editor';
 import { IUserFilter } from 'hooks/api-editor/interfaces/IUserFilter';
 import React from 'react';
@@ -10,6 +11,7 @@ interface IUserController {
   addUser: (model: IUserModel) => Promise<IUserModel>;
   updateUser: (model: IUserModel) => Promise<IUserModel>;
   deleteUser: (model: IUserModel) => Promise<IUserModel>;
+  storeFilter: (filter: IUserListFilter) => void;
 }
 
 export const useUsers = (): [IAdminState, IUserController] => {
@@ -61,6 +63,7 @@ export const useUsers = (): [IAdminState, IUserController] => {
         });
         return result;
       },
+      storeFilter: store.storeUserFilter,
     }),
     // The state.users will cause it to fire twice!
     // eslint-disable-next-line react-hooks/exhaustive-deps

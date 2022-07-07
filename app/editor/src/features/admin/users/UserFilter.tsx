@@ -1,14 +1,27 @@
-import { IconButton } from 'components/form';
-import React from 'react';
+import { IconButton, OptionItem, Select } from 'components/form';
+import { UserStatus, UserStatusName } from 'hooks';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Row, Text } from 'tno-core';
+import { useUsers } from 'store/hooks/admin';
+import { FieldSize, Text } from 'tno-core';
+import { Row } from 'tno-core/dist/components/flex';
 
-interface IUserFilterProps {
-  setGlobalFilter: (filterValue: any) => void;
-}
+import { IUserListFilter } from './interfaces/IUserListFilter';
 
-export const UserFilter: React.FC<IUserFilterProps> = ({ setGlobalFilter }) => {
-  const [filter, setFilter] = React.useState<string>('');
+interface IUserFilterProps {}
+
+export const UserFilter: React.FC<IUserFilterProps> = () => {
+  const [{ userFilter }, { storeFilter }] = useUsers();
+  const [filter, setFilter] = useState<IUserListFilter>(userFilter);
+  const statusOptions = [
+    new OptionItem(UserStatusName.Preapproved, UserStatus.Preapproved),
+    new OptionItem(UserStatusName.Approved, UserStatus.Approved),
+    new OptionItem(UserStatusName.Activated, UserStatus.Activated),
+    new OptionItem(UserStatusName.Authenticated, UserStatus.Authenticated),
+    new OptionItem(UserStatusName.Denied, UserStatus.Denied),
+    new OptionItem(UserStatusName.Requested, UserStatus.Requested),
+  ];
+
   const navigate = useNavigate();
   return (
     <>
@@ -22,18 +35,41 @@ export const UserFilter: React.FC<IUserFilterProps> = ({ setGlobalFilter }) => {
       <Row className="filter-bar" justifyContent="center">
         <Text
           onChange={(e) => {
-            setFilter(e.target.value);
-            setGlobalFilter(e.target.value);
+            setFilter({ ...filter, keyword: e.target.value });
           }}
           placeholder="Search by keyword"
-          name="search"
-          value={filter}
+          name="keyword"
+          value={filter.keyword}
+        />
+        <Select
+          onChange={(e: any) => {
+            setFilter({ ...filter, status: e.value });
+          }}
+          width={FieldSize.Medium}
+          options={statusOptions}
+          name="status"
+          placeholder="Search by status"
+          value={statusOptions.find((s) => s.value === Number(filter.status))}
+        />
+        <Text
+          onChange={(e) => {
+            setFilter({ ...filter, roles: [e.target.value] });
+          }}
+          name="role"
+          placeholder="Search by role"
+          value={filter.roles}
+        />
+        <IconButton
+          iconType="search"
+          onClick={() => {
+            storeFilter(filter);
+          }}
         />
         <IconButton
           iconType="reset"
           onClick={() => {
-            setFilter('');
-            setGlobalFilter('');
+            setFilter({ sort: [], roles: [''], keyword: '', status: '' });
+            storeFilter({ sort: [] });
           }}
         />
       </Row>
