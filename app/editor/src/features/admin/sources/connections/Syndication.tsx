@@ -34,6 +34,14 @@ export const Syndication: React.FC = (props) => {
           setFieldValue('connection.import', e.currentTarget.checked);
         }}
       />
+      <FormikCheckbox
+        label="Fetch Content Body Separately"
+        name="connection.fetch-content"
+        tooltip="Whether content body is located remotely"
+        onChange={(e) => {
+          setFieldValue('connection.fetch-content', e.currentTarget.checked);
+        }}
+      />
     </styled.MediaType>
   );
 };
