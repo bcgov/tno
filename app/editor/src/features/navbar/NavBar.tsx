@@ -1,38 +1,41 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { Claim } from 'tno-core';
+import React, { useState } from 'react';
+import { Claim, NavBarGroup, NavBarItem, Show } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex/row';
-import { NavBarGroup, NavBarItem } from 'tno-core/dist/components/navbar';
 
 /**
  * The navigation bar that is used throughout the TNO editor application. Add or remove navigation bar items here.
  */
 export const NavBar: React.FC = () => {
-  const location = useLocation();
-
-  const showEditor =
-    location.pathname.startsWith('/contents') ||
-    location.pathname.startsWith('/storage') ||
-    location.pathname.startsWith('/combined');
-  const showAdmin = location.pathname.startsWith('/admin');
-  const [activeHover, setActiveHover] = React.useState(false);
+  const [activeHover, setActiveHover] = useState<string>('');
   return (
-    <div onMouseOver={() => setActiveHover(true)} onMouseLeave={() => setActiveHover(false)}>
+    <div onMouseLeave={() => setActiveHover('')}>
       <NavBarGroup className="navbar">
         <Row>
-          <NavBarItem navigateTo="/contents" label="Editor" claim={Claim.editor} />
-          <NavBarItem navigateTo="/admin" label="Admin" claim={Claim.administrator} />
+          <div className="editor" onMouseOver={() => setActiveHover('editor')}>
+            <NavBarItem
+              activeHoverTab={activeHover}
+              navigateTo="/contents"
+              label="Editor"
+              claim={Claim.editor}
+            />
+          </div>
+          <div className="admin" onMouseOver={() => setActiveHover('admin')}>
+            <NavBarItem
+              activeHoverTab={activeHover}
+              navigateTo="/admin"
+              label="Admin"
+              claim={Claim.administrator}
+            />
+          </div>
         </Row>
       </NavBarGroup>
-      <NavBarGroup className="navbar">
-        {showEditor && activeHover && (
-          <Row>
+      <NavBarGroup hover className="navbar">
+        <Row hidden={!activeHover}>
+          <Show visible={activeHover === 'editor'}>
             <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
             <NavBarItem navigateTo="/storage" label="Storage" claim={Claim.editor} />
-          </Row>
-        )}
-        {showAdmin && activeHover && (
-          <Row>
+          </Show>
+          <Show visible={activeHover === 'admin'}>
             <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
             <NavBarItem
               navigateTo="/admin/data/sources"
@@ -54,8 +57,8 @@ export const NavBar: React.FC = () => {
               label="Linked Snippet Log"
               claim={Claim.administrator}
             />
-          </Row>
-        )}
+          </Show>
+        </Row>
       </NavBarGroup>
     </div>
   );

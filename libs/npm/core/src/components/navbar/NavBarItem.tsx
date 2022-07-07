@@ -25,6 +25,10 @@ export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement> {
    * Whether the current location path needs to be an exact match with the navigateTo to be active.
    */
   exact?: boolean;
+  /**
+   * Identify which tab is currently being hovered
+   */
+  activeHoverTab?: string;
 }
 
 /**
@@ -38,6 +42,7 @@ export const NavBarItem: React.FC<INavBarItemProps> = ({
   navigateTo,
   claim,
   exact = false,
+  activeHoverTab,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,7 +52,7 @@ export const NavBarItem: React.FC<INavBarItemProps> = ({
   return hasClaim ? (
     <styled.NavBarItem
       onClick={() => navigate(navigateTo!!)}
-      active={isActive(location.pathname, navigateTo, exact)}
+      active={isActive(location.pathname, navigateTo, exact, activeHoverTab, label)}
     >
       {label}
     </styled.NavBarItem>

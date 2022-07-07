@@ -1,6 +1,5 @@
 import styled from 'styled-components';
-
-import { INavBarGroupProps } from '..';
+import { INavBarGroupProps } from 'tno-core';
 
 export const NavBarGroup = styled.div<INavBarGroupProps>`
   display: flex;
