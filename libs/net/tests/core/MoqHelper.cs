@@ -3,11 +3,22 @@ using Moq;
 
 namespace TNO.Test.Core;
 
+/// <summary>
+/// MoqHelper static class, provides mock methods to speed up the setup of mocked objects.
+/// </summary>
 public static class MoqHelper
 {
-
-    public static IServiceCollection AddMock<T>(this IServiceCollection services) where T : class
+    /// <summary>
+    /// Create and add the mocked type to the service collection.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddMockSingleton<T>(this IServiceCollection services) where T : class
     {
-        return services.AddSingleton<T>(Mock.Of<T>());
+        var mock = new Mock<T>();
+        return services
+          .AddSingleton(mock)
+          .AddSingleton(mock.Object);
     }
 }

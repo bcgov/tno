@@ -20,7 +20,7 @@ public class ActionServiceTest : IDisposable
         {
             services.AddTNOContext("action-service");
             services.AddPrincipalForRole("editor");
-            services.AddMock<ILogger<ActionService>>();
+            services.AddMockSingleton<ILogger<ActionService>>();
             services.AddSingleton<IActionService, ActionService>();
         });
     }
