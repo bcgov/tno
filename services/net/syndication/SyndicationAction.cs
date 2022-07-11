@@ -85,16 +85,23 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             try
             {
                 // Fetch content body separately if required
-                if (bool.Parse(dataSource.DataSource.GetConnectionValue("fetch-content")))
+                if (bool.Parse(dataSource.DataSource.GetConnectionValue("fetchContent")))
                 {
-                    var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "";
-                    var content =  await this.GetContentAsync(link);
-                    var date = await GetPubDateTimeAsync(content, dataSource.DataSource);
+                    var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
+                    if (Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
+                    {
+                        var content =  await this.GetContentAsync(link);
+                        var date = await GetPubDateTimeAsync(content, dataSource.DataSource);
 
-                    item.Id = link;
-                    item.PublishDate = date;
-                    content = StringExtensions.SanitizeContent(content);
-                    item.Summary = new TextSyndicationContent(content, TextSyndicationContentKind.Html);
+                        item.Id = link.ToString();
+                        item.PublishDate = date;
+                        content = StringExtensions.SanitizeContent(content);
+                        item.Summary = new TextSyndicationContent(content, TextSyndicationContentKind.Html);
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Invalid URL for content body: {link}");
+                    }
                 }
 
                 // Fetch content reference.
@@ -146,7 +153,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="url">The web location of a CP News article</param>
     /// <returns>An HTML formatted news article</returns>
-    private async Task<string> GetContentAsync(string url)
+    private async Task<string> GetContentAsync(Uri url)
     {
         var response = await _httpClient.GetAsync(url);
         var data = await response.Content.ReadAsStringAsync();
