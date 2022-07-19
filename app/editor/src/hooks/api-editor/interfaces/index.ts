@@ -1,3 +1,4 @@
+export * from './IActionFilter';
 export * from './IActionModel';
 export * from './IAuditColumnsModel';
 export * from './ICacheModel';
@@ -30,10 +31,12 @@ export * from './IRegisterModel';
 export * from './IResponseErrorModel';
 export * from './IRoleModel';
 export * from './IScheduleModel';
+export * from './ISeriesFilter';
 export * from './ISeriesModel';
 export * from './ISortableModel';
 export * from './ISourceActionModel';
 export * from './ISourceMetricModel';
+export * from './ITagFilter';
 export * from './ITagModel';
 export * from './ITimeTrackingModel';
 export * from './ITonePoolModel';
