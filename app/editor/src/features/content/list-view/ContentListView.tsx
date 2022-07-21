@@ -128,7 +128,7 @@ export const ContentListView: React.FC = () => {
               disabled
               tooltip="Under Construction"
             >
-              Send Send Lois to Commentary
+              Send Lois to Commentary
             </Button>
           </div>
         </div>
