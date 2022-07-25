@@ -1,15 +1,19 @@
 using System.ServiceModel.Syndication;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
+using System.Globalization;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Http;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Models.Kafka;
+using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
@@ -80,6 +84,26 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
+                // Fetch content body separately if required
+                if (bool.Parse(dataSource.DataSource.GetConnectionValue("fetchContent")))
+                {
+                    var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
+                    if (Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
+                    {
+                        var content =  await this.GetContentAsync(link);
+                        var date = await GetPubDateTimeAsync(content, dataSource.DataSource);
+
+                        item.Id = link.ToString();
+                        item.PublishDate = date;
+                        content = StringExtensions.SanitizeContent(content);
+                        item.Summary = new TextSyndicationContent(content, TextSyndicationContentKind.Html);
+                    }
+                    else
+                    {
+                        throw new HttpRequestException($"Invalid URL for content body: {link}");
+                    }
+                }
+
                 // Fetch content reference.
                 var reference = await this.Api.FindContentReferenceAsync(dataSource.DataSource.Code, item.Id);
                 var sendMessage = true;
@@ -122,6 +146,39 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 await dataSource.RecordFailureAsync();
             }
         }
+    }
+
+    /// <summary>
+    /// Make an AJAX request to fetch the CP News article identified by url.
+    /// </summary>
+    /// <param name="url">The web location of a CP News article</param>
+    /// <returns>An HTML formatted news article</returns>
+    private async Task<string> GetContentAsync(Uri url)
+    {
+        var response = await _httpClient.GetAsync(url);
+        var data = await response.Content.ReadAsStringAsync();
+
+        return data;
+    }
+
+    /// <summary>
+    /// Takes a CP News article and extracts the published date/time.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns>A DateTime object representing the published date/time for the article</returns>
+    private async Task<DateTime> GetPubDateTimeAsync(string content, DataSourceModel ds)
+    {
+        var matches = Regex.Matches(content, "<DATE>(.+?)</DATE>");
+        var pubDate = matches[0].Groups[1].Value;
+        var comps = pubDate.Split(' ');
+        var timeZoneStr = ds.GetConnectionValue("timeZone");
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr);
+        var offset = timeZone.GetUtcOffset(DateTime.Now).Hours; // Handles daylight saving time
+
+        var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year.ToString()} {comps[2]} {offset}";
+        var date = DateTime.ParseExact(dateStr, "dd MMM yyyy HH:mm z", CultureInfo.InvariantCulture);
+
+        return date;
     }
 
     /// <summary>

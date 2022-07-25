@@ -245,4 +245,27 @@ public static class StringExtensions
         else if (!parent.StartsWith(Path.DirectorySeparatorChar) && path.StartsWith(Path.DirectorySeparatorChar)) parent = $"{Path.DirectorySeparatorChar}{parent}";
         return Directory.Exists(path) && Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
     }
+
+    /// <summary>
+    /// Extract the article text from the HTML document articleContent and remove all tags. This produces a rather
+    /// monolithic block of text. This method can be modified to refine the appearance of the output once we have
+    /// a subscriber interface to work with.
+    /// </summary>
+    /// <param name="articleContent">HTML encoded news article</param>
+    /// <returns>Article text only with tags removed</returns>
+    public static string SanitizeContent(string articleContent)
+    {
+        int startPos = articleContent.IndexOf("<ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
+        int endPos = articleContent.IndexOf("</ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
+        string articleStr = "";
+
+		if(startPos > 0)
+		{
+			articleStr = articleContent.Substring(startPos + 9, endPos - (startPos + 9));
+		}
+
+        articleStr = Regex.Replace(articleContent, @"<[^>]*>", String.Empty);
+
+        return articleStr;
+    }
 }
