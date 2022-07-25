@@ -7,3 +7,6 @@ export * from './Connection';
 export * from './Newspaper';
 export * from './Syndication';
 export * from './Video';
+export * from './VideoClip';
+export * from './VideoStream';
+export * from './VideoTuner';

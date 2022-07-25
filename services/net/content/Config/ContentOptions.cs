@@ -15,6 +15,11 @@ public class ContentOptions : ServiceOptions
     public string Topics { get; set; } = "";
 
     /// <summary>
+    /// get/set - The path to capture files.
+    /// </summary>
+    public string CapturePath { get; set; } = "";
+
+    /// <summary>
     /// get/set - The path to clip files.
     /// </summary>
     public string ClipPath { get; set; } = "";

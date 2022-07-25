@@ -18,8 +18,6 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
 
-  // TODO: Need a more selective condition to determine if this section should be visible.
-  const showImportContent = values.connection.serviceType !== 'stream';
   const users = [
     new OptionItem('None', 0),
     ...lookups.users.map((u) => new OptionItem(u.username, u.id)),
@@ -81,23 +79,23 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
             options={dataLocations}
             required
           />
-          {showImportContent && (
+          <FormikSelect
+            label="Generated Content Type"
+            name="contentTypeId"
+            tooltip="The type of content that is created when ingesting"
+            options={contentTypes}
+            onChange={handleContentTypeChange}
+            required={values.connection.serviceType === 'clip'}
+          />
+          <FormikSelect
+            label="Owner"
+            name="ownerId"
+            tooltip="The default user who will own ingested content"
+            options={users}
+            onChange={handleOwnerChange}
+          />
+          {values.contentTypeId !== 0 && (
             <>
-              <FormikSelect
-                label="Generated Content Type"
-                name="contentTypeId"
-                tooltip="The type of content that is created when ingesting"
-                options={contentTypes}
-                onChange={handleContentTypeChange}
-                required={values.connection.serviceType === 'clip'}
-              />
-              <FormikSelect
-                label="Owner"
-                name="ownerId"
-                tooltip="The default user who will own ingested content"
-                options={users}
-                onChange={handleOwnerChange}
-              />
               <FormikText label="Kafka Topic" name="topic" required={!!values.contentTypeId} />
               <div>
                 <p>

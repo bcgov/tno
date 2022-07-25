@@ -58,7 +58,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
         if (dataSource != null)
             this.DataSource = dataSource;
 
-        return VerifyDataSource() && this.DataSource.DataSourceSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(GetSourceDateTime(DateTime.UtcNow), s.Schedule!));
+        return VerifyDataSource() && this.DataSource.DataSourceSchedules.Where(s => s.Schedule != null).Any(s => VerifySchedule(s.Schedule!));
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     /// </summary>
     /// <param name="date"></param>
     /// <returns></returns>
-    protected virtual DateTime GetSourceDateTime(DateTime date)
+    public virtual DateTime GetSourceDateTime(DateTime date)
     {
         return date.ToTimeZone(GetTimeZone());
     }
@@ -108,6 +108,17 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     public virtual bool VerifyDataSource()
     {
         return true;
+    }
+
+    /// <summary>
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
+    /// Make certain the date is valid for the source timezone.
+    /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    public virtual bool VerifySchedule(ScheduleModel schedule)
+    {
+        return VerifySchedule(GetSourceDateTime(DateTime.UtcNow), schedule);
     }
 
     /// <summary>

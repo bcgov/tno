@@ -33,7 +33,7 @@ public class CaptureDataSourceManager : CommandDataSourceManager<CaptureOptions>
     public override bool VerifyDataSource()
     {
         var url = this.DataSource.GetConnectionValue("url");
-        return !String.IsNullOrWhiteSpace(url);
+        return !String.IsNullOrWhiteSpace(url) && this.DataSource.IsEnabled;
     }
     #endregion
 }

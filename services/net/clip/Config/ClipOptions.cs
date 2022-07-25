@@ -9,11 +9,6 @@ public class ClipOptions : CommandOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - The command to execute (i.e. ffmpeg).
-    /// </summary>
-    public string Command { get; set; } = "ffmpeg";
-
-    /// <summary>
     /// get/set - The path to captured files.
     /// </summary>
     public string CapturePath { get; set; } = "";

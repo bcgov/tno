@@ -15,6 +15,11 @@ public class CommandProcess : ICommandProcess
     /// get/set - When the process was created.
     /// </summary>
     public DateTime CreatedOn { get; set; }
+
+    /// <summary>
+    /// get - Data included in the command process.
+    /// </summary>
+    public Dictionary<string, object> Data { get; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -30,11 +35,33 @@ public class CommandProcess : ICommandProcess
     /// Creates a new instance of a CommandProcess object, initializes with specified paraemters.
     /// </summary>
     /// <param name="process"></param>
+    /// <param name="data"></param>
+    public CommandProcess(System.Diagnostics.Process process, KeyValuePair<string, object> data) : this(process, DateTime.Now, data)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new instance of a CommandProcess object, initializes with specified paraemters.
+    /// </summary>
+    /// <param name="process"></param>
     /// <param name="createdOn"></param>
     public CommandProcess(System.Diagnostics.Process process, DateTime createdOn)
     {
         this.Process = process;
         this.CreatedOn = createdOn;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a CommandProcess object, initializes with specified paraemters.
+    /// </summary>
+    /// <param name="process"></param>
+    /// <param name="createdOn"></param>
+    /// <param name="data"></param>
+    public CommandProcess(System.Diagnostics.Process process, DateTime createdOn, KeyValuePair<string, object> data)
+    {
+        this.Process = process;
+        this.CreatedOn = createdOn;
+        this.Data.Add(data.Key, data.Value);
     }
     #endregion
 }

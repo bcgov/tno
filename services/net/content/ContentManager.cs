@@ -7,6 +7,7 @@ using TNO.Models.Kafka;
 using Confluent.Kafka;
 using TNO.API.Areas.Editor.Models.Lookup;
 using System.Text.Json;
+using TNO.Models.Extensions;
 
 namespace TNO.Services.Content;
 
@@ -76,7 +77,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // Listen to every enabled data source with a topic.
                     var topics = !String.IsNullOrWhiteSpace(_options.Topics) ? _options.GetTopics() : this.Lookups?.DataSources
                         .Where(ds => ds.IsEnabled &&
-                            ds.ContentTypeId != null &&
+                            ds.ContentTypeId > 0 &&
                             !String.IsNullOrWhiteSpace(ds.Topic) &&
                             ds.Connection.ContainsKey("import") &&
                             ((JsonElement)ds.Connection["import"]).GetBoolean()).Select(ds => ds.Topic).ToArray() ?? Array.Empty<string>();
@@ -162,7 +163,13 @@ public class ContentManager : ServiceManager<ContentOptions>
             {
                 // TODO: Handle different storage locations.
                 // Remote storage locations may not be easily accessible by this service.
-                var sourcePath = Path.Join(_options.ClipPath, result.Message.Value.FilePath);
+                var volumePath = source.GetConnectionValue("serviceType") switch
+                {
+                    "stream" => _options.CapturePath,
+                    "clip" => _options.ClipPath,
+                    _ => ""
+                };
+                var sourcePath = Path.Join(volumePath, result.Message.Value.FilePath);
                 if (File.Exists(sourcePath))
                 {
                     var file = File.OpenRead(sourcePath);

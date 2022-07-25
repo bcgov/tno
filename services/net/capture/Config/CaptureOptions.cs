@@ -9,11 +9,6 @@ public class CaptureOptions : CommandOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - The command to execute (i.e. ffmpeg).
-    /// </summary>
-    public string Command { get; set; } = "ffmpeg";
-
-    /// <summary>
     /// get/set - The path to store files.
     /// </summary>
     public string OutputPath { get; set; } = "";
