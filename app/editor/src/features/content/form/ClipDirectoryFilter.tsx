@@ -1,6 +1,5 @@
 import { IconButton } from 'components/form';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Row, Text } from 'tno-core';
 
 interface IClipDirectoryFilterProps {

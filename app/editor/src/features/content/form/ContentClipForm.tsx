@@ -1,5 +1,4 @@
 import { Modal } from 'components/modal';
-import { useFormikContext } from 'formik';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
