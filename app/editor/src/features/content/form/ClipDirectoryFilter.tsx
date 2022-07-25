@@ -9,7 +9,6 @@ interface IClipDirectoryFilterProps {
 
 export const ClipDirectoryFilter: React.FC<IClipDirectoryFilterProps> = ({ setGlobalFilter }) => {
   const [filter, setFilter] = React.useState<string>('');
-  const navigate = useNavigate();
   return (
     <>
       <Row className="filter-bar" justifyContent="center">

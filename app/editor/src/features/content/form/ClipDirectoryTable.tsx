@@ -35,7 +35,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
     modified: d.modified,
   }));
 
-  const { values, setFieldValue } = useFormikContext<IItemModel>();
+  const { values } = useFormikContext<IItemModel>();
 
   return (
     <styled.ClipDirectoryTable>

@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { FaOldRepublic } from 'react-icons/fa';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 import { extractFileName } from 'utils';
 

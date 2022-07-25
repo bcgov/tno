@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import { Button, ButtonVariant, Col, Row, Text } from 'tno-core';
 
 import { useStorage } from '../../../store/hooks';
-import { useContent } from '../../../store/hooks';
 import { defaultFolder } from '../../storage/constants';
 import { ClipDirectoryTable } from './ClipDirectoryTable';
 import { IContentForm } from './interfaces';
@@ -28,7 +27,6 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
   const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
   const [streamUrl, setStreamUrl] = React.useState<string>();
   const [item, setItem] = React.useState<IItemModel>();
-  const [file, setFile] = React.useState<File>();
   const [start, setStart] = React.useState<string>('');
   const [end, setEnd] = React.useState<string>('');
   const [clipNbr, setClipNbr] = React.useState<number>(1);
@@ -36,7 +34,6 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
   const [target, setTarget] = React.useState<string>('');
   const { toggle, isShowing } = useModal();
   const storage = useStorage();
-  const { values, setFieldValue } = useFormikContext<IContentForm>();
 
   React.useEffect(() => {
     storage.getFolder(path).then((data) => {
@@ -120,7 +117,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
 
   const navigateUp = () => {
     var pathComps = folder.path.split('/');
-    if (pathComps.length == 3) {
+    if (pathComps.length === 3) {
       setPath(pathComps[1]);
     }
   };
