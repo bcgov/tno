@@ -3,7 +3,7 @@ import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'componen
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
-import { IMediaTypeModel, ISeriesModel } from 'hooks/api-editor';
+import { ISeriesModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';

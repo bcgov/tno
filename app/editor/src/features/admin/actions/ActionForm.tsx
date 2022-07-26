@@ -3,13 +3,13 @@ import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'componen
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
-import { IActionModel, IMediaTypeModel, ISeriesModel } from 'hooks/api-editor';
+import { IActionModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useActions, useSeries } from 'store/hooks/admin';
+import { useActions } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
 import { defaultAction } from './constants';

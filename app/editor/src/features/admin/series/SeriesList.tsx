@@ -1,5 +1,5 @@
 import { FormPage } from 'components/form/formpage/styled';
-import { ISeriesModel, ITagModel } from 'hooks/api-editor';
+import { ISeriesModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSeries } from 'store/hooks/admin';

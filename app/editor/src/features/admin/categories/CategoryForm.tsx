@@ -2,13 +2,12 @@ import { IconButton, LabelPosition } from 'components/form';
 import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { ICategoryModel, ITagModel, useModal } from 'hooks';
+import { ICategoryModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useTags } from 'store/hooks/admin';
 import { useCategories } from 'store/hooks/admin/categories';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
