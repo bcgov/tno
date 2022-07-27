@@ -27,6 +27,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Include(ds => ds.DataLocation)
             .Include(ds => ds.MediaType)
             .Include(ds => ds.License)
+            .Where(ds => ds.ContentTypeId != 0)
             .OrderBy(ds => ds.Code).ThenBy(ds => ds.Name).ToArray();
     }
 
