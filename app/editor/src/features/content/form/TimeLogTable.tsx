@@ -38,7 +38,7 @@ export const TimeLogTable: React.FC<ITimeLogTableProps> = ({
       <GridTable
         paging={{ showPaging: false }}
         columns={timeLogColumns(setTotalEffort, setFieldValue, values)}
-        data={parsedData!!}
+        data={parsedData}
       ></GridTable>
       <Row>
         <p className="total-text">{`Total: ${totalEffort} Min`}</p>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useApp, useContent } from 'store/hooks';
-import { Page, PagedTable } from 'tno-core';
+import { Button, Page, PagedTable } from 'tno-core';
 
 import { condensedColumns, defaultPage } from '../list-view/constants';
 import * as styled from './styled';
@@ -53,6 +53,9 @@ export const ListViewPanel: React.FC<IListViewPanel> = () => {
         onChangePage={handleChangePage}
         onChangeSort={handleChangeSort}
       />
+      <Button name="create" onClick={() => navigate('/contents/0')}>
+        Create Snippet
+      </Button>
     </styled.ListViewPanel>
   );
 };

@@ -193,7 +193,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 placeholder={
                   !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : 'HH:MM:SS'
                 }
-                required
                 label="Time"
                 onChange={(e) => setPublishedOnTime(e.target.value)}
               />

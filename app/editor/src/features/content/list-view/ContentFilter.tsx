@@ -89,6 +89,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
     const value = +e.target.value;
     const timeFrame = timeFrames.find((tf) => tf.value === value);
     setTimeframe(timeframe);
+    setUpdated && setUpdated(true);
     storeFilter({
       ...filter,
       pageIndex: 0,
@@ -107,6 +108,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
           value={mediaTypeOptions.find((mt) => mt.value === filter.mediaTypeId)}
           defaultValue={mediaTypeOptions[0]}
           onChange={(newValue) => {
+            setUpdated && setUpdated(true);
             var mediaTypeId = (newValue as IOptionItem).value ?? 0;
             storeFilter({
               ...filter,
@@ -122,6 +124,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
           value={userOptions.find((u) => u.value === filter.userId)}
           onChange={(newValue) => {
             var userId = (newValue as IOptionItem).value ?? '';
+            setUpdated && setUpdated(true);
             storeFilter({
               ...filter,
               pageIndex: 0,
@@ -150,6 +153,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 value={printContentId}
                 checked={filter.contentTypeId !== 0}
                 onChange={(e) => {
+                  setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
@@ -162,26 +166,27 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 label="Included"
                 value="Included"
                 checked={filter.included !== ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
                     included: e.target.checked ? e.target.value : '',
-                  })
-                }
+                  });
+                }}
               />
               <Checkbox
                 name="ticker"
                 label="On Ticker"
                 value="On Ticker"
                 checked={filter.onTicker !== ''}
-                onChange={(e) =>
+                onChange={(e) => {
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
                     onTicker: e.target.checked ? e.target.value : '',
-                  })
-                }
+                  });
+                  setUpdated && setUpdated(true);
+                }}
               />
             </div>
             <div>
@@ -190,26 +195,28 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 label="Commentary"
                 value="Commentary"
                 checked={filter.commentary !== ''}
-                onChange={(e) =>
+                onChange={(e) => {
+                  setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
                     commentary: e.target.checked ? e.target.value : '',
-                  })
-                }
+                  });
+                }}
               />
               <Checkbox
                 name="topStory"
                 label="Top Story"
                 value="Top Story"
                 checked={filter.topStory !== ''}
-                onChange={(e) =>
+                onChange={(e) => {
+                  setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
                     topStory: e.target.checked ? e.target.value : '',
-                  })
-                }
+                  });
+                }}
               />
             </div>
           </div>

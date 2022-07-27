@@ -115,7 +115,6 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
         const defaultTonePool = tonePools.find((t) => t.name === 'Default');
         values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
       }
-
       const model = toModel(values);
       contentResult = !content.id ? await addContent(model) : await updateContent(model);
 
