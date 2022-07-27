@@ -225,7 +225,7 @@ export const GridTable = <T extends object>({
             prepareRow(row);
             return (
               <div
-                className={activeId === (row.original as any).id ? 'active' : ''}
+                className={activeId && activeId === (row.original as any).id ? 'active' : ''}
                 {...row.getRowProps()}
                 onClick={() => onRowClick && onRowClick(row)}
               >
