@@ -43,7 +43,7 @@ export const clipDirectoryColumns = (
     id: 'size',
     Header: () => <div className="center">Size</div>,
     accessor: 'size',
-    Cell: ({ value }) => <div className="ft-row">{value}</div>,
+    Cell: ({ value }) => <div className="ft-row">{!!value ? `${value / 1000000} MB` : ''}</div>,
   },
   {
     id: 'modified',

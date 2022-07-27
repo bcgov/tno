@@ -50,11 +50,6 @@ export const ContentClipForm = styled.div`
     font-weight: bold;
   }
 
-  ul {
-    display: flex;
-    flex-direction: column;
-  }
-
   .navigate {
     cursor: pointer;
     text-decoration: underline;
@@ -116,11 +111,17 @@ export const ContentClipForm = styled.div`
     padding-bottom: 20px;
   }
 
-  .target {
+  .prefix {
     padding-top: 7px;
     margin-left: 5px;
     margin-top: 1px;
     height: 40px;
+  }
+
+  .start-end {
+    border: 0;
+    background-color: white;
+    padding: 0;
   }
 
   .editing {
@@ -129,9 +130,17 @@ export const ContentClipForm = styled.div`
     margin-top: 30px;
     font-size: 14pt;
     width: 100%;
+    display: flex;
+    flex-direction: col;
   }
 
   .navigate-up {
     margin-bottom: 20px;
+  }
+
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+    font-weight: 700;
   }
 `;

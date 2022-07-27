@@ -1,5 +1,6 @@
+import { FormikForm, FormikText } from 'components/formik';
 import { Modal } from 'components/modal';
-import { IFolderModel, IItemModel } from 'hooks/api-editor';
+import { IClipModel, IFolderModel, IItemModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -30,7 +31,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
   const [end, setEnd] = React.useState<string>('');
   const [clipNbr, setClipNbr] = React.useState<number>(1);
   const [currFile, setCurrFile] = React.useState<string>('');
-  const [target, setTarget] = React.useState<string>('');
+  const [prefix, setPrefix] = React.useState<string>('');
   const { toggle, isShowing } = useModal();
   const storage = useStorage();
 
@@ -56,7 +57,6 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
   };
 
   const downloadItem = async (item: IItemModel) => {
-    console.log(content);
     await storage.download(`${folder.path}/${item.name}`);
   };
 
@@ -79,11 +79,9 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
       toast.error('The clip start time and clip end time must both be set.');
     } else if (parseInt(start) >= parseInt(end)) {
       toast.error('The clip start time must be before the clip end time.');
-    } else if (!target) {
-      toast.error('You must provide a target file name.');
     } else {
       setClipNbr(!!clipNbr ? clipNbr + 1 : 1);
-      await storage.clip(currFile, folder.path, start, end, clipNbr, target).then((data) => {
+      await storage.clip(currFile, folder.path, start, end, clipNbr, prefix).then((data) => {
         setFolder({ ...data, items: data.items });
         setStart('');
         setEnd('');
@@ -92,7 +90,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
   };
 
   const joinClips = async () => {
-    await storage.join(currFile, folder.path, target).then((data) => {
+    await storage.join(currFile, folder.path, prefix).then((data) => {
       setFolder({ ...data, items: data.items });
       setClipNbr(1);
       setStart('');
@@ -100,11 +98,17 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
     });
   };
 
+  const clipSubmit = async (event: any) => {
+    debugger;
+    var x = 1;
+  };
+
   const setStartTime = () => {
     setStart(!!videoRef.current ? videoRef.current?.currentTime.toFixed() : '');
   };
 
   const setEndTime = () => {
+    debugger;
     setEnd(!!videoRef.current ? videoRef.current?.currentTime.toFixed() : '');
   };
 
@@ -211,13 +215,13 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
             </Button>
           </Col>
           <Col>
-            <p className="start-end">Target:</p>
+            <p className="start-end">Prefix:</p>
             <Text
-              name="target"
+              name="prefix"
               label=""
-              className="target"
+              className="prefix"
               onChange={(e) => {
-                setTarget(e.target.value);
+                setPrefix(e.target.value);
               }}
             />
             {/* Modal to appear when removing a file */}

@@ -22,9 +22,9 @@ interface IStorageController {
     start: string,
     end: string,
     clipNbr: number,
-    target: string,
+    prefix: string,
   ) => Promise<IFolderModel>;
-  join: (directory: string, fileName: string, target: string) => Promise<IFolderModel>;
+  join: (directory: string, fileName: string, prefix: string) => Promise<IFolderModel>;
   attach: (id: number, path: string) => Promise<IFolderModel>;
 }
 
@@ -68,15 +68,15 @@ export const useStorage = (): IStorageController => {
         start: string,
         end: string,
         clipNbr: number,
-        target: string,
+        prefix: string,
       ) => {
         return await dispatch<IFolderModel>('storage-clip', () =>
-          api.clip(fileName, directory, start, end, clipNbr, target),
+          api.clip(fileName, directory, start, end, clipNbr, prefix),
         );
       },
-      join: async (filename: string, directory: string, target: string) => {
+      join: async (filename: string, directory: string, prefix: string) => {
         return await dispatch<IFolderModel>('storage-join', () =>
-          api.join(filename, directory, target),
+          api.join(filename, directory, prefix),
         );
       },
       attach: async (id: number, path: string) => {

@@ -17,7 +17,7 @@ export interface IClipDirectoryTableProps {
   navigate: (item: IItemModel) => void;
 }
 
-/** Table used to display time log for users creating and updating content. */
+/** Table used to display directory listing of clip files for the data source */
 export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
   data,
   deleteItem,
@@ -26,15 +26,6 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
   attachItem,
   navigate,
 }) => {
-  const parsedData = data.map((d: IItemModel) => ({
-    name: d.name,
-    extension: d.extension,
-    isDirectory: d.isDirectory,
-    size: d.size,
-    mimeType: d.mimeType,
-    modified: d.modified,
-  }));
-
   const { values } = useFormikContext<IItemModel>();
 
   return (
@@ -43,7 +34,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
         paging={{ showPaging: false }}
         columns={clipDirectoryColumns(deleteItem, selectItem, downloadItem, attachItem, values)}
         header={ClipDirectoryFilter}
-        data={parsedData!!}
+        data={data}
         className="file-table"
         onRowClick={(row) => navigate(row.original)}
       ></GridTable>

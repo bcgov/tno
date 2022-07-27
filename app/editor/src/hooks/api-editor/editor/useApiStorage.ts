@@ -120,7 +120,7 @@ export const useApiStorage = (
       start: string,
       end: string,
       clipNbr: number,
-      target: string,
+      prefix: string,
     ) => {
       const params = {
         fileName,
@@ -128,17 +128,17 @@ export const useApiStorage = (
         start,
         end,
         clipNbr,
-        target,
+        prefix,
       };
       return api.get<IItemModel, AxiosResponse<IFolderModel, never>, any>(
         `/editor/storage/clip?${toQueryString(params)}`,
       );
     },
-    join: (fileName: string, directory: string, target: string) => {
+    join: (fileName: string, directory: string, prefix: string) => {
       const params = {
         fileName,
         directory,
-        target,
+        prefix,
       };
       return api.put<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
         `/editor/storage/join?${toQueryString(params)}`,
