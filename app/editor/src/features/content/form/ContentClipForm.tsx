@@ -1,6 +1,5 @@
-import { FormikForm, FormikText } from 'components/formik';
 import { Modal } from 'components/modal';
-import { IClipModel, IFolderModel, IItemModel } from 'hooks/api-editor';
+import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -11,16 +10,18 @@ import { defaultFolder } from '../../storage/constants';
 import { ClipDirectoryTable } from './ClipDirectoryTable';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
+import { toForm } from './utils';
 
 export interface IContentClipFormProps {
   content: IContentForm;
+  setContent: (content: IContentForm) => void;
 }
 
 /**
  * The component to be displayed when the clips tab is selected from the content form.
  * @returns the ContentClipForm
  */
-export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) => {
+export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content, setContent }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   const [path, setPath] = React.useState('/' + content.source);
@@ -47,26 +48,23 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
     }
   }, [streamUrl, videoRef]);
 
-  const deleteItem = async (item: IItemModel) => {
-    try {
-      setItem(item);
-      toggle();
-    } catch {
-      // Ignore error a toast would have already been displayed with the error.
-    }
+  const onDelete = async (item: IItemModel) => {
+    setItem(item);
+    toggle();
   };
 
-  const downloadItem = async (item: IItemModel) => {
+  const onDownload = async (item: IItemModel) => {
     await storage.download(`${folder.path}/${item.name}`);
   };
 
-  const attachItem = async (item: IItemModel) => {
+  const onAttach = async (item: IItemModel) => {
     await storage.attach(content.id, `${folder.path}/${item.name}`).then((data) => {
+      setContent(toForm(data));
       toast.success('Attachment added to this snippet.');
     });
   };
 
-  const selectItem = (item?: IItemModel) => {
+  const onSelect = (item?: IItemModel) => {
     setItem(item);
     setCurrFile(!!item ? item.name : '');
     setStreamUrl(
@@ -79,6 +77,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
       toast.error('The clip start time and clip end time must both be set.');
     } else if (parseInt(start) >= parseInt(end)) {
       toast.error('The clip start time must be before the clip end time.');
+    } else if (prefix === '') {
+      toast.error('Prefix is a required field.');
     } else {
       setClipNbr(!!clipNbr ? clipNbr + 1 : 1);
       await storage.clip(currFile, folder.path, start, end, clipNbr, prefix).then((data) => {
@@ -98,17 +98,11 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
     });
   };
 
-  const clipSubmit = async (event: any) => {
-    debugger;
-    var x = 1;
-  };
-
   const setStartTime = () => {
     setStart(!!videoRef.current ? videoRef.current?.currentTime.toFixed() : '');
   };
 
   const setEndTime = () => {
-    debugger;
     setEnd(!!videoRef.current ? videoRef.current?.currentTime.toFixed() : '');
   };
 
@@ -137,10 +131,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
           <div className="file-table">
             <ClipDirectoryTable
               data={folder.items}
-              deleteItem={deleteItem}
-              selectItem={selectItem}
-              downloadItem={downloadItem}
-              attachItem={attachItem}
+              onDelete={onDelete}
+              onSelect={onSelect}
+              onDownload={onDownload}
+              onAttach={onAttach}
               navigate={navigate}
             />
           </div>
@@ -234,7 +228,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content }) =>
               confirmText="Yes, Remove It"
               onConfirm={async () => {
                 await storage.delete(`${folder.path}/${item?.name}`);
-                selectItem();
+                onSelect();
                 setFolder({ ...folder, items: folder.items.filter((i) => i.name !== item?.name) });
                 toast.success(`${item?.name} has been deleted`);
                 toggle();

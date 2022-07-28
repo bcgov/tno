@@ -1,4 +1,4 @@
-import { IFolderModel, IItemModel, useApiStorage } from 'hooks/api-editor';
+import { IContentModel, IFolderModel, IItemModel, useApiStorage } from 'hooks/api-editor';
 import React from 'react';
 
 import { useApiDispatcher } from '..';
@@ -25,7 +25,7 @@ interface IStorageController {
     prefix: string,
   ) => Promise<IFolderModel>;
   join: (directory: string, fileName: string, prefix: string) => Promise<IFolderModel>;
-  attach: (id: number, path: string) => Promise<IFolderModel>;
+  attach: (id: number, path: string) => Promise<IContentModel>;
 }
 
 export const useStorage = (): IStorageController => {
@@ -80,7 +80,7 @@ export const useStorage = (): IStorageController => {
         );
       },
       attach: async (id: number, path: string) => {
-        return await dispatch<IFolderModel>('storage-attach', () => api.attach(id, path));
+        return await dispatch<IContentModel>('storage-attach', () => api.attach(id, path));
       },
     }),
     [dispatch, api],

@@ -10,20 +10,20 @@ import * as styled from './styled';
 export interface IClipDirectoryTableProps {
   /** the data to be displayed in the table */
   data: IItemModel[];
-  deleteItem: (item: IItemModel) => void;
-  selectItem: (item: IItemModel) => void;
-  downloadItem: (item: IItemModel) => void;
-  attachItem: (item: IItemModel) => void;
+  onDelete: (item: IItemModel) => void;
+  onSelect: (item: IItemModel) => void;
+  onDownload: (item: IItemModel) => void;
+  onAttach: (item: IItemModel) => void;
   navigate: (item: IItemModel) => void;
 }
 
 /** Table used to display directory listing of clip files for the data source */
 export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
   data,
-  deleteItem,
-  selectItem,
-  downloadItem,
-  attachItem,
+  onDelete,
+  onSelect,
+  onDownload,
+  onAttach,
   navigate,
 }) => {
   const { values } = useFormikContext<IItemModel>();
@@ -32,7 +32,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
     <styled.ClipDirectoryTable>
       <GridTable
         paging={{ showPaging: false }}
-        columns={clipDirectoryColumns(deleteItem, selectItem, downloadItem, attachItem, values)}
+        columns={clipDirectoryColumns(onDelete, onSelect, onDownload, onAttach, values)}
         header={ClipDirectoryFilter}
         data={data}
         className="file-table"

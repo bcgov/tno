@@ -11,10 +11,10 @@ import { Column } from 'react-table';
 
 /** columns located within file for state manipulation */
 export const clipDirectoryColumns = (
-  deleteItem: Function,
-  selectItem: Function,
-  downloadItem: Function,
-  attachItem: Function,
+  onDelete: Function,
+  onSelect: Function,
+  onDownload: Function,
+  onAttach: Function,
   values: IItemModel,
 ): Column<IItemModel>[] => [
   {
@@ -58,26 +58,26 @@ export const clipDirectoryColumns = (
     width: 80,
     Cell: ({ row, data }: any) => (
       <div className={row.values.isDirectory ? 'hidden' : 'center'}>
-        <FaPlay className="stream" title="watch/listen" onClick={() => selectItem(row.values)} />
+        <FaPlay className="stream" title="watch/listen" onClick={() => onSelect(row.values)} />
         <FaCloudDownloadAlt
           className="download fa-lg"
           title="download"
           onClick={() => {
-            downloadItem(row.values);
+            onDownload(row.values);
           }}
         />
         <FaPaperclip
           className="attach fa-lg"
           title="Attach to snippet"
           onClick={() => {
-            attachItem(row.values);
+            onAttach(row.values);
           }}
         />
         <FaTrash
           className="delete fa-lg"
           title="Delete"
           onClick={() => {
-            deleteItem(row.values);
+            onDelete(row.values);
           }}
         />
       </div>

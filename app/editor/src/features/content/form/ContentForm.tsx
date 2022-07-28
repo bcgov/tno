@@ -381,7 +381,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                         <ContentTranscriptForm />
                       </Show>
                       <Show visible={active === 'clips'}>
-                        <ContentClipForm content={content} />
+                        <ContentClipForm content={content} setContent={setContent} />
                       </Show>
                     </Tabs>
                   </Show>

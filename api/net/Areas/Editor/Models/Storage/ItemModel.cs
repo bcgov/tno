@@ -37,7 +37,7 @@ public class ItemModel
     /// <summary>
     /// get/set - The media-type of the file.
     /// </summary>
-    public string? Modified { get; set; }
+    public DateTime? Modified { get; set; }
 
     #endregion
 
@@ -62,7 +62,7 @@ public class ItemModel
             var info = new System.IO.FileInfo(path);
             this.Size = info.Length;
             this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
-            this.Modified = info.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.CreateSpecificCulture("en-US"));
+            this.Modified = info.LastWriteTime;
         }
     }
     #endregion

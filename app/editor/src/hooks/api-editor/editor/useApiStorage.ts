@@ -3,7 +3,7 @@ import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 import { extractFileName } from 'utils';
 
-import { IFolderModel, IItemModel, useApi } from '..';
+import { IContentModel, IFolderModel, IItemModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -148,7 +148,7 @@ export const useApiStorage = (
       const params = {
         path,
       };
-      return api.put<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
+      return api.put<IFolderModel, AxiosResponse<IContentModel, never>, any>(
         `/editor/contents/${id}/attach?${toQueryString(params)}`,
       );
     },
