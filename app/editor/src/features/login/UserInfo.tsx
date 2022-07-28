@@ -26,7 +26,8 @@ export const UserInfo: React.FC<IUserInfoProps> = ({ children }) => {
       appStore.storeUserInfo();
       setInit(true);
     }
-  }, [app, appStore, keycloak.authenticated, init]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appStore, keycloak.authenticated, init]);
 
   return <>{children}</>;
 };
