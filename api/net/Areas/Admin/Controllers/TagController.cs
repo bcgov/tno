@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Admin.Models.Category;
+using TNO.API.Areas.Admin.Models.Tag;
 using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -13,30 +13,30 @@ using TNO.Entities.Models;
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
-/// CategoriesController class, provides category endpoints for the admin api.
+/// TagController class, provides category endpoints for the admin api.
 /// </summary>
 [Authorize]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]
-[Route("api/v{version:apiVersion}/[area]/categories")]
-[Route("api/[area]/categories")]
-[Route("v{version:apiVersion}/[area]/categories")]
-[Route("[area]/categories")]
+[Route("api/v{version:apiVersion}/[area]/tags")]
+[Route("api/[area]/tags")]
+[Route("v{version:apiVersion}/[area]/tags")]
+[Route("[area]/tags")]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Unauthorized)]
 [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.Forbidden)]
-public class CategoriesController : ControllerBase
+public class TagController : ControllerBase
 {
     #region Variables
-    private readonly ICategoryService _service;
+    private readonly ITagService _service;
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a CategoryController object, initializes with specified parameters.
+    /// Creates a new instance of a TagController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public CategoriesController(ICategoryService service)
+    public TagController(ITagService service)
     {
         _service = service;
     }
@@ -49,11 +49,11 @@ public class CategoriesController : ControllerBase
     /// <returns></returns>
     [HttpGet("all")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(IPaged<CategoryModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Category" })]
+    [ProducesResponseType(typeof(IPaged<TagModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Tag" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new CategoryModel(ds)));
+        return new JsonResult(_service.FindAll().Select(ds => new TagModel(ds)));
     }
 
     /// <summary>
@@ -62,14 +62,14 @@ public class CategoriesController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(IPaged<CategoryModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "Category" })]
+    [ProducesResponseType(typeof(IPaged<TagModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Tag" })]
     public IActionResult Find()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _service.Find(new CategoryFilter(query));
-        var page = new Paged<CategoryModel>(result.Items.Select(ds => new CategoryModel(ds)), result.Page, result.Quantity, result.Total);
+        var result = _service.Find(new TagFilter(query));
+        var page = new Paged<TagModel>(result.Items.Select(ds => new TagModel(ds)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 
@@ -80,15 +80,15 @@ public class CategoriesController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
-    [SwaggerOperation(Tags = new[] { "Category" })]
-    public IActionResult FindById(int id)
+    [SwaggerOperation(Tags = new[] { "Tag" })]
+    public IActionResult FindById(string id)
     {
         var result = _service.FindById(id);
 
         if (result == null) return new NoContentResult();
-        return new JsonResult(new CategoryModel(result));
+        return new JsonResult(new TagModel(result));
     }
 
     /// <summary>
@@ -98,13 +98,13 @@ public class CategoriesController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Category" })]
-    public IActionResult Add(CategoryModel model)
+    [SwaggerOperation(Tags = new[] { "Tag" })]
+    public IActionResult Add(TagModel model)
     {
-        var result = _service.Add((Category)model);
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new CategoryModel(result));
+        var result = _service.Add((Tag)model);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new TagModel(result));
     }
 
     /// <summary>
@@ -114,13 +114,13 @@ public class CategoriesController : ControllerBase
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Category" })]
-    public IActionResult Update(CategoryModel model)
+    [SwaggerOperation(Tags = new[] { "Tag" })]
+    public IActionResult Update(TagModel model)
     {
-        var result = _service.Update((Category)model);
-        return new JsonResult(new CategoryModel(result));
+        var result = _service.Update((Tag)model);
+        return new JsonResult(new TagModel(result));
     }
 
     /// <summary>
@@ -130,12 +130,12 @@ public class CategoriesController : ControllerBase
     /// <returns></returns>
     [HttpDelete("{id}")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Category" })]
-    public IActionResult Delete(CategoryModel model)
+    [SwaggerOperation(Tags = new[] { "Tag" })]
+    public IActionResult Delete(TagModel model)
     {
-        _service.Delete((Category)model);
+        _service.Delete((Tag)model);
         return new JsonResult(model);
     }
     #endregion

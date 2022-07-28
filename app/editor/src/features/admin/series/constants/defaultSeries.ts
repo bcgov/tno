@@ -1,6 +1,6 @@
-import { IMediaTypeModel } from 'hooks';
+import { ISeriesModel } from 'hooks';
 
-export const defaultSeries: IMediaTypeModel = {
+export const defaultSeries: ISeriesModel = {
   id: 0,
   name: '',
   description: '',

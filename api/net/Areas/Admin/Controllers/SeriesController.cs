@@ -49,7 +49,7 @@ public class SeriesController : ControllerBase
     /// <returns></returns>
     [HttpGet("all")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(IPaged<SeriesModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Series" })]
     public IActionResult FindAll()
     {
@@ -92,7 +92,7 @@ public class SeriesController : ControllerBase
     }
 
     /// <summary>
-    /// Add series for the specified 'id'.
+    /// Add a series.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

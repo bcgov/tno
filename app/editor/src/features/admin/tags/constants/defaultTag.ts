@@ -1,7 +1,7 @@
-import { IMediaTypeModel } from 'hooks';
+import { ITagModel } from 'hooks';
 
-export const defaultTag: IMediaTypeModel = {
-  id: 0,
+export const defaultTag: ITagModel = {
+  id: '',
   name: '',
   description: '',
   isEnabled: true,

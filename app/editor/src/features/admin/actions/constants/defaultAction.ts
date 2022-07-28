@@ -1,6 +1,6 @@
-import { IMediaTypeModel } from 'hooks';
+import { IAdminActionModel } from 'hooks';
 
-export const defaultAction: IMediaTypeModel = {
+export const defaultAction: IAdminActionModel = {
   id: 0,
   name: '',
   description: '',

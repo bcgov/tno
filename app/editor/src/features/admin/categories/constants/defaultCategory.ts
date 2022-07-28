@@ -1,6 +1,6 @@
-import { IMediaTypeModel } from 'hooks';
+import { ICategoryModel } from 'hooks';
 
-export const defaultCategory: IMediaTypeModel = {
+export const defaultCategory: ICategoryModel = {
   id: 0,
   name: '',
   description: '',
