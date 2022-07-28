@@ -179,7 +179,7 @@ public class ContentController : ControllerBase
     /// <returns></returns>
     [HttpPut("{id}/attach")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Ok)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AttachFile([FromRoute] long id, [FromQuery] long version, [FromQuery] string path)

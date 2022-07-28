@@ -1,4 +1,5 @@
 import { IItemModel } from 'hooks/api-editor';
+import moment from 'moment';
 import {
   FaCloudDownloadAlt,
   FaPaperclip,
@@ -49,7 +50,7 @@ export const clipDirectoryColumns = (
     id: 'modified',
     Header: () => <div className="center">Modified</div>,
     accessor: 'modified',
-    Cell: ({ value }) => <div className="ft-row">{value}</div>,
+    Cell: ({ value }) => <div className="ft-row">{moment(value).format('DD/MM/yy hh:mm:ss')}</div>,
   },
   {
     id: 'actions',
