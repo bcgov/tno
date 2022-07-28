@@ -8,5 +8,9 @@ namespace TNO.Services.Command.Config;
 public class CommandOptions : IngestServiceOptions
 {
     #region Properties
+    /// <summary>
+    /// get/set - The command to execute (i.e. ffmpeg).
+    /// </summary>
+    public string Command { get; set; } = "";
     #endregion
 }

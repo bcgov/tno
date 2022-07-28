@@ -54,6 +54,9 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
             var process = await GetProcessAsync(manager, schedule);
             var isRunning = IsRunning(process);
 
+            // Override the original action name based on the schedule.
+            name = manager.VerifySchedule(schedule) ? "start" : "stop";
+
             if (name == "start" && !isRunning)
             {
                 RunProcess(process);
@@ -86,7 +89,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <returns></returns>
     protected virtual string GenerateProcessKey(DataSourceModel dataSource, ScheduleModel schedule)
     {
-        return $"{dataSource.Code}-{schedule.Name}={schedule.Id}";
+        return $"{dataSource.Code}-{schedule.Name}:{schedule.Id}";
     }
 
     /// <summary>
@@ -125,11 +128,11 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="process"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    protected async Task StopProcessAsync(ICommandProcess process, CancellationToken cancellationToken = default)
+    protected virtual async Task StopProcessAsync(ICommandProcess process, CancellationToken cancellationToken = default)
     {
-        var cmd = process.Process.StartInfo.Arguments;
-        this.Logger.LogInformation("Stopping process for command '{cmd}'", cmd);
-        if (!process.Process.HasExited)
+        var args = process.Process.StartInfo.Arguments;
+        this.Logger.LogInformation("Stopping process for command '{args}'", args);
+        if (IsRunning(process) && !process.Process.HasExited)
         {
             process.Process.Kill(true);
             await process.Process.WaitForExitAsync(cancellationToken);
@@ -149,21 +152,21 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
         var key = GenerateProcessKey(manager.DataSource, schedule);
         if (manager.Values.GetValueOrDefault(key) is not ICommandProcess value)
         {
-            var cmd = GenerateCommandAsync(manager, schedule).Result;
             var process = new System.Diagnostics.Process();
+            value = new CommandProcess(process);
+
             process.StartInfo.Verb = key;
-            process.StartInfo.FileName = "/bin/sh";
-            process.StartInfo.Arguments = $"-c \"{cmd}\"";
+            var cmd = GetCommand(manager.DataSource);
+            process.StartInfo.FileName = String.IsNullOrWhiteSpace(cmd) ? this.Options.Command : cmd;
+            process.StartInfo.Arguments = GenerateCommandArgumentsAsync(value, manager, schedule).Result;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
             process.EnableRaisingEvents = true;
             process.Exited += async (sender, e) => await OnExitedAsync(sender, manager, e);
             process.ErrorDataReceived += OnError;
-            // process.StartInfo.RedirectStandardOutput = true;
-            // process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardInput = true;
 
             // Keep a reference to the running process.
-            value = new CommandProcess(process);
             manager.Values[key] = value;
         }
 
@@ -202,15 +205,15 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     {
         if (sender is System.Diagnostics.Process process)
         {
-            var cmd = process.StartInfo.Arguments;
+            var args = process.StartInfo.Arguments;
             if (process.ExitCode != 0 && process.ExitCode != 137)
             {
-                this.Logger.LogError("Service command '{cmd}' exited", cmd);
+                this.Logger.LogError("Service arguments '{args}' exited", args);
                 await manager.RecordFailureAsync();
             }
             else
             {
-                this.Logger.LogDebug("Service command '{cmd}' exited", cmd);
+                this.Logger.LogDebug("Service arguments '{args}' exited", args);
             }
 
             // The process has exited, remove it from the manager so that it can get recreated again.
@@ -230,8 +233,8 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     {
         if (sender is System.Diagnostics.Process process)
         {
-            var cmd = process.StartInfo.Arguments;
-            this.Logger.LogError("Service command '{cmd}' failure: {Data}", cmd, e.Data);
+            var args = process.StartInfo.Arguments;
+            this.Logger.LogError("Service arguments '{args}' failure: {Data}", args, e.Data);
         }
     }
 
@@ -266,25 +269,28 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     }
 
     /// <summary>
-    /// Generate the command for this service action.
+    /// Generate the command arguments for this service action.
     /// </summary>
+    /// <param name="process"></param>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual string GenerateCommand(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual string GenerateCommandArguments(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
     {
-        return GetCommand(manager.DataSource).Replace("\"", "'");
+        // TODO: This should be only arguments.
+        return GetCommand(manager.DataSource)?.Replace("\"", "'") ?? "";
     }
 
     /// <summary>
-    /// Generate the command for the service action.
+    /// Generate the command arguments for the service action.
     /// </summary>
+    /// <param name="process"></param>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual Task<string> GenerateCommandAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
     {
-        return Task.FromResult(GenerateCommand(manager, schedule));
+        return Task.FromResult(GenerateCommandArguments(process, manager, schedule));
     }
 
     /// <summary>
@@ -293,9 +299,9 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="dataSource"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetCommand(DataSourceModel dataSource)
+    private static string? GetCommand(DataSourceModel dataSource)
     {
-        return dataSource.GetConnectionValue("cmd");
+        return dataSource.GetConnectionValue<string?>("cmd");
     }
     #endregion
 }

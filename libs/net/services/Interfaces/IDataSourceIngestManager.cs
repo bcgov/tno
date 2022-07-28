@@ -30,6 +30,14 @@ public interface IDataSourceIngestManager : IServiceActionManager
     /// Determine if the schedule allows for the process to run at the specified 'date'.
     /// Make certain the date is valid for the source timezone.
     /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    public bool VerifySchedule(ScheduleModel schedule);
+
+    /// <summary>
+    /// Determine if the schedule allows for the process to run at the specified 'date'.
+    /// Make certain the date is valid for the source timezone.
+    /// </summary>
     /// <param name="date"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>

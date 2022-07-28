@@ -21,7 +21,7 @@ RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as deploy
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends procps curl ffmpeg
+    && apt-get -y install --no-install-recommends procps curl ffmpeg libc6-dev libgdiplus
 
 WORKDIR /app
 COPY --from=build /build .

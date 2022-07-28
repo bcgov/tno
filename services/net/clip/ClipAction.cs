@@ -70,16 +70,19 @@ public class ClipAction : CommandAction<ClipOptions>
             try
             {
                 var process = await GetProcessAsync(manager, schedule);
-                var isRunning = IsRunning(process);
+
+                // Fetch content reference.
+                var content = CreateContentReference(manager.DataSource, schedule);
+                var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
+
+                // Override the original action name based on the schedule.
+                name = manager.VerifySchedule(schedule) ? "start" : "stop";
 
                 // The assumption is that if a file has been created it was successfully generated.
-                // TODO: Handle failures when a clip file was created but errored out.
-                if (name == "start" && !isRunning && !FileExists(manager, schedule))
+                // TODO: Handle failures when a clip file was created but error'ed out.
+                if (name == "start" && !IsRunning(process) && !FileExists(manager, schedule))
                 {
-                    // Fetch content reference.
-                    var content = CreateContentReference(manager.DataSource, schedule);
-                    var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
-                    var sendMessage = true;
+                    var sendMessage = manager.DataSource.ContentTypeId > 0;
 
                     if (reference == null)
                     {
@@ -93,15 +96,19 @@ public class ClipAction : CommandAction<ClipOptions>
                     }
                     else sendMessage = false;
 
-                    if (sendMessage && reference != null)
+                    if (reference != null)
                     {
                         // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.  However it is pretty quick at creating clips.
                         await RunProcessAsync(process, cancellationToken);
-                        var messageResult = await SendMessageAsync(manager.DataSource, schedule, reference);
+
+                        if (sendMessage)
+                        {
+                            var messageResult = await SendMessageAsync(process, manager.DataSource, schedule, reference);
+                            reference.Partition = messageResult.Partition;
+                            reference.Offset = messageResult.Offset;
+                        }
 
                         reference.WorkflowStatus = (int)WorkflowStatus.Received;
-                        reference.Partition = messageResult.Partition;
-                        reference.Offset = messageResult.Offset;
                         await this.Api.UpdateContentReferenceAsync(reference);
                     }
                 }
@@ -122,6 +129,25 @@ public class ClipAction : CommandAction<ClipOptions>
     }
 
     /// <summary>
+    /// Stop the specified process.
+    /// </summary>
+    /// <param name="process"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    protected override async Task StopProcessAsync(ICommandProcess process, CancellationToken cancellationToken = default)
+    {
+        var args = process.Process.StartInfo.Arguments;
+        this.Logger.LogInformation("Stopping process for command '{args}'", args);
+        if (IsRunning(process) && !process.Process.HasExited)
+        {
+            var writer = process.Process.StandardInput;
+            await writer.WriteLineAsync("q");
+            await process.Process.WaitForExitAsync(cancellationToken);
+        }
+        process.Process.Dispose();
+    }
+
+    /// <summary>
     /// Create a content reference for this clip.
     /// </summary>
     /// <param name="dataSource"></param>
@@ -134,7 +160,7 @@ public class ClipAction : CommandAction<ClipOptions>
         return new ContentReferenceModel()
         {
             Source = dataSource.Code,
-            Uid = $"{schedule.Name}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
+            Uid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
             PublishedOn = publishedOn?.ToUniversalTime(),
             Topic = dataSource.Topic,
             WorkflowStatus = (int)WorkflowStatus.InProgress
@@ -144,15 +170,16 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Send message to kafka with new source content.
     /// </summary>
+    /// <param name="process"></param>
     /// <param name="dataSource"></param>
     /// <param name="schedule"></param>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(DataSourceModel dataSource, ScheduleModel schedule, ContentReferenceModel reference)
+    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, DataSourceModel dataSource, ScheduleModel schedule, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
-        var file = GetOutput(dataSource, schedule);
+        var file = (string)process.Data["filename"];
         var mediaType = await IsVideoAsync(file) ? SourceMediaType.Video : SourceMediaType.Audio;
         var content = new SourceContent(mediaType, reference.Source, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
         {
@@ -183,11 +210,10 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <returns></returns>
     private async Task<bool> IsVideoAsync(string file)
     {
-        var cmd = $"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,";
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"{cmd}\"";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
@@ -229,12 +255,13 @@ public class ClipAction : CommandAction<ClipOptions>
     }
 
     /// <summary>
-    /// Generate the command for the service action.
+    /// Generate the command arguments for the service action.
     /// </summary>
+    /// <param name="process"></param>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected override async Task<string> GenerateCommandAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected override async Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
     {
         if (schedule == null) throw new InvalidOperationException($"Data source schedule '{manager.DataSource.Code}' is required");
 
@@ -247,8 +274,9 @@ public class ClipAction : CommandAction<ClipOptions>
         var copy = GetCopy(manager.DataSource);
 
         var output = GetOutput(manager.DataSource, schedule);
+        process.Data.Add("filename", output);
 
-        return $"{this.Options.Command} -i {input}{start}{duration}{volume}{format}{otherArgs}{copy} -y {output}";
+        return $"-i {input}{start}{duration}{volume}{format}{otherArgs}{copy} -y {output}";
     }
 
     /// <summary>
@@ -295,7 +323,7 @@ public class ClipAction : CommandAction<ClipOptions>
 
             // Return the first file that is long enough.
             var fileDuration = await GetDurationAsync(file);
-            if (fileDuration >= schedule.CalcDuraction().TotalSeconds) return file;
+            if (fileDuration >= schedule.CalcDuration().TotalSeconds) return file;
 
             this.Logger.LogWarning("Data source schedule '{Code}.{Name}' capture file duration is less than the requested duration", dataSource.Code, schedule.Name);
         }
@@ -312,13 +340,14 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="inputFile"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private TimeSpan CalcStartOffset(DataSourceModel dataSource, ScheduleModel schedule, string inputFile)
+    private static TimeSpan CalcStartOffset(DataSourceModel dataSource, ScheduleModel schedule, string inputFile)
     {
         if (schedule.StartAt == null) throw new InvalidOperationException($"Data source schedule must have a 'StartAt' configured for {dataSource.Code}.{schedule.Name}");
         if (schedule.StopAt == null) throw new InvalidOperationException($"Data source schedule must have a 'StopAt' configured for {dataSource.Code}.{schedule.Name}");
 
         // Linux doesn't have the file created time value, which means we need to get it from convention.
-        var createdOn = ParseTimeFromFileName(inputFile);
+        var fileName = Path.GetFileName(inputFile);
+        var createdOn = ParseTimeFromFileName(fileName);
         //var createdOn = GetLocalDateTime(dataSource, File.GetCreationTimeUtc(inputFile)).TimeOfDay;
         var clipStartAt = schedule.StartAt.Value;
         return clipStartAt.Subtract(createdOn);
@@ -333,7 +362,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="inputFile"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private string GetStart(DataSourceModel dataSource, ScheduleModel schedule, string inputFile)
+    private static string GetStart(DataSourceModel dataSource, ScheduleModel schedule, string inputFile)
     {
         var start = CalcStartOffset(dataSource, schedule, inputFile);
         var hours = start.Hours < 0 ? 0 : start.Hours;
@@ -349,11 +378,10 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <returns></returns>
     private async Task<long> GetDurationAsync(string inputFile)
     {
-        var cmd = $"ffprobe -i {inputFile} -show_format -v quiet | sed -n 's/duration=//p'";
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"{cmd}\"";
+        process.StartInfo.Arguments = $"-c \"ffprobe -i {inputFile} -show_format -v quiet | sed -n 's/duration=//p'\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
@@ -363,7 +391,7 @@ public class ClipAction : CommandAction<ClipOptions>
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
 
-        var value = float.Parse(output);
+        var value = String.IsNullOrWhiteSpace(output) ? 0 : float.Parse(output);
 
         return (long)Math.Floor(value);
     }
@@ -376,7 +404,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private static string GetDuration(ScheduleModel schedule)
     {
-        var duration = schedule.CalcDuraction();
+        var duration = schedule.CalcDuration();
         return $" -t {duration.Hours}:{duration.Minutes}:{duration.Seconds}";
     }
 
@@ -404,7 +432,7 @@ public class ClipAction : CommandAction<ClipOptions>
         Directory.CreateDirectory(path);
 
         var value = dataSource.GetConnectionValue("fileName");
-        var filename = String.IsNullOrWhiteSpace(value) ? $"{schedule.Name}.mp3" : $"{schedule.Name}-{value}";
+        var filename = String.IsNullOrWhiteSpace(value) ? $"{schedule.Name}.mp3" : value.Replace("{schedule.Name}", schedule.Name);
         var name = Path.GetFileNameWithoutExtension(filename);
         var ext = Path.GetExtension(filename);
 
@@ -420,7 +448,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private static string GetFormat(DataSourceModel dataSource)
     {
         var value = dataSource.GetConnectionValue("format");
-        return String.IsNullOrWhiteSpace(value) ? " -f mp3" : $" -f {value}";
+        return String.IsNullOrWhiteSpace(value) ? String.Empty : $" -f {value}";
     }
 
     /// <summary>
@@ -432,7 +460,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private static string GetVolume(DataSourceModel dataSource)
     {
         var value = dataSource.GetConnectionValue("volume");
-        return String.IsNullOrWhiteSpace(value) ? "" : $" -filter:a 'volume={value}'";
+        return String.IsNullOrWhiteSpace(value) ? String.Empty : $" -filter:a 'volume={value}'";
     }
 
     /// <summary>

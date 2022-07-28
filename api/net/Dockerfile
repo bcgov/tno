@@ -21,7 +21,7 @@ RUN dotnet publish "TNO.API.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish
 FROM base AS final
 
 RUN apt-get update && apt-get -y upgrade
-RUN apt -y install curl libc6-dev libgdiplus
+RUN apt -y install curl libc6-dev libgdiplus ffmpeg
 
 WORKDIR /app
 COPY --from=publish /app/publish .

@@ -15,5 +15,10 @@ public interface ICommandProcess
     /// get/set - When the process was created.
     /// </summary>
     public DateTime CreatedOn { get; set; }
+
+    /// <summary>
+    /// get - Data included in the command process.
+    /// </summary>
+    public Dictionary<string, object> Data { get; }
     #endregion
 }

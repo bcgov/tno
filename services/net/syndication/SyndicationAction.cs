@@ -88,10 +88,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (bool.Parse(dataSource.DataSource.GetConnectionValue("fetchContent")))
                 {
                     var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
-                    if (Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
+                    if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
                     {
-                        var content =  await this.GetContentAsync(link);
-                        var date = await GetPubDateTimeAsync(content, dataSource.DataSource);
+                        var content = await this.GetContentAsync(link);
+                        var date = GetPubDateTime(content, dataSource.DataSource);
 
                         item.Id = link.ToString();
                         item.PublishDate = date;
@@ -165,17 +165,18 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Takes a CP News article and extracts the published date/time.
     /// </summary>
     /// <param name="content"></param>
+    /// <param name="dataSource"></param>
     /// <returns>A DateTime object representing the published date/time for the article</returns>
-    private async Task<DateTime> GetPubDateTimeAsync(string content, DataSourceModel ds)
+    private static DateTime GetPubDateTime(string content, DataSourceModel dataSource)
     {
         var matches = Regex.Matches(content, "<DATE>(.+?)</DATE>");
         var pubDate = matches[0].Groups[1].Value;
         var comps = pubDate.Split(' ');
-        var timeZoneStr = ds.GetConnectionValue("timeZone");
+        var timeZoneStr = dataSource.GetConnectionValue("timeZone");
         var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr);
         var offset = timeZone.GetUtcOffset(DateTime.Now).Hours; // Handles daylight saving time
 
-        var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year.ToString()} {comps[2]} {offset}";
+        var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year} {comps[2]} {offset}";
         var date = DateTime.ParseExact(dateStr, "dd MMM yyyy HH:mm z", CultureInfo.InvariantCulture);
 
         return date;

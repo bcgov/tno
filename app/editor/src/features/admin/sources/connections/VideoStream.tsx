@@ -7,11 +7,14 @@ import ReactTooltip from 'react-tooltip';
 import { Languages, TimeZones } from './constants';
 import * as styled from './styled';
 
-export const AudioStream: React.FC = (props) => {
+export const VideoStream: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
 
   React.useEffect(() => {
     ReactTooltip.rebuild();
+    if (!values.connection.fileName) {
+      setFieldValue('connection.fileName', '{schedule.Name}.mp4');
+    }
   });
 
   const timeZone = TimeZones.find((t) => t.value === values.connection.timeZone);
@@ -36,13 +39,18 @@ export const AudioStream: React.FC = (props) => {
         label="Format"
         name="connection.format"
         tooltip="Format of the stream"
-        placeholder="mp3"
+        placeholder="mp4"
       />
       <FormikText
         label="File Name"
         name="connection.fileName"
         tooltip="File name and output format"
-        placeholder="{schedule.Name}.mp3"
+        placeholder="{schedule.Name}.mp4"
+      />
+      <FormikText
+        label="Frame Rate"
+        name="connection.frameRate"
+        value={values.connection.frameRate}
       />
       <FormikText
         label="Volume"

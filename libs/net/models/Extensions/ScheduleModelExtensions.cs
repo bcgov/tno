@@ -12,7 +12,7 @@ public static class ScheduleModelExtensions
     /// </summary>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public static TimeSpan CalcDuraction(this ScheduleModel schedule)
+    public static TimeSpan CalcDuration(this ScheduleModel schedule)
     {
         if (schedule.StartAt == null || schedule.StopAt == null) return new TimeSpan();
         var startAt = schedule.StartAt.Value;
