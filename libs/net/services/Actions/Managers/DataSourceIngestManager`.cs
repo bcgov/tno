@@ -120,7 +120,7 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
     public virtual bool VerifySchedule(DateTime date, ScheduleModel schedule)
     {
         if (!this.DataSource.IsEnabled || !this.DataSource.DataSourceSchedules.Any(s => s.Schedule?.IsEnabled == true)) return false;
-        return VerifyDelay(date, schedule) &&
+        return VerifyDelay(DateTime.UtcNow, schedule) &&
             VerifyRunOn(date, schedule) &&
             VerifyStartAt(date, schedule) &&
             VerifyDayOfMonth(date, schedule) &&
@@ -165,11 +165,14 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
         // No limitation imposed by RunON, so always run.
         if (schedule.RunOn == null) return true;
 
+        // If schedule.RunOn is null this is unreachable, but the compiler requires a default.
+        var scheduled = GetSourceDateTime(schedule.RunOn ?? DateTime.MaxValue);
+
         // RunOn is in the future.
-        if (schedule.RunOn > date) return false;
+        if (scheduled > date) return false;
 
         // If RunOn is in the past we are only interested in the time.
-        return schedule.RunOn.Value.TimeOfDay <= date.TimeOfDay;
+        return scheduled.TimeOfDay <= date.TimeOfDay;
     }
 
     /// <summary>
