@@ -155,8 +155,8 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
             this.DataSource.ScheduleType == DataSourceScheduleType.Advanced)
             return true;
 
-        var next = this.DataSource.LastRanOn.Value.AddMilliseconds(schedule.DelayMS);
-        return next <= date.ToUniversalTime();
+        var next = this.DataSource.LastRanOn.Value.ToTimeZone(GetTimeZone()).AddMilliseconds(schedule.DelayMS);
+        return next <= date;
     }
 
     /// <summary>
@@ -176,11 +176,13 @@ public class DataSourceIngestManager<TOptions> : ServiceActionManager<TOptions>,
         // No limitation imposed by RunON, so always run.
         if (schedule.RunOn == null) return true;
 
+        var scheduled = GetSourceDateTime(schedule.RunOn.Value);
+
         // RunOn is in the future.
-        if (schedule.RunOn > date) return false;
+        if (scheduled > date) return false;
 
         // If RunOn is in the past we are only interested in the time.
-        return schedule.RunOn.Value.TimeOfDay <= date.TimeOfDay;
+        return scheduled.TimeOfDay <= date.TimeOfDay;
     }
 
     /// <summary>
