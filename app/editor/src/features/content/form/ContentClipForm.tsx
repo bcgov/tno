@@ -15,16 +15,22 @@ import { toForm } from './utils';
 export interface IContentClipFormProps {
   content: IContentForm;
   setContent: (content: IContentForm) => void;
+  setPath: (path: string) => void;
+  path: string;
 }
 
 /**
  * The component to be displayed when the clips tab is selected from the content form.
  * @returns the ContentClipForm
  */
-export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content, setContent }) => {
+export const ContentClipForm: React.FC<IContentClipFormProps> = ({
+  content,
+  setContent,
+  setPath,
+  path,
+}) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
-  const [path, setPath] = React.useState('/' + content.source);
   const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
   const [streamUrl, setStreamUrl] = React.useState<string>();
   const [item, setItem] = React.useState<IItemModel>();
@@ -77,7 +83,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({ content, setC
       toast.error('The clip start time and clip end time must both be set.');
     } else if (parseInt(start) >= parseInt(end)) {
       toast.error('The clip start time must be before the clip end time.');
-    } else if (prefix === '') {
+    } else if (prefix == '') {
       toast.error('Prefix is a required field.');
     } else {
       setClipNbr(!!clipNbr ? clipNbr + 1 : 1);
