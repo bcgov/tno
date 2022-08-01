@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Indexing", "in
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Transcription", "transcription\TNO.Services.Transcription.csproj", "{5D2287DD-75F6-4FBD-A8CE-F169C360D1B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Filemonitor", "filemonitor\TNO.Services.Filemonitor.csproj", "{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{5D2287DD-75F6-4FBD-A8CE-F169C360D1B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D2287DD-75F6-4FBD-A8CE-F169C360D1B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D2287DD-75F6-4FBD-A8CE-F169C360D1B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

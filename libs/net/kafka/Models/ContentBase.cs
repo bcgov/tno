@@ -57,6 +57,21 @@ public abstract class ContentBase
     public string FilePath { get; set; } = "";
 
     /// <summary>
+    /// get/set - The abstract for the content.
+    /// </summary>
+    public string Abstract { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The section containing the content.
+    /// </summary>
+    public string Section { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The page number containing the content.
+    /// </summary>
+    public string Page { get; set; } = "";
+
+    /// <summary>
     /// get/set - A URL to a stream for this content.
     /// TODO: Change to a Uri type.
     /// </summary>
