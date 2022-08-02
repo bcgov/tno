@@ -49,15 +49,15 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           options={statusOptions}
           name="status"
           placeholder="Search by status"
-          value={statusOptions.find((s) => s.value === Number(filter.status))}
+          value={statusOptions.find((s) => s.value === Number(filter.status)) || ''}
         />
         <Text
           onChange={(e) => {
-            setFilter({ ...filter, roles: [e.target.value] });
+            setFilter({ ...filter, roleName: e.target.value });
           }}
           name="role"
           placeholder="Search by role"
-          value={filter.roles}
+          value={filter.roleName}
         />
         <IconButton
           iconType="search"
@@ -68,7 +68,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
         <IconButton
           iconType="reset"
           onClick={() => {
-            setFilter({ sort: [], roles: [], keyword: '', status: undefined });
+            setFilter({ sort: [], roleName: '', keyword: '', status: undefined });
             storeFilter({ sort: [] });
           }}
         />

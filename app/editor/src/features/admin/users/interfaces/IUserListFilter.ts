@@ -11,6 +11,6 @@ export interface IUserListFilter {
   isSystemAccount?: boolean;
   status?: UserStatusName;
   sort: ISortBy[];
-  roles?: string[];
+  roleName?: string;
   keyword?: string;
 }

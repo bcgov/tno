@@ -8,6 +8,6 @@ export interface IUserFilter {
   isSystemAccount?: boolean;
   status?: string;
   sort?: string[];
-  roles?: string[];
+  roleName?: string;
   keyword?: string;
 }

@@ -7,7 +7,7 @@ export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
   return {
     username: filter.username,
     status: filter.status,
-    roles: filter.roles,
+    roleName: filter.roleName,
     keyword: filter.keyword,
     sort: applySortBy(filter.sort),
   };
