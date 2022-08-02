@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -7,10 +8,8 @@ import {
   IPaged,
   ISeriesModel,
   ITagModel,
-  IUserFilter,
   IUserModel,
 } from 'hooks/api-editor';
-import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 
 import { IAdminState } from './interfaces';
 

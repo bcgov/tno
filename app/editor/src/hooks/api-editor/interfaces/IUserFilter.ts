@@ -1,3 +1,5 @@
+import { UserStatusName } from '../constants';
+
 export interface IUserFilter {
   username?: string;
   email?: string;
@@ -6,7 +8,7 @@ export interface IUserFilter {
   lastName?: string;
   isEnabled?: boolean;
   isSystemAccount?: boolean;
-  status?: string;
+  status?: UserStatusName;
   sort?: string[];
   roleName?: string;
   keyword?: string;
