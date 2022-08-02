@@ -49,7 +49,7 @@ public class SeriesController : ControllerBase
     /// <returns></returns>
     [HttpGet("all")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(SeriesModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<SeriesModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Series" })]
     public IActionResult FindAll()
     {

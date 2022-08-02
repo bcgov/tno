@@ -49,7 +49,7 @@ public class CategoryController : ControllerBase
     /// <returns></returns>
     [HttpGet("all")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<CategoryModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Category" })]
     public IActionResult FindAll()
     {

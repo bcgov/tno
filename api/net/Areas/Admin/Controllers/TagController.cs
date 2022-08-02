@@ -49,7 +49,7 @@ public class TagController : ControllerBase
     /// <returns></returns>
     [HttpGet("all")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(IPaged<TagModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IEnumerable<TagModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Tag" })]
     public IActionResult FindAll()
     {
