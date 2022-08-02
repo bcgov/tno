@@ -1,8 +1,25 @@
-import { IDataSourceModel, IMediaTypeModel, IPaged, IUserModel } from 'hooks/api-editor';
+import {
+  IActionModel,
+  ICategoryModel,
+  IDataSourceModel,
+  IMediaTypeModel,
+  IPaged,
+  ISeriesModel,
+  ITagModel,
+  IUserModel,
+} from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 
-import { storeAdminDataSources, storeAdminMediaTypes, storeAdminUsers } from '.';
+import {
+  storeAdminActions,
+  storeAdminCategories,
+  storeAdminDataSources,
+  storeAdminMediaTypes,
+  storeAdminSeries,
+  storeAdminTags,
+  storeAdminUsers,
+} from '.';
 import { IAdminState } from './interfaces';
 
 export interface IAdminProps {}
@@ -10,7 +27,11 @@ export interface IAdminProps {}
 export interface IAdminStore {
   storeDataSources: (dataSources: IDataSourceModel[]) => void;
   storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
+  storeCategories: (categories: ICategoryModel[]) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
+  storeTags: (tags: ITagModel[]) => void;
+  storeActions: (actions: IActionModel[]) => void;
+  storeSeries: (series: ISeriesModel[]) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -27,6 +48,18 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeUsers: (users: IPaged<IUserModel>) => {
         dispatch(storeAdminUsers(users));
+      },
+      storeCategories: (categories: ICategoryModel[]) => {
+        dispatch(storeAdminCategories(categories));
+      },
+      storeTags: (tags: ITagModel[]) => {
+        dispatch(storeAdminTags(tags));
+      },
+      storeActions: (actions: IActionModel[]) => {
+        dispatch(storeAdminActions(actions));
+      },
+      storeSeries: (series: ISeriesModel[]) => {
+        dispatch(storeAdminSeries(series));
       },
     }),
     [dispatch],
