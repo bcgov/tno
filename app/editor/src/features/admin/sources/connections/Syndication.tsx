@@ -17,7 +17,7 @@ export const Syndication: React.FC = (props) => {
         label="URL"
         name="connection.url"
         value={values.connection.url}
-        width={FieldSize.Medium}
+        width={FieldSize.Large}
       />
       <FormikSelect
         label="Timezone"
