@@ -40,8 +40,6 @@ help:
 setup: ## Setup local environment for development, generate configuration files.
 	$(info Setup local environment for development, generate configuration files.)
 	@./tools/scripts/gen-env-files.sh
-	@./tools/scripts/gen-maven-files.sh
-	@./tools/scripts/gen-keys.sh
 	@mkdir -p ./app/editor/node_modules
 	@mkdir -p ./app/subscriber/node_modules
 
