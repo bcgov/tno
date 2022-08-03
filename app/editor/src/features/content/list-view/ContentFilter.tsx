@@ -28,6 +28,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
 }) => {
   const [{ contentTypes, mediaTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
+  const [advancedHover, setAdvancedHover] = React.useState(false);
 
   const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
   const [contentTypeOptions, setContentTypeOptions] = React.useState<IOptionItem[]>([]);
@@ -68,7 +69,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   /** Handle enter key pressed for advanced filter */
   React.useEffect(() => {
     const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' && advancedHover) {
         event.preventDefault();
         search({ ...filter, pageIndex: 0, ...filterAdvanced });
       }
@@ -79,7 +80,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
     return () => {
       document.removeEventListener('keydown', keyDownHandler);
     };
-  }, [filter, filterAdvanced, search]);
+  }, [filter, filterAdvanced, search, advancedHover]);
 
   React.useEffect(() => {
     ReactTooltip.rebuild();
@@ -222,7 +223,11 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
           </div>
         </div>
       </div>
-      <div className="box">
+      <div
+        className="box"
+        onMouseOver={() => setAdvancedHover(true)}
+        onMouseLeave={() => setAdvancedHover(false)}
+      >
         <h2 className="caps">Advanced Search</h2>
         <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
           <Select
