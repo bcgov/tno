@@ -1,10 +1,11 @@
-import { IconButton, OptionItem, Select } from 'components/form';
+import { IconButton, Select } from 'components/form';
 import { UserStatusName } from 'hooks';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from 'store/hooks/admin';
 import { FieldSize, Text } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
+import { getEnumStringOptions } from 'utils';
 
 import { IUserListFilter } from './interfaces/IUserListFilter';
 
@@ -14,14 +15,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [filter, setFilter] = useState<IUserListFilter>(userFilter);
 
-  const statusOptions = [
-    new OptionItem('Preapproved', UserStatusName.Preapproved),
-    new OptionItem('Approved', UserStatusName.Approved),
-    new OptionItem('Activated', UserStatusName.Activated),
-    new OptionItem('Authenticated', UserStatusName.Authenticated),
-    new OptionItem('Denied', UserStatusName.Denied),
-    new OptionItem('Requested', UserStatusName.Requested),
-  ];
+  const statusOptions = getEnumStringOptions(UserStatusName);
 
   const navigate = useNavigate();
   return (
