@@ -841,13 +841,15 @@
         "http://localhost:40083/*",
         "http://localhost:40082/*",
         "http://localhost:40081/*",
-        "http://localhost:40080/*"
+        "http://localhost:40080/*",
+        "http://host.docker.internal:40080/*"
       ],
       "webOrigins": [
         "http://localhost:40080",
         "http://localhost:40083",
         "http://localhost:40081",
-        "http://localhost:40082"
+        "http://localhost:40082",
+        "http://host.docker.internal:40080"
       ],
       "notBefore": 0,
       "bearerOnly": false,

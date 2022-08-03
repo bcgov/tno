@@ -1,14 +1,13 @@
-using Microsoft.Extensions.DependencyInjection;
-using TNO.Services.Content.Config;
+﻿using Microsoft.Extensions.DependencyInjection;
+using TNO.Services.Image.Config;
 using TNO.Services.Runners;
 
-namespace TNO.Services.Content;
+namespace TNO.Services.Image;
 
 /// <summary>
-/// ContentService abstract class, provides a console application that runs service, and an api.
-/// The ContentService is a Kafka consumer which pulls content.
+/// ImageService abstract class, provides a console application that runs service, and an api.
 /// </summary>
-public class ContentService : KafkaConsumerService
+public class ImageService : IngestService
 {
     #region Variables
     #endregion
@@ -18,10 +17,10 @@ public class ContentService : KafkaConsumerService
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a ContentService object, initializes with arguments.
+    /// Creates a new instance of a ImageService object, initializes with arguments.
     /// </summary>
     /// <param name="args"></param>
-    public ContentService(string[] args) : base(args)
+    public ImageService(string[] args) : base(args)
     {
     }
     #endregion
@@ -36,11 +35,13 @@ public class ContentService : KafkaConsumerService
     {
         base.ConfigureServices(services);
         services
-            .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
-            .AddSingleton<IServiceManager, ContentManager>();
+            .Configure<ImageOptions>(this.Configuration.GetSection("Service"))
+            .AddTransient<IIngestAction<ImageOptions>, ImageAction>()
+            .AddTransient<DataSourceIngestManagerFactory<ImageDataSourceManager, ImageOptions>>()
+            .AddSingleton<IServiceManager, ImageManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
-        // services.AddOptions<ContentOptions>()
+        // services.AddOptions<ImageOptions>()
         //     .Bind(this.Configuration.GetSection("Service"))
         //     .ValidateDataAnnotations();
 

@@ -477,3 +477,19 @@ Service__ApiUrl=http://host.docker.internal:$portApi/api
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/content/.env
     echo "./services/net/content/.env created"
 fi
+
+## Image
+if test -f "./services/net/image/.env"; then
+    echo "./services/net/image/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__OutputPath=../data/image" >> ./services/net/image/.env
+    echo "./services/net/image/.env created"
+fi

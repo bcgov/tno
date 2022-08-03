@@ -6,7 +6,7 @@ import React from 'react';
 import { ActionMeta } from 'react-select';
 import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
-import { Col, Row, Show } from 'tno-core';
+import { Col, Row, Section, Show } from 'tno-core';
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { Connection } from '../connections';
@@ -62,57 +62,61 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
       </p>
       <Row colGap="1em" nowrap>
         <Col flex="1 1">
-          <Show visible={values.connection.serviceType === 'clip'}>
-            <FormikSelect
-              label="Capture Source"
-              name="parentId"
-              tooltip="Source of capture files for this clip service"
-              options={dataSources}
-              placeholder={values.connection.serviceType === 'clip' ? 'required' : 'optional'}
-              required={values.connection.serviceType === 'clip'}
-            />
-          </Show>
-          <FormikSelect
-            label="Data Location"
-            name="dataLocationId"
-            tooltip="The physical location that files are stored"
-            options={dataLocations}
-            required
-          />
-          <FormikSelect
-            label="Generated Content Type"
-            name="contentTypeId"
-            tooltip="The type of content that is created when ingesting"
-            options={contentTypes}
-            onChange={handleContentTypeChange}
-            required={values.connection.serviceType === 'clip'}
-          />
-          <FormikSelect
-            label="Owner"
-            name="ownerId"
-            tooltip="The default user who will own ingested content"
-            options={users}
-            onChange={handleOwnerChange}
-          />
-          {values.contentTypeId !== 0 && (
-            <>
-              <FormikText label="Kafka Topic" name="topic" required={!!values.contentTypeId} />
-              <div>
-                <p>
-                  A Kafka Topic is a category/feed name to which records are stored and published.
-                  If this data-source has a running service, the content will be ingested and placed
-                  in the Kafka Event Streaming data storage location.
-                </p>
-                <p>
-                  The topic should be unique, and all content stored within it should be the same
-                  format.
-                </p>
-              </div>
-            </>
-          )}
+          <h3>Source Settings</h3>
+          <Connection />
         </Col>
         <Col flex="1 1">
-          <Connection />
+          <h3>Destination Settings</h3>
+          <Section>
+            <Show visible={values.connection.serviceType === 'clip'}>
+              <FormikSelect
+                label="Capture Source"
+                name="parentId"
+                tooltip="Source of capture files for this clip service"
+                options={dataSources}
+                placeholder={values.connection.serviceType === 'clip' ? 'required' : 'optional'}
+                required={values.connection.serviceType === 'clip'}
+              />
+            </Show>
+            <FormikSelect
+              label="Data Location"
+              name="dataLocationId"
+              tooltip="The physical location that files are stored after ingesting"
+              options={dataLocations}
+              required
+            />
+            <FormikSelect
+              label="Generated Content Type"
+              name="contentTypeId"
+              tooltip="The type of content that is created when ingesting"
+              options={contentTypes}
+              onChange={handleContentTypeChange}
+              required={values.connection.serviceType === 'clip'}
+            />
+            <FormikSelect
+              label="Owner"
+              name="ownerId"
+              tooltip="The default user who will own ingested content"
+              options={users}
+              onChange={handleOwnerChange}
+            />
+            {values.contentTypeId !== 0 && (
+              <>
+                <FormikText label="Kafka Topic" name="topic" required={!!values.contentTypeId} />
+                <div>
+                  <p>
+                    A Kafka Topic is a category/feed name to which records are stored and published.
+                    If this data-source has a running service, the content will be ingested and
+                    placed in the Kafka Event Streaming data storage location.
+                  </p>
+                  <p>
+                    The topic should be unique, and all content stored within it should be the same
+                    format.
+                  </p>
+                </div>
+              </>
+            )}
+          </Section>
         </Col>
       </Row>
     </styled.ServiceIngestSettings>

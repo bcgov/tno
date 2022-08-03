@@ -23,8 +23,9 @@ namespace TNO.Services.Syndication;
 /// <summary>
 /// SyndicationAction class, performs the syndication ingestion action.
 /// Fetch syndication feed.
+/// Send content reference to API.
 /// Send message to Kafka.
-/// Inform api of new content.
+/// Update content reference status.
 /// </summary>
 public class SyndicationAction : IngestAction<SyndicationOptions>
 {

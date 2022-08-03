@@ -116,6 +116,35 @@ services:
       retries: 3
       start_period: 30s
 
+  image:
+    image: tno:image
+    profiles:
+      - all
+      - service
+      - data
+    restart: "no"
+    container_name: tno-image
+    build:
+      context: ./
+      dockerfile: services/net/image/Dockerfile
+    env_file:
+      - services/net/image/.env
+    ports:
+      - ${CONTENT_PORT:-40027}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   # nlp:
   #   image: tno:nlp
   #   profiles:

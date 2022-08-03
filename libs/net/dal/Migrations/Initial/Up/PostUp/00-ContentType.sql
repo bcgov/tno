@@ -34,6 +34,14 @@ INSERT INTO public.content_type (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+  'Frontpage'
+  , 'Daily frontpage images of newspapers.'
+  , true
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 END $$;

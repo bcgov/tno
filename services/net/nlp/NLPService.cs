@@ -5,7 +5,7 @@ using TNO.Services.Runners;
 namespace TNO.Services.NLP;
 
 /// <summary>
-/// NLPService abstrct class, provides a console application that runs service, and an api.
+/// NLPService abstract class, provides a console application that runs service, and an api.
 /// </summary>
 public class NLPService : KafkaConsumerService
 {

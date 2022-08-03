@@ -5,7 +5,7 @@ using TNO.Services.Command;
 namespace TNO.Services.Clip;
 
 /// <summary>
-/// ClipService abstrct class, provides a console application that runs service, and an api.
+/// ClipService abstract class, provides a console application that runs service, and an api.
 /// </summary>
 public class ClipService : CommandService
 {
