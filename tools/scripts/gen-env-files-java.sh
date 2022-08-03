@@ -175,3 +175,24 @@ ELASTIC_USERNAME=$elasticUser
 ELASTIC_PASSWORD=$password" >> ./services/java/indexing/.env
     echo "./services/java/indexing/.env created"
 fi
+
+## Transcription service
+if test -f "./services/net/transcription/.env"; then
+    echo "./services/net/transcription/.env exists"
+else
+echo \
+"API_HOST_URL=http://host.docker.internal:$portApi
+KEYCLOAK_AUTH_SERVER_URL=http://host.docker.internal:$portKeycloak/auth
+KEYCLOAK_REALM=tno
+KEYCLOAK_CLIENT_ID=tno-service-account
+KEYCLOAK_CLIENT_SECRET={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+KAFKA_LOGS_TOPIC=logs-capture
+
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+KAFKA_CLIENT_ID=audio-capture-01
+Service__AzureCognitiveServicesKey={ENTER A VALID KEY} 
+
+MAX_FAILED_ATTEMPTS=5" >> ./services/net/transcription/.env
+    echo "./services/net/transcription/.env created"
+fi

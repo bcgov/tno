@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17"/>
+    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.23.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\libs\net\core\TNO.Core.csproj" />

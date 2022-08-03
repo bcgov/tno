@@ -64,6 +64,9 @@ INDEXING_PORT=$portIndexing
 CAPTURE_PORT=$portCapture
 CLIP_PORT=$portClip
 CONTENT_PORT=$portContent
+IMAGE_PORT=$portImage
+TRANSCRIPTION_PORT=$portTranscription
+
 
 #############################
 # Kafka Configuration
