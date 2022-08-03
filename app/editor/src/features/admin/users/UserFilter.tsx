@@ -1,5 +1,5 @@
 import { IconButton, OptionItem, Select } from 'components/form';
-import { UserStatus, UserStatusName } from 'hooks';
+import { UserStatusName } from 'hooks';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUsers } from 'store/hooks/admin';
@@ -13,13 +13,14 @@ interface IUserFilterProps {}
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [filter, setFilter] = useState<IUserListFilter>(userFilter);
+
   const statusOptions = [
-    new OptionItem(UserStatusName.Preapproved, UserStatus.Preapproved),
-    new OptionItem(UserStatusName.Approved, UserStatus.Approved),
-    new OptionItem(UserStatusName.Activated, UserStatus.Activated),
-    new OptionItem(UserStatusName.Authenticated, UserStatus.Authenticated),
-    new OptionItem(UserStatusName.Denied, UserStatus.Denied),
-    new OptionItem(UserStatusName.Requested, UserStatus.Requested),
+    new OptionItem('Preapproved', UserStatusName.Preapproved),
+    new OptionItem('Approved', UserStatusName.Approved),
+    new OptionItem('Activated', UserStatusName.Activated),
+    new OptionItem('Authenticated', UserStatusName.Authenticated),
+    new OptionItem('Denied', UserStatusName.Denied),
+    new OptionItem('Requested', UserStatusName.Requested),
   ];
 
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           options={statusOptions}
           name="status"
           placeholder="Search by status"
-          value={statusOptions.find((s) => s.value === Number(filter.status)) || ''}
+          value={statusOptions.find((s) => s.value === filter.status) || ''}
         />
         <Text
           onChange={(e) => {
