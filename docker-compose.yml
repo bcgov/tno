@@ -216,17 +216,18 @@ services:
       - tno
 
   ####################### App - Subscriber #######################
-  app-subscriber:
-    image: tno:app-subscriber
+  subscriber:
+    image: tno:subscriber
     profiles:
       - all
       - subscriber
     stdin_open: true
     tty: true
     restart: "no"
-    container_name: tno-app-subscriber
+    container_name: tno-subscriber
     build:
       context: app/subscriber
+      dockerfile: Dockerfile
     env_file: ./app/subscriber/.env
     volumes:
       - ./app/subscriber/src:/usr/app/src
