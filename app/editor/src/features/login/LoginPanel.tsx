@@ -3,7 +3,9 @@ import { Button, Col, useKeycloakWrapper } from 'tno-core';
 export const LoginPanel: React.FC = () => {
   const keycloak = useKeycloakWrapper();
 
-  const isLocal = window.location.host.startsWith('localhost');
+  const isLocal =
+    window.location.host.startsWith('localhost') ||
+    window.location.host.startsWith('host.docker.internal');
 
   const login = (hint: string = '') => {
     const instance = keycloak.instance;

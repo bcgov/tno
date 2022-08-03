@@ -4,6 +4,7 @@ export * from './AudioStream';
 export * from './AudioTuner';
 export * from './AVArchive';
 export * from './Connection';
+export * from './Image';
 export * from './Newspaper';
 export * from './Syndication';
 export * from './Video';

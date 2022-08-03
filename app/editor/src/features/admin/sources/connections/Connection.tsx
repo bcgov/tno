@@ -2,7 +2,7 @@ import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 
-import { Audio, AVArchive, Newspaper, Syndication, Video } from '.';
+import { Audio, AVArchive, Image, Newspaper, Syndication, Video } from '.';
 import * as styled from './styled';
 
 export const Connection: React.FC = (props) => {
@@ -29,6 +29,9 @@ export const Connection: React.FC = (props) => {
     case 'CC News':
     case 'CP News':
       config = <Video />;
+      break;
+    case 'Image':
+      config = <Image />;
       break;
   }
 
