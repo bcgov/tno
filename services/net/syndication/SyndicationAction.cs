@@ -180,6 +180,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
     /// <summary>
     /// Takes a CP News article and extracts the published date/time.
+    /// If no date is found it will default to now.  This isn't ideal, but it's better than a min date.
     /// </summary>
     /// <param name="content"></param>
     /// <param name="dataSource"></param>
@@ -187,16 +188,21 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     private static DateTime GetPubDateTime(string content, DataSourceModel dataSource)
     {
         var matches = Regex.Matches(content, "<DATE>(.+?)</DATE>");
-        var pubDate = matches[0].Groups[1].Value;
-        var comps = pubDate.Split(' ');
-        var timeZoneStr = dataSource.GetConnectionValue("timeZone");
-        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr);
-        var offset = timeZone.GetUtcOffset(DateTime.Now).Hours; // Handles daylight saving time
+        if (matches.Any())
+        {
+            var pubDate = matches[0].Groups[1].Value;
+            var comps = pubDate.Split(' ');
+            if (comps.Length == 3)
+            {
+                var timeZoneStr = dataSource.GetConnectionValue("timeZone");
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr);
+                var offset = timeZone.GetUtcOffset(DateTime.Now).Hours; // Handles daylight saving time
+                var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year} {comps[2]} {offset}";
+                return DateTime.ParseExact(dateStr, "dd MMM yyyy HH:mm z", CultureInfo.InvariantCulture);
+            }
+        }
 
-        var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year} {comps[2]} {offset}";
-        var date = DateTime.ParseExact(dateStr, "dd MMM yyyy HH:mm z", CultureInfo.InvariantCulture);
-
-        return date;
+        return DateTime.UtcNow;
     }
 
     /// <summary>
