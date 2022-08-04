@@ -85,25 +85,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             try
             {
-                // Fetch content body separately if required
-                if (bool.Parse(dataSource.DataSource.GetConnectionValue("fetchContent")))
-                {
-                    var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
-                    if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
-                    {
-                        var content = await this.GetContentAsync(link);
-                        var date = GetPubDateTime(content, dataSource.DataSource);
-
-                        item.Id = link.ToString();
-                        item.PublishDate = date;
-                        content = StringExtensions.SanitizeContent(content);
-                        item.Summary = new TextSyndicationContent(content, TextSyndicationContentKind.Html);
-                    }
-                    else
-                    {
-                        throw new HttpRequestException($"Invalid URL for content body: {link}");
-                    }
-                }
+                // Due to invalid RSS/ATOM need to use the link to identify the item.
+                var link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri;
+                if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
 
                 // Fetch content reference.
                 var reference = await this.Api.FindContentReferenceAsync(dataSource.DataSource.Code, item.Id);
@@ -111,26 +95,28 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                 if (reference == null)
                 {
+                    await FetchContent(dataSource.DataSource, item, link);
                     reference = await AddContentReferenceAsync(dataSource.DataSource, item);
                 }
                 else if ((reference.WorkflowStatus == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (reference.WorkflowStatus != (int)WorkflowStatus.InProgress && reference.UpdatedOn != item.PublishDate.UtcDateTime))
+                        (reference.WorkflowStatus != (int)WorkflowStatus.InProgress && item.PublishDate != DateTime.MinValue && reference.UpdatedOn != item.PublishDate.UtcDateTime))
                 {
                     // TODO: verify a hash of the content to ensure it has changed. This may be slow
                     // however, but would ensure the content was physically updated.
 
                     // If another process has it in progress only attempt to do an import if it's
                     // more than an hour old. Assumption is that it is stuck.
+                    await FetchContent(dataSource.DataSource, item, link);
                     reference = await UpdateContentReferenceAsync(reference, item);
                 }
                 else sendMessage = false;
 
                 // Only send a message to Kafka if this process added/updated the content reference.
-                if (sendMessage && reference != null)
+                if (reference != null && sendMessage)
                 {
                     // Send item to Kafka.
-                    var content = CreateSourceContent(dataSource.DataSource.Code, item);
-                    var result = await _kafka.SendMessageAsync(dataSource.DataSource.Topic, content);
+                    var message = CreateSourceContent(dataSource.DataSource.Code, item);
+                    var result = await _kafka.SendMessageAsync(dataSource.DataSource.Topic, message);
 
                     // Update content reference with Kafka response.
                     if (result != null)
@@ -145,6 +131,36 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                 _logger.LogError(ex, "Failed to ingest item for data source '{Code}'", dataSource.DataSource.Code);
                 await dataSource.RecordFailureAsync();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Make HTTP request to fetch story body only if configured to do so.
+    /// Strip HTML from response body.
+    /// Extract published on date and time.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <param name="item"></param>
+    /// <param name="link"></param>
+    /// <returns></returns>
+    /// <exception cref="HttpRequestException"></exception>
+    private async Task FetchContent(DataSourceModel dataSource, SyndicationItem item, Uri? link)
+    {
+        // Fetch content body separately if required
+        if (bool.Parse(dataSource.GetConnectionValue("fetchContent")))
+        {
+            if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
+            {
+                var html = await this.GetContentAsync(link);
+                if (item.PublishDate == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, dataSource);
+                var text = StringExtensions.SanitizeContent(html);
+                if (String.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
+                item.Content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
+            }
+            else
+            {
+                throw new HttpRequestException($"Invalid URL for content body: {link}");
             }
         }
     }
@@ -191,7 +207,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     private static SourceContent CreateSourceContent(string source, SyndicationItem item)
     {
-        return new SourceContent(SourceMediaType.Text, source, item.Id, item.Title.Text, item.Summary.Text, item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
+        var content = item.Content as TextSyndicationContent;
+        return new SourceContent(SourceMediaType.Text, source, item.Id, item.Title.Text, item.Summary.Text, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",
@@ -284,7 +301,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 IgnoreWhitespace = true,
             };
             var xmlr = XmlReader.Create(new StringReader(data), settings);
-            // var rss = RssFeed.Load(xmlr);
             var document = XDocument.Load(xmlr);
             var isRss = RssFeed.IsRssFeed(document);
             return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);

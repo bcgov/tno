@@ -56,6 +56,23 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "name": "Run Image Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-image",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/image/bin/Debug/net6.0/TNO.Services.Image.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/image",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "envFile": "${workspaceFolder}/image/.env"
+    },
+    {
+      // Use IntelliSense to find out which attributes exist for C# debugging
+      // Use hover for the description of the existing attributes
+      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
       "name": "Run Content Service",
       "type": "coreclr",
       "request": "launch",

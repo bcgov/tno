@@ -146,6 +146,42 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-image",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/image/TNO.Services.Image.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-image",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/image/TNO.Services.Image.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-image",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/image/TNO.Services.Image.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-syndication",
       "command": "dotnet",
       "type": "process",
