@@ -8,6 +8,9 @@ export const UserList = styled.div`
   .filter-bar {
     display: flex;
     align-items: center;
+    .rs__control {
+      margin-top: 3.5%;
+    }
     input {
       margin-top: 3.5%;
     }

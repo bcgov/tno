@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -20,6 +21,9 @@ export const initialAdminState: IAdminState = {
   tags: [],
   actions: [],
   series: [],
+  userFilter: {
+    sort: [],
+  },
 };
 
 export const adminSlice = createSlice({
@@ -47,6 +51,9 @@ export const adminSlice = createSlice({
     storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
     },
+    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
+      state.userFilter = action.payload;
+    },
   },
 });
 
@@ -58,4 +65,5 @@ export const {
   storeTags: storeAdminTags,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
+  storeUserFilter: storeAdminUserFilter,
 } = adminSlice.actions;

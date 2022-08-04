@@ -1,3 +1,4 @@
+import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -17,4 +18,5 @@ export interface IAdminState {
   tags: ITagModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
+  userFilter: IUserListFilter;
 }
