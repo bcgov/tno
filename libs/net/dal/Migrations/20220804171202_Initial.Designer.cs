@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20220621223245_Initial")]
+    [Migration("20220804171202_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -753,8 +753,8 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.ContentReference", b =>
                 {
                     b.Property<string>("Source")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("source");
 
                     b.Property<string>("Uid")
@@ -867,14 +867,14 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("source");
 
                     b.Property<string>("Uid")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("uid");
 
                     b.Property<string>("UpdatedBy")

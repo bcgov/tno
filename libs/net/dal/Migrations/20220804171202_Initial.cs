@@ -108,7 +108,7 @@ namespace TNO.DAL.Migrations
                 name: "content_reference",
                 columns: table => new
                 {
-                    source = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    source = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     uid = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     workflow_status = table.Column<int>(type: "integer", nullable: false),
                     topic = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -408,8 +408,8 @@ namespace TNO.DAL.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    source = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    uid = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    source = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    uid = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     workflow_status = table.Column<int>(type: "integer", nullable: false),
                     message = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),

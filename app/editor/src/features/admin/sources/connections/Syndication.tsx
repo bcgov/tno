@@ -2,7 +2,6 @@ import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
-import { FieldSize } from 'tno-core';
 
 import { TimeZones } from './constants';
 import * as styled from './styled';
@@ -13,12 +12,7 @@ export const Syndication: React.FC = (props) => {
 
   return (
     <styled.MediaType>
-      <FormikText
-        label="URL"
-        name="connection.url"
-        value={values.connection.url}
-        width={FieldSize.Large}
-      />
+      <FormikText label="URL" name="connection.url" value={values.connection.url} />
       <FormikSelect
         label="Timezone"
         name="connection.timeZone"

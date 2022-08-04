@@ -10,8 +10,8 @@ public class ContentReferenceLogConfiguration : AuditColumnsConfiguration<Conten
     {
         builder.HasKey(m => m.Id);
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
-        builder.Property(m => m.Source).IsRequired().HasMaxLength(50);
-        builder.Property(m => m.Uid).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.Source).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.Uid).IsRequired().HasMaxLength(500);
         builder.Property(m => m.WorkflowStatus);
         builder.Property(m => m.Message).IsRequired().HasMaxLength(2000);
 
