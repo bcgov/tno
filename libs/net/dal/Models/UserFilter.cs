@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Primitives;
 using TNO.Core.Extensions;
-
 namespace TNO.DAL.Models;
 
 public class UserFilter : PageFilter
@@ -15,6 +14,9 @@ public class UserFilter : PageFilter
     public Entities.UserStatus? Status { get; set; }
     public bool? IsSystemAccount { get; set; }
     public string[] Sort { get; set; } = Array.Empty<string>();
+    public string? Keyword { get; set; }
+    public string? RoleName { get; set; }
+
     #endregion
 
     #region Constructors
@@ -32,6 +34,8 @@ public class UserFilter : PageFilter
         this.IsEnabled = filter.GetBoolNullValue(nameof(this.IsEnabled));
         this.Status = filter.GetEnumNullValue<Entities.UserStatus>(nameof(this.Status));
         this.IsSystemAccount = filter.GetBoolNullValue(nameof(this.IsSystemAccount));
+        this.Keyword = filter.GetStringValue(nameof(this.Keyword));
+        this.RoleName = filter.GetStringValue(nameof(this.RoleName));
 
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }

@@ -40,6 +40,14 @@ public class UserService : BaseService<User, int>, IUserService
             query = query.Where(c => EF.Functions.Like(c.FirstName.ToLower(), $"{filter.FirstName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.LastName))
             query = query.Where(c => EF.Functions.Like(c.LastName.ToLower(), $"{filter.LastName.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.Keyword))
+        {
+            var keyword = filter.Keyword.ToLower();
+            query = query.Where(c => EF.Functions.Like(c.Username.ToLower(), $"{keyword}%") || EF.Functions.Like(c.Email.ToLower(), $"{keyword}%") || EF.Functions.Like(c.FirstName.ToLower(),
+            $"{keyword}%") || EF.Functions.Like(c.LastName.ToLower(), $"{keyword}%"));
+        }
+        if (!String.IsNullOrWhiteSpace(filter.RoleName))
+            query = query.Where(c => c.Roles.Any(r => r.Name.ToLower() == filter.RoleName.ToLower()));
 
         if (filter.Status != null)
             query = query.Where(c => c.Status == filter.Status);
