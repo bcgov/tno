@@ -36,7 +36,9 @@ export const timeLogColumns = (
     Cell: ({ value }: any) => {
       const date = new Date(value);
       return (
-        <div className="center">{`${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`}</div>
+        <div className="center">{`${
+          date.getMonth() + 1
+        }/${date.getDate()}/${date.getFullYear()}`}</div>
       );
     },
   },
