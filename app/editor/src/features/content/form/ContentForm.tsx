@@ -111,9 +111,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
         // Only new content is initialized.
         values.contentTypeId = contentType;
         values.ownerId = userId;
-        const defaultTonePool = tonePools.find((t) => t.name === 'Default');
-        values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
       }
+
+      const defaultTonePool = tonePools.find((t) => t.name === 'Default');
+      values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
 
       const model = toModel(values);
       contentResult = !content.id ? await addContent(model) : await updateContent(model);
