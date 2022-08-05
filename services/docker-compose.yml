@@ -130,7 +130,7 @@ services:
     env_file:
       - services/net/image/.env
     ports:
-      - ${CONTENT_PORT:-40027}:8081
+      - ${IMAGE_PORT:-40027}:8081
     depends_on:
       - api
       - broker
