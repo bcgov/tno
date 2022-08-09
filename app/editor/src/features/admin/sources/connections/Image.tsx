@@ -9,12 +9,12 @@ import { getSortableOptions } from 'utils';
 import * as styled from './styled';
 
 export const Image: React.FC = (props) => {
-  const { values, errors } = useFormikContext<IDataSourceModel>();
+  const { values } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
 
   const dataLocations = getSortableOptions(lookups.dataLocations);
   const dataLocation = dataLocations.find((t) => t.value === values.connection.dataLocationId);
-  console.debug(errors);
+
   return (
     <styled.MediaType>
       <FormikSelect

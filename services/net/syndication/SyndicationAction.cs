@@ -148,7 +148,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     private async Task FetchContent(DataSourceModel dataSource, SyndicationItem item, Uri? link)
     {
         // Fetch content body separately if required
-        if (bool.Parse(dataSource.GetConnectionValue("fetchContent")))
+        if (dataSource.GetConnectionValue<bool>("fetchContent"))
         {
             if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
             {
