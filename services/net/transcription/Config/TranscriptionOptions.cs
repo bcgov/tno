@@ -15,6 +15,11 @@ public class TranscriptionOptions : ServiceOptions
     public string Topics { get; set; } = "";
 
     /// <summary>
+    /// get/set - An array of topics to consume.
+    /// </summary>
+    public string TranscriptionTopic { get; set; } = "";
+
+    /// <summary>
     /// get/set - The path to capture files.
     /// </summary>
     public string CapturePath { get; set; } = "";

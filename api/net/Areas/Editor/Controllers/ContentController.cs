@@ -104,7 +104,7 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Update content for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -120,7 +120,7 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Delete content for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

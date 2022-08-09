@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TNO.Services.Content.Config;
 using TNO.Services.Runners;
+using Confluent.Kafka;
 
 namespace TNO.Services.Content;
 
@@ -37,6 +38,8 @@ public class ContentService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
+            .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
+            .AddTransient<IKafkaMessenger, KafkaMessenger>()
             .AddSingleton<IServiceManager, ContentManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
