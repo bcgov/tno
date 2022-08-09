@@ -505,11 +505,11 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-Auth__Keycloak__Authority=http://host.docker.internal:40001/auth/realms/tno
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
-Service__ApiUrl=http://host.docker.internal:40010/api
+Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__TranscriptionTopic=transcription
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
 

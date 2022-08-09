@@ -27,12 +27,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// get - Kafka Consumer object.
     /// </summary>
     protected IKafkaListener Consumer { get; private set; }
-
-    /// <summary>
-    /// get - Lookup values from the API.
-    /// </summary>
-    public LookupModel? Lookups { get; private set; }
-
     #endregion
 
     #region Constructors
@@ -74,11 +68,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             {
                 try
                 {
-                    // TODO: Handle e-tag.
-                    // TODO: Update on some kind of interval.
-                    this.Lookups = await _api.GetLookupsAsync();
-
-                    // Listen to every enabled data source with a topic.
+                    // Listen to the transcription topic.
                     var topic = _options.TranscriptionTopic;
 
                     if (topic.Length != 0)
@@ -130,11 +120,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             // TODO: Handle different storage locations.
             // Remote storage locations may not be easily accessible by this service.
             // TODO: This allows the captured stream to be converted to text - fix.
-            var sourcePath = Path.Join(_options.ClipPath, result.Value.FilePath);
+            var sourcePath = Path.Join(_options.FilePath, result.Value.FilePath);
             if (File.Exists(sourcePath))
             {
                 var fileBytes = File.ReadAllBytes(sourcePath);
-                var transcript = await GetTranscriptionAsync(fileBytes);
+                var transcript = await GetTranscriptionAsync(fileBytes, result.Value.Language);
                 content.Transcription = transcript;
 
                 content = await _api.UpdateContentAsync(content);
@@ -147,7 +137,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
         else
         {
-            this.Logger.LogDebug("Content already exists. Content Source: {Source}, UID: {Uid}", content.Source, content.Uid);
+            this.Logger.LogDebug("Content does not exist for this message. Content Source: {Source}, UID: {Uid}", content.Source, content.Uid);
         }
     }
 
@@ -156,13 +146,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="fileBytes"></param>
     /// <returns></returns>
-    public async Task<string> GetTranscriptionAsync(byte[] fileBytes)
+    private async Task<string> GetTranscriptionAsync(byte[] fileBytes, string language)
     {
         var sem = new Semaphore(0, 1);
         var sb = new StringBuilder("");
         var config = SpeechTranslationConfig.FromSubscription(_options.AzureCognitiveServicesKey, _options.AzureRegion);
-        config.SpeechRecognitionLanguage = "en-US";
+        config.SpeechRecognitionLanguage = language;
 
+        // TODO: media format should be based on configuration
         AudioStreamFormat audioStreamFormat = AudioStreamFormat.GetCompressedFormat(AudioStreamContainerFormat.MP3);
         PushAudioInputStream audioStream = PushAudioInputStream.CreatePushStream(audioStreamFormat);
 

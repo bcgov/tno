@@ -20,14 +20,9 @@ public class TranscriptionOptions : ServiceOptions
     public string TranscriptionTopic { get; set; } = "";
 
     /// <summary>
-    /// get/set - The path to capture files.
-    /// </summary>
-    public string CapturePath { get; set; } = "";
-
-    /// <summary>
     /// get/set - The path to clip files.
     /// </summary>
-    public string ClipPath { get; set; } = "";
+    public string FilePath { get; set; } = "";
 
     /// <summary>
     /// get/set - region for speech account.

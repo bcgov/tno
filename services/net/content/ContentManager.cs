@@ -185,7 +185,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                     await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
 
                     // Send a Kafka message to the transcription topic
-                    await SendMessageAsync(result.Message.Value, content);
+                    if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
+                    {
+                        await SendMessageAsync(result.Message.Value, content);
+                    }
                 }
                 else
                 {
