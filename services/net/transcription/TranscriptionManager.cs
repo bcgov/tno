@@ -154,42 +154,41 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         config.SpeechRecognitionLanguage = language;
 
         // TODO: media format should be based on configuration
-        AudioStreamFormat audioStreamFormat = AudioStreamFormat.GetCompressedFormat(AudioStreamContainerFormat.MP3);
-        PushAudioInputStream audioStream = PushAudioInputStream.CreatePushStream(audioStreamFormat);
+        var audioStreamFormat = AudioStreamFormat.GetCompressedFormat(AudioStreamContainerFormat.MP3);
+
+        using var audioStream = PushAudioInputStream.CreatePushStream(audioStreamFormat);
+        var audioConfig = AudioConfig.FromStreamInput(audioStream);
+        using var recognizer = new SpeechRecognizer(config, audioConfig);
 
         audioStream.Write(fileBytes);
 
-        AudioConfig audioConfig = AudioConfig.FromStreamInput(audioStream);
-        using (var recognizer = new SpeechRecognizer(config, audioConfig))
+        recognizer.Recognized += (s, e) =>
         {
-            recognizer.Recognized += (s, e) =>
+            var result = e.Result;
+            if (result.Reason == ResultReason.RecognizedSpeech)
             {
-                var result = e.Result;
-                if (result.Reason == ResultReason.RecognizedSpeech)
-                {
-                    sb.Append(result.Text);
-                }
-            };
+                sb.Append(result.Text);
+            }
+        };
 
-            recognizer.Canceled += (s, e) =>
-            {
-                sem.Release();
-            };
+        recognizer.Canceled += (s, e) =>
+        {
+            sem.Release();
+        };
 
-            recognizer.SessionStopped += (s, e) =>
-            {
-                sem.Release();
-            };
+        recognizer.SessionStopped += (s, e) =>
+        {
+            sem.Release();
+        };
 
-            // Starts continuous recognition.
-            // Uses StopContinuousRecognitionAsync() to stop recognition.
-            await recognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
-            audioStream.Close();
-            sem.WaitOne();
+        // Starts continuous recognition.
+        // Uses StopContinuousRecognitionAsync() to stop recognition.
+        await recognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
+        audioStream.Close();
+        sem.WaitOne();
 
-            // Stops recognition.
-            await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
-        }
+        // Stops recognition.
+        await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
 
         return sb.ToString();
     }
