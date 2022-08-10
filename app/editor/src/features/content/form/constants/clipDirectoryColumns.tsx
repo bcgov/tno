@@ -50,7 +50,7 @@ export const clipDirectoryColumns = (
     id: 'modified',
     Header: () => <div className="center">Modified</div>,
     accessor: 'modified',
-    Cell: ({ value }) => <div className="ft-row">{moment(value).format('DD/MM/yy hh:mm:ss')}</div>,
+    Cell: ({ value }) => <div className="ft-row">{moment(value).format('DD-MM-yy hh:mm:ss')}</div>,
   },
   {
     id: 'actions',
@@ -59,7 +59,7 @@ export const clipDirectoryColumns = (
     width: 80,
     Cell: ({ row, data }: any) => (
       <div className={row.values.isDirectory ? 'hidden' : 'center'}>
-        <FaPlay className="stream" title="watch/listen" onClick={() => onSelect(row.values)} />
+        <FaPlay className="stream" title="watch/listen/edit" onClick={() => onSelect(row.values)} />
         <FaCloudDownloadAlt
           className="download fa-lg"
           title="download"

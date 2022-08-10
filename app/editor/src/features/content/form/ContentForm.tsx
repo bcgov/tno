@@ -90,10 +90,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
     if (!!id && +id > 0) {
       getContent(+id).then((data) => {
         setContent(toForm(data));
-        setPath(path || '/' + data.source);
+        setPath(path || '/clip/' + data.source);
       });
     }
-  }, [id, getContent]);
+  }, [id, getContent, path]);
 
   React.useEffect(() => {
     // If for some reason the current user does not exist in the local list, go fetch a new list from the api.

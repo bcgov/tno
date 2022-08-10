@@ -83,7 +83,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
       toast.error('The clip start time and clip end time must both be set.');
     } else if (parseInt(start) >= parseInt(end)) {
       toast.error('The clip start time must be before the clip end time.');
-    } else if (prefix == '') {
+    } else if (prefix === '') {
       toast.error('Prefix is a required field.');
     } else {
       setClipNbr(!!clipNbr ? clipNbr + 1 : 1);
@@ -120,8 +120,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
 
   const navigateUp = () => {
     var pathComps = folder.path.split('/');
-    if (pathComps.length === 3) {
-      setPath(pathComps[1]);
+    if (pathComps.length === 4) {
+      setPath('clip/' + pathComps[2]);
     }
   };
 
