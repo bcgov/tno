@@ -10,14 +10,9 @@ public class TranscriptionOptions : ServiceOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - An array of topics to consume.
+    /// get/set - A comma separated list of topics to consume.
     /// </summary>
     public string Topics { get; set; } = "";
-
-    /// <summary>
-    /// get/set - An array of topics to consume.
-    /// </summary>
-    public string TranscriptionTopic { get; set; } = "";
 
     /// <summary>
     /// get/set - The path to clip files.

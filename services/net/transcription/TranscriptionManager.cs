@@ -68,15 +68,16 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             {
                 try
                 {
-                    // Listen to the transcription topic.
-                    var topic = _options.TranscriptionTopic;
+                    // Listen to every enabled data source with a topic.
+                    var topics = _options.Topics.Split(',');
 
-                    if (topic.Length != 0)
+                    if (topics.Length != 0)
                     {
-                        this.Logger.LogInformation("Consuming topic: {topic}", topic);
+                        var tps = String.Join(',', topics);
+                        this.Logger.LogInformation("Consuming topics: {tps}", tps);
 
                         // TODO: Need to learn how to safely stop listening without losing content.  Every time a service goes down it will most likely lose content.
-                        await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, topic);
+                        await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, topics);
 
                         // Successful run clears any errors.
                         this.State.ResetFailures();
