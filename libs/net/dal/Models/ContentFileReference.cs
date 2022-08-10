@@ -59,7 +59,7 @@ public class ContentFileReference : IReadonlyFileReference
     /// <summary>
     /// get - The file to upload with the file reference.
     /// </summary>
-    public IFormFile File { get; }
+    public IFormFile? File { get; }
 
     /// <summary>
     /// get - The content version.
@@ -140,6 +140,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.UpdatedBy = content.UpdatedBy;
         this.UpdatedById = content.UpdatedById;
         this.UpdatedOn = DateTime.UtcNow;
+        this.SourceFile = "";
 
         this.FileReference = new FileReference(this.Content, this.ContentType, this.FileName, this.Path)
         {
@@ -177,6 +178,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.UpdatedById = fileReference.UpdatedById;
         this.UpdatedOn = fileReference.UpdatedOn;
         this.Version = fileReference.Version;
+        this.SourceFile = "";
 
         fileReference.FileName = this.FileName;
         fileReference.Path = this.Path;
@@ -199,7 +201,6 @@ public class ContentFileReference : IReadonlyFileReference
         this.ContentId = content.Id;
         this.ContentVersion = content.Version;
 
-        var ext = file.Extension.Replace(".", "");
         this.Path = GenerateFilePath(content, file.FullName);
         this.SourceFile = file.FullName;
         this.ContentType = MimeTypeMap.GetMimeType(file.Extension);
@@ -235,7 +236,6 @@ public class ContentFileReference : IReadonlyFileReference
         this.ContentId = fileReference.ContentId;
         this.ContentVersion = fileReference.Content.Version;
 
-        //this.File = file ?? throw new ArgumentNullException(nameof(file));
         this.Id = fileReference.Id;
         this.FileName = file.Name;
         this.Path = this.Path = GenerateFilePath(this.Content, file.FullName);

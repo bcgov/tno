@@ -11,6 +11,12 @@ namespace TNO.Services;
 public interface IApiService
 {
     /// <summary>
+    /// Make an AJAX request to the api to fetch all data sources.
+    /// </summary>
+    /// <returns></returns>
+    public Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync();
+
+    /// <summary>
     /// Make an AJAX request to the api to fetch data sources for the specified media type.
     /// </summary>
     /// <param name="mediaType"></param>

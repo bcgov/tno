@@ -43,6 +43,7 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
+    /// <param name="options"></param>
     public ContentController(IContentService contentService, IFileReferenceService fileReferenceService, IOptions<StorageConfig> options)
     {
         _contentService = contentService;
@@ -175,14 +176,14 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <param name="version"></param>
-    /// <param name="files"></param>
+    /// <param name="path"></param>
     /// <returns></returns>
     [HttpPut("{id}/attach")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> AttachFile([FromRoute] long id, [FromQuery] long version, [FromQuery] string path)
+    public IActionResult AttachFile([FromRoute] long id, [FromQuery] long version, [FromQuery] string path)
     {
         var content = _contentService.FindById(id);
         if (content == null) return new JsonResult(new { Error = "Content does not exist" })
@@ -198,7 +199,7 @@ public class ContentController : ControllerBase
 
         var file = new System.IO.FileInfo(safePath);
         var reference = content.FileReferences.Any() ? new ContentFileReference(content.FileReferences.First(), file) : new ContentFileReference(content, file);
-        await _fileReferenceService.Attach(reference);
+        _fileReferenceService.Attach(reference);
 
         return new JsonResult(new ContentModel(content));
     }

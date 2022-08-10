@@ -42,6 +42,16 @@ public class ApiService : IApiService
     #endregion
 
     #region Data Source Methods
+    /// <summary>
+    /// Make an AJAX request to the api to fetch all data sources.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync()
+    {
+        var url = new Uri(_options.ApiUrl, $"services/data/sources");
+        var result = await _client.GetAsync<DataSourceModel[]>(url);
+        return result ?? Array.Empty<DataSourceModel>();
+    }
 
     /// <summary>
     /// Make an AJAX request to the api to fetch data sources for the specified media type.
