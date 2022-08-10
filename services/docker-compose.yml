@@ -145,6 +145,34 @@ services:
       retries: 3
       start_period: 30s
 
+  transcription:
+    image: tno:transcription
+    profiles:
+      - all
+      - service
+      - data
+    restart: "no"
+    container_name: tno-transcription
+    build:
+      context: ./
+      dockerfile: services/net/transcription/Dockerfile
+    env_file:
+      - services/net/transcription/.env
+    ports:
+      - ${TRANSCRIPTION_PORT:-40028}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
   # nlp:
   #   image: tno:nlp
   #   profiles:

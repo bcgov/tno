@@ -1,15 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
-using TNO.Services.Content.Config;
+using TNO.Services.Transcription.Config;
 using TNO.Services.Runners;
-using Confluent.Kafka;
 
-namespace TNO.Services.Content;
+namespace TNO.Services.Transcription;
 
 /// <summary>
-/// ContentService abstract class, provides a console application that runs service, and an api.
-/// The ContentService is a Kafka consumer which pulls content.
+/// TranscriptionService abstrct class, provides a console application that runs service, and an api.
+/// The TranscriptionService is a Kafka consumer which pulls content.
 /// </summary>
-public class ContentService : KafkaConsumerService
+public class TranscriptionService : KafkaConsumerService
 {
     #region Variables
     #endregion
@@ -19,10 +18,10 @@ public class ContentService : KafkaConsumerService
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a ContentService object, initializes with arguments.
+    /// Creates a new instance of a TranscriptionService object, initializes with arguments.
     /// </summary>
     /// <param name="args"></param>
-    public ContentService(string[] args) : base(args)
+    public TranscriptionService(string[] args) : base(args)
     {
     }
     #endregion
@@ -37,13 +36,11 @@ public class ContentService : KafkaConsumerService
     {
         base.ConfigureServices(services);
         services
-            .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
-            .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
-            .AddTransient<IKafkaMessenger, KafkaMessenger>()
-            .AddSingleton<IServiceManager, ContentManager>();
+            .Configure<TranscriptionOptions>(this.Configuration.GetSection("Service"))
+            .AddSingleton<IServiceManager, TranscriptionManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
-        // services.AddOptions<ContentOptions>()
+        // services.AddOptions<TranscriptionOptions>()
         //     .Bind(this.Configuration.GetSection("Service"))
         //     .ValidateDataAnnotations();
 

@@ -64,6 +64,9 @@ INDEXING_PORT=$portIndexing
 CAPTURE_PORT=$portCapture
 CLIP_PORT=$portClip
 CONTENT_PORT=$portContent
+IMAGE_PORT=$portImage
+TRANSCRIPTION_PORT=$portTranscription
+
 
 #############################
 # Kafka Configuration
@@ -471,8 +474,8 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__Topics__0=CASTANET
-# Service__ClipPath=../data/clip
+Service__ContentTopics=news-ghi
+Service__TranscriptionTopic=transcription
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/content/.env
     echo "./services/net/content/.env created"
@@ -492,4 +495,24 @@ Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__OutputPath=../data/image" >> ./services/net/image/.env
     echo "./services/net/image/.env created"
+fi
+
+## Transcription service
+if test -f "./services/net/transcription/.env"; then
+    echo "./services/net/transcription/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__TranscriptionTopic=transcription
+Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
+
+Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/transcription/.env
+    echo "./services/net/transcription/.env created"
 fi

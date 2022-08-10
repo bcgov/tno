@@ -1,0 +1,37 @@
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
+
+ENV DOTNET_CLI_HOME=/tmp
+ENV PATH="$PATH:/tmp/.dotnet/tools"
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Switch to root for package installs
+USER 0
+# RUN dotnet tool install --global dotnet-ef
+
+WORKDIR /src
+COPY services/net/transcription services/net/transcription
+COPY libs/net libs/net
+RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
+    fix_permissions "/app" "/tmp"
+
+WORKDIR /src/services/net/transcription
+RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as deploy
+
+WORKDIR /app
+COPY --from=build /build .
+
+# This volume is the local storage for uploaded files.
+RUN mkdir /data
+VOLUME /data
+
+# [Optional] Uncomment this section to install additional OS packages.
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends libc6-dev libgdiplus libgdiplus ffmpeg libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
+
+# Run container by default as user with id 1001 (default)
+USER 1001
+
+ENTRYPOINT dotnet TNO.Services.Transcription.dll

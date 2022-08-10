@@ -154,6 +154,8 @@ export portIndexing=40023
 export portCapture=40024
 export portClip=40025
 export portContent=40026
+export portImage=40027
+export portTranscription=40028
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101

@@ -10,9 +10,14 @@ public class ContentOptions : ServiceOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - An array of topics to consume.
+    /// get/set - A comma separated list of topics to consume.
     /// </summary>
-    public string Topics { get; set; } = "";
+    public string ContentTopics { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The transcription topic to send requests to.
+    /// </summary>
+    public string TranscriptionTopic { get; set; } = "";
 
     /// <summary>
     /// get/set - The path to capture files.
@@ -30,9 +35,9 @@ public class ContentOptions : ServiceOptions
     /// Get an array of topics.
     /// </summary>
     /// <returns></returns>
-    public string[] GetTopics()
+    public string[] GetContentTopics()
     {
-        return this.Topics.Split(',').Select(v => v.Trim()).ToArray();
+        return this.ContentTopics.Split(',').Select(v => v.Trim()).ToArray();
     }
     #endregion
 }

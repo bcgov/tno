@@ -26,6 +26,11 @@ public class ContentManager : ServiceManager<ContentOptions>
     protected IKafkaListener Consumer { get; private set; }
 
     /// <summary>
+    /// get - The kafka messenger service.
+    /// </summary>
+    protected IKafkaMessenger Producer { get; private set; }
+
+    /// <summary>
     /// get - Lookup values from the API.
     /// </summary>
     public LookupModel? Lookups { get; private set; }
@@ -35,18 +40,21 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <summary>
     /// Creates a new instance of a ContentManager object, initializes with specified parameters.
     /// </summary>
-    /// <param name="kafka"></param>
+    /// <param name="kafkaListener"></param>
+    /// <param name="kafkaMessenger"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ContentManager(
-        IKafkaListener kafka,
+        IKafkaListener kafkaListener,
+        IKafkaMessenger kafkaMessenger,
         IApiService api,
         IOptions<ContentOptions> options,
         ILogger<ContentManager> logger)
         : base(api, options, logger)
     {
-        this.Consumer = kafka;
+        this.Consumer = kafkaListener;
+        this.Producer = kafkaMessenger;
     }
     #endregion
 
@@ -75,7 +83,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     this.Lookups = await _api.GetLookupsAsync();
 
                     // Listen to every enabled data source with a topic.
-                    var topics = !String.IsNullOrWhiteSpace(_options.Topics) ? _options.GetTopics() : this.Lookups?.DataSources
+                    var topics = !String.IsNullOrWhiteSpace(_options.ContentTopics) ? _options.GetContentTopics() : this.Lookups?.DataSources
                         .Where(ds => ds.IsEnabled &&
                             ds.ContentTypeId > 0 &&
                             !String.IsNullOrWhiteSpace(ds.Topic) &&
@@ -126,7 +134,7 @@ public class ContentManager : ServiceManager<ContentOptions>
 
         // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
         // TODO: Handle e-tag.
-        var source = await _api.GetDataSourceAsync(result.Topic) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Topic}'");
+        var source = await _api.GetDataSourceAsync(result.Value.Source) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Topic}'");
 
         if (source.ContentTypeId == null) throw new InvalidOperationException($"Data source not configured to import content correctly");
 
@@ -141,7 +149,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             OtherSeries = null, // TODO: Provide default series from Data Source config settings.
             OwnerId = source.OwnerId,
             DataSourceId = source.Id,
-            Source = result.Topic,
+            Source = result.Value.Source,
             Headline = result.Message.Value.Title,
             Uid = result.Message.Value.Uid,
             Page = "", // TODO: Provide default page from Data Source config settings.
@@ -175,6 +183,12 @@ public class ContentManager : ServiceManager<ContentOptions>
                     var file = File.OpenRead(sourcePath);
                     var fileName = Path.GetFileName(sourcePath);
                     await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
+
+                    // Send a Kafka message to the transcription topic
+                    if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
+                    {
+                        await SendMessageAsync(result.Message.Value, content);
+                    }
                 }
                 else
                 {
@@ -186,6 +200,20 @@ public class ContentManager : ServiceManager<ContentOptions>
         {
             this.Logger.LogDebug("Content already exists. Content Source: {Source}, UID: {Uid}", content.Source, content.Uid);
         }
+    }
+
+    /// <summary>
+    /// Send message to kafka with updated transcription.
+    /// </summary>
+    /// <param name="sourceContent"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(SourceContent sourceContent, ContentModel content)
+    {
+        var result = await this.Producer.SendMessageAsync(_options.TranscriptionTopic, sourceContent);
+        if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.Source}:{content.Uid}");
+        return result;
     }
     #endregion
 }

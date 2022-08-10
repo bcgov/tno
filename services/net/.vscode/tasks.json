@@ -216,6 +216,30 @@
         "${workspaceFolder}/syndication/TNO.Services.Syndication.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-transcription",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/transcription/TNO.Services.Transcription.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-transcription",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/transcription/TNO.Services.Transcription.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

@@ -26,6 +26,14 @@ public interface IApiService
     public Task<DataSourceModel?> GetDataSourceAsync(string code);
 
     /// <summary>
+    /// Make an AJAX request to the api to update the content for the specified ContentModel.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public Task<ContentModel?> UpdateContentAsync(ContentModel content);
+
+    /// <summary>
     /// Make an AJAX request to the api to update the data source.
     /// </summary>
     /// <param name="dataSource"></param>

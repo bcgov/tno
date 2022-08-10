@@ -172,6 +172,17 @@ public class ApiService : IApiService
         };
         return await _client.PostAsync<ContentModel>(url, form);
     }
+
+    /// <summary>
+    /// Make an AJAX request to the api to update the content for the specified 'id'.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public async Task<ContentModel?> UpdateContentAsync(ContentModel content)
+    {
+        var url = new Uri(_options.ApiUrl, $"editor/contents/{content.Id}");
+        return await _client.PutAsync<ContentModel>(url, JsonContent.Create(content));
+    }
     #endregion
 
     #region Lookup Methods
