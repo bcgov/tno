@@ -38,6 +38,8 @@ public class FolderModel
         this.Path = safePath.ReplaceFirst(rootPath, "")!;
         var result = new List<ItemModel>();
         var files = System.IO.Directory.GetFileSystemEntries(safePath);
+        Array.Sort(files, string.CompareOrdinal);
+
         foreach (var fullName in files)
         {
             if (fullName.FileExists() || fullName.DirectoryExists())

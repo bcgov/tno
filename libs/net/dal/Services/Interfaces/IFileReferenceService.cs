@@ -11,4 +11,6 @@ public interface IFileReferenceService : IBaseService<FileReference, long>
     Task<FileReference> Upload(ContentFileReference model);
 
     FileStream Download(FileReference entity);
+
+    Task<FileReference> Attach(ContentFileReference model);
 }

@@ -1,4 +1,5 @@
 using System.Net;
+using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,7 @@ using TNO.API.Areas.Editor.Models.Storage;
 using TNO.API.Models;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
+using TNO.DAL.Helpers;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -195,6 +197,62 @@ public class StorageController : ControllerBase
         var info = new ItemModel(safePath);
         System.IO.File.Delete(safePath);
         return new JsonResult(info);
+    }
+
+    /// <summary>
+    /// Make a clip from the target file identified in the clip parameter 'prefix'.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="directory"></param>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <param name="clipNbr"></param>
+    /// <param name="prefix"></param>
+    /// <returns></returns>
+    [HttpGet("clip")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public async Task<IActionResult> CreateClip(string fileName, string directory, int start, int end, int clipNbr, string prefix)
+    {
+        var path = _config.CapturePath + directory;
+        var process = FfmpegHelper.GetClipProcess(fileName, path, start, end, clipNbr, prefix);
+
+        process.Start();
+        process.WaitForExit();
+
+        var listing = new FolderModel(_config.CapturePath, directory);
+        return new JsonResult(listing);
+    }
+
+    /// <summary>
+    /// Make a clip from the target file identified in the clip parameter 'prefix'.
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <param name="directory"></param>
+    /// <param name="prefix"></param>
+    /// <returns></returns>
+    [HttpPut("join")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public async Task<IActionResult> JoinClips(string fileName, string directory, string prefix)
+    {
+        var safePath = System.IO.Path.Combine(_config.GetRootPath("storage"), directory.MakeRelativePath());
+        var format = Path.GetExtension(fileName).Replace(".", "");
+
+        var muxFile = FfmpegHelper.GenerateMuxfile(fileName, safePath, format, prefix);
+        var process = FfmpegHelper.GetJoinProcess(directory, fileName, safePath, muxFile, format, prefix);
+
+        process.Start();
+        process.WaitForExit();
+
+        System.IO.File.Delete(muxFile);
+
+        var listing = new FolderModel(_config.CapturePath, directory);
+        return new JsonResult(listing);
     }
     #endregion
 }

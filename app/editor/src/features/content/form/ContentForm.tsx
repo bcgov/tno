@@ -39,7 +39,7 @@ import {
 import { getDataSourceOptions, getSortableOptions } from 'utils';
 
 import { ContentFormSchema } from '../validation';
-import { ContentActions, ContentSummaryForm, ContentTranscriptForm } from '.';
+import { ContentActions, ContentClipForm, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -76,6 +76,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
+  const [path, setPath] = React.useState('');
 
   React.useEffect(() => {
     setDataSourceOptions(getDataSourceOptions(dataSources));
@@ -87,9 +88,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
 
   React.useEffect(() => {
     if (!!id && +id > 0) {
-      getContent(+id).then((data) => setContent(toForm(data)));
+      getContent(+id).then((data) => {
+        setContent(toForm(data));
+        setPath(path || '/clip/' + data.source);
+      });
     }
-  }, [id, getContent]);
+  }, [id, getContent, path]);
 
   React.useEffect(() => {
     // If for some reason the current user does not exist in the local list, go fetch a new list from the api.
@@ -363,6 +367,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             onClick={() => setActive('transcript')}
                             active={active === 'transcript'}
                           />
+                          <Tab
+                            label="Clips"
+                            onClick={() => setActive('clips')}
+                            active={active === 'clips'}
+                          />
                         </>
                       }
                     >
@@ -375,6 +384,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
+                      </Show>
+                      <Show visible={active === 'clips'}>
+                        <ContentClipForm
+                          content={content}
+                          setContent={setContent}
+                          setPath={setPath}
+                          path={path}
+                        />
                       </Show>
                     </Tabs>
                   </Show>

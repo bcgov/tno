@@ -5,6 +5,7 @@ export * from './IAuditColumnsModel';
 export * from './ICacheModel';
 export * from './ICategoryModel';
 export * from './IClaimModel';
+export * from './IClipModel';
 export * from './IContentActionModel';
 export * from './IContentCategoryModel';
 export * from './IContentFilter';

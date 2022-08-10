@@ -105,6 +105,11 @@ public class ContentFileReference : IReadonlyFileReference
     /// get - A reference to the source FileReference.
     /// </summary>
     protected FileReference FileReference { get; }
+
+    /// <summary>
+    /// get - The file to attach with the file reference.
+    /// </summary>
+    public string SourceFile { get; }
     #endregion
 
     #region Constructors
@@ -179,6 +184,80 @@ public class ContentFileReference : IReadonlyFileReference
         fileReference.ContentType = this.ContentType;
         this.FileReference = fileReference;
     }
+
+    /// <summary>
+    /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
+    /// Use this to create a new FileReference.
+    /// Only use this contructor when the 'content' already exists in the database.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="file"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ContentFileReference(Content content, System.IO.FileInfo file)
+    {
+        this.Content = content ?? throw new ArgumentNullException(nameof(content));
+        this.ContentId = content.Id;
+        this.ContentVersion = content.Version;
+
+        var ext = file.Extension.Replace(".", "");
+        this.Path = GenerateFilePath(content, file.FullName);
+        this.SourceFile = file.FullName;
+        this.ContentType = MimeTypeMap.GetMimeType(file.Extension);
+        this.FileName = file.Name;
+        this.Size = file.Length;
+        this.RunningTime = 0; // TODO: Calculate this somehow.
+        this.CreatedBy = content.CreatedBy;
+        this.CreatedById = content.CreatedById;
+        this.CreatedOn = DateTime.UtcNow;
+        this.UpdatedBy = content.UpdatedBy;
+        this.UpdatedById = content.UpdatedById;
+        this.UpdatedOn = DateTime.UtcNow;
+
+        this.FileReference = new FileReference(this.Content, this.ContentType, this.FileName, this.Path)
+        {
+            IsUploaded = this.IsUploaded,
+            Size = this.Size,
+            RunningTime = this.RunningTime
+        };
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
+    /// Use this to update an existing FileReference.
+    /// Only use this contructor when the 'content' already exists in the database.
+    /// </summary>
+    /// <param name="fileReference"></param>
+    /// <param name="file"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ContentFileReference(FileReference fileReference, System.IO.FileInfo file)
+    {
+        this.Content = fileReference?.Content ?? throw new ArgumentNullException(nameof(fileReference), "Parameter 'fileReference' and 'fileReference.Content' cannot be null");
+        this.ContentId = fileReference.ContentId;
+        this.ContentVersion = fileReference.Content.Version;
+
+        //this.File = file ?? throw new ArgumentNullException(nameof(file));
+        this.Id = fileReference.Id;
+        this.FileName = file.Name;
+        this.Path = this.Path = GenerateFilePath(this.Content, file.FullName);
+        this.SourceFile = file.FullName;
+        this.ContentType = MimeTypeMap.GetMimeType(file.Extension);
+        this.Size = file.Length;
+        this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
+        this.CreatedBy = fileReference.CreatedBy;
+        this.CreatedById = fileReference.CreatedById;
+        this.CreatedOn = fileReference.CreatedOn;
+        this.UpdatedBy = fileReference.UpdatedBy;
+        this.UpdatedById = fileReference.UpdatedById;
+        this.UpdatedOn = fileReference.UpdatedOn;
+        this.Version = fileReference.Version;
+
+        fileReference.FileName = this.FileName;
+        fileReference.Path = this.Path;
+        fileReference.Size = this.Size;
+        fileReference.ContentType = this.ContentType;
+        this.FileReference = fileReference;
+    }
+
     #endregion
 
     #region Methods
@@ -207,6 +286,22 @@ public class ContentFileReference : IReadonlyFileReference
 
         return $"{content.Source}-{content.Id}{System.IO.Path.GetExtension(file.FileName)}";
     }
+
+    public static string GenerateFilePath(Content content, string file)
+    {
+        var fileName = GenerateFileName(content, file);
+        return System.IO.Path.Combine(content.Source, fileName);
+    }
+
+    public static string GenerateFileName(Content content, string file)
+    {
+        if (content.Id == 0) throw new ArgumentException("Parameter 'content.Id' must be greater than zero.", nameof(content));
+        if (String.IsNullOrWhiteSpace(content.Source)) throw new ArgumentException("Parameter 'content.Source' cannot be null, empty, or whitespace.", nameof(content));
+
+        return $"{content.Source}-{content.Id}{System.IO.Path.GetExtension(file)}";
+    }
+
+
 
     /// <summary>
     /// Cast this ContentFileReference to a new instance of a FileReference object.

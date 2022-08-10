@@ -3,7 +3,7 @@ import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 import { extractFileName } from 'utils';
 
-import { IFolderModel, IItemModel, useApi } from '..';
+import { IContentModel, IFolderModel, IItemModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -112,6 +112,44 @@ export const useApiStorage = (
       };
       return api.delete<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
+      );
+    },
+    clip: (
+      fileName: string,
+      directory: string,
+      start: string,
+      end: string,
+      clipNbr: number,
+      prefix: string,
+    ) => {
+      const params = {
+        fileName,
+        directory,
+        start,
+        end,
+        clipNbr,
+        prefix,
+      };
+      return api.get<IItemModel, AxiosResponse<IFolderModel, never>, any>(
+        `/editor/storage/clip?${toQueryString(params)}`,
+      );
+    },
+    join: (fileName: string, directory: string, prefix: string) => {
+      const params = {
+        fileName,
+        directory,
+        prefix,
+      };
+      return api.put<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
+        `/editor/storage/join?${toQueryString(params)}`,
+      );
+    },
+    attach: (id: number, path: string) => {
+      const params = {
+        path,
+      };
+      return api.put<IFolderModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${id}/attach?${toQueryString(params)}`,
       );
     },
   }).current;
