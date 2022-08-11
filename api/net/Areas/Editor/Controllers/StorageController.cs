@@ -214,7 +214,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> CreateClip(string fileName, string directory, int start, int end, int clipNbr, string prefix)
+    public IActionResult CreateClip(string fileName, string directory, int start, int end, int clipNbr, string prefix)
     {
         var path = _config.CapturePath + directory;
         var process = FfmpegHelper.GetClipProcess(fileName, path, start, end, clipNbr, prefix);
@@ -238,7 +238,7 @@ public class StorageController : ControllerBase
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public async Task<IActionResult> JoinClips(string fileName, string directory, string prefix)
+    public IActionResult JoinClips(string fileName, string directory, string prefix)
     {
         var safePath = System.IO.Path.Combine(_config.GetRootPath("storage"), directory.MakeRelativePath());
         var format = Path.GetExtension(fileName).Replace(".", "");

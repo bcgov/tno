@@ -48,7 +48,7 @@ public class DataSourceController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find a data source for the specified 'code'.
     /// </summary>
     /// <returns></returns>
     [HttpGet("{code}")]
@@ -64,7 +64,7 @@ public class DataSourceController : ControllerBase
     }
 
     /// <summary>
-    /// Find a page of content for the specified query filter.
+    /// Find an array of data sources for the specified media type.
     /// </summary>
     /// <returns></returns>
     [HttpGet("for/media/type/{mediaTypeName}")]
@@ -74,6 +74,19 @@ public class DataSourceController : ControllerBase
     public IActionResult FindByMediaType(string mediaTypeName)
     {
         var result = _serviceDataSource.FindByMediaType(mediaTypeName);
+        return new JsonResult(result.Select(ds => new DataSourceModel(ds, _serializerOptions)));
+    }
+    /// <summary>
+    /// Get an array of data sources.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(IEnumerable<DataSourceModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "DataSource" })]
+    public IActionResult GetDataSources()
+    {
+        var result = _serviceDataSource.FindAll();
         return new JsonResult(result.Select(ds => new DataSourceModel(ds, _serializerOptions)));
     }
 

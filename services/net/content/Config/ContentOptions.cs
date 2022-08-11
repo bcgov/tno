@@ -15,7 +15,8 @@ public class ContentOptions : ServiceOptions
     public string ContentTopics { get; set; } = "";
 
     /// <summary>
-    /// get/set - The transcription topic to send requests to.
+    /// get/set - A topic that the Transcription Service subscribes to.
+    /// Leave blank if it should not publish messages to the Transcription Service.
     /// </summary>
     public string TranscriptionTopic { get; set; } = "";
 
@@ -32,12 +33,14 @@ public class ContentOptions : ServiceOptions
 
     #region Methods
     /// <summary>
-    /// Get an array of topics.
+    /// Get the configured topics, or return the default topics.
     /// </summary>
+    /// <param name="defaultTopics"></param>
     /// <returns></returns>
-    public string[] GetContentTopics()
+    public string[] GetContentTopics(string[]? defaultTopics = null)
     {
-        return this.ContentTopics.Split(',').Select(v => v.Trim()).ToArray();
+        var topics = this.ContentTopics?.Split(',').Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v.Trim()).ToArray() ?? Array.Empty<string>();
+        return topics.Length > 0 ? topics : defaultTopics ?? Array.Empty<string>();
     }
     #endregion
 }

@@ -87,7 +87,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public async Task<FileReference> Attach(ContentFileReference model)
+    public FileReference Attach(ContentFileReference model)
     {
         // TODO: Handle different data locations.
         var path = model.GetFilePath(this.Context, _storageConfig);

@@ -11,7 +11,7 @@ public class TagModel : AuditColumnsModel
     /// <summary>
     /// get/set - The primary key of the type model.
     /// </summary>
-    public string Id { get; set; }
+    public string Id { get; set; } = "";
 
     /// <summary>
     /// get/set - The unique name of the model.

@@ -1,5 +1,6 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Models.Kafka;
 
 namespace TNO.Services.Runners;
 
@@ -37,7 +38,7 @@ public abstract class KafkaConsumerService : BaseService
         base.ConfigureServices(services);
         services
             .Configure<ConsumerConfig>(this.Configuration.GetSection("Kafka:Consumer"))
-            .AddTransient<IKafkaListener, KafkaListener>();
+            .AddTransient<IKafkaListener<string, SourceContent>, KafkaListener<string, SourceContent>>();
 
         return services;
     }
