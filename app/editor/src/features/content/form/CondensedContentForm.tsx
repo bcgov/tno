@@ -105,7 +105,7 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
   });
 
   const handleSubmit = async (values: IContentForm) => {
-    var contentResult: IContentModel | null = null;
+    let contentResult: IContentModel | null = null;
     const originalId = values.id;
     try {
       if (!values.id) {
@@ -123,9 +123,9 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
       // Now upload the file if it exists.
       if (!!values.file) {
         const uploadResult = await upload(contentResult, values.file);
-        setContent(toForm(uploadResult));
+        setContent(toForm({ ...uploadResult, tonePools: values.tonePools }));
       } else {
-        setContent(toForm(contentResult));
+        setContent(toForm({ ...contentResult, tonePools: values.tonePools }));
       }
 
       toast.success(`${contentResult.headline} has successfully been saved.`);
