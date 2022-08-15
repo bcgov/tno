@@ -161,7 +161,6 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                   <Col flex="1 1 auto">
                     <FormikText
                       name="headline"
-                      width={FieldSize.Big}
                       required
                       label="Headline"
                       value={props.values.headline}
@@ -170,6 +169,7 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                       <FormikSelect
                         name="dataSourceId"
                         label="Source"
+                        width={FieldSize.Big}
                         value={
                           dataSourceOptions.find((mt) => mt.value === props.values.dataSourceId) ??
                           ''
@@ -183,7 +183,6 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                             props.setFieldValue('licenseId', dataSource.licenseId);
                           }
                         }}
-                        width={FieldSize.Big}
                         options={dataSourceOptions}
                         required={!props.values.source}
                         isDisabled={!!props.values.otherSource}
@@ -210,7 +209,6 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                         <FormikText
                           name="otherSource"
                           label="Other Source"
-                          width={FieldSize.Big}
                           onChange={(e) => {
                             const value = e.currentTarget.value;
                             props.setFieldValue('otherSource', value);
@@ -232,7 +230,6 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                             ''
                           }
                           label="Media Type"
-                          width={FieldSize.Big}
                           options={mediaTypeOptions}
                           required
                         />
@@ -254,9 +251,8 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                     </Show>
                     <Show visible={contentType === ContentType.Snippet}>
                       <FormikText
-                        name="sourceURL"
+                        name="sourceUrl"
                         label="Source URL"
-                        width={FieldSize.Big}
                         tooltip="The URL to the original source story"
                         onChange={(e) => {
                           props.handleChange(e);

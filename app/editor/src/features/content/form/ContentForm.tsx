@@ -203,7 +203,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                   <Col flex="1 1 auto">
                     <FormikText
                       name="headline"
-                      width={FieldSize.Large}
                       required
                       label="Headline"
                       value={props.values.headline}
@@ -212,6 +211,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       <FormikSelect
                         name="dataSourceId"
                         label="Source"
+                        width={FieldSize.Big}
                         value={
                           dataSourceOptions.find((mt) => mt.value === props.values.dataSourceId) ??
                           ''
@@ -225,7 +225,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             props.setFieldValue('licenseId', dataSource.licenseId);
                           }
                         }}
-                        width={FieldSize.Big}
                         options={dataSourceOptions}
                         required={!props.values.source}
                         isDisabled={!!props.values.otherSource}
@@ -234,23 +233,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       <FormikText
                         name="otherSource"
                         label="Other Source"
-                        width={FieldSize.Big}
-                        onChange={(e) => {
-                          const value = e.currentTarget.value;
-                          props.setFieldValue('otherSource', value);
-                          props.setFieldValue('source', value);
-                          if (!!value) {
-                            props.setFieldValue('dataSourceId', undefined);
-                          }
-                        }}
-                        required={!!props.values.otherSource}
-                      />
-                    </Row>
-                    <Row>
-                      <FormikText
-                        name="otherSource"
-                        label="Other Source"
-                        width={FieldSize.Big}
                         onChange={(e) => {
                           const value = e.currentTarget.value;
                           props.setFieldValue('otherSource', value);
@@ -271,7 +253,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             ''
                           }
                           label="Media Type"
-                          width={FieldSize.Large}
                           options={mediaTypeOptions}
                           required
                         />
@@ -293,7 +274,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                     </Show>
                     <Show visible={contentType === ContentType.Snippet}>
                       <FormikText
-                        name="sourceURL"
+                        name="sourceUrl"
                         label="Source URL"
                         width={FieldSize.Large}
                         tooltip="The URL to the original source story"
