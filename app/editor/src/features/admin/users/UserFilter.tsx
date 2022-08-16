@@ -8,18 +8,40 @@ import { Row } from 'tno-core/dist/components/flex';
 import { getEnumStringOptions } from 'utils';
 
 import { IUserListFilter } from './interfaces/IUserListFilter';
+import * as styled from './styled';
 
 interface IUserFilterProps {}
 
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [filter, setFilter] = useState<IUserListFilter>(userFilter);
+  const [activeHover, setActiveHover] = useState(false);
 
   const statusOptions = getEnumStringOptions(UserStatusName);
 
   const navigate = useNavigate();
+
+  /** Handle enter key pressed for user filter */
+  React.useEffect(() => {
+    const keyDownHandler = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && activeHover) {
+        event.preventDefault();
+        storeFilter(filter);
+      }
+    };
+
+    document.addEventListener('keydown', keyDownHandler);
+
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+    };
+  }, [filter, activeHover, storeFilter]);
+
   return (
-    <>
+    <styled.UserFilter
+      onMouseEnter={() => setActiveHover(true)}
+      onMouseOut={() => setActiveHover(false)}
+    >
       <Row className="add-media" justifyContent="flex-end">
         <IconButton
           iconType="plus"
@@ -68,6 +90,6 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           }}
         />
       </Row>
-    </>
+    </styled.UserFilter>
   );
 };
