@@ -30,6 +30,8 @@ export interface IDataSourceModel extends IAuditColumnsModel {
   owner?: IUserModel;
   scheduleType: DataSourceScheduleTypeName;
   topic: string;
+  autoTranscribe: boolean;
+  disableTranscribe: boolean;
   connection: any;
   lastRanOn?: Date;
   retryLimit: number;

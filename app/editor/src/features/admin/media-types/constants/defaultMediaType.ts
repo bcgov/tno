@@ -6,4 +6,6 @@ export const defaultMediaType: IMediaTypeModel = {
   description: '',
   isEnabled: true,
   sortOrder: 0,
+  autoTranscribe: false,
+  disableTranscribe: false,
 };
