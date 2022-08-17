@@ -59,14 +59,13 @@ export const Tab: React.FC<ITabProps> = ({
   const hasClaim = !claim || keycloak.hasClaim(claim);
 
   let isActive =
-    active ||
     isActivePath(location.pathname, navigateTo, exact) ||
     activePaths.some((p) => isActivePath(location.pathname, p, exact));
 
   return hasClaim ? (
     <styled.Tab
       onClick={(e) => (onClick ? onClick(e as any) : navigate(navigateTo!!))}
-      active={isActive}
+      active={!!navigateTo ? isActive : active}
       className={`${className ?? 'tab'}`}
       hasErrors={hasErrors}
     >
