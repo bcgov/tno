@@ -15,8 +15,6 @@ interface IUserFilterProps {}
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [filter, setFilter] = useState<IUserListFilter>(userFilter);
-  const [activeHover, setActiveHover] = useState(false);
-
   const statusOptions = getEnumStringOptions(UserStatusName);
 
   const navigate = useNavigate();
@@ -24,7 +22,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
   /** Handle enter key pressed for user filter */
   React.useEffect(() => {
     const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && activeHover) {
+      if (event.key === 'Enter') {
         event.preventDefault();
         storeFilter(filter);
       }
@@ -35,13 +33,10 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
     return () => {
       document.removeEventListener('keydown', keyDownHandler);
     };
-  }, [filter, activeHover, storeFilter]);
+  }, [filter, storeFilter]);
 
   return (
-    <styled.UserFilter
-      onMouseEnter={() => setActiveHover(true)}
-      onMouseOut={() => setActiveHover(false)}
-    >
+    <styled.UserFilter>
       <Row className="add-media" justifyContent="flex-end">
         <IconButton
           iconType="plus"
