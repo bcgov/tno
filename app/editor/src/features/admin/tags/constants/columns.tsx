@@ -8,12 +8,13 @@ export const columns: (Column<ITagModel> &
   {
     id: 'id',
     Header: 'Name',
-    width: 300,
+    width: 50,
     accessor: 'name',
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Description',
+    width: 300,
     accessor: 'description',
   },
   {
