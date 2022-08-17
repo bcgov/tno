@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Prometheus;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
 using TNO.DAL;
@@ -242,6 +243,14 @@ app.UseMiddleware(typeof(LogRequestMiddleware));
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMetricServer();
+app.UseHttpMetrics();
+
+app.UseEndpoints(endpoints => 
+{
+    endpoints.MapMetrics().RequireAuthorization();
+});
 
 app.MapControllers();
 
