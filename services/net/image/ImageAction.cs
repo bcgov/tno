@@ -71,7 +71,7 @@ public class ImageAction : IngestAction<ImageOptions>
         // If the data source is configured to use a schedule then
         var content = CreateContentReference(manager.DataSource);
 
-        // TODO: Fetch image from source data location.  Only continue if the image exists.
+        await FetchImage(manager.DataSource);
 
         var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
         var sendMessage = manager.DataSource.ContentTypeId > 0;
@@ -90,8 +90,8 @@ public class ImageAction : IngestAction<ImageOptions>
 
         if (reference != null)
         {
-            // TODO: Process Image based on configuration.
-            // TODO: Copy image to destination data location.
+            // await ProcessImage(manager.DataSource);
+            await CopyImage(manager.DataSource);
 
             if (sendMessage)
             {
@@ -103,6 +103,45 @@ public class ImageAction : IngestAction<ImageOptions>
             reference.WorkflowStatus = (int)WorkflowStatus.Received;
             await this.Api.UpdateContentReferenceAsync(reference);
         }
+    }
+
+    /// <summary>
+    /// Fetch the image from the remote data source based on configuration.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    private async Task FetchImage(DataSourceModel dataSource)
+    {
+        // TODO: use private keys in ./keys folder to connect to remote data source.
+        // TODO: Fetch image from source data location.  Only continue if the image exists.
+        // TODO: Eventually handle different data source locations based on config.
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Perform image processing based on configuration.
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    private async Task ProcessImage(DataSourceModel dataSource)
+    {
+        // TODO: Process Image based on configuration.
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="dataSource"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    private async Task CopyImage(DataSourceModel dataSource)
+    {
+        // TODO: Copy image to destination data location.
+        // TODO: Eventually handle different destination data locations based on config.
+        throw new NotImplementedException();
     }
 
     /// <summary>
