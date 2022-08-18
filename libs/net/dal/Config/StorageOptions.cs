@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 namespace TNO.DAL.Config;
 
 /// <summary>
-/// StorageConfig class, provides a way to configure storage of files.
+/// StorageOptions class, provides a way to configure storage of files.
 /// </summary>
-public class StorageConfig
+public class StorageOptions
 {
     #region Properties
     /// <summary>
@@ -29,15 +29,15 @@ public class StorageConfig
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a StorageConfig object.
+    /// Creates a new instance of a StorageOptions object.
     /// </summary>
-    public StorageConfig() { }
+    public StorageOptions() { }
 
     /// <summary>
-    /// Creates a new instance of a StorageConfig object, initializes with specified parameters.
+    /// Creates a new instance of a StorageOptions object, initializes with specified parameters.
     /// </summary>
     /// <param name="environment"></param>
-    public StorageConfig(IWebHostEnvironment environment)
+    public StorageOptions(IWebHostEnvironment environment)
     {
         this.Environment = environment;
     }

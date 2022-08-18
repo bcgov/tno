@@ -1,12 +1,13 @@
+using System.Text.Json;
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.Kafka;
+using TNO.Models.Kafka;
+using TNO.Models.Extensions;
 using TNO.Services.Managers;
 using TNO.Services.Content.Config;
-using TNO.API.Areas.Services.Models.Content;
-using TNO.Models.Kafka;
-using Confluent.Kafka;
-using System.Text.Json;
-using TNO.Models.Extensions;
 
 namespace TNO.Services.Content;
 

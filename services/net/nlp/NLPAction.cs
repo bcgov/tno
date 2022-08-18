@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Http;
+using TNO.Kafka;
 using TNO.Services.Actions;
 using TNO.Services.NLP.Config;
 

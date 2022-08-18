@@ -98,4 +98,11 @@ public interface IApiService
     /// <param name="source"></param>
     /// <returns></returns>
     Task<ContentModel?> FindContentByUidAsync(string uid, string? source);
+
+    /// <summary>
+    /// Make an AJAX request to the api to get the specified content.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<ContentModel?> FindContentByIdAsync(long id);
 }

@@ -99,9 +99,9 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     public static IServiceCollection AddStorageConfig(this IServiceCollection services, IConfiguration config)
     {
-        services.Configure<StorageConfig>(config.GetSection("Storage"));
-        services.AddSingleton(sp => sp.GetRequiredService<IOptions<StorageConfig>>().Value);
-        services.AddOptions<StorageConfig>()
+        services.Configure<StorageOptions>(config.GetSection("Storage"));
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<StorageOptions>>().Value);
+        services.AddOptions<StorageOptions>()
             .Bind(config.GetSection("Storage"))
             .ValidateDataAnnotations()
             .ValidateOnStart();

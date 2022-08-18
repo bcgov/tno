@@ -404,7 +404,7 @@ fi
 # .NET Services Configuration
 ###########################################################################
 
-## Syndication Producer
+## Syndication Ingest Service
 if test -f "./services/net/syndication/.env"; then
     echo "./services/net/syndication/.env exists"
 else
@@ -422,7 +422,7 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal"
     echo "./services/net/syndication/.env created"
 fi
 
-## Capture
+## Capture Ingest Service
 if test -f "./services/net/capture/.env"; then
     echo "./services/net/capture/.env exists"
 else
@@ -441,7 +441,7 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal"
     echo "./services/net/capture/.env created"
 fi
 
-## Clip
+## Clip Ingest Service
 if test -f "./services/net/clip/.env"; then
     echo "./services/net/clip/.env exists"
 else
@@ -461,7 +461,23 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal"
     echo "./services/net/clip/.env created"
 fi
 
-## Content
+## Image Ingest Service
+if test -f "./services/net/image/.env"; then
+    echo "./services/net/image/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__OutputPath=../data/image" >> ./services/net/image/.env
+    echo "./services/net/image/.env created"
+fi
+
+## Content Service
 if test -f "./services/net/content/.env"; then
     echo "./services/net/content/.env exists"
 else
@@ -481,23 +497,7 @@ Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal"
     echo "./services/net/content/.env created"
 fi
 
-## Image
-if test -f "./services/net/image/.env"; then
-    echo "./services/net/image/.env exists"
-else
-echo \
-"ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS=http://+:8081
-
-Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
-Auth__Keycloak__Audience=tno-service-account
-Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
-
-Service__OutputPath=../data/image" >> ./services/net/image/.env
-    echo "./services/net/image/.env created"
-fi
-
-## Transcription service
+## Transcription Service
 if test -f "./services/net/transcription/.env"; then
     echo "./services/net/transcription/.env exists"
 else
@@ -515,4 +515,25 @@ Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
 
 Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/transcription/.env
     echo "./services/net/transcription/.env created"
+fi
+
+## Indexing Service
+if test -f "./services/net/indexing/.env"; then
+    echo "./services/net/indexing/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__ElasticsearchUri=http://host.docker.internal:$portElastic
+Service__ElasticsearchUsername=$elasticUser
+Service__ElasticsearchPassword=$password
+
+Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/indexing/.env
+    echo "./services/net/indexing/.env created"
 fi

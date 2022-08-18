@@ -16,6 +16,8 @@ interface IContentController {
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
+  publishContent: (content: IContentModel) => Promise<IContentModel>;
+  unpublishContent: (content: IContentModel) => Promise<IContentModel>;
   upload: (content: IContentModel, file: File) => Promise<IContentModel>;
   download: (id: number, fileName: string) => Promise<unknown>;
   storeFilter: (filter: IContentListFilter) => void;
@@ -47,6 +49,14 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
     },
     deleteContent: async (content: IContentModel) => {
       const result = await dispatch('delete-content', () => api.deleteContent(content));
+      return result;
+    },
+    publishContent: async (content: IContentModel) => {
+      const result = await dispatch('publish-content', () => api.publishContent(content));
+      return result;
+    },
+    unpublishContent: async (content: IContentModel) => {
+      const result = await dispatch('unpublish-content', () => api.unpublishContent(content));
       return result;
     },
     upload: async (content: IContentModel, file: File) => {

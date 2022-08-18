@@ -1,4 +1,5 @@
 
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Claims;
@@ -17,13 +18,14 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Prometheus;
+using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
+using TNO.Core.Http;
 using TNO.DAL;
 using TNO.Keycloak;
-using System.IdentityModel.Tokens.Jwt;
-using TNO.Core.Http;
-using TNO.API.Keycloak;
+using TNO.Kafka;
+using TNO.API.Config;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -89,6 +91,13 @@ builder.Services.Configure<FormOptions>(options =>
     options.ValueLengthLimit = (int)section.GetValue(typeof(int), "ValueLengthLimit");
     options.MultipartBodyLengthLimit = (long)section.GetValue(typeof(long), "MultipartBodyLengthLimit");
     options.MultipartHeadersLengthLimit = (int)section.GetValue(typeof(int), "MultipartHeadersLengthLimit");
+});
+
+builder.Services.Configure<KafkaOptions>(options =>
+{
+    var section = config.GetSection("Kafka");
+    options.IndexingTopic = section.GetValue<string>("IndexingTopic");
+    options.NotificationTopic = section.GetValue<string>("NotificationTopic");
 });
 
 IdentityModelEventSource.ShowPII = true;
@@ -178,7 +187,9 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-builder.Services.AddTNOServices(config, env);
+builder.Services
+  .AddTNOServices(config, env)
+  .AddKafkaMessenger(config);
 
 builder.Services
     .AddHttpClient()
@@ -247,7 +258,7 @@ app.UseAuthorization();
 app.UseMetricServer();
 app.UseHttpMetrics();
 
-app.UseEndpoints(endpoints => 
+app.UseEndpoints(endpoints =>
 {
     endpoints.MapMetrics().RequireAuthorization();
 });

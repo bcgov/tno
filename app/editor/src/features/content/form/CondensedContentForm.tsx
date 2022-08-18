@@ -42,7 +42,7 @@ import { ContentActions, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { toForm, toModel } from './utils';
+import { switchStatus, toForm, toModel } from './utils';
 
 export interface ICondensedContentFormProps {
   /** The content type this form will create */
@@ -64,7 +64,8 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
   const { id } = useParams();
   const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries, getUsers }] =
     useLookup();
-  const [, { getContent, addContent, updateContent, deleteContent, upload }] = useContent();
+  const [, { getContent, addContent, updateContent, deleteContent, upload, publishContent }] =
+    useContent();
   const { isShowing, toggle } = useModal();
 
   const [active, setActive] = React.useState('properties');
@@ -144,6 +145,15 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
     } finally {
       setUpdated(true);
     }
+  };
+
+  const handlePublish = async (values: IContentForm) => {
+    const defaultTonePool = tonePools.find((t) => t.name === 'Default');
+    values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
+
+    const model = toModel(values);
+    const result = await publishContent(model);
+    setContent(toForm(result));
   };
 
   return (
@@ -275,14 +285,11 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                         onChange={(e: any) => {
                           props.setFieldValue(
                             'status',
-                            e.target.checked ? ContentStatusName.Publish : ContentStatusName.Draft,
+                            switchStatus(e.target.checked, props.values.status),
                           );
                         }}
                       />
-                      {/* section one of actions */}
-                      <Col alignSelf="stretch">
-                        <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
-                      </Col>
+                      <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
                     </Col>
                     <Row className="commentary">
                       <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
@@ -332,10 +339,23 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
                     />
                   </Show>
                 </Row>
-                <Row style={{ marginTop: '2%' }}>
-                  <Button style={{ marginRight: '4%' }} type="submit" disabled={props.isSubmitting}>
-                    {!id ? 'Create Snippet' : 'Update Snippet'}
+                <Row>
+                  <Button type="submit" disabled={props.isSubmitting}>
+                    {!props.values.id ? 'Create Snippet' : 'Update Snippet'}
                   </Button>
+                  <Show visible={!!props.values.id}>
+                    <Button
+                      onClick={() => handlePublish(props.values)}
+                      variant={ButtonVariant.secondary}
+                      disabled={
+                        props.isSubmitting ||
+                        (props.values.status !== ContentStatusName.Publish &&
+                          props.values.status !== ContentStatusName.Published)
+                      }
+                    >
+                      Publish
+                    </Button>
+                  </Show>
                   <Button onClick={toggle} variant={ButtonVariant.danger}>
                     Remove Snippet
                   </Button>

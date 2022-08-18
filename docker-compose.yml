@@ -10,6 +10,7 @@ services:
       - editor
       - subscriber
       - ingest
+      - service
     restart: "no"
     container_name: tno-nginx
     build:
@@ -42,6 +43,8 @@ services:
       - data
       - ingest
       - init
+      - service
+      - keycloak
     restart: "no"
     container_name: tno-database
     build:
@@ -64,6 +67,8 @@ services:
       - editor
       - subscriber
       - init
+      - service
+      - keycloak
     restart: "no"
     container_name: tno-keycloak
     build:
@@ -97,6 +102,7 @@ services:
       - utility
       - data
       - init
+      - service
     restart: "no"
     container_name: tno-elastic
     build:
@@ -128,6 +134,7 @@ services:
       - all
       - utility
       - elastic
+      - service
     restart: "no"
     container_name: tno-dejavu
     build:
@@ -147,6 +154,7 @@ services:
     profiles:
       - all
       - data
+      - service
     restart: "no"
     container_name: tno-azure-storage
     build:
@@ -170,6 +178,7 @@ services:
       - api
       - editor
       - subscriber
+      - service
     restart: "no"
     container_name: tno-api
     build:
@@ -202,6 +211,7 @@ services:
     profiles:
       - all
       - editor
+      - service
     stdin_open: true
     tty: true
     restart: "no"
@@ -229,6 +239,7 @@ services:
     profiles:
       - all
       - subscriber
+      - service
     stdin_open: true
     tty: true
     restart: "no"

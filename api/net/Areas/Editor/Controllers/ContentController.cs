@@ -13,6 +13,9 @@ using TNO.DAL.Config;
 using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Core.Extensions;
+using TNO.Kafka;
+using TNO.API.Config;
+using TNO.Models.Kafka;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -34,7 +37,9 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
-    private readonly StorageConfig _config;
+    private readonly StorageOptions _storageOptions;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaOptions _kafkaOptions;
     #endregion
 
     #region Constructors
@@ -43,12 +48,16 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
-    /// <param name="options"></param>
-    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService, IOptions<StorageConfig> options)
+    /// <param name="storageOptions"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaOptions"></param>
+    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService, IOptions<StorageOptions> storageOptions, IKafkaMessenger kafkaMessenger, IOptions<KafkaOptions> kafkaOptions)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
-        _config = options.Value;
+        _storageOptions = storageOptions.Value;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaOptions = kafkaOptions.Value;
     }
     #endregion
 
@@ -90,6 +99,7 @@ public class ContentController : ControllerBase
 
     /// <summary>
     /// Find content for the specified 'id'.
+    /// Publish message to kafka to index content in elasticsearch.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -98,14 +108,17 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Add(ContentModel model)
+    public async Task<IActionResult> AddAsync(ContentModel model)
     {
         var result = _contentService.Add((Content)model);
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Index));
+
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ContentModel(result));
     }
 
     /// <summary>
     /// Update content for the specified 'id'.
+    /// Publish message to kafka to index content in elasticsearch.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -114,14 +127,22 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Update(ContentModel model)
+    public async Task<IActionResult> UpdateAsync(ContentModel model)
     {
+        var original = _contentService.FindById(model.Id) ?? throw new InvalidOperationException("Content does not exist");
         var result = _contentService.Update((Content)model);
+
+        if (original.Status == ContentStatus.Published && result.Status != ContentStatus.Published)
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Unpublish));
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Index));
+
         return new JsonResult(new ContentModel(result));
     }
 
     /// <summary>
     /// Delete content for the specified 'id'.
+    /// Publish message to kafka to remove content from elasticsearch.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -130,10 +151,56 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Delete(ContentModel model)
+    public async Task<IActionResult> DeleteAsync(ContentModel model)
     {
         _contentService.Delete((Content)model);
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, model.Uid, new IndexRequest(model.Id, IndexAction.Delete));
+
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Publish content for the specified 'id'.
+    /// Publish message to kafka to index content in elasticsearch.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/publish")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> PublishAsync(ContentModel model)
+    {
+        var result = _contentService.Update((Content)model);
+        if (result == null) throw new InvalidOperationException("Content does not exist");
+        if (!new[] { ContentStatus.Publish, ContentStatus.Published }.Contains(result.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be published.");
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Publish));
+
+        return new JsonResult(new ContentModel(result));
+    }
+
+    /// <summary>
+    /// Unpublish content for the specified 'id'.
+    /// Publish message to kafka to remove indexed content from elasticsearch.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/unpublish")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UnpublishAsync(ContentModel model)
+    {
+        var result = _contentService.Update((Content)model);
+        if (result == null) throw new InvalidOperationException("Content does not exist");
+        if (!new[] { ContentStatus.Published }.Contains(result.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be unpublished.");
+
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Unpublish));
+
+        return new JsonResult(new ContentModel(result));
     }
 
     /// <summary>
@@ -194,7 +261,7 @@ public class ContentController : ControllerBase
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version;
         // Attachment source is always "storage"
-        var safePath = System.IO.Path.Combine(_config.GetRootPath("storage"), path.MakeRelativePath());
+        var safePath = System.IO.Path.Combine(_storageOptions.GetRootPath("storage"), path.MakeRelativePath());
         if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
 
         var file = new System.IO.FileInfo(safePath);
@@ -243,7 +310,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult Stream(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
+        var safePath = System.IO.Path.Combine(_storageOptions.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
 
         var info = new ItemModel(safePath);

@@ -1,7 +1,8 @@
+using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using TNO.Services.Content.Config;
 using TNO.Services.Runners;
-using Confluent.Kafka;
+using TNO.Kafka;
 
 namespace TNO.Services.Content;
 

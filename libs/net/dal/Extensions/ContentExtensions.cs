@@ -175,12 +175,12 @@ public static class ContentExtensions
     /// <param name="content"></param>
     /// <param name="path">The path to the file not including the storage location.</param>
     /// <param name="context"></param>
-    /// <param name="storageConfig"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string GetFilePath(this Content content, string path, TNOContext context, StorageConfig storageConfig)
+    public static string GetFilePath(this Content content, string path, TNOContext context, StorageOptions options)
     {
-        return Path.Combine(content.GetStoragePath(context, storageConfig), path);
+        return Path.Combine(content.GetStoragePath(context, options), path);
     }
 
     /// <summary>
@@ -188,10 +188,10 @@ public static class ContentExtensions
     /// </summary>
     /// <param name="content"></param>
     /// <param name="context"></param>
-    /// <param name="storageConfig"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string GetStoragePath(this Content content, TNOContext context, StorageConfig storageConfig)
+    public static string GetStoragePath(this Content content, TNOContext context, StorageOptions options)
     {
         // Determine the DataLocation that will be used to store the file.
         var source = content.DataSource?.Code ?? content.Source;
@@ -212,7 +212,7 @@ public static class ContentExtensions
         // TODO: Handle when the original file uploaded has different path than the new one.
         var dataConnection = JsonSerializer.Deserialize<Dictionary<string, object>>(location.Connection) ?? new Dictionary<string, object>();
         var connectionPath = dataConnection.ContainsKey("path") ? $"{((string?)dataConnection["path"])?.RemoveStartAndEnd("/")}" : "";
-        var path = Path.Combine(storageConfig.GetUploadPath(), connectionPath);
+        var path = Path.Combine(options.GetUploadPath(), connectionPath);
         return path.EndsWith('/') ? path : $"{path}/";
     }
 }

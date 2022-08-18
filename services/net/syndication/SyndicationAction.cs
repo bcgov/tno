@@ -12,6 +12,7 @@ using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Http;
 using TNO.Core.Extensions;
 using TNO.Entities;
+using TNO.Kafka;
 using TNO.Models.Kafka;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;

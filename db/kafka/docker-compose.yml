@@ -4,13 +4,10 @@ services:
   zookeeper:
     image: tno:kafka-zookeeper
     profiles:
+      - init
       - all
       - kafka
-      - service
-      - data
-      - utility
-      - ingest
-      - init
+      - kowl
     restart: "no"
     hostname: zookeeper
     container_name: tno-zookeeper
@@ -30,13 +27,10 @@ services:
   broker:
     image: tno:kafka-broker
     profiles:
+      - init
       - all
       - kafka
-      - service
-      - data
-      - utility
-      - ingest
-      - init
+      - kowl
     restart: "no"
     hostname: broker
     container_name: tno-broker
@@ -84,9 +78,6 @@ services:
     profiles:
       - all
       - kafka
-      - service
-      - data
-      - utility
     restart: "no"
     hostname: rest-proxy
     container_name: tno-rest-proxy
@@ -105,7 +96,6 @@ services:
   # connect:
   #   image: tno:kafka-connect
   #   profiles:
-  #     - all
   #     - kafka
   #     - data
   #     - utility
@@ -132,7 +122,6 @@ services:
   # ksqldb:
   #   image: tno:kafka-ksqldb
   #   profiles:
-  #     - all
   #     - kafka
   #     - data
   #     - utility
@@ -154,7 +143,6 @@ services:
   # cat:
   #   image: tno:kafkacat
   #   profiles:
-  #     - all
   #     - utility
   #     - data
   #   restart: "no"
@@ -173,8 +161,7 @@ services:
     image: tno:kafka-kowl
     profiles:
       - all
-      - utility
-      - data
+      - kowl
     restart: "no"
     hostname: kowl
     container_name: tno-kowl
@@ -184,6 +171,7 @@ services:
     volumes:
       - ./db/kafka/kowl/.env:/etc/kowl/config.yaml
     depends_on:
+      - zookeeper
       - broker
       # - connect
       # - schema-registry

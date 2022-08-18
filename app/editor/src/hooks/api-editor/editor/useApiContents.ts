@@ -51,6 +51,18 @@ export const useApiContents = (
         { data: content },
       );
     },
+    publishContent: (content: IContentModel) => {
+      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${content.id}/publish`,
+        content,
+      );
+    },
+    unpublishContent: (content: IContentModel) => {
+      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${content.id}/unpublish`,
+        content,
+      );
+    },
     upload: (
       content: IContentModel,
       file: File,

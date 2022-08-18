@@ -45,6 +45,23 @@ public class ContentController : ControllerBase
 
     #region Endpoints
     /// <summary>
+    /// Find content for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult FindById(long id)
+    {
+        var result = _contentService.FindById(id);
+        if (result == null) return new NoContentResult();
+        return new JsonResult(new ContentModel(result));
+    }
+
+    /// <summary>
     /// Find content for the specified 'uid' and 'source'.
     /// </summary>
     /// <param name="uid"></param>
