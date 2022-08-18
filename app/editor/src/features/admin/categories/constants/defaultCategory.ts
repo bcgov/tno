@@ -6,4 +6,5 @@ export const defaultCategory: ICategoryModel = {
   description: '',
   isEnabled: true,
   sortOrder: 0,
+  autoTranscribe: false,
 };

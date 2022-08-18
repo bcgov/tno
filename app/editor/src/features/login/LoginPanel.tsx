@@ -13,6 +13,10 @@ export const LoginPanel: React.FC = () => {
     const authUrl = `${authority}/realms/${instance.realm}`;
     const redirect = encodeURI(window.location.href);
     window.location.href = `${authUrl}/protocol/openid-connect/auth?client_id=${instance.clientId}&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&kc_idp_hint=${hint}`;
+    // Use if the default login page is okay.
+    // keycloak.instance.login();
+    // Use if you want to redirect to correct form.
+    // window.location.href = `${authUrl}/protocol/openid-connect/auth?client_id=media-monitoring-mmia-3671&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&prompt=none&&code_challenge_method=S256&kc_idp_hint=${hint}`;
   };
 
   return (

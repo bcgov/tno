@@ -6,4 +6,5 @@ export const defaultSeries: ISeriesModel = {
   description: '',
   isEnabled: true,
   sortOrder: 0,
+  autoTranscribe: false,
 };

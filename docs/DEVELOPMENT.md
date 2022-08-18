@@ -127,38 +127,45 @@ Be aware most of the api endpoints will require a valid JWToken.
 Use Postman to interact with the API independently from the web application.
 Read more [here](../test/README.md).
 
-| Container          | URI                                                      |
-| ------------------ | -------------------------------------------------------- |
-| nginx - editor     | [http://localhost:40080/app](http://localhost:40080)     |
-| nginx - subscriber | [http://localhost:40080/app](http://localhost:40081)     |
-| editor             | [http://localhost:40082/app](http://localhost:40082)     |
-| subscriber         | [http://localhost:40083](http://localhost:40083)         |
-| api                | [http://localhost:40010/api](http://localhost:40010/api) |
-| keycloak           | [http://localhost:40001/](http://localhost:40001)        |
-| kafka rest-proxy   | [http://localhost:40104](http://localhost:40104)         |
-| kafka kowl         | [http://localhost:40180](http://localhost:40180)         |
-| elastic            | [http://localhost:40003](http://localhost:40003)         |
+Use the Nginx proxy to use the Editor and Subscriber apps.
+Nginx provides a reverse proxy, which handles communication with the API.
+
+| Component          | Container  | URI                                               |
+| ------------------ | ---------- | ------------------------------------------------- |
+| Nginx - Editor     | nginx      | [http://localhost:40080](http://localhost:40080)  |
+| Nginx - Subscriber | nginx      | [http://localhost:40081](http://localhost:40081)  |
+| Editor app         | editor     | [http://localhost:40082](http://localhost:40082)  |
+| Subscriber app     | subscriber | [http://localhost:40083](http://localhost:40083)  |
+| API                | api        | [http://localhost:40010](http://localhost:40010)  |
+| Keycloak           | keycloak   | [http://localhost:40001/](http://localhost:40001) |
+| Kafka API          | rest-proxy | [http://localhost:40104](http://localhost:40104)  |
+| Kafka Kowl         | kowl       | [http://localhost:40180](http://localhost:40180)  |
+| Elasticsearch      | elastic    | [http://localhost:40003](http://localhost:40003)  |
+| Dejavu             | dejavu     | [http://localhost:40005](http://localhost:40005)  |
 
 Once the core containers are running you can then start up the other services and utilities.
+Locally you will probably never want everything running at the same time.
+Choose the services and utilities you need and run them independently.
 
 ```bash
 # Start up the various utilities to view Kafka, and Elasticsearch.
-make up p=utility
+make up n=[utility name]
 
 # Start up the various supplementary services for the solution.
-make up p=service
+make up n=[service name]
 ```
 
 Below is a list of all the additional services and utilities.
 
-| Container   |  Port | Description                                                    |
-| ----------- | ----: | -------------------------------------------------------------- |
-| kowl        | 40180 | Kafka UI to view cluster                                       |
-| dejavu      | 40005 | Elasticsearch UI to view cluster                               |
-| syndication | 40020 | Kafka Producer to ingest syndication feeds                     |
-| capture     | 40024 | Listens to audio/video streams and captures a file             |
-| clip        | 40025 | Creates clips from capture files based on schedule             |
-| content     | 40026 | Kafka Consumer to create content for Editors                   |
-| nlp         | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
-| indexing    | 40023 | Kafka Consumer to index content for search                     |
-| transcribe  |       | Kafka Consumer/Producer to transcribe audio/video content      |
+| Container     |  Port | Description                                                    |
+| ------------- | ----: | -------------------------------------------------------------- |
+| syndication   | 40020 | Kafka Producer to ingest syndication feeds                     |
+| capture       | 40024 | Listens to audio/video streams and captures a file             |
+| clip          | 40025 | Creates clips from capture files based on schedule             |
+| content       | 40026 | Kafka Consumer to create content for Editors                   |
+| nlp           | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
+| command       |       | Runs command line utilities                                    |
+| indexing      | 40023 | Kafka Consumer to index content for search                     |
+| transcription |       | Kafka Consumer/Producer to transcribe audio/video content      |
+| image         |       | Image ingestion service                                        |
+| file          |       | File ingestion service                                         |

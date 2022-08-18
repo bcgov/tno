@@ -87,6 +87,8 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
       <Col>
         <FormikCheckbox label="Enabled" name="isEnabled" />
         <DataSourceActions />
+        <FormikCheckbox label="Transcribe when Published" name="autoTranscribe" />
+        <FormikCheckbox label="Disable transcript requests" name="disableTranscribe" />
       </Col>
     </styled.DataSourceDetails>
   );

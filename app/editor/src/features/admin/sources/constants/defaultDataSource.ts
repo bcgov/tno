@@ -13,6 +13,8 @@ export const defaultDataSource: IDataSourceModel = {
   licenseId: 0,
   scheduleType: DataSourceScheduleTypeName.None,
   topic: '',
+  autoTranscribe: false,
+  disableTranscribe: false,
   connection: '',
   retryLimit: 0,
   failedAttempts: 0,
