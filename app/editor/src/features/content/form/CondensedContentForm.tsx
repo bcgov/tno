@@ -148,7 +148,7 @@ export const CondensedContentForm: React.FC<ICondensedContentFormProps> = ({
 
   return (
     <styled.ContentForm>
-      <FormPage className="condensed">
+      <FormPage bypassMinWidth className="condensed">
         <Area>
           <FormikForm
             onSubmit={handleSubmit}
