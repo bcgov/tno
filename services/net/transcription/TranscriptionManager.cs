@@ -29,12 +29,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// get - Kafka Consumer object.
     /// </summary>
     protected IKafkaListener<string, SourceContent> Consumer { get; private set; }
-
-    /// <summary>
-    /// get - Lookup values from the API.
-    /// </summary>
-    public string[] Topics { get; private set; } = Array.Empty<string>();
-
     #endregion
 
     #region Constructors
@@ -68,14 +62,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
-            {
-                // An API request or failures have requested the service to stop.
-                this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
-                this.State.Stop();
-                this.Topics = Array.Empty<string>();
-            }
-            else if (this.State.Status != ServiceStatus.Running)
+            if (this.State.Status != ServiceStatus.Running)
             {
                 this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
             }
@@ -84,12 +71,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 try
                 {
                     // Listen to every enabled data source with a topic.
-                    var topics = _options.Topics.Split(',');
+                    var topics = _options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     if (topics.Length != 0)
                     {
-                        var tps = String.Join(',', topics);
-                        this.Logger.LogInformation("Consuming topics: {tps}", tps);
+                        this.Logger.LogInformation("Consuming topics: {tps}", _options.Topics);
 
                         if (!this.Consumer.IsReady) this.Consumer.Open();
 
