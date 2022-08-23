@@ -257,14 +257,20 @@ public static class StringExtensions
     {
         int startPos = articleContent.IndexOf("<ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
         int endPos = articleContent.IndexOf("</ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
-        string articleStr = "";
+        string articleStr = articleContent;
 
-		if(startPos > 0)
-		{
-			articleStr = articleContent.Substring(startPos + 9, endPos - (startPos + 9));
-		}
+        if (startPos > 0)
+        {
+            articleStr = articleContent.Substring(startPos + 9, endPos - (startPos + 9));
+        }
 
-        articleStr = Regex.Replace(articleContent, @"<[^>]*>", String.Empty);
+        const string pEndingTagReplacer = "[|]";
+        articleStr = articleStr.Replace("</p>", pEndingTagReplacer, true, null);
+        articleStr = Regex.Replace(articleStr, @"<[^>]*>", string.Empty)
+            .Replace("\r\n", string.Empty, true, null)
+            .Replace("\n", " ", true, null)
+            .Replace(pEndingTagReplacer, "\n\n")
+            .Trim();
 
         return articleStr;
     }

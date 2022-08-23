@@ -195,7 +195,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             if (comps.Length == 3)
             {
                 var timeZoneStr = dataSource.GetConnectionValue("timeZone");
-                var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr);
+                var timeZone = !string.IsNullOrEmpty(timeZoneStr) ?
+                    TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr) :
+                    TimeZoneInfo.Local;
                 var offset = timeZone.GetUtcOffset(DateTime.Now).Hours; // Handles daylight saving time
                 var dateStr = $"{comps[1]} {comps[0]} {DateTime.Now.Year} {comps[2]} {offset}";
                 return DateTime.ParseExact(dateStr, "dd MMM yyyy HH:mm z", CultureInfo.InvariantCulture);
