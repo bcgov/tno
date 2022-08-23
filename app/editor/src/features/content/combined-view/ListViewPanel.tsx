@@ -3,17 +3,45 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useApp, useContent } from 'store/hooks';
-import { Button, Page, PagedTable } from 'tno-core';
+import { Button, Page, PagedTable, Row } from 'tno-core';
 
+import { ContentFilter } from '../list-view';
 import { condensedColumns, defaultPage } from '../list-view/constants';
+import { IContentListFilter } from '../list-view/interfaces';
+import { makeFilter } from '../list-view/utils';
 import * as styled from './styled';
 
-export interface IListViewPanel {}
+export interface IListViewPanel {
+  /** boolean value to track when content is updated */
+  updated: boolean;
+  setUpdated: (value: boolean) => void;
+}
 
-export const ListViewPanel: React.FC<IListViewPanel> = () => {
+export const ListViewPanel: React.FC<IListViewPanel> = ({ updated, setUpdated }) => {
   const navigate = useNavigate();
-  const [{ filter, content }, { storeFilter }] = useContent();
+  const [{ filter, content, filterAdvanced }, { storeFilter, findContent }] = useContent();
   const { id } = useParams();
+  const fetch = React.useCallback(
+    async (filter: IContentListFilter) => {
+      try {
+        const data = await findContent(
+          makeFilter({
+            ...filter,
+            ...filterAdvanced,
+          }),
+        );
+        const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
+
+        // setPage(page);
+        return page;
+      } catch (error) {
+        // TODO: Handle error
+        throw error;
+      }
+    },
+    [filterAdvanced, findContent],
+  );
+
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
       if (filter.pageIndex !== pi || filter.pageSize !== ps)
@@ -43,6 +71,9 @@ export const ListViewPanel: React.FC<IListViewPanel> = () => {
 
   return (
     <styled.ListViewPanel>
+      <Row className="filter-area">
+        <ContentFilter updated={updated} setUpdated={setUpdated} search={fetch} />
+      </Row>
       <PagedTable
         columns={condensedColumns}
         activeId={Number(id)}
@@ -53,7 +84,7 @@ export const ListViewPanel: React.FC<IListViewPanel> = () => {
         onChangePage={handleChangePage}
         onChangeSort={handleChangeSort}
       />
-      <Button name="create" onClick={() => navigate('/contents/0')}>
+      <Button className="create-snippet" name="create" onClick={() => navigate('/contents/0')}>
         Create Snippet
       </Button>
     </styled.ListViewPanel>

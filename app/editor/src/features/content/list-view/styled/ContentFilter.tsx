@@ -31,6 +31,12 @@ export const ContentFilter = styled.div`
   .dateRange {
   }
 
+  .box-content {
+    display: flex;
+    flex-direction: row;
+    min-width: 525px;
+  }
+
   .action-filters {
     display: flex;
     flex-direction: row;
