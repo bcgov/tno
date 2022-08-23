@@ -229,7 +229,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
         onMouseLeave={() => setAdvancedHover(false)}
       >
         <h2 className="caps">Advanced Search</h2>
-        <div style={{ display: 'flex', flexDirection: 'row', minWidth: '550px' }}>
+        <div className="box-content">
           <Select
             name="fieldType"
             label="Field Type"
