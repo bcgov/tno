@@ -20,13 +20,15 @@ namespace TNO.Services.Transcription;
 public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 {
     #region Variables
+    private Task? _consumer;
+    private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     #endregion
 
     #region Properties
     /// <summary>
     /// get - Kafka Consumer object.
     /// </summary>
-    protected IKafkaListener Consumer { get; private set; }
+    protected IKafkaListener<string, SourceContent> Consumer { get; private set; }
     #endregion
 
     #region Constructors
@@ -38,7 +40,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public TranscriptionManager(
-        IKafkaListener kafka,
+        IKafkaListener<string, SourceContent> kafka,
         IApiService api,
         IOptions<TranscriptionOptions> options,
         ILogger<TranscriptionManager> logger)
@@ -62,25 +64,36 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         {
             if (this.State.Status != ServiceStatus.Running)
             {
-                this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
+                this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
             }
             else
             {
                 try
                 {
                     // Listen to every enabled data source with a topic.
-                    var topics = _options.Topics.Split(',');
+                    var topics = _options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     if (topics.Length != 0)
                     {
-                        var tps = String.Join(',', topics);
-                        this.Logger.LogInformation("Consuming topics: {tps}", tps);
+                        this.Logger.LogInformation("Consuming topics: {tps}", _options.Topics);
 
-                        // TODO: Need to learn how to safely stop listening without losing content.  Every time a service goes down it will most likely lose content.
-                        await this.Consumer.ListenAsync<string, SourceContent>(HandleMessageAsync, topics);
+                        if (!this.Consumer.IsReady) this.Consumer.Open();
+
+                        // TODO: Not sure if the consumer should stop before changing its subscription.
+                        this.Consumer.Subscribe(topics);
+
+                        // Create a new thread if the prior one isn't running anymore.
+                        if (_consumer == null || _notRunning.Contains(_consumer.Status))
+                        {
+                            _consumer = Task.Factory.StartNew(() => ConsumerHandler());
+                        }
 
                         // Successful run clears any errors.
                         this.State.ResetFailures();
+                    }
+                    else if (topics.Length == 0)
+                    {
+                        this.Consumer.Stop();
                     }
                 }
                 catch (Exception ex)
@@ -94,6 +107,40 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
         }
+    }
+
+
+    /// <summary>
+    /// Keep consuming messages from Kafka until the service stops running.
+    /// </summary>
+    /// <returns></returns>
+    private async Task ConsumerHandler()
+    {
+        while (this.State.Status == ServiceStatus.Running && this.Consumer.IsReady)
+        {
+            await this.Consumer.ConsumeAsync(HandleMessageAsync);
+        }
+
+        // The service is stopping or has stopped, consume should stop too.
+        this.Consumer.Stop();
+    }
+
+    /// <summary>
+    /// The Kafka consumer has failed for some reason, need to record the failure.
+    /// Fatal or unexpected errors will result in a request to stop consuming.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private bool ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    {
+        this.State.RecordFailure();
+        if (e.GetException() is ConsumeException ex)
+        {
+            return ex.Error.IsFatal;
+        }
+
+        // Inform the consumer it should stop.
+        return this.State.Status != ServiceStatus.Running;
     }
 
     /// <summary>
@@ -126,9 +173,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             {
                 var fileBytes = File.ReadAllBytes(sourcePath);
                 var transcript = await GetTranscriptionAsync(fileBytes, result.Value.Language);
-                content.Transcription = transcript;
 
+                content = await _api.FindContentByUidAsync(result.Value.Uid, result.Value.Source);
+                content.Transcription = transcript;
                 content = await _api.UpdateContentAsync(content);
+
                 this.Logger.LogDebug("Content Updated.  Content ID: {Id}", content?.Id);
             }
             else
