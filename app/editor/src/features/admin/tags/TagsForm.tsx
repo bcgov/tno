@@ -2,7 +2,8 @@ import { IconButton, LabelPosition } from 'components/form';
 import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { ITagModel, useModal } from 'hooks';
+import { useModal } from 'hooks';
+import { ITagModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -21,12 +22,12 @@ export const TagsForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const tagId = id;
-  const [tag, setTag] = React.useState<ITagModel>((state as any)?.series ?? defaultTag);
+  const [tag, setTag] = React.useState<ITagModel>((state as any)?.tag ?? defaultTag);
 
   const { toggle, isShowing } = useModal();
 
   React.useEffect(() => {
-    if (!!tagId && tag?.id !== tagId) {
+    if (!!tagId && tag?.id !== tagId && tagId !== 'NEW') {
       api.getTag(tagId).then((data) => {
         setTag(data);
       });
@@ -36,7 +37,8 @@ export const TagsForm: React.FC = () => {
   const handleSubmit = async (values: ITagModel) => {
     try {
       const originalId = values.id;
-      const result = !tag.id ? await api.addTag(values) : await api.updateTag(values);
+      values.id = values.name;
+      const result = tagId === 'NEW' ? await api.addTag(values) : await api.updateTag(values);
       setTag(result);
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/tags/${result.id}`);
@@ -53,7 +55,7 @@ export const TagsForm: React.FC = () => {
       />
       <FormikForm
         initialValues={tag}
-        onSubmit={(values, { setSubmitting }) => {
+        onSubmit={(values, { setSubmitting, setFieldValue }) => {
           handleSubmit(values);
           setSubmitting(false);
         }}
@@ -124,7 +126,7 @@ export const TagsForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this media type?"
+              body="Are you sure you wish to remove this tag?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"
@@ -133,7 +135,7 @@ export const TagsForm: React.FC = () => {
                 try {
                   await api.deleteTag(tag);
                   toast.success(`${tag.name} has successfully been deleted.`);
-                  navigate('/admin/media/types');
+                  navigate('/admin/tags');
                 } finally {
                   toggle();
                 }

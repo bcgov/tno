@@ -22,7 +22,7 @@ export const CategoryForm: React.FC = () => {
   const navigate = useNavigate();
   const categoryId = Number(id);
   const [category, setCategory] = React.useState<ICategoryModel>(
-    (state as any)?.series ?? defaultCategory,
+    (state as any)?.category ?? defaultCategory,
   );
 
   const { toggle, isShowing } = useModal();
@@ -137,7 +137,7 @@ export const CategoryForm: React.FC = () => {
                 try {
                   await api.deleteCategory(category);
                   toast.success(`${category.name} has successfully been deleted.`);
-                  navigate('/admin/media/types');
+                  navigate('/admin/categories');
                 } finally {
                   toggle();
                 }
