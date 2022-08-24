@@ -22,7 +22,7 @@ export const ActionForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const actionId = Number(id);
-  const [action, setAction] = React.useState<IActionModel>((state as any)?.series ?? defaultAction);
+  const [action, setAction] = React.useState<IActionModel>((state as any)?.action ?? defaultAction);
 
   const { toggle, isShowing } = useModal();
 

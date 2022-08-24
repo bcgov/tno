@@ -16,7 +16,7 @@ export const TagListFilter: React.FC<IAdminFilterProps> = ({ setGlobalFilter }) 
         <IconButton
           iconType="plus"
           label={`Add new tag`}
-          onClick={() => navigate(`/admin/tags/0`)}
+          onClick={() => navigate(`/admin/tags/NEW`)}
         />
       </Row>
       <Row className="filter-bar" justifyContent="center">
