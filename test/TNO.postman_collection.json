@@ -2,7 +2,8 @@
 	"info": {
 		"_postman_id": "561164e7-8ec2-4d90-a35b-f823a9cc68da",
 		"name": "TNO",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1515352"
 	},
 	"item": [
 		{
@@ -2198,7 +2199,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "108"
+													"value": "179"
 												}
 											]
 										}
@@ -2242,7 +2243,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"id\": 108,\r\n    \"name\": \"100 Mile House Free Press\",\r\n    \"code\": \"100MILE\",\r\n    \"description\": \"5\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 3,\r\n    \"dataLocation\": {\r\n        \"id\": 3,\r\n        \"name\": \"SFTP\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"mediaTypeId\": 7,\r\n    \"mediaType\": {\r\n        \"id\": 7,\r\n        \"name\": \"XML\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-04-07T15:17:35.385977Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"topic\": \"\",\r\n    \"connection\": {},\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"actions\": [],\r\n    \"metrics\": [],\r\n    \"schedules\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"test\",\r\n            \"delayMS\": 1,\r\n            \"runOnWeekDays\": 3\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-07T19:27:40.105408Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account\",\r\n    \"version\": 44\r\n}",
+											"raw": "{\r\n    \"id\": 179,\r\n    \"name\": \"CP News\",\r\n    \"code\": \"CPNEWS\",\r\n    \"shortName\": \"\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"locationType\": \"LocalVolume\",\r\n        \"connection\": {},\r\n        \"id\": 1,\r\n        \"name\": \"Default\",\r\n        \"description\": \"If content does not have a configured data source, then it will be uploaded at this location.\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"contentTypeId\": 3,\r\n    \"contentType\": {\r\n        \"id\": 3,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"Content originated from the internet and contains a URL.\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"scheduleType\": \"Continuous\",\r\n    \"topic\": \"CPNEWS\",\r\n    \"connection\": {\r\n        \"url\": \"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr\",\r\n        \"timeZone\": \"Pacific Standard Time\",\r\n        \"fetchContent\": true,\r\n        \"import\": false\r\n    },\r\n    \"lastRanOn\": \"2022-08-11T18:44:17.851058Z\",\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"actions\": [\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 1,\r\n            \"name\": \"CBRA\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201765Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201765Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 2,\r\n            \"name\": \"TV Archive\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201775Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201775Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 3,\r\n            \"name\": \"Use in Analysis\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201776Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201776Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 4,\r\n            \"name\": \"Use in Event of Day\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201778Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201778Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"metrics\": [],\r\n    \"schedules\": [\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"id\": 1,\r\n            \"name\": \"default\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"scheduleType\": \"Continuous\",\r\n            \"delayMS\": 60000,\r\n            \"startAt\": \"00:00:00\",\r\n            \"stopAt\": \"23:59:59\",\r\n            \"repeat\": 0,\r\n            \"runOnWeekDays\": \"Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday\",\r\n            \"runOnMonths\": \"NA\",\r\n            \"dayOfMonth\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:15.785678Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:15.785678Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-08-19T22:21:50.320189Z\",\r\n    \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n    \"updatedBy\": \"admin\",\r\n    \"version\": 8\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -2356,7 +2357,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "10"
 												}
 											]
 										}
@@ -2400,7 +2401,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"name\": \"dst\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true\r\n}",
+											"raw": "{\r\n    \"id\": 10,\r\n    \"name\": \"AV Archive\",\r\n    \"description\": \"test\",\r\n    \"isEnabled\": true,\r\n    \"sortOrder\": 0,\r\n    \"createdOn\": \"2022-05-03T04:47:00.233734Z\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-05-03T04:47:00.233734Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"version\": 0\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -2423,7 +2424,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "10"
 												}
 											]
 										}
@@ -3438,7 +3439,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "2"
 												}
 											]
 										}
@@ -3481,7 +3482,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"username\": \"admin\"\r\n}",
+											"raw": "{\r\n    \"id\": 2,\r\n    \"key\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n    \"username\": \"admin\",\r\n    \"email\": \"admin@local.com\",\r\n    \"displayName\": \"Administrator\",\r\n    \"firstName\": \"test\",\r\n    \"lastName\": \"asdfasd\",\r\n    \"isEnabled\": true,\r\n    \"emailVerified\": true,\r\n    \"isSystemAccount\": false,\r\n    \"roles\": [\r\n        {\r\n            \"id\": 1,\r\n            \"key\": \"c89a9f73-eaab-4c4f-8c90-f963de0c5854\",\r\n            \"name\": \"Administrator\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-05-30T19:19:23.568137Z\",\r\n    \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n    \"updatedBy\": \"admin\",\r\n    \"version\": 1\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3503,7 +3504,7 @@
 											"variable": [
 												{
 													"key": "id",
-													"value": "1"
+													"value": "2"
 												}
 											]
 										}
@@ -3547,6 +3548,32 @@
 									"response": []
 								}
 							]
+						},
+						{
+							"name": "keycloak",
+							"item": [
+								{
+									"name": "sync",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/keycloak/sync",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"keycloak",
+												"sync"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},
@@ -3562,7 +3589,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=1&quantity=1000&sort=page&sort=PrintContent.section",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/contents?page=1&quantity=1000&sort=page&sort=PrintContent.section2",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -3612,7 +3639,7 @@
 												},
 												{
 													"key": "sort",
-													"value": "PrintContent.section"
+													"value": "PrintContent.section2"
 												}
 											]
 										}
@@ -4059,6 +4086,111 @@
 							]
 						},
 						{
+							"name": "storage",
+							"item": [
+								{
+									"name": "files",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/storage/test?path=test",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"storage",
+												"test"
+											],
+											"query": [
+												{
+													"key": "path",
+													"value": "test"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "stream",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/storage/stream?path=TEST/default.mp3",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"storage",
+												"stream"
+											],
+											"query": [
+												{
+													"key": "path",
+													"value": "TEST/default.mp3"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "upload",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "files",
+													"type": "file",
+													"src": "/D:/SourceCode/quartech/tno/services/net/data/clip/CBCV/2022-05-26/default.mp3"
+												},
+												{
+													"key": "overwrite",
+													"value": "true",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/storage/upload?path=test&overwrite=true",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"editor",
+												"storage",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "path",
+													"value": "test"
+												},
+												{
+													"key": "overwrite",
+													"value": "true"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "cache",
 							"request": {
 								"method": "GET",
@@ -4336,171 +4468,311 @@
 					"name": "services",
 					"item": [
 						{
-							"name": "data/sources/:code",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:code",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"services",
-										"data",
-										"sources",
-										":code"
-									],
-									"variable": [
-										{
-											"key": "code",
-											"value": "CASTANEt"
+							"name": "contents",
+							"item": [
+								{
+									"name": "contents",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"contents"
+											]
 										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "data/sources/for/media/type/:name",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/for/media/type/:name",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"services",
-										"data",
-										"sources",
-										"for",
-										"media",
-										"type",
-										":name"
-									],
-									"variable": [
-										{
-											"key": "name",
-											"value": "News Radio"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "data/sources/:id",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"id\": 9,\r\n    \"name\": \"Castanet\",\r\n    \"code\": \"CASTANET\",\r\n    \"shortName\": \"\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"id\": 1,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"topic\": \"topic\",\r\n    \"connection\": {\r\n        \"url\": \"https://www.castanet.net/rss/topheadlines.xml\"\r\n    },\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"dataSourceSchedules\": [\r\n        {\r\n            \"dataSourceId\": 9,\r\n            \"scheduleId\": 1,\r\n            \"schedule\": {\r\n                \"id\": 1,\r\n                \"name\": \"test\",\r\n                \"description\": \"tes\",\r\n                \"isEnabled\": true,\r\n                \"scheduleType\": 0,\r\n                \"delayMS\": 1000,\r\n                \"repeat\": 0,\r\n                \"runOnWeekDays\": [\r\n                    0,\r\n                    2,\r\n                    4,\r\n                    8,\r\n                    16,\r\n                    32\r\n                ],\r\n                \"runOnMonths\": [\r\n                    0\r\n                ],\r\n                \"dayOfMonth\": 0,\r\n                \"createdOn\": \"2022-04-13T23:38:28.887698Z\",\r\n                \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n                \"createdBy\": \"admin\",\r\n                \"updatedOn\": \"2022-04-13T23:38:28.899004Z\",\r\n                \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n                \"updatedBy\": \"\",\r\n                \"version\": 0\r\n            }\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-14T04:21:05.520534Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"version\": 5\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:id",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"services",
-										"data",
-										"sources",
-										":id"
-									],
-									"variable": [
-										{
-											"key": "id",
-											"value": "1"
+								{
+									"name": "upload",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "files",
+													"type": "file",
+													"src": "/D:/SourceCode/quartech/tno/services/net/data/clip/CBCV/2022-06-21/fourth.mp3"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents/:id/upload?version=1",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"contents",
+												":id",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "version",
+													"value": "1"
+												}
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
 										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "content/references/:source",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references/:source?uid=https://www.castanet.net/news/Canada/366018/Canadian-troops-heading-to-Poland-to-help-Ukrainian-refugees",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"services",
-										"content",
-										"references",
-										":source"
-									],
-									"query": [
-										{
-											"key": "uid",
-											"value": "https://www.castanet.net/news/Canada/366018/Canadian-troops-heading-to-Poland-to-help-Ukrainian-refugees"
-										}
-									],
-									"variable": [
-										{
-											"key": "source",
-											"value": "CASTANET"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "content/references/:source",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"source\": \"CASTANET\",\r\n    \"uid\": \"https://www.castanet.net/news/BC/365935/Powerful-geomagnetic-storm-could-cause-dazzling-northern-lights-in-BC\",\r\n    \"workflowStatus\": 0,\r\n    \"offset\": -1,\r\n    \"partition\": -1,\r\n    \"topic\": \"topic\",\r\n    \"publishedOn\": \"2022-04-13T19:25:00Z\",\r\n    \"createdOn\": \"2022-04-14T00:10:27.843153Z\",\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-04-14T00:10:27.844311Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"version\": 0\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references/:source",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"services",
-										"content",
-										"references",
-										":source"
-									],
-									"variable": [
-										{
-											"key": "source",
-											"value": "CASTANET"
+								{
+									"name": "contents/find",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents/find?uid=https://www.castanet.net/news/West-Kelowna/369540/Hwy-97C-open-after-crash-that-required-air-ambulance&source=CASTANET",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"contents",
+												"find"
+											],
+											"query": [
+												{
+													"key": "uid",
+													"value": "https://www.castanet.net/news/West-Kelowna/369540/Hwy-97C-open-after-crash-that-required-air-ambulance"
+												},
+												{
+													"key": "source",
+													"value": "CASTANET"
+												}
+											]
 										}
-									]
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
+						},
+						{
+							"name": "data-sources",
+							"item": [
+								{
+									"name": "data/sources/:code",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:code",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"data",
+												"sources",
+												":code"
+											],
+											"variable": [
+												{
+													"key": "code",
+													"value": "CASTANEt"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/for/media/type/:name",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/for/media/type/:name",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"data",
+												"sources",
+												"for",
+												"media",
+												"type",
+												":name"
+											],
+											"variable": [
+												{
+													"key": "name",
+													"value": "Syndication"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "data/sources/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 9,\r\n    \"name\": \"Castanet\",\r\n    \"code\": \"CASTANET\",\r\n    \"shortName\": \"\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"id\": 1,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"topic\": \"topic\",\r\n    \"connection\": {\r\n        \"url\": \"https://www.castanet.net/rss/topheadlines.xml\"\r\n    },\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"dataSourceSchedules\": [\r\n        {\r\n            \"dataSourceId\": 9,\r\n            \"scheduleId\": 1,\r\n            \"schedule\": {\r\n                \"id\": 1,\r\n                \"name\": \"test\",\r\n                \"description\": \"tes\",\r\n                \"isEnabled\": true,\r\n                \"scheduleType\": 0,\r\n                \"delayMS\": 1000,\r\n                \"repeat\": 0,\r\n                \"runOnWeekDays\": [\r\n                    0,\r\n                    2,\r\n                    4,\r\n                    8,\r\n                    16,\r\n                    32\r\n                ],\r\n                \"runOnMonths\": [\r\n                    0\r\n                ],\r\n                \"dayOfMonth\": 0,\r\n                \"createdOn\": \"2022-04-13T23:38:28.887698Z\",\r\n                \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n                \"createdBy\": \"admin\",\r\n                \"updatedOn\": \"2022-04-13T23:38:28.899004Z\",\r\n                \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n                \"updatedBy\": \"\",\r\n                \"version\": 0\r\n            }\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-14T04:21:05.520534Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"version\": 5\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"data",
+												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "content-references",
+							"item": [
+								{
+									"name": "content/references/:source Copy",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CASTANET\",\r\n    \"uid\": \"https://www.castanet.net/news/BC/365935/Powerful-geomagnetic-storm-could-cause-dazzling-northern-lights-in-BC\",\r\n    \"workflowStatus\": 0,\r\n    \"offset\": -1,\r\n    \"partition\": -1,\r\n    \"topic\": \"topic\",\r\n    \"publishedOn\": \"2022-04-13T19:25:00Z\",\r\n    \"createdOn\": \"2022-04-14T00:10:27.843153Z\",\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-04-14T00:10:27.844311Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"version\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"content",
+												"references"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references/:source?uid=https://www.castanet.net/news/Canada/366018/Canadian-troops-heading-to-Poland-to-help-Ukrainian-refugees",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"content",
+												"references",
+												":source"
+											],
+											"query": [
+												{
+													"key": "uid",
+													"value": "https://www.castanet.net/news/Canada/366018/Canadian-troops-heading-to-Poland-to-help-Ukrainian-refugees"
+												}
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": "CASTANET"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "content/references/:source",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"source\": \"CASTANET\",\r\n    \"uid\": \"https://www.castanet.net/news/BC/365935/Powerful-geomagnetic-storm-could-cause-dazzling-northern-lights-in-BC\",\r\n    \"workflowStatus\": 0,\r\n    \"offset\": -1,\r\n    \"partition\": -1,\r\n    \"topic\": \"topic\",\r\n    \"publishedOn\": \"2022-04-13T19:25:00Z\",\r\n    \"createdOn\": \"2022-04-14T00:10:27.843153Z\",\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"updatedOn\": \"2022-04-14T00:10:27.844311Z\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"version\": 0\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/content/references/:source",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"content",
+												"references",
+												":source"
+											],
+											"variable": [
+												{
+													"key": "source",
+													"value": "CASTANET"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},
@@ -4878,6 +5150,31 @@
 					]
 				},
 				{
+					"name": "prometheus",
+					"item": [
+						{
+							"name": "metrics",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}/api/metrics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}",
+									"path": [
+										"api",
+										"metrics"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "root",
 					"request": {
 						"method": "GET",
@@ -4945,7 +5242,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"records\": [\r\n        {\r\n            \"key\": \"uid-01\",\r\n            \"value\": {\r\n                \"source\": \"NTLP\",\r\n                \"uid\": \"uid-01\",\r\n                \"link\": \"https://some.com/place\",\r\n                \"language\": null,\r\n                \"author\": \"John Doe\",\r\n                \"title\": \"A Test Story\",\r\n                \"summary\": \"A test story summary\",\r\n                \"body\": \"Gunmen opened fire at a Cancun beach resort on Thursday, killing two people in what Mexican state officials called a confrontation between rival drug dealers that witnesses said forced tourists and hotel staff to hide for several hours. \\nThe shooting occurred on the beach near the Hyatt Ziva Cancun, an all-inclusive resort in Puerto Morelos that is popular with American tourists. \\n\\\"The @FGEQuintanaRoo reports that there was a confrontation between members of antagonistic groups of drug dealers on a beach in Bahía Petempich, Puerto Morelos,\\\" the attorney general for Quintana Roo state said via Twitter on Thursday. \\\"Two of them lost their lives at the scene. There are no serious injuries.\\\" \\nThe Secretariat of Public Security of Quintana Roo later tweeted that no tourists were seriously injured or kidnapped. The news site Notacaribe reported one person was injured at the scene after being hit with the handle of a weapon. \\nMike Sington, a Twitter user and former executive at NBC Universal, told Reuters by direct message that he was hiding with other guests of the resort in a dark area of the hotel and that staff had not explained what was happening. Other guests told him they heard gunshots and that a gunman had been on the beach, he said.\\nA senior state official said a group of gunmen arrived by boat in pursuit of the men who were slain, in what another Mexican official said appeared to have been a targeted \\\"execution.\\\"\\nMike Sington, a Twitter user and former executive at NBC Universal, told Reuters by direct message that he was hiding with other guests of the resort in a dark area of the hotel and that staff had not explained what was happening. Other guests told him they heard gunshots and that a gunman had been on the beach, he said.\\nHotel staff later sent text messages saying the gunman had been apprehended and that staff would escort guests to their rooms where they were ordered to shelter in place, Sington said.\\n\\\"I've never been so scared, literally shaking,\\\" he tweeted.\\nHe later added that guests were taken out of hiding and brought to the lobby, where they cried and hugged each other.\\nIn a statement released Thursday evening, Global Affairs Canada said it is not aware of any Canadian citizens affected by the shooting but continues to monitor the situation closely. \\nCanadian citizens requiring emergency consular assistance should contact the Consular Agency of Canada in Cancun, Mexico at 52 (55) 5724-9795 or cncun@international.gc.ca or call the department's 24/7 Emergency Watch and Response Centre at 1-800-387-3124 (toll-free), +1 613-996-8885 or by sending an email to sos@international.gc.ca.\\nMexican security forces were sent in to reinforce Tulum — another popular resort about 130 kilometres from Cancun — after two foreign tourists were killed and others wounded last month during a shootout between suspected gang members.\",\r\n                \"publishedOn\": \"2021-10-04T01:00:00\",\r\n                \"tags\": [\r\n                    {\r\n                        \"key\": \"category\",\r\n                        \"value\": \"test\"\r\n                    }\r\n                ]\r\n            }\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"records\": [\r\n        {\r\n            \"key\": \"uid-01\",\r\n            \"value\": {\r\n                \"contentId\": 453,\r\n                \"action\": 0\r\n            }\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4966,7 +5263,7 @@
 									"variable": [
 										{
 											"key": "topic",
-											"value": "test"
+											"value": "index"
 										}
 									]
 								}
@@ -5970,7 +6267,7 @@
 											"variable": [
 												{
 													"key": "cluster_id",
-													"value": "74dyrvH2QWaRqi62tV1rBA"
+													"value": "cI0AjYjZQimdICA5FEfR0Q"
 												}
 											]
 										}
@@ -6017,7 +6314,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"topic_name\": \"logs-audio-clip\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 1,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
+											"raw": "{\r\n    \"topic_name\": \"CBCO\",\r\n    \"partitions_count\": 3,\r\n    \"replication_factor\": 3,\r\n    \"configs\": [\r\n        {\r\n            \"name\": \"cleanup.policy\",\r\n            \"value\": \"compact\"\r\n        },\r\n        {\r\n            \"name\": \"compression.type\",\r\n            \"value\": \"gzip\"\r\n        }\r\n    ]\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -6040,7 +6337,7 @@
 											"variable": [
 												{
 													"key": "cluster_id",
-													"value": "74dyrvH2QWaRqi62tV1rBA"
+													"value": "cI0AjYjZQimdICA5FEfR0Q"
 												}
 											]
 										}
@@ -6078,7 +6375,7 @@
 											"variable": [
 												{
 													"key": "cluster_id",
-													"value": "Dja5AfDJTH-rMtXW1we-Ag"
+													"value": "cI0AjYjZQimdICA5FEfR0Q"
 												},
 												{
 													"key": "topic_name",
@@ -6422,7 +6719,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "test"
+											"value": "content"
 										}
 									]
 								}
@@ -6782,14 +7079,15 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/health",
+									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/health/",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{syndication-port}}",
 									"path": [
-										"health"
+										"health",
+										""
 									]
 								}
 							},
@@ -6801,13 +7099,14 @@
 								"method": "PUT",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/pause",
+									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/status/pause",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{syndication-port}}",
 									"path": [
+										"status",
 										"pause"
 									]
 								}
@@ -6820,52 +7119,15 @@
 								"method": "PUT",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/resume",
+									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/status/resume",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
 									],
 									"port": "{{syndication-port}}",
 									"path": [
+										"status",
 										"resume"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "stop",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/stop",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{syndication-port}}",
-									"path": [
-										"stop"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "start",
-							"request": {
-								"method": "PUT",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{syndication-port}}/start",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{syndication-port}}",
-									"path": [
-										"start"
 									]
 								}
 							},

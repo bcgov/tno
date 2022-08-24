@@ -2,9 +2,9 @@ import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { AdminRouter } from 'features/admin';
 import { ContentForm, ContentListView } from 'features/content';
-import { CombinedView } from 'features/content/combined-view/CombinedView';
 import { Login } from 'features/login';
 import { StorageListView } from 'features/storage';
+import { ContentType } from 'hooks';
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -51,18 +51,38 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           }
         />
         <Route
-          path="storage"
-          element={
-            <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
-          }
-        />
-        <Route
           path="/contents/combined/:id"
-          element={<PrivateRoute claims={Claim.editor} element={<CombinedView />}></PrivateRoute>}
+          element={
+            <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
+          }
         />
         <Route
           path="contents/:id"
           element={<PrivateRoute claims={Claim.editor} element={<ContentForm />}></PrivateRoute>}
+        />
+        <Route
+          path="snippets/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentType.Snippet} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="papers/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentType.Print} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="storage"
+          element={
+            <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
+          }
         />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -41,7 +41,8 @@
     "naumovs.color-highlight",
     "syler.sass-indented",
     "michelemelluso.code-beautifier",
-    "editorconfig.editorconfig"
+    "editorconfig.editorconfig",
+    "firsttris.vscode-jest-runner"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

@@ -1,1 +1,1 @@
-FROM appbaseio/dejavu:3.4.7
+FROM appbaseio/dejavu:3.6.0

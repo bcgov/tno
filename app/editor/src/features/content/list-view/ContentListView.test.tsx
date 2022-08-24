@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { mockContent, TestWrapper } from 'test/utils';
 
 import { ContentListView } from './ContentListView';
@@ -42,7 +42,7 @@ const mockUseContent = [
     total: 1,
     quantity: 10,
   },
-  { findContent: () => mockContent, storeFilter: {} },
+  { findContent: () => Promise.resolve(mockContent), storeFilter: {} },
 ];
 
 const mockUseApp = [
@@ -59,67 +59,69 @@ jest.mock('store/hooks', () => ({
   useLookup: () => mockUseLookups,
 }));
 
-it('renders correctly...', () => {
+it('renders correctly...', async () => {
   const { container } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-
-  expect(container).toMatchSnapshot();
+  // TODO: This snapshot isn't waiting for the `findContent` to resolve.
+  await waitFor(() => expect(container).toMatchSnapshot());
 });
 
-it('displays username without idir tag', () => {
+it('displays username without idir tag', async () => {
   const { getByText, queryByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  expect(getByText('user')).toBeInTheDocument();
-  expect(queryByText('@idir')).toBeFalsy();
+  await waitFor(() => {
+    expect(getByText('user')).toBeInTheDocument();
+    expect(queryByText('@idir')).toBeFalsy();
+  });
 });
 
-it('displays the date in the correct format', () => {
+it('displays the date in the correct format', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  expect(getByText('05/12/2022')).toBeInTheDocument();
+  await waitFor(() => expect(getByText('05/12/2022')).toBeInTheDocument());
 });
 
-it('displays the source', () => {
+it('displays the source', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  expect(getByText(/TEST/)).toBeInTheDocument();
+  await waitFor(() => expect(getByText(/TEST/)).toBeInTheDocument());
 });
 
-it('displays the media type', () => {
+it('displays the media type', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  expect(getByText('Television')).toBeInTheDocument();
+  await waitFor(() => expect(getByText('Television')).toBeInTheDocument());
 });
 
-it('displays the status', () => {
+it('displays the status', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  expect(getByText('Publish')).toBeInTheDocument();
+  await waitFor(() => expect(getByText('Publish')).toBeInTheDocument());
 });
 
-it('displays the section/page', () => {
+it('displays the section/page', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  expect(getByText('A32')).toBeInTheDocument();
+  await waitFor(() => expect(getByText('A32')).toBeInTheDocument());
 });

@@ -1,12 +1,13 @@
 import { FormPage } from 'components/form/formpage';
+import { useCombinedView, useTooltips } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { SortingRule } from 'react-table';
-import ReactTooltip from 'react-tooltip';
 import { useApp, useContent } from 'store/hooks';
-import { Button, ButtonVariant, Page, PagedTable } from 'tno-core';
+import { Button, ButtonVariant, Col, Page, PagedTable, Row, Show } from 'tno-core';
 
+import { FormPicker } from '../form';
 import { ContentFilter } from '.';
 import { columns, defaultPage } from './constants';
 import { IContentListFilter } from './interfaces';
@@ -14,19 +15,25 @@ import * as styled from './styled';
 import { makeFilter } from './utils';
 
 export const ContentListView: React.FC = () => {
-  const [{ userInfo, requests }, { isUserReady }] = useApp();
-  const userId = userInfo?.id ?? '';
+  const [{ userInfo }, { isUserReady }] = useApp();
+  const { id } = useParams();
   const [{ filter, filterAdvanced, content }, { findContent, storeFilter }] = useContent();
   const navigate = useNavigate();
+  const combined = useCombinedView();
+  useTooltips();
+
+  const [loading, setLoading] = React.useState(false);
+  const [activeId, setActiveId] = React.useState<number>(parseInt(id ?? '0'));
 
   // Set the page for the grid table.
   const page = !!content
     ? new Page(content.page - 1, content.quantity, content?.items, content.total)
     : defaultPage;
+  const userId = userInfo?.id ?? '';
 
   React.useEffect(() => {
-    ReactTooltip.rebuild();
-  });
+    setActiveId(parseInt(id ?? '0'));
+  }, [id]);
 
   React.useEffect(() => {
     if (userId !== 0 && filter.userId === '' && filter.userId !== userId) {
@@ -37,6 +44,7 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter) => {
       try {
+        setLoading(true);
         const data = await findContent(
           makeFilter({
             ...filter,
@@ -50,6 +58,8 @@ export const ContentListView: React.FC = () => {
       } catch (error) {
         // TODO: Handle error
         throw error;
+      } finally {
+        setLoading(false);
       }
     },
     [filterAdvanced, findContent],
@@ -86,52 +96,77 @@ export const ContentListView: React.FC = () => {
     [storeFilter, filter],
   );
 
+  const handleRowClick = (content: IContentModel) => {
+    setActiveId(content.id);
+    navigate(`/contents/combined/${content.id}`);
+  };
+
   return (
     <styled.ContentListView>
       <FormPage>
-        <ContentFilter search={fetch} />
-        <div className="content-list">
-          <PagedTable
-            columns={columns}
-            page={page}
-            isLoading={!!requests.length}
-            sorting={{ sortBy: filter.sort }}
-            onRowClick={(row) => navigate(`/contents/combined/${row.original.id}`)}
-            onChangePage={handleChangePage}
-            onChangeSort={handleChangeSort}
-          />
-        </div>
-        <div className="content-actions">
-          <Button name="create" onClick={() => navigate('/contents/0')}>
-            Create Snippet
-          </Button>
-          <div style={{ marginTop: '2%' }} className="addition-actions">
-            <Button
-              name="create"
-              variant={ButtonVariant.secondary}
-              disabled
-              tooltip="Under Construction"
-            >
-              Send Lois Front Pages
-            </Button>
-            <Button
-              name="create"
-              variant={ButtonVariant.secondary}
-              disabled
-              tooltip="Under Construction"
-            >
-              Send Top Stories
-            </Button>
-            <Button
-              name="create"
-              variant={ButtonVariant.secondary}
-              disabled
-              tooltip="Under Construction"
-            >
-              Send Lois to Commentary
-            </Button>
-          </div>
-        </div>
+        <Row wrap="nowrap">
+          <Col className="left-pane">
+            <ContentFilter search={fetch} />
+            <Row className="content-list">
+              <PagedTable
+                columns={columns}
+                page={page}
+                isLoading={loading}
+                sorting={{ sortBy: filter.sort }}
+                onRowClick={(row) => handleRowClick(row.original)}
+                activeId={activeId}
+                onChangePage={handleChangePage}
+                onChangeSort={handleChangeSort}
+              />
+            </Row>
+            <Row className="content-actions">
+              <Button
+                name="create"
+                onClick={() => navigate('/snippets/0')}
+                variant={ButtonVariant.secondary}
+              >
+                Create Snippet
+              </Button>
+              <Button
+                name="create"
+                onClick={() => navigate('/papers/0')}
+                variant={ButtonVariant.secondary}
+              >
+                Create Print Content
+              </Button>
+              <div>Send to</div>
+              <Button
+                name="create"
+                variant={ButtonVariant.secondary}
+                disabled
+                tooltip="Under Construction"
+              >
+                Front Pages
+              </Button>
+              <Button
+                name="create"
+                variant={ButtonVariant.secondary}
+                disabled
+                tooltip="Under Construction"
+              >
+                Top Stories
+              </Button>
+              <Button
+                name="create"
+                variant={ButtonVariant.secondary}
+                disabled
+                tooltip="Under Construction"
+              >
+                Commentary
+              </Button>
+            </Row>
+          </Col>
+          <Show visible={combined}>
+            <Col className="right-pane">
+              <FormPicker />
+            </Col>
+          </Show>
+        </Row>
       </FormPage>
     </styled.ContentListView>
   );

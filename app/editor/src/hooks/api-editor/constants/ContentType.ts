@@ -3,4 +3,5 @@ export enum ContentType {
   Print = 2,
   Radio = 3,
   TV = 4,
+  Frontpage = 5,
 }

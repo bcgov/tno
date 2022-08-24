@@ -1,6 +1,7 @@
+import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Area, IconButton, IOptionItem } from 'components/form';
+import { Area, IconButton } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
   FormikCheckbox,
@@ -12,31 +13,20 @@ import {
 } from 'components/formik';
 import { Modal } from 'components/modal';
 import {
-  ContentStatusName,
-  ContentType,
-  IContentModel,
-  IUserModel,
-  ValueType,
-} from 'hooks/api-editor';
+  useCombinedView,
+  useDataSourceOptions,
+  useMediaTypeOptions,
+  useTooltips,
+  useUserLookups,
+} from 'hooks';
+import { ContentStatusName, ContentType, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  FieldSize,
-  Row,
-  Show,
-  Tab,
-  Tabs,
-  useKeycloakWrapper,
-} from 'tno-core';
-import { getDataSourceOptions, getSortableOptions } from 'utils';
+import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
 
 import { ContentFormSchema } from '../validation';
 import { ContentActions, ContentClipForm, ContentSummaryForm, ContentTranscriptForm } from '.';
@@ -44,49 +34,41 @@ import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
 import { switchStatus, toForm, toModel } from './utils';
+
 export interface IContentFormProps {
   /** The content type this form will create */
   contentType?: ContentType;
 }
 
 /**
- * Content Form edit and create form for default view. Path will be appended with content id.
+ * Snippet Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
 export const ContentForm: React.FC<IContentFormProps> = ({ contentType = ContentType.Snippet }) => {
-  const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ dataSources, mediaTypes, tonePools, users, series }, { getSeries, getUsers }] =
-    useLookup();
+  const [{ dataSources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
     { getContent, addContent, updateContent, deleteContent, upload, publishContent },
   ] = useContent();
   const { isShowing, toggle } = useModal();
+  const { userId } = useUserLookups();
+  const dataSourceOptions = useDataSourceOptions();
+  const mediaTypeOptions = useMediaTypeOptions();
+  const combined = useCombinedView();
+  useTooltips();
 
   const [active, setActive] = React.useState('properties');
-  const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
-  const [dataSourceOptions, setDataSourceOptions] = React.useState<IOptionItem[]>([]);
   const [content, setContent] = React.useState<IContentForm>({
     ...defaultFormValues,
     id: parseInt(id ?? '0'),
   });
-  const [fetchingUsers, setFetchingUsers] = React.useState(false);
 
-  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id ?? 0;
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
   const [path, setPath] = React.useState('');
-
-  React.useEffect(() => {
-    setDataSourceOptions(getDataSourceOptions(dataSources));
-  }, [dataSources]);
-
-  React.useEffect(() => {
-    setMediaTypeOptions(getSortableOptions(mediaTypes));
-  }, [mediaTypes]);
 
   React.useEffect(() => {
     if (!!id && +id > 0) {
@@ -96,18 +78,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       });
     }
   }, [id, getContent, path]);
-
-  React.useEffect(() => {
-    // If for some reason the current user does not exist in the local list, go fetch a new list from the api.
-    if (!userId && !fetchingUsers) {
-      setFetchingUsers(true);
-      getUsers(true);
-    }
-  }, [fetchingUsers, getUsers, userId]);
-
-  React.useEffect(() => {
-    ReactTooltip.rebuild();
-  });
 
   const handleSubmit = async (values: IContentForm) => {
     let contentResult: IContentModel | null = null;
@@ -135,7 +105,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
 
       toast.success(`${contentResult.headline} has successfully been saved.`);
 
-      if (!originalId) navigate(`/contents/${contentResult.id}`);
+      if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
         const newSeries = series.find((s) => s.id === contentResult?.seriesId);
@@ -145,7 +115,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       // If the upload fails, we still need to update the form from the original update.
       if (!!contentResult) {
         setContent(toForm(contentResult));
-        if (!originalId) navigate(`/contents/${contentResult.id}`);
+        if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
       }
     }
   };
@@ -161,37 +131,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
 
   return (
     <styled.ContentForm>
-      <FormPage>
+      <FormPage minWidth={combined ? '' : '1200px'}>
         <Area>
           <Row>
-            <IconButton
-              label="Back to List View"
-              onClick={() => navigate('/contents')}
-              iconType="back"
-            />
-            <Show visible={!!id}>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Previous"
-                onClick={() => {
-                  const id = page?.items[indexPosition - 1]?.id;
-                  if (!!id) navigate(`/contents/${id}`);
-                }}
-                disabled={!enablePrev}
-              >
-                <FaChevronLeft />
-              </Button>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Next"
-                onClick={() => {
-                  const id = page?.items[indexPosition + 1]?.id;
-                  if (!!id) navigate(`/contents/${id}`);
-                }}
-                disabled={!enableNext}
-              >
-                <FaChevronRight />
-              </Button>
+            <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
+            <Show visible={!combined}>
               <Button
                 variant={ButtonVariant.secondary}
                 tooltip="Combined View"
@@ -202,6 +146,41 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                 <FontAwesomeIcon icon={faTableColumns} />
               </Button>
             </Show>
+            <Show visible={combined}>
+              <Button
+                variant={ButtonVariant.secondary}
+                tooltip="Full Page View"
+                onClick={() => {
+                  navigate(`/snippets/${id}`);
+                }}
+              >
+                <FontAwesomeIcon icon={faUpRightFromSquare} />
+              </Button>
+            </Show>
+            <Show visible={!!id}>
+              <Button
+                variant={ButtonVariant.secondary}
+                tooltip="Previous"
+                onClick={() => {
+                  const id = page?.items[indexPosition - 1]?.id;
+                  if (!!id) navigate(`/contents/${combined ? 'combined/' : ''}${id}`);
+                }}
+                disabled={!enablePrev}
+              >
+                <FaChevronLeft />
+              </Button>
+              <Button
+                variant={ButtonVariant.secondary}
+                tooltip="Next"
+                onClick={() => {
+                  const id = page?.items[indexPosition + 1]?.id;
+                  if (!!id) navigate(`/contents/${combined ? 'combined/' : ''}${id}`);
+                }}
+                disabled={!enableNext}
+              >
+                <FaChevronRight />
+              </Button>
+            </Show>
           </Row>
           <FormikForm
             onSubmit={handleSubmit}
@@ -210,8 +189,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
           >
             {(props) => (
               <Col>
+                <FormikHidden name="uid" />
                 <Row alignItems="flex-start">
-                  <Col flex="1 1 auto">
+                  <Col flex="1.5 1 0%">
                     <FormikText
                       name="headline"
                       required
@@ -274,7 +254,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                         </Col>
                       </Show>
                     </Row>
-                    <FormikHidden name="uid" />
                     <Show visible={contentType === ContentType.Print}>
                       <Row>
                         <FormikText name="section" label="Section" required />
@@ -287,7 +266,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       <FormikText
                         name="sourceUrl"
                         label="Source URL"
-                        width={FieldSize.Large}
                         tooltip="The URL to the original source story"
                         onChange={(e) => {
                           props.handleChange(e);
@@ -298,7 +276,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       />
                     </Show>
                   </Col>
-                  <Col className="checkbox-column" flex="1 1 auto">
+                  <Col className="checkbox-column" flex="0.5 1 0%">
                     <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
                       <FormikCheckbox
                         name="publish"
@@ -374,7 +352,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                 </Row>
                 <Row>
                   <Button type="submit" disabled={props.isSubmitting}>
-                    {!props.values.id ? 'Create Snippet' : 'Update Snippet'}
+                    {!props.values.id ? 'Create' : 'Update'}
                   </Button>
                   <Show visible={!!props.values.id}>
                     <Button
@@ -390,16 +368,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                     </Button>
                   </Show>
                   <Button onClick={toggle} variant={ButtonVariant.danger}>
-                    Remove Snippet
+                    Delete
                   </Button>
                 </Row>
                 <Modal
                   headerText="Confirm Removal"
-                  body="Are you sure you wish to remove this snippet?"
+                  body="Are you sure you wish to delete this snippet?"
                   isShowing={isShowing}
                   hide={toggle}
                   type="delete"
-                  confirmText="Yes, Remove It"
+                  confirmText="Yes, Delete It"
                   onConfirm={async () => {
                     try {
                       await deleteContent(toModel(props.values));
