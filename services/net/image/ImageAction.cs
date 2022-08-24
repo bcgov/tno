@@ -84,7 +84,7 @@ public class ImageAction : IngestAction<ImageOptions>
             var keyFiles = new[] { keyFile };
             var connectionInfo = new ConnectionInfo(hostname,
                                                     username,
-                                                    new PrivateKeyAuthenticationMethod("ckayfish", keyFiles));
+                                                    new PrivateKeyAuthenticationMethod(username, keyFiles));
             try
             {
                 using (var client = new SftpClient(connectionInfo))
