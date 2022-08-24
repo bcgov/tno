@@ -52,7 +52,6 @@ public class ImageAction : IngestAction<ImageOptions>
     {
         this.Kafka = kafka;
         this.Logger = logger;
-        this.Logger.LogWarning("image service starts");
     }
     #endregion
 
@@ -273,7 +272,6 @@ public class ImageAction : IngestAction<ImageOptions>
         var content = new SourceContent(SourceMediaType.Image, reference.Source, reference.Uid, $"{dataSource.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
         {
             StreamUrl = dataSource.Parent?.GetConnectionValue("url") ?? "",
-            //FilePath = "some/path",
             FilePath = Path.Combine(GetOutputPath(dataSource), reference.Uid),
             Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
         };
