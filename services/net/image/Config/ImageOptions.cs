@@ -17,5 +17,30 @@ public class ImageOptions : IngestServiceOptions
     /// get/set - The path to store files.
     /// </summary>
     public string OutputPath { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The path to fetch files.
+    /// </summary>
+    /// <value></value>
+    public string InputPath { get; set; } = "";
+
+    /// <summary>
+    /// Server name to fetch images
+    /// </summary>
+    /// <value></value>
+    public string HostName { get; set; } = "";
+
+    /// <summary>
+    /// Username to connect to image server if not set
+    /// </summary>
+    /// <value></value>
+    public string UserName { get; set; } = "";
+
+    /// <summary>
+    /// PrivateKeyFileName if not set
+    /// </summary>
+    /// <value></value>
+    public string PrivateKeyFileName { get; set; } = "";
+    
     #endregion
 }
