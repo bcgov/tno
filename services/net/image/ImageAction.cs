@@ -71,9 +71,9 @@ public class ImageAction : IngestAction<ImageOptions>
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
         // TODO: create new account to access server
-        var username = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("username"))? this.Options.UserName: manager.DataSource.GetConnectionValue("username");
+        var username = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("username")) ? this.Options.UserName : manager.DataSource.GetConnectionValue("username");
         var filename = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("filename")) ? this.Options.PrivateKeyFileName : manager.DataSource.GetConnectionValue("filename");
-        
+
         var hostname = this.Options.HostName;
         var mountPath = GetInputPath(manager.DataSource);
         var keyFilePath = Path.Combine(this.Options.PrivateKeysPath, filename);
@@ -92,7 +92,7 @@ public class ImageAction : IngestAction<ImageOptions>
                     client.Connect();
 
                     var files = await FetchImage(client, mountPath);
-                    files = files.Where(f => ( (f.Name.Contains(MappingImageFile(manager.DataSource)) )));
+                    files = files.Where(f => ((f.Name.Contains(MappingImageFile(manager.DataSource)))));
                     var tasks = new List<Task>();
 
                     foreach (var file in files)
@@ -224,7 +224,7 @@ public class ImageAction : IngestAction<ImageOptions>
         var inputFile = Path.Combine(inputPath, fileName);
         var outputPath = GetOutputPath(dataSource);
         var output = Path.Combine(outputPath, fileName);
-        
+
         if (!System.IO.File.Exists(output) && fileName.Contains(MappingImageFile(dataSource)))
         {
             if (!Directory.Exists(outputPath))
@@ -247,7 +247,7 @@ public class ImageAction : IngestAction<ImageOptions>
     private ContentReferenceModel CreateContentReference(DataSourceModel dataSource, string filename)
     {
         var today = GetLocalDateTime(dataSource, DateTime.UtcNow);
-        var publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, DateTimeKind.Local); 
+        var publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, DateTimeKind.Local);
         return new ContentReferenceModel()
         {
             Source = dataSource.Code,
@@ -312,8 +312,10 @@ public class ImageAction : IngestAction<ImageOptions>
     /// </summary>
     /// <param name="dataSource"></param>
     /// <returns></returns>
-    private string MappingImageFile(DataSourceModel dataSource) {
-        switch (dataSource.Code){
+    private string MappingImageFile(DataSourceModel dataSource)
+    {
+        switch (dataSource.Code)
+        {
             case "POST":
                 return "NTNP";
             case "GLOBE":
