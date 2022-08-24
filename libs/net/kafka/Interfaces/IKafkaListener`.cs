@@ -1,6 +1,6 @@
 using Confluent.Kafka;
 
-namespace TNO.Services;
+namespace TNO.Kafka;
 
 /// <summary>
 /// When a consumer error occurs this event will fire.

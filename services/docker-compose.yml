@@ -5,9 +5,7 @@ services:
   syndication:
     image: tno:syndication
     profiles:
-      - all
       - service
-      - data
     restart: "no"
     container_name: tno-syndication
     build:
@@ -32,9 +30,7 @@ services:
   capture:
     image: tno:capture
     profiles:
-      - all
       - service
-      - data
     restart: "no"
     container_name: tno-capture
     build:
@@ -61,9 +57,7 @@ services:
   clip:
     image: tno:clip
     profiles:
-      - all
       - service
-      - data
     restart: "no"
     container_name: tno-clip
     build:
@@ -87,41 +81,10 @@ services:
       retries: 3
       start_period: 30s
 
-  content:
-    image: tno:content
-    profiles:
-      - all
-      - service
-      - data
-    restart: "no"
-    container_name: tno-content
-    build:
-      context: ./
-      dockerfile: services/net/content/Dockerfile
-    env_file:
-      - services/net/content/.env
-    ports:
-      - ${CONTENT_PORT:-40026}:8081
-    depends_on:
-      - api
-      - broker
-    networks:
-      - tno
-    volumes:
-      - tno-av-data:/data
-    healthcheck:
-      test: curl -s -f http://localhost:8081/health || exit 1
-      interval: 1m
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-
   image:
     image: tno:image
     profiles:
-      - all
       - service
-      - data
     restart: "no"
     container_name: tno-image
     build:
@@ -145,12 +108,37 @@ services:
       retries: 3
       start_period: 30s
 
+  content:
+    image: tno:content
+    profiles:
+      - service
+    restart: "no"
+    container_name: tno-content
+    build:
+      context: ./
+      dockerfile: services/net/content/Dockerfile
+    env_file:
+      - services/net/content/.env
+    ports:
+      - ${CONTENT_PORT:-40026}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   transcription:
     image: tno:transcription
     profiles:
-      - all
       - service
-      - data
     restart: "no"
     container_name: tno-transcription
     build:
@@ -173,12 +161,37 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  indexing:
+    image: tno:indexing
+    profiles:
+      - service
+    restart: "no"
+    container_name: tno-indexing
+    build:
+      context: ./
+      dockerfile: services/net/indexing/Dockerfile
+    env_file:
+      - services/net/indexing/.env
+    ports:
+      - ${INDEXING_PORT:-40023}:8080
+    depends_on:
+      - api
+      - elastic
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8080/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   # nlp:
   #   image: tno:nlp
   #   profiles:
-  #     - all
   #     - service
-  #     - data
   #   restart: "no"
   #   container_name: tno-nlp
   #   build:
@@ -191,33 +204,6 @@ services:
   #     - ./services/java/nlp/src/main/resources/models:/app/classes/models
   #   depends_on:
   #     - database
-  #   networks:
-  #     - tno
-  #   healthcheck:
-  #     test: curl -s -f http://localhost:8080/health || exit 1
-  #     interval: 1m
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
-
-  # indexing:
-  #   image: tno:indexing
-  #   profiles:
-  #     - all
-  #     - service
-  #     - data
-  #     - elastic
-  #   restart: "no"
-  #   container_name: tno-indexing
-  #   build:
-  #     context: services/java/indexing
-  #   env_file:
-  #     - services/java/indexing/.env
-  #   ports:
-  #     - ${INDEXING_PORT:-40023}:8080
-  #   depends_on:
-  #     - database
-  #     - elastic
   #   networks:
   #     - tno
   #   healthcheck:

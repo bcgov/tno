@@ -152,6 +152,17 @@ public class ApiService : IApiService
     }
 
     /// <summary>
+    /// Make an AJAX request to the api to get the specified content.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<ContentModel?> FindContentByIdAsync(long id)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/contents/{id}");
+        return await _client.GetAsync<ContentModel?>(url);
+    }
+
+    /// <summary>
     /// Make an AJAX request to the api to add the specified content.
     /// </summary>
     /// <param name="content"></param>

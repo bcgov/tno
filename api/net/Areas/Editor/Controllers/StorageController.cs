@@ -29,7 +29,7 @@ namespace TNO.API.Areas.Editor.Controllers;
 public class StorageController : ControllerBase
 {
     #region Variables
-    private readonly StorageConfig _config;
+    private readonly StorageOptions _options;
     #endregion
 
     #region Constructors
@@ -37,9 +37,9 @@ public class StorageController : ControllerBase
     /// Creates a new instance of a StorageController object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
-    public StorageController(IOptions<StorageConfig> options)
+    public StorageController(IOptions<StorageOptions> options)
     {
-        _config = options.Value;
+        _options = options.Value;
     }
     #endregion
 
@@ -58,7 +58,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult GetFolder([FromQuery] string? path, [FromRoute] string? location = "capture")
     {
-        var result = new FolderModel(_config.GetRootPath(location), path.MakeRelativePath());
+        var result = new FolderModel(_options.GetRootPath(location), path.MakeRelativePath());
         return new JsonResult(result);
     }
 
@@ -82,7 +82,7 @@ public class StorageController : ControllerBase
         if (files.Count == 0) throw new InvalidOperationException("File missing");
         var file = files.First();
 
-        var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath(), file.FileName);
+        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath(), file.FileName);
         if (String.IsNullOrWhiteSpace(Path.GetFileName(safePath))) throw new InvalidOperationException("Filename missing");
         if (safePath.DirectoryExists()) throw new InvalidOperationException("Invalid path");
 
@@ -115,7 +115,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Stream(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
+        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
 
         var info = new ItemModel(safePath);
@@ -137,7 +137,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Download(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
+        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
         // TODO: download a full folder as a ZIP
@@ -161,7 +161,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Move(string path, string destination, [FromRoute] string? location = "capture")
     {
-        var rootPath = _config.GetRootPath(location);
+        var rootPath = _options.GetRootPath(location);
         var safePath = System.IO.Path.Combine(rootPath, path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File does not exist: '{path}'");
 
@@ -191,7 +191,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Delete(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_config.GetRootPath(location), path.MakeRelativePath());
+        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
         var info = new ItemModel(safePath);
@@ -216,13 +216,13 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult CreateClip(string fileName, string directory, int start, int end, int clipNbr, string prefix)
     {
-        var path = _config.CapturePath + directory;
+        var path = _options.CapturePath + directory;
         var process = FfmpegHelper.GetClipProcess(fileName, path, start, end, clipNbr, prefix);
 
         process.Start();
         process.WaitForExit();
 
-        var listing = new FolderModel(_config.CapturePath, directory);
+        var listing = new FolderModel(_options.CapturePath, directory);
         return new JsonResult(listing);
     }
 
@@ -240,7 +240,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult JoinClips(string fileName, string directory, string prefix)
     {
-        var safePath = System.IO.Path.Combine(_config.GetRootPath("storage"), directory.MakeRelativePath());
+        var safePath = System.IO.Path.Combine(_options.GetRootPath("storage"), directory.MakeRelativePath());
         var format = Path.GetExtension(fileName).Replace(".", "");
 
         var muxFile = FfmpegHelper.GenerateMuxfile(fileName, safePath, format, prefix);
@@ -251,7 +251,7 @@ public class StorageController : ControllerBase
 
         System.IO.File.Delete(muxFile);
 
-        var listing = new FolderModel(_config.CapturePath, directory);
+        var listing = new FolderModel(_options.CapturePath, directory);
         return new JsonResult(listing);
     }
     #endregion

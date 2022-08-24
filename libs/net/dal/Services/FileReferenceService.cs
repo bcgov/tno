@@ -11,7 +11,7 @@ namespace TNO.DAL.Services;
 public class FileReferenceService : BaseService<FileReference, long>, IFileReferenceService
 {
     #region Properties
-    private readonly StorageConfig _storageConfig;
+    private readonly StorageOptions _options;
     #endregion
 
     #region Constructors
@@ -19,10 +19,10 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
-        StorageConfig storageConfig,
+        StorageOptions options,
         ILogger<FileReferenceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        _storageConfig = storageConfig;
+        _options = options;
     }
     #endregion
 
@@ -48,7 +48,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     public FileStream Download(FileReference entity)
     {
         // TODO: Handle different data locations.
-        var path = entity.GetFilePath(this.Context, _storageConfig);
+        var path = entity.GetFilePath(this.Context, _options);
         return File.OpenRead(path);
     }
 
@@ -60,7 +60,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     public async Task<FileReference> Upload(ContentFileReference model)
     {
         // TODO: Handle different data locations.
-        var path = model.GetFilePath(this.Context, _storageConfig);
+        var path = model.GetFilePath(this.Context, _options);
         var directory = Path.GetDirectoryName(path);
         if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
@@ -90,7 +90,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     public FileReference Attach(ContentFileReference model)
     {
         // TODO: Handle different data locations.
-        var path = model.GetFilePath(this.Context, _storageConfig);
+        var path = model.GetFilePath(this.Context, _options);
         var directory = Path.GetDirectoryName(path);
         if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
@@ -115,7 +115,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     public override void Delete(FileReference entity)
     {
         // TODO: Handle different data locations.
-        var path = entity.GetFilePath(this.Context, _storageConfig);
+        var path = entity.GetFilePath(this.Context, _options);
         if (File.Exists(path))
         {
             File.Delete(path);

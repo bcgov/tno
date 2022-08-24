@@ -73,57 +73,57 @@ switch: ## Switch to the specified oc project (n=environment)
 ##############################################################################
 
 build: ## Builds all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]})
-	$(info Builds all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
+	$(info Builds all containers or the one specified (n=$(n), $(p)))
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		--profile $(if $(p),$(p),all) \
+		$(if $(p),--profile $(p),--profile $(n)) \
 		build --no-cache --force-rm $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
-	$(info Starts all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
+	$(info Starts all containers or the one specified (n=$(n), p=$(p)))
 	@docker-compose \
 		--env-file .env \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		--profile $(if $(p),$(p),all) \
+		$(if $(p),--profile $(p),--profile $(n)) \
 		up -d $(n)
 
 stop: ## Stops all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
-	$(info Stops all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
+	$(info Stops all containers or the one specified (n=$(n), p=$(p)))
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		--profile $(if $(p),$(p),all) \
+		$(if $(p),--profile $(p),--profile $(n)) \
 		stop $(n)
 
 down: ## Stops all containers and removes them (p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]})))
-	$(info Stops all containers and removes them (p=$(if $(p),$(p),all)))
+	$(info Stops all containers and removes them (p=$(p)))
 	@docker-compose \
 		-f docker-compose.yml \
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		--profile $(if $(p),$(p),all) \
+		$(if $(p),--profile $(p),--profile $(n)) \
 		down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
-	$(info Restart all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
-	@make stop n=$(n) p=$(p)
-	@make up n=$(n) p=$(p)
+	$(info Restart all containers or the one specified (n=$(n), p=$(p)))
+	@make stop $(if $(n),n=$(n),) $(if $(p),p=$(p),)
+	@make up $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 
 refresh: ## Stop, build, and start all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
-	$(info Stop, build, and start all containers or the one specified (n=$(n), p=$(if $(p),$(p),all)))
-	@make stop n=$(n) p=$(p)
+	$(info Stop, build, and start all containers or the one specified (n=$(n), p=$(p)))
+	@make stop $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 	@./tools/scripts/docker-remove.sh $(n)
-	@make build n=$(n) p=$(p)
-	@make up n=$(n) p=$(p)
+	@make build $(if $(n),n=$(n),) $(if $(p),p=$(p),)
+	@make up $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 
 remove: ## Remove all containers
 	$(info Remove all containers)
@@ -162,7 +162,7 @@ db-nuke: ## Stop and delete the database container and volume, then rebuild and 
 
 elastic-update: ## Run the elasticsearch migration (n=migration name, r=rollback, i=ignore errors).
 	$(info Run the elasticsearch migration (n=$(n)))
-	@./db/elasticsearch/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(i),-i,"")
+	@./db/elasticsearch/scripts/migration.sh $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(i),-i,)
 
 ##############################################################################
 # Kafka Commands
@@ -174,14 +174,14 @@ reset-consumer-offset: ## Reset the consumer group topic offset.
 
 kafka-update: ## Run the kafka migration (n=migration name, r=rollback, b=bootstrap server)
 	$(info Run the kafka migration (n=$(n)))
-	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),"") $(if $(r),-r,"") $(if $(b),-b $(b),"")
+	@./db/kafka/scripts/migration.sh $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(b),-b $(b),)
 
 kafka-topic-add: ## Add a new kafka topic (e=environment, t=topic, b=bootstrap server, p=partitions, r=replications, i=index)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),"") $(if $(t),-t $(t),"") $(if $(b),-b $(b),"") $(if $(p),-p $(p),"") $(if $(r),-r $(r),"") $(if $(i),-i $(i),"")
+	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),) $(if $(t),-t $(t),) $(if $(b),-b $(b),) $(if $(p),-p $(p),) $(if $(r),-r $(r),) $(if $(i),-i $(i),)
 
 kafka-topic-delete: ## Delete a kafka topic (t=topic, b=bootstrap server)
 	$(info Add a new kafka topic (e=$(if $(e),$(e),local), t=$(t)))
-	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),"") $(if $(t),-t $(t),"") $(if $(b),-b $(b),"")
+	@./db/kafka/scripts/topic-add.sh $(if $(e),-e $(e),) $(if $(t),-t $(t),) $(if $(b),-b $(b),)
 
 .PHONY: local

@@ -2,9 +2,9 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Services.Serializers;
+using TNO.Kafka.Serializers;
 
-namespace TNO.Services;
+namespace TNO.Kafka;
 
 /// <summary>
 /// KafkaListener class, provides a way to consume messages from Kafka.

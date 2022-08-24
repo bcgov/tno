@@ -2,10 +2,10 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Kafka.Serializers;
 using TNO.Models.Kafka;
-using TNO.Services.Serializers;
 
-namespace TNO.Services;
+namespace TNO.Kafka;
 
 /// <summary>
 /// KafkaMessenger class, provides a way to publish messages to Kafka.

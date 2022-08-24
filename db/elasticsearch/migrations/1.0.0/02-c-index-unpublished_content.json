@@ -1,0 +1,67 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "long" },
+      "uid": { "type": "text" },
+      "dataSourceId": { "type": "integer", "index": false },
+      "source": { "type": "keyword" },
+      "mediaTypeId": { "type": "integer" },
+      "contentTypeId": { "type": "integer" },
+      "licenseId": { "type": "integer" },
+      "seriesId": { "type": "integer" },
+      "otherSeries": { "type": "text" },
+      "headline": { "type": "text" },
+      "page": { "type": "text" },
+      "sourceUrl": { "type": "text", "index": false },
+      "status": { "type": "keyword", "index": false },
+      "summary": { "type": "text" },
+      "transcription": { "type": "text" },
+      "publishedOn": { "type": "date" },
+      "createdBy": { "type": "text", "index": false },
+      "createdById": { "type": "text", "index": false },
+      "createdOn": { "type": "date" },
+      "updatedBy": { "type": "text", "index": false },
+      "updatedById": { "type": "text", "index": false },
+      "updatedOn": { "type": "date" },
+      "version": { "type": "long", "index": false },
+      "tags": {
+        "type": "nested",
+        "properties": {
+          "id": { "type": "keyword" },
+          "name": { "type": "keyword" }
+        }
+      },
+      "tonePools": {
+        "type": "nested",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "keyword" },
+          "ownerId": { "type": "integer" },
+          "value": { "type": "integer" }
+        }
+      },
+      "categories": {
+        "type": "nested",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "keyword" },
+          "score": { "type": "integer" }
+        }
+      },
+      "actions": {
+        "type": "nested",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "keyword" },
+          "value": { "type": "text" }
+        }
+      }
+    }
+  }
+}

@@ -13,12 +13,12 @@ public static class FileReferenceExtensions
     /// </summary>
     /// <param name="reference"></param>
     /// <param name="context"></param>
-    /// <param name="storageConfig"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string GetFilePath(this IReadonlyFileReference fileReference, TNOContext context, StorageConfig storageConfig)
+    public static string GetFilePath(this IReadonlyFileReference fileReference, TNOContext context, StorageOptions options)
     {
-        return Path.Combine(fileReference.Content?.GetStoragePath(context, storageConfig) ?? "", fileReference.Path);
+        return Path.Combine(fileReference.Content?.GetStoragePath(context, options) ?? "", fileReference.Path);
     }
 
     /// <summary>
@@ -26,11 +26,11 @@ public static class FileReferenceExtensions
     /// </summary>
     /// <param name="reference"></param>
     /// <param name="context"></param>
-    /// <param name="storageConfig"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string GetStoragePath(this IReadonlyFileReference fileReference, TNOContext context, StorageConfig storageConfig)
+    public static string GetStoragePath(this IReadonlyFileReference fileReference, TNOContext context, StorageOptions options)
     {
-        return fileReference.Content?.GetStoragePath(context, storageConfig) ?? "";
+        return fileReference.Content?.GetStoragePath(context, options) ?? "";
     }
 }

@@ -4,6 +4,7 @@ using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Extensions;
 using TNO.Entities;
+using TNO.Kafka;
 using TNO.Models.Extensions;
 using TNO.Models.Kafka;
 using TNO.Services.Actions;
@@ -111,7 +112,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="dataSource"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private async Task FetchImage(DataSourceModel dataSource)
+    private Task FetchImage(DataSourceModel dataSource)
     {
         // TODO: use private keys in ./keys folder to connect to remote data source.
         // TODO: Fetch image from source data location.  Only continue if the image exists.
@@ -125,7 +126,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="dataSource"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private async Task ProcessImage(DataSourceModel dataSource)
+    private Task ProcessImage(DataSourceModel dataSource)
     {
         // TODO: Process Image based on configuration.
         throw new NotImplementedException();
@@ -137,7 +138,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="dataSource"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private async Task CopyImage(DataSourceModel dataSource)
+    private Task CopyImage(DataSourceModel dataSource)
     {
         // TODO: Copy image to destination data location.
         // TODO: Eventually handle different destination data locations based on config.

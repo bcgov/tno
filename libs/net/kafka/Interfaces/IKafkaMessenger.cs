@@ -1,7 +1,7 @@
 using Confluent.Kafka;
 using TNO.Models.Kafka;
 
-namespace TNO.Services;
+namespace TNO.Kafka;
 
 /// <summary>
 /// IKafkaMessenger interface, provides a way to publish messages to Kafka.

@@ -91,8 +91,9 @@ if [ -z "$password" ]; then
 fi
 
 if [ -z "$url" ]; then
-  url=$(grep -Po 'ELASTIC_URL=\K.*$' ./services/elastic/.env)
-  if [ -z "$url" ]; then
+  port=$(grep -Po 'ELASTIC_HTTP_PORT=\K.*$' .env)
+  url="host.docker.internal:$port"
+  if [ -z "$port" ]; then
       echo "Enter the URL to Elasticsearch."
       read -p 'URL: ' url
   fi

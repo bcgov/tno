@@ -2,13 +2,13 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 
-namespace TNO.Services.Serializers;
+namespace TNO.Kafka.Serializers;
 
 /// <summary>
-/// AsyncDefaultJsonSerializer class, provides a default json serializer.
+/// DefaultJsonSerializer class, provides a default json serializer.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AsyncDefaultJsonSerializer<T> : IAsyncSerializer<T>, IAsyncDeserializer<T?>
+public class DefaultJsonSerializer<T> : ISerializer<T>, IDeserializer<T>
 {
     #region Variables
     private readonly JsonSerializerOptions _options;
@@ -16,19 +16,19 @@ public class AsyncDefaultJsonSerializer<T> : IAsyncSerializer<T>, IAsyncDeserial
 
     #region Constructors
     /// <summary>
-    /// Creates a new instandce of a AsyncDefaultJsonSerializer object, initializes with specified parameters.
+    /// Creates a new instandce of a DefaultJsonSerializer object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
-    public AsyncDefaultJsonSerializer(IOptions<JsonSerializerOptions> options)
+    public DefaultJsonSerializer(IOptions<JsonSerializerOptions> options)
     {
         _options = options.Value;
     }
 
     /// <summary>
-    /// Creates a new instandce of a AsyncDefaultJsonSerializer object, initializes with specified parameters.
+    /// Creates a new instandce of a DefaultJsonSerializer object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
-    public AsyncDefaultJsonSerializer(JsonSerializerOptions options)
+    public DefaultJsonSerializer(JsonSerializerOptions options)
     {
         _options = options;
     }
@@ -41,11 +41,12 @@ public class AsyncDefaultJsonSerializer<T> : IAsyncSerializer<T>, IAsyncDeserial
     /// <param name="data"></param>
     /// <param name="context"></param>
     /// <returns></returns>
-    public async Task<byte[]> SerializeAsync(T data, SerializationContext context)
+    public byte[] Serialize(T data, SerializationContext context)
     {
+        var json = JsonSerializer.Serialize<T>(data, _options);
         using var ms = new MemoryStream();
-        await JsonSerializer.SerializeAsync<T>(ms, data, _options);
         var writer = new StreamWriter(ms);
+        writer.Write(json);
         writer.Flush();
         ms.Position = 0;
         return ms.ToArray();
@@ -59,14 +60,11 @@ public class AsyncDefaultJsonSerializer<T> : IAsyncSerializer<T>, IAsyncDeserial
     /// <param name="context"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public async Task<T?> DeserializeAsync(ReadOnlyMemory<byte> data, bool isNull, SerializationContext context)
+    public T Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
     {
-        using var ms = new MemoryStream();
-        var writer = new StreamWriter(ms);
-        writer.Write(data);
-        writer.Flush();
-        ms.Position = 0;
-        return !isNull ? await JsonSerializer.DeserializeAsync<T>(ms, _options) : default!;
+        if (isNull) throw new InvalidOperationException("Cannot deserialize null value");
+
+        return JsonSerializer.Deserialize<T>(data.ToArray(), _options) ?? throw new InvalidOperationException("Cannot return a deserialized null value");
     }
     #endregion
 }
