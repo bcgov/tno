@@ -1,6 +1,7 @@
 export * from './addOrUpdateArray';
 export * from './extractFileName';
 export * from './formatIdir';
+export * from './formatUserRoles';
 export * from './getDataSourceOptions';
 export * from './getEnumStringOptions';
 export * from './getFromLocalStorage';

@@ -70,7 +70,7 @@ public class UserService : BaseService<User, int>, IUserService
             query = query.OrderBy(u => u.Status).OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.Username);
 
         var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity);
+        query = query.Skip(skip).Take(filter.Quantity).Include(u => u.RolesManyToMany).ThenInclude(u => u.Role);
 
         var items = query?.ToArray() ?? Array.Empty<User>();
         return new Paged<User>(items, filter.Page, filter.Quantity, total);
