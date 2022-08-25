@@ -92,16 +92,6 @@ INSERT INTO public.data_location (
   , ''
   , DEFAULT_USER_ID
   , ''
-), (
-  'SSH' -- 9
-  , 'Securet SSH location.'
-  , true
-  , 7
-  , '{}'
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
 );
 
 END $$;

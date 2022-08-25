@@ -71,11 +71,11 @@ public class ImageAction : IngestAction<ImageOptions>
     {
         this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
         // TODO: create new account to access server
-        var username = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("username")) ? this.Options.UserName : manager.DataSource.GetConnectionValue("username");
+        var username = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("username")) ? this.Options.Username : manager.DataSource.GetConnectionValue("username");
         var filename = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("filename")) ? this.Options.PrivateKeyFileName : manager.DataSource.GetConnectionValue("filename");
-
-        var hostname = this.Options.HostName;
-        var mountPath = GetInputPath(manager.DataSource);
+        var hostname = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("hostname")) ? this.Options.HostName : manager.DataSource.GetConnectionValue("hostname");
+        var mountPath = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputpath")) ? this.Options.InputPath : GetInputPath(manager.DataSource);
+        var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code: manager.DataSource.GetConnectionValue("inputfilecode");
         var keyFilePath = Path.Combine(this.Options.PrivateKeysPath, filename);
         if (File.Exists(keyFilePath))
         {
@@ -92,12 +92,10 @@ public class ImageAction : IngestAction<ImageOptions>
                     client.Connect();
 
                     var files = await FetchImage(client, mountPath);
-                    files = files.Where(f => ((f.Name.Contains(MappingImageFile(manager.DataSource)))));
-                    var tasks = new List<Task>();
+                    files = files.Where(f => ((f.Name.Contains(inputFileCode))));
 
                     foreach (var file in files)
                     {
-                        this.Logger.LogInformation("found files");
                         var content = CreateContentReference(manager.DataSource, file.Name);
                         var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
 
@@ -118,7 +116,7 @@ public class ImageAction : IngestAction<ImageOptions>
 
                         if (reference != null)
                         {
-                            tasks.Add(CopyImage(client, manager.DataSource, file.Name));
+                            await CopyImage(client, manager.DataSource, file.Name);
 
                             if (sendMessage)
                             {
@@ -132,7 +130,6 @@ public class ImageAction : IngestAction<ImageOptions>
                         }
                     }
 
-                    await Task.WhenAll(tasks);
                     client.Disconnect();
 
                 }
@@ -177,7 +174,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     protected string GetInputPath(DataSourceModel dataSource)
     {
-        return Path.Combine(this.Options.InputPath, $"{GetLocalDateTime(dataSource, DateTime.Now):yyyy/MM/dd/}");
+        return Path.Combine(dataSource.GetConnectionValue("inputpath"), $"{GetLocalDateTime(dataSource, DateTime.Now):yyyy/MM/dd/}");
     }
 
 
@@ -223,15 +220,16 @@ public class ImageAction : IngestAction<ImageOptions>
         var inputPath = GetInputPath(dataSource);
         var inputFile = Path.Combine(inputPath, fileName);
         var outputPath = GetOutputPath(dataSource);
-        var output = Path.Combine(outputPath, fileName);
-
-        if (!System.IO.File.Exists(output) && fileName.Contains(MappingImageFile(dataSource)))
+        var outputFile = Path.Combine(outputPath, fileName);
+        var inputFileCode = String.IsNullOrEmpty(dataSource.GetConnectionValue("inputfilecode")) ? dataSource.Code : dataSource.GetConnectionValue("inputfilecode");
+        
+        if (!System.IO.File.Exists(outputFile) && fileName.Contains(inputFileCode))
         {
             if (!Directory.Exists(outputPath))
             {
                 Directory.CreateDirectory(outputPath);
             }
-            using (var saveFile = File.OpenWrite(output))
+            using (var saveFile = File.OpenWrite(outputFile))
             {
                 var task = Task.Factory.FromAsync(client.BeginDownloadFile(inputFile, saveFile), client.EndDownloadFile);
                 await task;
@@ -251,7 +249,6 @@ public class ImageAction : IngestAction<ImageOptions>
         return new ContentReferenceModel()
         {
             Source = dataSource.Code,
-            ///Uid = $"{filename}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
             Uid = $"{filename}",
             PublishedOn = publishedOn.ToUniversalTime(),
             Topic = dataSource.Topic,
@@ -307,28 +304,5 @@ public class ImageAction : IngestAction<ImageOptions>
         return date.ToTimeZone(DataSourceIngestManager<ImageOptions>.GetTimeZone(dataSource, this.Options.TimeZone));
     }
 
-    /// <summary>
-    /// map front page image name with datasource code
-    /// </summary>
-    /// <param name="dataSource"></param>
-    /// <returns></returns>
-    private string MappingImageFile(DataSourceModel dataSource)
-    {
-        switch (dataSource.Code)
-        {
-            case "POST":
-                return "NTNP";
-            case "GLOBE":
-                return "sv-GLB";
-            case "TC":
-                return "VITC";
-            case "SUN":
-                return "VASN";
-            case "PROVINCE":
-                return "VAPR";
-            default:
-                return dataSource.Code;
-        }
-    }
     #endregion
 }

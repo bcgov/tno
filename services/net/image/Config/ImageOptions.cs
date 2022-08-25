@@ -31,16 +31,16 @@ public class ImageOptions : IngestServiceOptions
     public string HostName { get; set; } = "";
 
     /// <summary>
-    /// Username to connect to image server if not set
-    /// </summary>
-    /// <value></value>
-    public string UserName { get; set; } = "";
-
-    /// <summary>
     /// PrivateKeyFileName if not set
     /// </summary>
     /// <value></value>
     public string PrivateKeyFileName { get; set; } = "";
+
+    /// <summary>
+    /// Username
+    /// </summary>
+    /// <value></value>
+    public string Username { get; set; } = "";
     
     #endregion
 }

@@ -42,6 +42,21 @@ export const Image: React.FC = (props) => {
           name="connection.filename"
           value={values.connection.filename}
         />
+        <FormikText
+          label="Hostname"
+          name="connection.hostname"
+          value={values.connection.hostname}
+        />
+        <FormikText
+          label="Input Path"
+          name="connection.inputpath"
+          value={values.connection.inputpath}
+        />
+        <FormikText
+          label="Input File Code"
+          name="connection.inputfilecode"
+          value={values.connection.inputfilecode}
+        />
       </Show>
     </styled.MediaType>
   );
