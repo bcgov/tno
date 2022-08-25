@@ -4,7 +4,12 @@ import { IUserFilter } from 'hooks';
 import { ISortBy } from '../interfaces';
 
 export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
-  return { ...filter, sort: applySortBy(filter.sort) };
+  return {
+    ...filter,
+    page: filter.pageIndex + 1,
+    quantity: filter.pageSize,
+    sort: applySortBy(filter.sort),
+  };
 };
 
 /**

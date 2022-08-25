@@ -34,6 +34,17 @@ export const UserList: React.FC = () => {
     [storeFilter, userFilter],
   );
 
+  const handleChangePage = React.useCallback(
+    (pi: number, ps?: number) => {
+      console.log(pi, ps);
+      if (userFilter.pageIndex !== pi || userFilter.pageSize !== ps) {
+        console.log('here');
+        storeFilter({ ...userFilter, pageIndex: pi, pageSize: ps ?? userFilter.pageSize });
+      }
+    },
+    [userFilter, storeFilter],
+  );
+
   const fetch = React.useCallback(
     async (filter: IUserListFilter) => {
       try {
@@ -41,7 +52,7 @@ export const UserList: React.FC = () => {
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
 
         setPage(page);
-        // return page;
+        return page;
       } catch (error) {
         // TODO: Handle error
         throw error;
@@ -65,6 +76,7 @@ export const UserList: React.FC = () => {
           page={page}
           onRowClick={(row) => navigate(`${row.original.id}`)}
           onChangeSort={handleChangeSort}
+          onChangePage={handleChangePage}
         ></PagedTable>
       </FormPage>
     </styled.UserList>

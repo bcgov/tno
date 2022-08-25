@@ -22,6 +22,8 @@ export const initialAdminState: IAdminState = {
   actions: [],
   series: [],
   userFilter: {
+    pageIndex: 0,
+    pageSize: 10,
     sort: [],
   },
 };
