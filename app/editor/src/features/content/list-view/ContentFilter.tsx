@@ -164,7 +164,8 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
               />
               <Checkbox
                 name="included"
-                label="Included"
+                label="Included in EoD"
+                tooltip="Content included in Event of the Day"
                 value="Included"
                 checked={filter.included !== ''}
                 onChange={(e) => {
@@ -179,6 +180,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 name="ticker"
                 label="On Ticker"
                 value="On Ticker"
+                tooltip="Content identified as on ticker"
                 checked={filter.onTicker !== ''}
                 onChange={(e) => {
                   storeFilter({
@@ -195,6 +197,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 name="commentary"
                 label="Commentary"
                 value="Commentary"
+                tooltip="Content identified as commentary"
                 checked={filter.commentary !== ''}
                 onChange={(e) => {
                   setUpdated && setUpdated(true);
@@ -209,6 +212,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 name="topStory"
                 label="Top Story"
                 value="Top Story"
+                tooltip="Content identified as a top story"
                 checked={filter.topStory !== ''}
                 onChange={(e) => {
                   setUpdated && setUpdated(true);
