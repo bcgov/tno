@@ -12,4 +12,6 @@ export interface IUserFilter {
   sort?: string[];
   roleName?: string;
   keyword?: string;
+  page?: number;
+  quantity?: number;
 }

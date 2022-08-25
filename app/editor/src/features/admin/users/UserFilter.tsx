@@ -80,8 +80,15 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
         <IconButton
           iconType="reset"
           onClick={() => {
-            setFilter({ sort: [], roleName: '', keyword: '', status: undefined });
-            storeFilter({ sort: [] });
+            setFilter({
+              sort: [],
+              roleName: '',
+              keyword: '',
+              status: undefined,
+              pageIndex: 0,
+              pageSize: 10,
+            });
+            storeFilter({ sort: [], pageIndex: 0, pageSize: 10 });
           }}
         />
       </Row>
