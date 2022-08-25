@@ -35,4 +35,9 @@ export const ContentForm = styled.div`
   .hidden {
     display: none;
   }
+
+  .tab-container {
+    max-height: calc(100vh - 580px);
+    overflow-y: auto;
+  }
 `;

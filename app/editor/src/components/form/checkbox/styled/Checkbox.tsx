@@ -4,6 +4,8 @@ import { ICheckboxProps } from '..';
 import { LabelPosition } from '../constants';
 
 export const Checkbox = styled.div<ICheckboxProps>`
+  margin-bottom: 1%;
+
   & > div:first-child {
     display: flex;
     flex-direction: ${(props) => {
@@ -19,7 +21,19 @@ export const Checkbox = styled.div<ICheckboxProps>`
     }};
   }
 
-  margin-bottom: 1%;
+  label {
+    ${(props) => {
+      switch (props.labelPosition) {
+        case LabelPosition.Right:
+          return 'padding-left: 0.25em;';
+        case LabelPosition.Left:
+          return 'padding-right: 0.25em;';
+        default:
+          return '';
+      }
+    }}
+    font-weight: normal;
+  }
 
   p[role='alert'] {
     font-size: 0.85em;

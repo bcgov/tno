@@ -7,7 +7,8 @@ export const ContentListView = styled.div`
     }
 
     div[role='rowgroup'] {
-      max-height: 200px;
+      min-height: 100px;
+      max-height: calc(100vh - 600px);
       overflow-y: scroll;
       overflow-x: hidden;
     }
@@ -15,16 +16,10 @@ export const ContentListView = styled.div`
 
   .content-actions {
     margin-top: 1em;
+    margin-bottom: 0.5em;
 
     button {
       display: block;
-    }
-
-    .addition-actions {
-      margin-top: 1em;
-      button {
-        margin-bottom: 0.5em;
-      }
     }
   }
 
@@ -35,5 +30,16 @@ export const ContentListView = styled.div`
     border-radius: 0.25em;
     max-width: 50em;
     padding: 1em;
+  }
+
+  .left-pane {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0%;
+  }
+
+  .right-pane {
+    display: flex;
+    flex-direction: column;
   }
 `;

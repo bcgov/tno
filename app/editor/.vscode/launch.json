@@ -12,7 +12,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "type": "pwa-node"
+      "type": "node"
     },
     {
       "name": "Chrome",
@@ -32,13 +32,11 @@
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/react-scripts",
       "args": ["test", "--runInBand", "--no-cache", "--watchAll=false"],
       "cwd": "${workspaceRoot}",
-      "protocol": "inspector",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
         "CI": "true"
       },
-      "disableOptimisticBPs": true
     },
     {
       "type": "node",
@@ -55,7 +53,6 @@
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
-      "protocol": "inspector",
       "internalConsoleOptions": "neverOpen"
     }
   ]
