@@ -9,6 +9,19 @@ resources:
 patches:
   - target:
       kind: BuildConfig
+      name: syndication-service.dev
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: syndication-service.jmf
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/fosol/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: dev
+  - target:
+      kind: BuildConfig
       name: capture-service.dev
     patch: |-
       - op: replace
@@ -27,6 +40,19 @@ patches:
       - op: replace
         path: /metadata/name
         value: clip-service.jmf
+      - op: replace
+        path: /spec/source/git/uri
+        value: https://github.com/fosol/tno.git
+      - op: replace
+        path: /spec/source/git/ref
+        value: dev
+  - target:
+      kind: BuildConfig
+      name: content-service.dev
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: content-service.jmf
       - op: replace
         path: /spec/source/git/uri
         value: https://github.com/fosol/tno.git
@@ -61,24 +87,11 @@ patches:
         value: dev
   - target:
       kind: BuildConfig
-      name: syndication-service.dev
+      name: transcription-service.dev
     patch: |-
       - op: replace
         path: /metadata/name
-        value: syndication-service.jmf
-      - op: replace
-        path: /spec/source/git/uri
-        value: https://github.com/fosol/tno.git
-      - op: replace
-        path: /spec/source/git/ref
-        value: dev
-  - target:
-      kind: BuildConfig
-      name: content-service.dev
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: content-service.jmf
+        value: nlp-service.jmf
       - op: replace
         path: /spec/source/git/uri
         value: https://github.com/fosol/tno.git

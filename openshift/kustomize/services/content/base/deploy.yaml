@@ -92,7 +92,23 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
+            - name: Kafka__Consumer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: KAKFA_GROUP_ID
             - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Producer__GroupId
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: KAKFA_GROUP_ID
+            - name: Kafka__Producer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -104,11 +120,21 @@ spec:
                 configMapKeyRef:
                   name: content-service
                   key: MAX_FAIL_LIMIT
-            - name: Kafka__Consumer__GroupId
+            - name: Service__UnpublishedIndex
               valueFrom:
                 configMapKeyRef:
                   name: content-service
-                  key: KAKFA_GROUP_ID
+                  key: UNPUBLISHED_INDEX
+            - name: Service__PublishedIndex
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: PUBLISHED_INDEX
+            - name: Service__NotificationTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: content-service
+                  key: NOTIFICATION_TOPIC
           livenessProbe:
             httpGet:
               path: "/health"

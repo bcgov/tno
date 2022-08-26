@@ -3,14 +3,14 @@
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
-  name: indexing-service
+  name: transcription-service
   annotations:
     description: Destination for built images.
   labels:
-    name: indexing-service
+    name: transcription-service
     part-of: tno
     version: 1.0.0
-    component: indexing
+    component: transcription
     managed-by: kustomize
     created-by: jeremy.foster
 
@@ -19,14 +19,14 @@ metadata:
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: indexing-service.dev
+  name: transcription-service.dev
   annotations:
     description: Build image from Dockerfile in git repo.
   labels:
-    name: indexing-service
+    name: transcription-service
     part-of: tno
     version: 1.0.0
-    component: indexing
+    component: transcription
     managed-by: kustomize
     created-by: jeremy.foster
     branch: dev
@@ -45,11 +45,11 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/indexing/Dockerfile
+      dockerfilePath: services/net/transcription/Dockerfile
   output:
     to:
       kind: ImageStreamTag
-      name: indexing-service:latest
+      name: transcription-service:latest
   resources:
     requests:
       cpu: 20m

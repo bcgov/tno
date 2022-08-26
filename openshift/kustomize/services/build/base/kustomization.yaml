@@ -9,3 +9,4 @@ resources:
   - capture.yaml
   - clip.yaml
   - indexing.yaml
+  - transcription.yaml

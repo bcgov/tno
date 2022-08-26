@@ -47,6 +47,12 @@ spec:
                       - elastic-cluster
               topologyKey: "kubernetes.io/hostname"
       volumes:
+        - name: config
+          configMap:
+            name: elastic
+            items:
+              - key: elasticsearch.yml
+                path: elasticsearch.yml
         # - name: backup
         #   persistentVolumeClaim:
         #     claimName: tno-database-backup
@@ -70,26 +76,27 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /usr/share/elasticsearch/data
+            - name: config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
             # - name: backup
             #   mountPath: /backups
           env:
-            - name: cluster.name
+            - name: CLUSTER_NAME
               value: elastic
-            - name: node.name
+            - name: NODE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: cluster.initial_master_nodes
+            - name: CLUSTER_INITIAL_MASTER_NODES
               value: "elastic-0,elastic-1,elastic-2"
-            - name: discovery.seed_hosts
+            - name: DISCOVERY_SEED_HOSTS
               value: "elastic-headless"
-            - name: network.host
-              value: "0.0.0.0"
-            - name: node.data
+            - name: NODE_DATA
               value: "true"
-            - name: node.ingest
+            - name: NODE_INGEST
               value: "true"
-            - name: node.master
+            - name: NODE_MASTER
               value: "true"
             # - name: discovery.zen.ping.unicast.hosts
             #   value: "elastic-0.elastic,elastic-1.elastic,elastic-2.elastic"
@@ -102,6 +109,7 @@ spec:
                   key: PASSWORD
             - name: ES_JAVA_OPTS
               value: -Xms512m -Xmx512m
+
   volumeClaimTemplates:
     - metadata:
         name: data
