@@ -31,7 +31,7 @@ namespace TNO.Ches
         #endregion
 
         #region Properties
-        protected IHttpRequestClient Client { get; }
+        protected OpenIdConnectRequestClient Client { get; }
         public ChesOptions Options { get; }
         #endregion
 
@@ -44,7 +44,7 @@ namespace TNO.Ches
         /// <param name="client"></param>
         /// <param name="tokenHandler"></param>
         /// <param name="logger"></param>
-        public ChesService(IOptions<ChesOptions> options, ClaimsPrincipal user, IHttpRequestClient client, JwtSecurityTokenHandler tokenHandler, ILogger<IChesService> logger)
+        public ChesService(IOptions<ChesOptions> options, ClaimsPrincipal user, OpenIdConnectRequestClient client, JwtSecurityTokenHandler tokenHandler, ILogger<IChesService> logger)
         {
             this.Options = options.Value;
             _user = user;
