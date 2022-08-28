@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
@@ -11,11 +12,19 @@ namespace TNO.DAL.Services;
 public class ContentService : BaseService<Content, long>, IContentService
 {
     #region Properties
+    private readonly string? invalidEncodings;
+    private readonly string[]? encodingSets;
     #endregion
 
     #region Constructors
-    public ContentService(TNOContext dbContext, ClaimsPrincipal principal, IServiceProvider serviceProvider, ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
+    public ContentService(TNOContext dbContext,
+        ClaimsPrincipal principal,
+        IServiceProvider serviceProvider,
+        IConfiguration configuration,
+        ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
+        invalidEncodings = configuration.GetValue<string>("InvalidEncodings");
+        encodingSets = invalidEncodings?.Split("__", StringSplitOptions.RemoveEmptyEntries);
     }
     #endregion
 
@@ -123,22 +132,24 @@ public class ContentService : BaseService<Content, long>, IContentService
 
     private void HandleInvalidEncoding(params Content[] contents)
     {
-        if (contents != null && contents.Length > 0)
+        if (contents != null && contents.Length > 0 &&
+            !string.IsNullOrEmpty(invalidEncodings) && encodingSets != null)
         {
-            var invalidEncodings = new[] { "�e(TM)", "&#39;" };
-            var items = contents.Where(x =>
-                x.Headline.Contains(invalidEncodings[0]) ||
-                x.Summary.Contains(invalidEncodings[1]));
-            foreach (var item in items)
+            foreach (var encodingSet in encodingSets)
             {
-                if (item.Headline.Contains(invalidEncodings[0]))
+                var keyValues = encodingSet.Split(":_", StringSplitOptions.RemoveEmptyEntries);
+                if (keyValues?.Length == 2)
                 {
-                    item.Headline = item.Headline.Replace(invalidEncodings[0], "'");
-                }
-
-                if (item.Summary.Contains(invalidEncodings[1]))
-                {
-                    item.Summary = item.Summary.Replace(invalidEncodings[1], "'");
+                    var newValue = keyValues[0];
+                    var oldValues = keyValues[1].Split("_", StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var oldValue in oldValues)
+                    {
+                        foreach (var content in contents)
+                        {
+                            content.Headline = content.Headline.Replace(oldValue, newValue);
+                            content.Summary = content.Summary.Replace(oldValue, newValue);
+                        }
+                    }
                 }
             }
         }
