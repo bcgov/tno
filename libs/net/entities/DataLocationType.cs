@@ -39,4 +39,10 @@ public enum DataLocationType
     /// Files are stored on Azure.
     /// </summary>
     Azure = 6,
+
+    /// <summary>
+    /// Files are stored on SSH.
+    /// </summary>
+    SSH = 7,
+
 }
