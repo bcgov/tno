@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
@@ -12,19 +11,14 @@ namespace TNO.DAL.Services;
 public class ContentService : BaseService<Content, long>, IContentService
 {
     #region Properties
-    private readonly string? invalidEncodings;
-    private readonly string[]? encodingSets;
     #endregion
 
     #region Constructors
     public ContentService(TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
-        IConfiguration configuration,
         ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
-        invalidEncodings = configuration.GetValue<string>("InvalidEncodings");
-        encodingSets = invalidEncodings?.Split("__", StringSplitOptions.RemoveEmptyEntries);
     }
     #endregion
 
@@ -124,40 +118,12 @@ public class ContentService : BaseService<Content, long>, IContentService
         query = query.Skip(skip).Take(filter.Quantity);
 
         var items = query?.ToArray() ?? Array.Empty<Content>();
-
-        HandleInvalidEncoding(items);
-
         return new Paged<Content>(items, filter.Page, filter.Quantity, total);
-    }
-
-    private void HandleInvalidEncoding(params Content[] contents)
-    {
-        if (contents != null && contents.Length > 0 &&
-            !string.IsNullOrEmpty(invalidEncodings) && encodingSets != null)
-        {
-            foreach (var encodingSet in encodingSets)
-            {
-                var keyValues = encodingSet.Split(":_", StringSplitOptions.RemoveEmptyEntries);
-                if (keyValues?.Length == 2)
-                {
-                    var newValue = keyValues[0];
-                    var oldValues = keyValues[1].Split("_", StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var oldValue in oldValues)
-                    {
-                        foreach (var content in contents)
-                        {
-                            content.Headline = content.Headline.Replace(oldValue, newValue);
-                            content.Summary = content.Summary.Replace(oldValue, newValue);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public override Content? FindById(long id)
     {
-        var result = this.Context.Contents
+        return this.Context.Contents
             .Include(c => c.ContentType)
             .Include(c => c.MediaType)
             .Include(c => c.Series)
@@ -173,9 +139,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.FileReferences)
             .Include(c => c.Links)
             .FirstOrDefault(c => c.Id == id);
-
-        if (result != null) HandleInvalidEncoding(result);
-        return result;
     }
 
     public Content? FindByUid(string uid, string? source)
@@ -200,9 +163,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(source))
             query = query.Where(c => c.Source == source);
 
-        var result = query.FirstOrDefault();
-        if (result != null) HandleInvalidEncoding(result);
-        return result;
+        return query.FirstOrDefault();
     }
 
     public override Content Add(Content entity)

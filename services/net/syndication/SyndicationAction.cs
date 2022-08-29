@@ -214,10 +214,11 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="source"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    private static SourceContent CreateSourceContent(string source, SyndicationItem item)
+    private SourceContent CreateSourceContent(string source, SyndicationItem item)
     {
         var content = item.Content as TextSyndicationContent;
-        return new SourceContent(SourceMediaType.Text, source, item.Id, item.Title.Text, item.Summary.Text, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
+        var (title, summary) = HandleInvalidEncoding(item);
+        return new SourceContent(SourceMediaType.Text, source, item.Id, title, summary, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",
@@ -226,6 +227,35 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
             Tags = item.Categories.Select(c => new TNO.Models.Kafka.Tag(c.Name, c.Label))
         };
+    }
+
+    /// <summary>
+    /// Handle invalid encoding characters before sending to Kafka.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns>updated title and summary</returns>
+    private (string, string) HandleInvalidEncoding(SyndicationItem item)
+    {
+        var title = item.Title.Text;
+        var summary = item.Summary.Text;
+        if (!string.IsNullOrEmpty(this.Options.InvalidEncodings) && this.Options.EncodingSets != null)
+        {
+            foreach (var encodingSet in this.Options.EncodingSets)
+            {
+                var keyValues = encodingSet.Split(":_", StringSplitOptions.RemoveEmptyEntries);
+                if (keyValues?.Length == 2)
+                {
+                    var newValue = keyValues[0];
+                    var oldValues = keyValues[1].Split("_", StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var oldValue in oldValues)
+                    {
+                        if (title.Contains(oldValue)) title = title.Replace(oldValue, newValue);
+                        if (summary.Contains(oldValue)) summary = summary.Replace(oldValue, newValue);
+                    }
+                }
+            }
+        }
+        return (title, summary);
     }
 
     /// <summary>
