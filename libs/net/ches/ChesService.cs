@@ -25,13 +25,12 @@ namespace TNO.Ches
     {
         #region Variables
         private readonly ClaimsPrincipal _user;
-        private TokenModel _token = null;
         private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
         #endregion
 
         #region Properties
-        protected OpenIdConnectRequestClient Client { get; }
+        protected IOpenIdConnectRequestClient Client { get; }
         public ChesOptions Options { get; }
         #endregion
 
@@ -64,140 +63,6 @@ namespace TNO.Ches
         private string GenerateUrl(string endpoint)
         {
             return $"{this.Options.HostUri}{endpoint}";
-        }
-
-        /// <summary>
-        /// Ensure we have an active access token.
-        /// Make an HTTP request if one is needed.
-        /// </summary>
-        /// <returns></returns>
-        private async Task RefreshAccessTokenAsync()
-        {
-            // Check if token has expired.  If it has refresh it.
-            if (_token == null || String.IsNullOrWhiteSpace(_token.AccessToken) || _tokenHandler.ReadJwtToken(_token.AccessToken).ValidTo <= DateTime.UtcNow)
-            {
-                _token = await GetTokenAsync();
-            }
-        }
-
-        /// <summary>
-        /// Send a request to the specified endpoint.
-        /// </summary>
-        /// <typeparam name="TR"></typeparam>
-        /// <param name="endpoint"></param>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private async Task<string> SendAsync(string endpoint, HttpMethod method)
-        {
-            await RefreshAccessTokenAsync();
-
-            var url = GenerateUrl(endpoint);
-
-            var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
-
-            try
-            {
-                var response = await this.Client.SendAsync(url, method, headers);
-                return await response.Content.ReadAsStringAsync();
-            }
-            catch (HttpClientRequestException ex)
-            {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
-            }
-        }
-
-        /// <summary>
-        /// Send a request to the specified endpoint.
-        /// </summary>
-        /// <typeparam name="TR"></typeparam>
-        /// <param name="endpoint"></param>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        private async Task<TR> SendAsync<TR>(string endpoint, HttpMethod method)
-        {
-            await RefreshAccessTokenAsync();
-
-            var url = GenerateUrl(endpoint);
-
-            var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
-
-            try
-            {
-                return await this.Client.SendAsync<TR>(url, method, headers);
-            }
-            catch (HttpClientRequestException ex)
-            {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
-            }
-        }
-
-        /// <summary>
-        /// Send a request to the specified endpoint.
-        /// Make a request to get an access token if required.
-        /// </summary>
-        /// <typeparam name="TR"></typeparam>
-        /// <typeparam name="TD"></typeparam>
-        /// <param name="endpoint"></param>
-        /// <param name="method"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private async Task<TR> SendAsync<TR, TD>(string endpoint, HttpMethod method, TD data)
-            where TD : class
-        {
-            await RefreshAccessTokenAsync();
-
-            var url = GenerateUrl(endpoint);
-
-            var headers = new HttpRequestMessage().Headers;
-            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
-
-            try
-            {
-                return await this.Client.SendJsonAsync<TR, TD>(url, method, headers, data);
-            }
-            catch (HttpClientRequestException ex)
-            {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
-            }
-        }
-
-        /// <summary>
-        /// Make an HTTP request to CHES to get an access token for the specified 'username' and 'password'.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        public async Task<TokenModel> GetTokenAsync(string username = null, string password = null)
-        {
-            var headers = new HttpRequestMessage().Headers;
-            var creds = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes($"{username ?? this.Options.Username}:{password ?? this.Options.Password}"));
-            headers.Add("Authorization", $"Basic {creds}");
-            headers.Add("ContentType", "application/x-www-form-urlencoded");
-
-            var form = new List<KeyValuePair<string, string>>
-            {
-                new KeyValuePair<string, string>("grant_type", "client_credentials")
-            };
-            var content = new FormUrlEncodedContent(form);
-
-            try
-            {
-                return await this.Client.SendAsync<TokenModel>(this.Options.AuthUrl, HttpMethod.Post, headers, content);
-            }
-            catch (HttpClientRequestException ex)
-            {
-                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {this.Options.AuthUrl}");
-                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
-                throw new ChesException(ex, this.Client, response);
-            }
         }
 
         /// <summary>
