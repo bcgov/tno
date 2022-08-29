@@ -19,4 +19,7 @@ export enum DataLocationType {
 
   /** Files are stored on Azure. */
   Azure = 6,
+
+  /** Files are stored on an SSH. */
+  SSH = 7,
 }

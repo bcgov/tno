@@ -1,0 +1,131 @@
+---
+# Elasticsearch configuration settings.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: elastic
+  namespace: default
+  annotations:
+    description: Elasticsearch configuration file.
+  labels:
+    name: elastic
+    part-of: tno
+    version: 1.0.0
+    component: elastic
+    managed-by: kustomize
+    created-by: jeremy.foster
+type: Opaque
+data:
+  elasticsearch.yml: |
+    # ======================== Elasticsearch Configuration =========================
+    #
+    # NOTE: Elasticsearch comes with reasonable defaults for most settings.
+    #       Before you set out to tweak and tune the configuration, make sure you
+    #       understand what are you trying to accomplish and the consequences.
+    #
+    # The primary way of configuring a node is via this file. This template lists
+    # the most important settings you may want to configure for a production cluster.
+    #
+    # Please consult the documentation for further information on configuration options:
+    # https://www.elastic.co/guide/en/elasticsearch/reference/index.html
+
+    # network:
+    #   host: ${NETWORK_HOST}
+
+    cluster:
+      name: ${CLUSTER_NAME}
+      initial_master_nodes: ${CLUSTER_INITIAL_MASTER_NODES}
+
+    node:
+      name: ${NODE_NAME}
+      data: ${NODE_DATA}
+      ingest: ${NODE_INGEST}
+      master: ${NODE_MASTER}
+    #
+    # Add custom attributes to the node:
+    #node.attr.rack: r1
+    #
+    # ----------------------------------- Paths ------------------------------------
+    #
+    path:
+      # Path to directory where to store the data (separate multiple locations by comma):
+      data: /usr/share/elasticsearch/data
+      # Path to log files:
+      # logs: /var/log/elasticsearch
+    #
+    # ----------------------------------- Memory -----------------------------------
+    #
+    # Lock the memory on startup:
+    #
+    # bootstrap:
+    #   memory_lock: ${BOOTSTRAP_MEMORY_LOCK}
+    #
+    # Make sure that the heap size is set to about half the memory available
+    # on the system and that the owner of the process is allowed to use this
+    # limit.
+    #
+    # Elasticsearch performs poorly when the system is swapping the memory.
+    #
+    # ---------------------------------- Network -----------------------------------
+    #
+    # Set the bind address to a specific IP (IPv4 or IPv6):
+    #
+    network:
+      host: 0.0.0.0
+
+    #
+    # Set a custom port for HTTP:
+    #
+    http:
+      port: 9200
+      cors:
+        allow-origin: https://tno-dejavu.apps.silver.devops.gov.bc.ca,https://dejavu.appbase.io
+        enabled: true
+        allow-headers: X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization,x-search-query,x-search-state,x-search-filters
+        allow-credentials: true
+
+    #
+    # For more information, consult the network module documentation.
+    #
+    # --------------------------------- Discovery ----------------------------------
+    #
+    discovery:
+      # type: ${DISCOVERY_TYPE}
+      seed_hosts: ${DISCOVERY_SEED_HOSTS}
+      # seed_providers: ${DISCOVERY_SEED_PROVIDERS}
+
+    # Pass an initial list of hosts to perform discovery when new node is started:
+    # The default list of hosts is ["127.0.0.1", "[::1]"]
+    #
+    #discovery.zen.ping.unicast.hosts: ["host1", "host2"]
+    #
+    # Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
+    #
+    #discovery.zen.minimum_master_nodes:
+    #
+    # For more information, consult the zen discovery module documentation.
+    #
+    # ---------------------------------- Gateway -----------------------------------
+    #
+    # Block initial recovery after a full cluster restart until N nodes are started:
+    #
+    #gateway.recover_after_nodes: 3
+    #
+    # For more information, consult the gateway module documentation.
+    #
+    # ---------------------------------- Various -----------------------------------
+    #
+    # Require explicit names when deleting indices:
+    #
+    #action.destructive_requires_name: true
+
+    xpack:
+      security:
+        enabled: false
+        transport:
+          ssl:
+            enabled: false
+      monitoring:
+        enabled: true
+        collection:
+          enabled: true
