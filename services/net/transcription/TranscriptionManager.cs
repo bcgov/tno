@@ -4,14 +4,10 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
-using TNO.API.Areas.Services.Models.Content;
 using TNO.Models.Kafka;
 using Confluent.Kafka;
-using TNO.API.Areas.Editor.Models.Lookup;
-using System.Text.Json;
 using System.Text;
-using TNO.Models.Extensions;
-
+using TNO.Kafka;
 namespace TNO.Services.Transcription;
 
 /// <summary>
@@ -109,7 +105,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
     }
 
-
     /// <summary>
     /// Keep consuming messages from Kafka until the service stops running.
     /// </summary>
@@ -160,25 +155,31 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
         this.Logger.LogInformation("Updating transcription from: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
 
-        var content = await _api.FindContentByUidAsync(result.Value.Uid, result.Value.Source);
+        var content = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
 
         // Upload the file to the API.
-        if (content != null && !String.IsNullOrWhiteSpace(result.Value.FilePath))
+        if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
         {
             // TODO: Handle different storage locations.
             // Remote storage locations may not be easily accessible by this service.
             // TODO: This allows the captured stream to be converted to text - fix.
-            var sourcePath = Path.Join(_options.FilePath, result.Value.FilePath);
+            var sourcePath = Path.Join(_options.FilePath, result.Message.Value.FilePath);
             if (File.Exists(sourcePath))
             {
                 var fileBytes = File.ReadAllBytes(sourcePath);
-                var transcript = await GetTranscriptionAsync(fileBytes, result.Value.Language);
+                var transcript = await GetTranscriptionAsync(fileBytes, result.Message.Value.Language);
 
-                content = await _api.FindContentByUidAsync(result.Value.Uid, result.Value.Source);
-                content.Transcription = transcript;
-                content = await _api.UpdateContentAsync(content);
-
-                this.Logger.LogDebug("Content Updated.  Content ID: {Id}", content?.Id);
+                content = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
+                if (content != null)
+                {
+                    content.Transcription = transcript;
+                    await _api.UpdateContentAsync(content);
+                    this.Logger.LogInformation("Content Updated.  Content ID: {Id}", content?.Id);
+                }
+                else
+                {
+                    this.Logger.LogError("Content does not exist for this message. Content Source: {Source}, UID: {Key}", result.Message.Value.Source, result.Message.Key);
+                }
             }
             else
             {
@@ -187,7 +188,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
         else
         {
-            this.Logger.LogDebug("Content does not exist for this message. Content Source: {Source}, UID: {Uid}", content.Source, content.Uid);
+            this.Logger.LogWarning("Content does not exist for this message. Content Source: {Source}, UID: {Key}", result.Message.Value.Source, result.Message.Key);
         }
     }
 

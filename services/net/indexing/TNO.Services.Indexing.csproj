@@ -24,4 +24,10 @@
     <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.0.0-beta.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

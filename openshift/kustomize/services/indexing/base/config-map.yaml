@@ -6,7 +6,7 @@ metadata:
   name: indexing-service
   namespace: default
   annotations:
-    description: Audio Capture service configuration settings
+    description: Indexing and publishing service configuration settings
   labels:
     name: indexing-service
     part-of: tno
@@ -16,6 +16,10 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: indexing
-  KAFKA_LOGS_TOPIC: logs-indexing
-  MAX_FAILED_ATTEMPTS: "5"
+  KAKFA_CLIENT_ID: Indexing
+  MAX_FAIL_LIMIT: "5"
+  TOPICS: index
+  ELASTICSEARCH_URI: http://elastic:9200
+  UNPUBLISHED_INDEX: unpublished_content
+  PUBLISHED_INDEX: content
+  NOTIFICATION_TOPIC: ""

@@ -5,10 +5,10 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-      "name": ".NET Core Launch (console)",
+      "name": "Run Import Tool Service",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "build-import",
       // If you have changed target frameworks, make sure to update the program path.
       "program": "${workspaceFolder}/tools/import/etl/bin/Debug/net6.0/TNO.Tools.Import.ETL.dll",
       "args": [],
@@ -16,6 +16,23 @@
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false
+    },
+    {
+      // Use IntelliSense to find out which attributes exist for C# debugging
+      // Use hover for the description of the existing attributes
+      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "name": "Run Indexing Service",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-indexing",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/services/net/indexing/bin/Debug/net6.0/TNO.Services.Indexing.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/services/net/indexing",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "envFile": "${workspaceFolder}/services/net/indexing/.env"
     },
     {
       "name": ".NET Core Attach",
