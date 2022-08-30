@@ -14,7 +14,10 @@ public class ContentService : BaseService<Content, long>, IContentService
     #endregion
 
     #region Constructors
-    public ContentService(TNOContext dbContext, ClaimsPrincipal principal, IServiceProvider serviceProvider, ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
+    public ContentService(TNOContext dbContext,
+        ClaimsPrincipal principal,
+        IServiceProvider serviceProvider,
+        ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
     }
     #endregion
