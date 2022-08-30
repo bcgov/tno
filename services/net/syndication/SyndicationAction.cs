@@ -234,7 +234,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="item"></param>
     /// <returns>updated title and summary</returns>
-    private (string, string) HandleInvalidEncoding(SyndicationItem item)
+    private (string title, string summary) HandleInvalidEncoding(SyndicationItem item)
     {
         var title = item.Title.Text;
         var summary = item.Summary.Text;
@@ -242,16 +242,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             foreach (var encodingSet in this.Options.EncodingSets)
             {
-                var keyValues = encodingSet.Split(":_", StringSplitOptions.RemoveEmptyEntries);
-                if (keyValues?.Length == 2)
+                var keyValue = encodingSet.Split(":_", StringSplitOptions.RemoveEmptyEntries);
+                if (keyValue?.Length == 2)
                 {
-                    var newValue = keyValues[0];
-                    var oldValues = keyValues[1].Split("_", StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var oldValue in oldValues)
-                    {
-                        if (title.Contains(oldValue)) title = title.Replace(oldValue, newValue);
-                        if (summary.Contains(oldValue)) summary = summary.Replace(oldValue, newValue);
-                    }
+                    var oldValue = keyValue[0];
+                    var newValue = keyValue[1];
+                    if (title.Contains(oldValue)) title = title.Replace(oldValue, newValue);
+                    if (summary.Contains(oldValue)) summary = summary.Replace(oldValue, newValue);
                 }
             }
         }
