@@ -17,7 +17,7 @@ export interface ITabsProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const Tabs: React.FC<ITabsProps> = ({ tabs, children, className }) => {
   return (
-    <styled.Tabs className={`${className ?? 'tabs'}`}>
+    <styled.Tabs className={`tabs${!!className ? ` ${className}` : ''}`}>
       {tabs && <TabMenu>{tabs}</TabMenu>}
       {tabs && <TabContainer>{children}</TabContainer>}
       {!tabs && children}

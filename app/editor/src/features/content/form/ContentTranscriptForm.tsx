@@ -17,7 +17,6 @@ export const ContentTranscriptForm: React.FC = () => {
         label="Transcript"
         value={values.transcription}
         onChange={(e: any) => setFieldValue('transcription', e.target.value)}
-        style={{ width: '1000px', height: '500px' }}
       />
     </styled.ContentTranscriptForm>
   );

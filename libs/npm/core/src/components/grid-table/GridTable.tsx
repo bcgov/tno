@@ -93,7 +93,9 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
    */
   isLoading?: boolean;
   /** Pass the table the active row id to highlight it */
-  activeId?: number;
+  activeId?: number | string;
+  /** The assessor property name to identify the active row. */
+  activeAssessor?: string;
   /**
    * Whether to include manual page sizing on the pager
    */
@@ -119,6 +121,7 @@ export const GridTable = <T extends object>({
   isLoading,
   filters,
   activeId,
+  activeAssessor = 'id',
   manualPageSize,
 }: IGridTableProps<T>) => {
   const {
@@ -225,7 +228,9 @@ export const GridTable = <T extends object>({
             prepareRow(row);
             return (
               <div
-                className={!!activeId && activeId === (row.original as any).id ? 'active' : ''}
+                className={
+                  !!activeId && activeId === (row.original as any)[activeAssessor] ? 'active' : ''
+                }
                 {...row.getRowProps()}
                 onClick={() => onRowClick && onRowClick(row)}
               >

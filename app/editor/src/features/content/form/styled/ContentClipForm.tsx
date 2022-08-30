@@ -3,9 +3,7 @@ import styled from 'styled-components';
 export const ContentClipForm = styled.div`
   margin: 1em;
 
-  min-width: 70em;
   background-color: white;
-  padding: 0.5em 1em 1em 1em;
 
   .path {
     & > div b {
@@ -98,10 +96,6 @@ export const ContentClipForm = styled.div`
   .list-row {
     padding-top: 20px;
     padding-bottom: 20px;
-  }
-
-  .file-table {
-    min-width: 1000px;
   }
 
   .lc-header {

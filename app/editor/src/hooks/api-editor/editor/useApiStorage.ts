@@ -114,33 +114,23 @@ export const useApiStorage = (
         `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
       );
     },
-    clip: (
-      fileName: string,
-      directory: string,
-      start: string,
-      end: string,
-      clipNbr: number,
-      prefix: string,
-    ) => {
+    clip: (path: string, start: string, end: string, outputName: string) => {
       const params = {
-        fileName,
-        directory,
+        path,
         start,
         end,
-        clipNbr,
-        prefix,
+        outputName,
       };
-      return api.get<IItemModel, AxiosResponse<IFolderModel, never>, any>(
+      return api.post<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage/clip?${toQueryString(params)}`,
       );
     },
-    join: (fileName: string, directory: string, prefix: string) => {
+    join: (path: string, prefix: string) => {
       const params = {
-        fileName,
-        directory,
+        path,
         prefix,
       };
-      return api.put<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
+      return api.post<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage/join?${toQueryString(params)}`,
       );
     },

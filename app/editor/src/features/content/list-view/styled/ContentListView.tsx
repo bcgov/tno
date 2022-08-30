@@ -36,10 +36,12 @@ export const ContentListView = styled.div`
     display: flex;
     flex-direction: column;
     flex: 1 1 0%;
+    width: 50%;
   }
 
   .right-pane {
     display: flex;
     flex-direction: column;
+    flex: 1 1 0%;
   }
 `;
