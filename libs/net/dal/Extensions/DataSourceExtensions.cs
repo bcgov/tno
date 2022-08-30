@@ -20,7 +20,7 @@ public static class DataSourceExtensions
     {
         updated.ActionsManyToMany.SetEntityState(context);
         updated.MetricsManyToMany.SetEntityState(context);
-        updated.SchedulesManyToMany.SetEntityState(context);
+        updated.Schedules.AddRange(updated.SchedulesManyToMany.Select(s => s.Schedule!).Where(s => s != null).ToArray());
         return updated;
     }
 

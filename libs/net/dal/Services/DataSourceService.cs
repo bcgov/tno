@@ -8,32 +8,62 @@ using TNO.Entities.Models;
 
 namespace TNO.DAL.Services;
 
+/// <summary>
+/// DataSourceService class, provides a service layer to work with data sources within the database.
+/// </summary>
 public class DataSourceService : BaseService<DataSource, int>, IDataSourceService
 {
     #region Properties
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a DataSourceService, initializes with specified parameters.
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="principal"></param>
+    /// <param name="serviceProvider"></param>
+    /// <param name="logger"></param>
     public DataSourceService(TNOContext dbContext, ClaimsPrincipal principal, IServiceProvider serviceProvider, ILogger<DataSourceService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
     }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Find and return all the data sources.
+    /// Removes connection information with possible secrets.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerable<DataSource> FindAll()
     {
         return this.Context.DataSources
+            .AsNoTracking()
             .Include(ds => ds.ContentType)
             .Include(ds => ds.DataLocation)
             .Include(ds => ds.MediaType)
             .Include(ds => ds.License)
             .Where(ds => ds.ContentTypeId != 0)
-            .OrderBy(ds => ds.Code).ThenBy(ds => ds.Name).ToArray();
+            .OrderBy(ds => ds.Code)
+            .ThenBy(ds => ds.Name)
+            .ToArray()
+            .Select(ds =>
+            {
+                ds.Connection = "{}";
+                return ds;
+            });
     }
 
+    /// <summary>
+    /// Find and return all data sources that match the specified 'filter'.
+    /// Removes connection information with possible secrets.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
     public IPaged<DataSource> Find(DataSourceFilter filter)
     {
         var query = this.Context.DataSources
+            .AsNoTracking()
             .Include(ds => ds.ContentType)
             .Include(ds => ds.DataLocation)
             .Include(ds => ds.MediaType)
@@ -67,10 +97,48 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);
 
-        var items = query?.ToArray() ?? Array.Empty<DataSource>();
+        var items = query?.ToArray()
+            .Select(ds =>
+            {
+                ds.Connection = "{}";
+                return ds;
+            }) ?? Array.Empty<DataSource>();
         return new Paged<DataSource>(items, filter.Page, filter.Quantity, total);
     }
 
+
+    /// <summary>
+    /// Find and return all data sources that match the specified 'mediaTypeName'.
+    /// Removes connection information with possible secrets.
+    /// </summary>
+    /// <param name="mediaTypeName"></param>
+    /// <returns></returns>
+    public IEnumerable<DataSource> FindByMediaType(string mediaTypeName)
+    {
+        return this.Context.DataSources
+            .AsNoTracking()
+            .Include(ds => ds.ContentType)
+            .Include(ds => ds.DataLocation)
+            .Include(ds => ds.MediaType)
+            .Include(ds => ds.License)
+            .Include(ds => ds.DataService)
+            .Include(ds => ds.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
+            .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
+            .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .Where(ds => ds.MediaType!.Name.ToLower() == mediaTypeName.ToLower())
+            .ToArray().Select(ds =>
+            {
+                ds.Connection = "{}";
+                return ds;
+            });
+    }
+
+    /// <summary>
+    /// Find the data source for the specified 'id'.
+    /// TODO: Only allow admin
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public override DataSource? FindById(int id)
     {
         return this.Context.DataSources
@@ -86,6 +154,12 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .FirstOrDefault(c => c.Id == id);
     }
 
+    /// <summary>
+    /// Find the data source for the specified 'code'.
+    /// TODO: Only allow admin
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
     public DataSource? FindByCode(string code)
     {
         return this.Context.DataSources
@@ -101,20 +175,12 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .FirstOrDefault(c => c.Code.ToLower() == code.ToLower());
     }
 
-    public IEnumerable<DataSource> FindByMediaType(string mediaTypeName)
-    {
-        return this.Context.DataSources
-            .Include(ds => ds.ContentType)
-            .Include(ds => ds.DataLocation)
-            .Include(ds => ds.MediaType)
-            .Include(ds => ds.License)
-            .Include(ds => ds.DataService)
-            .Include(ds => ds.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
-            .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
-            .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
-            .Where(ds => ds.MediaType!.Name.ToLower() == mediaTypeName.ToLower()).ToArray();
-    }
-
+    /// <summary>
+    /// Add the specified data source to the database.
+    /// TODO: Only allow admin
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public override DataSource Add(DataSource entity)
     {
         entity.AddToContext(this.Context);
@@ -123,11 +189,25 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
         return entity;
     }
 
+    /// <summary>
+    /// Update the specified data source in the database.
+    /// TODO: Only allow admin
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public override DataSource Update(DataSource entity)
     {
         return this.Update(entity);
     }
 
+    /// <summary>
+    /// Update the specified data source in the database.
+    /// TODO: Only allow admin
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <param name="updateChildren"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public DataSource Update(DataSource entity, bool updateChildren = false)
     {
         ValidateScheduleNames(entity);
