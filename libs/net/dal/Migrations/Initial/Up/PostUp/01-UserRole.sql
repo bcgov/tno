@@ -16,27 +16,6 @@ INSERT INTO public.user_role (
   , ''
   , DEFAULT_USER_ID
   , ''
-), (
-  '2' -- userId
-  , '1' -- roleId
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  '3' -- userId
-  , '2' -- roleId
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  '4' -- userId
-  , '3' -- roleId
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
 );
 
 END $$;
