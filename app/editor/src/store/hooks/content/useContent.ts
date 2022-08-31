@@ -20,6 +20,7 @@ interface IContentController {
   unpublishContent: (content: IContentModel) => Promise<IContentModel>;
   upload: (content: IContentModel, file: File) => Promise<IContentModel>;
   download: (id: number, fileName: string) => Promise<unknown>;
+  attach: (id: number, path: string) => Promise<IContentModel>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
 }
@@ -66,6 +67,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
     download: async (id: number, fileName: string) => {
       const result = await dispatch('download-content', () => api.download(id, fileName));
       return result;
+    },
+    attach: async (id: number, path: string) => {
+      return await dispatch<IContentModel>('attach-content', () => api.attach(id, path));
     },
     storeFilter: actions.storeFilter,
     storeFilterAdvanced: actions.storeFilterAdvanced,

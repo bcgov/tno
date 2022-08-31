@@ -287,12 +287,25 @@ public class ContentFileReference : IReadonlyFileReference
         return $"{content.Source}-{content.Id}{System.IO.Path.GetExtension(file.FileName)}";
     }
 
+    /// <summary>
+    /// Generate the file path and name.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="file"></param>
+    /// <returns></returns>
     public static string GenerateFilePath(Content content, string file)
     {
         var fileName = GenerateFileName(content, file);
         return System.IO.Path.Combine(content.Source, fileName);
     }
 
+    /// <summary>
+    /// Generate a unique name based on the content information.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public static string GenerateFileName(Content content, string file)
     {
         if (content.Id == 0) throw new ArgumentException("Parameter 'content.Id' must be greater than zero.", nameof(content));
@@ -300,8 +313,6 @@ public class ContentFileReference : IReadonlyFileReference
 
         return $"{content.Source}-{content.Id}{System.IO.Path.GetExtension(file)}";
     }
-
-
 
     /// <summary>
     /// Cast this ContentFileReference to a new instance of a FileReference object.

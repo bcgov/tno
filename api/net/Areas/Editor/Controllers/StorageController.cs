@@ -1,5 +1,4 @@
 using System.Net;
-using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -44,6 +43,26 @@ public class StorageController : ControllerBase
     #endregion
 
     #region Endpoints
+    /// <summary>
+    /// Fetch an array of files and directories at the specified path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="location"></param>
+    /// <returns></returns>
+    [HttpGet("exists")]
+    [HttpGet("exists/{location}")]
+    [Produces("application/json")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Storage" })]
+    public IActionResult FolderExists([FromQuery] string? path, [FromRoute] string? location = "capture")
+    {
+        var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
+        var exists = Directory.Exists(safePath);
+        return exists ? new OkResult() : new NoContentResult();
+    }
+
     /// <summary>
     /// Fetch an array of files and directories at the specified path.
     /// </summary>
@@ -194,8 +213,10 @@ public class StorageController : ControllerBase
         var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
+        // TODO: Only certain users should be allowed to delete certain files/folders.
         var item = new ItemModel(safePath);
-        System.IO.File.Delete(safePath);
+        if (item.IsDirectory) Directory.Delete(safePath);
+        else System.IO.File.Delete(safePath);
         return new JsonResult(item);
     }
 

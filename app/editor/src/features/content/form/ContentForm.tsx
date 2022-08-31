@@ -50,7 +50,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const [{ dataSources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, publishContent },
+    { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
   ] = useContent();
   const { isShowing, toggle } = useModal();
   const { userId } = useUserLookups();
@@ -69,16 +69,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
-  const [path, setPath] = React.useState('');
 
   React.useEffect(() => {
     if (!!id && +id > 0) {
       getContent(+id).then((data) => {
         setContent(toForm(data));
-        setPath(path || '/clip/' + data.source);
       });
     }
-  }, [id, getContent, path]);
+  }, [id, getContent]);
 
   const handleSubmit = async (values: IContentForm) => {
     let contentResult: IContentModel | null = null;
@@ -96,10 +94,21 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
       const model = toModel(values);
       contentResult = !content.id ? await addContent(model) : await updateContent(model);
 
-      // Now upload the file if it exists.
       if (!!values.file) {
-        const uploadResult = await upload(contentResult, values.file);
-        setContent(toForm({ ...uploadResult, tonePools: values.tonePools }));
+        // TODO: Make it possible to upload on the initial save instead of a separate request.
+        // Upload the file if one has been added.
+        const result = await upload(contentResult, values.file);
+        setContent(toForm({ ...result, tonePools: values.tonePools }));
+      } else if (
+        !originalId &&
+        !!values.fileReferences.length &&
+        !values.fileReferences[0].isUploaded
+      ) {
+        // TODO: Make it possible to upload on the initial save instead of a separate request.
+        // A file was attached but hasn't been uploaded to the API.
+        const fileReference = values.fileReferences[0];
+        const result = await attach(contentResult.id, fileReference.path);
+        setContent(toForm({ ...result, tonePools: values.tonePools }));
       } else {
         setContent(toForm({ ...contentResult, tonePools: values.tonePools }));
       }
@@ -375,12 +384,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                         <ContentTranscriptForm />
                       </Show>
                       <Show visible={active === 'clips'}>
-                        <ContentClipForm
-                          content={content}
-                          setContent={setContent}
-                          setPath={setPath}
-                          path={path}
-                        />
+                        <ContentClipForm content={content} setContent={setContent} />
                       </Show>
                     </Tabs>
                   </Show>

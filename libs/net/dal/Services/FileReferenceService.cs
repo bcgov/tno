@@ -95,7 +95,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
         if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
 
-        var file = new System.IO.FileInfo(model.SourceFile);
+        var file = new FileInfo(model.SourceFile);
         file.CopyTo(path, true);
 
         var entity = (FileReference)model;
