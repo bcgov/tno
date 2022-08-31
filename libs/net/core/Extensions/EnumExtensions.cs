@@ -50,4 +50,14 @@ public static class EnumExtensions
     {
         return (T)(object)evalues.Aggregate(0, (c, n) => c |= n);
     }
+
+    /// <summary>
+    /// Return a new enumerable by extracting all items that are null or empty or whitespace.
+    /// </summary>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    public static IEnumerable<T> NotNullOrWhiteSpace<T>(this IEnumerable<T> items)
+    {
+        return items.Where(v => v != null && !String.IsNullOrWhiteSpace($"{v}"));
+    }
 }
