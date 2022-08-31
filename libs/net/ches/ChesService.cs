@@ -25,7 +25,6 @@ namespace TNO.Ches
     {
         #region Variables
         private readonly ClaimsPrincipal _user;
-        private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
         #endregion
 
@@ -43,12 +42,11 @@ namespace TNO.Ches
         /// <param name="client"></param>
         /// <param name="tokenHandler"></param>
         /// <param name="logger"></param>
-        public ChesService(IOptions<ChesOptions> options, ClaimsPrincipal user, OpenIdConnectRequestClient client, JwtSecurityTokenHandler tokenHandler, ILogger<IChesService> logger)
+        public ChesService(IOptions<ChesOptions> options, ClaimsPrincipal user, OpenIdConnectRequestClient client, ILogger<IChesService> logger)
         {
             this.Options = options.Value;
             _user = user;
             this.Client = client;
-            _tokenHandler = tokenHandler;
             _logger = logger;
         }
         #endregion
