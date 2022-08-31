@@ -8,7 +8,6 @@ namespace TNO.Ches
 {
     public interface IChesService
     {
-        Task<TokenModel> GetTokenAsync(string username = null, string password = null);
         Task<EmailResponseModel> SendEmailAsync(IEmail email);
         Task<EmailResponseModel> SendEmailAsync(IEmailMerge email);
         Task<StatusResponseModel> GetStatusAsync(Guid messageId);

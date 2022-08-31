@@ -66,6 +66,82 @@ namespace TNO.Ches
         }
 
         /// <summary>
+        /// Send a request to the specified endpoint.
+        /// </summary>
+        /// <typeparam name="TR"></typeparam>
+        /// <param name="endpoint"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        private async Task<string> SendAsync(string endpoint, HttpMethod method)
+        {
+            var url = GenerateUrl(endpoint);
+
+            var headers = new HttpRequestMessage().Headers;
+            try
+            {
+                var response = await this.Client.SendAsync(url, method, headers);
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (HttpClientRequestException ex)
+            {
+                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
+                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                throw new ChesException(ex, this.Client, response);
+            }
+        }
+
+        /// <summary>
+        /// Send a request to the specified endpoint.
+        /// </summary>
+        /// <typeparam name="TR"></typeparam>
+        /// <param name="endpoint"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        private async Task<TR> SendAsync<TR>(string endpoint, HttpMethod method)
+        {
+            var url = GenerateUrl(endpoint);
+
+            var headers = new HttpRequestMessage().Headers;
+            try
+            {
+                return await this.Client.SendAsync<TR>(url, method, headers);
+            }
+            catch (HttpClientRequestException ex)
+            {
+                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
+                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                throw new ChesException(ex, this.Client, response);
+            }
+        }
+
+        /// <summary>
+        /// Send a request to the specified endpoint.
+        /// Make a request to get an access token if required.
+        /// </summary>
+        /// <typeparam name="TR"></typeparam>
+        /// <typeparam name="TD"></typeparam>
+        /// <param name="endpoint"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        private async Task<TR> SendAsync<TR, TD>(string endpoint, HttpMethod method, TD data)
+            where TD : class
+        {
+            var url = GenerateUrl(endpoint);
+
+            var headers = new HttpRequestMessage().Headers;
+            try
+            {
+                return await this.Client.SendJsonAsync<TR, TD>(url, method, headers, data);
+            }
+            catch (HttpClientRequestException ex)
+            {
+                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {url}");
+                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                throw new ChesException(ex, this.Client, response);
+            }
+        }
+        /// <summary>
         /// Send an HTTP request to CHES to send the specified 'email'.
         /// </summary>
         /// <param name="email"></param>
