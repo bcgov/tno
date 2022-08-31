@@ -82,7 +82,7 @@ public class StorageController : ControllerBase
         if (files.Count == 0) throw new InvalidOperationException("File missing");
         var file = files.First();
 
-        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath(), file.FileName);
+        var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath(), file.FileName);
         if (String.IsNullOrWhiteSpace(Path.GetFileName(safePath))) throw new InvalidOperationException("Filename missing");
         if (safePath.DirectoryExists()) throw new InvalidOperationException("Invalid path");
 
@@ -115,7 +115,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Stream(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
+        var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
 
         var info = new ItemModel(safePath);
@@ -137,7 +137,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Download(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
+        var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
         // TODO: download a full folder as a ZIP
@@ -162,10 +162,10 @@ public class StorageController : ControllerBase
     public IActionResult Move(string path, string destination, [FromRoute] string? location = "capture")
     {
         var rootPath = _options.GetRootPath(location);
-        var safePath = System.IO.Path.Combine(rootPath, path.MakeRelativePath());
+        var safePath = Path.Combine(rootPath, path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File does not exist: '{path}'");
 
-        var safeDestination = System.IO.Path.Combine(rootPath, destination.MakeRelativePath());
+        var safeDestination = Path.Combine(rootPath, destination.MakeRelativePath());
         if (safeDestination.FileExists()) throw new InvalidOperationException("File already exists, cannot rename");
 
         var directory = Path.GetDirectoryName(safeDestination);
@@ -191,68 +191,50 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Delete(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = System.IO.Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
+        var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
-        var info = new ItemModel(safePath);
+        var item = new ItemModel(safePath);
         System.IO.File.Delete(safePath);
-        return new JsonResult(info);
+        return new JsonResult(item);
     }
 
     /// <summary>
     /// Make a clip from the target file identified in the clip parameter 'prefix'.
     /// </summary>
-    /// <param name="fileName"></param>
-    /// <param name="directory"></param>
+    /// <param name="path"></param>
     /// <param name="start"></param>
     /// <param name="end"></param>
-    /// <param name="clipNbr"></param>
-    /// <param name="prefix"></param>
+    /// <param name="outputName"></param>
     /// <returns></returns>
-    [HttpGet("clip")]
+    [HttpPost("clip")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult CreateClip(string fileName, string directory, int start, int end, int clipNbr, string prefix)
+    public async Task<IActionResult> CreateClipAsync(string path, int start, int end, string outputName)
     {
-        var path = _options.CapturePath + directory;
-        var process = FfmpegHelper.GetClipProcess(fileName, path, start, end, clipNbr, prefix);
-
-        process.Start();
-        process.WaitForExit();
-
-        var listing = new FolderModel(_options.CapturePath, directory);
-        return new JsonResult(listing);
+        var safePath = Path.Combine(_options.CapturePath, path.MakeRelativePath());
+        var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, outputName);
+        return new JsonResult(new ItemModel(file));
     }
 
     /// <summary>
     /// Make a clip from the target file identified in the clip parameter 'prefix'.
     /// </summary>
-    /// <param name="fileName"></param>
-    /// <param name="directory"></param>
+    /// <param name="path"></param>
     /// <param name="prefix"></param>
     /// <returns></returns>
-    [HttpPut("join")]
+    [HttpPost("join")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult JoinClips(string fileName, string directory, string prefix)
+    public async Task<IActionResult> JoinClipsAsync(string path, string prefix)
     {
-        var safePath = System.IO.Path.Combine(_options.GetRootPath("storage"), directory.MakeRelativePath());
-        var format = Path.GetExtension(fileName).Replace(".", "");
-
-        var muxFile = FfmpegHelper.GenerateMuxfile(fileName, safePath, format, prefix);
-        var process = FfmpegHelper.GetJoinProcess(directory, fileName, safePath, muxFile, format, prefix);
-
-        process.Start();
-        process.WaitForExit();
-
-        System.IO.File.Delete(muxFile);
-
-        var listing = new FolderModel(_options.CapturePath, directory);
-        return new JsonResult(listing);
+        var safePath = Path.Combine(_options.CapturePath, path.MakeRelativePath());
+        var file = await FfmpegHelper.JoinClipsAsync(safePath, prefix);
+        return new JsonResult(new ItemModel(file));
     }
     #endregion
 }

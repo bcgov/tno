@@ -12,7 +12,7 @@ export const TabContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
 }) => {
   return (
-    <styled.TabContainer className={`${className ?? 'tab-container'}`}>
+    <styled.TabContainer className={`tab-container${!!className ? ` ${className}` : ''}`}>
       {children}
     </styled.TabContainer>
   );

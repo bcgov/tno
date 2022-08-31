@@ -109,7 +109,7 @@ export const ContentListView: React.FC = () => {
             <ContentFilter search={fetch} />
             <Row className="content-list">
               <PagedTable
-                columns={columns}
+                columns={columns(combined)}
                 page={page}
                 isLoading={loading}
                 sorting={{ sortBy: filter.sort }}

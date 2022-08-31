@@ -64,6 +64,11 @@ public class ItemModel
             this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
             this.Modified = info.LastWriteTime;
         }
+        else
+        {
+            var info = new System.IO.DirectoryInfo(path);
+            this.Modified = info.LastWriteTime;
+        }
     }
     #endregion
 }

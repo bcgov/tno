@@ -40,12 +40,10 @@ public class FolderModel
         var files = System.IO.Directory.GetFileSystemEntries(safePath);
         Array.Sort(files, string.CompareOrdinal);
 
-        foreach (var fullName in files)
+        // Don't include temporary folder.
+        foreach (var fullName in files.Where(n => new DirectoryInfo(n).Name != "_tmp"))
         {
-            if (fullName.FileExists() || fullName.DirectoryExists())
-            {
-                result.Add(new ItemModel(fullName));
-            }
+            result.Add(new ItemModel(fullName));
         }
         this.Items = result.ToArray();
     }

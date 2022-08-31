@@ -16,15 +16,8 @@ interface IStorageController {
   stream: (path: string, location?: string) => Promise<unknown>;
   move: (path: string, destination: string, location?: string) => Promise<IItemModel>;
   delete: (path: string, location?: string) => Promise<IItemModel>;
-  clip: (
-    fileName: string,
-    directory: string,
-    start: string,
-    end: string,
-    clipNbr: number,
-    prefix: string,
-  ) => Promise<IFolderModel>;
-  join: (directory: string, fileName: string, prefix: string) => Promise<IFolderModel>;
+  clip: (path: string, start: string, end: string, outputName: string) => Promise<IItemModel>;
+  join: (path: string, prefix: string) => Promise<IItemModel>;
   attach: (id: number, path: string) => Promise<IContentModel>;
 }
 
@@ -62,22 +55,13 @@ export const useStorage = (): IStorageController => {
       delete: async (path: string, location?: string) => {
         return await dispatch<IItemModel>('storage-delete', () => api.delete(path, location));
       },
-      clip: async (
-        fileName: string,
-        directory: string,
-        start: string,
-        end: string,
-        clipNbr: number,
-        prefix: string,
-      ) => {
-        return await dispatch<IFolderModel>('storage-clip', () =>
-          api.clip(fileName, directory, start, end, clipNbr, prefix),
+      clip: async (path: string, start: string, end: string, outputName: string) => {
+        return await dispatch<IItemModel>('storage-clip', () =>
+          api.clip(path, start, end, outputName),
         );
       },
-      join: async (filename: string, directory: string, prefix: string) => {
-        return await dispatch<IFolderModel>('storage-join', () =>
-          api.join(filename, directory, prefix),
-        );
+      join: async (path: string, prefix: string) => {
+        return await dispatch<IItemModel>('storage-join', () => api.join(path, prefix));
       },
       attach: async (id: number, path: string) => {
         return await dispatch<IContentModel>('storage-attach', () => api.attach(id, path));

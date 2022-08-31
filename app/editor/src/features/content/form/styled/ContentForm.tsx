@@ -1,6 +1,13 @@
 import styled from 'styled-components';
 
 export const ContentForm = styled.div`
+  height: 100%;
+
+  .minimize-details {
+    margin: 1em 0 0 0;
+    padding: 0;
+  }
+
   #txa-summary {
     height: 6.25em;
   }
@@ -37,7 +44,16 @@ export const ContentForm = styled.div`
   }
 
   .tab-container {
-    max-height: calc(100vh - 580px);
+    height: calc(100vh - 580px);
     overflow-y: auto;
+  }
+
+  .tabs.small {
+  }
+
+  .tabs.large {
+    .tab-container {
+      height: 100%;
+    }
   }
 `;

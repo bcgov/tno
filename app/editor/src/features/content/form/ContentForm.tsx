@@ -22,7 +22,7 @@ import {
 import { ContentStatusName, ContentType, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
@@ -59,6 +59,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const combined = useCombinedView();
   useTooltips();
 
+  const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('properties');
   const [content, setContent] = React.useState<IContentForm>({
     ...defaultFormValues,
@@ -130,7 +131,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   };
 
   return (
-    <styled.ContentForm>
+    <styled.ContentForm className="content-form">
       <FormPage minWidth={combined ? '' : '1200px'}>
         <Area>
           <Row>
@@ -190,118 +191,159 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
             {(props) => (
               <Col>
                 <FormikHidden name="uid" />
-                <Row alignItems="flex-start">
-                  <Col flex="1.5 1 0%">
-                    <FormikText
-                      name="headline"
-                      required
-                      label="Headline"
-                      value={props.values.headline}
-                    />
-                    <Row>
-                      <FormikSelect
-                        name="dataSourceId"
-                        label="Source"
-                        width={FieldSize.Big}
-                        value={
-                          dataSourceOptions.find((mt) => mt.value === props.values.dataSourceId) ??
-                          ''
-                        }
-                        onChange={(newValue: any) => {
-                          const dataSource = dataSources.find((ds) => ds.id === newValue.value);
-                          props.setFieldValue('dataSourceId', newValue.value);
-                          props.setFieldValue('source', dataSource?.code ?? '');
-                          if (!!dataSource) {
-                            props.setFieldValue('mediaTypeId', dataSource.mediaTypeId);
-                            props.setFieldValue('licenseId', dataSource.licenseId);
-                          }
-                        }}
-                        options={dataSourceOptions}
-                        required={!props.values.source}
-                        isDisabled={!!props.values.otherSource}
-                      />
-                      <FormikHidden name="source" />
-                      <FormikText
-                        name="otherSource"
-                        label="Other Source"
-                        onChange={(e) => {
-                          const value = e.currentTarget.value;
-                          props.setFieldValue('otherSource', value);
-                          props.setFieldValue('source', value);
-                          if (!!value) {
-                            props.setFieldValue('dataSourceId', undefined);
-                          }
-                        }}
-                        required={!!props.values.otherSource}
-                      />
-                    </Row>
-                    <Row>
-                      <Col grow={1}>
-                        <FormikSelect
-                          name="mediaTypeId"
-                          value={
-                            mediaTypeOptions.find((mt) => mt.value === props.values.mediaTypeId) ??
-                            ''
-                          }
-                          label="Media Type"
-                          options={mediaTypeOptions}
+                <Row alignItems="flex-start" className="content-details">
+                  <Show visible={size === 0}>
+                    <Row flex="1 1 100%" wrap="nowrap">
+                      <Col flex="1 1 0%">
+                        <FormikText
+                          name="headline"
                           required
+                          label="Headline"
+                          value={props.values.headline}
                         />
                       </Col>
-                      <Show visible={contentType === ContentType.Print}>
-                        <Col grow={1}>
-                          <FormikText name="edition" label="Edition" />
+                      <Col>
+                        <Button
+                          className="minimize-details"
+                          variant={ButtonVariant.link}
+                          tooltip="Maximize Details"
+                          onClick={() => setSize(1)}
+                        >
+                          <FaBars />
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Show>
+                  <Show visible={size === 1}>
+                    <Col flex="1.5 1 0%">
+                      <Row wrap="nowrap">
+                        <Col flex="1 1 0%">
+                          <FormikText
+                            name="headline"
+                            required
+                            label="Headline"
+                            value={props.values.headline}
+                          />
                         </Col>
-                      </Show>
-                    </Row>
-                    <Show visible={contentType === ContentType.Print}>
-                      <Row>
-                        <FormikText name="section" label="Section" required />
-                        <FormikText name="storyType" label="Story Type" required />
-                        <FormikText name="page" label="Page" />
+                        <Col>
+                          <Button
+                            className="minimize-details"
+                            variant={ButtonVariant.link}
+                            tooltip="Minimize Details"
+                            onClick={() => setSize(0)}
+                          >
+                            <FaGripLines />
+                          </Button>
+                        </Col>
                       </Row>
-                      <FormikTextArea name="byline" label="By Line" required />
-                    </Show>
-                    <Show visible={contentType === ContentType.Snippet}>
-                      <FormikText
-                        name="sourceUrl"
-                        label="Source URL"
-                        tooltip="The URL to the original source story"
-                        onChange={(e) => {
-                          props.handleChange(e);
-                          if (!!props.values.uid && !!e.currentTarget.value)
-                            props.setFieldValue('uid', e.currentTarget.value);
-                          else props.setFieldValue('uid', '');
-                        }}
-                      />
-                    </Show>
-                  </Col>
-                  <Col className="checkbox-column" flex="0.5 1 0%">
-                    <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
-                      <FormikCheckbox
-                        name="publish"
-                        label="Publish"
-                        checked={
-                          props.values.status === ContentStatusName.Publish ||
-                          props.values.status === ContentStatusName.Published
-                        }
-                        onChange={(e: any) => {
-                          props.setFieldValue(
-                            'status',
-                            switchStatus(e.target.checked, props.values.status),
-                          );
-                        }}
-                      />
-                      <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
+                      <Row>
+                        <FormikSelect
+                          name="dataSourceId"
+                          label="Source"
+                          width={FieldSize.Big}
+                          value={
+                            dataSourceOptions.find(
+                              (mt) => mt.value === props.values.dataSourceId,
+                            ) ?? ''
+                          }
+                          onChange={(newValue: any) => {
+                            const dataSource = dataSources.find((ds) => ds.id === newValue.value);
+                            props.setFieldValue('dataSourceId', newValue.value);
+                            props.setFieldValue('source', dataSource?.code ?? '');
+                            if (!!dataSource) {
+                              props.setFieldValue('mediaTypeId', dataSource.mediaTypeId);
+                              props.setFieldValue('licenseId', dataSource.licenseId);
+                            }
+                          }}
+                          options={dataSourceOptions}
+                          required={!props.values.source}
+                          isDisabled={!!props.values.otherSource}
+                        />
+                        <FormikHidden name="source" />
+                        <FormikText
+                          name="otherSource"
+                          label="Other Source"
+                          onChange={(e) => {
+                            const value = e.currentTarget.value;
+                            props.setFieldValue('otherSource', value);
+                            props.setFieldValue('source', value);
+                            if (!!value) {
+                              props.setFieldValue('dataSourceId', undefined);
+                            }
+                          }}
+                          required={!!props.values.otherSource}
+                        />
+                      </Row>
+                      <Row>
+                        <Col grow={1}>
+                          <FormikSelect
+                            name="mediaTypeId"
+                            value={
+                              mediaTypeOptions.find(
+                                (mt) => mt.value === props.values.mediaTypeId,
+                              ) ?? ''
+                            }
+                            label="Media Type"
+                            options={mediaTypeOptions}
+                            required
+                          />
+                        </Col>
+                        <Show visible={contentType === ContentType.Print}>
+                          <Col grow={1}>
+                            <FormikText name="edition" label="Edition" />
+                          </Col>
+                        </Show>
+                      </Row>
+                      <Show visible={contentType === ContentType.Print}>
+                        <Row>
+                          <FormikText name="section" label="Section" required />
+                          <FormikText name="storyType" label="Story Type" required />
+                          <FormikText name="page" label="Page" />
+                        </Row>
+                        <FormikTextArea name="byline" label="By Line" required />
+                      </Show>
+                      <Show visible={contentType === ContentType.Snippet}>
+                        <FormikText
+                          name="sourceUrl"
+                          label="Source URL"
+                          tooltip="The URL to the original source story"
+                          onChange={(e) => {
+                            props.handleChange(e);
+                            if (!!props.values.uid && !!e.currentTarget.value)
+                              props.setFieldValue('uid', e.currentTarget.value);
+                            else props.setFieldValue('uid', '');
+                          }}
+                        />
+                      </Show>
                     </Col>
-                    <Row className="commentary">
-                      <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
-                    </Row>
-                  </Col>
+                    <Col className="checkbox-column" flex="0.5 1 0%">
+                      <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
+                        <FormikCheckbox
+                          name="publish"
+                          label="Publish"
+                          checked={
+                            props.values.status === ContentStatusName.Publish ||
+                            props.values.status === ContentStatusName.Published
+                          }
+                          onChange={(e: any) => {
+                            props.setFieldValue(
+                              'status',
+                              switchStatus(e.target.checked, props.values.status),
+                            );
+                          }}
+                        />
+                        <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
+                      </Col>
+                      <Row className="commentary">
+                        <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
+                      </Row>
+                    </Col>
+                  </Show>
                 </Row>
                 <Row>
                   <Show visible={contentType === ContentType.Snippet}>
                     <Tabs
+                      className={`tabs ${size === 1 ? 'small' : 'large'}`}
                       tabs={
                         <>
                           <Tab
@@ -352,7 +394,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                 </Row>
                 <Row>
                   <Button type="submit" disabled={props.isSubmitting}>
-                    {!props.values.id ? 'Create' : 'Update'}
+                    Save
                   </Button>
                   <Show visible={!!props.values.id}>
                     <Button
@@ -367,13 +409,15 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       Publish
                     </Button>
                   </Show>
-                  <Button onClick={toggle} variant={ButtonVariant.danger}>
-                    Delete
-                  </Button>
+                  <Show visible={!!props.values.id}>
+                    <Button onClick={toggle} variant={ButtonVariant.danger}>
+                      Delete
+                    </Button>
+                  </Show>
                 </Row>
                 <Modal
                   headerText="Confirm Removal"
-                  body="Are you sure you wish to delete this snippet?"
+                  body="Are you sure you wish to delete this content?"
                   isShowing={isShowing}
                   hide={toggle}
                   type="delete"

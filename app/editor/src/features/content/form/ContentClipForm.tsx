@@ -36,7 +36,6 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const [item, setItem] = React.useState<IItemModel>();
   const [start, setStart] = React.useState<string>('');
   const [end, setEnd] = React.useState<string>('');
-  const [clipNbr, setClipNbr] = React.useState<number>(1);
   const [currFile, setCurrFile] = React.useState<string>('');
   const [prefix, setPrefix] = React.useState<string>('');
   const { toggle, isShowing } = useModal();
@@ -86,9 +85,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
     } else if (prefix === '') {
       toast.error('Prefix is a required field.');
     } else {
-      setClipNbr(!!clipNbr ? clipNbr + 1 : 1);
-      await storage.clip(currFile, folder.path, start, end, clipNbr, prefix).then((data) => {
-        setFolder({ ...data, items: data.items });
+      await storage.clip(`${folder.path}/${currFile}`, start, end, prefix).then((item) => {
+        setFolder({ ...folder, items: [...folder.items, item] });
         setStart('');
         setEnd('');
       });
@@ -96,11 +94,15 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   };
 
   const joinClips = async () => {
-    await storage.join(currFile, folder.path, prefix).then((data) => {
-      setFolder({ ...data, items: data.items });
-      setClipNbr(1);
+    await storage.join(`${folder.path}/${currFile}`, prefix).then((item) => {
+      setItem(item);
+      setFolder({ ...folder, items: [...folder.items, item] });
       setStart('');
       setEnd('');
+      setCurrFile(!!item ? item.name : '');
+      setStreamUrl(
+        !!item ? `/api/editor/storage/stream?path=${folder.path}/${item.name}` : undefined,
+      );
     });
   };
 
@@ -133,7 +135,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         </Button>
       </div>
       <Row>
-        <Col>
+        <Col flex="1 1 100%">
           <div className="file-table">
             <ClipDirectoryTable
               data={folder.items}
@@ -148,7 +150,6 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
       </Row>
       <div className={!streamUrl ? 'hidden' : ''}>
         <Row>
-          <div className="editing">Editing: {item?.name}</div>
           <Col className="video" alignItems="stretch">
             <video ref={videoRef} controls>
               <source type="audio/m4a" />
@@ -193,6 +194,17 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
             </Button>
           </Col>
           <Col>
+            <p className="start-end">Prefix:</p>
+            <Text
+              name="prefix"
+              label=""
+              className="prefix"
+              onChange={(e) => {
+                setPrefix(e.target.value);
+              }}
+            />
+          </Col>
+          <Col>
             <Button
               className="create-clip"
               onClick={() => {
@@ -214,33 +226,22 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
               Join Clips
             </Button>
           </Col>
-          <Col>
-            <p className="start-end">Prefix:</p>
-            <Text
-              name="prefix"
-              label=""
-              className="prefix"
-              onChange={(e) => {
-                setPrefix(e.target.value);
-              }}
-            />
-            {/* Modal to appear when removing a file */}
-            <Modal
-              isShowing={isShowing}
-              hide={toggle}
-              type="delete"
-              headerText="Confirm Removal"
-              body="Are you sure you want to remove this file?"
-              confirmText="Yes, Remove It"
-              onConfirm={async () => {
-                await storage.delete(`${folder.path}/${item?.name}`);
-                onSelect();
-                setFolder({ ...folder, items: folder.items.filter((i) => i.name !== item?.name) });
-                toast.success(`${item?.name} has been deleted`);
-                toggle();
-              }}
-            />
-          </Col>
+          {/* Modal to appear when removing a file */}
+          <Modal
+            isShowing={isShowing}
+            hide={toggle}
+            type="delete"
+            headerText="Confirm Removal"
+            body="Are you sure you want to remove this file?"
+            confirmText="Yes, Remove It"
+            onConfirm={async () => {
+              await storage.delete(`${folder.path}/${item?.name}`);
+              onSelect();
+              setFolder({ ...folder, items: folder.items.filter((i) => i.name !== item?.name) });
+              toast.success(`${item?.name} has been deleted`);
+              toggle();
+            }}
+          />
         </Row>
       </div>
     </styled.ContentClipForm>
