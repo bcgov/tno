@@ -7,12 +7,17 @@ public class KafkaOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - The name of the Elasticsearch index for unpublished content.
+    /// get/set - The Kafka topic name to request indexing content in Elasticsearch.
     /// </summary>
     public string IndexingTopic { get; set; } = "";
 
     /// <summary>
-    /// get/set - The topic to publish notifications to.
+    /// get/set - The Kafka topic name to request transcripts.
+    /// </summary>
+    public string TranscriptionTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name to request a notification to be sent.
     /// </summary>
     public string NotificationTopic { get; set; } = "";
     #endregion

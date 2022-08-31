@@ -1,0 +1,27 @@
+---
+# Open up ports to communicate with the app.
+kind: Service
+apiVersion: v1
+metadata:
+  name: transcription-service
+  namespace: default
+  annotations:
+    description: Exposes and load balances the application pods.
+  labels:
+    name: transcription-service
+    part-of: tno
+    version: 1.0.0
+    component: transcription-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: transcription-service
+  sessionAffinity: None
+  type: ClusterIP

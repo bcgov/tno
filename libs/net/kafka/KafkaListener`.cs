@@ -157,6 +157,8 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
     /// <summary>
     /// Listen for messages from Kafka for the specified topics.
+    /// This will pause and resume after receiving every message.
+    /// This isn't meant to be performant.
     /// </summary>
     /// <param name="action"></param>
     /// <param name="topic"></param>

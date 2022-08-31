@@ -1,0 +1,191 @@
+---
+# How the app will be deployed to the pod.
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: transcription-service
+  namespace: default
+  annotations:
+    description: Defines how to deploy transcription-service
+  labels:
+    name: transcription-service
+    part-of: tno
+    version: 1.0.0
+    component: transcription-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  replicas: 1
+  selector:
+    name: transcription-service
+    part-of: tno
+    component: transcription-service
+  strategy:
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      name: transcription-service
+      labels:
+        name: transcription-service
+        part-of: tno
+        component: transcription-service
+    spec:
+      volumes:
+        - name: av-storage
+          persistentVolumeClaim:
+            claimName: av-storage
+      containers:
+        - name: transcription-service
+          image: ""
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: av-storage
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 20m
+              memory: 250Mi
+            limits:
+              cpu: 100m
+              memory: 500Mi
+          env:
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: API_HOST_URL
+
+            - name: Auth__Keycloak__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUTHORITY
+            - name: Auth__Keycloak__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_AUDIENCE
+            - name: Auth__Keycloak__Secret
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KEYCLOAK_CLIENT_SECRET
+
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: KAKFA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Consumer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: KAKFA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            - name: Kafka__Producer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: KAKFA_CLIENT_ID
+            - name: Kafka__Producer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Azure Cognitive Services Configuration
+            - name: Service__AzureRegion
+              valueFrom:
+                secretKeyRef:
+                  name: azure-cognitive-services
+                  key: AZURE_REGION
+            - name: Service__AzureCognitiveServicesKey
+              valueFrom:
+                secretKeyRef:
+                  name: azure-cognitive-services
+                  key: AZURE_COGNITIVE_SERVICES_KEY
+
+            # Indexing Service Configuration
+            - name: Service__MaxFailLimit
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: TOPICS
+            - name: Service__FilePath
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: FILE_PATH
+            - name: Service__NotificationTopic
+              valueFrom:
+                configMapKeyRef:
+                  name: transcription-service
+                  key: NOTIFICATION_TOPIC
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - transcription-service
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: transcription-service:dev

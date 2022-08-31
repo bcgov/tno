@@ -38,7 +38,8 @@ namespace TNO.Core.Converters
                 var fields = Enum.GetValues(typeof(ET));
                 foreach (var field in fields)
                 {
-                    var mi = typeof(ET).GetMember(field.ToString());
+                    if (field is null) continue;
+                    var mi = typeof(ET).GetMember(field.ToString()!);
                     var attr = mi[0].GetCustomAttribute<EnumValueAttribute>();
                     if (attr != null && String.CompareOrdinal(value, attr.Value) == 0)
                     {
@@ -51,14 +52,15 @@ namespace TNO.Core.Converters
         }
 
         /// <summary>
-        /// Extract name from 'EnumJsonAttribute' if exists, or return enum property naem in lowercase.
+        /// Extract name from 'EnumJsonAttribute' if exists, or return enum property name in lowercase.
         /// </summary>
         /// <param name="writer"></param>
         /// <param name="value"></param>
         /// <param name="options"></param>
         public override void Write(Utf8JsonWriter writer, ET value, JsonSerializerOptions options)
         {
-            var fi = typeof(ET).GetField(value.ToString());
+            var fi = typeof(ET).GetField(value.ToString()!);
+            if (fi is null) throw new InvalidOperationException("Enum does not exist");
             var attr = fi.GetCustomAttribute<EnumValueAttribute>();
 
             if (attr != null)

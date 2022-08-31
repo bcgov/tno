@@ -252,7 +252,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // Send a Kafka message to the transcription topic
                     if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
                     {
-                        await SendMessageAsync(result.Message.Value, content);
+                        await SendMessageAsync(content);
                     }
                 }
                 else
@@ -276,13 +276,12 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <summary>
     /// Send message to kafka with updated transcription.
     /// </summary>
-    /// <param name="sourceContent"></param>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<DeliveryResult<string, SourceContent>> SendMessageAsync(SourceContent sourceContent, ContentModel content)
+    private async Task<DeliveryResult<string, TranscriptRequest>> SendMessageAsync(ContentModel content)
     {
-        var result = await this.Producer.SendMessageAsync(_options.TranscriptionTopic, sourceContent);
+        var result = await this.Producer.SendMessageAsync(_options.TranscriptionTopic, new TranscriptRequest(content, "ContentService"));
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.Source}:{content.Uid}");
         return result;
     }

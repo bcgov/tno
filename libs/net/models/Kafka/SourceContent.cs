@@ -1,5 +1,9 @@
 namespace TNO.Models.Kafka;
 
+/// <summary>
+///
+/// TODO: Change name to SourceContentModel for consistent naming convention
+/// </summary>
 public class SourceContent : ContentBase
 {
     #region Properties

@@ -73,10 +73,35 @@ public class KafkaMessenger : IKafkaMessenger
     /// <returns></returns>
     public async Task<DeliveryResult<string, SourceContent>?> SendMessageAsync(string topic, SourceContent content)
     {
-        if (String.IsNullOrWhiteSpace(topic)) throw new ArgumentException("Parameter cannot be null, empty, or whitespace", nameof(topic));
         if (content == null) throw new ArgumentNullException(nameof(content));
 
         return await SendMessageAsync(topic, $"{content.Source}-{content.Uid}", content);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, TranscriptRequest>?> SendMessageAsync(string topic, TranscriptRequest request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"{request.ContentId}", request);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, IndexRequest>?> SendMessageAsync(string topic, IndexRequest request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"{request.ContentId}", request);
     }
     #endregion
 }

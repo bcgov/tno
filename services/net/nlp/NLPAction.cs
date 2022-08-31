@@ -17,8 +17,14 @@ public class NLPAction : ServiceAction<NLPOptions>
 {
     #region Variables
     private readonly IHttpRequestClient _httpClient;
-    private readonly IKafkaMessenger _kafka;
     private readonly ILogger _logger;
+    #endregion
+
+    #region Properties
+    /// <summary>
+    /// get - Kafka messenger.
+    /// </summary>
+    protected IKafkaMessenger Producer { get; private set; }
     #endregion
 
     #region Constructors
@@ -27,13 +33,13 @@ public class NLPAction : ServiceAction<NLPOptions>
     /// </summary>
     /// <param name="httpClient"></param>
     /// <param name="api"></param>
-    /// <param name="kafka"></param>
+    /// <param name="producer"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public NLPAction(IHttpRequestClient httpClient, IApiService api, IKafkaMessenger kafka, IOptions<NLPOptions> options, ILogger<NLPAction> logger) : base(api, options)
+    public NLPAction(IHttpRequestClient httpClient, IApiService api, IKafkaMessenger producer, IOptions<NLPOptions> options, ILogger<NLPAction> logger) : base(api, options)
     {
         _httpClient = httpClient;
-        _kafka = kafka;
+        this.Producer = producer;
         _logger = logger;
     }
     #endregion

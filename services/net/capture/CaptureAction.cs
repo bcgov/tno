@@ -25,20 +25,20 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <summary>
     /// get - The kafka messenger service.
     /// </summary>
-    protected IKafkaMessenger Kafka { get; private set; }
+    protected IKafkaMessenger Producer { get; private set; }
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a CaptureAction, initializes with specified parameters.
     /// </summary>
-    /// <param name="kafka"></param>
+    /// <param name="producer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public CaptureAction(IKafkaMessenger kafka, IApiService api, IOptions<CaptureOptions> options, ILogger<CaptureAction> logger) : base(api, options, logger)
+    public CaptureAction(IKafkaMessenger producer, IApiService api, IOptions<CaptureOptions> options, ILogger<CaptureAction> logger) : base(api, options, logger)
     {
-        this.Kafka = kafka;
+        this.Producer = producer;
     }
     #endregion
 
@@ -145,7 +145,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
             FilePath = GetFilePath(file),
             Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
         };
-        var result = await this.Kafka.SendMessageAsync(reference.Topic, content);
+        var result = await this.Producer.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
     }
