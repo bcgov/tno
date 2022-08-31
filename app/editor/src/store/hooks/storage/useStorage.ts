@@ -1,9 +1,10 @@
-import { IContentModel, IFolderModel, IItemModel, useApiStorage } from 'hooks/api-editor';
+import { IFolderModel, IItemModel, useApiStorage } from 'hooks/api-editor';
 import React from 'react';
 
 import { useApiDispatcher } from '..';
 
 interface IStorageController {
+  folderExists: (path?: string, location?: string) => Promise<boolean>;
   getFolder: (path?: string, location?: string) => Promise<IFolderModel>;
   upload: (
     path: string,
@@ -18,7 +19,6 @@ interface IStorageController {
   delete: (path: string, location?: string) => Promise<IItemModel>;
   clip: (path: string, start: string, end: string, outputName: string) => Promise<IItemModel>;
   join: (path: string, prefix: string) => Promise<IItemModel>;
-  attach: (id: number, path: string) => Promise<IContentModel>;
 }
 
 export const useStorage = (): IStorageController => {
@@ -27,6 +27,16 @@ export const useStorage = (): IStorageController => {
 
   const controller = React.useMemo(
     () => ({
+      folderExists: async (path?: string, location?: string) => {
+        var exists = false;
+        await dispatch<string>(
+          'storage-folder-exists',
+          () => api.folderExists(path, location),
+          (response) => (exists = response.status === 200),
+        );
+
+        return exists;
+      },
       getFolder: async (path?: string, location?: string) => {
         return await dispatch<IFolderModel>('get-storage', () => api.getFolder(path, location));
       },
@@ -62,9 +72,6 @@ export const useStorage = (): IStorageController => {
       },
       join: async (path: string, prefix: string) => {
         return await dispatch<IItemModel>('storage-join', () => api.join(path, prefix));
-      },
-      attach: async (id: number, path: string) => {
-        return await dispatch<IContentModel>('storage-attach', () => api.attach(id, path));
       },
     }),
     [dispatch, api],

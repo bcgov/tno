@@ -3,7 +3,7 @@ import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 import { extractFileName } from 'utils';
 
-import { IContentModel, IFolderModel, IItemModel, useApi } from '..';
+import { IFolderModel, IItemModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -20,6 +20,14 @@ export const useApiStorage = (
   const api = useApi(options);
 
   return React.useRef({
+    folderExists: (path?: string, location?: string) => {
+      const params = {
+        path,
+      };
+      return api.get<string, AxiosResponse<string, never>, any>(
+        `/editor/storage/exists${location ? `/${location}` : ''}?${toQueryString(params)}`,
+      );
+    },
     getFolder: (path?: string, location?: string) => {
       const params = {
         path,
@@ -132,14 +140,6 @@ export const useApiStorage = (
       };
       return api.post<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage/join?${toQueryString(params)}`,
-      );
-    },
-    attach: (id: number, path: string) => {
-      const params = {
-        path,
-      };
-      return api.put<IFolderModel, AxiosResponse<IContentModel, never>, any>(
-        `/editor/contents/${id}/attach?${toQueryString(params)}`,
       );
     },
   }).current;

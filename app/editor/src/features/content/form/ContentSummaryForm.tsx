@@ -242,7 +242,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             variant={ButtonVariant.danger}
             className="top-spacer"
             onClick={() => {
-              const regex = /\[.*\]/; // TODO: This is far too eager and could remove value content.
+              const regex = /\[.*\]/; // TODO: This is far too eager and could remove valuable content.
               setFieldValue('summary', values.summary.replace(regex, ''));
               setFieldValue('tags', []);
             }}

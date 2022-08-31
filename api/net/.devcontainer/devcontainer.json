@@ -22,15 +22,13 @@
     "eamodio.gitlens",
     "jorgeserrano.vscode-csharp-snippets",
     "adrianwilczynski.add-reference",
-    "fudge.auto-using",
-    "jchannon.csharpextensions",
     "mikestead.dotenv",
-    "formulahendry.dotnet-test-explorer",
     "editorconfig.editorconfig",
     "patcx.vscode-nuget-gallery",
     "jmrog.vscode-nuget-package-manager",
     "aliasadidev.nugetpackagemanagergui",
-    "pflannery.vscode-versionlens"
+    "pflannery.vscode-versionlens",
+    "kreativ-software.csharpextensions"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

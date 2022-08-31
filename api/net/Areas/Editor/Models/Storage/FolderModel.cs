@@ -33,7 +33,7 @@ public class FolderModel
     public FolderModel(string rootPath, string path)
     {
         var safePath = System.IO.Path.Combine(rootPath, path.MakeRelativePath());
-        if (!safePath.DirectoryExists()) throw new InvalidOperationException("Does not exist");
+        if (!safePath.DirectoryExists()) throw new InvalidOperationException("Folder does not exist");
 
         this.Path = safePath.ReplaceFirst(rootPath, "")!;
         var result = new List<ItemModel>();

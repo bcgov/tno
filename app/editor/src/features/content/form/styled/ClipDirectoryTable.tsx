@@ -12,6 +12,10 @@ export const ClipDirectoryTable = styled.div`
       margin-left: 0.5em;
     }
 
+    & > div {
+      width: 100%;
+    }
+
     svg {
       color: ${(props) => props.theme.css.primaryColor};
       cursor: pointer;

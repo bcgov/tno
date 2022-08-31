@@ -98,7 +98,7 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Add the new content to the database.
     /// Publish message to kafka to index content in elasticsearch.
     /// </summary>
     /// <param name="model"></param>
@@ -110,10 +110,10 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync(ContentModel model)
     {
-        var result = _contentService.Add((Content)model);
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Index));
+        var content = _contentService.Add((Content)model);
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, content.Uid, new IndexRequest(content.Id, IndexAction.Index));
 
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ContentModel(result));
+        return CreatedAtAction(nameof(FindById), new { id = content.Id }, new ContentModel(content));
     }
 
     /// <summary>
@@ -260,11 +260,10 @@ public class ContentController : ControllerBase
 
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version;
-        // Attachment source is always "storage"
-        var safePath = System.IO.Path.Combine(_storageOptions.GetRootPath("storage"), path.MakeRelativePath());
-        if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
+        var safePath = Path.Combine(_storageOptions.GetRootPath("storage"), path.MakeRelativePath());
+        if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
 
-        var file = new System.IO.FileInfo(safePath);
+        var file = new FileInfo(safePath);
         var reference = content.FileReferences.Any() ? new ContentFileReference(content.FileReferences.First(), file) : new ContentFileReference(content, file);
         _fileReferenceService.Attach(reference);
 
@@ -311,7 +310,7 @@ public class ContentController : ControllerBase
     public IActionResult Stream(string path, [FromRoute] string? location = "capture")
     {
         var safePath = System.IO.Path.Combine(_storageOptions.GetRootPath(location), path.MakeRelativePath());
-        if (!safePath.FileExists()) throw new InvalidOperationException("Does not exist");
+        if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
 
         var info = new ItemModel(safePath);
         var stream = System.IO.File.OpenRead(safePath);

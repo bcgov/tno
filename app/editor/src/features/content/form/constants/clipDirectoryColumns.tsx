@@ -62,26 +62,30 @@ export const clipDirectoryColumns = (
     Header: () => <div>Actions</div>,
     accessor: 'isDirectory',
     maxWidth: 30,
-    Cell: ({ row, data }: any) => (
-      <Row className={`file-actions ${row.values.isDirectory ? 'hidden' : 'center'}`} wrap="nowrap">
+    Cell: ({ row }) => (
+      <Row className={`file-actions ${row.original.isDirectory && 'directory'}`} wrap="nowrap">
         <Col>
-          <FaPlay title="watch/listen/edit" onClick={() => onSelect(row.values)} />
+          <FaPlay
+            title="watch/listen/edit"
+            onClick={() => onSelect(row.original)}
+            className={`${row.original.isDirectory && 'hidden'}`}
+          />
         </Col>
         <Col>
           <FaCloudDownloadAlt
-            className="fa-lg"
+            className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
             title="download"
             onClick={() => {
-              onDownload(row.values);
+              onDownload(row.original);
             }}
           />
         </Col>
         <Col>
           <FaPaperclip
-            className="fa-lg"
+            className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
             title="Attach to snippet"
             onClick={() => {
-              onAttach(row.values);
+              onAttach(row.original);
             }}
           />
         </Col>
@@ -90,7 +94,7 @@ export const clipDirectoryColumns = (
             className="delete fa-lg"
             title="Delete"
             onClick={() => {
-              onDelete(row.values);
+              onDelete(row.original);
             }}
           />
         </Col>
