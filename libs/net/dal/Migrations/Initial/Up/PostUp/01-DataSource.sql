@@ -2916,6 +2916,27 @@ INSERT INTO public.data_source (
   , ''
 ), (
   'CBCV'
+  , 'CBCV-CAPTURE'
+  , ''
+  , true -- is_enabled
+  , NULL -- content_type_id
+  , 3 -- media_type_id
+  , 2 -- data_location_id
+  , 3 -- license_id
+  , ''
+  , '{
+    "serviceType":"stream",
+    "url":"https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master4.m3u8",
+    "timezone":"UTC",
+    "timeZone":"Pacific Standard Time"
+  }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBCV-CLIP'
   , 'CBCV'
   , ''
   , true -- is_enabled
@@ -2923,9 +2944,12 @@ INSERT INTO public.data_source (
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
-  , '{}' -- connection
-  , NULL -- parent_id
+  , 'CBCV'
+  , '{"serviceType":"clip",
+    "keepChecking":true,
+    "timezone":"UTC",
+    "timeZone":"Pacific Standard Time"}' -- connection
+  , 182 -- parent_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

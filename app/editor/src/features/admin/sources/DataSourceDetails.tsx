@@ -1,7 +1,7 @@
 import { IOptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
-import { IDataSourceModel } from 'hooks/api-editor';
+import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { ActionMeta } from 'react-select';
 import ReactTooltip from 'react-tooltip';
@@ -26,6 +26,14 @@ export const DataSourceDetails: React.FC<IDataSourceDetailsProps> = () => {
     const contentType = lookups.contentTypes.find((mt) => mt.id === values.contentTypeId);
     setFieldValue('contentType', contentType);
   }, [lookups.contentTypes, setFieldValue, values.contentTypeId, values.contentType]);
+
+  React.useEffect(() => {
+    // Ensures the schedules can display the correct form on initial load.
+    const scheduleType = values.schedules[0]
+      ? values.schedules[0].scheduleType
+      : DataSourceScheduleTypeName.None;
+    setFieldValue('scheduleType', scheduleType);
+  });
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
