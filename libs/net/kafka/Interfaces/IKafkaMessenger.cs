@@ -26,4 +26,20 @@ public interface IKafkaMessenger
     /// <param name="content"></param>
     /// <returns></returns>
     public Task<DeliveryResult<string, SourceContent>?> SendMessageAsync(string topic, SourceContent content);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, TranscriptRequest>?> SendMessageAsync(string topic, TranscriptRequest request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, IndexRequest>?> SendMessageAsync(string topic, IndexRequest request);
 }

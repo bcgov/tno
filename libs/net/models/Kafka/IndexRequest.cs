@@ -4,6 +4,7 @@ namespace TNO.Models.Kafka;
 
 /// <summary>
 /// IndexRequest class, provides a model for requesting the specified content to be indexed into Elasticsearch.
+/// TODO: Change name to IndexRequestModel for consistent naming convention
 /// </summary>
 public class IndexRequest
 {

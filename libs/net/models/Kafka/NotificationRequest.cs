@@ -2,6 +2,7 @@ namespace TNO.Models.Kafka;
 
 /// <summary>
 /// NotificationRequest class, provides a model for requesting a notification be sent.
+/// TODO: Change name to NotificationRequestModel for consistent naming convention
 /// </summary>
 public class NotificationRequest
 {

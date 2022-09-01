@@ -16,6 +16,7 @@ using TNO.Core.Extensions;
 using TNO.Kafka;
 using TNO.API.Config;
 using TNO.Models.Kafka;
+using TNO.Core.Exceptions;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -201,6 +202,26 @@ public class ContentController : ControllerBase
         await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Unpublish));
 
         return new JsonResult(new ContentModel(result));
+    }
+
+    /// <summary>
+    /// Request a transcript for the content for the specified 'id'.
+    /// Publish message to kafka to request a transcription.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/transcribe")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> RequestTranscriptionAsync(long id)
+    {
+        var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Content does not exist");
+
+        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, content.Id.ToString(), new TranscriptRequest(content.Id, this.User.GetUsername() ?? "API"));
+        if (result == null) throw new BadRequestException("Transcription request failed");
+        return new JsonResult(new ContentModel(content));
     }
 
     /// <summary>

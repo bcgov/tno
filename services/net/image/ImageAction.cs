@@ -32,7 +32,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <summary>
     /// get - The kafka messenger service.
     /// </summary>
-    protected IKafkaMessenger Kafka { get; private set; }
+    protected IKafkaMessenger Producer { get; private set; }
 
     /// <summary>
     /// get - The logger.
@@ -44,13 +44,13 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <summary>
     /// Creates a new instance of a ImageAction, initializes with specified parameters.
     /// </summary>
-    /// <param name="kafka"></param>
+    /// <param name="producer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ImageAction(IKafkaMessenger kafka, IApiService api, IOptions<ImageOptions> options, ILogger<ImageAction> logger) : base(api, options)
+    public ImageAction(IKafkaMessenger producer, IApiService api, IOptions<ImageOptions> options, ILogger<ImageAction> logger) : base(api, options)
     {
-        this.Kafka = kafka;
+        this.Producer = producer;
         this.Logger = logger;
     }
     #endregion
@@ -75,7 +75,7 @@ public class ImageAction : IngestAction<ImageOptions>
         var filename = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("filename")) ? this.Options.PrivateKeyFileName : manager.DataSource.GetConnectionValue("filename");
         var hostname = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("hostname")) ? this.Options.HostName : manager.DataSource.GetConnectionValue("hostname");
         var mountPath = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputpath")) ? this.Options.InputPath : GetInputPath(manager.DataSource);
-        var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code: manager.DataSource.GetConnectionValue("inputfilecode");
+        var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code : manager.DataSource.GetConnectionValue("inputfilecode");
         var keyFilePath = Path.Combine(this.Options.PrivateKeysPath, filename);
         if (File.Exists(keyFilePath))
         {
@@ -222,7 +222,7 @@ public class ImageAction : IngestAction<ImageOptions>
         var outputPath = GetOutputPath(dataSource);
         var outputFile = Path.Combine(outputPath, fileName);
         var inputFileCode = String.IsNullOrEmpty(dataSource.GetConnectionValue("inputfilecode")) ? dataSource.Code : dataSource.GetConnectionValue("inputfilecode");
-        
+
         if (!System.IO.File.Exists(outputFile) && fileName.Contains(inputFileCode))
         {
             if (!Directory.Exists(outputPath))
@@ -272,7 +272,7 @@ public class ImageAction : IngestAction<ImageOptions>
             FilePath = Path.Combine(GetOutputPath(dataSource), reference.Uid),
             Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
         };
-        var result = await this.Kafka.SendMessageAsync(reference.Topic, content);
+        var result = await this.Producer.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
     }

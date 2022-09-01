@@ -510,7 +510,6 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__TranscriptionTopic=transcription
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
 
 Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/transcription/.env

@@ -32,8 +32,14 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 {
     #region Variables
     private readonly IHttpRequestClient _httpClient;
-    private readonly IKafkaMessenger _kafka;
     private readonly ILogger _logger;
+    #endregion
+
+    #region Properties
+    /// <summary>
+    /// get - Kafka messenger.
+    /// </summary>
+    protected IKafkaMessenger Producer { get; private set; }
     #endregion
 
     #region Constructors
@@ -42,13 +48,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// </summary>
     /// <param name="httpClient"></param>
     /// <param name="api"></param>
-    /// <param name="kafka"></param>
+    /// <param name="producer"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public SyndicationAction(IHttpRequestClient httpClient, IApiService api, IKafkaMessenger kafka, IOptions<SyndicationOptions> options, ILogger<SyndicationAction> logger) : base(api, options)
+    public SyndicationAction(IHttpRequestClient httpClient, IApiService api, IKafkaMessenger producer, IOptions<SyndicationOptions> options, ILogger<SyndicationAction> logger) : base(api, options)
     {
         _httpClient = httpClient;
-        _kafka = kafka;
+        this.Producer = producer;
         _logger = logger;
     }
     #endregion
@@ -116,8 +122,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (reference != null && sendMessage)
                 {
                     // Send item to Kafka.
-                    var message = CreateSourceContent(dataSource.DataSource.Code, item);
-                    var result = await _kafka.SendMessageAsync(dataSource.DataSource.Topic, message);
+                    var result = await this.Producer.SendMessageAsync(dataSource.DataSource.Topic, CreateSourceContent(dataSource.DataSource.Code, item));
 
                     // Update content reference with Kafka response.
                     if (result != null)

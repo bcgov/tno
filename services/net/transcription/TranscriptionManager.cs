@@ -8,6 +8,9 @@ using TNO.Models.Kafka;
 using Confluent.Kafka;
 using System.Text;
 using TNO.Kafka;
+using TNO.Core.Extensions;
+using TNO.API.Areas.Services.Models.Content;
+
 namespace TNO.Services.Transcription;
 
 /// <summary>
@@ -24,7 +27,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <summary>
     /// get - Kafka Consumer object.
     /// </summary>
-    protected IKafkaListener<string, SourceContent> Consumer { get; private set; }
+    protected IKafkaListener<string, TranscriptRequest> Consumer { get; private set; }
     #endregion
 
     #region Constructors
@@ -36,13 +39,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public TranscriptionManager(
-        IKafkaListener<string, SourceContent> kafka,
+        IKafkaListener<string, TranscriptRequest> kafka,
         IApiService api,
         IOptions<TranscriptionOptions> options,
         ILogger<TranscriptionManager> logger)
         : base(api, options, logger)
     {
         this.Consumer = kafka;
+        this.Consumer.OnError += ConsumerErrorHandler;
     }
     #endregion
 
@@ -66,7 +70,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             {
                 try
                 {
-                    // Listen to every enabled data source with a topic.
                     var topics = _options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     if (topics.Length != 0)
@@ -144,63 +147,84 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
     {
+        // The service has stopped, so to should consuming messages.
         if (this.State.Status != ServiceStatus.Running)
         {
             this.Consumer.Stop();
             this.State.Stop();
         }
 
-        this.Logger.LogInformation("Updating transcription from: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
-
-        var content = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
-
-        // Upload the file to the API.
-        if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
+        var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
+        if (content != null)
         {
-            // TODO: Handle different storage locations.
-            // Remote storage locations may not be easily accessible by this service.
-            // TODO: This allows the captured stream to be converted to text - fix.
-            var sourcePath = Path.Join(_options.FilePath, result.Message.Value.FilePath);
-            if (File.Exists(sourcePath))
-            {
-                var fileBytes = File.ReadAllBytes(sourcePath);
-                var transcript = await GetTranscriptionAsync(fileBytes, result.Message.Value.Language);
+            await UpdateTranscriptionAsync(content);
+        }
+        else
+        {
+            // Identify requests for transcription for content that does not exist.
+            this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
+        }
+    }
 
-                content = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
-                if (content != null)
-                {
-                    content.Transcription = transcript;
-                    await _api.UpdateContentAsync(content);
-                    this.Logger.LogInformation("Content Updated.  Content ID: {Id}", content?.Id);
-                }
-                else
-                {
-                    this.Logger.LogError("Content does not exist for this message. Content Source: {Source}, UID: {Key}", result.Message.Value.Source, result.Message.Key);
-                }
+    /// <summary>
+    /// Make a request to generate a transcription for the specified 'content'.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private async Task UpdateTranscriptionAsync(ContentModel content)
+    {
+        // TODO: Handle different storage locations.
+        // Remote storage locations may not be easily accessible by this service.
+        var path = content.FileReferences.FirstOrDefault()?.Path;
+        var safePath = Path.Join(_options.FilePath, path.MakeRelativePath());
+        if (File.Exists(safePath))
+        {
+            this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
+
+            var original = content.Transcription;
+            var fileBytes = File.ReadAllBytes(safePath);
+            var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
+
+            // Fetch content again because it may have been updated by an external source.
+            // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
+            var result = await _api.FindContentByIdAsync(content.Id);
+            if (result != null && !String.IsNullOrWhiteSpace(transcript))
+            {
+                // The transcription may have been edited during this process and now those changes will be lost.
+                if (original != result.Transcription) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
+
+                result.Transcription = transcript;
+                await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
+                this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", content.Id);
+            }
+            else if (String.IsNullOrWhiteSpace(transcript))
+            {
+                this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", content.Id);
             }
             else
             {
-                this.Logger.LogError("File not found.  Content ID: {Id}, File: {sourcePath}", content.Id, sourcePath);
+                // The content is no longer available for some reason.
+                this.Logger.LogError("Content no longer exists. Content ID: {Id}", content.Id);
             }
         }
         else
         {
-            this.Logger.LogWarning("Content does not exist for this message. Content Source: {Source}, UID: {Key}", result.Message.Value.Source, result.Message.Key);
+            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, path);
         }
     }
 
     /// <summary>
     /// Stream the audio file to Azure and return the speech to text output.
     /// </summary>
-    /// <param name="fileBytes"></param>
+    /// <param name="data"></param>
+    /// <param name="language"></param>
     /// <returns></returns>
-    private async Task<string> GetTranscriptionAsync(byte[] fileBytes, string language)
+    private async Task<string> RequestTranscriptionAsync(byte[] data, string language = "en-CA")
     {
         var sem = new Semaphore(0, 1);
-        var sb = new StringBuilder("");
+        var sb = new StringBuilder();
         var config = SpeechTranslationConfig.FromSubscription(_options.AzureCognitiveServicesKey, _options.AzureRegion);
         config.SpeechRecognitionLanguage = language;
 
@@ -211,7 +235,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var audioConfig = AudioConfig.FromStreamInput(audioStream);
         using var recognizer = new SpeechRecognizer(config, audioConfig);
 
-        audioStream.Write(fileBytes);
+        audioStream.Write(data);
 
         recognizer.Recognized += (s, e) =>
         {
