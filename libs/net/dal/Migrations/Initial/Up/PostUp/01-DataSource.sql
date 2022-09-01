@@ -2927,7 +2927,6 @@ INSERT INTO public.data_source (
   , '{
     "serviceType":"stream",
     "url":"https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master4.m3u8",
-    "timezone":"UTC",
     "timeZone":"Pacific Standard Time"
   }' -- connection
   , NULL -- parent_id
@@ -2947,7 +2946,6 @@ INSERT INTO public.data_source (
   , 'CBCV'
   , '{"serviceType":"clip",
     "keepChecking":true,
-    "timezone":"UTC",
     "timeZone":"Pacific Standard Time"}' -- connection
   , 182 -- parent_id
   , DEFAULT_USER_ID
