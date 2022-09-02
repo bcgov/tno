@@ -167,6 +167,9 @@ public class ContentManager : ServiceManager<ContentOptions>
         this.State.RecordFailure();
         if (e.GetException() is ConsumeException ex)
         {
+            // Need to tell Kafka that this means it can't continue.
+            if (ex.Message == "Broker: Unknown topic or partition")
+                return true;
             return ex.Error.IsFatal;
         }
 

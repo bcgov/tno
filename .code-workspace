@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "name": "API",
+      "path": "api/net"
+    },
+    {
+      "name": "Libraries",
+      "path": "libs/net"
+    },
+    {
+      "name": "Services",
+      "path": "services/net"
+    }
+  ]
+}

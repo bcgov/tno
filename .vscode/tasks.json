@@ -72,6 +72,42 @@
         "${workspaceFolder}/services/net/indexing/TNO.Services.Indexing.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-transcription",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/transcription/TNO.Services.Transcription.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-transcription",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/transcription/TNO.Services.Transcription.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-transcription",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/transcription/TNO.Services.Transcription.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }
