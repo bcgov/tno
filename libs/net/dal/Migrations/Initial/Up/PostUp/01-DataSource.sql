@@ -1,5 +1,7 @@
 DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
+DECLARE CBC_CAPTURE_CODE VARCHAR(20) := 'CBCV-CAPTURE';
+DECLARE CBC_CLIP_CODE VARCHAR(20) := 'CBCV';
 BEGIN
 
 INSERT INTO public.data_source (
@@ -2916,7 +2918,7 @@ INSERT INTO public.data_source (
   , ''
 ), (
   'CBCV'
-  , 'CBCV-CAPTURE'
+  , CBC_CAPTURE_CODE
   , ''
   , true -- is_enabled
   , NULL -- content_type_id
@@ -2936,7 +2938,7 @@ INSERT INTO public.data_source (
   , ''
 ), (
   'CBCV-CLIP'
-  , 'CBCV'
+  , CBC_CLIP_CODE
   , ''
   , true -- is_enabled
   , 1 -- content_type_id
@@ -2947,7 +2949,7 @@ INSERT INTO public.data_source (
   , '{"serviceType":"clip",
     "keepChecking":true,
     "timeZone":"Pacific Standard Time"}' -- connection
-  , 182 -- parent_id
+  , NULL -- parent_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -3993,5 +3995,12 @@ INSERT INTO public.data_source (
   , DEFAULT_USER_ID
   , ''
 );
+
+IF EXISTS (SELECT id FROM public.data_source WHERE public.data_source.code = CBC_CAPTURE_CODE) THEN
+UPDATE public.data_source 
+SET parent_id = subquery.id 
+FROM (SELECT id FROM public.data_source WHERE public.data_source.code = CBC_CAPTURE_CODE) AS subquery
+WHERE public.data_source.code = CBC_CLIP_CODE;
+END IF;
 
 END $$;
