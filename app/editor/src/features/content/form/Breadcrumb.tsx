@@ -13,7 +13,7 @@ export interface IBreadcrumbProps {
  *  search params to the current directory
  */
 export const Breadcrumb: React.FC<IBreadcrumbProps> = ({ path, setPath }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
   /** split path into array in order to display breadcrumb as individual items */
   let splitPath = path.split('/').filter((s) => !!s);
   const checkPath = (index: number, item: string) => {
