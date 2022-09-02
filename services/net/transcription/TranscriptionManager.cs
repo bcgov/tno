@@ -86,9 +86,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                         {
                             _consumer = Task.Factory.StartNew(() => ConsumerHandler());
                         }
-
-                        // Successful run clears any errors.
-                        this.State.ResetFailures();
                     }
                     else if (topics.Length == 0)
                     {
@@ -134,6 +131,9 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         this.State.RecordFailure();
         if (e.GetException() is ConsumeException ex)
         {
+            // Need to tell Kafka that this means it can't continue.
+            if (ex.Message == "Broker: Unknown topic or partition")
+                return true;
             return ex.Error.IsFatal;
         }
 
@@ -166,6 +166,9 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             // Identify requests for transcription for content that does not exist.
             this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
         }
+
+        // Successful run clears any errors.
+        this.State.ResetFailures();
     }
 
     /// <summary>

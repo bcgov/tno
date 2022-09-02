@@ -102,9 +102,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             {
                 try
                 {
-                    var topics = _options.GetTopics();
-
                     // Only include topics that exist.
+                    var topics = _options.GetTopics();
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
                     topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
@@ -168,6 +167,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         this.State.RecordFailure();
         if (e.GetException() is ConsumeException ex)
         {
+            // Need to tell Kafka that this means it can't continue.
+            if (ex.Message == "Broker: Unknown topic or partition")
+                return true;
             return ex.Error.IsFatal;
         }
 
