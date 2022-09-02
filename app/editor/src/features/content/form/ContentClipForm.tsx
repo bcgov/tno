@@ -111,7 +111,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
     } else if (parseInt(start) >= parseInt(end)) {
       toast.error('The clip start time must be before the clip end time.');
     } else if (prefix === '') {
-      toast.error('Prefix is a required field.');
+      toast.error('Filename is a required field.');
     } else {
       await storageApi.clip(`${folder.path}/${currFile}`, start, end, prefix).then((item) => {
         setFolder({ ...folder, items: [...folder.items, item] });
@@ -239,7 +239,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
             </Button>
           </Col>
           <Col>
-            <p className="start-end">Prefix:</p>
+            <p className="start-end">Filename:</p>
             <Text
               name="prefix"
               label=""
