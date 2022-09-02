@@ -134,12 +134,30 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
     });
   };
 
+  const getTime = () => {
+    let time = !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
+    if (time) {
+      const currentTime = +time;
+      const hours =
+        currentTime < 3600
+          ? ''
+          : Math.floor(currentTime / 3600).toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+            ':';
+      const minutes = (Math.floor(currentTime / 60) % 60).toLocaleString(undefined, {
+        minimumIntegerDigits: 2,
+      });
+      const seconds = (currentTime % 60).toLocaleString(undefined, { minimumIntegerDigits: 2 });
+      time = `${hours}${minutes}:${seconds}`;
+    }
+    return time;
+  };
+
   const setStartTime = () => {
-    setStart(!!videoRef.current ? videoRef.current?.currentTime.toFixed() : '');
+    setStart(getTime());
   };
 
   const setEndTime = () => {
-    setEnd(!!videoRef.current ? videoRef.current?.currentTime.toFixed() : '');
+    setEnd(getTime());
   };
 
   const navigate = (item?: IItemModel) => {
