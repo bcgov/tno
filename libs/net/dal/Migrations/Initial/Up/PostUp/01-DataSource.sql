@@ -1,5 +1,7 @@
 DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
+DECLARE CBC_CAPTURE_CODE VARCHAR(20) := 'CBCV-CAPTURE';
+DECLARE CBC_CLIP_CODE VARCHAR(20) := 'CBCV';
 BEGIN
 
 INSERT INTO public.data_source (
@@ -2916,15 +2918,37 @@ INSERT INTO public.data_source (
   , ''
 ), (
   'CBCV'
-  , 'CBCV'
+  , CBC_CAPTURE_CODE
+  , ''
+  , true -- is_enabled
+  , NULL -- content_type_id
+  , 3 -- media_type_id
+  , 2 -- data_location_id
+  , 3 -- license_id
+  , ''
+  , '{
+    "serviceType":"stream",
+    "url":"https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master4.m3u8",
+    "timeZone":"Pacific Standard Time"
+  }' -- connection
+  , NULL -- parent_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'CBCV-CLIP'
+  , CBC_CLIP_CODE
   , ''
   , true -- is_enabled
   , 1 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
-  , '{}' -- connection
+  , 'CBCV'
+  , '{"serviceType":"clip",
+    "keepChecking":true,
+    "timeZone":"Pacific Standard Time"}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
   , ''
@@ -3971,5 +3995,12 @@ INSERT INTO public.data_source (
   , DEFAULT_USER_ID
   , ''
 );
+
+IF EXISTS (SELECT id FROM public.data_source WHERE public.data_source.code = CBC_CAPTURE_CODE) THEN
+UPDATE public.data_source 
+SET parent_id = subquery.id 
+FROM (SELECT id FROM public.data_source WHERE public.data_source.code = CBC_CAPTURE_CODE) AS subquery
+WHERE public.data_source.code = CBC_CLIP_CODE;
+END IF;
 
 END $$;
