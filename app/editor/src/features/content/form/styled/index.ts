@@ -1,3 +1,4 @@
+export * from './Breadcrumb';
 export * from './ClipDirectoryTable';
 export * from './ContentClipForm';
 export * from './ContentForm';
