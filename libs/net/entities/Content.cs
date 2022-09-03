@@ -184,6 +184,11 @@ public class Content : AuditColumns
     public virtual List<ContentAction> ActionsManyToMany { get; } = new List<ContentAction>();
 
     /// <summary>
+    /// get - Collection of labels associated with this content.
+    /// </summary>
+    public virtual List<ContentLabel> Labels { get; } = new List<ContentLabel>();
+
+    /// <summary>
     /// get - Collection of tags associated with this content.
     /// </summary>
     public virtual List<Tag> Tags { get; } = new List<Tag>();

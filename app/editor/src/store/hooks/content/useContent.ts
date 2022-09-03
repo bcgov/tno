@@ -16,6 +16,8 @@ interface IContentController {
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
+  transcribe: (content: IContentModel) => Promise<IContentModel>;
+  nlp: (content: IContentModel) => Promise<IContentModel>;
   publishContent: (content: IContentModel) => Promise<IContentModel>;
   unpublishContent: (content: IContentModel) => Promise<IContentModel>;
   upload: (content: IContentModel, file: File) => Promise<IContentModel>;
@@ -32,8 +34,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
 
   const controller = React.useRef({
     getContent: async (id: number) => {
-      const result = await dispatch('get-content', () => api.getContent(id));
-      return result;
+      return await dispatch('get-content', () => api.getContent(id));
     },
     findContent: async (filter: IContentFilter) => {
       const result = await dispatch('find-contents', () => api.findContent(filter));
@@ -41,32 +42,31 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       return result;
     },
     addContent: async (content: IContentModel) => {
-      const result = await dispatch('add-content', () => api.addContent(content));
-      return result;
+      return await dispatch('add-content', () => api.addContent(content));
     },
     updateContent: async (content: IContentModel) => {
-      const result = await dispatch('update-content', () => api.updateContent(content));
-      return result;
+      return await dispatch('update-content', () => api.updateContent(content));
     },
     deleteContent: async (content: IContentModel) => {
-      const result = await dispatch('delete-content', () => api.deleteContent(content));
-      return result;
+      return await dispatch('delete-content', () => api.deleteContent(content));
+    },
+    transcribe: async (content: IContentModel) => {
+      return await dispatch('transcribe-content', () => api.transcribe(content));
+    },
+    nlp: async (content: IContentModel) => {
+      return await dispatch('nlp-content', () => api.nlp(content));
     },
     publishContent: async (content: IContentModel) => {
-      const result = await dispatch('publish-content', () => api.publishContent(content));
-      return result;
+      return await dispatch('publish-content', () => api.publishContent(content));
     },
     unpublishContent: async (content: IContentModel) => {
-      const result = await dispatch('unpublish-content', () => api.unpublishContent(content));
-      return result;
+      return await dispatch('unpublish-content', () => api.unpublishContent(content));
     },
     upload: async (content: IContentModel, file: File) => {
-      const result = await dispatch('upload-content', () => api.upload(content, file));
-      return result;
+      return await dispatch('upload-content', () => api.upload(content, file));
     },
     download: async (id: number, fileName: string) => {
-      const result = await dispatch('download-content', () => api.download(id, fileName));
-      return result;
+      return await dispatch('download-content', () => api.download(id, fileName));
     },
     attach: async (id: number, path: string) => {
       return await dispatch<IContentModel>('attach-content', () => api.attach(id, path));

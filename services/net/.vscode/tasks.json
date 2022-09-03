@@ -288,6 +288,42 @@
         "${workspaceFolder}/indexing/TNO.Services.Indexing.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-nlp",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/nlp/TNO.Services.NLP.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-nlp",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/nlp/TNO.Services.NLP.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-nlp",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/nlp/TNO.Services.NLP.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

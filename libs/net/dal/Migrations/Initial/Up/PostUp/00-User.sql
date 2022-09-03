@@ -17,7 +17,7 @@ INSERT INTO public.user (
 ) VALUES (
   'service-account' -- username
   , '616beebf-ce6c-4b28-bd5f-a32ceded524b' -- key
-  , 'admin@local.com' -- email
+  , 'service-account@local.com' -- email
   , 'Service Account' -- displayName
   , true -- emailVerified
   , true -- isEnabled

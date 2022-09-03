@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TNO.Services.Transcription.Config;
 using TNO.Services.Runners;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 using TNO.Kafka;
 
 namespace TNO.Services.Transcription;

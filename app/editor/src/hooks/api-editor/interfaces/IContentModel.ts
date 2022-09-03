@@ -11,6 +11,7 @@ import {
 import {
   IContentActionModel,
   IContentCategoryModel,
+  IContentLabelModel,
   IContentLinkModel,
   IContentTagModel,
   IContentTonePoolModel,
@@ -47,6 +48,7 @@ export interface IContentModel extends IAuditColumnsModel {
   sourceUrl?: string;
   actions?: IContentActionModel[];
   tags?: IContentTagModel[];
+  labels?: IContentLabelModel[];
   categories?: IContentCategoryModel[];
   tonePools?: IContentTonePoolModel[];
   timeTrackings?: ITimeTrackingModel[];

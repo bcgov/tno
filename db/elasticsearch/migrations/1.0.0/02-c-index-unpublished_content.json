@@ -61,6 +61,13 @@
           "name": { "type": "keyword" },
           "value": { "type": "text" }
         }
+      },
+      "labels": {
+        "type": "nested",
+        "properties": {
+          "key": { "type": "keyword" },
+          "value": { "type": "text" }
+        }
       }
     }
   }

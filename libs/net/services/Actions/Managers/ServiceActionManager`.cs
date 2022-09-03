@@ -13,7 +13,7 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     private readonly IServiceAction<TOptions> _action;
     #endregion
 
-    #region Propeties
+    #region Properties
     /// <summary>
     /// get - Whether the current manager is running.
     /// </summary>

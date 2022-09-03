@@ -34,6 +34,7 @@ public class TNOContext : DbContext
     public DbSet<ContentTypeAction> ContentTypeActions => Set<ContentTypeAction>();
     public DbSet<ContentAction> ContentActions => Set<ContentAction>();
     public DbSet<Entities.Action> Actions => Set<Entities.Action>();
+    public DbSet<ContentLabel> ContentLabels => Set<ContentLabel>();
     public DbSet<ContentTonePool> ContentTonePools => Set<ContentTonePool>();
     public DbSet<TonePool> TonePools => Set<TonePool>();
     public DbSet<ContentCategory> ContentCategories => Set<ContentCategory>();

@@ -8,7 +8,7 @@ using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Models.Extensions;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
 

@@ -3,7 +3,7 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Kafka.Serializers;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 
 namespace TNO.Kafka;
 
@@ -98,6 +98,19 @@ public class KafkaMessenger : IKafkaMessenger
     /// <param name="request"></param>
     /// <returns></returns>
     public async Task<DeliveryResult<string, IndexRequest>?> SendMessageAsync(string topic, IndexRequest request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"{request.ContentId}", request);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, NLPRequest>?> SendMessageAsync(string topic, NLPRequest request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
 

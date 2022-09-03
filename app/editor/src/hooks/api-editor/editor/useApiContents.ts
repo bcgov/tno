@@ -51,6 +51,16 @@ export const useApiContents = (
         { data: content },
       );
     },
+    transcribe: (content: IContentModel) => {
+      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${content.id}/transcribe`,
+      );
+    },
+    nlp: (content: IContentModel) => {
+      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+        `/editor/contents/${content.id}/nlp`,
+      );
+    },
     publishContent: (content: IContentModel) => {
       return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
         `/editor/contents/${content.id}/publish`,

@@ -79,26 +79,9 @@ builder.Services.AddControllers(options =>
       options.JsonSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
   });
 
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-    var section = config.GetSection("Kestrel");
-    options.Limits.MaxRequestBodySize = (long)section.GetValue(typeof(long), "Limits:MaxRequestBodySize");
-});
-
-builder.Services.Configure<FormOptions>(options =>
-{
-    var section = config.GetSection("Form");
-    options.ValueLengthLimit = (int)section.GetValue(typeof(int), "ValueLengthLimit");
-    options.MultipartBodyLengthLimit = (long)section.GetValue(typeof(long), "MultipartBodyLengthLimit");
-    options.MultipartHeadersLengthLimit = (int)section.GetValue(typeof(int), "MultipartHeadersLengthLimit");
-});
-
-builder.Services.Configure<KafkaOptions>(options =>
-{
-    var section = config.GetSection("Kafka");
-    options.IndexingTopic = section.GetValue<string>("IndexingTopic");
-    options.NotificationTopic = section.GetValue<string>("NotificationTopic");
-});
+builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kestrel"));
+builder.Services.AddOptions<FormOptions>().Bind(config.GetSection("Form"));
+builder.Services.AddOptions<KafkaOptions>().Bind(config.GetSection("Kafka"));
 
 IdentityModelEventSource.ShowPII = true;
 builder.Services.AddAuthentication(options =>

@@ -20,4 +20,9 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ML" Version="1.7.1" />
+    <PackageReference Include="OpenNLP.NET" Version="1.9.4.1" />
+  </ItemGroup>
+
 </Project>

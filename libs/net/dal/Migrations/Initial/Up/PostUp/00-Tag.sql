@@ -4,160 +4,160 @@ BEGIN
 
 INSERT INTO public.tag (
   "id"
-  , "is_enabled"
   , "name"
+  , "is_enabled"
   , "created_by_id"
   , "created_by"
   , "updated_by_id"
   , "updated_by"
 ) VALUES (
   'EMBC'
-  , true
   , 'EMBC'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'HLTH'
-  , true
   , 'HLTH'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'JTST'
-  , true
   , 'JTST'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'ZZA'
-  , true
   , 'ZZA'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'MCFD'
-  , true
   , 'MCFD'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'FIN'
-  , true
   , 'FIN'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'ENV'
-  , true
   , 'ENV'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'TNF'
-  , true
   , 'TNF'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'PSSG'
-  , true
   , 'PSSG'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'MAZ'
-  , true
   , 'MAZ'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'ADV'
-  , true
   , 'ADV'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'TACZ'
-  , true
   , 'TACZ'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'MJAG'
-  , true
   , 'MJAG'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'EDU'
-  , true
   , 'EDU'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'ZPZ'
-  , true
   , 'ZPZ'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'EMPR'
-  , true
   , 'EMPR'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'TRAN'
-  , true
   , 'TRAN'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'PJJH'
-  , true
   , 'PJJH'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'MSD'
-  , true
   , 'MSD'
+  , true
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

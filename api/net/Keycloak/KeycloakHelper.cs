@@ -129,7 +129,7 @@ public class KeycloakHelper : IKeycloakHelper
             else if (user != null)
             {
                 // Update the user in the database and reference the keycloak uid.
-                // The user was created in TNO intially, but now the user has logged in and activited their account.
+                // The user was created in TNO initially, but now the user has logged in and activated their account.
                 user.Key = key;
                 user.Username = username;
                 user.Email = email;

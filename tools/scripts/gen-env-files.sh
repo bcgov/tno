@@ -59,14 +59,15 @@ APP_SUBSCRIBER_HTTPS_PORT=$portAppSubscriberHttps
 #############################
 
 SYNDICATION_PORT=$portSyndication
-NLP_PORT=$portNlp
-INDEXING_PORT=$portIndexing
 CAPTURE_PORT=$portCapture
 CLIP_PORT=$portClip
+IMAGE_PORT=$portImage
+FILE_PORT=$portFile
 CONTENT_PORT=$portContent
+INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
-
+NLP_PORT=$portNlp
 
 #############################
 # Kafka Configuration
@@ -535,4 +536,22 @@ Service__ElasticsearchPassword=$password
 
 Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/indexing/.env
     echo "./services/net/indexing/.env created"
+fi
+
+## NLP Service
+if test -f "./services/net/nlp/.env"; then
+    echo "./services/net/nlp/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/nlp/.env
+    echo "./services/net/nlp/.env created"
 fi

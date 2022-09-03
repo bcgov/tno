@@ -79,7 +79,7 @@ build: ## Builds all containers or the one specified (args: n={service name}, p=
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),--profile $(n)) \
+		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
 		build --no-cache --force-rm $(n)
 
 up: ## Starts all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
@@ -90,7 +90,7 @@ up: ## Starts all containers or the one specified (args: n={service name}, p={pr
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),--profile $(n)) \
+		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
 		up -d $(n)
 
 stop: ## Stops all containers or the one specified (args: n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
@@ -100,7 +100,7 @@ stop: ## Stops all containers or the one specified (args: n={service name}, p={p
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),--profile $(n)) \
+		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
 		stop $(n)
 
 down: ## Stops all containers and removes them (p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]})))
@@ -110,7 +110,7 @@ down: ## Stops all containers and removes them (p={profile name, [all,api,editor
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),--profile $(n)) \
+		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
 		down -v
 
 restart: ## Restart all containers or the one specified (n={service name}, p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]}))
