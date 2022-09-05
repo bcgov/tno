@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import * as styled from './styled';
+import * as styled from '../../features/content/form/styled';
 export interface IBreadcrumbProps {
   /** the current path being viewed in the clip explorer */
   path: string;
