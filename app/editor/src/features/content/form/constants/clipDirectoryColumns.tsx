@@ -8,7 +8,7 @@ import {
   FaRegFolder,
   FaTrash,
 } from 'react-icons/fa';
-import { Column } from 'react-table';
+import { Column, UseSortByColumnOptions } from 'react-table';
 import { Col, Row } from 'tno-core';
 
 /** columns located within file for state manipulation */
@@ -18,11 +18,12 @@ export const clipDirectoryColumns = (
   onDownload: Function,
   onAttach: Function,
   values: IItemModel,
-): Column<IItemModel>[] => [
+): Column<IItemModel>[] & UseSortByColumnOptions<IItemModel> => [
   {
     id: 'isDirectory',
     Header: () => <div className="list-icon"></div>,
     accessor: 'isDirectory',
+    disableSortBy: true,
     Cell: ({ row, value }) => (
       <div>
         <div className={row.values.isDirectory ? 'hidden' : 'center'}>
@@ -40,6 +41,7 @@ export const clipDirectoryColumns = (
     Header: () => <div className="center">Filename</div>,
     accessor: 'name',
     Cell: ({ value }) => <div className="ft-row">{value}</div>,
+    width: 125,
   },
   {
     id: 'size',
