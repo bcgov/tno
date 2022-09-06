@@ -31,10 +31,6 @@ export const ContentClipForm = styled.div`
     }
   }
 
-  .video {
-    width: 100%;
-  }
-
   .video-buttons {
     margin-top: 20px;
   }
@@ -77,13 +73,9 @@ export const ContentClipForm = styled.div`
     color: red;
   }
 
-  .video {
-    min-height: max-content;
-  }
-
   video {
-    height: calc(100% - 0.5em);
-    width: auto;
+    height: 270px;
+    width: 480px;
   }
 
   .header {
