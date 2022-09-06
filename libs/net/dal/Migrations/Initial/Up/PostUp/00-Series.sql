@@ -9,6 +9,7 @@ INSERT INTO public.series (
   , "created_by"
   , "updated_by_id"
   , "updated_by"
+  , "created_on"
 ) VALUES (
   'Jeremy Nuttall'
   , true
@@ -16,6 +17,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Bill Tieleman'
   , true
@@ -23,6 +25,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Christy Clark'
   , true
@@ -30,6 +33,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Editorial'
   , true
@@ -37,6 +41,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CJCN Vijay Saini'
   , true
@@ -44,6 +49,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV Morning Live'
   , true
@@ -51,6 +57,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CJCN Vasu Kumar'
   , true
@@ -58,6 +65,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CJVB News Hotline'
   , true
@@ -65,6 +73,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'TVS Straits Today'
   , true
@@ -72,6 +81,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHKG'
   , true
@@ -79,6 +89,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Noon Show'
   , true
@@ -86,6 +97,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'HEU'
   , true
@@ -93,6 +105,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Mornings with Al Ferraby'
   , true
@@ -100,6 +113,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'BCGEU'
   , true
@@ -107,6 +121,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKSP Sameer Kaushal'
   , true
@@ -114,6 +129,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'BC Teachers'' Federation'
   , true
@@ -121,6 +137,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CJVB Online'
   , true
@@ -128,6 +145,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'BC Info Privacy'
   , true
@@ -135,6 +153,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Vaughn Palmer'
   , true
@@ -142,6 +161,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Global BC Noon News'
   , true
@@ -149,6 +169,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKPG at 5:00'
   , true
@@ -156,6 +177,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHEK News at Five'
   , true
@@ -163,6 +185,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Cindy E. Harnett'
   , true
@@ -170,6 +193,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHBC News at 6:30'
   , true
@@ -177,6 +201,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Michael Smyth'
   , true
@@ -184,6 +209,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC BC Today'
   , true
@@ -191,6 +217,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Early Edition'
   , true
@@ -198,6 +225,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'APTN National News'
   , true
@@ -205,6 +233,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW Simi Sara'
   , true
@@ -212,6 +241,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX'
   , true
@@ -219,6 +249,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW'
   , true
@@ -226,6 +257,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC'
   , true
@@ -233,6 +265,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Les Leyne'
   , true
@@ -240,6 +273,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW Weekend Show'
   , true
@@ -247,6 +281,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Online'
   , true
@@ -254,6 +289,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW Mike Smyth'
   , true
@@ -261,6 +297,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Newsworld'
   , true
@@ -268,6 +305,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Radio West'
   , true
@@ -275,6 +313,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC On the Coast'
   , true
@@ -282,6 +321,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHEK Political Capital with Rob Shaw'
   , true
@@ -289,6 +329,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC On the Island'
   , true
@@ -296,6 +337,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKFR'
   , true
@@ -303,6 +345,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Ian Jessop'
   , true
@@ -310,6 +353,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKWX Online'
   , true
@@ -317,6 +361,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC As It Happens'
   , true
@@ -324,6 +369,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC The House'
   , true
@@ -331,6 +377,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW View From Victoria'
   , true
@@ -338,6 +385,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW Online'
   , true
@@ -345,6 +393,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHNL Jeff Andreas'
   , true
@@ -352,6 +401,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Global BC Morning News'
   , true
@@ -359,6 +409,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFJC Evening News'
   , true
@@ -366,6 +417,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC The Current'
   , true
@@ -373,6 +425,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV Canada AM'
   , true
@@ -380,6 +433,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV News Channel'
   , true
@@ -387,6 +441,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKFR Phil Johnson'
   , true
@@ -394,6 +449,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Keith Baldrey'
   , true
@@ -401,6 +457,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHBC News at 5:00'
   , true
@@ -408,6 +465,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Daybreak North'
   , true
@@ -415,6 +473,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV News Live @ 5'
   , true
@@ -422,6 +481,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Daybreak South'
   , true
@@ -429,6 +489,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV News Live @ 6'
   , true
@@ -436,6 +497,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHNL'
   , true
@@ -443,6 +505,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Paul Willcocks'
   , true
@@ -450,6 +513,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Wendy Stueck'
   , true
@@ -457,6 +521,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Stephen Hume'
   , true
@@ -464,6 +529,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Press Theatre'
   , true
@@ -471,6 +537,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV News at Five'
   , true
@@ -478,6 +545,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV News at Six'
   , true
@@ -485,6 +553,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC All Points West'
   , true
@@ -492,6 +561,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Global BC Early News'
   , true
@@ -499,6 +569,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Global BC News Hour'
   , true
@@ -506,6 +577,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CityNews1130'
   , true
@@ -513,6 +585,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBCV'
   , true
@@ -520,6 +593,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBTK'
   , true
@@ -527,6 +601,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBU'
   , true
@@ -534,6 +609,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBYG'
   , true
@@ -541,6 +617,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC News Vancouver'
   , true
@@ -548,6 +625,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Bill Carroll'
   , true
@@ -555,6 +633,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Adam Stirling'
   , true
@@ -562,6 +641,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Ryan Price'
   , true
@@ -569,6 +649,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CBC Daybreak Kamloops'
   , true
@@ -576,6 +657,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHNL Brett Mineer'
   , true
@@ -583,6 +665,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHNL Paul James'
   , true
@@ -590,6 +673,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKYE Harjinder Thind'
   , true
@@ -597,6 +681,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Lindsay Kines'
   , true
@@ -604,6 +689,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Cassidy Olivier'
   , true
@@ -611,6 +697,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Rob Shaw'
   , true
@@ -618,6 +705,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Norm Spector'
   , true
@@ -625,6 +713,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFAX Evan Solomon'
   , true
@@ -632,6 +721,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CUPE BC'
   , true
@@ -639,6 +729,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW Jas Johal'
   , true
@@ -646,6 +737,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFJC Noon News'
   , true
@@ -653,6 +745,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKPG at Noon'
   , true
@@ -660,6 +753,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Global News: BC 1'
   , true
@@ -667,6 +761,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHNM Omni Cantonese'
   , true
@@ -674,6 +769,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CFTV Fairchild Evening News'
   , true
@@ -681,6 +777,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CJVB'
   , true
@@ -688,6 +785,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CHMB'
   , true
@@ -695,6 +793,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Bob Mackin'
   , true
@@ -702,6 +801,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKNW Jill Bennett'
   , true
@@ -709,6 +809,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'The BC Conservative Party'
   , true
@@ -716,6 +817,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CP News'
   , true
@@ -723,6 +825,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Dan Burritt'
   , true
@@ -730,6 +833,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKFU'
   , true
@@ -737,6 +841,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CKYE'
   , true
@@ -744,6 +849,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Peter McKnight'
   , true
@@ -751,6 +857,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Dirk Meissner'
   , true
@@ -758,6 +865,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Don Cayo'
   , true
@@ -765,6 +873,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Frances Bula'
   , true
@@ -772,6 +881,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Gary Mason'
   , true
@@ -779,6 +889,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Ian Austin'
   , true
@@ -786,6 +897,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Gordon McIntyre'
   , true
@@ -793,6 +905,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Andrew MacLeod'
   , true
@@ -800,6 +913,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Jeff Lee'
   , true
@@ -807,6 +921,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Tom Fletcher'
   , true
@@ -814,6 +929,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Ian Mulgrew'
   , true
@@ -821,6 +937,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Ian Bailey'
   , true
@@ -828,6 +945,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Justine Hunter'
   , true
@@ -835,6 +953,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Kim Bolan'
   , true
@@ -842,6 +961,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Richard Zussman'
   , true
@@ -849,6 +969,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Pete McMartin'
   , true
@@ -856,6 +977,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Tracy Sherlock'
   , true
@@ -863,6 +985,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Daphne Bramham'
   , true
@@ -870,6 +993,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'CTV News at Noon'
   , true
@@ -877,6 +1001,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 ), (
   'Castanet'
   , true
@@ -884,6 +1009,7 @@ INSERT INTO public.series (
   , ''
   , DEFAULT_USER_ID
   , ''
+  , CURRENT_TIMESTAMP
 );
 
 END $$;
