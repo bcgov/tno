@@ -1,3 +1,4 @@
+import { Breadcrumb } from 'components/breadcrumb';
 import { Modal } from 'components/modal';
 import { useFormikContext } from 'formik';
 import { IFileReferenceModel, IFolderModel, IItemModel } from 'hooks/api-editor';
@@ -166,18 +167,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
     }
   };
 
-  const navigateUp = () => {
-    var path = folder.path.split('/').filter((v) => !!v);
-    if (path.length <= 1) setPath('/');
-    else setPath(path.slice(0, -1).join('/'));
-  };
-
   return (
     <styled.ContentClipForm>
       <div>
-        <Button className="navigate-up" onClick={() => navigateUp()} name="navigateUp">
-          Directory: {folder.path}
-        </Button>
+        <Breadcrumb path={folder.path} setPath={setPath} />
       </div>
       <Row>
         <Col flex="1 1 100%">
