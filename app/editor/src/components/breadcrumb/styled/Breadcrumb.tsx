@@ -14,4 +14,8 @@ export const Breadcrumb = styled(Row)`
   .current {
     cursor: default;
   }
+
+  svg {
+    margin-top: 1%;
+  }
 `;
