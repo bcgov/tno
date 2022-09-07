@@ -2,7 +2,7 @@ DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 BEGIN
 
-  INSERT INTO public.schedule (
+INSERT INTO public.schedule (
     "name"
     , "description"
     , "is_enabled"
