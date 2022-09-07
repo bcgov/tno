@@ -8,15 +8,15 @@ public enum ScheduleType
     /// <summary>
     /// Continually runs.
     /// </summary>
-    Continuous = 0,
+    Continuous = 1,
 
     /// <summary>
     /// Daily runs a single start and stop event.
     /// </summary>
-    Daily = 1,
+    Daily = 2,
 
     /// <summary>
     /// Runs based on a programmed schedule of multiple start ands top events.
     /// </summary>
-    Advanced = 2,
+    Advanced = 3,
 }
