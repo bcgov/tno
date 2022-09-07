@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.Kafka;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 using TNO.Models.Extensions;
 using TNO.Services.Managers;
 using TNO.Services.Content.Config;
@@ -109,8 +109,6 @@ public class ContentManager : ServiceManager<ContentOptions>
                         if (topics.Length > 0)
                         {
                             if (!this.Consumer.IsReady) this.Consumer.Open();
-
-                            // TODO: Not sure if the consumer should stop before changing its subscription.
                             this.Consumer.Subscribe(topics);
 
                             // Create a new thread if the prior one isn't running anymore.
@@ -167,9 +165,6 @@ public class ContentManager : ServiceManager<ContentOptions>
         this.State.RecordFailure();
         if (e.GetException() is ConsumeException ex)
         {
-            // Need to tell Kafka that this means it can't continue.
-            if (ex.Message == "Broker: Unknown topic or partition")
-                return true;
             return ex.Error.IsFatal;
         }
 

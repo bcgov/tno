@@ -4,7 +4,7 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using TNO.Services.Managers;
 using TNO.Services.Transcription.Config;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 using Confluent.Kafka;
 using System.Text;
 using TNO.Kafka;
@@ -34,18 +34,18 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <summary>
     /// Creates a new instance of a TranscriptionManager object, initializes with specified parameters.
     /// </summary>
-    /// <param name="kafka"></param>
+    /// <param name="consumer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public TranscriptionManager(
-        IKafkaListener<string, TranscriptRequest> kafka,
+        IKafkaListener<string, TranscriptRequest> consumer,
         IApiService api,
         IOptions<TranscriptionOptions> options,
         ILogger<TranscriptionManager> logger)
         : base(api, options, logger)
     {
-        this.Consumer = kafka;
+        this.Consumer = consumer;
         this.Consumer.OnError += ConsumerErrorHandler;
     }
     #endregion
@@ -74,11 +74,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
                     if (topics.Length != 0)
                     {
-                        this.Logger.LogInformation("Consuming topics: {tps}", _options.Topics);
-
                         if (!this.Consumer.IsReady) this.Consumer.Open();
-
-                        // TODO: Not sure if the consumer should stop before changing its subscription.
                         this.Consumer.Subscribe(topics);
 
                         // Create a new thread if the prior one isn't running anymore.
@@ -131,9 +127,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         this.State.RecordFailure();
         if (e.GetException() is ConsumeException ex)
         {
-            // Need to tell Kafka that this means it can't continue.
-            if (ex.Message == "Broker: Unknown topic or partition")
-                return true;
             return ex.Error.IsFatal;
         }
 

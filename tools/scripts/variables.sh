@@ -149,13 +149,14 @@ export portAppSubscriber=40083
 export portAppSubscriberHttps=40445
 
 export portSyndication=40020
-export portNlp=40022
-export portIndexing=40023
-export portCapture=40024
-export portClip=40025
-export portContent=40026
-export portImage=40027
-export portTranscription=40028
+export portCapture=40021
+export portClip=40022
+export portImage=40023
+export portFile=40024
+export portContent=40025
+export portIndexing=40026
+export portTranscription=40027
+export portNlp=40028
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101

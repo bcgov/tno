@@ -17,6 +17,11 @@ public class KafkaOptions
     public string TranscriptionTopic { get; set; } = "";
 
     /// <summary>
+    /// get/set - The Kafka topic name to request NLP.
+    /// </summary>
+    public string NLPTopic { get; set; } = "";
+
+    /// <summary>
     /// get/set - The Kafka topic name to request a notification to be sent.
     /// </summary>
     public string NotificationTopic { get; set; } = "";

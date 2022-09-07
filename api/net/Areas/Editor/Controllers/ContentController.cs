@@ -15,7 +15,7 @@ using TNO.Entities.Models;
 using TNO.Core.Extensions;
 using TNO.Kafka;
 using TNO.API.Config;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 using TNO.Core.Exceptions;
 
 namespace TNO.API.Areas.Editor.Controllers;
@@ -111,8 +111,10 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync(ContentModel model)
     {
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic)) throw new ConfigurationException("Kafka indexing topic not configured.");
+
         var content = _contentService.Add((Content)model);
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, content.Uid, new IndexRequest(content.Id, IndexAction.Index));
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Index));
 
         return CreatedAtAction(nameof(FindById), new { id = content.Id }, new ContentModel(content));
     }
@@ -131,12 +133,14 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> UpdateAsync(ContentModel model)
     {
         var original = _contentService.FindById(model.Id) ?? throw new InvalidOperationException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic)) throw new ConfigurationException("Kafka indexing topic not configured.");
+
         var result = _contentService.Update((Content)model);
 
         if (original.Status == ContentStatus.Published && result.Status != ContentStatus.Published)
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Unpublish));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(result.Id, IndexAction.Unpublish));
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Index));
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(result.Id, IndexAction.Index));
 
         return new JsonResult(new ContentModel(result));
     }
@@ -155,7 +159,9 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> DeleteAsync(ContentModel model)
     {
         _contentService.Delete((Content)model);
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, model.Uid, new IndexRequest(model.Id, IndexAction.Delete));
+
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic)) throw new ConfigurationException("Kafka indexing topic not configured.");
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(model.Id, IndexAction.Delete));
 
         return new JsonResult(model);
     }
@@ -176,8 +182,9 @@ public class ContentController : ControllerBase
         var result = _contentService.Update((Content)model);
         if (result == null) throw new InvalidOperationException("Content does not exist");
         if (!new[] { ContentStatus.Publish, ContentStatus.Published }.Contains(result.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be published.");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic)) throw new ConfigurationException("Kafka indexing topic not configured.");
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Publish));
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(result.Id, IndexAction.Publish));
 
         return new JsonResult(new ContentModel(result));
     }
@@ -198,8 +205,9 @@ public class ContentController : ControllerBase
         var result = _contentService.Update((Content)model);
         if (result == null) throw new InvalidOperationException("Content does not exist");
         if (!new[] { ContentStatus.Published }.Contains(result.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be unpublished.");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic)) throw new ConfigurationException("Kafka indexing topic not configured.");
 
-        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, result.Uid, new IndexRequest(result.Id, IndexAction.Unpublish));
+        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(result.Id, IndexAction.Unpublish));
 
         return new JsonResult(new ContentModel(result));
     }
@@ -218,9 +226,31 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> RequestTranscriptionAsync(long id)
     {
         var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
 
-        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, content.Id.ToString(), new TranscriptRequest(content.Id, this.User.GetUsername() ?? "API"));
+        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TranscriptRequest(content.Id, this.User.GetUsername() ?? "API"));
         if (result == null) throw new BadRequestException("Transcription request failed");
+        return new JsonResult(new ContentModel(content));
+    }
+
+    /// <summary>
+    /// Request a Natural Language Processing for the content for the specified 'id'.
+    /// Publish message to kafka to request a NLP.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/nlp")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> RequestNLPAsync(long id)
+    {
+        var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.NLPTopic)) throw new ConfigurationException("Kafka NLP topic not configured.");
+
+        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new NLPRequest(content.Id));
+        if (result == null) throw new BadRequestException("Natural Language Processing request failed");
         return new JsonResult(new ContentModel(content));
     }
 

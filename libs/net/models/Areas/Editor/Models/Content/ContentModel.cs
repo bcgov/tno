@@ -153,6 +153,11 @@ public class ContentModel : AuditColumnsModel
     public IEnumerable<ContentTagModel> Tags { get; set; } = Array.Empty<ContentTagModel>();
 
     /// <summary>
+    /// get - An array of labels.
+    /// </summary>
+    public IEnumerable<ContentLabelModel> Labels { get; set; } = Array.Empty<ContentLabelModel>();
+
+    /// <summary>
     /// get - An array of tone pools.
     /// </summary>
     public IEnumerable<ContentTonePoolModel> TonePools { get; set; } = Array.Empty<ContentTonePoolModel>();
@@ -212,6 +217,7 @@ public class ContentModel : AuditColumnsModel
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Categories = entity.CategoriesManyToMany.Select(e => new ContentCategoryModel(e));
         this.Tags = entity.TagsManyToMany.Select(e => new ContentTagModel(e));
+        this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
@@ -248,6 +254,7 @@ public class ContentModel : AuditColumnsModel
         entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
         entity.CategoriesManyToMany.AddRange(model.Categories.Select(c => c.ToEntity(entity.Id)));
         entity.TagsManyToMany.AddRange(model.Tags.Select(t => t.ToEntity(entity.Id)));
+        entity.Labels.AddRange(model.Labels.Select(f => f.ToEntity(entity.Id)));
         entity.TonePoolsManyToMany.AddRange(model.TonePools.Select(tp => tp.ToEntity(entity.Id)));
         entity.Links.AddRange(model.Links.Select(l => l.ToEntity(entity.Id)));
         entity.FileReferences.AddRange(model.FileReferences.Select(f => f.ToEntity(entity.Id)));

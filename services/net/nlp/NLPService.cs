@@ -1,4 +1,7 @@
+using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Services.NLP.Config;
 using TNO.Services.Runners;
 
@@ -36,7 +39,9 @@ public class NLPService : KafkaConsumerService
         base.ConfigureServices(services);
         services
             .Configure<NLPOptions>(this.Configuration.GetSection("Service"))
-            .AddTransient<IServiceAction<NLPOptions>, NLPAction>()
+            .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
+            .AddTransient<IKafkaListener<string, NLPRequest>, KafkaListener<string, NLPRequest>>()
+            .AddTransient<IKafkaMessenger, KafkaMessenger>()
             .AddSingleton<IServiceManager, NLPManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

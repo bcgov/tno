@@ -159,11 +159,11 @@ INSERT INTO public.data_source (
   , 2 -- data_location_id
   , 3 -- license_id
   , CASTANET
-  , '{ 
-      "url":"https://www.castanet.net/rss/topheadlines.xml", 
+  , '{
+      "url":"https://www.castanet.net/rss/topheadlines.xml",
       "timeZone": "Pacific Standard Time",
       "import": true
-     }' -- connection  
+     }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
   , ''
@@ -4002,8 +4002,8 @@ INSERT INTO public.data_source (
 );
 
 IF EXISTS (SELECT id FROM public.data_source WHERE public.data_source.code = CBC_CAPTURE_CODE) THEN
-UPDATE public.data_source 
-SET parent_id = subquery.id 
+UPDATE public.data_source
+SET parent_id = subquery.id
 FROM (SELECT id FROM public.data_source WHERE public.data_source.code = CBC_CAPTURE_CODE) AS subquery
 WHERE public.data_source.code = CBC_CLIP_CODE;
 END IF;

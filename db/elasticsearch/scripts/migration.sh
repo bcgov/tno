@@ -18,7 +18,7 @@ if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
 fi
 
 OPTIONS=rin:u:p:h:
-LONGOPTS=rollback,ignore,version:,user:,password:,url:
+LONGOPTS=rollback,ignore,version:,user:,password:,url::
 
 # -regarding ! and PIPESTATUS see above
 # -temporarily store output to be able to check for errors
@@ -108,16 +108,26 @@ echo "version: $version, user: $user, rollback: $rollback, ignore: $ignore"
 auth=$(echo -ne "$user:$password" | base64 --wrap 0)
 
 deleteIndex () {
+  local fileName=$1
   local indexName=$(echo $1 | sed 's/.*-index-\([^ ]*\)\.json/\1/')
-  echo "Deleting index: $indexName" >&2
+  echo "Deleting index: $indexName, File: $fileName" >&2
   local response=$(curl -X DELETE -H "Content-Type: application/json" -H "Authorization: Basic $auth" --write-out '%{http_code}' --silent --output /dev/null $url/$indexName)
   echo $response
 }
 
 addIndex() {
+  local fileName=$1
   local indexName=$(echo $1 | sed 's/.*-index-\([^ ]*\)\.json/\1/')
-  echo "Adding index: $indexName" >&2
-  local response=$(curl -X PUT -H "Content-Type: application/json" -H "Authorization: Basic $auth" -d @$fileName --write-out '%{http_code}' --silent --output /dev/null $url/$indexName)
+  echo "Adding index: $indexName, File: $fileName" >&2
+  local response=$(curl -X PUT -H "Content-Type: application/json" -v -u $user:$password -d @$fileName --write-out '%{http_code}' --silent --output /dev/null $url/$indexName)
+  echo $response
+}
+
+updateIndex() {
+  local fileName=$1
+  local indexName=$(echo $1 | sed 's/.*-index-\([^ ]*\)\.json/\1/')
+  echo "Updating index: $indexName, File: $fileName" >&2
+  local response=$(curl -X PUT -H "Content-Type: application/json" -v -u $user:$password -d @$fileName --write-out '%{http_code}' --silent --output /dev/null $url/$indexName/_mapping)
   echo $response
 }
 
@@ -134,7 +144,7 @@ if [ "$rollback" = true ]; then
           ;;
         u)
           # Reapply this migrations version of the index
-          response=$(addIndex $fileName)
+          response=$(updateIndex $fileName)
           ;;
         d)
           # No need to delete the object again
@@ -163,7 +173,7 @@ else
           response=$(addIndex $fileName)
           ;;
         u)
-          response=$(addIndex $fileName)
+          response=$(updateIndex $fileName)
           ;;
         d)
           response=$(deleteIndex $fileName)
@@ -175,7 +185,7 @@ else
       esac
 
       if [ $response -lt 200 -o $response -gt 201 ]; then
-        echo "Failed to add index: $fileName"
+        echo "Response: $response Failed to add index: $fileName"
         if [ $ignore = false ]; then
           exit 2
         fi

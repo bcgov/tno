@@ -22,6 +22,7 @@ public static class ContentExtensions
         updated.ActionsManyToMany.SetEntityState(context);
         updated.CategoriesManyToMany.SetEntityState(context);
         updated.TagsManyToMany.SetEntityState(context);
+        updated.Labels.SetEntityState(context);
         updated.TonePoolsManyToMany.SetEntityState(context);
         updated.TimeTrackings.SetEntityState(context);
         updated.FileReferences.SetEntityState(context);
@@ -43,6 +44,7 @@ public static class ContentExtensions
         var otimetrackings = context.TimeTrackings.Where(a => a.ContentId == updated.Id).ToArray();
         var ofilereferences = context.FileReferences.Where(a => a.ContentId == updated.Id).ToArray();
         var olinks = context.ContentLinks.Where(a => a.ContentId == updated.Id).ToArray();
+        var olabels = context.ContentLabels.Where(a => a.ContentId == updated.Id).ToArray();
 
         oactions.Except(updated.ActionsManyToMany).ForEach(a =>
         {
@@ -85,6 +87,24 @@ public static class ContentExtensions
             var current = otags.FirstOrDefault(o => o.TagId == a.TagId);
             if (current == null)
                 original.TagsManyToMany.Add(a);
+        });
+
+        olabels.Except(updated.Labels).ForEach(a =>
+        {
+            context.Entry(a).State = EntityState.Deleted;
+        });
+        updated.Labels.ForEach(a =>
+        {
+            var current = a.Id != 0 ? olabels.FirstOrDefault(o => o.Id == a.Id) : null;
+            if (current == null)
+                original.Labels.Add(a);
+            else if (current.Key != a.Key ||
+                current.Value != a.Value)
+            {
+                current.Key = a.Key;
+                current.Value = a.Value;
+                current.Version = a.Version;
+            }
         });
 
         otonepools.Except(updated.TonePoolsManyToMany).ForEach(a =>

@@ -1,5 +1,5 @@
 using Confluent.Kafka;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 
 namespace TNO.Kafka;
 
@@ -42,4 +42,12 @@ public interface IKafkaMessenger
     /// <param name="request"></param>
     /// <returns></returns>
     public Task<DeliveryResult<string, IndexRequest>?> SendMessageAsync(string topic, IndexRequest request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, NLPRequest>?> SendMessageAsync(string topic, NLPRequest request);
 }

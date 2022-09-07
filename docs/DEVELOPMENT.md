@@ -160,12 +160,12 @@ Below is a list of all the additional services and utilities.
 | Container     |  Port | Description                                                    |
 | ------------- | ----: | -------------------------------------------------------------- |
 | syndication   | 40020 | Kafka Producer to ingest syndication feeds                     |
-| capture       | 40024 | Listens to audio/video streams and captures a file             |
-| clip          | 40025 | Creates clips from capture files based on schedule             |
-| content       | 40026 | Kafka Consumer to create content for Editors                   |
-| nlp           | 40022 | Kafka Consumer/Producer to perform Natural Language Processing |
 | command       |       | Runs command line utilities                                    |
-| indexing      | 40023 | Kafka Consumer to index content for search                     |
-| transcription |       | Kafka Consumer/Producer to transcribe audio/video content      |
-| image         |       | Image ingestion service                                        |
-| file          |       | File ingestion service                                         |
+| capture       | 40021 | Listens to audio/video streams and captures a file             |
+| clip          | 40022 | Creates clips from capture files based on schedule             |
+| image         | 40023 | Image ingestion service                                        |
+| file          | 40024 | File ingestion service                                         |
+| content       | 40025 | Kafka Consumer to create content for Editors                   |
+| indexing      | 40026 | Kafka Consumer to index content for search                     |
+| transcription | 40027 | Kafka Consumer/Producer to transcribe audio/video content      |
+| nlp           | 40028 | Kafka Consumer/Producer to perform Natural Language Processing |

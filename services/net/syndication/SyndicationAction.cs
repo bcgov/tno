@@ -13,7 +13,7 @@ using TNO.Core.Http;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka;
-using TNO.Models.Kafka;
+using TNO.Kafka.Models;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
@@ -230,7 +230,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Language = "", // TODO: Need to extract this from the data source, or determine it after transcription.
             Authors = item.Authors.Select(a => new Author(a.Name, a.Email, a.Uri)),
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
-            Tags = item.Categories.Select(c => new TNO.Models.Kafka.Tag(c.Name, c.Label))
+            Tags = item.Categories.Select(c => new TNO.Kafka.Models.Tag(c.Name, c.Label))
         };
     }
 

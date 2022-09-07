@@ -50,7 +50,17 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const [{ dataSources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
+    {
+      getContent,
+      addContent,
+      updateContent,
+      deleteContent,
+      upload,
+      publishContent,
+      attach,
+      transcribe,
+      nlp,
+    },
   ] = useContent();
   const { isShowing, toggle } = useModal();
   const { userId } = useUserLookups();
@@ -128,6 +138,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
         if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
       }
     }
+  };
+
+  const handleTranscribe = async (values: IContentForm) => {
+    await transcribe(toModel(values));
+  };
+
+  const handleNLP = async (values: IContentForm) => {
+    await nlp(toModel(values));
   };
 
   const handlePublish = async (values: IContentForm) => {
@@ -402,8 +420,22 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                   </Button>
                   <Show visible={!!props.values.id}>
                     <Button
+                      onClick={() => handleTranscribe(props.values)}
+                      variant={ButtonVariant.action}
+                      disabled={props.isSubmitting || !props.values.transcription.length}
+                    >
+                      Transcribe
+                    </Button>
+                    <Button
+                      onClick={() => handleNLP(props.values)}
+                      variant={ButtonVariant.action}
+                      disabled={props.isSubmitting}
+                    >
+                      NLP
+                    </Button>
+                    <Button
                       onClick={() => handlePublish(props.values)}
-                      variant={ButtonVariant.secondary}
+                      variant={ButtonVariant.success}
                       disabled={
                         props.isSubmitting ||
                         (props.values.status !== ContentStatusName.Publish &&
@@ -412,9 +444,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                     >
                       Publish
                     </Button>
-                  </Show>
-                  <Show visible={!!props.values.id}>
-                    <Button onClick={toggle} variant={ButtonVariant.danger}>
+                    <Button
+                      onClick={toggle}
+                      variant={ButtonVariant.danger}
+                      disabled={props.isSubmitting}
+                    >
                       Delete
                     </Button>
                   </Show>
