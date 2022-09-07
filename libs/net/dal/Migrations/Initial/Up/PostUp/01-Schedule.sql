@@ -82,6 +82,26 @@ INSERT INTO public.schedule (
   , '' -- updated_on
   , CURRENT_TIMESTAMP -- version
   , '0'
+), (
+      'default' --name
+  , ''
+  , true -- is_enabled          
+  , 1 -- schedule_type
+  , 60000 -- delay_ms
+  , NULL -- run_on
+  , '00:00:00' -- start_at
+  , '23:59:59' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
 );
 
 END $$;

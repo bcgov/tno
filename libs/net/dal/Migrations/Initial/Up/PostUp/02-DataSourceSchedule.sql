@@ -91,7 +91,7 @@ IF (CPNEWS_ID IS NOT NULL) THEN
     , "version"
   ) VALUES (
     CPNEWS_ID  -- data_source_id
-    , 3  -- schedule_id
+    , 4  -- schedule_id
     , DEFAULT_USER_ID
     , ''
     , CURRENT_TIMESTAMP
