@@ -215,7 +215,7 @@ services:
     networks:
       - tno
     volumes:
-      - tno-av-data:/data
+      - tno-api-data:/data
     healthcheck:
       test: curl -s -f http://localhost:8081/health || exit 1
       interval: 1m

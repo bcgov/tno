@@ -130,6 +130,7 @@ public class ContentFileReference : IReadonlyFileReference
         var ext = System.IO.Path.GetExtension(file.FileName).Replace(".", "");
         this.File = file ?? throw new ArgumentNullException(nameof(file));
         this.Path = GenerateFilePath(content, file);
+        this.IsUploaded = true;
         this.FileName = file.FileName;
         this.ContentType = !String.IsNullOrWhiteSpace(file.ContentType) ? file.ContentType : MimeTypeMap.GetMimeType(ext);
         this.Size = file.Length;
@@ -168,6 +169,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.Id = fileReference.Id;
         this.FileName = file.FileName;
         this.Path = GenerateFilePath(this.Content, file);
+        this.IsUploaded = true;
         this.ContentType = file.ContentType;
         this.Size = file.Length;
         this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
@@ -184,6 +186,7 @@ public class ContentFileReference : IReadonlyFileReference
         fileReference.Path = this.Path;
         fileReference.Size = this.Size;
         fileReference.ContentType = this.ContentType;
+        fileReference.IsUploaded = this.IsUploaded;
         this.FileReference = fileReference;
     }
 
@@ -203,6 +206,7 @@ public class ContentFileReference : IReadonlyFileReference
 
         this.Path = GenerateFilePath(content, file.FullName);
         this.SourceFile = file.FullName;
+        this.IsUploaded = true;
         this.ContentType = MimeTypeMap.GetMimeType(file.Extension);
         this.FileName = file.Name;
         this.Size = file.Length;
@@ -240,6 +244,7 @@ public class ContentFileReference : IReadonlyFileReference
         this.FileName = file.Name;
         this.Path = this.Path = GenerateFilePath(this.Content, file.FullName);
         this.SourceFile = file.FullName;
+        this.IsUploaded = true;
         this.ContentType = MimeTypeMap.GetMimeType(file.Extension);
         this.Size = file.Length;
         this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
@@ -255,6 +260,7 @@ public class ContentFileReference : IReadonlyFileReference
         fileReference.Path = this.Path;
         fileReference.Size = this.Size;
         fileReference.ContentType = this.ContentType;
+        fileReference.IsUploaded = this.IsUploaded;
         this.FileReference = fileReference;
     }
 
