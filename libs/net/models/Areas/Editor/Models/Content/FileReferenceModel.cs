@@ -68,6 +68,7 @@ public class FileReferenceModel : AuditColumnsModel
         this.Path = entity.Path;
         this.Size = entity.Size;
         this.RunningTime = entity.RunningTime;
+        this.IsUploaded = entity.IsUploaded;
     }
     #endregion
 

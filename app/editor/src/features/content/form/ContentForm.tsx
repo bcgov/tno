@@ -56,17 +56,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const [{ dataSources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
-    {
-      getContent,
-      addContent,
-      updateContent,
-      deleteContent,
-      upload,
-      publishContent,
-      attach,
-      transcribe,
-      nlp,
-    },
+    { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
   ] = useContent();
   const { isShowing, toggle } = useModal();
   const { userId } = useUserLookups();
@@ -151,14 +141,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
         if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
       }
     }
-  };
-
-  const handleTranscribe = async (values: IContentForm) => {
-    await transcribe(toModel(values));
-  };
-
-  const handleNLP = async (values: IContentForm) => {
-    await nlp(toModel(values));
   };
 
   const handlePublish = async (values: IContentForm) => {
@@ -449,24 +431,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                     Save
                   </Button>
                   <Show visible={!!props.values.id}>
-                    <Button
-                      onClick={() => handleTranscribe(props.values)}
-                      variant={ButtonVariant.action}
-                      disabled={
-                        props.isSubmitting ||
-                        !props.values.fileReferences.length ||
-                        !props.values.fileReferences[0].isUploaded
-                      }
-                    >
-                      Transcribe
-                    </Button>
-                    <Button
-                      onClick={() => handleNLP(props.values)}
-                      variant={ButtonVariant.action}
-                      disabled={props.isSubmitting}
-                    >
-                      NLP
-                    </Button>
                     <Button
                       onClick={() => handlePublish(props.values)}
                       variant={ButtonVariant.success}

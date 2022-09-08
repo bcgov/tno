@@ -23,7 +23,7 @@ export const ContentLabelsForm: React.FC = () => {
 
   const labels = values.labels.map((l, i) => {
     return (
-      <Row>
+      <Row key={`${i}-${l.id}`}>
         <Col flex="0.5 0.5 0">
           <FormikSelect
             name={`labels.${1}.key`}
