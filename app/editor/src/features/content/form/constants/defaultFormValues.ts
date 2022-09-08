@@ -25,6 +25,7 @@ export const defaultFormValues: IContentForm = {
   actions: [],
   categories: [],
   tags: [],
+  labels: [],
   tone: '',
   tonePools: [],
   timeTrackings: [],

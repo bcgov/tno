@@ -119,7 +119,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: capture-service
-                  key: KAKFA_CLIENT_ID
+                  key: KAFKA_CLIENT_ID
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:

@@ -40,12 +40,12 @@ spec:
     git:
       uri: https://github.com/bcgov/tno.git
       ref: dev
-    contextDir: ./services/java/nlp
+    contextDir: ./
   strategy:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: Dockerfile
+      dockerfilePath: services/net/nlp/Dockerfile
   output:
     to:
       kind: ImageStreamTag

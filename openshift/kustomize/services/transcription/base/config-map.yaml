@@ -16,7 +16,7 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAKFA_CLIENT_ID: Transcription
+  KAFKA_CLIENT_ID: Transcription
   MAX_FAIL_LIMIT: "5"
   TOPICS: transcribe
   FILE_PATH: /data/clip

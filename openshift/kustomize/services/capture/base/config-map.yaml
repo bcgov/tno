@@ -16,6 +16,6 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAKFA_CLIENT_ID: Capture
+  KAFKA_CLIENT_ID: Capture
   MAX_FAIL_LIMIT: "5"
   OUTPUT_PATH: /data/capture

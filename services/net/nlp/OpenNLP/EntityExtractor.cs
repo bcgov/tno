@@ -60,7 +60,7 @@ public class EntityExtractor
             results.AddRange(opennlp.tools.util.Span.spansToStrings(foundNames, tokens).AsEnumerable().Select(v => CleanText(v)));
         }
 
-        return results.ToArray();
+        return results.Distinct(StringComparer.CurrentCultureIgnoreCase).ToArray();
     }
     #endregion
 

@@ -84,10 +84,11 @@ public class ContentLabel : AuditColumns, IEquatable<ContentLabel>
     public bool Equals(ContentLabel? other)
     {
         if (other == null) return false;
-        return this.ContentId == other.ContentId && this.Key == other.Key && this.Value == other.Value;
+        if (this.Id == 0 && other.Id == 0) return this.Key == other.Key && this.Value == other.Value;
+        return this.Id == other.Id;
     }
 
     public override bool Equals(object? obj) => Equals(obj as ContentLabel);
-    public override int GetHashCode() => (this.ContentId, this.Key, this.Value).GetHashCode();
+    public override int GetHashCode() => (this.Id, this.ContentId, this.Key, this.Value).GetHashCode();
     #endregion
 }

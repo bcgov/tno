@@ -16,6 +16,7 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: nlp
-  KAFKA_LOGS_TOPIC: logs-nlp
-  MAX_FAILED_ATTEMPTS: "5"
+  KAFKA_CLIENT_ID: NLP
+  MAX_FAIL_LIMIT: "5"
+  TOPICS: nlp
+  INDEXING_TOPIC: index

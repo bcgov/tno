@@ -3,6 +3,7 @@ import {
   ContentStatusName,
   IContentActionModel,
   IContentCategoryModel,
+  IContentLabelModel,
   IContentLinkModel,
   IContentTagModel,
   IContentTonePoolModel,
@@ -33,6 +34,7 @@ export interface IContentForm {
   actions: IContentActionModel[];
   categories: IContentCategoryModel[];
   tags: IContentTagModel[];
+  labels: IContentLabelModel[];
   tone: number | '';
   tonePool?: IOptionItem;
   tonePools: IContentTonePoolModel[];

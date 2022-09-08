@@ -16,7 +16,7 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAKFA_CLIENT_ID: Indexing
+  KAFKA_CLIENT_ID: Indexing
   MAX_FAIL_LIMIT: "5"
   TOPICS: index
   ELASTICSEARCH_URI: http://elastic:9200

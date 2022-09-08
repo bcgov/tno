@@ -35,6 +35,7 @@ export function toForm(model: IContentModel): IContentForm {
     actions: model.actions ?? [],
     categories: model.categories ?? [],
     tags: model.tags ?? [],
+    labels: model.labels ?? [],
     tone: defaultTonePool?.value ?? '',
     tonePool: defaultTonePool
       ? new OptionItem(`${defaultTonePool.value}`, defaultTonePool.value)

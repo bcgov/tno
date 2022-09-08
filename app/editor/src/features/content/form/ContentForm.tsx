@@ -22,14 +22,20 @@ import {
 import { ContentStatusName, ContentType, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
-import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines } from 'react-icons/fa';
+import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines, FaSpinner } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
 
 import { ContentFormSchema } from '../validation';
-import { ContentActions, ContentClipForm, ContentSummaryForm, ContentTranscriptForm } from '.';
+import {
+  ContentActions,
+  ContentClipForm,
+  ContentLabelsForm,
+  ContentSummaryForm,
+  ContentTranscriptForm,
+} from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -80,13 +86,20 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
-  React.useEffect(() => {
-    if (!!id && +id > 0) {
-      getContent(+id).then((data) => {
+  const fetchContent = React.useCallback(
+    (id: number) => {
+      getContent(id).then((data) => {
         setContent(toForm(data));
       });
+    },
+    [getContent],
+  );
+
+  React.useEffect(() => {
+    if (!!id && +id > 0) {
+      fetchContent(+id);
     }
-  }, [id, getContent]);
+  }, [id, fetchContent]);
 
   const handleSubmit = async (values: IContentForm) => {
     let contentResult: IContentModel | null = null;
@@ -207,6 +220,15 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                 disabled={!enableNext}
               >
                 <FaChevronRight />
+              </Button>
+              <Button
+                variant={ButtonVariant.secondary}
+                tooltip="Reload"
+                onClick={() => {
+                  fetchContent(content.id);
+                }}
+              >
+                <FaSpinner />
               </Button>
             </Show>
           </Row>
@@ -388,6 +410,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             onClick={() => setActive('clips')}
                             active={active === 'clips'}
                           />
+                          <Tab
+                            label="Labels"
+                            onClick={() => setActive('labels')}
+                            active={active === 'labels'}
+                          />
                         </>
                       }
                     >
@@ -403,6 +430,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                       </Show>
                       <Show visible={active === 'clips'}>
                         <ContentClipForm content={content} setContent={setContent} />
+                      </Show>
+                      <Show visible={active === 'labels'}>
+                        <ContentLabelsForm />
                       </Show>
                     </Tabs>
                   </Show>
@@ -422,7 +452,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                     <Button
                       onClick={() => handleTranscribe(props.values)}
                       variant={ButtonVariant.action}
-                      disabled={props.isSubmitting || !props.values.transcription.length}
+                      disabled={
+                        props.isSubmitting ||
+                        !props.values.fileReferences.length ||
+                        !props.values.fileReferences[0].isUploaded
+                      }
                     >
                       Transcribe
                     </Button>

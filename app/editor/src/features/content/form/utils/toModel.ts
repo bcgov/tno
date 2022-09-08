@@ -32,6 +32,7 @@ export function toModel(values: IContentForm): IContentModel {
     actions: values.actions,
     categories: values.categories,
     tags: values.tags,
+    labels: values.labels,
     timeTrackings: values.timeTrackings.map((x) => {
       const container = {} as ITimeTrackingModel;
       container.userId = x.userId;

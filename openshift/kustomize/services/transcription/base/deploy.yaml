@@ -91,7 +91,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: transcription-service
-                  key: KAKFA_CLIENT_ID
+                  key: KAFKA_CLIENT_ID
             - name: Kafka__Admin__BootstrapServers
               valueFrom:
                 configMapKeyRef:
@@ -102,7 +102,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: transcription-service
-                  key: KAKFA_CLIENT_ID
+                  key: KAFKA_CLIENT_ID
             - name: Kafka__Consumer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
@@ -113,7 +113,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: transcription-service
-                  key: KAKFA_CLIENT_ID
+                  key: KAFKA_CLIENT_ID
             - name: Kafka__Producer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
