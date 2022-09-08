@@ -27,7 +27,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 COPY --from=build /build .
-RUN mkdir ../services/net/image/keys
 COPY ../services/net/image/keys/ id_rsa* keys/
 RUN chmod 0777 keys
 RUN chmod -R 0777 /app/keys/

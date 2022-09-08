@@ -15,6 +15,6 @@ auth/keycloak/config/*.log
 /clips
 ~
 *.class
-/services/net/image/keys
+/services/net/image/keys/id_rsa
 /services/net/image/data
 
