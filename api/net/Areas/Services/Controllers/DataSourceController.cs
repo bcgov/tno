@@ -76,6 +76,7 @@ public class DataSourceController : ControllerBase
         var result = _serviceDataSource.FindByMediaType(mediaTypeName);
         return new JsonResult(result.Select(ds => new DataSourceModel(ds, _serializerOptions)));
     }
+
     /// <summary>
     /// Get an array of data sources.
     /// </summary>
@@ -86,7 +87,7 @@ public class DataSourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "DataSource" })]
     public IActionResult GetDataSources()
     {
-        var result = _serviceDataSource.FindAll();
+        var result = _serviceDataSource.FindAll(true);
         return new JsonResult(result.Select(ds => new DataSourceModel(ds, _serializerOptions)));
     }
 

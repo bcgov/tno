@@ -16,7 +16,7 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KAKFA_GROUP_ID: Content
+  KAFKA_CLIENT_ID: Content
   MAX_FAIL_LIMIT: "5"
   UNPUBLISHED_INDEX: unpublished_content
   PUBLISHED_INDEX: content

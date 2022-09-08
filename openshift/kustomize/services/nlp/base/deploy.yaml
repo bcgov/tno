@@ -51,7 +51,14 @@ spec:
               cpu: 100m
               memory: 500Mi
           env:
-            - name: API_HOST_URL
+            # .NET Configuration
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+
+            # Common Service Configuration
+            - name: Service__ApiUrl
               valueFrom:
                 configMapKeyRef:
                   name: services
@@ -62,11 +69,6 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: KEYCLOAK_AUTHORITY
-            - name: Auth__Keycloak__Realm
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_REALM
             - name: Auth__Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
@@ -78,52 +80,64 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Consumer__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: nlp-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Consumer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            - name: KAFKA_CLIENT_ID
+            - name: Kafka__Producer__ClientId
               valueFrom:
                 configMapKeyRef:
                   name: nlp-service
                   key: KAFKA_CLIENT_ID
-            - name: KAFKA_LOGS_TOPIC
+            - name: Kafka__Producer__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
+            # Indexing Service Configuration
+            - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
                   name: nlp-service
-                  key: KAFKA_LOGS_TOPIC
-            - name: MAX_FAILED_ATTEMPTS
+                  key: MAX_FAIL_LIMIT
+            - name: Service__Topics
               valueFrom:
                 configMapKeyRef:
                   name: nlp-service
-                  key: MAX_FAILED_ATTEMPTS
-            - name: DATA_SOURCE_MEDIA_TYPE
+                  key: TOPICS
+            - name: Service__IndexingTopic
               valueFrom:
                 configMapKeyRef:
                   name: nlp-service
-                  key: DATA_SOURCE_MEDIA_TYPE
-          # livenessProbe:
-          #   httpGet:
-          #     path: '/health'
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 60
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   failureThreshold: 3
-          # readinessProbe:
-          #   httpGet:
-          #     path: '/health'
-          #     port: 8080
-          #     scheme: HTTP
-          #   initialDelaySeconds: 120
-          #   timeoutSeconds: 60
-          #   periodSeconds: 30
-          #   successThreshold: 1
-          #   failureThreshold: 3
+                  key: INDEXING_TOPIC
+          livenessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: "/health"
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            failureThreshold: 3
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext: {}
