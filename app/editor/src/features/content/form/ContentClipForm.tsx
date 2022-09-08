@@ -48,6 +48,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const [item, setItem] = React.useState<IItemModel>();
   const [start, setStart] = React.useState<string>('');
   const [end, setEnd] = React.useState<string>('');
+  const [startPoint, setStartPoint] = React.useState<string>('');
+  const [endPoint, setEndPoint] = React.useState<string>('');
   const [currFile, setCurrFile] = React.useState<string>('');
   const [prefix, setPrefix] = React.useState<string>('');
 
@@ -136,7 +138,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   };
 
   const getTime = () => {
-    let time = !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
+    return !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
+  };
+
+  const getTimePoint = (time: string) => {
     if (time) {
       const currentTime = +time;
       const hours =
@@ -148,17 +153,21 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         minimumIntegerDigits: 2,
       });
       const seconds = (currentTime % 60).toLocaleString(undefined, { minimumIntegerDigits: 2 });
-      time = `${hours}${minutes}:${seconds}`;
+      return `${hours}${minutes}:${seconds}`;
     }
     return time;
   };
 
   const setStartTime = () => {
-    setStart(getTime());
+    const time = getTime();
+    setStartPoint(getTimePoint(time));
+    setStart(time);
   };
 
   const setEndTime = () => {
-    setEnd(getTime());
+    const time = getTime();
+    setEndPoint(getTimePoint(time));
+    setEnd(time);
   };
 
   const navigate = (item?: IItemModel) => {
@@ -208,7 +217,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         </Row>
         <Row className="video-buttons" justifyContent="center">
           <Col>
-            <p className="start-end">Start: {start}</p>
+            <p className="start-end">Start: {startPoint}</p>
             <Button
               onClick={() => {
                 setStartTime();
@@ -219,7 +228,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
             </Button>
           </Col>
           <Col>
-            <p className="start-end">End: {end}</p>
+            <p className="start-end">End: {endPoint}</p>
             <Button
               onClick={() => {
                 setEndTime();
