@@ -34,10 +34,11 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
     /// Find and return all the data sources.
     /// Removes connection information with possible secrets.
     /// </summary>
+    /// <param name="includeConnection">Whether or not to include connection information</param>
     /// <returns></returns>
-    public IEnumerable<DataSource> FindAll()
+    public IEnumerable<DataSource> FindAll(bool includeConnection = false)
     {
-        return this.Context.DataSources
+        var result = this.Context.DataSources
             .AsNoTracking()
             .Include(ds => ds.ContentType)
             .Include(ds => ds.DataLocation)
@@ -46,7 +47,9 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Where(ds => ds.ContentTypeId != 0)
             .OrderBy(ds => ds.Code)
             .ThenBy(ds => ds.Name)
-            .ToArray()
+            .ToArray();
+
+        return includeConnection ? result : result
             .Select(ds =>
             {
                 ds.Connection = "{}";
