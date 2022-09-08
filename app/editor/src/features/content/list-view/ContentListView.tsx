@@ -1,5 +1,5 @@
 import { FormPage } from 'components/form/formpage';
-import { useCombinedView, useTooltips } from 'hooks';
+import { ContentType, useCombinedView, useTooltips } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -18,6 +18,7 @@ export const ContentListView: React.FC = () => {
   const [{ userInfo }, { isUserReady }] = useApp();
   const { id } = useParams();
   const [{ filter, filterAdvanced, content }, { findContent, storeFilter }] = useContent();
+  const [contentType, setContentType] = React.useState<ContentType>();
   const navigate = useNavigate();
   const combined = useCombinedView();
   useTooltips();
@@ -98,6 +99,7 @@ export const ContentListView: React.FC = () => {
 
   const handleRowClick = (content: IContentModel) => {
     setActiveId(content.id);
+    setContentType(content.contentTypeId);
     navigate(`/contents/combined/${content.id}`);
   };
 
@@ -163,7 +165,7 @@ export const ContentListView: React.FC = () => {
           </Col>
           <Show visible={combined}>
             <Col className="right-pane">
-              <FormPicker />
+              <FormPicker contentType={contentType!} />
             </Col>
           </Show>
         </Row>

@@ -20,6 +20,7 @@ export function toModel(values: IContentForm): IContentModel {
     contentTypeId: values.contentTypeId,
     mediaTypeId: values.mediaTypeId,
     licenseId: values.licenseId,
+    // licenseId: values.contentTypeId === ContentType.Snippet ? values.licenseId : undefined,
     ownerId: !!values.ownerId ? values.ownerId : undefined,
     seriesId: values.seriesId,
     otherSeries: values.otherSeries,

@@ -13,6 +13,8 @@ import {
 } from 'components/formik';
 import { Modal } from 'components/modal';
 import {
+  ActionName,
+  IActionModel,
   useCombinedView,
   useDataSourceOptions,
   useMediaTypeOptions,
@@ -43,14 +45,14 @@ import { switchStatus, toForm, toModel } from './utils';
 
 export interface IContentFormProps {
   /** The content type this form will create */
-  contentType?: ContentType;
+  contentType: ContentType;
 }
 
 /**
  * Snippet Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC<IContentFormProps> = ({ contentType = ContentType.Snippet }) => {
+export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [{ dataSources, tonePools, series }, { getSeries }] = useLookup();
@@ -68,13 +70,21 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
   const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('properties');
   const [content, setContent] = React.useState<IContentForm>({
-    ...defaultFormValues,
+    ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
   });
 
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
+
+  const determineActions = () => {
+    if (contentType === ContentType.Snippet)
+      return (a: IActionModel) => a.valueType === ValueType.Boolean;
+    if (contentType === ContentType.Print)
+      return (a: IActionModel) =>
+        a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
+  };
 
   const fetchContent = React.useCallback(
     (id: number) => {
@@ -128,7 +138,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
 
       toast.success(`${contentResult.headline} has successfully been saved.`);
 
-      if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
+      if (!originalId)
+        navigate(
+          `${contentResult.contentTypeId === ContentType.Snippet ? '/snippets/' : '/papers/'}${
+            combined ? '/contents/combined/' : ''
+          }${contentResult.id}`,
+        );
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
         const newSeries = series.find((s) => s.id === contentResult?.seriesId);
@@ -174,7 +189,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                 variant={ButtonVariant.secondary}
                 tooltip="Full Page View"
                 onClick={() => {
-                  navigate(`/snippets/${id}`);
+                  if (contentType === ContentType.Snippet) navigate(`/snippets/${id}`);
+                  if (contentType === ContentType.Print) navigate(`/papers/${id}`);
                 }}
               >
                 <FontAwesomeIcon icon={faUpRightFromSquare} />
@@ -363,7 +379,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType = Content
                             );
                           }}
                         />
-                        <ContentActions init filter={(a) => a.valueType === ValueType.Boolean} />
+                        <ContentActions
+                          init
+                          contentType={contentType}
+                          filter={determineActions()}
+                        />
                       </Col>
                       <Row className="commentary">
                         <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />

@@ -5,14 +5,14 @@ import { ContentForm } from './ContentForm';
 
 export interface IFormPickerProps {
   /** The content type this form will create */
-  contentType?: ContentType;
+  contentType: ContentType;
 }
 
 /**
  * Based on the specified 'contentType' it will load the appropriate form component.
  * @returns Component to view/edit content.
  */
-export const FormPicker: React.FC<IFormPickerProps> = ({ contentType = ContentType.Snippet }) => {
+export const FormPicker: React.FC<IFormPickerProps> = ({ contentType }) => {
   switch (contentType) {
     case ContentType.Print:
     case ContentType.Radio:

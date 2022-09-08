@@ -22,7 +22,7 @@ export interface IContentForm {
   ownerId: number | '';
   contentTypeId: number;
   mediaTypeId: number;
-  licenseId: number;
+  licenseId?: number;
   dataSourceId?: number;
   source: string;
   otherSource: string;
