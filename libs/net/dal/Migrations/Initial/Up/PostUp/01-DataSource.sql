@@ -2932,7 +2932,7 @@ INSERT INTO public.data_source (
   , CBC_CAPTURE_CODE
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 0 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
