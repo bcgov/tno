@@ -32,7 +32,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
     #region Methods
     /// <summary>
     /// Find and return all the data sources.
-    /// Removes connection information with possible secrets.
+    /// Removes connection information with possible secrets by default.
     /// </summary>
     /// <param name="includeConnection">Whether or not to include connection information</param>
     /// <returns></returns>
@@ -49,6 +49,7 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .ThenBy(ds => ds.Name)
             .ToArray();
 
+        /// TODO: Only allow admin to include connection information.
         return includeConnection ? result : result
             .Select(ds =>
             {
@@ -112,13 +113,14 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
 
     /// <summary>
     /// Find and return all data sources that match the specified 'mediaTypeName'.
-    /// Removes connection information with possible secrets.
+    /// Removes connection information with possible secrets by default.
     /// </summary>
-    /// <param name="mediaTypeName"></param>
+    /// <param name="mediaTypeName">Name of media type</param>
+    /// <param name="includeConnection">Whether or not to include connection information</param>
     /// <returns></returns>
-    public IEnumerable<DataSource> FindByMediaType(string mediaTypeName)
+    public IEnumerable<DataSource> FindByMediaType(string mediaTypeName, bool includeConnection)
     {
-        return this.Context.DataSources
+        var result = this.Context.DataSources
             .AsNoTracking()
             .Include(ds => ds.ContentType)
             .Include(ds => ds.DataLocation)
@@ -129,7 +131,11 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
             .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
             .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
             .Where(ds => ds.MediaType!.Name.ToLower() == mediaTypeName.ToLower())
-            .ToArray().Select(ds =>
+            .ToArray();
+
+        /// TODO: Only allow admin to include connection information.
+        return includeConnection ? result : result
+            .Select(ds =>
             {
                 ds.Connection = "{}";
                 return ds;
