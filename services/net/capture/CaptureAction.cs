@@ -45,7 +45,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     #region Methods
     /// <summary>
     /// Perform the ingestion service action.
-    ///
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>

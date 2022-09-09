@@ -73,7 +73,7 @@ public class DataSourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "DataSource" })]
     public IActionResult FindByMediaType(string mediaTypeName)
     {
-        var result = _serviceDataSource.FindByMediaType(mediaTypeName);
+        var result = _serviceDataSource.FindByMediaType(mediaTypeName, true);
         return new JsonResult(result.Select(ds => new DataSourceModel(ds, _serializerOptions)));
     }
 

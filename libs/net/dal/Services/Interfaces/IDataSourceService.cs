@@ -10,6 +10,6 @@ public interface IDataSourceService : IBaseService<DataSource, int>
     IEnumerable<DataSource> FindAll(bool includeConnection = false);
     IPaged<DataSource> Find(DataSourceFilter filter);
     DataSource? FindByCode(string code);
-    IEnumerable<DataSource> FindByMediaType(string mediaTypeName);
+    IEnumerable<DataSource> FindByMediaType(string mediaTypeName, bool includeConnection = false);
     DataSource Update(DataSource entity, bool updateChildren = false);
 }

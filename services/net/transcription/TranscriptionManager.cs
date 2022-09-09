@@ -152,6 +152,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
         if (content != null)
         {
+            // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
             await UpdateTranscriptionAsync(content);
         }
         else
@@ -181,6 +182,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
             var original = content.Transcription;
             var fileBytes = File.ReadAllBytes(safePath);
+
             var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
 
             // Fetch content again because it may have been updated by an external source.
@@ -239,11 +241,19 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (result.Reason == ResultReason.RecognizedSpeech)
             {
                 sb.Append(result.Text);
+                this.Logger.LogDebug("Speech transcription process \"{text}...\"", result.Text?[0..Math.Min(result.Text.Length, 25)]);
             }
+            // TODO: Handle other reasons.
         };
 
         recognizer.Canceled += (s, e) =>
         {
+            if (e.Reason == CancellationReason.Error)
+            {
+                sb.AppendLine("*** SPEECH TRANSCRIPTION ERROR ***");
+                this.Logger.LogError("Speech transcription failed", e.ErrorDetails);
+                this.State.RecordFailure();
+            }
             sem.Release();
         };
 
