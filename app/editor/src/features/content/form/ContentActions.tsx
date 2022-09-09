@@ -1,7 +1,7 @@
 import { Checkbox } from 'components/form';
 import { FormikCheckbox, FormikText, FormikTextArea } from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
-import { useNamespace } from 'hooks';
+import { ActionName, ContentType, useNamespace } from 'hooks';
 import { IActionModel, IContentActionModel, ValueType } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -20,6 +20,8 @@ export interface IContentActionsProps {
    * Filter which actions you want included.
    */
   filter?: (action: IActionModel) => boolean;
+  /** The type of content that is being displayed within the Content Form */
+  contentType?: ContentType;
 }
 
 export interface IContentActionCheckbox {
@@ -31,6 +33,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   name = 'actions',
   init,
   filter = () => true,
+  contentType,
 }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ actions }] = useLookup();
@@ -59,6 +62,10 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 
   const options = actions.filter(filter).map((a) => {
     const index = formActions.findIndex((ca) => ca.id === a.id);
+    if (contentType === ContentType.Print) {
+      const alertIndex = formActions.findIndex((a) => a.name === ActionName.Alert);
+      if (alertIndex !== -1) formActions[alertIndex].value = 'false';
+    }
     const found = formActions[index];
     return (
       <React.Fragment key={a.id}>

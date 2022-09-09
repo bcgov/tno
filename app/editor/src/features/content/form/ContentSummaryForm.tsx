@@ -201,21 +201,23 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               </Show>
             </Row>
           </Col>
-          <Col className="licenses">
-            <RadioGroup
-              label="License"
-              spaceUnderRadio
-              name="expireOptions"
-              options={licenseOptions}
-              value={licenseOptions.find((e) => e.value === values?.licenseId)}
-              onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
-            />
-          </Col>
+          <Show visible={contentType !== ContentType.Print}>
+            <Col className="licenses">
+              <RadioGroup
+                label="License"
+                spaceUnderRadio
+                name="expireOptions"
+                options={licenseOptions}
+                value={licenseOptions.find((e) => e.value === values?.licenseId)}
+                onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
+              />
+            </Col>
+          </Show>
         </Row>
         <Row>
           <FormikTextArea
             name="summary"
-            label="Summary"
+            label={contentType === ContentType.Print ? 'Content' : 'Summary'}
             width={FieldSize.Stretch}
             required
             value={values.summary}
