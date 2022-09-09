@@ -2884,11 +2884,11 @@ INSERT INTO public.data_source (
   , 2 -- data_location_id
   , 3 -- license_id
   , CPNEWS
-  , '{ 
+  , '{
     "url":"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr",
     "timeZone": "Pacific Standard Time",
     "fetchContent": true,
-    "import": true     
+    "import": true
     }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2932,7 +2932,7 @@ INSERT INTO public.data_source (
   , CBC_CAPTURE_CODE
   , ''
   , true -- is_enabled
-  , NULL -- content_type_id
+  , 3 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
