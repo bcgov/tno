@@ -141,6 +141,8 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             if (!this.IsReady) throw new InvalidOperationException("Consumer is not ready for consuming, it must be opened first.");
 
             this.IsConsuming = true;
+            _logger.LogDebug("Waiting to receive message from Kafka topics:'{topic}'", String.Join(", ", this.Consumer.Subscription));
+
             // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
             result = this.Consumer.Consume(cancellationToken);
 
