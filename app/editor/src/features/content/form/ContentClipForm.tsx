@@ -136,7 +136,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   };
 
   const getTime = () => {
-    let time = !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
+    return !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
+  };
+
+  const getTimePoint = (time: string) => {
     if (time) {
       const currentTime = +time;
       const hours =
@@ -148,7 +151,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         minimumIntegerDigits: 2,
       });
       const seconds = (currentTime % 60).toLocaleString(undefined, { minimumIntegerDigits: 2 });
-      time = `${hours}${minutes}:${seconds}`;
+      return `${hours}${minutes}:${seconds}`;
     }
     return time;
   };
@@ -208,7 +211,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         </Row>
         <Row className="video-buttons" justifyContent="center">
           <Col>
-            <p className="start-end">Start: {start}</p>
+            <p className="start-end">Start: {getTimePoint(start)}</p>
             <Button
               onClick={() => {
                 setStartTime();
@@ -219,7 +222,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
             </Button>
           </Col>
           <Col>
-            <p className="start-end">End: {end}</p>
+            <p className="start-end">End: {getTimePoint(end)}</p>
             <Button
               onClick={() => {
                 setEndTime();
