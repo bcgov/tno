@@ -29,7 +29,7 @@ export interface IContentModel extends IAuditColumnsModel {
   contentType?: IContentTypeModel;
   mediaTypeId: number;
   mediaType?: IMediaTypeModel;
-  licenseId?: number;
+  licenseId: number;
   license?: ILicenseModel;
   dataSourceId?: number;
   dataSource?: ISeriesModel;
