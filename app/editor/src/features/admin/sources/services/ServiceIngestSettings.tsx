@@ -93,7 +93,7 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
               onChange={handleContentTypeChange}
               required={values.connection.serviceType === 'clip'}
             />
-            <Show visible={values.contentTypeId !== 0}>
+            <Show visible={!!values.contentTypeId}>
               <FormikSelect
                 label="Owner"
                 name="ownerId"
@@ -101,8 +101,6 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
                 options={users}
                 onChange={handleOwnerChange}
               />
-            </Show>
-            <Show visible={values.contentTypeId !== 0}>
               <FormikText label="Kafka Topic" name="topic" required={!!values.contentTypeId} />
               <div>
                 <p>
