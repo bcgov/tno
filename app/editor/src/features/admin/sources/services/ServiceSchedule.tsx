@@ -1,8 +1,8 @@
 import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
+import { useTooltips } from 'hooks';
 import { DataSourceScheduleTypeName, IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
-import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
 import { Col, FieldSize, Row } from 'tno-core';
 
@@ -15,6 +15,11 @@ interface IServiceScheduleProps {}
 export const ServiceSchedule: React.FC<IServiceScheduleProps> = () => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
+  useTooltips();
+
+  const scheduleType = values.schedules[0]
+    ? values.schedules[0].scheduleType
+    : DataSourceScheduleTypeName.None;
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
@@ -23,8 +28,10 @@ export const ServiceSchedule: React.FC<IServiceScheduleProps> = () => {
   }, [lookups.users, setFieldValue, values.ownerId, values.owner]);
 
   React.useEffect(() => {
-    ReactTooltip.rebuild();
-  });
+    // Ensures the schedules can display the correct form on initial load.
+    if (scheduleType !== DataSourceScheduleTypeName.None)
+      setFieldValue('scheduleType', scheduleType);
+  }, [scheduleType, setFieldValue]);
 
   const form = (scheduleType: DataSourceScheduleTypeName) => {
     switch (scheduleType) {

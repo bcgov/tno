@@ -19,6 +19,7 @@ namespace TNO.Services.Transcription;
 public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 {
     #region Variables
+    private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     #endregion
@@ -47,6 +48,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     {
         this.Consumer = consumer;
         this.Consumer.OnError += ConsumerErrorHandler;
+        this.Consumer.OnStop += ConsumerStopHandler;
     }
     #endregion
 
@@ -80,7 +82,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                         // Create a new thread if the prior one isn't running anymore.
                         if (_consumer == null || _notRunning.Contains(_consumer.Status))
                         {
-                            _consumer = Task.Factory.StartNew(() => ConsumerHandler());
+                            _cancelToken = new CancellationTokenSource();
+                            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
                         }
                     }
                     else if (topics.Length == 0)
@@ -135,6 +138,21 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     }
 
     /// <summary>
+    /// The Kafka consumer has stopped which means we need to also cancel the background task associated with it.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ConsumerStopHandler(object sender, EventArgs e)
+    {
+        if (_consumer != null &&
+            !_notRunning.Contains(_consumer.Status) &&
+            _cancelToken != null && !_cancelToken.IsCancellationRequested)
+        {
+            _cancelToken.Cancel();
+        }
+    }
+
+    /// <summary>
     /// Retrieve a file from storage and send to Microsoft Cognitive Services. Obtain
     /// the transcription and update the content record accordingly.
     /// </summary>
@@ -180,7 +198,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         {
             this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
 
-            var original = content.Transcription;
+            var original = content.Body;
             var fileBytes = File.ReadAllBytes(safePath);
 
             var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
@@ -191,9 +209,9 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (result != null && !String.IsNullOrWhiteSpace(transcript))
             {
                 // The transcription may have been edited during this process and now those changes will be lost.
-                if (original != result.Transcription) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
+                if (original != result.Body) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
 
-                result.Transcription = transcript;
+                result.Body = transcript;
                 await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
                 this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", content.Id);
             }

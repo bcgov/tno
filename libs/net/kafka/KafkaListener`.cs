@@ -47,6 +47,11 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// Error event will fire when an error occurs.
     /// </summary>
     public event OnConsumerErrorEventHandler? OnError;
+
+    /// <summary>
+    /// Error event will fire when an stop occurs.
+    /// </summary>
+    public event OnConsumerStopEventHandler? OnStop;
     #endregion
 
     #region Constructors
@@ -200,6 +205,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             this.IsConsuming = false;
             this.IsReady = false;
             this.Consumer.Close();
+            OnStop?.Invoke(this, new EventArgs());
         }
     }
 

@@ -46,7 +46,7 @@ public class DataSourceModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? ContentTypeId { get; set; }
+    public int ContentTypeId { get; set; }
 
     /// <summary>
     /// get/set -

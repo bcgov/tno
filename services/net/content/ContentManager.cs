@@ -17,11 +17,17 @@ namespace TNO.Services.Content;
 public class ContentManager : ServiceManager<ContentOptions>
 {
     #region Variables
+    private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     #endregion
 
     #region Properties
+    /// <summary>
+    /// get - Kafka admin client.
+    /// </summary>
+    protected IKafkaAdmin KafkaAdmin { get; private set; }
+
     /// <summary>
     /// get - Kafka message consumer.
     /// </summary>
@@ -42,12 +48,14 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <summary>
     /// Creates a new instance of a ContentManager object, initializes with specified parameters.
     /// </summary>
+    /// <param name="kafkaAdmin"></param>
     /// <param name="kafkaListener"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ContentManager(
+        IKafkaAdmin kafkaAdmin,
         IKafkaListener<string, SourceContent> kafkaListener,
         IKafkaMessenger kafkaMessenger,
         IApiService api,
@@ -55,9 +63,11 @@ public class ContentManager : ServiceManager<ContentOptions>
         ILogger<ContentManager> logger)
         : base(api, options, logger)
     {
-        this.Consumer = kafkaListener;
+        this.KafkaAdmin = kafkaAdmin;
         this.Producer = kafkaMessenger;
+        this.Consumer = kafkaListener;
         this.Consumer.OnError += ConsumerErrorHandler;
+        this.Consumer.OnStop += ConsumerStopHandler;
     }
     #endregion
 
@@ -97,10 +107,12 @@ public class ContentManager : ServiceManager<ContentOptions>
                     var topics = _options.GetContentTopics(dataSources
                         .Where(ds => ds.IsEnabled &&
                             ds.ContentTypeId > 0 &&
-                            !String.IsNullOrWhiteSpace(ds.Topic) &&
-                            ds.Connection.ContainsKey("import") &&
-                            ((JsonElement)ds.Connection["import"]).GetBoolean())
+                            !String.IsNullOrWhiteSpace(ds.Topic))
                         .Select(ds => ds.Topic).ToArray());
+
+                    // Only include topics that exist.
+                    var kafkaTopics = this.KafkaAdmin.ListTopics();
+                    topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
                     // If the topics change we need to subscribe to the new topics.
                     if (!ContainsAll(this.Topics, topics))
@@ -114,7 +126,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                             // Create a new thread if the prior one isn't running anymore.
                             if (_consumer == null || _notRunning.Contains(_consumer.Status))
                             {
-                                _consumer = Task.Factory.StartNew(() => ConsumerHandler());
+                                _cancelToken = new CancellationTokenSource();
+                                _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
                             }
                         }
                         else if (topics.Length == 0)
@@ -173,6 +186,21 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
 
     /// <summary>
+    /// The Kafka consumer has stopped which means we need to also cancel the background task associated with it.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ConsumerStopHandler(object sender, EventArgs e)
+    {
+        if (_consumer != null &&
+            !_notRunning.Contains(_consumer.Status) &&
+            _cancelToken != null && !_cancelToken.IsCancellationRequested)
+        {
+            _cancelToken.Cancel();
+        }
+    }
+
+    /// <summary>
     /// Determine if the two arrays have the same values in them.
     /// Order does not matter.
     /// This is not performant for large arrays.
@@ -200,7 +228,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         // TODO: Handle e-tag.
         if (String.IsNullOrWhiteSpace(result.Message.Value.Source)) throw new InvalidOperationException($"Message does not contain a source");
         var source = await _api.GetDataSourceAsync(result.Message.Value.Source) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Message.Value.Source}'");
-        if (source.ContentTypeId == null) throw new InvalidOperationException($"Data source not configured to import content correctly");
+        if (source.ContentTypeId == 0) throw new InvalidOperationException($"Data source not configured to import content correctly");
 
         // Only add if doesn't already exist.
         var exists = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
@@ -210,7 +238,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             {
                 Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
                 WorkflowStatus = Entities.WorkflowStatus.Received, // TODO: Automatically extract based on lifecycle of content reference.
-                ContentTypeId = source.ContentTypeId.Value,
+                ContentTypeId = source.ContentTypeId,
                 MediaTypeId = source.MediaTypeId,
                 LicenseId = source.LicenseId,
                 SeriesId = null, // TODO: Provide default series from Data Source config settings.
@@ -222,7 +250,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 Uid = result.Message.Value.Uid,
                 Page = "", // TODO: Provide default page from Data Source config settings.
                 Summary = result.Message.Value.Summary,
-                Transcription = "",
+                Body = "",
                 SourceUrl = result.Message.Value.Link,
                 PublishedOn = result.Message.Value.PublishedOn,
             };

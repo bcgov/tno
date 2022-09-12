@@ -359,6 +359,11 @@ namespace TNO.DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
                     b.Property<int>("ContentTypeId")
                         .HasColumnType("integer")
                         .HasColumnName("content_type_id");
@@ -435,11 +440,6 @@ namespace TNO.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("summary");
-
-                    b.Property<string>("Transcription")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("transcription");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -1366,7 +1366,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("json")
                         .HasColumnName("connection");
 
-                    b.Property<int?>("ContentTypeId")
+                    b.Property<int>("ContentTypeId")
                         .HasColumnType("integer")
                         .HasColumnName("content_type_id");
 
@@ -3150,7 +3150,8 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.ContentType", "ContentType")
                         .WithMany("DataSources")
                         .HasForeignKey("ContentTypeId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("TNO.Entities.DataLocation", "DataLocation")
                         .WithMany("DataSources")

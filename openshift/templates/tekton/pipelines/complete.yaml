@@ -118,18 +118,6 @@ objects:
             mounts /zap/wrk to store generated configs and results.
 
       tasks:
-        - name: maintenance-on
-          taskRef:
-            name: oc-update-route
-            kind: Task
-          params:
-            - name: PROJECT_NAMESPACE
-              value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
-            - name: ROUTE
-              value: ${APP_NAME}
-            - name: SERVICE
-              value: ${NGINX_NAME}
-
         # - name: database-backup
         #   taskRef:
         #     name: oc-backup
@@ -151,26 +139,6 @@ objects:
               value: $(params.GIT_SOURCE)
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
-
-        - name: run-db-migration
-          runAfter:
-            - maintenance-on
-            # - database-backup
-            - build-db-migration
-          taskRef:
-            name: db-migration
-            kind: Task
-          params:
-            - name: MIGRATION_IMAGE
-              value: ${MIGRATION_NAME}
-            - name: DB_SECRET_NAME
-              value: crunchy-pguser-admin
-            - name: API_NAME
-              value: ${API_NAME}
-            - name: IMAGE_TAG
-              value: $(params.IMAGE_TAG)
-            - name: DEPLOY_TO
-              value: $(params.DEPLOY_TO)
 
         - name: build-api
           taskRef:
@@ -196,6 +164,42 @@ objects:
             - name: IMAGE_TAG
               value: $(params.IMAGE_TAG)
 
+        - name: maintenance-on
+          runAfter:
+            - build-db-migration
+            - build-api
+            - build-app
+          taskRef:
+            name: oc-update-route
+            kind: Task
+          params:
+            - name: PROJECT_NAMESPACE
+              value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+            - name: ROUTE
+              value: ${APP_NAME}
+            - name: SERVICE
+              value: ${NGINX_NAME}
+
+        - name: run-db-migration
+          runAfter:
+            - maintenance-on
+            # - database-backup
+            - build-db-migration
+          taskRef:
+            name: db-migration
+            kind: Task
+          params:
+            - name: MIGRATION_IMAGE
+              value: ${MIGRATION_NAME}
+            - name: DB_SECRET_NAME
+              value: crunchy-pguser-admin
+            - name: API_NAME
+              value: ${API_NAME}
+            - name: IMAGE_TAG
+              value: $(params.IMAGE_TAG)
+            - name: DEPLOY_TO
+              value: $(params.DEPLOY_TO)
+
         - name: deploy-api
           runAfter:
             - maintenance-on
@@ -215,7 +219,7 @@ objects:
         - name: deploy-app
           runAfter:
             - maintenance-on
-            - deploy-api
+            - run-db-migration
             - build-app
           taskRef:
             name: oc-deploy-with-tag
@@ -230,6 +234,8 @@ objects:
 
         - name: maintenance-off
           runAfter:
+            - run-db-migration
+            - deploy-api
             - deploy-app
           taskRef:
             name: oc-update-route
@@ -243,11 +249,11 @@ objects:
               value: ${APP_NAME}
 
         - name: owasp-scanner
-          conditions:
-            - conditionRef: param-has-value
-              params:
-                - name: VALUE
-                  value: $(params.WEB_APP_URL)
+          # conditions:
+          #   - conditionRef: param-has-value
+          #     params:
+          #       - name: VALUE
+          #         value: $(params.WEB_APP_URL)
           runAfter:
             - maintenance-off
           taskRef:

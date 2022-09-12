@@ -1,4 +1,4 @@
-import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
+import { FormikSelect, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
@@ -8,7 +8,7 @@ import { Languages, TimeZones } from './constants';
 import * as styled from './styled';
 
 export const AudioStream: React.FC = (props) => {
-  const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
+  const { values } = useFormikContext<IDataSourceModel>();
 
   React.useEffect(() => {
     ReactTooltip.rebuild();
@@ -61,22 +61,6 @@ export const AudioStream: React.FC = (props) => {
         options={Languages}
         defaultValue={language}
       />
-      {!!values.contentTypeId && (
-        <>
-          <p>
-            Only import content if you have already successfully ingested content for the configured
-            Kafka Topic.
-          </p>
-          <FormikCheckbox
-            label="Import Content"
-            name="connection.import"
-            tooltip="Whether ingested content should be imported"
-            onChange={(e) => {
-              setFieldValue('connection.import', e.currentTarget.checked);
-            }}
-          />
-        </>
-      )}
     </styled.MediaType>
   );
 };

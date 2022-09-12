@@ -20,7 +20,7 @@ export interface IDataSourceModel extends IAuditColumnsModel {
   isEnabled: boolean;
   dataLocationId: number;
   dataLocation?: IDataLocationModel;
-  contentTypeId?: number;
+  contentTypeId: number;
   contentType?: IContentTypeModel;
   mediaTypeId: number;
   mediaType?: IMediaTypeModel;

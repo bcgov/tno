@@ -11,6 +11,14 @@ namespace TNO.Kafka;
 public delegate bool OnConsumerErrorEventHandler(object sender, ErrorEventArgs e);
 
 /// <summary>
+/// When a consumer stop occurs this event will fire.
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>Whether the error should stop the consumer.</returns>
+public delegate void OnConsumerStopEventHandler(object sender, EventArgs e);
+
+/// <summary>
 /// IKafkaListener interface, provides a way to consume messages to Kafka.
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
@@ -26,6 +34,11 @@ public interface IKafkaListener<TKey, TValue>
     /// Error event will fire when an error occurs.
     /// </summary>
     event OnConsumerErrorEventHandler? OnError;
+
+    /// <summary>
+    /// Error event will fire when an stop occurs.
+    /// </summary>
+    event OnConsumerStopEventHandler? OnStop;
 
     /// <summary>
     /// Open a connection to Kafka before subscribing to topics.

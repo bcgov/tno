@@ -40,6 +40,8 @@ public class ContentService : KafkaConsumerService
         services
             .Configure<ContentOptions>(this.Configuration.GetSection("Service"))
             .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
+            .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
+            .AddTransient<IKafkaAdmin, KafkaAdmin>()
             .AddTransient<IKafkaMessenger, KafkaMessenger>()
             .AddSingleton<IServiceManager, ContentManager>();
 

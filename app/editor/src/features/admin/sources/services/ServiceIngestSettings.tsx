@@ -1,5 +1,5 @@
 import { IOptionItem, OptionItem } from 'components/form';
-import { FormikSelect, FormikText } from 'components/formik';
+import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IDataSourceModel } from 'hooks/api-editor';
 import React from 'react';
@@ -14,6 +14,10 @@ import * as styled from './styled';
 
 interface IServiceIngestSettingsProps {}
 
+/**
+ * A UI component form to manage data source ingest settings.
+ * @returns Component.
+ */
 export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IDataSourceModel>();
   const [lookups] = useLookup();
@@ -22,7 +26,7 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
     new OptionItem('None', 0),
     ...lookups.users.map((u) => new OptionItem(u.username, u.id)),
   ];
-  const contentTypes = getSortableOptions(lookups.contentTypes, [new OptionItem('None', 0)]);
+  const contentTypes = getSortableOptions(lookups.contentTypes);
   const dataLocations = getSortableOptions(lookups.dataLocations);
   const dataSources = getDataSourceOptions(
     lookups.dataSources.filter((ds) => ds.parentId === undefined),
@@ -91,9 +95,9 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
               tooltip="The type of content that is created when imported"
               options={contentTypes}
               onChange={handleContentTypeChange}
-              required={values.connection.serviceType === 'clip'}
+              required
             />
-            <Show visible={!!values.contentTypeId}>
+            <Show visible={values.contentTypeId > 1}>
               <FormikSelect
                 label="Owner"
                 name="ownerId"
@@ -101,18 +105,6 @@ export const ServiceIngestSettings: React.FC<IServiceIngestSettingsProps> = () =
                 options={users}
                 onChange={handleOwnerChange}
               />
-              <FormikText label="Kafka Topic" name="topic" required={!!values.contentTypeId} />
-              <div>
-                <p>
-                  A Kafka Topic is a category/feed name to which records are stored and published.
-                  If this data-source has a running service, the content will be ingested and placed
-                  in the Kafka Event Streaming data storage location.
-                </p>
-                <p>
-                  The topic should be unique, and all content stored within it should be the same
-                  format.
-                </p>
-              </div>
             </Show>
           </Section>
         </Col>

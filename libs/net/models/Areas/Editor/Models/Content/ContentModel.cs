@@ -112,14 +112,14 @@ public class ContentModel : AuditColumnsModel
     public string Page { get; set; } = "";
 
     /// <summary>
-    /// get/set - Summary or body of content.
+    /// get/set - The story summary or abstract.
     /// </summary>
     public string Summary { get; set; } = "";
 
     /// <summary>
-    /// get/set - The transcription.
+    /// get/set - The story body.
     /// </summary>
-    public string Transcription { get; set; } = "";
+    public string Body { get; set; } = "";
 
     /// <summary>
     /// get/set - The source URL.
@@ -210,7 +210,7 @@ public class ContentModel : AuditColumnsModel
         this.Uid = entity.Uid;
         this.Page = entity.Page;
         this.Summary = entity.Summary;
-        this.Transcription = entity.Transcription;
+        this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
         this.PublishedOn = entity.PublishedOn;
 
@@ -241,7 +241,7 @@ public class ContentModel : AuditColumnsModel
             Page = model.Page,
             PublishedOn = model.PublishedOn,
             Summary = model.Summary,
-            Transcription = model.Transcription,
+            Body = model.Body,
             SourceUrl = model.SourceUrl,
             Version = model.Version ?? 0,
         };

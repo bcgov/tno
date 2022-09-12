@@ -27,11 +27,11 @@ INSERT INTO public.data_source (
   , 'DAILYHIVE'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"http://dailyhive.com/feed/vancouver" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -43,11 +43,11 @@ INSERT INTO public.data_source (
   , 'CJCN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -59,11 +59,11 @@ INSERT INTO public.data_source (
   , 'GEORGIA STRAIGHT'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"http://www.straight.com/xml/feeds/bcg/news" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -75,11 +75,11 @@ INSERT INTO public.data_source (
   , 'BNOW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -91,11 +91,11 @@ INSERT INTO public.data_source (
   , 'CTIMES'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -107,11 +107,11 @@ INSERT INTO public.data_source (
   , 'TCNOW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -123,11 +123,11 @@ INSERT INTO public.data_source (
   , 'NWR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -139,11 +139,11 @@ INSERT INTO public.data_source (
   , 'RNEWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -155,15 +155,14 @@ INSERT INTO public.data_source (
   , CASTANET
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , CASTANET
+  , CASTANET -- topic
   , '{
       "url":"https://www.castanet.net/rss/topheadlines.xml",
-      "timeZone": "Pacific Standard Time",
-      "import": true
+      "timeZone": "Pacific Standard Time"
      }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -175,11 +174,11 @@ INSERT INTO public.data_source (
   , 'CMN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -191,11 +190,11 @@ INSERT INTO public.data_source (
   , 'SALN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -207,11 +206,11 @@ INSERT INTO public.data_source (
   , 'ICV'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -223,11 +222,11 @@ INSERT INTO public.data_source (
   , 'MACL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -239,11 +238,11 @@ INSERT INTO public.data_source (
   , 'IPOLY'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"http://www.ipolitics.ca/custom-feeds/bc-gov-feed.php" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -255,11 +254,11 @@ INSERT INTO public.data_source (
   , 'CDT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -271,11 +270,11 @@ INSERT INTO public.data_source (
   , 'DO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -287,11 +286,11 @@ INSERT INTO public.data_source (
   , 'LA'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -303,11 +302,11 @@ INSERT INTO public.data_source (
   , 'NS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -319,11 +318,11 @@ INSERT INTO public.data_source (
   , 'NSN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -335,11 +334,11 @@ INSERT INTO public.data_source (
   , 'RN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -351,11 +350,11 @@ INSERT INTO public.data_source (
   , 'SURN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -367,11 +366,11 @@ INSERT INTO public.data_source (
   , 'RCR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -383,11 +382,11 @@ INSERT INTO public.data_source (
   , 'ANNOUNCE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 13 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -399,11 +398,11 @@ INSERT INTO public.data_source (
   , 'MEDAV'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 13 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -415,11 +414,11 @@ INSERT INTO public.data_source (
   , 'SCRUM'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 13 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -431,11 +430,11 @@ INSERT INTO public.data_source (
   , 'SPEECH'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 13 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -447,11 +446,11 @@ INSERT INTO public.data_source (
   , 'CRR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -463,11 +462,11 @@ INSERT INTO public.data_source (
   , 'PROVINCE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -479,11 +478,11 @@ INSERT INTO public.data_source (
   , 'CVA'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -495,11 +494,11 @@ INSERT INTO public.data_source (
   , 'HOOK'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -511,11 +510,11 @@ INSERT INTO public.data_source (
   , 'CHKG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -527,11 +526,11 @@ INSERT INTO public.data_source (
   , 'CTV ONLINE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -543,11 +542,11 @@ INSERT INTO public.data_source (
   , 'CCPA'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -559,11 +558,11 @@ INSERT INTO public.data_source (
   , 'CVC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -575,11 +574,11 @@ INSERT INTO public.data_source (
   , 'HGO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -591,11 +590,11 @@ INSERT INTO public.data_source (
   , 'NDR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -607,11 +606,11 @@ INSERT INTO public.data_source (
   , 'TUWN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -623,11 +622,11 @@ INSERT INTO public.data_source (
   , 'BNN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -639,11 +638,11 @@ INSERT INTO public.data_source (
   , 'TDT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -655,11 +654,11 @@ INSERT INTO public.data_source (
   , 'CVE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -671,11 +670,11 @@ INSERT INTO public.data_source (
   , 'AT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -687,11 +686,11 @@ INSERT INTO public.data_source (
   , 'EJ'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -703,11 +702,11 @@ INSERT INTO public.data_source (
   , 'CH'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -719,11 +718,11 @@ INSERT INTO public.data_source (
   , 'APOC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -735,11 +734,11 @@ INSERT INTO public.data_source (
   , 'TTC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -751,11 +750,11 @@ INSERT INTO public.data_source (
   , 'CORE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -767,11 +766,11 @@ INSERT INTO public.data_source (
   , 'DCMR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -783,11 +782,11 @@ INSERT INTO public.data_source (
   , 'CVP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -799,11 +798,11 @@ INSERT INTO public.data_source (
   , 'CHVC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -815,11 +814,11 @@ INSERT INTO public.data_source (
   , 'O250'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -831,11 +830,11 @@ INSERT INTO public.data_source (
   , 'TFP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -847,11 +846,11 @@ INSERT INTO public.data_source (
   , 'KR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -863,11 +862,11 @@ INSERT INTO public.data_source (
   , 'CFTV'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -879,11 +878,11 @@ INSERT INTO public.data_source (
   , 'CJVB'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -895,11 +894,11 @@ INSERT INTO public.data_source (
   , 'MING PAO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -911,11 +910,11 @@ INSERT INTO public.data_source (
   , 'SING TAO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -927,11 +926,11 @@ INSERT INTO public.data_source (
   , 'VIAWE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -943,11 +942,11 @@ INSERT INTO public.data_source (
   , 'KRPI'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -959,11 +958,11 @@ INSERT INTO public.data_source (
   , 'CHPE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -975,11 +974,11 @@ INSERT INTO public.data_source (
   , 'BIV'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"http://biv.com/rss" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -991,11 +990,11 @@ INSERT INTO public.data_source (
   , 'CHBC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1007,11 +1006,11 @@ INSERT INTO public.data_source (
   , 'CFJC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1023,11 +1022,11 @@ INSERT INTO public.data_source (
   , 'CHNL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1039,11 +1038,11 @@ INSERT INTO public.data_source (
   , 'CFNR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1055,11 +1054,11 @@ INSERT INTO public.data_source (
   , 'CKYE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1071,11 +1070,11 @@ INSERT INTO public.data_source (
   , 'BIU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1087,11 +1086,11 @@ INSERT INTO public.data_source (
   , 'BLLDN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1103,11 +1102,11 @@ INSERT INTO public.data_source (
   , 'CP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1119,11 +1118,11 @@ INSERT INTO public.data_source (
   , 'KCN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1135,11 +1134,11 @@ INSERT INTO public.data_source (
   , 'MM'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1151,11 +1150,11 @@ INSERT INTO public.data_source (
   , 'NIG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1167,11 +1166,11 @@ INSERT INTO public.data_source (
   , 'SEVN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1183,11 +1182,11 @@ INSERT INTO public.data_source (
   , 'SIMSP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1199,11 +1198,11 @@ INSERT INTO public.data_source (
   , 'PRDN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1215,11 +1214,11 @@ INSERT INTO public.data_source (
   , 'CTV'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1231,11 +1230,11 @@ INSERT INTO public.data_source (
   , 'CN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1247,11 +1246,11 @@ INSERT INTO public.data_source (
   , 'HS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1263,11 +1262,11 @@ INSERT INTO public.data_source (
   , 'NIMW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1279,11 +1278,11 @@ INSERT INTO public.data_source (
   , 'NV'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1295,11 +1294,11 @@ INSERT INTO public.data_source (
   , 'AVN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1311,11 +1310,11 @@ INSERT INTO public.data_source (
   , 'VS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1327,11 +1326,11 @@ INSERT INTO public.data_source (
   , 'TRN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1343,11 +1342,11 @@ INSERT INTO public.data_source (
   , 'VC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1359,11 +1358,11 @@ INSERT INTO public.data_source (
   , 'KWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1375,11 +1374,11 @@ INSERT INTO public.data_source (
   , 'SUN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1391,11 +1390,11 @@ INSERT INTO public.data_source (
   , 'TC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1407,11 +1406,11 @@ INSERT INTO public.data_source (
   , 'CFAX'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1423,11 +1422,11 @@ INSERT INTO public.data_source (
   , 'ARCHIVE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1439,11 +1438,11 @@ INSERT INTO public.data_source (
   , 'REGIONAL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1455,11 +1454,11 @@ INSERT INTO public.data_source (
   , 'CKNW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1471,11 +1470,11 @@ INSERT INTO public.data_source (
   , 'CHEK'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1487,11 +1486,11 @@ INSERT INTO public.data_source (
   , 'CHAN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1503,11 +1502,11 @@ INSERT INTO public.data_source (
   , 'CBC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1519,11 +1518,11 @@ INSERT INTO public.data_source (
   , 'CIVT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1535,11 +1534,11 @@ INSERT INTO public.data_source (
   , 'GLOBE'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"sftp://gamdelivery.globeandmail.ca/", "username":"", "password":"" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1551,11 +1550,11 @@ INSERT INTO public.data_source (
   , 'TE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1567,11 +1566,11 @@ INSERT INTO public.data_source (
   , 'CCNEWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1583,11 +1582,11 @@ INSERT INTO public.data_source (
   , 'KAMLOOPS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1599,11 +1598,11 @@ INSERT INTO public.data_source (
   , 'CKPG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1615,11 +1614,11 @@ INSERT INTO public.data_source (
   , 'SHAW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1631,11 +1630,11 @@ INSERT INTO public.data_source (
   , 'POST'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1647,11 +1646,11 @@ INSERT INTO public.data_source (
   , 'CIVI'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1663,11 +1662,11 @@ INSERT INTO public.data_source (
   , 'PGC'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"http://library.pressdisplay.com/test/qa/Services/AdvancedSearchRssHandler.ashx?srchText=%2a&srchnewspaper=7254&extended=false" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1679,11 +1678,11 @@ INSERT INTO public.data_source (
   , 'OPENCABINET'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1695,11 +1694,11 @@ INSERT INTO public.data_source (
   , 'KELOWNA'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1711,11 +1710,11 @@ INSERT INTO public.data_source (
   , 'CKWX'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1727,11 +1726,11 @@ INSERT INTO public.data_source (
   , 'PRESS THEATRE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 13 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1743,11 +1742,11 @@ INSERT INTO public.data_source (
   , '100MILE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1759,11 +1758,11 @@ INSERT INTO public.data_source (
   , 'ABBNEWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1775,11 +1774,11 @@ INSERT INTO public.data_source (
   , 'AGASSIZ'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1791,11 +1790,11 @@ INSERT INTO public.data_source (
   , 'ALDERSTAR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1807,11 +1806,11 @@ INSERT INTO public.data_source (
   , 'ARROWLAKE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1823,11 +1822,11 @@ INSERT INTO public.data_source (
   , 'ASHJOUR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1839,11 +1838,11 @@ INSERT INTO public.data_source (
   , 'BARRSTARR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1855,11 +1854,11 @@ INSERT INTO public.data_source (
   , 'BNL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1871,11 +1870,11 @@ INSERT INTO public.data_source (
   , 'CRM'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1887,11 +1886,11 @@ INSERT INTO public.data_source (
   , 'CT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1903,11 +1902,11 @@ INSERT INTO public.data_source (
   , 'CCVR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1919,11 +1918,11 @@ INSERT INTO public.data_source (
   , 'CNLP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1935,11 +1934,11 @@ INSERT INTO public.data_source (
   , 'EN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1951,11 +1950,11 @@ INSERT INTO public.data_source (
   , 'FSJC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1967,11 +1966,11 @@ INSERT INTO public.data_source (
   , 'GS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1983,11 +1982,11 @@ INSERT INTO public.data_source (
   , 'GG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -1999,11 +1998,11 @@ INSERT INTO public.data_source (
   , 'HT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2015,11 +2014,11 @@ INSERT INTO public.data_source (
   , 'IVE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2031,11 +2030,11 @@ INSERT INTO public.data_source (
   , 'KTW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2047,11 +2046,11 @@ INSERT INTO public.data_source (
   , 'KS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2063,11 +2062,11 @@ INSERT INTO public.data_source (
   , 'KNA'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2079,11 +2078,11 @@ INSERT INTO public.data_source (
   , 'LC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2095,11 +2094,11 @@ INSERT INTO public.data_source (
   , 'LCG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2111,11 +2110,11 @@ INSERT INTO public.data_source (
   , 'LDN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2127,11 +2126,11 @@ INSERT INTO public.data_source (
   , 'LT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2143,11 +2142,11 @@ INSERT INTO public.data_source (
   , 'MRN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2159,11 +2158,11 @@ INSERT INTO public.data_source (
   , 'MH'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2175,11 +2174,11 @@ INSERT INTO public.data_source (
   , 'MCR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2191,11 +2190,11 @@ INSERT INTO public.data_source (
   , 'NNB'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2207,11 +2206,11 @@ INSERT INTO public.data_source (
   , 'NWNL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2223,11 +2222,11 @@ INSERT INTO public.data_source (
   , 'NIW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2239,11 +2238,11 @@ INSERT INTO public.data_source (
   , 'NSO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2255,11 +2254,11 @@ INSERT INTO public.data_source (
   , 'OBN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2271,11 +2270,11 @@ INSERT INTO public.data_source (
   , 'PQN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2287,11 +2286,11 @@ INSERT INTO public.data_source (
   , 'PAN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2303,11 +2302,11 @@ INSERT INTO public.data_source (
   , 'PNR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2319,11 +2318,11 @@ INSERT INTO public.data_source (
   , 'PW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2335,11 +2334,11 @@ INSERT INTO public.data_source (
   , 'PHNIG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2351,11 +2350,11 @@ INSERT INTO public.data_source (
   , 'PGFP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2367,11 +2366,11 @@ INSERT INTO public.data_source (
   , 'PSS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2383,11 +2382,11 @@ INSERT INTO public.data_source (
   , 'BCGEU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2399,11 +2398,11 @@ INSERT INTO public.data_source (
   , 'NWREC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2415,11 +2414,11 @@ INSERT INTO public.data_source (
   , 'CBYK'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2431,11 +2430,11 @@ INSERT INTO public.data_source (
   , 'CorpCal'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 16 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2447,11 +2446,11 @@ INSERT INTO public.data_source (
   , 'INFONEWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2463,11 +2462,11 @@ INSERT INTO public.data_source (
   , 'LINK'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2479,11 +2478,11 @@ INSERT INTO public.data_source (
   , 'QCO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2495,11 +2494,11 @@ INSERT INTO public.data_source (
   , 'RTR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2511,11 +2510,11 @@ INSERT INTO public.data_source (
   , 'RR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2527,11 +2526,11 @@ INSERT INTO public.data_source (
   , 'SN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2543,11 +2542,11 @@ INSERT INTO public.data_source (
   , 'SAO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2559,11 +2558,11 @@ INSERT INTO public.data_source (
   , 'SIN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2575,11 +2574,11 @@ INSERT INTO public.data_source (
   , 'SNM'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2591,11 +2590,11 @@ INSERT INTO public.data_source (
   , 'SDL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2607,11 +2606,11 @@ INSERT INTO public.data_source (
   , 'SR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2623,11 +2622,11 @@ INSERT INTO public.data_source (
   , 'SL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2639,11 +2638,11 @@ INSERT INTO public.data_source (
   , 'TSTD'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2655,11 +2654,11 @@ INSERT INTO public.data_source (
   , 'TCP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2671,11 +2670,11 @@ INSERT INTO public.data_source (
   , 'TCN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2687,11 +2686,11 @@ INSERT INTO public.data_source (
   , 'VOE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2703,11 +2702,11 @@ INSERT INTO public.data_source (
   , 'VMS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2719,11 +2718,11 @@ INSERT INTO public.data_source (
   , 'VN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2735,11 +2734,11 @@ INSERT INTO public.data_source (
   , 'VW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2751,11 +2750,11 @@ INSERT INTO public.data_source (
   , 'WESTENDER'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2767,11 +2766,11 @@ INSERT INTO public.data_source (
   , 'WLT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2783,11 +2782,11 @@ INSERT INTO public.data_source (
   , 'CBCO'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"https://www.cbc.ca/cmlink/rss-topstories" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2799,11 +2798,11 @@ INSERT INTO public.data_source (
   , 'NANAIMO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2815,11 +2814,11 @@ INSERT INTO public.data_source (
   , 'LCC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2831,11 +2830,11 @@ INSERT INTO public.data_source (
   , 'CC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2847,11 +2846,11 @@ INSERT INTO public.data_source (
   , 'CKFR'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2863,11 +2862,11 @@ INSERT INTO public.data_source (
   , 'NDN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2879,16 +2878,15 @@ INSERT INTO public.data_source (
   , CPNEWS
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , CPNEWS
+  , CPNEWS -- topic
   , '{
     "url":"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr",
     "timeZone": "Pacific Standard Time",
-    "fetchContent": true,
-    "import": true
+    "fetchContent": true
     }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2900,11 +2898,11 @@ INSERT INTO public.data_source (
   , 'GID'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2916,11 +2914,11 @@ INSERT INTO public.data_source (
   , 'CFIS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2932,11 +2930,11 @@ INSERT INTO public.data_source (
   , CBC_CAPTURE_CODE
   , ''
   , true -- is_enabled
-  , 0 -- content_type_id
+  , 1 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{
     "serviceType":"stream",
     "url":"https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master4.m3u8",
@@ -2952,11 +2950,11 @@ INSERT INTO public.data_source (
   , CBC_CLIP_CODE
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , 'CBCV'
+  , 'CBCV' -- topic
   , '{"serviceType":"clip",
     "keepChecking":true,
     "timeZone":"Pacific Standard Time"}' -- connection
@@ -2970,11 +2968,11 @@ INSERT INTO public.data_source (
   , 'CBTK'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -2986,11 +2984,11 @@ INSERT INTO public.data_source (
   , 'CBU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3002,11 +3000,11 @@ INSERT INTO public.data_source (
   , 'CBYG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3018,11 +3016,11 @@ INSERT INTO public.data_source (
   , 'CBUT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3034,11 +3032,11 @@ INSERT INTO public.data_source (
   , 'NYT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3050,11 +3048,11 @@ INSERT INTO public.data_source (
   , 'DTL'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3066,11 +3064,11 @@ INSERT INTO public.data_source (
   , 'CKNW ONLINE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3082,11 +3080,11 @@ INSERT INTO public.data_source (
   , 'MG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3098,11 +3096,11 @@ INSERT INTO public.data_source (
   , 'TS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3114,11 +3112,11 @@ INSERT INTO public.data_source (
   , 'CKWX ONLINE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3130,11 +3128,11 @@ INSERT INTO public.data_source (
   , 'SPIO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3146,11 +3144,11 @@ INSERT INTO public.data_source (
   , 'GSO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3162,11 +3160,11 @@ INSERT INTO public.data_source (
   , 'PROVO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3178,11 +3176,11 @@ INSERT INTO public.data_source (
   , 'GMO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3194,11 +3192,11 @@ INSERT INTO public.data_source (
   , 'VBUZZ'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"http://www.victoriabuzz.com/feed/" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3210,11 +3208,11 @@ INSERT INTO public.data_source (
   , 'KXLY'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3226,11 +3224,11 @@ INSERT INTO public.data_source (
   , 'BC 1'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3242,11 +3240,11 @@ INSERT INTO public.data_source (
   , 'BCT'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3258,11 +3256,11 @@ INSERT INTO public.data_source (
   , 'KDB'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3274,11 +3272,11 @@ INSERT INTO public.data_source (
   , 'PV'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3290,11 +3288,11 @@ INSERT INTO public.data_source (
   , 'BC CONS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3306,11 +3304,11 @@ INSERT INTO public.data_source (
   , 'NEWKAM'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3322,11 +3320,11 @@ INSERT INTO public.data_source (
   , 'SIERRA'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3338,11 +3336,11 @@ INSERT INTO public.data_source (
   , 'WEBCAST'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 14 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3354,11 +3352,11 @@ INSERT INTO public.data_source (
   , 'SC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3370,11 +3368,11 @@ INSERT INTO public.data_source (
   , 'SUN ONLINE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3386,11 +3384,11 @@ INSERT INTO public.data_source (
   , 'HUFFPOSTBC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3402,11 +3400,11 @@ INSERT INTO public.data_source (
   , 'CJVB ONLINE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3418,11 +3416,11 @@ INSERT INTO public.data_source (
   , 'CKSP'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3434,11 +3432,11 @@ INSERT INTO public.data_source (
   , 'ORCA'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"https://theorca.ca/feed/" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3450,11 +3448,11 @@ INSERT INTO public.data_source (
   , 'CKVU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3466,11 +3464,11 @@ INSERT INTO public.data_source (
   , 'CBX'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3482,11 +3480,11 @@ INSERT INTO public.data_source (
   , 'KWW'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3498,11 +3496,11 @@ INSERT INTO public.data_source (
   , 'CKSP SAMEER'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3514,11 +3512,11 @@ INSERT INTO public.data_source (
   , 'AHN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3530,11 +3528,11 @@ INSERT INTO public.data_source (
   , 'FSJN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3546,11 +3544,11 @@ INSERT INTO public.data_source (
   , 'CKFU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3562,11 +3560,11 @@ INSERT INTO public.data_source (
   , '24HRS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3578,11 +3576,11 @@ INSERT INTO public.data_source (
   , 'STARMETRO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3594,11 +3592,11 @@ INSERT INTO public.data_source (
   , 'UBCIC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3610,11 +3608,11 @@ INSERT INTO public.data_source (
   , 'TVS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3626,11 +3624,11 @@ INSERT INTO public.data_source (
   , 'CITYC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3642,11 +3640,11 @@ INSERT INTO public.data_source (
   , 'HEU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3658,11 +3656,11 @@ INSERT INTO public.data_source (
   , 'BCHC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3674,11 +3672,11 @@ INSERT INTO public.data_source (
   , 'CHMB'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3690,11 +3688,11 @@ INSERT INTO public.data_source (
   , 'CJRJ'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 3 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3706,11 +3704,11 @@ INSERT INTO public.data_source (
   , 'KVRI'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3722,11 +3720,11 @@ INSERT INTO public.data_source (
   , 'BCNU'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3738,11 +3736,11 @@ INSERT INTO public.data_source (
   , 'PTC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3754,11 +3752,11 @@ INSERT INTO public.data_source (
   , 'VIFD'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3770,11 +3768,11 @@ INSERT INTO public.data_source (
   , 'TYEE'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3786,11 +3784,11 @@ INSERT INTO public.data_source (
   , 'CUPE BC'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3802,11 +3800,11 @@ INSERT INTO public.data_source (
   , 'APTN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3818,11 +3816,11 @@ INSERT INTO public.data_source (
   , 'BCPOLI'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3832,9 +3830,9 @@ INSERT INTO public.data_source (
 ), (
   'CKPG Online'
   , 'CKPG ONLINE'
-  , ''
+  , '' -- topic
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
@@ -3850,11 +3848,11 @@ INSERT INTO public.data_source (
   , 'CHNM'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 2 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3866,11 +3864,11 @@ INSERT INTO public.data_source (
   , 'BC FED'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3882,11 +3880,11 @@ INSERT INTO public.data_source (
   , 'GFG'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3898,11 +3896,11 @@ INSERT INTO public.data_source (
   , 'BCTF'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3914,11 +3912,11 @@ INSERT INTO public.data_source (
   , 'PEO'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3930,11 +3928,11 @@ INSERT INTO public.data_source (
   , 'BCLN'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 7 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3946,11 +3944,11 @@ INSERT INTO public.data_source (
   , 'CBCINDIGNEWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3962,11 +3960,11 @@ INSERT INTO public.data_source (
   , 'CBCBCNEWS'
   , ''
   , true -- is_enabled
-  , 1 -- content_type_id
+  , 2 -- content_type_id
   , 15 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{}' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3978,11 +3976,11 @@ INSERT INTO public.data_source (
   , 'NAR'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"https://thenarwhal.ca/feed/rss2" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID
@@ -3994,11 +3992,11 @@ INSERT INTO public.data_source (
   , 'INFOTEL'
   , ''
   , true -- is_enabled
-  , 3 -- content_type_id
+  , 4 -- content_type_id
   , 1 -- media_type_id
   , 2 -- data_location_id
   , 3 -- license_id
-  , ''
+  , '' -- topic
   , '{ "url":"https://infotel.ca/govbcrssfeed" }' -- connection
   , NULL -- parent_id
   , DEFAULT_USER_ID

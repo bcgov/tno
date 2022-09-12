@@ -18,6 +18,7 @@ namespace TNO.Services.Indexing;
 public class IndexingManager : ServiceManager<IndexingOptions>
 {
     #region Variables
+    private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
     #endregion
@@ -64,9 +65,10 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         : base(api, options, logger)
     {
         this.KafkaAdmin = kafkaAdmin;
-        this.Consumer = consumer;
         this.Producer = producer;
+        this.Consumer = consumer;
         this.Consumer.OnError += ConsumerErrorHandler;
+        this.Consumer.OnStop += ConsumerStopHandler;
 
         // TODO: Change to dependency injection.
         var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri))
@@ -115,7 +117,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                         // Create a new thread if the prior one isn't running anymore.
                         if (_consumer == null || _notRunning.Contains(_consumer.Status))
                         {
-                            _consumer = Task.Factory.StartNew(() => ConsumerHandler());
+                            _cancelToken = new CancellationTokenSource();
+                            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
                         }
                     }
                     else if (topics.Length == 0)
@@ -170,6 +173,21 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
         // Inform the consumer it should stop.
         return this.State.Status != ServiceStatus.Running;
+    }
+
+    /// <summary>
+    /// The Kafka consumer has stopped which means we need to also cancel the background task associated with it.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ConsumerStopHandler(object sender, EventArgs e)
+    {
+        if (_consumer != null &&
+            !_notRunning.Contains(_consumer.Status) &&
+            _cancelToken != null && !_cancelToken.IsCancellationRequested)
+        {
+            _cancelToken.Cancel();
+        }
     }
 
     /// <summary>

@@ -3,6 +3,9 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// ContentType class, provides a way to identify the content type and the form it will use.
+/// </summary>
 [Cache("content_types", "lookups")]
 [Table("content_type")]
 public class ContentType : BaseType<int>
@@ -15,8 +18,15 @@ public class ContentType : BaseType<int>
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a ContentType object.
+    /// </summary>
     protected ContentType() { }
 
+    /// <summary>
+    /// Creates a new instance of a ContentType object, initializes with specified parameter.
+    /// </summary>
+    /// <param name="name"></param>
     public ContentType(string name) : base(name)
     {
     }

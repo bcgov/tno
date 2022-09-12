@@ -18,103 +18,104 @@ public class Content : AuditColumns
     public long Id { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The status of the content.
     /// </summary>
     [Column("status")]
     public ContentStatus Status { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The workflow status.
+    /// TODO: I think this can be removed, but I need to double check.
     /// </summary>
     [Column("workflow_status")]
     public WorkflowStatus WorkflowStatus { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Foreign key to the content type.
     /// </summary>
     [Column("content_type_id")]
     public int ContentTypeId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Content type of this story.  Is used to control which form to use.
     /// </summary>
     public virtual ContentType? ContentType { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Foreign key to the media type.
     /// </summary>
     [Column("media_type_id")]
     public int MediaTypeId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The media type of this story.
     /// </summary>
     public virtual MediaType? MediaType { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The foreign key to the license.
     /// </summary>
     [Column("license_id")]
     public int LicenseId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The license to apply to this story.
     /// </summary>
     public virtual License? License { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Foreign key to the series.
     /// </summary>
     [Column("series_id")]
     public int? SeriesId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The series this story belongs to.
     /// </summary>
     public virtual Series? Series { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Foreign key to the owner.
     /// </summary>
     [Column("owner_id")]
     public int? OwnerId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The owner of the story.  Or the user responsible for it.
     /// </summary>
     public virtual User? Owner { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Foreign key to the data source.
     /// </summary>
     [Column("data_source_id")]
     public int? DataSourceId { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The data source of the story.
     /// </summary>
     public virtual DataSource? DataSource { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - The source code to identify the publisher.
     /// </summary>
     [Column("source")]
     public string Source { get; set; } = "";
 
     /// <summary>
-    /// get/set -
+    /// get/set - Story headline.
     /// </summary>
     [Column("headline")]
     public string Headline { get; set; } = "";
 
     /// <summary>
-    /// get/set -
+    /// get/set - Unique identifier from the source if possible.
     /// </summary>
     [Column("uid")]
     public string Uid { get; set; } = "";
 
     /// <summary>
-    /// get/set -
+    /// get/set - The page this story was found one.
     /// </summary>
     [Column("page")]
     public string Page { get; set; } = "";
@@ -126,19 +127,19 @@ public class Content : AuditColumns
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Story abstract or summary text.
     /// </summary>
     [Column("summary")]
     public string Summary { get; set; } = "";
 
     /// <summary>
-    /// get/set -
+    /// get/set - Story body text.
     /// </summary>
-    [Column("transcription")]
-    public string Transcription { get; set; } = "";
+    [Column("body")]
+    public string Body { get; set; } = "";
 
     /// <summary>
-    /// get/set -
+    /// get/set - The URL to the source story.
     /// </summary>
     [Column("source_url")]
     public string SourceUrl { get; set; } = "";
