@@ -20,7 +20,7 @@ import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
 import { getTotalTime } from './utils';
 
-const tagMatch = /(?<=\[).+?(?=\])/g;
+const tagMatch = /(?!\[).+?(?=\])/g;
 export interface IContentSummaryFormProps {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
