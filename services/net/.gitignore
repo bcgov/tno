@@ -12,7 +12,7 @@ nupkg/
 
 capture/data
 data
-image/keys/id_rsa
+image/keys
 
 # IDE - VSCode
 .vscode/*
