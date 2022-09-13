@@ -6,7 +6,7 @@ using TNO.Entities.Validation;
 namespace TNO.Entities;
 
 /// <summary>
-/// DataSource class, provides a way to desribe and store a source of data.
+/// DataSource class, provides a way to describe and store a source of data.
 /// Includes information on how to connect to the data source and how services are run and scheduled.
 /// </summary>
 [Cache("data_sources", "lookups")]
@@ -79,7 +79,7 @@ public class DataSource : AuditColumns
     /// This controls the editor form UI.
     /// </summary>
     [Column("content_type_id")]
-    public int? ContentTypeId { get; set; }
+    public int ContentTypeId { get; set; }
 
     /// <summary>
     /// get/set -
@@ -187,7 +187,7 @@ public class DataSource : AuditColumns
     #region Constructors
     protected DataSource() { }
 
-    public DataSource(string name, string code, DataLocation location, MediaType mediaType, License license, ContentType? contentType)
+    public DataSource(string name, string code, DataLocation location, MediaType mediaType, License license, ContentType contentType)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(code)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(code));
@@ -205,14 +205,14 @@ public class DataSource : AuditColumns
         this.ScheduleType = DataSourceScheduleType.None;
     }
 
-    public DataSource(string name, string code, DataLocation location, MediaType mediaType, License license, ContentType? contentType, DataSourceScheduleType scheduleType, string topic)
+    public DataSource(string name, string code, DataLocation location, MediaType mediaType, License license, ContentType contentType, DataSourceScheduleType scheduleType, string topic)
         : this(name, code, location, mediaType, license, contentType)
     {
         this.ScheduleType = scheduleType;
         this.Topic = topic ?? throw new ArgumentNullException(nameof(topic));
     }
 
-    public DataSource(string name, string code, int locationId, int mediaTypeId, int licenseId, int? contentTypeId)
+    public DataSource(string name, string code, int locationId, int mediaTypeId, int licenseId, int contentTypeId)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(code)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(code));
@@ -226,7 +226,7 @@ public class DataSource : AuditColumns
         this.ScheduleType = DataSourceScheduleType.None;
     }
 
-    public DataSource(string name, string code, int locationId, int mediaTypeId, int licenseId, int? contentTypeId, DataSourceScheduleType scheduleType, string topic)
+    public DataSource(string name, string code, int locationId, int mediaTypeId, int licenseId, int contentTypeId, DataSourceScheduleType scheduleType, string topic)
         : this(name, code, locationId, mediaTypeId, licenseId, contentTypeId)
     {
         this.ScheduleType = scheduleType;

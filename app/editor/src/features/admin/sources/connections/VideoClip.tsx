@@ -78,22 +78,6 @@ export const VideoClip: React.FC = (props) => {
           setFieldValue('connection.throwOnMissingFile', e.currentTarget.checked);
         }}
       />
-      {!!values.contentTypeId && (
-        <>
-          <p>
-            Only import content if you have already successfully ingested content for the configured
-            Kafka Topic.
-          </p>
-          <FormikCheckbox
-            label="Import Content"
-            name="connection.import"
-            tooltip="Whether ingested content should be imported"
-            onChange={(e) => {
-              setFieldValue('connection.import', e.currentTarget.checked);
-            }}
-          />
-        </>
-      )}
     </styled.MediaType>
   );
 };

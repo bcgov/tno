@@ -98,7 +98,7 @@ public class ImportService
             Page = "",
             PublishedOn = newsItem.ItemDateTime.ToUniversalTime(),
             Summary = newsItem.Summary ?? "",
-            Transcription = newsItem.Transcript ?? "",
+            Body = newsItem.Body ?? "",
             SourceUrl = newsItem.WebPath ?? ""
         };
 
@@ -168,7 +168,7 @@ public class ImportService
         content.WorkflowStatus = newsItem.Published ? WorkflowStatus.Published : WorkflowStatus.Success;
         content.PublishedOn = newsItem.ItemDateTime.ToUniversalTime();
         content.Summary = newsItem.Summary ?? "";
-        content.Transcription = newsItem.Transcript ?? "";
+        content.Body = newsItem.Transcript ?? "";
         content.SourceUrl = newsItem.WebPath ?? "";
 
         if (!String.IsNullOrWhiteSpace(newsItem.FileName)

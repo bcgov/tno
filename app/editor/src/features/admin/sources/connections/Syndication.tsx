@@ -28,15 +28,6 @@ export const Syndication: React.FC = (props) => {
         type="password"
         autoComplete="off"
       />
-      <p>Do not turn on "Import Content" until you have successfully ingested content.</p>
-      <FormikCheckbox
-        label="Import Content"
-        name="connection.import"
-        tooltip="Whether ingested content should be imported"
-        onChange={(e) => {
-          setFieldValue('connection.import', e.currentTarget.checked);
-        }}
-      />
       <FormikCheckbox
         label="Fetch Content Body Separately"
         name="connection.fetchContent"

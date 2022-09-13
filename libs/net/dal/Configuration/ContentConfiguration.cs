@@ -24,7 +24,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.Page).IsRequired().HasMaxLength(10);
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.Summary).IsRequired().HasColumnType("text");
-        builder.Property(m => m.Transcription).IsRequired().HasColumnType("text");
+        builder.Property(m => m.Body).IsRequired().HasColumnType("text");
         builder.Property(m => m.SourceUrl).IsRequired().HasMaxLength(500);
 
         builder.HasOne(m => m.ContentType).WithMany(m => m.Contents).HasForeignKey(m => m.ContentTypeId).OnDelete(DeleteBehavior.Restrict);
