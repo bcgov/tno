@@ -113,13 +113,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                     {
                         if (!this.Consumer.IsReady) this.Consumer.Open();
                         this.Consumer.Subscribe(topics);
-
-                        // Create a new thread if the prior one isn't running anymore.
-                        if (_consumer == null || _notRunning.Contains(_consumer.Status))
-                        {
-                            _cancelToken = new CancellationTokenSource();
-                            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
-                        }
+                        ConsumeMessages();
                     }
                     else if (topics.Length == 0)
                     {
@@ -139,6 +133,19 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new cancellation token.
+    /// Create a new thread if the prior one isn't running anymore.
+    /// </summary>
+    private void ConsumeMessages()
+    {
+        if (_consumer == null || _notRunning.Contains(_consumer.Status))
+        {
+            _cancelToken = new CancellationTokenSource();
+            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
         }
     }
 
