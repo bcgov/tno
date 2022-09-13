@@ -142,6 +142,8 @@ public class ImageAction : IngestAction<ImageOptions>
         else
         {
             this.Logger.LogError("SSH Private key file does not exist");
+            this.Logger.LogInformation(keyFilePath);
+            this.Logger.LogInformation(filename);
         }
 
     }
