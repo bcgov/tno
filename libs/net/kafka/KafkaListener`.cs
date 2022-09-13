@@ -2,6 +2,7 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Core.Exceptions;
 using TNO.Kafka.Serializers;
 
 namespace TNO.Kafka;
@@ -162,13 +163,23 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         catch (ConsumeException ex)
         {
             // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
-            _logger.LogError(ex, "Consumer error: {Message}", ex.Message);
+            // TODO: How to tell Kafka this message was not successful so that it can be picked up again.
+            _logger.LogError(ex, "Consumer error: {message}", ex.Message);
             this.IsReady = (!OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? true) && this.IsReady;
+        }
+        catch (HttpClientRequestException ex)
+        {
+            // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
+            // TODO: How to tell Kafka this message was not successful so that it can be picked up again.
+            _logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"]);
+            OnError?.Invoke(this, new ErrorEventArgs(ex));
+            this.Stop();
         }
         catch (Exception ex)
         {
             // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
-            _logger.LogError(ex, $"Unexpected exception while consuming");
+            // TODO: How to tell Kafka this message was not successful so that it can be picked up again.
+            _logger.LogError(ex, "Unexpected exception while consuming.  {message}", ex.Message);
             OnError?.Invoke(this, new ErrorEventArgs(ex));
             this.Stop();
         }
@@ -199,9 +210,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// </summary>
     public void Stop()
     {
-        _logger.LogInformation("Consumer is stopping");
         if (this.IsConsuming && this.IsReady)
         {
+            _logger.LogInformation("Consumer is stopping");
             this.IsConsuming = false;
             this.IsReady = false;
             this.Consumer.Close();

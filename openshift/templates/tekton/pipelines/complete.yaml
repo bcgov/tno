@@ -141,6 +141,8 @@ objects:
               value: $(params.IMAGE_TAG)
 
         - name: build-api
+          runAfter:
+            - build-db-migration
           taskRef:
             name: oc-build
             kind: Task
@@ -153,6 +155,8 @@ objects:
               value: $(params.IMAGE_TAG)
 
         - name: build-app
+          runAfter:
+            - build-api
           taskRef:
             name: oc-build
             kind: Task

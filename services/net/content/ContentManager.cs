@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -37,11 +36,6 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// get - Kafka message producer.
     /// </summary>
     protected IKafkaMessenger Producer { get; private set; }
-
-    /// <summary>
-    /// get - Lookup values from the API.
-    /// </summary>
-    public string[] Topics { get; private set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -90,7 +84,6 @@ public class ContentManager : ServiceManager<ContentOptions>
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
                 this.State.Stop();
-                this.Topics = Array.Empty<string>();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -114,26 +107,15 @@ public class ContentManager : ServiceManager<ContentOptions>
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
                     topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
-                    // If the topics change we need to subscribe to the new topics.
-                    if (!ContainsAll(this.Topics, topics))
+                    if (topics.Length > 0)
                     {
-                        this.Topics = topics;
-                        if (topics.Length > 0)
-                        {
-                            if (!this.Consumer.IsReady) this.Consumer.Open();
-                            this.Consumer.Subscribe(topics);
-
-                            // Create a new thread if the prior one isn't running anymore.
-                            if (_consumer == null || _notRunning.Contains(_consumer.Status))
-                            {
-                                _cancelToken = new CancellationTokenSource();
-                                _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
-                            }
-                        }
-                        else if (topics.Length == 0)
-                        {
-                            this.Consumer.Stop();
-                        }
+                        if (!this.Consumer.IsReady) this.Consumer.Open();
+                        this.Consumer.Subscribe(topics);
+                        ConsumeMessages();
+                    }
+                    else if (topics.Length == 0)
+                    {
+                        this.Consumer.Stop();
                     }
                 }
                 catch (Exception ex)
@@ -149,6 +131,19 @@ public class ContentManager : ServiceManager<ContentOptions>
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
             // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new cancellation token.
+    /// Create a new thread if the prior one isn't running anymore.
+    /// </summary>
+    private void ConsumeMessages()
+    {
+        if (_consumer == null || _notRunning.Contains(_consumer.Status))
+        {
+            _cancelToken = new CancellationTokenSource();
+            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
         }
     }
 
@@ -196,21 +191,9 @@ public class ContentManager : ServiceManager<ContentOptions>
             !_notRunning.Contains(_consumer.Status) &&
             _cancelToken != null && !_cancelToken.IsCancellationRequested)
         {
+            this.Logger.LogDebug("Consumer thread is being cancelled");
             _cancelToken.Cancel();
         }
-    }
-
-    /// <summary>
-    /// Determine if the two arrays have the same values in them.
-    /// Order does not matter.
-    /// This is not performant for large arrays.
-    /// </summary>
-    /// <param name="original"></param>
-    /// <param name="updated"></param>
-    /// <returns></returns>
-    private static bool ContainsAll(string[] original, string[] updated)
-    {
-        return original.Length == updated.Length && original.All(v => updated.Any(u => u == v));
     }
 
     /// <summary>

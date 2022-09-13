@@ -78,13 +78,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                     {
                         if (!this.Consumer.IsReady) this.Consumer.Open();
                         this.Consumer.Subscribe(topics);
-
-                        // Create a new thread if the prior one isn't running anymore.
-                        if (_consumer == null || _notRunning.Contains(_consumer.Status))
-                        {
-                            _cancelToken = new CancellationTokenSource();
-                            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
-                        }
+                        ConsumeMessages();
                     }
                     else if (topics.Length == 0)
                     {
@@ -101,6 +95,19 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             // The delay ensures we don't have a run away thread.
             this.Logger.LogDebug("Service sleeping for {delay} ms", delay);
             await Task.Delay(delay);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new cancellation token.
+    /// Create a new thread if the prior one isn't running anymore.
+    /// </summary>
+    private void ConsumeMessages()
+    {
+        if (_consumer == null || _notRunning.Contains(_consumer.Status))
+        {
+            _cancelToken = new CancellationTokenSource();
+            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
         }
     }
 
