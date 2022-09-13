@@ -15,11 +15,14 @@ export interface IFormPickerProps {
 export const FormPicker: React.FC<IFormPickerProps> = ({ contentType }) => {
   switch (contentType) {
     case ContentType.Print:
+      return <ContentForm contentType={ContentType.Print} />;
     case ContentType.Radio:
     case ContentType.TV:
     case ContentType.Frontpage:
     case ContentType.Snippet:
+      return <ContentForm contentType={ContentType.Snippet} />;
     default:
-      return <ContentForm contentType={contentType} />;
+      // default to snippet until other forms are created
+      return <ContentForm contentType={ContentType.Snippet} />;
   }
 };

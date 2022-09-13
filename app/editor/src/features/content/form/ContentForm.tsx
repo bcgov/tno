@@ -202,7 +202,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                 tooltip="Previous"
                 onClick={() => {
                   const id = page?.items[indexPosition - 1]?.id;
-                  if (!!id) navigate(`/contents/${combined ? 'combined/' : ''}${id}`);
+                  if (!!id) {
+                    if (!!combined) navigate(`/contents/combined/${id}`);
+                    if (contentType === ContentType.Snippet && !combined)
+                      navigate(`/snippets/${id}`);
+                    if (contentType === ContentType.Print && !combined) navigate(`/papers/${id}`);
+                  }
                 }}
                 disabled={!enablePrev}
               >
@@ -213,7 +218,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                 tooltip="Next"
                 onClick={() => {
                   const id = page?.items[indexPosition + 1]?.id;
-                  if (!!id) navigate(`/contents/${combined ? 'combined/' : ''}${id}`);
+                  if (combined) navigate(`/contents/combined/${id}`);
+                  if (contentType === ContentType.Snippet && !combined) navigate(`/snippets/${id}`);
+                  if (contentType === ContentType.Print && !combined) navigate(`/papers/${id}`);
                 }}
                 disabled={!enableNext}
               >
