@@ -77,7 +77,7 @@ public class ImageAction : IngestAction<ImageOptions>
         var mountPath = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputpath")) ? this.Options.InputPath : GetInputPath(manager.DataSource);
         var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code : manager.DataSource.GetConnectionValue("inputfilecode");
         var keyFilePath = Path.Combine(this.Options.PrivateKeysPath, filename);
-        if (File.Exists(keyFilePath))
+        if (File.Exists(keyFilePath) || (File.Exists(filename)))
         {
             var keyFile = new PrivateKeyFile(keyFilePath);
 

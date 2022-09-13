@@ -40,6 +40,9 @@ spec:
         - name: av-storage
           persistentVolumeClaim:
             claimName: av-storage
+        - name: ssh-key
+          secret: 
+            secretName: ssh-key
       containers:
         - name: image-service
           image: ""
@@ -50,6 +53,9 @@ spec:
           volumeMounts:
             - name: av-storage
               mountPath: /data
+            - name: ssh-key
+              mountPath: /keys
+              readOnly: true
           resources:
             requests:
               cpu: 20m
@@ -121,18 +127,12 @@ spec:
                   key: KAFKA_BOOTSTRAP_SERVERS
 
             # Azure Cognitive Services Configuration
-            - name: Service__AzureRegion
+            - name: Service__PrivateKeyFileName
               valueFrom:
                 secretKeyRef:
-                  name: azure-cognitive-services
-                  key: AZURE_REGION
-            - name: Service__AzureCognitiveServicesKey
-              valueFrom:
-                secretKeyRef:
-                  name: azure-cognitive-services
-                  key: AZURE_COGNITIVE_SERVICES_KEY
+                  name: ssh-key
+                  key: id_rsa
 
-            # Indexing Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
@@ -153,6 +153,11 @@ spec:
                 configMapKeyRef:
                   name: image-service
                   key: NOTIFICATION_TOPIC
+            - name: Service__OutputPath
+              valueFrom:
+                configMapKeyRef:
+                  name: image-service
+                  key: OUTPUT_PATH
           livenessProbe:
             httpGet:
               path: "/health"
