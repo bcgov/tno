@@ -40,9 +40,9 @@ spec:
         - name: av-storage
           persistentVolumeClaim:
             claimName: av-storage
-        - name: ssh-key
-          secret: 
-            secretName: ssh-key
+        - name: ssh-key 
+          secret:  
+            secretName: ssh-key # name of the Secret
       containers:
         - name: image-service
           image: ""
@@ -52,8 +52,8 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: av-storage
-              mountPath: /data
-            - name: ssh-key
+              mountPath: /data  
+            - name: ssh-key  
               mountPath: /keys
               readOnly: true
           resources:
@@ -126,13 +126,6 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            # Azure Cognitive Services Configuration
-            - name: Service__PrivateKeyFileName
-              valueFrom:
-                secretKeyRef:
-                  name: ssh-key
-                  key: id_rsa
-
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
@@ -143,21 +136,21 @@ spec:
                 configMapKeyRef:
                   name: image-service
                   key: TOPICS
-            - name: Service__FilePath
-              valueFrom:
-                configMapKeyRef:
-                  name: image-service
-                  key: FILE_PATH
             - name: Service__NotificationTopic
               valueFrom:
                 configMapKeyRef:
                   name: image-service
                   key: NOTIFICATION_TOPIC
-            - name: Service__OutputPath
+            - name: Service__PrivateKeysPath
               valueFrom:
                 configMapKeyRef:
                   name: image-service
-                  key: OUTPUT_PATH
+                  key: ../keys
+            - name: Service__PrivateKeyFileName
+              valueFrom:
+                secretKeyRef:
+                  name: ssh-key
+                  key: id_rsa
           livenessProbe:
             httpGet:
               path: "/health"
