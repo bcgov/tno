@@ -210,12 +210,13 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// </summary>
     public void Stop()
     {
+        this.Consumer.Close();
+
         if (this.IsConsuming && this.IsReady)
         {
             _logger.LogInformation("Consumer is stopping");
             this.IsConsuming = false;
             this.IsReady = false;
-            this.Consumer.Close();
             OnStop?.Invoke(this, new EventArgs());
         }
     }
