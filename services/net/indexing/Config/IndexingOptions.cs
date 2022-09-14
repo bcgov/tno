@@ -43,6 +43,12 @@ public class IndexingOptions : ServiceOptions
     /// get/set - The topic to publish notifications to.
     /// </summary>
     public string NotificationTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The number of attempts to retry a failed import.
+    /// A retry that ultimately fails will still only count as a single failure for the service.
+    /// </summary>
+    public int RetryLimit { get; set; } = 3;
     #endregion
 
     #region Methods

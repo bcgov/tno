@@ -9,6 +9,7 @@ using TNO.Kafka.Models;
 using Confluent.Kafka;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
+using TNO.Core.Exceptions;
 
 namespace TNO.Services.Indexing;
 
@@ -21,6 +22,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
+    private int _retries = 0;
     #endregion
 
     #region Properties
@@ -95,6 +97,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
                 this.State.Stop();
+
+                // The service is stopping or has stopped, consume should stop too.
+                this.Consumer.Stop();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -111,7 +116,6 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
                     if (topics.Length > 0)
                     {
-                        if (!this.Consumer.IsReady) this.Consumer.Open();
                         this.Consumer.Subscribe(topics);
                         ConsumeMessages();
                     }
@@ -155,7 +159,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task ConsumerHandler()
     {
-        while (this.State.Status == ServiceStatus.Running && this.Consumer.IsReady)
+        while (this.State.Status == ServiceStatus.Running &&
+            _cancelToken?.IsCancellationRequested == false)
         {
             await this.Consumer.ConsumeAsync(HandleMessageAsync);
         }
@@ -170,16 +175,19 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private bool ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    /// <returns>True if the consumer should retry the message.</returns>
+    private ConsumerAction ConsumerErrorHandler(object sender, ErrorEventArgs e)
     {
-        this.State.RecordFailure();
-        if (e.GetException() is ConsumeException ex)
+        // Only the first retry will count as a failure.
+        if (_retries == 0)
+            this.State.RecordFailure();
+
+        if (e.GetException() is ConsumeException consume)
         {
-            return ex.Error.IsFatal;
+            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
         }
 
-        // Inform the consumer it should stop.
-        return this.State.Status != ServiceStatus.Running;
+        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -204,39 +212,50 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="result"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task HandleMessageAsync(ConsumeResult<string, IndexRequest> result)
+    private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, IndexRequest> result)
     {
-        this.Logger.LogInformation("Importing content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
-
-        // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-
-        var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
-        if (content != null)
+        try
         {
-            switch (result.Message.Value.Action)
+            this.Logger.LogInformation("Importing content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
+
+            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
+
+            var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
+            if (content != null)
             {
-                case (IndexAction.Publish):
-                    await PublishContentAsync(content);
-                    break;
-                case (IndexAction.Unpublish):
-                    await UnpublishContentAsync(content);
-                    break;
-                case (IndexAction.Delete):
-                    await DeleteContentAsync(content);
-                    break;
-                case (IndexAction.Index):
-                default:
-                    await IndexContentAsync(content);
-                    break;
+                switch (result.Message.Value.Action)
+                {
+                    case IndexAction.Publish:
+                        await PublishContentAsync(content);
+                        break;
+                    case IndexAction.Unpublish:
+                        await UnpublishContentAsync(content);
+                        break;
+                    case IndexAction.Delete:
+                        await DeleteContentAsync(content);
+                        break;
+                    case IndexAction.Index:
+                    default:
+                        await IndexContentAsync(content);
+                        break;
+                }
             }
+            else
+            {
+                this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
+            }
+
+            // Successful run clears any errors.
+            this.State.ResetFailures();
+            _retries = 0;
+            return ConsumerAction.Proceed;
         }
-        else
+        catch (HttpClientRequestException ex)
         {
-            this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
+            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
         }
 
-        // Successful run clears any errors.
-        this.State.ResetFailures();
+        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>

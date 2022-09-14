@@ -29,6 +29,12 @@ public class ContentOptions : ServiceOptions
     /// get/set - The path to clip files.
     /// </summary>
     public string ClipPath { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The number of attempts to retry a failed import.
+    /// A retry that ultimately fails will still only count as a single failure for the service.
+    /// </summary>
+    public int RetryLimit { get; set; } = 3;
     #endregion
 
     #region Methods

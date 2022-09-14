@@ -60,7 +60,7 @@ export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<I
   },
   {
     id: 'publishedOn',
-    Header: () => <div className="center">Date</div>,
+    Header: () => <div className="center">Pub Date</div>,
     width: 100,
     accessor: (row) => row.publishedOn ?? row.createdOn,
     Cell: ({ value }: any) => (

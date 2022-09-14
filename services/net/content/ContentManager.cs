@@ -7,6 +7,7 @@ using TNO.Kafka.Models;
 using TNO.Models.Extensions;
 using TNO.Services.Managers;
 using TNO.Services.Content.Config;
+using TNO.Core.Exceptions;
 
 namespace TNO.Services.Content;
 
@@ -19,6 +20,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
+    private int _retries = 0;
     #endregion
 
     #region Properties
@@ -84,6 +86,9 @@ public class ContentManager : ServiceManager<ContentOptions>
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
                 this.State.Stop();
+
+                // The service is stopping or has stopped, consume should stop too.
+                this.Consumer.Stop();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -99,7 +104,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     // Listen to every enabled data source with a topic that is configured to produce content.
                     var topics = _options.GetContentTopics(dataSources
                         .Where(ds => ds.IsEnabled &&
-                            ds.ContentTypeId > 0 &&
+                            ds.ContentTypeId > 1 &&
                             !String.IsNullOrWhiteSpace(ds.Topic))
                         .Select(ds => ds.Topic).ToArray());
 
@@ -109,7 +114,6 @@ public class ContentManager : ServiceManager<ContentOptions>
 
                     if (topics.Length > 0)
                     {
-                        if (!this.Consumer.IsReady) this.Consumer.Open();
                         this.Consumer.Subscribe(topics);
                         ConsumeMessages();
                     }
@@ -143,7 +147,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
             _cancelToken = new CancellationTokenSource();
-            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
+            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
         }
     }
 
@@ -151,9 +155,10 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// Keep consuming messages from Kafka until the service stops running.
     /// </summary>
     /// <returns></returns>
-    private async Task ConsumerHandler()
+    private async Task ConsumerHandlerAsync()
     {
-        while (this.State.Status == ServiceStatus.Running && this.Consumer.IsReady)
+        while (this.State.Status == ServiceStatus.Running &&
+            _cancelToken?.IsCancellationRequested == false)
         {
             await this.Consumer.ConsumeAsync(HandleMessageAsync);
         }
@@ -168,16 +173,19 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private bool ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    /// <returns>True if the consumer should retry the message.</returns>
+    private ConsumerAction ConsumerErrorHandler(object sender, ErrorEventArgs e)
     {
-        this.State.RecordFailure();
-        if (e.GetException() is ConsumeException ex)
+        // Only the first retry will count as a failure.
+        if (_retries == 0)
+            this.State.RecordFailure();
+
+        if (e.GetException() is ConsumeException consume)
         {
-            return ex.Error.IsFatal;
+            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
         }
 
-        // Inform the consumer it should stop.
-        return this.State.Status != ServiceStatus.Running;
+        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -189,7 +197,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
-            _cancelToken != null && !_cancelToken.IsCancellationRequested)
+            _cancelToken?.IsCancellationRequested == false)
         {
             this.Logger.LogDebug("Consumer thread is being cancelled");
             _cancelToken.Cancel();
@@ -201,85 +209,96 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// Copy any file associated with source content.
     /// </summary>
     /// <param name="result"></param>
-    /// <returns></returns>
+    /// <returns>Whether to continue with the next message.</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
+    private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
-        this.Logger.LogInformation("Importing Content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
-
-        // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-        // TODO: Handle e-tag.
-        if (String.IsNullOrWhiteSpace(result.Message.Value.Source)) throw new InvalidOperationException($"Message does not contain a source");
-        var source = await _api.GetDataSourceAsync(result.Message.Value.Source) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Message.Value.Source}'");
-        if (source.ContentTypeId == 0) throw new InvalidOperationException($"Data source not configured to import content correctly");
-
-        // Only add if doesn't already exist.
-        var exists = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
-        if (exists == null)
+        try
         {
-            var content = new ContentModel()
-            {
-                Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
-                WorkflowStatus = Entities.WorkflowStatus.Received, // TODO: Automatically extract based on lifecycle of content reference.
-                ContentTypeId = source.ContentTypeId,
-                MediaTypeId = source.MediaTypeId,
-                LicenseId = source.LicenseId,
-                SeriesId = null, // TODO: Provide default series from Data Source config settings.
-                OtherSeries = null, // TODO: Provide default series from Data Source config settings.
-                OwnerId = source.OwnerId,
-                DataSourceId = source.Id,
-                Source = result.Message.Value.Source,
-                Headline = result.Message.Value.Title,
-                Uid = result.Message.Value.Uid,
-                Page = "", // TODO: Provide default page from Data Source config settings.
-                Summary = result.Message.Value.Summary,
-                Body = "",
-                SourceUrl = result.Message.Value.Link,
-                PublishedOn = result.Message.Value.PublishedOn,
-            };
-            content = await _api.AddContentAsync(content);
-            this.Logger.LogInformation("Content Imported.  Content ID: {Id}", content?.Id);
+            this.Logger.LogInformation("Importing Content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
 
-            // Upload the file to the API.
-            if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
+            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
+            // TODO: Handle e-tag.
+            if (String.IsNullOrWhiteSpace(result.Message.Value.Source)) throw new InvalidOperationException($"Message does not contain a source");
+            var source = await _api.GetDataSourceAsync(result.Message.Value.Source) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Message.Value.Source}'");
+            if (source.ContentTypeId == 0) throw new InvalidOperationException($"Data source not configured to import content correctly");
+
+            // Only add if doesn't already exist.
+            var exists = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
+            if (exists == null)
             {
-                // TODO: Handle different storage locations.
-                // Remote storage locations may not be easily accessible by this service.
-                var volumePath = source.GetConnectionValue("serviceType") switch
+                var content = new ContentModel()
                 {
-                    "stream" => _options.CapturePath,
-                    "clip" => _options.ClipPath,
-                    _ => ""
+                    Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
+                    WorkflowStatus = Entities.WorkflowStatus.Received, // TODO: Automatically extract based on lifecycle of content reference.
+                    ContentTypeId = source.ContentTypeId,
+                    MediaTypeId = source.MediaTypeId,
+                    LicenseId = source.LicenseId,
+                    SeriesId = null, // TODO: Provide default series from Data Source config settings.
+                    OtherSeries = null, // TODO: Provide default series from Data Source config settings.
+                    OwnerId = source.OwnerId,
+                    DataSourceId = source.Id,
+                    Source = result.Message.Value.Source,
+                    Headline = String.IsNullOrWhiteSpace(result.Message.Value.Title) ? "[TBD]" : result.Message.Value.Title,
+                    Uid = result.Message.Value.Uid,
+                    Page = "", // TODO: Provide default page from Data Source config settings.
+                    Summary = String.IsNullOrWhiteSpace(result.Message.Value.Summary) ? "[TBD]" : result.Message.Value.Summary,
+                    Body = "",
+                    SourceUrl = result.Message.Value.Link,
+                    PublishedOn = result.Message.Value.PublishedOn,
                 };
-                var sourcePath = Path.Join(volumePath, result.Message.Value.FilePath);
-                if (File.Exists(sourcePath))
-                {
-                    var file = File.OpenRead(sourcePath);
-                    var fileName = Path.GetFileName(sourcePath);
-                    await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
+                content = await _api.AddContentAsync(content);
+                this.Logger.LogInformation("Content Imported.  Content ID: {Id}, Pub: {published}", content?.Id, content?.PublishedOn);
 
-                    // Send a Kafka message to the transcription topic
-                    if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
+                // Upload the file to the API.
+                if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
+                {
+                    // TODO: Handle different storage locations.
+                    // Remote storage locations may not be easily accessible by this service.
+                    var volumePath = source.GetConnectionValue("serviceType") switch
                     {
-                        await SendMessageAsync(content);
+                        "stream" => _options.CapturePath,
+                        "clip" => _options.ClipPath,
+                        _ => ""
+                    };
+                    var sourcePath = Path.Join(volumePath, result.Message.Value.FilePath);
+                    if (File.Exists(sourcePath))
+                    {
+                        var file = File.OpenRead(sourcePath);
+                        var fileName = Path.GetFileName(sourcePath);
+                        await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
+
+                        // Send a Kafka message to the transcription topic
+                        if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
+                        {
+                            await SendMessageAsync(content);
+                        }
+                    }
+                    else
+                    {
+                        // TODO: Not sure if this should be considered a failure or not.
+                        this.Logger.LogWarning("File not found.  Content ID: {Id}, File: {sourcePath}", content.Id, sourcePath);
                     }
                 }
-                else
-                {
-                    // TODO: Not sure if this should be considered a failure or not.
-                    this.Logger.LogWarning("File not found.  Content ID: {Id}, File: {sourcePath}", content.Id, sourcePath);
-                }
             }
+            else
+            {
+                // TODO: Not sure if this should be considered a failure or not.
+                // Content shouldn't exist already, it indicates unexpected scenario.
+                this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", result.Message.Value.Source, result.Message.Value.Uid);
+            }
+
+            // Successful run clears any errors.
+            this.State.ResetFailures();
+            _retries = 0;
+            return ConsumerAction.Proceed;
         }
-        else
+        catch (HttpClientRequestException ex)
         {
-            // TODO: Not sure if this should be considered a failure or not.
-            // Content shouldn't exist already, it indicates unexpected scenario.
-            this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", result.Message.Value.Source, result.Message.Value.Uid);
+            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
         }
 
-        // Successful run clears any errors.
-        this.State.ResetFailures();
+        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>

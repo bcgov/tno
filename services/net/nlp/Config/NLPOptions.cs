@@ -18,5 +18,11 @@ public class NLPOptions : ServiceOptions
     /// get/set - The Kafka topic to send indexing requests to.
     /// </summary>
     public string IndexingTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The number of attempts to retry a failed import.
+    /// A retry that ultimately fails will still only count as a single failure for the service.
+    /// </summary>
+    public int RetryLimit { get; set; } = 3;
     #endregion
 }

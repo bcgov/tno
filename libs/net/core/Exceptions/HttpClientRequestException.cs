@@ -35,9 +35,9 @@ namespace TNO.Core.Exceptions
         /// <returns></returns>
         public HttpClientRequestException(string message, Exception innerException, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) : base(message, innerException, statusCode)
         {
-            if (innerException is HttpClientRequestException)
+            if (innerException is HttpClientRequestException exception)
             {
-                this.Response = ((HttpClientRequestException)innerException).Response;
+                this.Response = exception.Response;
             }
         }
 
@@ -46,11 +46,10 @@ namespace TNO.Core.Exceptions
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
-        public HttpClientRequestException(HttpResponseMessage response) : base($"HTTP Request {response?.StatusCode}:'{response?.RequestMessage?.RequestUri}' failed", null, response?.StatusCode)
+        public HttpClientRequestException(HttpResponseMessage response) : base($"HTTP Request failed [{response?.RequestMessage?.Method}]:[{response?.StatusCode}]:{response?.RequestMessage?.RequestUri}", null, response?.StatusCode)
         {
-            this.Response = response ?? throw new ArgumentNullException(nameof(response)); // NOSONAR
-            var body = response.Content.ReadAsStringAsync().Result;
-            this.Data["Body"] = body;
+            this.Response = response ?? throw new ArgumentNullException(nameof(response));
+            this.Data["Body"] = response.Content.ReadAsStringAsync().Result;
         }
 
         /// <summary>
@@ -60,9 +59,8 @@ namespace TNO.Core.Exceptions
         /// <returns></returns>
         public HttpClientRequestException(HttpResponseMessage response, string message) : base(message, null, response?.StatusCode)
         {
-            this.Response = response ?? throw new ArgumentNullException(nameof(response)); // NOSONAR
-            var body = response.Content.ReadAsStringAsync().Result;
-            this.Data["Body"] = body;
+            this.Response = response ?? throw new ArgumentNullException(nameof(response));
+            this.Data["Body"] = response.Content.ReadAsStringAsync().Result;
         }
 
         /// <summary>
@@ -70,11 +68,10 @@ namespace TNO.Core.Exceptions
         /// </summary>
         /// <param name="response"></param>
         /// <returns></returns>
-        public HttpClientRequestException(HttpResponseMessage response, Exception innerException) : base($"HTTP Request {response?.StatusCode}:'{response?.RequestMessage?.RequestUri}' failed", innerException, response?.StatusCode)
+        public HttpClientRequestException(HttpResponseMessage response, Exception innerException) : base($"HTTP Request failed [{response?.RequestMessage?.Method}]:[{response?.StatusCode}]:{response?.RequestMessage?.RequestUri}", innerException, response?.StatusCode)
         {
-            this.Response = response ?? throw new ArgumentNullException(nameof(response)); // NOSONAR
-            var body = response.Content.ReadAsStringAsync().Result;
-            this.Data["Body"] = body;
+            this.Response = response ?? throw new ArgumentNullException(nameof(response));
+            this.Data["Body"] = response.Content.ReadAsStringAsync().Result;
         }
         #endregion
     }
