@@ -32,6 +32,6 @@ public class LicenseTest
         Assert.Equal(10, item.TTL);
 
         Assert.Empty(item.Contents);
-        Assert.Empty(item.DataSources);
+        Assert.Empty(item.Sources);
     }
 }

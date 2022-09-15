@@ -2,20 +2,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// ContentTonePool class, provides an entity model that links (many-to-many) content with tone pools.
+/// </summary>
 [Table("content_tone")]
 public class ContentTonePool : AuditColumns, IEquatable<ContentTonePool>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Primary key and foreign key to content.
+    /// </summary>
     [Column("content_id")]
     public long ContentId { get; set; }
 
+    /// <summary>
+    /// get/set - The content.
+    /// </summary>
     public virtual Content? Content { get; set; }
 
+    /// <summary>
+    /// get/set - Primary key and foreign key to tone pool.
+    /// </summary>
     [Column("tone_pool_id")]
     public int TonePoolId { get; set; }
 
+    /// <summary>
+    /// get/set - The tone pool.
+    /// </summary>
     public virtual TonePool? TonePool { get; set; }
 
+    /// <summary>
+    /// get/set - The value of the tone pool.
+    /// </summary>
     [Column("value")]
     public int Value { get; set; }
     #endregion

@@ -1,4 +1,4 @@
-FROM node:16.10-bullseye
+FROM node:16-bullseye
 
 WORKDIR /usr/app
 COPY .yarn ./.yarn

@@ -5,7 +5,7 @@ using TNO.Services.Command;
 namespace TNO.Services.Capture;
 
 /// <summary>
-/// CaptureService abstrct class, provides a console application that runs service, and an api.
+/// CaptureService abstract class, provides a console application that runs service, and an api.
 /// </summary>
 public class CaptureService : CommandService
 {
@@ -37,7 +37,7 @@ public class CaptureService : CommandService
         services
             .Configure<CaptureOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<CaptureOptions>, CaptureAction>()
-            .AddTransient<DataSourceIngestManagerFactory<CaptureDataSourceManager, CaptureOptions>>()
+            .AddTransient<IngestManagerFactory<CaptureIngestActionManager, CaptureOptions>>()
             .AddSingleton<IServiceManager, CaptureManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

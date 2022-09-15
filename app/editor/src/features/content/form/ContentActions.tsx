@@ -1,7 +1,7 @@
 import { Checkbox } from 'components/form';
 import { FormikCheckbox, FormikText, FormikTextArea } from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
-import { ActionName, ContentType, useNamespace } from 'hooks';
+import { ActionName, ContentTypeName, useNamespace } from 'hooks';
 import { IActionModel, IContentActionModel, ValueType } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -21,7 +21,7 @@ export interface IContentActionsProps {
    */
   filter?: (action: IActionModel) => boolean;
   /** The type of content that is being displayed within the Content Form */
-  contentType?: ContentType;
+  contentType?: ContentTypeName;
 }
 
 export interface IContentActionCheckbox {
@@ -62,7 +62,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
 
   const options = actions.filter(filter).map((a) => {
     const index = formActions.findIndex((ca) => ca.id === a.id);
-    if (contentType === ContentType.Print) {
+    if (contentType === ContentTypeName.PrintContent) {
       const alertIndex = formActions.findIndex((a) => a.name === ActionName.Alert);
       if (alertIndex !== -1) formActions[alertIndex].value = 'false';
     }

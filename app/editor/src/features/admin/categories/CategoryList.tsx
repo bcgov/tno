@@ -1,10 +1,10 @@
-import { FormPage } from 'components/form/formpage/styled';
+import { FormPage, IconButton } from 'components/form';
 import { ICategoryModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from 'store/hooks/admin/categories';
 import { useApp } from 'store/hooks/app/useApp';
-import { GridTable } from 'tno-core';
+import { Col, GridTable, Row } from 'tno-core';
 
 import { CategoryListFilter } from './CategoryListFilter';
 import { columns } from './constants';
@@ -30,6 +30,16 @@ export const CategoryList: React.FC = () => {
   return (
     <styled.CategoryList>
       <FormPage>
+        <Row className="add-media" justifyContent="flex-end">
+          <Col flex="1 1 0">
+            Categories provide a way to group related content and identify content for reports.
+          </Col>
+          <IconButton
+            iconType="plus"
+            label={`Add new category`}
+            onClick={() => navigate(`/admin/categories/0`)}
+          />
+        </Row>
         <GridTable
           columns={columns}
           header={CategoryListFilter}

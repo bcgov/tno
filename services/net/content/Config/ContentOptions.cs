@@ -21,14 +21,9 @@ public class ContentOptions : ServiceOptions
     public string TranscriptionTopic { get; set; } = "";
 
     /// <summary>
-    /// get/set - The path to capture files.
+    /// get/set - The path to files stored on the local volume.
     /// </summary>
-    public string CapturePath { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The path to clip files.
-    /// </summary>
-    public string ClipPath { get; set; } = "";
+    public string VolumePath { get; set; } = "";
 
     /// <summary>
     /// get/set - The number of attempts to retry a failed import.

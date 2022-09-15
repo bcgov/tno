@@ -1,4 +1,4 @@
-import { FormPage } from 'components/form/formpage/styled';
+import { FormPage, IconButton } from 'components/form';
 import { makeUserFilter } from 'features/content/list-view/utils/makeUserFilter';
 import { IUserModel } from 'hooks';
 import React from 'react';
@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useUsers } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Page, PagedTable } from 'tno-core';
+import { Col, Page, PagedTable, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { IUserListFilter } from './interfaces/IUserListFilter';
@@ -68,6 +68,16 @@ export const UserList: React.FC = () => {
   return (
     <styled.UserList>
       <FormPage>
+        <Row className="add-media" justifyContent="flex-end">
+          <Col flex="1 1 0">
+            User administration provides a way to approve users and grant them appropriate roles.
+          </Col>
+          <IconButton
+            iconType="plus"
+            label="Add New User"
+            onClick={() => navigate('/admin/users/0')}
+          />
+        </Row>
         <PagedTable
           columns={columns}
           header={UserFilter}

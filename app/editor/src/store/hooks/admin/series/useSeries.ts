@@ -4,7 +4,7 @@ import { useApiDispatcher } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface ISeriesController {
-  findAllSeriess: () => Promise<ISeriesModel[]>;
+  findAllSeries: () => Promise<ISeriesModel[]>;
   findSeries: (filter: ISeriesFilter) => Promise<IPaged<ISeriesModel>>;
   getSeries: (id: number) => Promise<ISeriesModel>;
   addSeries: (model: ISeriesModel) => Promise<ISeriesModel>;
@@ -19,7 +19,7 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAllSeriess: async () => {
+      findAllSeries: async () => {
         const result = await dispatch<ISeriesModel[]>('find-all-series', () => api.findAllSeries());
         store.storeSeries(result);
         return result;

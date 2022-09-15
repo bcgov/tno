@@ -6,19 +6,26 @@ import {
   ActionList,
   CategoryForm,
   CategoryList,
-  CBRAReport,
-  ContentLogs,
+  ConnectionForm,
+  ConnectionList,
   ContentReferenceList,
-  DataSourceDetails,
-  DataSourceForm,
-  DataSourceList,
+  IngestDetails,
+  IngestForm,
+  IngestList,
+  IngestSchedule,
+  IngestSettings,
+  LicenseForm,
+  LicenseList,
   MediaTypeForm,
   MediaTypeList,
+  ProductForm,
+  ProductList,
   ReachEarnedMedia,
   SeriesForm,
   SeriesList,
-  ServiceIngestSettings,
-  ServiceSchedule,
+  SourceDetails,
+  SourceForm,
+  SourceList,
   TagList,
   TagsForm,
   UserForm,
@@ -31,28 +38,46 @@ export const AdminRouter: React.FC = () => {
       <Route index element={<Navigate to="users" />} />
       <Route path="users" element={<UserList />} />
       <Route path="users/:id" element={<UserForm />} />
+
       <Route path="media/types" element={<MediaTypeList />} />
-      <Route path="categories" element={<CategoryList />} />
-      <Route path="tags" element={<TagList />} />
-      <Route path="actions" element={<ActionList />} />
-      <Route path="series" element={<SeriesList />} />
       <Route path="media/types/:id" element={<MediaTypeForm />} />
-      <Route path="series/:id" element={<SeriesForm />} />
-      <Route path="tags/:id" element={<TagsForm />} />
-      <Route path="actions/:id" element={<ActionForm />} />
+
+      <Route path="categories" element={<CategoryList />} />
       <Route path="categories/:id" element={<CategoryForm />} />
 
-      <Route path="data/sources" element={<DataSourceList />} />
-      <Route path="data/sources/:id" element={<DataSourceForm />}>
-        <Route index element={<DataSourceDetails />} />
-        <Route path="details" element={<DataSourceDetails />} />
+      <Route path="tags" element={<TagList />} />
+      <Route path="tags/:id" element={<TagsForm />} />
+
+      <Route path="series" element={<SeriesList />} />
+      <Route path="series/:id" element={<SeriesForm />} />
+
+      <Route path="products" element={<ProductList />} />
+      <Route path="products/:id" element={<ProductForm />} />
+
+      <Route path="actions" element={<ActionList />} />
+      <Route path="actions/:id" element={<ActionForm />} />
+
+      <Route path="licenses" element={<LicenseList />} />
+      <Route path="licenses/:id" element={<LicenseForm />} />
+
+      <Route path="sources" element={<SourceList />} />
+      <Route path="sources/:id" element={<SourceForm />}>
+        <Route index element={<SourceDetails />} />
+        <Route path="details" element={<SourceDetails />} />
         <Route path="metrics" element={<ReachEarnedMedia />} />
-        <Route path="ingest/schedule" element={<ServiceSchedule />} />
-        <Route path="ingest/settings" element={<ServiceIngestSettings />} />
+      </Route>
+
+      <Route path="connections" element={<ConnectionList />} />
+      <Route path="connections/:id" element={<ConnectionForm />} />
+
+      <Route path="ingests" element={<IngestList />} />
+      <Route path="ingests/:id" element={<IngestForm />}>
+        <Route index element={<IngestDetails />} />
+        <Route path="details" element={<IngestDetails />} />
+        <Route path="schedule" element={<IngestSchedule />} />
+        <Route path="settings" element={<IngestSettings />} />
         <Route path="ingesting" element={<ContentReferenceList />} />
       </Route>
-      <Route path="contents/log" element={<ContentLogs />} />
-      <Route path="reports/cbra" element={<CBRAReport />} />
     </Routes>
   );
 };

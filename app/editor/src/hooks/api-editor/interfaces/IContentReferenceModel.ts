@@ -4,7 +4,7 @@ export interface IContentReferenceModel {
   source: string;
   uid: string;
   topic: string;
-  workflowStatus: WorkflowStatusName;
+  status: WorkflowStatusName;
   offset: number;
   partition: number;
   publishedOn?: string;

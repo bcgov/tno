@@ -1,12 +1,11 @@
 import {
   ContentStatusName,
+  ContentTypeName,
   IAuditColumnsModel,
-  IContentTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
+  IProductModel,
   ISeriesModel,
   IUserModel,
-  WorkflowStatusName,
 } from '..';
 import {
   IContentActionModel,
@@ -24,16 +23,14 @@ export interface IContentModel extends IAuditColumnsModel {
   id: number;
   printContent?: IPrintContentModel;
   status: ContentStatusName;
-  workflowStatus: WorkflowStatusName;
-  contentTypeId: number;
-  contentType?: IContentTypeModel;
-  mediaTypeId: number;
-  mediaType?: IMediaTypeModel;
+  contentType: ContentTypeName;
   licenseId: number;
   license?: ILicenseModel;
-  dataSourceId?: number;
-  dataSource?: ISeriesModel;
-  source: string;
+  sourceId?: number;
+  source?: ISeriesModel;
+  otherSource: string;
+  productId: number;
+  product?: IProductModel;
   seriesId?: number;
   series?: ISeriesModel;
   otherSeries?: string;
@@ -44,7 +41,7 @@ export interface IContentModel extends IAuditColumnsModel {
   page: string;
   publishedOn: Date;
   summary: string;
-  transcription?: string;
+  body?: string;
   sourceUrl?: string;
   actions?: IContentActionModel[];
   tags?: IContentTagModel[];

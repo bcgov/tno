@@ -1,34 +1,25 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using TNO.Core.Data;
-
 namespace TNO.Entities;
 
 /// <summary>
-/// ContentType class, provides a way to identify the content type and the form it will use.
+/// ContentType enum, provides a way to identify the type of content the media belongs to and which form to use.
 /// </summary>
-[Cache("content_types", "lookups")]
-[Table("content_type")]
-public class ContentType : BaseType<int>
+public enum ContentType
 {
-    #region Properties
-    public virtual List<DataSource> DataSources { get; } = new List<DataSource>();
-    public virtual List<Content> Contents { get; } = new List<Content>();
-    public virtual List<Action> Actions { get; } = new List<Action>();
-    public virtual List<ContentTypeAction> ActionsManyToMany { get; } = new List<ContentTypeAction>();
-    #endregion
-
-    #region Constructors
     /// <summary>
-    /// Creates a new instance of a ContentType object.
+    /// Snippet content contains audio/video.
     /// </summary>
-    protected ContentType() { }
-
+    Snippet = 0,
     /// <summary>
-    /// Creates a new instance of a ContentType object, initializes with specified parameter.
+    /// Print content is stories published by newspapers in traditional media.
     /// </summary>
-    /// <param name="name"></param>
-    public ContentType(string name) : base(name)
-    {
-    }
-    #endregion
+    PrintContent = 1,
+    /// <summary>
+    /// Image files and front page images of newspapers.
+    /// </summary>
+    Image = 2,
+    /// <summary>
+    /// Text based content, which can contain files.
+    /// Used for internet based content with links.
+    /// </summary>
+    Story = 3,
 }

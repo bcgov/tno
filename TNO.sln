@@ -61,7 +61,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Syndication", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Transcription", "services\net\transcription\TNO.Services.Transcription.csproj", "{1A1017A0-DCA4-45E6-B8CE-6FDF3913E7EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Filemonitor", "services\net\filemonitor\TNO.Services.Filemonitor.csproj", "{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FileMonitor", "services\net\filemonitor\TNO.Services.FileMonitor.csproj", "{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

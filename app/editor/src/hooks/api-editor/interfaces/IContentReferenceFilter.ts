@@ -5,7 +5,7 @@ export interface IContentReferenceFilter extends IPageFilter {
   source?: string;
   uid?: string;
   topic?: string;
-  workflowStatus?: WorkflowStatusName;
+  status?: WorkflowStatusName;
   offset?: number;
   partition?: number;
   publishedOn?: string;

@@ -100,7 +100,7 @@ stop: ## Stops all containers or the one specified (args: n={service name}, p={p
 		-f docker-compose.override.yml \
 		-f ./db/kafka/docker-compose.yml \
 		-f ./services/docker-compose.yml \
-		$(if $(p),--profile $(p),$(if $(n),--profile all,)) \
+		$(if $(p),--profile $(p),$(if $(n),--profile all,--profile all)) \
 		stop $(n)
 
 down: ## Stops all containers and removes them (p={profile name, [all,api,editor,subscriber,kafka,service,utility,ingest]})))
@@ -133,6 +133,12 @@ renew: ## Refresh all relevant services that were impacted by prior Pull Request
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
 	@make db-refresh
 	@make refresh n=api
+	@make refresh n=editor
+	@make rebuild n=capture
+	@make rebuild n=clip
+	@make rebuild n=syndication
+	@make rebuild n=image
+	@make rebuild n=filemonitor
 	@make rebuild n=content
 	@make rebuild n=nlp
 	@make rebuild n=indexing

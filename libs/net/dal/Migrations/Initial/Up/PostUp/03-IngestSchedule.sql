@@ -1,0 +1,70 @@
+DO $$
+DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
+BEGIN
+
+INSERT INTO public.ingest_schedule (
+  "ingest_id"
+  , "schedule_id"
+  , "created_by_id"
+  , "created_by"
+  , "created_on"
+  , "updated_by_id"
+  , "updated_by"
+  , "updated_on"
+) VALUES (
+  (SELECT id FROM public.ingest WHERE name = 'CBC News')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC News - 01') -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC News')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC News - 02') -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC Victoria - Stream')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Victoria - Stream') -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC Victoria - Clips')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Victoria - Clips')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'Castanet')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'Castanet')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'Canadian Press Wire')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'Canadian Press Wire')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+);
+
+END $$;

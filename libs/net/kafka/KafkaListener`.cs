@@ -112,8 +112,6 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         if (!this.Topics.SequenceEqual(topics))
         {
             this.Topics = topics;
-
-            // TODO: Use the KafkaAdminClient to validate all topics before attempting to subscribe to them.
             this.Consumer?.Subscribe(topics);
             _logger.LogInformation("Subscribing to topics: {topics}", String.Join(", ", topics));
         }

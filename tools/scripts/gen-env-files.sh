@@ -436,7 +436,7 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__OutputPath=../data/capture
+# Service__VolumePath=../data
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/capture/.env
     echo "./services/net/capture/.env created"
@@ -455,8 +455,7 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-# Service__CapturePath=../data/capture
-# Service__OutputPath=../data/clip
+# Service__VolumePath=../data
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/clip/.env
     echo "./services/net/clip/.env created"
@@ -474,8 +473,30 @@ Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/
 Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
-Service__OutputPath=../data/image" >> ./services/net/image/.env
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+# Service__VolumePath=../data
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/image/.env
     echo "./services/net/image/.env created"
+fi
+
+## File Ingest Service
+if test -f "./services/net/filemonitor/.env"; then
+    echo "./services/net/filemonitor/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+# Service__VolumePath=../data
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/filemonitor/.env
+    echo "./services/net/filemonitor/.env created"
 fi
 
 ## Content Service
@@ -491,7 +512,6 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__ContentTopics=news-ghi
 Service__TranscriptionTopic=transcription
 
 Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/content/.env

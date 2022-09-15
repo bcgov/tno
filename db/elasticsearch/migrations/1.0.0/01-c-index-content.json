@@ -2,27 +2,31 @@
   "settings": {
     "index": {
       "number_of_shards": 1,
-      "number_of_replicas": 1
+      "number_of_replicas": 3
     }
   },
   "mappings": {
     "properties": {
       "id": { "type": "long" },
       "uid": { "type": "text" },
-      "dataSourceId": { "type": "integer", "index": false },
-      "source": { "type": "keyword" },
-      "mediaTypeId": { "type": "integer" },
-      "contentTypeId": { "type": "integer" },
+      "sourceId": { "type": "integer", "index": false },
+      "otherSource": { "type": "keyword" },
+      "status": { "type": "keyword" },
+      "contentType": { "type": "keyword" },
       "licenseId": { "type": "integer" },
       "seriesId": { "type": "integer" },
       "otherSeries": { "type": "text" },
+      "ownerId": { "type": "integer" },
       "headline": { "type": "text" },
       "page": { "type": "text" },
       "sourceUrl": { "type": "text", "index": false },
-      "status": { "type": "keyword", "index": false },
       "summary": { "type": "text" },
-      "transcription": { "type": "text" },
+      "body": { "type": "text" },
       "publishedOn": { "type": "date" },
+      "edition": { "type": "keyword" },
+      "section": { "type": "keyword" },
+      "storyType": { "type": "keyword" },
+      "byline": { "type": "text" },
       "createdBy": { "type": "text", "index": false },
       "createdById": { "type": "text", "index": false },
       "createdOn": { "type": "date" },

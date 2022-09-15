@@ -4,15 +4,14 @@ import {
   ICacheModel,
   ICategoryModel,
   IClaimModel,
-  IContentTypeModel,
-  IDataLocationModel,
-  IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
+  IMetricModel,
+  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISourceActionModel,
-  ISourceMetricModel,
+  ISourceModel,
   ITagModel,
   ITonePoolModel,
   IUserModel,
@@ -25,15 +24,14 @@ export const initialLookupState: ILookupState = {
   actions: [],
   categories: [],
   claims: [],
-  contentTypes: [],
-  dataLocations: [],
-  dataSources: [],
+  products: [],
   licenses: [],
   mediaTypes: [],
   roles: [],
   series: [],
+  sources: [],
   sourceActions: [],
-  sourceMetrics: [],
+  metrics: [],
   tags: [],
   tonePools: [],
   users: [],
@@ -66,14 +64,11 @@ export const lookupSlice = createSlice({
     storeClaims(state: ILookupState, action: PayloadAction<IClaimModel[]>) {
       state.claims = action.payload;
     },
-    storeContentTypes(state: ILookupState, action: PayloadAction<IContentTypeModel[]>) {
-      state.contentTypes = action.payload;
+    storeProducts(state: ILookupState, action: PayloadAction<IProductModel[]>) {
+      state.products = action.payload;
     },
-    storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
-      state.dataLocations = action.payload;
-    },
-    storeDataSources(state: ILookupState, action: PayloadAction<IDataSourceModel[]>) {
-      state.dataSources = action.payload;
+    storeSources(state: ILookupState, action: PayloadAction<ISourceModel[]>) {
+      state.sources = action.payload;
     },
     storeLicenses(state: ILookupState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
@@ -90,8 +85,8 @@ export const lookupSlice = createSlice({
     storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
       state.sourceActions = action.payload;
     },
-    storeSourceMetrics(state: ILookupState, action: PayloadAction<ISourceMetricModel[]>) {
-      state.sourceMetrics = action.payload;
+    storeMetrics(state: ILookupState, action: PayloadAction<IMetricModel[]>) {
+      state.metrics = action.payload;
     },
     storeTags(state: ILookupState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
@@ -111,15 +106,14 @@ export const {
   storeActions,
   storeCategories,
   storeClaims,
-  storeContentTypes,
-  storeDataLocations,
-  storeDataSources,
+  storeProducts,
   storeLicenses,
   storeMediaTypes,
   storeRoles,
   storeSeries,
+  storeSources,
   storeSourceActions,
-  storeSourceMetrics,
+  storeMetrics,
   storeTags,
   storeTonePools,
   storeUsers,

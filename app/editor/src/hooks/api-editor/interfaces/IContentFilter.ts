@@ -1,11 +1,11 @@
-import { ContentStatus, LogicalOperator } from '..';
+import { ContentStatus, ContentTypeName, LogicalOperator } from '..';
 import { IPageFilter } from '.';
 
 export interface IContentFilter extends IPageFilter {
-  mediaTypeId?: number;
-  contentTypeId?: number;
-  source?: string;
-  dataSourceId?: number;
+  contentType?: ContentTypeName;
+  productId?: number;
+  otherSource?: string;
+  sourceId?: number;
   ownerId?: number;
   userId?: number;
   pageName?: string;

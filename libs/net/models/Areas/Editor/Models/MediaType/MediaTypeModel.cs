@@ -1,4 +1,5 @@
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.MediaType;
 
@@ -8,6 +9,10 @@ namespace TNO.API.Areas.Editor.Models.MediaType;
 public class MediaTypeModel : BaseTypeModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - The content type of this media and the form to use.
+    /// </summary>
+    public ContentType ContentType { get; set; } = ContentType.Snippet;
     #endregion
 
     #region Constructors
@@ -22,7 +27,7 @@ public class MediaTypeModel : BaseTypeModel<int>
     /// <param name="entity"></param>
     public MediaTypeModel(Entities.MediaType entity) : base(entity)
     {
-
+        this.ContentType = entity.ContentType;
     }
     #endregion
 }

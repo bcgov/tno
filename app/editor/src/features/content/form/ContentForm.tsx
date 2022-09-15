@@ -9,19 +9,20 @@ import {
   FormikHidden,
   FormikSelect,
   FormikText,
-  FormikTextArea,
 } from 'components/formik';
 import { Modal } from 'components/modal';
+import { FormikProps } from 'formik';
 import {
   ActionName,
+  ContentTypeName,
   IActionModel,
   useCombinedView,
-  useDataSourceOptions,
-  useMediaTypeOptions,
+  useProductOptions,
+  useSourceOptions,
   useTooltips,
   useUserLookups,
 } from 'hooks';
-import { ContentStatusName, ContentType, IContentModel, ValueType } from 'hooks/api-editor';
+import { ContentStatusName, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
 import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines, FaSpinner } from 'react-icons/fa';
@@ -45,7 +46,7 @@ import { switchStatus, toForm, toModel } from './utils';
 
 export interface IContentFormProps {
   /** The content type this form will create */
-  contentType: ContentType;
+  contentType: ContentTypeName;
 }
 
 /**
@@ -55,15 +56,15 @@ export interface IContentFormProps {
 export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ dataSources, tonePools, series }, { getSeries }] = useLookup();
+  const [{ sources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
     { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
   ] = useContent();
   const { isShowing, toggle } = useModal();
   const { userId } = useUserLookups();
-  const dataSourceOptions = useDataSourceOptions();
-  const mediaTypeOptions = useMediaTypeOptions();
+  const sourceOptions = useSourceOptions();
+  const productOptions = useProductOptions();
   const combined = useCombinedView();
   useTooltips();
 
@@ -79,9 +80,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
   const determineActions = () => {
-    if (contentType === ContentType.Snippet)
+    if (contentType === ContentTypeName.Snippet)
       return (a: IActionModel) => a.valueType === ValueType.Boolean;
-    if (contentType === ContentType.Print)
+    if (contentType === ContentTypeName.PrintContent)
       return (a: IActionModel) =>
         a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
   };
@@ -107,7 +108,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
     try {
       if (!values.id) {
         // Only new content is initialized.
-        values.contentTypeId = contentType;
+        values.contentType = contentType;
         values.ownerId = userId;
       }
 
@@ -136,11 +137,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
         setContent(toForm({ ...contentResult, tonePools: values.tonePools }));
       }
 
-      toast.success(`${contentResult.headline} has successfully been saved.`);
+      toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
       if (!originalId)
         navigate(
-          `${contentResult.contentTypeId === ContentType.Snippet ? '/snippets/' : '/papers/'}${
+          `${contentResult?.contentType === ContentTypeName.Snippet ? '/snippets/' : '/papers/'}${
             combined ? '/contents/combined/' : ''
           }${contentResult.id}`,
         );
@@ -158,13 +159,25 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
     }
   };
 
-  const handlePublish = async (values: IContentForm) => {
-    const defaultTonePool = tonePools.find((t) => t.name === 'Default');
-    values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
+  const handlePublish = async (props: FormikProps<IContentForm>) => {
+    const values = props.values;
+    await props.validateForm(values);
 
-    const model = toModel(values);
-    const result = await publishContent(model);
-    setContent(toForm(result));
+    if (props.isValid) {
+      const defaultTonePool = tonePools.find((t) => t.name === 'Default');
+      values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
+
+      try {
+        const model = toModel(values);
+        const result = await publishContent(model);
+        setContent(toForm(result));
+        toast.success(
+          `"${values.headline}" has successfully requested publishing and has been saved.`,
+        );
+      } catch {
+        // Ignore this failure it is handled by our global ajax requests.
+      }
+    }
   };
 
   return (
@@ -189,8 +202,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                 variant={ButtonVariant.secondary}
                 tooltip="Full Page View"
                 onClick={() => {
-                  if (contentType === ContentType.Snippet) navigate(`/snippets/${id}`);
-                  if (contentType === ContentType.Print) navigate(`/papers/${id}`);
+                  if (contentType === ContentTypeName.Snippet) navigate(`/snippets/${id}`);
+                  else navigate(`/papers/${id}`);
                 }}
               >
                 <FontAwesomeIcon icon={faUpRightFromSquare} />
@@ -204,9 +217,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   const id = page?.items[indexPosition - 1]?.id;
                   if (!!id) {
                     if (!!combined) navigate(`/contents/combined/${id}`);
-                    if (contentType === ContentType.Snippet && !combined)
-                      navigate(`/snippets/${id}`);
-                    if (contentType === ContentType.Print && !combined) navigate(`/papers/${id}`);
+                    else if (contentType === ContentTypeName.Snippet) navigate(`/snippets/${id}`);
+                    else navigate(`/papers/${id}`);
                   }
                 }}
                 disabled={!enablePrev}
@@ -219,8 +231,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                 onClick={() => {
                   const id = page?.items[indexPosition + 1]?.id;
                   if (combined) navigate(`/contents/combined/${id}`);
-                  if (contentType === ContentType.Snippet && !combined) navigate(`/snippets/${id}`);
-                  if (contentType === ContentType.Print && !combined) navigate(`/papers/${id}`);
+                  else if (contentType === ContentTypeName.Snippet) navigate(`/snippets/${id}`);
+                  else navigate(`/papers/${id}`);
                 }}
                 disabled={!enableNext}
               >
@@ -292,71 +304,66 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                       </Row>
                       <Row>
                         <FormikSelect
-                          name="dataSourceId"
+                          name="sourceId"
                           label="Source"
                           width={FieldSize.Big}
                           value={
-                            dataSourceOptions.find(
-                              (mt) => mt.value === props.values.dataSourceId,
-                            ) ?? ''
+                            sourceOptions.find((mt) => mt.value === props.values.sourceId) ?? ''
                           }
                           onChange={(newValue: any) => {
-                            const dataSource = dataSources.find((ds) => ds.id === newValue.value);
-                            props.setFieldValue('dataSourceId', newValue.value);
-                            props.setFieldValue('source', dataSource?.code ?? '');
-                            if (!!dataSource) {
-                              props.setFieldValue('mediaTypeId', dataSource.mediaTypeId);
-                              props.setFieldValue('licenseId', dataSource.licenseId);
+                            const source = sources.find((ds) => ds.id === newValue.value);
+                            props.setFieldValue('sourceId', newValue.value);
+                            props.setFieldValue('otherSource', source?.code ?? '');
+                            if (!!source) {
+                              props.setFieldValue('licenseId', source.licenseId);
                             }
                           }}
-                          options={dataSourceOptions}
-                          required={!props.values.source}
-                          isDisabled={!!props.values.otherSource}
+                          options={sourceOptions}
+                          required={!props.values.otherSource}
+                          isDisabled={!!props.values.tempSource}
                         />
-                        <FormikHidden name="source" />
+                        <FormikHidden name="otherSource" />
                         <FormikText
-                          name="otherSource"
+                          name="tempSource"
                           label="Other Source"
                           onChange={(e) => {
                             const value = e.currentTarget.value;
+                            props.setFieldValue('tempSource', value);
                             props.setFieldValue('otherSource', value);
-                            props.setFieldValue('source', value);
                             if (!!value) {
-                              props.setFieldValue('dataSourceId', undefined);
+                              props.setFieldValue('sourceId', undefined);
                             }
                           }}
-                          required={!!props.values.otherSource}
+                          required={!!props.values.tempSource}
                         />
                       </Row>
                       <Row>
                         <Col grow={1}>
                           <FormikSelect
-                            name="mediaTypeId"
+                            name="productId"
                             value={
-                              mediaTypeOptions.find(
-                                (mt) => mt.value === props.values.mediaTypeId,
-                              ) ?? ''
+                              productOptions.find((mt) => mt.value === props.values.productId) ?? ''
                             }
-                            label="Media Type"
-                            options={mediaTypeOptions}
+                            label="Designation"
+                            options={productOptions}
                             required
                           />
                         </Col>
-                        <Show visible={contentType === ContentType.Print}>
+                        <Show visible={contentType !== ContentTypeName.Snippet}>
                           <Col grow={1}>
                             <FormikText name="edition" label="Edition" />
                           </Col>
                         </Show>
                       </Row>
-                      <Show visible={contentType === ContentType.Print}>
+                      <Show visible={contentType !== ContentTypeName.Snippet}>
                         <Row>
                           <FormikText name="section" label="Section" required />
                           <FormikText name="storyType" label="Story Type" required />
                           <FormikText name="page" label="Page" />
                         </Row>
-                        <FormikTextArea name="byline" label="By Line" required />
+                        <FormikText name="byline" label="Byline" required />
                       </Show>
-                      <Show visible={contentType === ContentType.Snippet}>
+                      <Show visible={contentType === ContentTypeName.Snippet}>
                         <FormikText
                           name="sourceUrl"
                           label="Source URL"
@@ -399,7 +406,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   </Show>
                 </Row>
                 <Row>
-                  <Show visible={contentType === ContentType.Snippet}>
+                  <Show visible={contentType === ContentTypeName.Snippet}>
                     <Tabs
                       className={`tabs ${size === 1 ? 'small' : 'large'}`}
                       tabs={
@@ -445,7 +452,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                       </Show>
                     </Tabs>
                   </Show>
-                  <Show visible={contentType === ContentType.Print}>
+                  <Show visible={contentType !== ContentTypeName.Snippet}>
                     <ContentSummaryForm
                       content={content}
                       setContent={setContent}
@@ -459,13 +466,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   </Button>
                   <Show visible={!!props.values.id}>
                     <Button
-                      onClick={() => handlePublish(props.values)}
+                      onClick={() => handlePublish(props)}
                       variant={ButtonVariant.success}
-                      disabled={
-                        props.isSubmitting ||
-                        (props.values.status !== ContentStatusName.Publish &&
-                          props.values.status !== ContentStatusName.Published)
-                      }
+                      disabled={props.isSubmitting}
                     >
                       Publish
                     </Button>

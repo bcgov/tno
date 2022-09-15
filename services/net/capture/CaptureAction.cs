@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka;
@@ -51,16 +51,16 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+        this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // Each schedule will have its own process.
-        foreach (var schedule in GetSchedules(manager.DataSource))
+        foreach (var schedule in GetSchedules(manager.Ingest))
         {
             var process = await GetProcessAsync(manager, schedule);
 
-            var content = CreateContentReference(manager.DataSource, schedule);
+            var content = CreateContentReference(manager.Ingest, schedule);
             var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
 
             // Override the original action name based on the schedule.
@@ -72,10 +72,10 @@ public class CaptureAction : CommandAction<CaptureOptions>
                 {
                     await this.Api.AddContentReferenceAsync(content);
                 }
-                else if (reference.WorkflowStatus != (int)WorkflowStatus.InProgress)
+                else if (reference.Status != (int)WorkflowStatus.InProgress)
                 {
                     // Change back to in progress.
-                    reference.WorkflowStatus = (int)WorkflowStatus.InProgress;
+                    reference.Status = (int)WorkflowStatus.InProgress;
                     await this.Api.UpdateContentReferenceAsync(reference);
                 }
 
@@ -90,15 +90,15 @@ public class CaptureAction : CommandAction<CaptureOptions>
 
                 if (reference != null)
                 {
-                    if (manager.DataSource.ContentTypeId > 0)
+                    if (manager.Ingest.PostToKafka())
                     {
-                        var messageResult = await SendMessageAsync(process, manager.DataSource, schedule, reference);
+                        var messageResult = await SendMessageAsync(process, manager.Ingest, schedule, reference);
                         reference.Partition = messageResult.Partition;
                         reference.Offset = messageResult.Offset;
                     }
 
                     // Assuming some success at this point, even though a stop command can be called for different reasons.
-                    reference.WorkflowStatus = (int)WorkflowStatus.Received;
+                    reference.Status = (int)WorkflowStatus.Received;
                     await this.Api.UpdateContentReferenceAsync(reference);
                 }
             }
@@ -128,36 +128,25 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// Send message to kafka with new source content.
     /// </summary>
     /// <param name="process"></param>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, DataSourceModel dataSource, ScheduleModel schedule, ContentReferenceModel reference)
+    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
-        var mediaType = await IsVideoAsync(file) ? SourceMediaType.Video : SourceMediaType.Audio;
-        var content = new SourceContent(mediaType, reference.Source, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
+        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
         {
-            StreamUrl = dataSource.Parent?.GetConnectionValue("url") ?? "",
-            FilePath = GetFilePath(file),
-            Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
+            StreamUrl = ingest.GetConfigurationValue("url") ?? "",
+            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", file?.MakeRelativePath() ?? ""),
+            Language = ingest.GetConfigurationValue("language") ?? ""
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
-    }
-
-    /// <summary>
-    /// Remove the configured mapping path.
-    /// Any pods which need access to this file will need to know the original mapping path.
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    private string GetFilePath(string path)
-    {
-        return path.ReplaceFirst($"{this.Options.OutputPath}{Path.DirectorySeparatorChar}", "")!;
     }
 
     /// <summary>
@@ -185,20 +174,20 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <summary>
     /// Create a content reference for this capture.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    private ContentReferenceModel CreateContentReference(DataSourceModel dataSource, ScheduleModel schedule)
+    private ContentReferenceModel CreateContentReference(IngestModel ingest, ScheduleModel schedule)
     {
-        var today = GetLocalDateTime(dataSource, DateTime.UtcNow);
+        var today = GetLocalDateTime(ingest, DateTime.UtcNow);
         var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, DateTimeKind.Local) + schedule.StartAt;
         return new ContentReferenceModel()
         {
-            Source = dataSource.Code,
+            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
             Uid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
             PublishedOn = publishedOn?.ToUniversalTime(),
-            Topic = dataSource.Topic,
-            WorkflowStatus = (int)WorkflowStatus.InProgress
+            Topic = ingest.Topic,
+            Status = (int)WorkflowStatus.InProgress
         };
     }
 
@@ -209,37 +198,37 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected override string GenerateCommandArguments(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected override string GenerateCommandArguments(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
     {
-        var input = GetInput(manager.DataSource);
-        var format = GetFormat(manager.DataSource);
-        var volume = GetVolume(manager.DataSource);
-        var otherArgs = GetOtherArgs(manager.DataSource);
-        var output = GetOutput(manager.DataSource, schedule);
+        var input = GetInput(manager.Ingest);
+        var format = GetFormat(manager.Ingest);
+        var volume = GetVolume(manager.Ingest);
+        var otherArgs = GetOtherArgs(manager.Ingest);
+        var output = GetOutput(manager.Ingest, schedule);
         process.Data.Add("filename", output);
 
-        return $"{input}{volume}{format}{otherArgs} {output}";
+        return $"{input}{volume}{format}{otherArgs} \"{output}\"";
     }
 
     /// <summary>
     /// Get the output path to store the file.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    protected string GetOutputPath(DataSourceModel dataSource)
+    protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.OutputPath, $"{dataSource.Code}/{GetLocalDateTime(dataSource, DateTime.Now):yyyy-MM-dd}");
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd}");
     }
 
     /// <summary>
     /// Get the URL from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetInput(DataSourceModel dataSource)
+    private static string GetInput(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("url");
+        var value = ingest.GetConfigurationValue("url");
         var options = new UriCreationOptions();
         if (!Uri.TryCreate(value, options, out Uri? uri)) throw new InvalidOperationException("Data source connection 'url' is not a valid format.");
         return $"-i {uri.ToString().Replace(" ", "+")}";
@@ -249,18 +238,18 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// Get the file name from the connection settings.
     /// This will generate a unique name for each time it has to start.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private string GetOutput(DataSourceModel dataSource, ScheduleModel schedule)
+    private string GetOutput(IngestModel ingest, ScheduleModel schedule)
     {
         string filename;
-        var path = GetOutputPath(dataSource);
+        var path = GetOutputPath(ingest);
         Directory.CreateDirectory(path);
-        var configuredName = dataSource.GetConnectionValue("fileName");
+        var configuredName = ingest.GetConfigurationValue("fileName");
 
-        if (dataSource.ContentTypeId > 0)
+        if (ingest.PostToKafka())
         {
             filename = String.IsNullOrWhiteSpace(configuredName) ? $"{schedule.Name}.mp3" : configuredName.Replace("{schedule.Name}", schedule.Name);
         }
@@ -268,7 +257,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
         {
             // Streams that do not generate content will prepend the created time.
             // This should be the time for the timezone configured for the schedule.
-            var now = GetLocalDateTime(dataSource, DateTime.UtcNow);
+            var now = GetLocalDateTime(ingest, DateTime.UtcNow);
             filename = $"{now.Hour:00}-{now.Minute:00}-{now.Second:00}-{(String.IsNullOrWhiteSpace(configuredName) ? $"{schedule.Name}.mp3" : configuredName.Replace("{schedule.Name}", schedule.Name))}";
         }
 
@@ -284,36 +273,36 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <summary>
     /// Get the format from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetFormat(DataSourceModel dataSource)
+    private static string GetFormat(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("format");
+        var value = ingest.GetConfigurationValue("format");
         return String.IsNullOrWhiteSpace(value) ? "" : $" -f {value}";
     }
 
     /// <summary>
     /// Get the volume from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetVolume(DataSourceModel dataSource)
+    private static string GetVolume(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("volume");
+        var value = ingest.GetConfigurationValue("volume");
         return String.IsNullOrWhiteSpace(value) ? "" : $" -filter:a 'volume={value}'";
     }
 
     /// <summary>
     /// Get the other arguments from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetOtherArgs(DataSourceModel dataSource)
+    private static string GetOtherArgs(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("otherArgs");
+        var value = ingest.GetConfigurationValue("otherArgs");
         return String.IsNullOrWhiteSpace(value) ? "" : $" {value}";
     }
     #endregion

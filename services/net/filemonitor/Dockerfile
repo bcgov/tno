@@ -28,4 +28,4 @@ COPY --from=build /build .
 # Run container by default as user with id 1001 (default)
 USER 1001
 
-ENTRYPOINT dotnet TNO.Services.Filemonitor.dll
+ENTRYPOINT dotnet TNO.Services.FileMonitor.dll

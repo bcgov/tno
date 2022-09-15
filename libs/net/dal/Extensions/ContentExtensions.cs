@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
@@ -32,6 +31,8 @@ public static class ContentExtensions
             context.Entry(updated.Series).State = EntityState.Added;
             updated.SeriesId = 0;
         }
+        if (updated.PrintContent != null)
+            context.Entry(updated.PrintContent).State = EntityState.Added;
         return updated;
     }
 
@@ -175,6 +176,16 @@ public static class ContentExtensions
                 original.Links.Add(a);
         });
 
+        if (original.PrintContent != null && updated.PrintContent != null)
+        {
+            context.Entry(original.PrintContent).CurrentValues.SetValues(updated.PrintContent);
+        }
+        else if (updated.PrintContent != null)
+        {
+            context.Entry(updated.PrintContent).State = EntityState.Added;
+            original.PrintContent = updated.PrintContent;
+        }
+
         context.Entry(original).CurrentValues.SetValues(updated);
 
         if (updated.Series?.Id == 0)
@@ -213,26 +224,7 @@ public static class ContentExtensions
     /// <exception cref="ArgumentException"></exception>
     public static string GetStoragePath(this Content content, TNOContext context, StorageOptions options)
     {
-        // Determine the DataLocation that will be used to store the file.
-        var source = content.DataSource?.Code ?? content.Source;
-        if (String.IsNullOrWhiteSpace(source) && content.DataSourceId != null) source = context.DataSources.Find(content.DataSourceId)?.Code;
-
-        DataLocation location;
-        if (content.DataSource?.DataLocationId != null)
-            location = context.DataLocations.Find(content.DataSource.DataLocationId) ?? throw new ArgumentException("DataLocation does not exist");
-        else if (!String.IsNullOrWhiteSpace(source)) // This isn't an ideal situation, as it means the user can loosely link the datasource with the content.
-            location = context.DataSources
-                .Include(ds => ds.DataLocation)
-                .FirstOrDefault(ds => ds.Code.ToLower() == source.ToLower())?.DataLocation
-                ?? context.DataLocations.FirstOrDefault(dl => dl.Name == "Default") ?? throw new ArgumentException("The 'Default' DataLocation has not been configured");
-        else
-            location = context.DataLocations.FirstOrDefault(dl => dl.Name == "Default") ?? throw new ArgumentException("The 'Default' DataLocation has not been configured");
-
-        // TODO: Handle different data locations.
-        // TODO: Handle when the original file uploaded has different path than the new one.
-        var dataConnection = JsonSerializer.Deserialize<Dictionary<string, object>>(location.Connection) ?? new Dictionary<string, object>();
-        var connectionPath = dataConnection.ContainsKey("path") ? $"{((string?)dataConnection["path"])?.RemoveStartAndEnd("/")}" : "";
-        var path = Path.Combine(options.GetUploadPath(), connectionPath);
+        var path = options.GetUploadPath();
         return path.EndsWith('/') ? path : $"{path}/";
     }
 }

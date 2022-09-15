@@ -8,7 +8,7 @@ using MimeTypes;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
 using TNO.Core.Http;
 using TNO.Services.Config;
@@ -16,7 +16,7 @@ using TNO.Services.Config;
 namespace TNO.Services;
 
 /// <summary>
-/// ApiService class, provides a way to interace with the API.
+/// ApiService class, provides a way to interact with the API.
 /// </summary>
 public class ApiService : IApiService
 {
@@ -41,57 +41,120 @@ public class ApiService : IApiService
     }
     #endregion
 
-    #region Data Source Methods
+    #region Connection Methods
     /// <summary>
-    /// Make an AJAX request to the api to fetch all data sources.
+    /// Make an AJAX request to the api to get the connection.
     /// </summary>
+    /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync()
+    public async Task<ConnectionModel?> GetConnectionAsync(int id)
     {
-        var url = new Uri(_options.ApiUrl, $"services/data/sources");
-        var result = await _client.GetAsync<DataSourceModel[]>(url);
-        return result ?? Array.Empty<DataSourceModel>();
-    }
-
-    /// <summary>
-    /// Make an AJAX request to the api to fetch data sources for the specified media type.
-    /// </summary>
-    /// <param name="mediaType"></param>
-    /// <returns></returns>
-    public async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync(string mediaType)
-    {
-        var url = new Uri(_options.ApiUrl, $"services/data/sources/for/media/type/{mediaType}");
-        var result = await _client.GetAsync<DataSourceModel[]>(url);
-        return result ?? Array.Empty<DataSourceModel>();
-    }
-
-    /// <summary>
-    /// Make an AJAX request to the api to fetch the data source for the specified 'code'.
-    /// </summary>
-    /// <param name="code"></param>
-    /// <returns></returns>
-    public async Task<DataSourceModel?> GetDataSourceAsync(string code)
-    {
-        var url = new Uri(_options.ApiUrl, $"services/data/sources/{code}");
+        var url = new Uri(_options.ApiUrl, $"services/connections/{id}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
         {
-            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<DataSourceModel>(_serializerOptions),
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<ConnectionModel>(_serializerOptions),
+            HttpStatusCode.NoContent => null,
+            _ => throw new HttpClientRequestException(response),
+        };
+    }
+    #endregion
+
+    #region Source Methods
+    /// <summary>
+    /// Make an AJAX request to the api to fetch all sources.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<SourceModel>> GetSourcesAsync()
+    {
+        var url = new Uri(_options.ApiUrl, $"services/sources");
+        var result = await _client.GetAsync<SourceModel[]>(url);
+        return result ?? Array.Empty<SourceModel>();
+    }
+
+    /// <summary>
+    /// Make an AJAX request to the api to fetch the sources for the specified 'code'.
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    public async Task<SourceModel?> GetSourceForCodeAsync(string code)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/sources/{code}");
+        var response = await _client.GetAsync(url);
+
+        return response.StatusCode switch
+        {
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<SourceModel>(_serializerOptions),
+            HttpStatusCode.NoContent => null,
+            _ => throw new HttpClientRequestException(response),
+        };
+    }
+    #endregion
+
+    #region Ingest Methods
+    /// <summary>
+    /// Make an AJAX request to the api to fetch the ingest for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<IngestModel?> GetIngestAsync(int id)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/ingests/{id}");
+        var response = await _client.GetAsync(url);
+
+        return response.StatusCode switch
+        {
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<IngestModel>(_serializerOptions),
             HttpStatusCode.NoContent => null,
             _ => throw new HttpClientRequestException(response),
         };
     }
 
     /// <summary>
-    /// Make an AJAX request to the api to update the data source.
+    /// Make an AJAX request to the api to fetch all ingests.
     /// </summary>
-    /// <param name="dataSource"></param>
     /// <returns></returns>
-    public async Task<DataSourceModel?> UpdateDataSourceAsync(DataSourceModel dataSource)
+    public async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
-        var url = new Uri(_options.ApiUrl, $"services/data/sources/{dataSource.Id}");
-        return await _client.PutAsync<DataSourceModel>(url, JsonContent.Create(dataSource));
+        var url = new Uri(_options.ApiUrl, $"services/ingests");
+        var result = await _client.GetAsync<IngestModel[]>(url);
+        return result ?? Array.Empty<IngestModel>();
+    }
+
+    /// <summary>
+    /// Make an AJAX request to the api to fetch ingests for the specified media type.
+    /// </summary>
+    /// <param name="mediaType"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<IngestModel>> GetIngestsForMediaTypeAsync(string mediaType)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/ingests/for/media/type/{mediaType}");
+        var result = await _client.GetAsync<IngestModel[]>(url);
+        return result ?? Array.Empty<IngestModel>();
+    }
+
+    /// <summary>
+    /// Make an AJAX request to the api to fetch the ingest for the specified 'topic'.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<IngestModel>> GetIngestsForTopicAsync(string topic)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/ingests/for/topic/{topic}");
+        var result = await _client.GetAsync<IngestModel[]>(url);
+        return result ?? Array.Empty<IngestModel>();
+    }
+
+    /// <summary>
+    /// Make an AJAX request to the api to update the ingest.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    public async Task<IngestModel?> UpdateIngestAsync(IngestModel ingest)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/ingests/{ingest.Id}");
+        return await _client.PutAsync<IngestModel>(url, JsonContent.Create(ingest));
     }
     #endregion
 

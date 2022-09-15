@@ -1,10 +1,10 @@
-import { FormPage } from 'components/form/formpage/styled';
+import { FormPage, IconButton } from 'components/form';
 import { IMediaTypeModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaTypes } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { GridTable } from 'tno-core';
+import { Col, GridTable, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { MediaTypeFilter } from './MediaTypeFilter';
@@ -30,6 +30,18 @@ export const MediaTypeList: React.FC = () => {
   return (
     <styled.MediaTypeList>
       <FormPage>
+        <Row className="add-media" justifyContent="flex-end">
+          <Col flex="1 1 0">
+            Media types provide a way to identify the media that the content represents. They are
+            integral to ingestion services. Do not edit unless the ingestion services are also
+            updated.
+          </Col>
+          <IconButton
+            iconType="plus"
+            label="Add New Media Type"
+            onClick={() => navigate('/admin/media/types/0')}
+          />
+        </Row>
         <GridTable
           columns={columns}
           header={MediaTypeFilter}

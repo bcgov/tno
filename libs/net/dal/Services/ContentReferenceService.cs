@@ -26,6 +26,9 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         var query = this.Context.ContentReferences
             .AsQueryable();
 
+        if (filter.Status.HasValue)
+            query = query.Where(c => c.Status == filter.Status);
+
         if (!String.IsNullOrWhiteSpace(filter.Source))
             query = query.Where(c => c.Source == filter.Source);
         if (!String.IsNullOrWhiteSpace(filter.Uid))

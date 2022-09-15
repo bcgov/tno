@@ -1,9 +1,11 @@
+using TNO.API.Models;
+
 namespace TNO.API.Areas.Editor.Models.Content;
 
 /// <summary>
 /// ContentModel class, provides a model that represents an print content.
 /// </summary>
-public class PrintContentModel : ContentModel
+public class PrintContentModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
@@ -37,7 +39,7 @@ public class PrintContentModel : ContentModel
     /// Creates a new instance of an PrintContentModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public PrintContentModel(Entities.PrintContent entity) : base(entity?.Content!)
+    public PrintContentModel(Entities.PrintContent entity) : base(entity)
     {
         this.Edition = entity?.Edition ?? throw new ArgumentNullException(nameof(entity));
         this.Section = entity.Section;

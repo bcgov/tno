@@ -8,7 +8,7 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Http;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -68,10 +68,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        _logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
-        var url = GetUrl(manager.DataSource);
+        _logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
+        var url = GetUrl(manager.Ingest);
 
         var feed = await GetFeedAsync(url, manager);
         await ImportFeedAsync(manager, feed);
@@ -83,10 +83,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Sends message to kafka if content has been added or updated.
     /// Informs API of content reference status.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="manager"></param>
     /// <param name="feed"></param>
     /// <returns></returns>
-    private async Task ImportFeedAsync(IDataSourceIngestManager dataSource, SyndicationFeed feed)
+    private async Task ImportFeedAsync(IIngestServiceActionManager manager, SyndicationFeed feed)
     {
         foreach (var item in feed.Items)
         {
@@ -97,23 +97,22 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
 
                 // Fetch content reference.
-                var reference = await this.Api.FindContentReferenceAsync(dataSource.DataSource.Code, item.Id);
-                var sendMessage = true;
-
+                var reference = await this.Api.FindContentReferenceAsync(manager.Ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{manager.Ingest.Name}' is missing source code."), item.Id);
+                var sendMessage = manager.Ingest.PostToKafka();
                 if (reference == null)
                 {
-                    await FetchContent(dataSource.DataSource, item, link);
-                    reference = await AddContentReferenceAsync(dataSource.DataSource, item);
+                    await FetchContent(manager.Ingest, item, link);
+                    reference = await AddContentReferenceAsync(manager.Ingest, item);
                 }
-                else if ((reference.WorkflowStatus == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (reference.WorkflowStatus != (int)WorkflowStatus.InProgress && item.PublishDate != DateTime.MinValue && reference.UpdatedOn != item.PublishDate.UtcDateTime))
+                else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
+                        (reference.Status != (int)WorkflowStatus.InProgress && item.PublishDate != DateTime.MinValue && reference.UpdatedOn != item.PublishDate.UtcDateTime))
                 {
                     // TODO: verify a hash of the content to ensure it has changed. This may be slow
                     // however, but would ensure the content was physically updated.
 
                     // If another process has it in progress only attempt to do an import if it's
                     // more than an hour old. Assumption is that it is stuck.
-                    await FetchContent(dataSource.DataSource, item, link);
+                    await FetchContent(manager.Ingest, item, link);
                     reference = await UpdateContentReferenceAsync(reference, item);
                 }
                 else sendMessage = false;
@@ -122,7 +121,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (reference != null && sendMessage)
                 {
                     // Send item to Kafka.
-                    var result = await this.Producer.SendMessageAsync(dataSource.DataSource.Topic, CreateSourceContent(dataSource.DataSource.Code, item));
+                    var result = await this.Producer.SendMessageAsync(manager.Ingest.Topic, CreateSourceContent(manager.Ingest, item));
 
                     // Update content reference with Kafka response.
                     if (result != null)
@@ -132,11 +131,11 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             catch (Exception ex)
             {
                 // Reached limit return to data source manager.
-                if (dataSource.DataSource.FailedAttempts + 1 >= dataSource.DataSource.RetryLimit)
+                if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
                     throw;
 
-                _logger.LogError(ex, "Failed to ingest item for data source '{Code}'", dataSource.DataSource.Code);
-                await dataSource.RecordFailureAsync();
+                _logger.LogError(ex, "Failed to ingest item for data source '{name}'", manager.Ingest.Name);
+                await manager.RecordFailureAsync();
             }
         }
     }
@@ -146,20 +145,20 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Strip HTML from response body.
     /// Extract published on date and time.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="item"></param>
     /// <param name="link"></param>
     /// <returns></returns>
     /// <exception cref="HttpRequestException"></exception>
-    private async Task FetchContent(DataSourceModel dataSource, SyndicationItem item, Uri? link)
+    private async Task FetchContent(IngestModel ingest, SyndicationItem item, Uri? link)
     {
         // Fetch content body separately if required
-        if (dataSource.GetConnectionValue<bool>("fetchContent"))
+        if (ingest.GetConfigurationValue<bool>("fetchContent"))
         {
             if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
             {
                 var html = await this.GetContentAsync(link);
-                if (item.PublishDate == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, dataSource);
+                if (item.PublishDate == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, ingest);
                 var text = StringExtensions.SanitizeContent(html);
                 if (String.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
                 item.Content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
@@ -189,9 +188,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// If no date is found it will default to now.  This isn't ideal, but it's better than a min date.
     /// </summary>
     /// <param name="content"></param>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns>A DateTime object representing the published date/time for the article</returns>
-    private static DateTime GetPubDateTime(string content, DataSourceModel dataSource)
+    private static DateTime GetPubDateTime(string content, IngestModel ingest)
     {
         var matches = Regex.Matches(content, "<DATE>(.+?)</DATE>");
         if (matches.Any())
@@ -200,7 +199,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             var comps = pubDate.Split(' ');
             if (comps.Length == 3)
             {
-                var timeZoneStr = dataSource.GetConnectionValue("timeZone");
+                var timeZoneStr = ingest.GetConfigurationValue("timeZone");
                 var timeZone = !string.IsNullOrEmpty(timeZoneStr) ?
                     TimeZoneInfo.FindSystemTimeZoneById(timeZoneStr) :
                     TimeZoneInfo.Local;
@@ -216,14 +215,16 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <summary>
     /// Create a SourceContent object that can be sent to Kafka.
     /// </summary>
-    /// <param name="source"></param>
+    /// <param name="ingest"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    private SourceContent CreateSourceContent(string source, SyndicationItem item)
+    private SourceContent CreateSourceContent(IngestModel ingest, SyndicationItem item)
     {
         var content = item.Content as TextSyndicationContent;
         var (title, summary) = HandleInvalidEncoding(item);
-        return new SourceContent(SourceMediaType.Text, source, item.Id, title, summary, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
+        var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        return new SourceContent(source, contentType, ingest.ProductId, ingest.DestinationConnectionId, item.Id, title, summary, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",
@@ -263,18 +264,18 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <summary>
     /// Send AJAX request to api to add content reference.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="item"></param>
     /// <returns></returns>
-    private async Task<ContentReferenceModel?> AddContentReferenceAsync(DataSourceModel dataSource, SyndicationItem item)
+    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SyndicationItem item)
     {
         // Add a content reference record.
         return await this.Api.AddContentReferenceAsync(new ContentReferenceModel()
         {
-            Source = dataSource.Code,
+            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
             Uid = item.Id,
-            Topic = dataSource.Topic,
-            WorkflowStatus = (int)WorkflowStatus.InProgress,
+            Topic = ingest.Topic,
+            Status = (int)WorkflowStatus.InProgress,
             PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null,
             SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
         });
@@ -291,7 +292,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     {
         reference.Offset = result.Offset;
         reference.Partition = result.Partition;
-        reference.WorkflowStatus = (int)WorkflowStatus.Received;
+        reference.Status = (int)WorkflowStatus.Received;
         return await this.Api.UpdateContentReferenceAsync(reference);
     }
 
@@ -314,7 +315,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="url"></param>
     /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IDataSourceIngestManager manager)
+    private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestServiceActionManager manager)
     {
         var response = await _httpClient.GetAsync(url);
         var data = await response.Content.ReadAsStringAsync();
@@ -334,7 +335,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Syndication feed for data source '{Code}' is invalid.", manager.DataSource.Code);
+            _logger.LogInformation(ex, "Syndication feed for data source '{name}' is invalid.", manager.Ingest.Name);
 
             var settings = new XmlReaderSettings()
             {
@@ -351,12 +352,12 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <summary>
     /// Extract the URL from the data source connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static Uri GetUrl(DataSourceModel dataSource)
+    private static Uri GetUrl(IngestModel ingest)
     {
-        if (!dataSource.Connection.TryGetValue("url", out object? element)) throw new InvalidOperationException("Data source connection information is missing 'url'.");
+        if (!ingest.Configuration.TryGetValue("url", out object? element)) throw new InvalidOperationException("Data source connection information is missing 'url'.");
 
         var value = (JsonElement)element;
         if (value.ValueKind == JsonValueKind.String)

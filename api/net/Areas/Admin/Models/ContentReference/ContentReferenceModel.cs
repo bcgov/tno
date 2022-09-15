@@ -19,7 +19,7 @@ public class ContentReferenceModel
     /// <summary>
     /// get/set - The current workflow status.
     /// </summary>
-    public Entities.WorkflowStatus WorkflowStatus { get; set; } = Entities.WorkflowStatus.InProgress;
+    public Entities.WorkflowStatus Status { get; set; } = Entities.WorkflowStatus.InProgress;
 
     /// <summary>
     /// get/set - The Kafka topic the content is stored in.
@@ -61,7 +61,7 @@ public class ContentReferenceModel
     {
         this.Source = reference.Source;
         this.Uid = reference.Uid;
-        this.WorkflowStatus = reference.WorkflowStatus;
+        this.Status = reference.Status;
         this.Topic = reference.Topic;
         this.Offset = reference.Offset;
         this.Partition = reference.Partition;
@@ -86,7 +86,7 @@ public class ContentReferenceModel
     /// <param name="model"></param>
     public static explicit operator Entities.ContentReference(ContentReferenceModel model)
     {
-        var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, model.Offset, model.Partition, model.WorkflowStatus)
+        var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, model.Offset, model.Partition, model.Status)
         {
             PublishedOn = model.PublishedOn,
             SourceUpdateOn = model.SourceUpdateOn,

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Managers;
 using TNO.Services.Clip.Config;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Models.Extensions;
 
 namespace TNO.Services.Clip;
@@ -10,7 +10,7 @@ namespace TNO.Services.Clip;
 /// <summary>
 /// ClipManager class, provides a way to manage the clip service.
 /// </summary>
-public class ClipManager : DataSourceManager<ClipDataSourceManager, ClipOptions>
+public class ClipManager : IngestManager<ClipIngestActionManager, ClipOptions>
 {
     #region Constructors
     /// <summary>
@@ -22,7 +22,7 @@ public class ClipManager : DataSourceManager<ClipDataSourceManager, ClipOptions>
     /// <param name="logger"></param>
     public ClipManager(
         IApiService api,
-        DataSourceIngestManagerFactory<ClipDataSourceManager, ClipOptions> factory,
+        IngestManagerFactory<ClipIngestActionManager, ClipOptions> factory,
         IOptions<ClipOptions> options,
         ILogger<ClipManager> logger)
         : base(api, factory, options, logger)
@@ -34,23 +34,22 @@ public class ClipManager : DataSourceManager<ClipDataSourceManager, ClipOptions>
     /// Only data sources of serviceType=stream.
     /// </summary>
     /// <returns></returns>
-    public override async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync()
+    public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
-        var dataSources = await base.GetDataSourcesAsync();
+        var ingests = await base.GetIngestsAsync();
 
-        return dataSources.Where(ds => IsClip(ds));
+        return ingests.Where(ds => IsClip(ds));
     }
 
     /// <summary>
     /// Determine if the data source is a clip service type
     /// and it has a parent.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    private static bool IsClip(DataSourceModel dataSource)
+    private static bool IsClip(IngestModel ingest)
     {
-        return dataSource.GetConnectionValue("serviceType") == "clip" &&
-            dataSource.ParentId != null;
+        return ingest.GetConfigurationValue("serviceType") == "clip";
     }
     #endregion
 }

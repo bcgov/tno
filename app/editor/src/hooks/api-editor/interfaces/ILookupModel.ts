@@ -2,33 +2,31 @@ import {
   IActionModel,
   ICategoryModel,
   IClaimModel,
-  IContentTypeModel,
-  IDataLocationModel,
   ILicenseModel,
   IMediaTypeModel,
+  IMetricModel,
+  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISourceActionModel,
-  ISourceMetricModel,
+  ISourceModel,
   ITagModel,
   ITonePoolModel,
   IUserModel,
 } from '.';
-import { IDataSourceModel } from './IDataSourceModel';
 
 export interface ILookupModel {
   actions: IActionModel[];
   categories: ICategoryModel[];
   claims: IClaimModel[];
-  contentTypes: IContentTypeModel[];
-  dataSources: IDataSourceModel[];
-  dataLocations: IDataLocationModel[];
+  products: IProductModel[];
+  sources: ISourceModel[];
   licenses: ILicenseModel[];
   mediaTypes: IMediaTypeModel[];
   roles: IRoleModel[];
   series: ISeriesModel[];
   sourceActions: ISourceActionModel[];
-  sourceMetrics: ISourceMetricModel[];
+  metrics: IMetricModel[];
   tags: ITagModel[];
   tonePools: ITonePoolModel[];
   users: IUserModel[];

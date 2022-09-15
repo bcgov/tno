@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react';
+import { ContentStatusName, ContentTypeName } from 'hooks';
 import { mockContent, TestWrapper } from 'test/utils';
 
 import { ContentListView } from './ContentListView';
@@ -10,7 +11,8 @@ jest.mock('store', () => ({
 
 const mockUseLookups = [
   {
-    contentTypes: [{ name: 'Content 1', id: 1 }],
+    products: [{ name: 'Product 1', id: 1 }],
+    licenses: [{ name: 'License 1', id: 1 }],
     mediaTypes: [{ name: 'Media 1', id: 1 }],
     users: [{ name: 'user', id: 1, displayName: 'displayName', username: 'test' }],
   },
@@ -25,12 +27,13 @@ const mockUseContent = [
         {
           headline: 'test headline',
           owner: { displayName: 'user@idir', username: 'test@idir' },
-          source: 'TEST',
+          otherSource: 'TEST',
           createdOn: '2022-05-12T16:11:15.756251Z',
-          mediaType: {
-            name: 'Television',
+          contentType: ContentTypeName.Snippet,
+          status: ContentStatusName.Publish,
+          product: {
+            name: 'News',
           },
-          status: 'Publish',
           page: 'A32',
         },
       ],
@@ -99,13 +102,13 @@ it('displays the source', async () => {
   await waitFor(() => expect(getByText(/TEST/)).toBeInTheDocument());
 });
 
-it('displays the media type', async () => {
+it('displays the product', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Television')).toBeInTheDocument());
+  await waitFor(() => expect(getByText('News')).toBeInTheDocument());
 });
 
 it('displays the status', async () => {

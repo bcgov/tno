@@ -3,20 +3,49 @@ using TNO.Core.Data;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// MediaType class, provides an entity model to identify the type of content, and the form to display.
+/// </summary>
 [Cache("media_types", "lookups")]
 [Table("media_type")]
 public class MediaType : BaseType<int>
 {
     #region Properties
-    public virtual List<DataSource> DataSources { get; set; } = new List<DataSource>();
-    public virtual List<Content> Contents { get; set; } = new List<Content>();
+    /// <summary>
+    /// get/set - Identifies the type of content and the form to use.
+    /// </summary>
+    [Column("content_type")]
+    public ContentType ContentType { get; set; }
+
+    /// <summary>
+    /// get/set - Whether content with this series should automatically be transcribed.
+    /// </summary>
+    [Column("auto_transcribe")]
+    public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Whether content with this series should not allow transcriptions.
+    /// </summary>
+    [Column("disable_transcribe")]
+    public bool DisableTranscribe { get; set; }
+
+    /// <summary>
+    /// get - List of ingests linked to this media type.
+    /// </summary>
+    public virtual List<Ingest> Ingests { get; } = new List<Ingest>();
+
+    /// <summary>
+    /// get - List of content linked to this media type.
+    /// </summary>
+    public virtual List<Content> Contents { get; } = new List<Content>();
     #endregion
 
     #region Constructors
     protected MediaType() { }
 
-    public MediaType(string name) : base(name)
+    public MediaType(string name, ContentType contentType = ContentType.Snippet) : base(name)
     {
+        this.ContentType = contentType;
     }
     #endregion
 }

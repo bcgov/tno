@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TNO.Services.Runners;
-using TNO.Services.Filemonitor.Config;
+using TNO.Services.FileMonitor.Config;
 
-namespace TNO.Services.Filemonitor;
+namespace TNO.Services.FileMonitor;
 
 /// <summary>
 /// SyndicationService abstrct class, provides a console application that runs service, and an api.
 /// </summary>
-public class FilemonitorService : IngestService
+public class FileMonitorService : IngestService
 {
     #region Variables
     #endregion
@@ -20,7 +20,7 @@ public class FilemonitorService : IngestService
     /// Creates a new instance of a SyndicationService object, initializes with arguments.
     /// </summary>
     /// <param name="args"></param>
-    public FilemonitorService(string[] args) : base(args)
+    public FileMonitorService(string[] args) : base(args)
     {
     }
     #endregion
@@ -35,10 +35,10 @@ public class FilemonitorService : IngestService
     {
         base.ConfigureServices(services);
         services
-            .Configure<FilemonitorOptions>(this.Configuration.GetSection("Service"))
-            .AddTransient<IIngestAction<FilemonitorOptions>, FilemonitorAction>()
-            .AddTransient<DataSourceIngestManagerFactory<FilemonitorDataSourceManager, FilemonitorOptions>>()
-            .AddSingleton<IServiceManager, FilemonitorManager>();
+            .Configure<FileMonitorOptions>(this.Configuration.GetSection("Service"))
+            .AddTransient<IIngestAction<FileMonitorOptions>, FileMonitorAction>()
+            .AddTransient<IngestManagerFactory<FileMonitorIngestActionManager, FileMonitorOptions>>()
+            .AddSingleton<IServiceManager, FileMonitorManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<SyndicationOptions>()

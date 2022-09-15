@@ -24,19 +24,14 @@ public class LookupModel
     public IEnumerable<Claim.ClaimModel> Claims { get; set; } = Array.Empty<Claim.ClaimModel>();
 
     /// <summary>
-    /// get/set - An array of all content types.
+    /// get/set - An array of all products.
     /// </summary>
-    public IEnumerable<ContentType.ContentTypeModel> ContentTypes { get; set; } = Array.Empty<ContentType.ContentTypeModel>();
+    public IEnumerable<Product.ProductModel> Products { get; set; } = Array.Empty<Product.ProductModel>();
 
     /// <summary>
-    /// get/set - An array of all data locations.
+    /// get/set - An array of all sources.
     /// </summary>
-    public IEnumerable<DataLocation.DataLocationModel> DataLocations { get; set; } = Array.Empty<DataLocation.DataLocationModel>();
-
-    /// <summary>
-    /// get/set - An array of all data sources.
-    /// </summary>
-    public IEnumerable<DataSource.DataSourceModel> DataSources { get; set; } = Array.Empty<DataSource.DataSourceModel>();
+    public IEnumerable<Source.SourceModel> Sources { get; set; } = Array.Empty<Source.SourceModel>();
 
     /// <summary>
     /// get/set - An array of all licenses.
@@ -66,7 +61,7 @@ public class LookupModel
     /// <summary>
     /// get/set - An array of all source metrics.
     /// </summary>
-    public IEnumerable<SourceMetric.SourceMetricModel> SourceMetrics { get; set; } = Array.Empty<SourceMetric.SourceMetricModel>();
+    public IEnumerable<Metric.MetricModel> Metrics { get; set; } = Array.Empty<Metric.MetricModel>();
 
     /// <summary>
     /// get/set - An array of all tags.
@@ -96,9 +91,8 @@ public class LookupModel
     /// <param name="actions"></param>
     /// <param name="categories"></param>
     /// <param name="claims"></param>
-    /// <param name="contentTypes"></param>
-    /// <param name="dataLocations"></param>
-    /// <param name="dataSources"></param>
+    /// <param name="products"></param>
+    /// <param name="sources"></param>
     /// <param name="license"></param>
     /// <param name="mediaTypes"></param>
     /// <param name="roles"></param>
@@ -113,15 +107,14 @@ public class LookupModel
         IEnumerable<Entities.Action> actions,
         IEnumerable<Entities.Category> categories,
         IEnumerable<Entities.Claim> claims,
-        IEnumerable<Entities.ContentType> contentTypes,
-        IEnumerable<Entities.DataLocation> dataLocations,
-        IEnumerable<Entities.DataSource> dataSources,
+        IEnumerable<Entities.Product> products,
+        IEnumerable<Entities.Source> sources,
         IEnumerable<Entities.License> license,
         IEnumerable<Entities.MediaType> mediaTypes,
         IEnumerable<Entities.Role> roles,
         IEnumerable<Entities.Series> series,
         IEnumerable<Entities.SourceAction> sourceActions,
-        IEnumerable<Entities.SourceMetric> sourceMetrics,
+        IEnumerable<Entities.Metric> metrics,
         IEnumerable<Entities.Tag> tagServices,
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.User> users,
@@ -130,15 +123,14 @@ public class LookupModel
         this.Actions = actions.Select(a => new Action.ActionModel(a));
         this.Categories = categories.Select(a => new Category.CategoryModel(a));
         this.Claims = claims.Select(a => new Claim.ClaimModel(a));
-        this.ContentTypes = contentTypes.Select(a => new ContentType.ContentTypeModel(a));
-        this.DataLocations = dataLocations.Select(a => new DataLocation.DataLocationModel(a));
-        this.DataSources = dataSources.Select(a => new DataSource.DataSourceModel(a, options));
+        this.Products = products.Select(a => new Product.ProductModel(a));
+        this.Sources = sources.Select(a => new Source.SourceModel(a, options));
         this.Licenses = license.Select(a => new License.LicenseModel(a));
         this.MediaTypes = mediaTypes.Select(a => new MediaType.MediaTypeModel(a));
         this.Roles = roles.Select(a => new Role.RoleModel(a));
         this.Series = series.Select(a => new Series.SeriesModel(a));
         this.SourceActions = sourceActions.Select(a => new SourceAction.SourceActionModel(a));
-        this.SourceMetrics = sourceMetrics.Select(a => new SourceMetric.SourceMetricModel(a));
+        this.Metrics = metrics.Select(a => new Metric.MetricModel(a));
         this.Tags = tagServices.Select(a => new Tag.TagModel(a));
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Users = users.Select(a => new User.UserModel(a));

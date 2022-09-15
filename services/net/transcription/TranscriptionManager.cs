@@ -226,7 +226,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
         var path = content.FileReferences.FirstOrDefault()?.Path;
-        var safePath = Path.Join(_options.FilePath, path.MakeRelativePath());
+        var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
         if (File.Exists(safePath))
         {
             this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
@@ -310,6 +310,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
         recognizer.SessionStopped += (s, e) =>
         {
+            this.Logger.LogDebug("Speech session stopped");
             sem.Release();
         };
 

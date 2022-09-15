@@ -30,6 +30,6 @@ public class MediaTypeTest
         Assert.Equal(0, item.Version);
 
         Assert.Empty(item.Contents);
-        Assert.Empty(item.DataSources);
+        Assert.Empty(item.Ingests);
     }
 }

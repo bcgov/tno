@@ -1,4 +1,6 @@
 export enum ScheduleType {
+  /** This schedule does not run */
+  None = 0,
   /** Repeating will run a continuously repeating schedule */
   Continuous = 1,
   /** Managed will run between a start and stop time */

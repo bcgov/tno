@@ -51,7 +51,7 @@ INSERT INTO public.cache (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'source_metrics' -- key
+  'metrics' -- key
   , gen_random_uuid() -- value
   , '' -- description
   , DEFAULT_USER_ID
@@ -83,7 +83,7 @@ INSERT INTO public.cache (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'content_types' -- key
+  'products' -- key
   , gen_random_uuid() -- value
   , '' -- description
   , DEFAULT_USER_ID
@@ -115,7 +115,7 @@ INSERT INTO public.cache (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'data_locations' -- key
+  'connections' -- key
   , gen_random_uuid() -- value
   , '' -- description
   , DEFAULT_USER_ID
@@ -123,7 +123,15 @@ INSERT INTO public.cache (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'data_sources' -- key
+  'ingests' -- key
+  , gen_random_uuid() -- value
+  , '' -- description
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'sources' -- key
   , gen_random_uuid() -- value
   , '' -- description
   , DEFAULT_USER_ID

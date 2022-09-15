@@ -179,9 +179,9 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> PublishAsync(ContentModel model)
     {
+        if (model.Status != ContentStatus.Published) model.Status = ContentStatus.Publish;
         var result = _contentService.Update((Content)model);
         if (result == null) throw new InvalidOperationException("Content does not exist");
-        if (!new[] { ContentStatus.Publish, ContentStatus.Published }.Contains(result.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be published.");
         if (String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic)) throw new ConfigurationException("Kafka indexing topic not configured.");
 
         await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(result.Id, IndexAction.Publish));

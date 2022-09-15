@@ -27,23 +27,25 @@ public class ContentService : BaseService<Content, long>, IContentService
     public IPaged<Content> Find(ContentFilter filter)
     {
         var query = this.Context.Contents
-            .Include(c => c.ContentType)
-            .Include(c => c.MediaType)
-            .Include(c => c.DataSource)
+            .Include(c => c.Product)
+            .Include(c => c.Source)
             .Include(c => c.Series)
             .Include(c => c.License)
             .Include(c => c.Owner)
             .Include(c => c.PrintContent)
             .AsQueryable();
 
-        if (!String.IsNullOrWhiteSpace(filter.Source))
-            query = query.Where(c => c.Source == filter.Source);
+        if (!String.IsNullOrWhiteSpace(filter.OtherSource))
+            query = query.Where(c => c.OtherSource.ToLower() == filter.OtherSource.ToLower());
         if (!String.IsNullOrWhiteSpace(filter.Headline))
             query = query.Where(c => EF.Functions.Like(c.Headline.ToLower(), $"%{filter.Headline.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.PageName))
             query = query.Where(c => EF.Functions.Like(c.Page.ToLower(), $"%{filter.PageName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Section.ToLower(), $"%{filter.Section.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.Product))
+            query = query.Where(c => EF.Functions.Like(c.Product!.Name.ToLower(), $"%{filter.Product.ToLower()}%"));
+
         if (!String.IsNullOrWhiteSpace(filter.Edition))
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Edition.ToLower(), $"%{filter.Edition.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.StoryType))
@@ -51,15 +53,15 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(filter.Byline))
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline.ToLower(), $"%{filter.Byline.ToLower()}%"));
 
-        if (!String.IsNullOrWhiteSpace(filter.MediaType))
-            query = query.Where(c => EF.Functions.Like(c.MediaType!.Name, $"%{filter.MediaType}%"));
+        if (filter.ContentType.HasValue)
+            query = query.Where(c => c.ContentType == filter.ContentType);
+        if (filter.Status.HasValue)
+            query = query.Where(c => c.Status == filter.Status);
 
-        if (filter.ContentTypeId.HasValue)
-            query = query.Where(c => c.ContentTypeId == filter.ContentTypeId);
-        if (filter.MediaTypeId.HasValue)
-            query = query.Where(c => c.MediaTypeId == filter.MediaTypeId);
-        if (filter.DataSourceId.HasValue)
-            query = query.Where(c => c.DataSourceId == filter.DataSourceId);
+        if (filter.ProductId.HasValue)
+            query = query.Where(c => c.ProductId == filter.ProductId);
+        if (filter.SourceId.HasValue)
+            query = query.Where(c => c.SourceId == filter.SourceId);
         if (filter.OwnerId.HasValue)
             query = query.Where(c => c.OwnerId == filter.OwnerId);
         if (filter.UserId.HasValue)
@@ -124,11 +126,10 @@ public class ContentService : BaseService<Content, long>, IContentService
     public override Content? FindById(long id)
     {
         return this.Context.Contents
-            .Include(c => c.ContentType)
-            .Include(c => c.MediaType)
+            .Include(c => c.Product)
             .Include(c => c.Series)
             .Include(c => c.License)
-            .Include(c => c.DataSource)
+            .Include(c => c.Source)
             .Include(c => c.Owner)
             .Include(c => c.PrintContent)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
@@ -145,11 +146,10 @@ public class ContentService : BaseService<Content, long>, IContentService
     public Content? FindByUid(string uid, string? source)
     {
         var query = this.Context.Contents
-            .Include(c => c.ContentType)
-            .Include(c => c.MediaType)
+            .Include(c => c.Product)
             .Include(c => c.Series)
             .Include(c => c.License)
-            .Include(c => c.DataSource)
+            .Include(c => c.Source)
             .Include(c => c.Owner)
             .Include(c => c.PrintContent)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
@@ -163,7 +163,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Where(c => c.Uid == uid);
 
         if (!String.IsNullOrWhiteSpace(source))
-            query = query.Where(c => c.Source == source);
+            query = query.Where(c => c.OtherSource == source);
 
         return query.FirstOrDefault();
     }

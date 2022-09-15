@@ -5,6 +5,7 @@ BEGIN
 INSERT INTO public.category (
   "name"
   , "is_enabled"
+  , "auto_transcribe"
   , "created_by_id"
   , "created_by"
   , "updated_by_id"
@@ -12,6 +13,7 @@ INSERT INTO public.category (
 ) VALUES (
   'Red tape'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -19,6 +21,7 @@ INSERT INTO public.category (
 ), (
   'Youth sports'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -26,6 +29,7 @@ INSERT INTO public.category (
 ), (
   'Schoenborn hearing'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -33,6 +37,7 @@ INSERT INTO public.category (
 ), (
   'Cruise ship season'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -40,6 +45,7 @@ INSERT INTO public.category (
 ), (
   'TMX purchase'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -47,6 +53,7 @@ INSERT INTO public.category (
 ), (
   'Overdose crisis'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -54,6 +61,7 @@ INSERT INTO public.category (
 ), (
   'Single-use fees'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -61,6 +69,7 @@ INSERT INTO public.category (
 ), (
   'Powell River name change'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -68,6 +77,7 @@ INSERT INTO public.category (
 ), (
   'ICBC profit'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -75,6 +85,7 @@ INSERT INTO public.category (
 ), (
   'Forced patient transfers'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -82,6 +93,7 @@ INSERT INTO public.category (
 ), (
   'Used car tax'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -89,6 +101,7 @@ INSERT INTO public.category (
 ), (
   'FOI fees'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -96,6 +109,7 @@ INSERT INTO public.category (
 ), (
   'BC crime'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -103,6 +117,7 @@ INSERT INTO public.category (
 ), (
   'Farnworth - Lytton recovery'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -110,6 +125,7 @@ INSERT INTO public.category (
 ), (
   'Highway 99 rockslide'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -117,6 +133,7 @@ INSERT INTO public.category (
 ), (
   'BC housing costs'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -124,6 +141,7 @@ INSERT INTO public.category (
 ), (
   'Gasoline prices'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -131,6 +149,7 @@ INSERT INTO public.category (
 ), (
   'Inflation concerns'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -138,6 +157,7 @@ INSERT INTO public.category (
 ), (
   'UBC Okanagan death'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -145,6 +165,7 @@ INSERT INTO public.category (
 ), (
   'COVID-19 restrictions'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -152,6 +173,7 @@ INSERT INTO public.category (
 ), (
   'Autism funding'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -159,6 +181,7 @@ INSERT INTO public.category (
 ), (
   'Craig James trial'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -166,6 +189,7 @@ INSERT INTO public.category (
 ), (
   'Farnworth - sexual assault svcs'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -173,6 +197,7 @@ INSERT INTO public.category (
 ), (
   'Hospital parking fees'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -180,6 +205,7 @@ INSERT INTO public.category (
 ), (
   'Khalsa parade cancelled'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -187,6 +213,7 @@ INSERT INTO public.category (
 ), (
   'Animal feed prices'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -194,6 +221,7 @@ INSERT INTO public.category (
 ), (
   'By-election'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -201,6 +229,7 @@ INSERT INTO public.category (
 ), (
   'COVID-19 rapid testing'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -208,6 +237,7 @@ INSERT INTO public.category (
 ), (
   'Ukraine invasion'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -215,6 +245,7 @@ INSERT INTO public.category (
 ), (
   'Russian investments'
   , true
+  , false
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

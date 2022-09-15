@@ -1,3 +1,5 @@
+using TNO.Entities;
+
 namespace TNO.Kafka.Models;
 
 /// <summary>
@@ -19,9 +21,14 @@ public abstract class ContentBase
     public string Source { get; set; } = "";
 
     /// <summary>
-    /// get/set - Identifies the media type of this content.
+    /// get/set - The type of content and form to use.
     /// </summary>
-    public SourceMediaType MediaType { get; set; }
+    public ContentType ContentType { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the product the content will be assigned by default.
+    /// </summary>
+    public int ProductId { get; set; }
 
     /// <summary>
     /// get/set - A URL to the content.
@@ -48,6 +55,11 @@ public abstract class ContentBase
     /// get/set - The summary or abstract of the content.
     /// </summary>
     public string Summary { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Foreign key to the connection used to store the file.
+    /// </summary>
+    public int? ConnectionId { get; set; }
 
     /// <summary>
     /// get/set - The path to the file associated with this content.
@@ -102,15 +114,17 @@ public abstract class ContentBase
     /// <summary>
     /// Creates a new instance of a ContentBase object, initializes with specified parameters.
     /// </summary>
-    /// <param name="mediaType"></param>
     /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="productId"></param>
     /// <param name="uid"></param>
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ContentBase(SourceMediaType mediaType, string source, string uid, string title, string summary)
+    public ContentBase(string source, ContentType contentType, int productId, string uid, string title, string summary)
     {
-        this.MediaType = mediaType;
+        this.ContentType = contentType;
+        this.ProductId = productId;
         this.Source = source ?? throw new ArgumentNullException(nameof(source));
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Title = title ?? throw new ArgumentNullException(nameof(title));
@@ -120,13 +134,54 @@ public abstract class ContentBase
     /// <summary>
     /// Creates a new instance of a ContentBase object, initializes with specified parameters.
     /// </summary>
-    /// <param name="mediaType"></param>
     /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="productId"></param>
+    /// <param name="connectionId"></param>
+    /// <param name="uid"></param>
+    /// <param name="title"></param>
+    /// <param name="summary"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ContentBase(string source, ContentType contentType, int productId, int? connectionId, string uid, string title, string summary)
+    {
+        this.ContentType = contentType;
+        this.ProductId = productId;
+        this.ConnectionId = connectionId;
+        this.Source = source ?? throw new ArgumentNullException(nameof(source));
+        this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
+        this.Title = title ?? throw new ArgumentNullException(nameof(title));
+        this.Summary = summary ?? throw new ArgumentNullException(nameof(summary));
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ContentBase object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="productId"></param>
+    /// <param name="connectionId"></param>
     /// <param name="uid"></param>
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <param name="publishedOn"></param>
-    public ContentBase(SourceMediaType mediaType, string source, string uid, string title, string summary, DateTime publishedOn) : this(mediaType, source, uid, title, summary)
+    public ContentBase(string source, ContentType contentType, int productId, int? connectionId, string uid, string title, string summary, DateTime publishedOn)
+        : this(source, contentType, productId, connectionId, uid, title, summary)
+    {
+        this.PublishedOn = publishedOn;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ContentBase object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="productId"></param>
+    /// <param name="uid"></param>
+    /// <param name="title"></param>
+    /// <param name="summary"></param>
+    /// <param name="publishedOn"></param>
+    public ContentBase(string source, ContentType contentType, int productId, string uid, string title, string summary, DateTime publishedOn)
+        : this(source, contentType, productId, uid, title, summary)
     {
         this.PublishedOn = publishedOn;
     }

@@ -12,7 +12,6 @@ public class ContentLogConfiguration : AuditColumnsConfiguration<ContentLog>
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.ContentId).IsRequired();
         builder.Property(m => m.Status);
-        builder.Property(m => m.WorkflowStatus);
         builder.Property(m => m.Message).IsRequired().HasMaxLength(2000);
 
         builder.HasOne(m => m.Content).WithMany(m => m.Logs).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Cascade);

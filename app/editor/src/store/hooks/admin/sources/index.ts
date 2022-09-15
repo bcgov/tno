@@ -1,1 +1,1 @@
-export * from './useDataSources';
+export * from './useSources';

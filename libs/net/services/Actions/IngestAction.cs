@@ -34,18 +34,18 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <param name="manager"></param>
     /// <param name="name"></param>
     /// <param name="cancellationToken"></param>
-    public abstract Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
+    public abstract Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class;
 
     /// <summary>
     /// Perform the action for the specified data source.
-    /// Override the PeformActionAsync(IDataSourceIngestManager manager) method instead of this one.
+    /// Override the PerformActionAsync(IIngestServiceActionManager manager) method instead of this one.
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="name"></param>
     /// <param name="cancellationToken"></param>
     public override Task PerformActionAsync<T>(IServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        return PerformActionAsync((IDataSourceIngestManager)manager, name, data, cancellationToken);
+        return PerformActionAsync((IIngestServiceActionManager)manager, name, data, cancellationToken);
     }
     #endregion
 }

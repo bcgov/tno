@@ -331,7 +331,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/filemonitor/TNO.Services.Filemonitor.csproj",
+        "${workspaceFolder}/filemonitor/TNO.Services.FileMonitor.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -343,7 +343,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/filemonitor/TNO.Services.Filemonitor.csproj",
+        "${workspaceFolder}/filemonitor/TNO.Services.FileMonitor.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -357,7 +357,7 @@
         "watch",
         "run",
         "--project",
-        "${workspaceFolder}/filemonitor/TNO.Services.Filemonitor.csproj"
+        "${workspaceFolder}/filemonitor/TNO.Services.FileMonitor.csproj"
       ],
       "problemMatcher": "$msCompile"
     }

@@ -8,6 +8,7 @@ using TNO.Models.Extensions;
 using TNO.Services.Managers;
 using TNO.Services.Content.Config;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 
 namespace TNO.Services.Content;
 
@@ -67,7 +68,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
     #endregion
 
-    #region Methods
+    #region Methoi
     /// <summary>
     /// Continually poll for updated data source configuration.
     /// When there are topics to listen too it will initialize a Kafka consumer.
@@ -99,14 +100,14 @@ public class ContentManager : ServiceManager<ContentOptions>
                 try
                 {
                     // TODO: Handle e-tag.
-                    var dataSources = (await _api.GetDataSourcesAsync()).ToArray();
+                    var ingest = (await _api.GetIngestsAsync()).ToArray();
 
                     // Listen to every enabled data source with a topic that is configured to produce content.
-                    var topics = _options.GetContentTopics(dataSources
-                        .Where(ds => ds.IsEnabled &&
-                            ds.ContentTypeId > 1 &&
-                            !String.IsNullOrWhiteSpace(ds.Topic))
-                        .Select(ds => ds.Topic).ToArray());
+                    var topics = _options.GetContentTopics(ingest
+                        .Where(i => i.IsEnabled &&
+                            !String.IsNullOrWhiteSpace(i.Topic) &&
+                            i.ImportContent())
+                        .Select(i => i.Topic).ToArray());
 
                     // Only include topics that exist.
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
@@ -215,57 +216,56 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         try
         {
-            this.Logger.LogInformation("Importing Content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
-
-            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-            // TODO: Handle e-tag.
-            if (String.IsNullOrWhiteSpace(result.Message.Value.Source)) throw new InvalidOperationException($"Message does not contain a source");
-            var source = await _api.GetDataSourceAsync(result.Message.Value.Source) ?? throw new InvalidOperationException($"Failed to fetch data source for '{result.Message.Value.Source}'");
-            if (source.ContentTypeId == 0) throw new InvalidOperationException($"Data source not configured to import content correctly");
+            this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
+            var model = result.Message.Value;
 
             // Only add if doesn't already exist.
-            var exists = await _api.FindContentByUidAsync(result.Message.Value.Uid, result.Message.Value.Source);
+            var exists = await _api.FindContentByUidAsync(model.Uid, model.Source);
             if (exists == null)
             {
+                // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
+                // TODO: Handle e-tag.
+                var source = await _api.GetSourceForCodeAsync(model.Source);
+                if (model.ProductId == 0)
+                {
+                    // Messages in Kafka are missing information, replace with best guess.
+                    var ingests = await _api.GetIngestsForTopicAsync(result.Topic);
+                    model.ProductId = ingests.FirstOrDefault()?.ProductId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
+                }
+
                 var content = new ContentModel()
                 {
                     Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
-                    WorkflowStatus = Entities.WorkflowStatus.Received, // TODO: Automatically extract based on lifecycle of content reference.
-                    ContentTypeId = source.ContentTypeId,
-                    MediaTypeId = source.MediaTypeId,
-                    LicenseId = source.LicenseId,
+                    SourceId = source?.Id,
+                    OtherSource = model.Source,
+                    ContentType = model.ContentType,
+                    ProductId = model.ProductId,
+                    LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
                     SeriesId = null, // TODO: Provide default series from Data Source config settings.
                     OtherSeries = null, // TODO: Provide default series from Data Source config settings.
-                    OwnerId = source.OwnerId,
-                    DataSourceId = source.Id,
-                    Source = result.Message.Value.Source,
-                    Headline = String.IsNullOrWhiteSpace(result.Message.Value.Title) ? "[TBD]" : result.Message.Value.Title,
+                    OwnerId = source?.OwnerId,
+                    Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
                     Uid = result.Message.Value.Uid,
                     Page = "", // TODO: Provide default page from Data Source config settings.
-                    Summary = String.IsNullOrWhiteSpace(result.Message.Value.Summary) ? "[TBD]" : result.Message.Value.Summary,
+                    Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : model.Summary,
                     Body = "",
-                    SourceUrl = result.Message.Value.Link,
-                    PublishedOn = result.Message.Value.PublishedOn,
+                    SourceUrl = model.Link,
+                    PublishedOn = model.PublishedOn,
                 };
                 content = await _api.AddContentAsync(content);
-                this.Logger.LogInformation("Content Imported.  Content ID: {Id}, Pub: {published}", content?.Id, content?.PublishedOn);
+                this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content?.Id, content?.PublishedOn);
 
                 // Upload the file to the API.
-                if (content != null && !String.IsNullOrWhiteSpace(result.Message.Value.FilePath))
+                if (content != null && !String.IsNullOrWhiteSpace(model.FilePath))
                 {
                     // TODO: Handle different storage locations.
-                    // Remote storage locations may not be easily accessible by this service.
-                    var volumePath = source.GetConnectionValue("serviceType") switch
+                    // If the source content references a connection then fetch it to get the storage location of the file.
+                    var connection = model.ConnectionId.HasValue ? await _api.GetConnectionAsync(model.ConnectionId.Value) : null;
+                    var fullPath = Path.Combine(_options.VolumePath, connection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", model.FilePath.MakeRelativePath());
+                    if (File.Exists(fullPath))
                     {
-                        "stream" => _options.CapturePath,
-                        "clip" => _options.ClipPath,
-                        _ => ""
-                    };
-                    var sourcePath = Path.Join(volumePath, result.Message.Value.FilePath);
-                    if (File.Exists(sourcePath))
-                    {
-                        var file = File.OpenRead(sourcePath);
-                        var fileName = Path.GetFileName(sourcePath);
+                        var file = File.OpenRead(fullPath);
+                        var fileName = Path.GetFileName(fullPath);
                         await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
 
                         // Send a Kafka message to the transcription topic
@@ -277,7 +277,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     else
                     {
                         // TODO: Not sure if this should be considered a failure or not.
-                        this.Logger.LogWarning("File not found.  Content ID: {Id}, File: {sourcePath}", content.Id, sourcePath);
+                        this.Logger.LogWarning("File not found.  Content ID: {id}, File: {path}", content.Id, fullPath);
                     }
                 }
             }
@@ -285,7 +285,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             {
                 // TODO: Not sure if this should be considered a failure or not.
                 // Content shouldn't exist already, it indicates unexpected scenario.
-                this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", result.Message.Value.Source, result.Message.Value.Uid);
+                this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", model.Source, model.Uid);
             }
 
             // Successful run clears any errors.
@@ -310,7 +310,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     private async Task<DeliveryResult<string, TranscriptRequest>> SendMessageAsync(ContentModel content)
     {
         var result = await this.Producer.SendMessageAsync(_options.TranscriptionTopic, new TranscriptRequest(content, "ContentService"));
-        if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.Source}:{content.Uid}");
+        if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.OtherSource}:{content.Uid}");
         return result;
     }
     #endregion

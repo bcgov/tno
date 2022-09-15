@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
@@ -60,19 +60,19 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+        this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // Each schedule will have its own process.
-        foreach (var schedule in GetSchedules(manager.DataSource))
+        foreach (var schedule in GetSchedules(manager.Ingest))
         {
             try
             {
                 var process = await GetProcessAsync(manager, schedule);
 
                 // Fetch content reference.
-                var content = CreateContentReference(manager.DataSource, schedule);
+                var content = CreateContentReference(manager.Ingest, schedule);
                 var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
 
                 // Override the original action name based on the schedule.
@@ -82,13 +82,12 @@ public class ClipAction : CommandAction<ClipOptions>
                 // TODO: Handle failures when a clip file was created but error'ed out.
                 if (name == "start" && !IsRunning(process) && !FileExists(manager, schedule))
                 {
-                    var sendMessage = manager.DataSource.ContentTypeId > 0;
-
+                    var sendMessage = manager.Ingest.PostToKafka();
                     if (reference == null)
                     {
                         reference = await this.Api.AddContentReferenceAsync(content);
                     }
-                    else if (reference.WorkflowStatus == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
                     {
                         // If another process has it in progress only attempt to do an import if it's
                         // more than an 2 minutes old. Assumption is that it is stuck.
@@ -103,12 +102,12 @@ public class ClipAction : CommandAction<ClipOptions>
 
                         if (sendMessage)
                         {
-                            var messageResult = await SendMessageAsync(process, manager.DataSource, schedule, reference);
+                            var messageResult = await SendMessageAsync(process, manager.Ingest, schedule, reference);
                             reference.Partition = messageResult.Partition;
                             reference.Offset = messageResult.Offset;
                         }
 
-                        reference.WorkflowStatus = (int)WorkflowStatus.Received;
+                        reference.Status = (int)WorkflowStatus.Received;
                         await this.Api.UpdateContentReferenceAsync(reference);
                     }
                 }
@@ -121,7 +120,7 @@ public class ClipAction : CommandAction<ClipOptions>
             catch (Exception ex)
             {
                 if ((ex is MissingFileException || (ex is AggregateException && ex.InnerException is MissingFileException)) &&
-                    !manager.DataSource.GetConnectionValue<bool>("throwOnMissingFile")) continue;
+                    !manager.Ingest.GetConfigurationValue<bool>("throwOnMissingFile")) continue;
 
                 throw;
             }
@@ -150,20 +149,20 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Create a content reference for this clip.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    private ContentReferenceModel CreateContentReference(DataSourceModel dataSource, ScheduleModel schedule)
+    private ContentReferenceModel CreateContentReference(IngestModel ingest, ScheduleModel schedule)
     {
-        var today = GetLocalDateTime(dataSource, DateTime.UtcNow);
+        var today = GetLocalDateTime(ingest, DateTime.UtcNow);
         var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, DateTimeKind.Local) + schedule.StartAt;
         return new ContentReferenceModel()
         {
-            Source = dataSource.Code,
+            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' missing source code."),
             Uid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
             PublishedOn = publishedOn?.ToUniversalTime(),
-            Topic = dataSource.Topic,
-            WorkflowStatus = (int)WorkflowStatus.InProgress
+            Topic = ingest.Topic,
+            Status = (int)WorkflowStatus.InProgress
         };
     }
 
@@ -171,36 +170,25 @@ public class ClipAction : CommandAction<ClipOptions>
     /// Send message to kafka with new source content.
     /// </summary>
     /// <param name="process"></param>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, DataSourceModel dataSource, ScheduleModel schedule, ContentReferenceModel reference)
+    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
-        var mediaType = await IsVideoAsync(file) ? SourceMediaType.Video : SourceMediaType.Audio;
-        var content = new SourceContent(mediaType, reference.Source, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
+        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
         {
-            StreamUrl = dataSource.Parent?.GetConnectionValue("url") ?? "",
-            FilePath = GetFilePath(file),
-            Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
+            StreamUrl = ingest.GetConfigurationValue("url") ?? "",
+            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path") ?? "", file?.MakeRelativePath() ?? ""),
+            Language = ingest.GetConfigurationValue("language") ?? ""
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
-    }
-
-    /// <summary>
-    /// Remove the configured mapping path.
-    /// Any pods which need access to this file will need to know the original mapping path.
-    /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    private string GetFilePath(string path)
-    {
-        return path.ReplaceFirst($"{this.Options.OutputPath}{Path.DirectorySeparatorChar}", "")!;
     }
 
     /// <summary>
@@ -213,7 +201,7 @@ public class ClipAction : CommandAction<ClipOptions>
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i '{file}' 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
@@ -228,13 +216,13 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Only return schedules that have passed and are within the 'ScheduleLimiter' configuration setting.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    protected override IEnumerable<ScheduleModel> GetSchedules(DataSourceModel dataSource)
+    protected override IEnumerable<ScheduleModel> GetSchedules(IngestModel ingest)
     {
-        var keepChecking = bool.Parse(dataSource.GetConnectionValue("keepChecking"));
-        var now = GetLocalDateTime(dataSource, DateTime.UtcNow).TimeOfDay;
-        return dataSource.DataSourceSchedules.Where(s =>
+        var keepChecking = bool.Parse(ingest.GetConfigurationValue("keepChecking"));
+        var now = GetLocalDateTime(ingest, DateTime.UtcNow).TimeOfDay;
+        return ingest.IngestSchedules.Where(s =>
             s.Schedule != null &&
             s.Schedule.StopAt != null &&
             s.Schedule.StopAt.Value <= now &&
@@ -248,9 +236,9 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    private bool FileExists(IDataSourceIngestManager manager, ScheduleModel schedule)
+    private bool FileExists(IIngestServiceActionManager manager, ScheduleModel schedule)
     {
-        var output = GetOutput(manager.DataSource, schedule);
+        var output = GetOutput(manager.Ingest, schedule);
         return File.Exists(output);
     }
 
@@ -261,22 +249,22 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected override async Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected override async Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
     {
-        if (schedule == null) throw new InvalidOperationException($"Data source schedule '{manager.DataSource.Code}' is required");
+        if (schedule == null) throw new InvalidOperationException($"Ingest schedule '{manager.Ingest.Name}' is required");
 
-        var input = await GetInputFileAsync(manager.DataSource, schedule);
-        var start = GetStart(manager.DataSource, schedule, input);
+        var input = await GetInputFileAsync(manager.Ingest, schedule);
+        var start = GetStart(manager.Ingest, schedule, input);
         var duration = GetDuration(schedule);
-        var format = GetFormat(manager.DataSource);
-        var volume = GetVolume(manager.DataSource);
-        var otherArgs = GetOtherArgs(manager.DataSource);
-        var copy = GetCopy(manager.DataSource);
+        var format = GetFormat(manager.Ingest);
+        var volume = GetVolume(manager.Ingest);
+        var otherArgs = GetOtherArgs(manager.Ingest);
+        var copy = GetCopy(manager.Ingest);
 
-        var output = GetOutput(manager.DataSource, schedule);
+        var output = GetOutput(manager.Ingest, schedule);
         process.Data.Add("filename", output);
 
-        return $"-i {input}{start}{duration}{volume}{format}{otherArgs}{copy} -y {output}";
+        return $"-i \"{input}\"{start}{duration}{volume}{format}{otherArgs}{copy} -y \"{output}\"";
     }
 
     /// <summary>
@@ -300,24 +288,24 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Get the path to the captured files.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<string> GetInputFileAsync(DataSourceModel dataSource, ScheduleModel schedule)
+    private async Task<string> GetInputFileAsync(IngestModel ingest, ScheduleModel schedule)
     {
         // TODO: Handle issue where capture failed and has multiple files.
-        var path = Path.Combine(this.Options.CapturePath, $"{dataSource.Parent?.Code}/{GetLocalDateTime(dataSource, DateTime.Now):yyyy-MM-dd}");
+        var path = Path.Combine(this.Options.VolumePath, ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd}");
         var clipStart = schedule.StartAt;
 
         // Review each file that was captured to determine which one is valid for this clip schedule.
         foreach (var file in Directory.GetFiles(path).Where(f => ParseTimeFromFileName(Path.GetFileName(f)) <= clipStart))
         {
             // The offset is before the source file, so we can't use it.
-            var offset = CalcStartOffset(dataSource, schedule, file);
+            var offset = CalcStartOffset(ingest, schedule, file);
             if (offset.TotalMinutes < -1)
             {
-                this.Logger.LogWarning("Data source schedule '{Code}.{Name}' capture file start is after the requested 'StartAt'.  Missing {TotalSeconds:n0} seconds.", dataSource.Code, schedule.Name, offset.Duration().TotalSeconds);
+                this.Logger.LogWarning("Ingest '{name}' schedule '{id}.{name}' capture file start is after the requested 'StartAt'.  Missing {TotalSeconds:n0} seconds.", ingest.Name, schedule.Id, schedule.Name, offset.Duration().TotalSeconds);
                 continue;
             }
 
@@ -325,30 +313,30 @@ public class ClipAction : CommandAction<ClipOptions>
             var fileDuration = await GetDurationAsync(file);
             if (fileDuration >= schedule.CalcDuration().TotalSeconds) return file;
 
-            this.Logger.LogWarning("Data source schedule '{Code}.{Name}' capture file duration is less than the requested duration", dataSource.Code, schedule.Name);
+            this.Logger.LogWarning("Ingest '{name}' schedule '{id}:{name}' capture file duration is less than the requested duration", ingest.Name, schedule.Id, schedule.Name);
         }
 
-        throw new MissingFileException($"Data source schedule '{dataSource.Code}.{schedule.Name}' capture file not found or duration not long enough'");
+        throw new MissingFileException($"Ingest '{ingest.Name}' schedule '{schedule.Id}:{schedule.Name}' ingest.Name, capture file not found or duration not long enough'");
     }
 
     /// <summary>
     /// Extract the file created date and time.
     /// Calculate the start offset for the schedule 'StartAt' based on the file created time.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <param name="inputFile"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static TimeSpan CalcStartOffset(DataSourceModel dataSource, ScheduleModel schedule, string inputFile)
+    private static TimeSpan CalcStartOffset(IngestModel ingest, ScheduleModel schedule, string inputFile)
     {
-        if (schedule.StartAt == null) throw new InvalidOperationException($"Data source schedule must have a 'StartAt' configured for {dataSource.Code}.{schedule.Name}");
-        if (schedule.StopAt == null) throw new InvalidOperationException($"Data source schedule must have a 'StopAt' configured for {dataSource.Code}.{schedule.Name}");
+        if (schedule.StartAt == null) throw new InvalidOperationException($"Ingest schedule must have a 'StartAt' configured for {schedule.Id}:{schedule.Name}");
+        if (schedule.StopAt == null) throw new InvalidOperationException($"Ingest schedule must have a 'StopAt' configured for {schedule.Id}:{schedule.Name}");
 
         // Linux doesn't have the file created time value, which means we need to get it from convention.
         var fileName = Path.GetFileName(inputFile);
         var createdOn = ParseTimeFromFileName(fileName);
-        //var createdOn = GetLocalDateTime(dataSource, File.GetCreationTimeUtc(inputFile)).TimeOfDay;
+        //var createdOn = GetLocalDateTime(ingest, File.GetCreationTimeUtc(inputFile)).TimeOfDay;
         var clipStartAt = schedule.StartAt.Value;
         return clipStartAt.Subtract(createdOn);
     }
@@ -357,14 +345,14 @@ public class ClipAction : CommandAction<ClipOptions>
     /// Get the start offset position within the file.
     /// A capture file may not have been created at it's start time regrettably, so clips must account for this by using the created time of the file.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <param name="inputFile"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetStart(DataSourceModel dataSource, ScheduleModel schedule, string inputFile)
+    private static string GetStart(IngestModel ingest, ScheduleModel schedule, string inputFile)
     {
-        var start = CalcStartOffset(dataSource, schedule, inputFile);
+        var start = CalcStartOffset(ingest, schedule, inputFile);
         var hours = start.Hours < 0 ? 0 : start.Hours;
         var minutes = start.Minutes < 0 ? 0 : start.Minutes;
         var seconds = start.Seconds < 0 ? 0 : start.Seconds;
@@ -381,7 +369,12 @@ public class ClipAction : CommandAction<ClipOptions>
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffprobe -i {inputFile} -show_format -v quiet | sed -n 's/duration=//p'\"";
+        // Intial
+        process.StartInfo.Arguments = $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"";
+        // Format (container) duration
+        // process.StartInfo.Arguments = $"-c \"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
+        // Video stream duration
+        // process.StartInfo.Arguments = $"-c \"ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
@@ -411,27 +404,27 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Get the output path to store the file.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    protected string GetOutputPath(DataSourceModel dataSource)
+    protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.OutputPath, $"{dataSource.Code}/{GetLocalDateTime(dataSource, DateTime.Now):yyyy-MM-dd}");
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd}");
     }
 
     /// <summary>
     /// Get the file name from the connection settings.
     /// This will generate a unique name for each time it has to start.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private string GetOutput(DataSourceModel dataSource, ScheduleModel schedule)
+    private string GetOutput(IngestModel ingest, ScheduleModel schedule)
     {
-        var path = GetOutputPath(dataSource);
+        var path = GetOutputPath(ingest);
         Directory.CreateDirectory(path);
 
-        var value = dataSource.GetConnectionValue("fileName");
+        var value = ingest.GetConfigurationValue("fileName");
         var filename = String.IsNullOrWhiteSpace(value) ? $"{schedule.Name}.mp3" : value.Replace("{schedule.Name}", schedule.Name);
         var name = Path.GetFileNameWithoutExtension(filename);
         var ext = Path.GetExtension(filename);
@@ -442,48 +435,48 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <summary>
     /// Get the format from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetFormat(DataSourceModel dataSource)
+    private static string GetFormat(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("format");
+        var value = ingest.GetConfigurationValue("format");
         return String.IsNullOrWhiteSpace(value) ? String.Empty : $" -f {value}";
     }
 
     /// <summary>
     /// Get the volume from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetVolume(DataSourceModel dataSource)
+    private static string GetVolume(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("volume");
+        var value = ingest.GetConfigurationValue("volume");
         return String.IsNullOrWhiteSpace(value) ? String.Empty : $" -filter:a 'volume={value}'";
     }
 
     /// <summary>
     /// Get the other arguments from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetOtherArgs(DataSourceModel dataSource)
+    private static string GetOtherArgs(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("otherArgs");
+        var value = ingest.GetConfigurationValue("otherArgs");
         return String.IsNullOrWhiteSpace(value) ? "" : $" {value}";
     }
 
     /// <summary>
     /// Get the copy command from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetCopy(DataSourceModel dataSource)
+    private static string GetCopy(IngestModel ingest)
     {
-        var value = dataSource.GetConnectionValue("copy");
+        var value = ingest.GetConfigurationValue("copy");
         return String.IsNullOrWhiteSpace(value) ? " -c:v copy -c:a copy" : $" {value}";
     }
     #endregion

@@ -276,7 +276,7 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFilePath(Content content, IFormFile file)
     {
         var fileName = GenerateFileName(content, file);
-        return System.IO.Path.Combine(content.Source, fileName);
+        return System.IO.Path.Combine(content.OtherSource, fileName);
     }
 
     /// <summary>
@@ -288,9 +288,9 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFileName(Content content, IFormFile file)
     {
         if (content.Id == 0) throw new ArgumentException("Parameter 'content.Id' must be greater than zero.", nameof(content));
-        if (String.IsNullOrWhiteSpace(content.Source)) throw new ArgumentException("Parameter 'content.Source' cannot be null, empty, or whitespace.", nameof(content));
+        if (String.IsNullOrWhiteSpace(content.OtherSource)) throw new ArgumentException("Parameter 'content.OtherSource' cannot be null, empty, or whitespace.", nameof(content));
 
-        return $"{content.Source}-{content.Id}{System.IO.Path.GetExtension(file.FileName)}";
+        return GenerateFileName(content, file.FileName);
     }
 
     /// <summary>
@@ -302,7 +302,7 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFilePath(Content content, string file)
     {
         var fileName = GenerateFileName(content, file);
-        return System.IO.Path.Combine(content.Source, fileName);
+        return System.IO.Path.Combine(content.OtherSource, fileName);
     }
 
     /// <summary>
@@ -315,9 +315,9 @@ public class ContentFileReference : IReadonlyFileReference
     public static string GenerateFileName(Content content, string file)
     {
         if (content.Id == 0) throw new ArgumentException("Parameter 'content.Id' must be greater than zero.", nameof(content));
-        if (String.IsNullOrWhiteSpace(content.Source)) throw new ArgumentException("Parameter 'content.Source' cannot be null, empty, or whitespace.", nameof(content));
+        if (String.IsNullOrWhiteSpace(content.OtherSource)) throw new ArgumentException("Parameter 'content.OtherSource' cannot be null, empty, or whitespace.", nameof(content));
 
-        return $"{content.Source}-{content.Id}{System.IO.Path.GetExtension(file)}";
+        return $"{content.OtherSource}-{content.Id}{System.IO.Path.GetExtension(file)}";
     }
 
     /// <summary>

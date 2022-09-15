@@ -1,28 +1,28 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Managers;
-using TNO.Services.Filemonitor.Config;
+using TNO.Services.FileMonitor.Config;
 
-namespace TNO.Services.Filemonitor;
+namespace TNO.Services.FileMonitor;
 
 /// <summary>
-/// SyndicationManager class, provides a way to manage the syndication service.
+/// FileMonitorManager class, provides a way to manage the syndication service.
 /// </summary>
-public class FilemonitorManager : DataSourceManager<FilemonitorDataSourceManager, FilemonitorOptions>
+public class FileMonitorManager : IngestManager<FileMonitorIngestActionManager, FileMonitorOptions>
 {
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a SyndicationManager object, initializes with specified parameters.
+    /// Creates a new instance of a FileMonitorManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="api"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public FilemonitorManager(
+    public FileMonitorManager(
         IApiService api,
-        DataSourceIngestManagerFactory<FilemonitorDataSourceManager, FilemonitorOptions> factory,
-        IOptions<FilemonitorOptions> options,
-        ILogger<FilemonitorManager> logger)
+        IngestManagerFactory<FileMonitorIngestActionManager, FileMonitorOptions> factory,
+        IOptions<FileMonitorOptions> options,
+        ILogger<FileMonitorManager> logger)
         : base(api, factory, options, logger)
     {
     }

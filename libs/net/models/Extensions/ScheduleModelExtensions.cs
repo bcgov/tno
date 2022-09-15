@@ -1,4 +1,4 @@
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 
 namespace TNO.Models.Extensions;
 
@@ -8,7 +8,7 @@ namespace TNO.Models.Extensions;
 public static class ScheduleModelExtensions
 {
     /// <summary>
-    /// Calculate the duraction of the schedule.
+    /// Calculate the duration of the schedule.
     /// </summary>
     /// <param name="schedule"></param>
     /// <returns></returns>

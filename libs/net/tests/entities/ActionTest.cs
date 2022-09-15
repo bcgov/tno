@@ -36,7 +36,6 @@ public class ActionTest
         Assert.Empty(item.Contents);
         Assert.Empty(item.ContentsManyToMany);
         Assert.Empty(item.ContentTypes);
-        Assert.Empty(item.ContentTypesManyToMany);
     }
 
     [Fact]
@@ -67,6 +66,5 @@ public class ActionTest
         Assert.Empty(item.Contents);
         Assert.Empty(item.ContentsManyToMany);
         Assert.Empty(item.ContentTypes);
-        Assert.Empty(item.ContentTypesManyToMany);
     }
 }

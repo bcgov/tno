@@ -4,6 +4,7 @@ namespace TNO.Entities;
 
 /// <summary>
 /// ContentLabel class, provides an entity model that represents a label that provides details about content (i.e. keyword, person, location, ...)
+/// TODO: Merge labels with tags.
 /// </summary>
 [Table("content_label")]
 public class ContentLabel : AuditColumns, IEquatable<ContentLabel>

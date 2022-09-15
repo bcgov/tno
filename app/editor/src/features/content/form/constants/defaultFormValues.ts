@@ -1,28 +1,27 @@
-import { ContentStatusName, ContentType, WorkflowStatusName } from 'hooks/api-editor';
+import { ContentStatusName, ContentTypeName } from 'hooks/api-editor';
 
 import { IContentForm } from '../interfaces';
 
-export const defaultFormValues = (contentType: ContentType): IContentForm => {
+export const defaultFormValues = (contentType: ContentTypeName): IContentForm => {
   return {
     id: 0,
     uid: '',
     sourceUrl: '',
     status:
-      contentType === ContentType.Snippet ? ContentStatusName.Publish : ContentStatusName.Draft,
-    workflowStatus: WorkflowStatusName.Received,
-    contentTypeId: 0,
-    mediaTypeId: 0,
+      contentType === ContentTypeName.Snippet ? ContentStatusName.Publish : ContentStatusName.Draft,
+    contentType: contentType,
+    sourceId: undefined,
+    otherSource: '',
+    tempSource: '',
+    productId: 0,
     licenseId: 1,
-    dataSourceId: undefined,
-    ownerId: 0,
     seriesId: undefined,
     otherSeries: '',
+    ownerId: 0,
+    page: '',
     headline: '',
     summary: '',
-    source: '',
-    otherSource: '',
-    page: '',
-    transcription: '',
+    body: '',
     publishedOn: '',
     actions: [],
     categories: [],

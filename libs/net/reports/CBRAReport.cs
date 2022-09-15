@@ -78,15 +78,18 @@ public class CBRAReport
         // performant.
         content = page.Items.Select(i => contentService.FindById(i.Id)!).ToList();
 
-        talkRadio = content.Where(c => c.MediaType?.Name == "Talk Radio").ToList();
+        // TODO: Hardcoding isn't good.
+        talkRadio = content.Where(c => c.Product?.Name == "Talk Radio").ToList();
         talkRadioSeries = talkRadio.GroupBy(c => c.Series?.Name).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         talkRadioKeys = talkRadioSeries.Keys.ToArray();
 
-        newsRadio = content.Where(c => c.MediaType?.Name == "News Radio").ToList();
-        newsRadioSources = newsRadio.GroupBy(c => c.Source).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
+        // TODO: Hardcoding isn't good.
+        newsRadio = content.Where(c => c.Product?.Name == "News Radio").ToList();
+        newsRadioSources = newsRadio.GroupBy(c => c.OtherSource).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         newsRadioKeys = newsRadioSources.Keys.ToArray();
 
-        television = content.Where(c => c.MediaType?.Name == "Television").ToList();
+        // TODO: Hardcoding isn't good.
+        television = content.Where(c => c.Product?.Name == "Television").ToList();
         televisionSeries = television.GroupBy(c => c.Series?.Name).ToDictionary(g => g.Key ?? "NOT SET", g => g.ToList());
         televisionKeys = televisionSeries.Keys.ToArray();
 
@@ -508,7 +511,7 @@ public class CBRAReport
         cellB.SetCellValue("(%)");
 
         var totalRunningTime = content.Where((c) => c.FileReferences.Count > 0).Sum(c => c.FileReferences.First().RunningTime);
-        var sources = newsRadio.GroupBy(c => c.Source).ToDictionary(g => g.Key, g => g.ToList());
+        var sources = newsRadio.GroupBy(c => c.OtherSource).ToDictionary(g => g.Key, g => g.ToList());
         var sourceKeys = sources.Keys.ToArray();
 
         var valueStyle = CreateStyle((short)12, false, true, HorizontalAlignment.Center, green);

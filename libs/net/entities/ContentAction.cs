@@ -2,20 +2,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// ContentAction class, provide an entity model (many-to-many) to link content with possible actions.
+/// </summary>
 [Table("content_action")]
 public class ContentAction : AuditColumns, IEquatable<ContentAction>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Primary key and foreign key to content.
+    /// </summary>
     [Column("content_id")]
     public long ContentId { get; set; }
 
+    /// <summary>
+    /// get/set - The content.
+    /// </summary>
     public virtual Content? Content { get; set; }
 
+    /// <summary>
+    /// get/set - Primary key and foreign key to action.
+    /// </summary>
     [Column("action_id")]
     public int ActionId { get; set; }
 
+    /// <summary>
+    /// get/set - The action.
+    /// </summary>
     public virtual Action? Action { get; set; }
 
+    /// <summary>
+    /// get/set - The value of the action.
+    /// </summary>
     [Column("value")]
     public string Value { get; set; } = "";
     #endregion

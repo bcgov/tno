@@ -8,7 +8,7 @@ namespace TNO.Services.Command;
 /// <summary>
 /// CommandManager class, provides a way to manage the command service.
 /// </summary>
-public class CommandManager : DataSourceManager<CommandDataSourceManager, CommandOptions>
+public class CommandManager : IngestManager<CommandIngestActionManager, CommandOptions>
 {
     #region Constructors
     /// <summary>
@@ -20,7 +20,7 @@ public class CommandManager : DataSourceManager<CommandDataSourceManager, Comman
     /// <param name="logger"></param>
     public CommandManager(
         IApiService api,
-        DataSourceIngestManagerFactory<CommandDataSourceManager, CommandOptions> factory,
+        IngestManagerFactory<CommandIngestActionManager, CommandOptions> factory,
         IOptions<CommandOptions> options,
         ILogger<CommandManager> logger)
         : base(api, factory, options, logger)

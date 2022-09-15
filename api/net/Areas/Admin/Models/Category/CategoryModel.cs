@@ -32,6 +32,11 @@ public class CategoryModel : AuditColumnsModel
     /// get/set - The sort order of the models.
     /// </summary>
     public int SortOrder { get; set; }
+
+    /// <summary>
+    /// get/set - Whether content with this category should be automatically transcribed.
+    /// </summary>
+    public bool AutoTranscribe { get; set; }
     #endregion
 
     #region Constructors
@@ -51,6 +56,7 @@ public class CategoryModel : AuditColumnsModel
         this.Description = entity.Description;
         this.SortOrder = entity.SortOrder;
         this.IsEnabled = entity.IsEnabled;
+        this.AutoTranscribe = entity.AutoTranscribe;
     }
     #endregion
 
@@ -68,6 +74,7 @@ public class CategoryModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
+            AutoTranscribe = model.AutoTranscribe,
             Version = model.Version ?? 0,
         };
         return entity;

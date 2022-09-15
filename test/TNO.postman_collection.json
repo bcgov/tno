@@ -1338,7 +1338,7 @@
 							]
 						},
 						{
-							"name": "source metrics",
+							"name": "metrics",
 							"item": [
 								{
 									"name": "metrics",
@@ -1346,7 +1346,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/metrics",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1354,7 +1354,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"source",
 												"metrics"
 											]
 										}
@@ -1367,7 +1366,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/metrics/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1375,7 +1374,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"source",
 												"metrics",
 												":id"
 											],
@@ -1404,7 +1402,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/metrics",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1412,7 +1410,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"source",
 												"metrics"
 											]
 										}
@@ -1434,7 +1431,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/metrics/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1442,7 +1439,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"source",
 												"metrics",
 												":id"
 											],
@@ -1471,7 +1467,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/source/metrics/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/metrics/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1479,7 +1475,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"source",
 												"metrics",
 												":id"
 											],
@@ -1975,15 +1970,15 @@
 							]
 						},
 						{
-							"name": "content types",
+							"name": "products",
 							"item": [
 								{
-									"name": "content/types",
+									"name": "products",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/products",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -1991,20 +1986,19 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"content",
-												"types"
+												"products"
 											]
 										}
 									},
 									"response": []
 								},
 								{
-									"name": "content/types/:id",
+									"name": "products/:id",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/products/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2012,8 +2006,7 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"content",
-												"types",
+												"products",
 												":id"
 											],
 											"variable": [
@@ -2027,7 +2020,7 @@
 									"response": []
 								},
 								{
-									"name": "content/types",
+									"name": "products",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -2041,7 +2034,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/products",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2049,15 +2042,14 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"content",
-												"types"
+												"products"
 											]
 										}
 									},
 									"response": []
 								},
 								{
-									"name": "content/types/:id",
+									"name": "products/:id",
 									"request": {
 										"method": "PUT",
 										"header": [],
@@ -2071,7 +2063,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/products/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2079,8 +2071,7 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"content",
-												"types",
+												"products",
 												":id"
 											],
 											"variable": [
@@ -2094,7 +2085,7 @@
 									"response": []
 								},
 								{
-									"name": "content/types/:id",
+									"name": "products/:id",
 									"request": {
 										"method": "DELETE",
 										"header": [],
@@ -2108,7 +2099,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/content/types/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/products/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2116,8 +2107,7 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"content",
-												"types",
+												"products",
 												":id"
 											],
 											"variable": [
@@ -2133,15 +2123,15 @@
 							]
 						},
 						{
-							"name": "data sources",
+							"name": "sources",
 							"item": [
 								{
-									"name": "data/sources",
+									"name": "sources",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/sources",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2149,7 +2139,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"data",
 												"sources"
 											]
 										}
@@ -2157,12 +2146,12 @@
 									"response": []
 								},
 								{
-									"name": "data/sources/find",
+									"name": "sources/find",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/find",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/sources/find",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2170,7 +2159,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"data",
 												"sources",
 												"find"
 											]
@@ -2179,12 +2167,12 @@
 									"response": []
 								},
 								{
-									"name": "data/sources/:id",
+									"name": "sources/:id",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/sources/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2192,7 +2180,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"data",
 												"sources",
 												":id"
 											],
@@ -2207,7 +2194,7 @@
 									"response": []
 								},
 								{
-									"name": "data/sources",
+									"name": "sources",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -2221,7 +2208,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/sources",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2229,7 +2216,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"data",
 												"sources"
 											]
 										}
@@ -2237,7 +2223,7 @@
 									"response": []
 								},
 								{
-									"name": "data/sources/:id",
+									"name": "sources/:id",
 									"request": {
 										"method": "PUT",
 										"header": [],
@@ -2251,7 +2237,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/sources/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2259,7 +2245,6 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"data",
 												"sources",
 												":id"
 											],
@@ -2274,7 +2259,7 @@
 									"response": []
 								},
 								{
-									"name": "data/sources/:id",
+									"name": "sources/:id",
 									"request": {
 										"method": "DELETE",
 										"header": [],
@@ -2288,7 +2273,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/data/sources/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/sources/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -2296,8 +2281,181 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"admin",
-												"data",
 												"sources",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "ingests",
+							"item": [
+								{
+									"name": "ingests",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/ingests",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"ingests"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ingests/find",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/ingests/find",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"ingests",
+												"find"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ingests/:id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/ingests/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"ingests",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "179"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ingests",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"createdById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"createdBy\": \"service-account-tno-service-account\",\r\n    \"createdOn\": \"2022-02-16T18:43:10.931+0000\",\r\n    \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"updatedBy\": \"\",\r\n    \"updatedOn\": \"2022-02-16T18:43:10.931+0000\",\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"code\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"enabled\": true,\r\n    \"mediaTypeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    },\r\n    \"parentId\": null,\r\n    \"dataSourceSchedules\": [\r\n    ]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/ingests",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"ingests"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ingests/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 179,\r\n    \"name\": \"CP News\",\r\n    \"code\": \"CPNEWS\",\r\n    \"shortName\": \"\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"locationType\": \"LocalVolume\",\r\n        \"connection\": {},\r\n        \"id\": 1,\r\n        \"name\": \"Default\",\r\n        \"description\": \"If content does not have a configured data source, then it will be uploaded at this location.\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"contentTypeId\": 3,\r\n    \"contentType\": {\r\n        \"id\": 3,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"Content originated from the internet and contains a URL.\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0,\r\n        \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"createdBy\": \"\",\r\n        \"updatedOn\": \"2022-08-04T17:12:40.221596Z\",\r\n        \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n        \"updatedBy\": \"\",\r\n        \"version\": 0\r\n    },\r\n    \"scheduleType\": \"Continuous\",\r\n    \"topic\": \"CPNEWS\",\r\n    \"connection\": {\r\n        \"url\": \"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr\",\r\n        \"timeZone\": \"Pacific Standard Time\",\r\n        \"fetchContent\": true,\r\n        \"import\": false\r\n    },\r\n    \"lastRanOn\": \"2022-08-11T18:44:17.851058Z\",\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"actions\": [\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 1,\r\n            \"name\": \"CBRA\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201765Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201765Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 2,\r\n            \"name\": \"TV Archive\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201775Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201775Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 3,\r\n            \"name\": \"Use in Analysis\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201776Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201776Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        },\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"value\": \"\",\r\n            \"id\": 4,\r\n            \"name\": \"Use in Event of Day\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"sortOrder\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:06.201778Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:06.201778Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"metrics\": [],\r\n    \"schedules\": [\r\n        {\r\n            \"dataSourceId\": 179,\r\n            \"id\": 1,\r\n            \"name\": \"default\",\r\n            \"description\": \"\",\r\n            \"isEnabled\": true,\r\n            \"scheduleType\": \"Continuous\",\r\n            \"delayMS\": 60000,\r\n            \"startAt\": \"00:00:00\",\r\n            \"stopAt\": \"23:59:59\",\r\n            \"repeat\": 0,\r\n            \"runOnWeekDays\": \"Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday\",\r\n            \"runOnMonths\": \"NA\",\r\n            \"dayOfMonth\": 0,\r\n            \"createdOn\": \"2022-08-04T17:13:15.785678Z\",\r\n            \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"createdBy\": \"admin\",\r\n            \"updatedOn\": \"2022-08-04T17:13:15.785678Z\",\r\n            \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n            \"updatedBy\": \"admin\",\r\n            \"version\": 0\r\n        }\r\n    ],\r\n    \"createdOn\": \"2022-08-04T17:12:40.221596Z\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-08-19T22:21:50.320189Z\",\r\n    \"updatedById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n    \"updatedBy\": \"admin\",\r\n    \"version\": 8\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/ingests/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"ingests",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "108"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ingests/:id",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"name\": \"The Canadian Jewish News\",\r\n    \"abbr\": \"CJN\",\r\n    \"description\": \"Daily breaking news, podcasts, newsletters and events that matter to the Canadian Jewish community.\",\r\n    \"isEnabled\": true,\r\n    \"typeId\": 1,\r\n    \"licenseId\": 1,\r\n    \"scheduleId\": 1,\r\n    \"topic\": \"test\",\r\n    \"connection\": {\r\n        \"url\": \"https://thecjn.ca/feed/\"\r\n    }\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/admin/ingests/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"admin",
+												"ingests",
 												":id"
 											],
 											"variable": [
@@ -4273,12 +4431,12 @@
 							"response": []
 						},
 						{
-							"name": "content/types",
+							"name": "products",
 							"request": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/content/types",
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/products",
 									"protocol": "{{scheme}}",
 									"host": [
 										"{{host}}"
@@ -4286,8 +4444,7 @@
 									"port": "{{port}}{{root-path}}",
 									"path": [
 										"editor",
-										"content",
-										"types"
+										"products"
 									]
 								}
 							},
@@ -4456,6 +4613,52 @@
 							"response": []
 						},
 						{
+							"name": "sources",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "If-None-Match",
+										"value": "d41b032b-b10d-4063-9fe9-17c17fb47bd1",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/sources",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"sources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "metrics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/metrics",
+									"protocol": "{{scheme}}",
+									"host": [
+										"{{host}}"
+									],
+									"port": "{{port}}{{root-path}}",
+									"path": [
+										"editor",
+										"metrics"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "source/actions",
 							"request": {
 								"method": "GET",
@@ -4475,54 +4678,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "source/metrics",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/source/metrics",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"editor",
-										"source",
-										"metrics"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "data/sources",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "If-None-Match",
-										"value": "d41b032b-b10d-4063-9fe9-17c17fb47bd1",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/editor/data/sources",
-									"protocol": "{{scheme}}",
-									"host": [
-										"{{host}}"
-									],
-									"port": "{{port}}{{root-path}}",
-									"path": [
-										"editor",
-										"data",
-										"sources"
-									]
-								}
-							},
-							"response": []
 						}
 					]
 				},
@@ -4533,12 +4688,12 @@
 							"name": "contents",
 							"item": [
 								{
-									"name": "contents",
+									"name": ":id",
 									"request": {
-										"method": "POST",
+										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -4546,7 +4701,14 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"services",
-												"contents"
+												"contents",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1470"
+												}
 											]
 										}
 									},
@@ -4602,7 +4764,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents/find?uid=https://www.castanet.net/news/West-Kelowna/369540/Hwy-97C-open-after-crash-that-required-air-ambulance&source=CASTANET",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/contents/find?uid=CPNEWS-http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_dv.htm/_ibyx/daj/_svc/cp_pub/_Id//_k/NJlB01Q2X9rcdUKM&source=CPNEWS",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -4616,11 +4778,11 @@
 											"query": [
 												{
 													"key": "uid",
-													"value": "https://www.castanet.net/news/West-Kelowna/369540/Hwy-97C-open-after-crash-that-required-air-ambulance"
+													"value": "CPNEWS-http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_dv.htm/_ibyx/daj/_svc/cp_pub/_Id//_k/NJlB01Q2X9rcdUKM"
 												},
 												{
 													"key": "source",
-													"value": "CASTANET"
+													"value": "CPNEWS"
 												}
 											]
 										}
@@ -4630,15 +4792,15 @@
 							]
 						},
 						{
-							"name": "data-sources",
+							"name": "ingests",
 							"item": [
 								{
-									"name": "data/sources/:code",
+									"name": "ingests/:id",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:code",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/ingests/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -4646,14 +4808,13 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"services",
-												"data",
-												"sources",
-												":code"
+												"ingests",
+												":id"
 											],
 											"variable": [
 												{
-													"key": "code",
-													"value": "CASTANEt"
+													"key": "id",
+													"value": null
 												}
 											]
 										}
@@ -4661,12 +4822,12 @@
 									"response": []
 								},
 								{
-									"name": "data/sources/for/media/type/:name",
+									"name": "ingests/for/topic/:topic",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/for/media/type/:name",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/ingests/for/topic/:code",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -4674,8 +4835,36 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"services",
-												"data",
-												"sources",
+												"ingests",
+												"for",
+												"topic",
+												":code"
+											],
+											"variable": [
+												{
+													"key": "code",
+													"value": null
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ingests/for/media/type/:name",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/ingests/for/media/type/:name",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"ingests",
 												"for",
 												"media",
 												"type",
@@ -4692,7 +4881,7 @@
 									"response": []
 								},
 								{
-									"name": "data/sources/:id",
+									"name": "ingests/:id",
 									"request": {
 										"method": "PUT",
 										"header": [],
@@ -4706,7 +4895,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/data/sources/:id",
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/ingests/:id",
 											"protocol": "{{scheme}}",
 											"host": [
 												"{{host}}"
@@ -4714,7 +4903,74 @@
 											"port": "{{port}}{{root-path}}",
 											"path": [
 												"services",
-												"data",
+												"ingests",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "sources",
+							"item": [
+								{
+									"name": "sources/:code",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/sources/:code",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
+												"sources",
+												":code"
+											],
+											"variable": [
+												{
+													"key": "code",
+													"value": "CASTANEt"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "sources/:id",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"id\": 9,\r\n    \"name\": \"Castanet\",\r\n    \"code\": \"CASTANET\",\r\n    \"shortName\": \"\",\r\n    \"description\": \"\",\r\n    \"isEnabled\": true,\r\n    \"dataLocationId\": 1,\r\n    \"dataLocation\": {\r\n        \"id\": 1,\r\n        \"name\": \"Internet\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"mediaTypeId\": 1,\r\n    \"mediaType\": {\r\n        \"id\": 1,\r\n        \"name\": \"Syndication\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"licenseId\": 3,\r\n    \"license\": {\r\n        \"id\": 3,\r\n        \"name\": \"Special Expire\",\r\n        \"description\": \"\",\r\n        \"isEnabled\": true,\r\n        \"sortOrder\": 0\r\n    },\r\n    \"topic\": \"topic\",\r\n    \"connection\": {\r\n        \"url\": \"https://www.castanet.net/rss/topheadlines.xml\"\r\n    },\r\n    \"retryLimit\": 3,\r\n    \"failedAttempts\": 0,\r\n    \"dataSourceSchedules\": [\r\n        {\r\n            \"dataSourceId\": 9,\r\n            \"scheduleId\": 1,\r\n            \"schedule\": {\r\n                \"id\": 1,\r\n                \"name\": \"test\",\r\n                \"description\": \"tes\",\r\n                \"isEnabled\": true,\r\n                \"scheduleType\": 0,\r\n                \"delayMS\": 1000,\r\n                \"repeat\": 0,\r\n                \"runOnWeekDays\": [\r\n                    0,\r\n                    2,\r\n                    4,\r\n                    8,\r\n                    16,\r\n                    32\r\n                ],\r\n                \"runOnMonths\": [\r\n                    0\r\n                ],\r\n                \"dayOfMonth\": 0,\r\n                \"createdOn\": \"2022-04-13T23:38:28.887698Z\",\r\n                \"createdById\": \"f3487a90-b793-4e60-b32c-2945591289aa\",\r\n                \"createdBy\": \"admin\",\r\n                \"updatedOn\": \"2022-04-13T23:38:28.899004Z\",\r\n                \"updatedById\": \"00000000-0000-0000-0000-000000000000\",\r\n                \"updatedBy\": \"\",\r\n                \"version\": 0\r\n            }\r\n        }\r\n    ],\r\n    \"createdOn\": \"0001-01-01T00:00:00\",\r\n    \"createdById\": \"00000000-0000-0000-0000-000000000000\",\r\n    \"createdBy\": \"\",\r\n    \"updatedOn\": \"2022-04-14T04:21:05.520534Z\",\r\n    \"updatedById\": \"616beebf-ce6c-4b28-bd5f-a32ceded524b\",\r\n    \"updatedBy\": \"service-account-tno-service-account\",\r\n    \"version\": 5\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{scheme}}://{{host}}:{{port}}{{root-path}}/services/sources/:id",
+											"protocol": "{{scheme}}",
+											"host": [
+												"{{host}}"
+											],
+											"port": "{{port}}{{root-path}}",
+											"path": [
+												"services",
 												"sources",
 												":id"
 											],
