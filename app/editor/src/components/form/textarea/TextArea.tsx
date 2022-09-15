@@ -1,3 +1,4 @@
+import { Error } from 'components/form';
 import { InputHTMLAttributes } from 'react';
 import React from 'react';
 import { FieldSize, TextVariant } from 'tno-core';
@@ -81,7 +82,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
       >
         {children}
       </styled.TextAreaField>
-      {error && <p role="alert">{error}</p>}
+      <Error error={error} />
     </styled.TextArea>
   );
 };

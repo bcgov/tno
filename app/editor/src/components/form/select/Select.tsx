@@ -1,3 +1,4 @@
+import { Error } from 'components/form';
 import React, { Ref } from 'react';
 import { ActionMeta, GroupBase, Props } from 'react-select';
 import ReactSelect from 'react-select/dist/declarations/src/Select';
@@ -154,7 +155,7 @@ export const Select = <OptionType extends IOptionItem>({
           }}
         />
       )}
-      {error && <p role="alert">{error}</p>}
+      <Error error={error} />
       <ReactTooltip ref={tip} id="select-tooltip" effect="float" type="light" place="top" />
     </styled.Select>
   );
