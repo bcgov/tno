@@ -1,5 +1,6 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { Error } from 'components/form';
 import React, { useState } from 'react';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 import { FieldSize } from 'tno-core';
@@ -81,7 +82,7 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
             required={required}
             {...rest}
           />
-          {error && <p role="alert">{error}</p>}
+          <Error error={error} />
         </>
       ) : (
         <>
@@ -96,7 +97,7 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
             onChange={onChange}
             {...rest}
           />
-          {error && <p role="alert">{error}</p>}
+          <Error error={error} />
         </>
       )}
     </styled.SelectDate>

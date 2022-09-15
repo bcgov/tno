@@ -1,3 +1,4 @@
+import { Error } from 'components/form';
 import React, { InputHTMLAttributes } from 'react';
 
 import { CheckboxVariant } from '.';
@@ -106,7 +107,7 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
           (labelPosition === LabelPosition.Right || labelPosition === LabelPosition.Bottom) &&
           LabelInput}
       </div>
-      {errorMsg && <p role="alert">{errorMsg}</p>}
+      <Error error={errorMsg} />
     </styled.Checkbox>
   );
 };

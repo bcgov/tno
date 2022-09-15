@@ -1,3 +1,4 @@
+import { Error } from 'components/form';
 import { InputHTMLAttributes } from 'react';
 import MaskedInput from 'react-text-mask';
 import { Show } from 'tno-core';
@@ -33,7 +34,7 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, ...rest }) 
         {...rest}
         mask={formatTime}
       />
-      {error && <p role="alert">{error}</p>}
+      <Error error={error} />
     </styled.TimeInput>
   );
 };

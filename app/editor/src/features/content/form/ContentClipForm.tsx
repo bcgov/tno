@@ -1,4 +1,5 @@
 import { Breadcrumb } from 'components/breadcrumb';
+import { Error } from 'components/form';
 import { Modal } from 'components/modal';
 import { useFormikContext } from 'formik';
 import { IFileReferenceModel, IFolderModel, IItemModel } from 'hooks/api-editor';
@@ -6,7 +7,7 @@ import { useModal } from 'hooks/modal';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useStorage } from 'store/hooks';
-import { Button, ButtonVariant, Col, Row, Text } from 'tno-core';
+import { Button, ButtonVariant, Col, FieldSize, Row, Text } from 'tno-core';
 
 import { defaultFolder } from '../../storage/constants';
 import { ClipDirectoryTable } from './ClipDirectoryTable';
@@ -50,6 +51,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const [end, setEnd] = React.useState<string>('');
   const [currFile, setCurrFile] = React.useState<string>('');
   const [prefix, setPrefix] = React.useState<string>('');
+  const [error, setError] = React.useState<string>('');
 
   React.useEffect(() => {
     // Many data source locations will not have an existing clip folder.
@@ -108,12 +110,13 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
 
   const createClip = async () => {
     if (!start || !end) {
-      toast.error('The clip start time and clip end time must both be set.');
+      setError('The clip start time and clip end time must both be set.');
     } else if (parseInt(start) >= parseInt(end)) {
-      toast.error('The clip start time must be before the clip end time.');
+      setError('The clip start time must be before the clip end time.');
     } else if (prefix === '') {
-      toast.error('Filename is a required field.');
+      setError('Filename is a required field.');
     } else {
+      setError('');
       await storageApi.clip(`${folder.path}/${currFile}`, start, end, prefix).then((item) => {
         setFolder({ ...folder, items: [...folder.items, item] });
         setStart('');
@@ -189,26 +192,29 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
           </div>
         </Col>
       </Row>
-      <div className={!streamUrl ? 'hidden' : ''}>
-        <Row className="video" justifyContent="center">
-          <video ref={videoRef} controls>
-            <source type="audio/m4a" />
-            <source type="audio/flac" />
-            <source type="audio/mp3" />
-            <source type="audio/mp4" />
-            <source type="audio/wav" />
-            <source type="audio/wma" />
-            <source type="audio/aac" />
-            <source type="video/wmv" />
-            <source type="video/mov" />
-            <source type="video/mpeg" />
-            <source type="video/mpg" />
-            <source type="video/avi" />
-            <source type="video/mp4" />
-            <source type="video/gif" />
-            HTML5 Video is required for this example
-          </video>
-        </Row>
+      <Row justifyContent="center" className={!streamUrl ? 'hidden' : ''}>
+        <Col className="video">
+          <Row>
+            <video ref={videoRef} controls>
+              <source type="audio/m4a" />
+              <source type="audio/flac" />
+              <source type="audio/mp3" />
+              <source type="audio/mp4" />
+              <source type="audio/wav" />
+              <source type="audio/wma" />
+              <source type="audio/aac" />
+              <source type="video/wmv" />
+              <source type="video/mov" />
+              <source type="video/mpeg" />
+              <source type="video/mpg" />
+              <source type="video/avi" />
+              <source type="video/mp4" />
+              <source type="video/gif" />
+              HTML5 Video is required for this example
+            </video>
+          </Row>
+          <Row justifyContent="center">{<Error error={error} />}</Row>
+        </Col>
         <Row className="video-buttons" justifyContent="center">
           <Col>
             <p className="start-end">Start: {getTimePoint(start)}</p>
@@ -236,6 +242,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
             <p className="start-end">Filename:</p>
             <Text
               name="prefix"
+              width={FieldSize.Small}
               label=""
               className="prefix"
               onChange={(e) => {
@@ -291,7 +298,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
             }}
           />
         </Row>
-      </div>
+      </Row>
     </styled.ContentClipForm>
   );
 };

@@ -31,10 +31,6 @@ export const ContentClipForm = styled.div`
     }
   }
 
-  .video-buttons {
-    margin-top: 20px;
-  }
-
   .create-clip {
     margin-top: 35px;
   }

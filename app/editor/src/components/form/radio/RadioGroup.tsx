@@ -1,3 +1,4 @@
+import { Error } from 'components/form';
 import React, { InputHTMLAttributes } from 'react';
 
 import { instanceOfIOption, IOptionItem } from '..';
@@ -166,7 +167,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
             })
           : children}
       </div>
-      {error && <p role="alert">{error}</p>}
+      <Error error={error} />
     </styled.RadioGroup>
   );
 };
