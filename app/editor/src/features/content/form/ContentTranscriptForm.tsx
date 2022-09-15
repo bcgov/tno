@@ -48,7 +48,6 @@ export const ContentTranscriptForm: React.FC = () => {
       <FormikTextArea
         name="transcription"
         label="Transcript"
-        style={{ height: '290px', minHeight: '65px' }}
         value={values.transcription}
         onChange={(e: any) => setFieldValue('transcription', e.target.value)}
       />
