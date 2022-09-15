@@ -35,7 +35,7 @@ export const columns = (minimize: boolean = false) => {
     },
     {
       id: 'publishedOn',
-      Header: 'Date',
+      Header: 'Pub Date',
       maxWidth: 40,
       accessor: (row) => row.publishedOn ?? row.createdOn,
       Cell: ({ value }: any) => <Date value={value} />,

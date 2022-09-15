@@ -10,6 +10,7 @@ using System.Text;
 using TNO.Kafka;
 using TNO.Core.Extensions;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.Core.Exceptions;
 
 namespace TNO.Services.Transcription;
 
@@ -22,6 +23,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
+    private int _retries = 0;
     #endregion
 
     #region Properties
@@ -64,7 +66,16 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status != ServiceStatus.Running)
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            {
+                // An API request or failures have requested the service to stop.
+                this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
+                this.State.Stop();
+
+                // The service is stopping or has stopped, consume should stop too.
+                this.Consumer.Stop();
+            }
+            else if (this.State.Status != ServiceStatus.Running)
             {
                 this.Logger.LogDebug("The service is not running: '{Status}'", this.State.Status);
             }
@@ -76,7 +87,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
                     if (topics.Length != 0)
                     {
-                        if (!this.Consumer.IsReady) this.Consumer.Open();
                         this.Consumer.Subscribe(topics);
                         ConsumeMessages();
                     }
@@ -117,7 +127,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <returns></returns>
     private async Task ConsumerHandler()
     {
-        while (this.State.Status == ServiceStatus.Running && this.Consumer.IsReady)
+        while (this.State.Status == ServiceStatus.Running &&
+            _cancelToken?.IsCancellationRequested == false)
         {
             await this.Consumer.ConsumeAsync(HandleMessageAsync);
         }
@@ -132,16 +143,19 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private bool ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    /// <returns>True if the consumer should retry the message.</returns>
+    private ConsumerAction ConsumerErrorHandler(object sender, ErrorEventArgs e)
     {
-        this.State.RecordFailure();
-        if (e.GetException() is ConsumeException ex)
+        // Only the first retry will count as a failure.
+        if (_retries == 0)
+            this.State.RecordFailure();
+
+        if (e.GetException() is ConsumeException consume)
         {
-            return ex.Error.IsFatal;
+            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
         }
 
-        // Inform the consumer it should stop.
-        return this.State.Status != ServiceStatus.Running;
+        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -165,29 +179,41 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
+    private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
     {
-        // The service has stopped, so to should consuming messages.
-        if (this.State.Status != ServiceStatus.Running)
+        try
         {
-            this.Consumer.Stop();
-            this.State.Stop();
+            // The service has stopped, so to should consuming messages.
+            if (this.State.Status != ServiceStatus.Running)
+            {
+                this.Consumer.Stop();
+                this.State.Stop();
+            }
+
+            var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
+            if (content != null)
+            {
+                // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
+                await UpdateTranscriptionAsync(content);
+            }
+            else
+            {
+                // Identify requests for transcription for content that does not exist.
+                this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
+            }
+
+            // Successful run clears any errors.
+            this.State.ResetFailures();
+            _retries = 0;
+            return ConsumerAction.Proceed;
+        }
+        catch (HttpClientRequestException ex)
+        {
+            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
         }
 
-        var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
-        if (content != null)
-        {
-            // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
-            await UpdateTranscriptionAsync(content);
-        }
-        else
-        {
-            // Identify requests for transcription for content that does not exist.
-            this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
-        }
 
-        // Successful run clears any errors.
-        this.State.ResetFailures();
+        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>

@@ -55,8 +55,8 @@ spec:
               cpu: 20m
               memory: 100Mi
             limits:
-              cpu: 50m
-              memory: 250Mi
+              cpu: 150m
+              memory: 300Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT

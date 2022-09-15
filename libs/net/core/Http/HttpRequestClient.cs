@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net;
-using TNO.Core.Extensions;
 
 namespace TNO.Core.Http
 {
@@ -156,7 +155,7 @@ namespace TNO.Core.Http
                 }
             }
 
-            _logger.LogInformation("HTTP request made '{RequestUri}'", message.RequestUri);
+            _logger.LogInformation("HTTP request made: {method}:{uri}", message.Method, message.RequestUri);
             return await this.Client.SendAsync(message);
         }
 
@@ -451,7 +450,7 @@ namespace TNO.Core.Http
             if ((onError?.Invoke(response) ?? false) == false)
             {
                 var error = new HttpClientRequestException(response);
-                _logger.LogError(error, "Request failed: {Message}", error.Message);
+                _logger.LogError(error, "{message}", error.Message);
                 throw error;
             }
 

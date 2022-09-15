@@ -2,7 +2,6 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Core.Exceptions;
 using TNO.Kafka.Serializers;
 
 namespace TNO.Kafka;
@@ -19,23 +18,25 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
     private bool _disposed = false;
+    private bool _open = false;
+    private ConsumeResult<TKey, TValue>? _currentResult = null;
     #endregion
 
     #region Properties
     /// <summary>
     /// get - The Kafka consumer.
     /// </summary>
-    protected IConsumer<TKey, TValue> Consumer { get; private set; }
-
-    /// <summary>
-    /// get - Whether the listener is ready to consumer messages.
-    /// </summary>
-    public bool IsReady { get; private set; }
+    protected IConsumer<TKey, TValue>? Consumer { get; private set; }
 
     /// <summary>
     /// get - Whether the listener is actively consuming messages.
     /// </summary>
     public bool IsConsuming { get; private set; }
+
+    /// <summary>
+    /// get - Whether the listener is currently paused but still consuming messages.
+    /// </summary>
+    public bool IsPaused { get; private set; }
 
     /// <summary>
     /// get - An array of topics this consumer is subscribed to.
@@ -67,8 +68,6 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         _serializerOptions = serializerOptions.Value;
         _config = consumerConfigOptions.Value;
         _logger = logger;
-
-        this.Consumer = Build();
     }
     #endregion
 
@@ -94,7 +93,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     public void Open()
     {
         this.Consumer = Build();
-        this.IsReady = true;
+        _open = true;
     }
 
     /// <summary>
@@ -107,7 +106,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     {
         if (topics == null) throw new ArgumentNullException(nameof(topics));
         if (topics.Length == 0) throw new ArgumentException("Parameter must have at least one value", nameof(topics));
-        if (!this.IsReady) throw new InvalidOperationException("Consumer is not ready for subscribing");
+        if (!_open) this.Open();
 
         // Only update the subscription if it changes.
         if (!this.Topics.SequenceEqual(topics))
@@ -115,7 +114,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             this.Topics = topics;
 
             // TODO: Use the KafkaAdminClient to validate all topics before attempting to subscribe to them.
-            this.Consumer.Subscribe(topics);
+            this.Consumer?.Subscribe(topics);
             _logger.LogInformation("Subscribing to topics: {topics}", String.Join(", ", topics));
         }
     }
@@ -125,7 +124,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// </summary>
     public void Unsubscribe()
     {
-        this.Consumer.Unsubscribe();
+        this.Consumer?.Unsubscribe();
     }
 
     /// <summary>
@@ -136,58 +135,66 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="cancellationToken"></param>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task> action, CancellationToken cancellationToken)
+    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action, CancellationToken cancellationToken)
     {
         if (action == null) throw new ArgumentNullException(nameof(action));
-        ConsumeResult<TKey, TValue>? result = null;
+
+        // Do not continue if the token has been cancelled.
+        if (cancellationToken.IsCancellationRequested) return;
+        var proceed = ConsumerAction.Stop;
+        this.IsConsuming = true;
 
         try
         {
-            // Ensure consumer is ready for consumption.
-            if (!this.IsReady) throw new InvalidOperationException("Consumer is not ready for consuming, it must be opened first.");
+            if (!_open) this.Open();
 
-            this.IsConsuming = true;
-            _logger.LogDebug("Waiting to receive message from Kafka topics:'{topic}'", String.Join(", ", this.Consumer.Subscription));
+            // If not currently working on a result, wait for a new one.
+            // This provides a way to keep trying to handle the current result because of some kind of intermittent failure.
+            if (_currentResult == null)
+            {
+                _logger.LogDebug("Waiting to receive message from Kafka topics:'{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
-            // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
-            result = this.Consumer.Consume(cancellationToken);
+                // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
+                _currentResult = this.Consumer!.Consume(cancellationToken);
 
-            _logger.LogInformation("Message received from Kafka topic:'{topic}' key:'{key}'", result.Topic, result.Message.Key);
+                _logger.LogInformation("Message received from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
 
-            // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
-            // It's unclear if this only pauses for a single topic/partition.  If it does then it won't truly pause fully which could lead to issues.
-            this.Consumer.Pause(new[] { result.TopicPartition });
+                if (!this.IsPaused)
+                {
+                    // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
+                    this.Consumer.Pause(this.Consumer.Assignment);
+                    this.IsPaused = true;
+                }
+            }
 
-            await action(result);
-        }
-        catch (ConsumeException ex)
-        {
-            // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
-            // TODO: How to tell Kafka this message was not successful so that it can be picked up again.
-            _logger.LogError(ex, "Consumer error: {message}", ex.Message);
-            this.IsReady = (!OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? true) && this.IsReady;
-        }
-        catch (HttpClientRequestException ex)
-        {
-            // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
-            // TODO: How to tell Kafka this message was not successful so that it can be picked up again.
-            _logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"]);
-            OnError?.Invoke(this, new ErrorEventArgs(ex));
-            this.Stop();
+            proceed = await action(_currentResult);
+            if (proceed == ConsumerAction.Proceed)
+            {
+                // Manually commit to inform Kafka this message has successfully been handled.
+                // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
+                if (_config.EnableAutoCommit == false)
+                {
+                    this.Consumer?.Commit(_currentResult);
+                    _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
+                }
+                _currentResult = null;
+            }
         }
         catch (Exception ex)
         {
+            // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
             // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
-            // TODO: How to tell Kafka this message was not successful so that it can be picked up again.
-            _logger.LogError(ex, "Unexpected exception while consuming.  {message}", ex.Message);
-            OnError?.Invoke(this, new ErrorEventArgs(ex));
-            this.Stop();
+            _logger.LogError(ex, "Error while consuming. {message}", ex.Message);
+            proceed = this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
         }
         finally
         {
-            // Resume if possible.
-            if (result != null && this.IsConsuming)
-                this.Consumer.Resume(new[] { result.TopicPartition });
+            if (proceed == ConsumerAction.Stop) this.Stop();
+            else if (this.IsPaused && proceed == ConsumerAction.Proceed)
+            {
+                this.Consumer?.Resume(this.Consumer.Assignment);
+                this.IsPaused = false;
+            }
         }
     }
 
@@ -199,7 +206,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="action"></param>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task> action)
+    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action)
     {
         var cancelToken = new CancellationTokenSource();
         await ConsumeAsync(action, cancelToken.Token);
@@ -210,13 +217,13 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// </summary>
     public void Stop()
     {
-        this.Consumer.Close();
-
-        if (this.IsConsuming && this.IsReady)
+        if (_open)
         {
             _logger.LogInformation("Consumer is stopping");
             this.IsConsuming = false;
-            this.IsReady = false;
+            this.IsPaused = false;
+            this.Consumer?.Close();
+            _open = false;
             OnStop?.Invoke(this, new EventArgs());
         }
     }
@@ -240,7 +247,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             if (disposing)
             {
                 Stop();
-                this.Consumer.Dispose();
+                this.Consumer?.Dispose();
             }
             _disposed = true;
         }
