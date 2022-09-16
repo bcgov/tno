@@ -93,28 +93,6 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: Kafka__Admin__ClientId
-              valueFrom:
-                configMapKeyRef:
-                  name: image-service
-                  key: KAKFA_CLIENT_ID
-            - name: Kafka__Admin__BootstrapServers
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KAFKA_BOOTSTRAP_SERVERS
-
-            - name: Kafka__Consumer__ClientId
-              valueFrom:
-                configMapKeyRef:
-                  name: image-service
-                  key: KAKFA_CLIENT_ID
-            - name: Kafka__Consumer__BootstrapServers
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KAFKA_BOOTSTRAP_SERVERS
-
             - name: Kafka__Producer__ClientId
               valueFrom:
                 configMapKeyRef:
