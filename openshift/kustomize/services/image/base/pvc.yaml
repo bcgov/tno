@@ -1,0 +1,20 @@
+# Storage for videos.
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: av-storage
+  namespace: default
+  labels:
+    name: av-storage
+    part-of: tno
+    version: 1.0.0
+    component: av-storage
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  storageClassName: netapp-file-standard
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi

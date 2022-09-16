@@ -27,9 +27,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 COPY --from=build /build .
-COPY ../services/net/image/keys/ id_rsa* keys/
-RUN chmod 0777 keys
-RUN chmod -R 0777 /app/keys/
+RUN  if test -e ../services/net/image/keys/id_rsa; then COPY ../services/net/image/keys/ id_rsa* keys/ && chmod 0777 keys && chmod -R 0777 /app/keys/; fi
 
 # This volume is the local storage for uploaded files.
 RUN mkdir /data

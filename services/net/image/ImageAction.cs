@@ -75,11 +75,11 @@ public class ImageAction : IngestAction<ImageOptions>
         var filename = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("filename")) ? this.Options.PrivateKeyFileName : manager.DataSource.GetConnectionValue("filename");
         var hostname = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("hostname")) ? this.Options.HostName : manager.DataSource.GetConnectionValue("hostname");
         var mountPath = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputpath")) ? this.Options.InputPath : GetInputPath(manager.DataSource);
-        var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code : manager.DataSource.GetConnectionValue("inputfilecode");
-        var keyFilePath = Path.Combine(this.Options.PrivateKeysPath, filename);
-        if (File.Exists(keyFilePath))
+        var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code: manager.DataSource.GetConnectionValue("inputfilecode");
+        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, filename);
+        if (File.Exists(sshKeyFile))
         {
-            var keyFile = new PrivateKeyFile(keyFilePath);
+            var keyFile = new PrivateKeyFile(sshKeyFile);
 
             var keyFiles = new[] { keyFile };
             var connectionInfo = new ConnectionInfo(hostname,
@@ -141,7 +141,7 @@ public class ImageAction : IngestAction<ImageOptions>
         }
         else
         {
-            this.Logger.LogError("SSH Private key file does not exist");
+            this.Logger.LogError("SSH Private key file does not exist: " + sshKeyFile);
         }
 
     }
