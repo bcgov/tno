@@ -25,6 +25,10 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
   const keycloak = useKeycloakWrapper();
   useToastError();
 
+  keycloak.instance.onTokenExpired = () => {
+    keycloak.instance.logout();
+  };
+
   return (
     <styled.Layout {...rest}>
       <UserInfo />
