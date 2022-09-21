@@ -32,14 +32,6 @@ public interface IApiService
     public Task<DataSourceModel?> GetDataSourceAsync(string code);
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch the data source for the specified 'name'.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public Task<DataSourceModel?> GetDataSourceByNameAsync(string name);
-
-    /// <summary>
     /// Make an AJAX request to the api to update the content for the specified ContentModel.
     /// </summary>
     /// <param name="content"></param>

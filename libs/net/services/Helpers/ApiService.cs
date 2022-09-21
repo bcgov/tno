@@ -84,24 +84,6 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch the data source for the specified 'name'.
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public async Task<DataSourceModel?> GetDataSourceByNameAsync(string name)
-    {
-        var url = new Uri(_options.ApiUrl, $"services/data/sources/name/{name}");
-        var response = await _client.GetAsync(url);
-
-        return response.StatusCode switch
-        {
-            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<DataSourceModel>(_serializerOptions),
-            HttpStatusCode.NoContent => null,
-            _ => throw new HttpClientRequestException(response),
-        };
-    }
-
-    /// <summary>
     /// Make an AJAX request to the api to update the data source.
     /// </summary>
     /// <param name="dataSource"></param>

@@ -125,7 +125,7 @@ services:
     env_file:
       - services/net/filemonitor/.env
     ports:
-      - ${FILEMONITOR_PORT:-40029}:8081
+      - ${FILE_PORT:-40024}:8081
     depends_on:
       - api
       - broker

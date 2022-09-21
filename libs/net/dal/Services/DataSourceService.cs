@@ -185,27 +185,6 @@ public class DataSourceService : BaseService<DataSource, int>, IDataSourceServic
     }
 
     /// <summary>
-    /// Find the data source for the specified 'name'.
-    /// TODO: Only allow admin
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public DataSource? FindByName(string name)
-    {
-        return this.Context.DataSources
-            .Include(ds => ds.ContentType)
-            .Include(ds => ds.DataLocation)
-            .Include(ds => ds.MediaType)
-            .Include(ds => ds.License)
-            .Include(ds => ds.DataService)
-            .Include(ds => ds.Parent)
-            .Include(ds => ds.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
-            .Include(ds => ds.MetricsManyToMany).ThenInclude(cc => cc.SourceMetric)
-            .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
-            .FirstOrDefault(c => c.Name == name);
-    }
-
-    /// <summary>
     /// Add the specified data source to the database.
     /// TODO: Only allow admin
     /// </summary>

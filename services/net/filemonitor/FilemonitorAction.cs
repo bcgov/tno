@@ -1,16 +1,5 @@
-using System.Runtime.InteropServices;
-using System.Xml.Serialization;
-using System.Runtime.CompilerServices;
-using System.Diagnostics.Tracing;
-using System.Net.Sockets;
-using System.Linq;
-using System.Text;
-using System.Reflection.Metadata;
-using System;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Linq;
 using System.Globalization;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
@@ -18,7 +7,6 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.DataSource;
 using TNO.Core.Http;
-using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Kafka;
@@ -74,7 +62,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         _logger.LogDebug($"Performing ingestion service action for data source '{manager.DataSource.Code}'");
-        var dir = Path.Join(_options.Value.ImportRoot, GetConnectionValue(manager.DataSource, Fields.ImportDir));
+        var dir = Path.Join(_options.Value.FilePath, manager.DataSource.GetConnectionValue(Fields.ImportDir));
         List<SourceContent> articles = new List<SourceContent>();
 
         if (String.IsNullOrEmpty(dir))
@@ -82,7 +70,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
             throw new InvalidOperationException($"No import directory defined for data source '{manager.DataSource.Code}'");
         }
 
-        var format = GetConnectionValue(manager.DataSource, Fields.FileFormat);
+        var format = manager.DataSource.GetConnectionValue(Fields.FileFormat);
         format = !String.IsNullOrEmpty(format) ? format : "xml";
 
         switch (format)
@@ -236,19 +224,23 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <returns></returns>
     private string GetXmlData(XmlElement story, string key, DataSourceModel dataSource)
     {
-        var value = GetConnectionValue(dataSource, key);
+        var value = dataSource.GetConnectionValue(key);
         var result = "";
 
-        if (!String.IsNullOrEmpty(value))
+        if (String.IsNullOrEmpty(value))
+        {
+            throw new InvalidOperationException($"Data source connection value '{key}' is not defined for {dataSource.Code}.");
+        }
+        else
         {
             var comps = value.Split('!');
             if (comps.Count() == 2) // Tag and attribute name present
             {
                 XmlNodeList nodeList = story.GetElementsByTagName(comps[0]);
 
-                if (nodeList is not null && nodeList.Count > 0 && nodeList[0]!.Attributes is not null && nodeList![0]!.Attributes!.Count > 0)
+                if (nodeList is not null && nodeList.Count > 0 && nodeList[0]?.Attributes?.Count > 0)
                 {
-                    result = nodeList![0]!.Attributes![comps[1]!]!.Value;
+                    result = nodeList[0]!.Attributes![comps[1]]?.Value ?? "";
                 }
                 else
                 {
@@ -265,13 +257,9 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
                 }
                 catch (Exception e)
                 {
-                    _logger.LogInformation(e, $"Error extracting node '{key}' for data source {dataSource.Code}.");
+                    _logger.LogWarning(e, $"Error extracting node '{key}' for data source {dataSource.Code}.");
                 }
             }
-        }
-        else
-        {
-            throw new InvalidOperationException($"Data source connection value '{key}' is not defined for {dataSource.Code}.");
         }
 
         return result;
@@ -281,7 +269,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// Get a news item value (e.g. headline, published date, author) from an FMS story. The keys for the list of supported values
     /// is in the Fields class. Each of these keys maps to an entry in the data source's Connection string which contains the field name.
     /// Fields are extracted using regular expressions. Each field, which can include multiple lines, is terminated with the string "&lt;break&gt;".
-    /// A field is not guaranteed to be present for a particlular story, in which case "Undefined" is returned.
+    /// A field is not guaranteed to be present for a particlular story, in which case the empty string is returned.
     /// </summary>
     /// <param name="story"></param>
     /// <param name="key"></param>
@@ -289,9 +277,13 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <returns></returns>
     private string GetFmsData(string story, string key, DataSourceModel dataSource)
     {
-        var value = GetConnectionValue(dataSource, key);
+        var value = dataSource.GetConnectionValue(key);
 
-        if (!String.IsNullOrEmpty(value))
+        if (String.IsNullOrEmpty(value))
+        {
+            throw new InvalidOperationException($"Data source connection value '{key}' is not defined for {dataSource.Code}.");
+        }
+        else
         {
             var matchStr = value + "(.+?)<break>";
             var matches = Regex.Matches(story, matchStr, RegexOptions.Singleline);
@@ -303,12 +295,8 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
             }
             else
             {
-                return "Undefined";
+                return "";
             }
-        }
-        else
-        {
-            throw new InvalidOperationException($"Data source connection value '{key}' is not defined for {dataSource.Code}.");
         }
     }
 
@@ -323,14 +311,14 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     {
         var articles = new List<SourceContent>();
         var dataSource = manager.DataSource;
-        var xmlDocs = GetXmlFileContentList(dir, dataSource);
+        var xmlDocs = GetFileContentList<XmlDocument>(dir, dataSource);
 
         foreach (KeyValuePair<string, XmlDocument> document in xmlDocs)
         {
             try
             {
                 // Extract a list of stories from the current document.
-                XmlNodeList elementList = document.Value.GetElementsByTagName(GetConnectionValue(dataSource, Fields.Item));
+                XmlNodeList elementList = document.Value.GetElementsByTagName(dataSource.GetConnectionValue(Fields.Item));
 
                 // Iterate over the list of stories and add a new item to the articles list for each story.
                 foreach (XmlElement story in elementList)
@@ -340,9 +328,9 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
                     item.Source = await GetItemSourceCodeAsync(dataSource, papername);
                     item.Title = GetXmlData(story, Fields.Headline, dataSource);
                     item.Uid = GetXmlData(story, Fields.Id, dataSource);
-                    item.Summary = GetXmlData(story, Fields.Story, dataSource);
+                    item.Body = GetXmlData(story, Fields.Story, dataSource);
                     item.FilePath = document.Key;
-                    item.Abstract = GetXmlData(story, Fields.Summary, dataSource);
+                    item.Summary = GetXmlData(story, Fields.Summary, dataSource);
                     item.Page = GetXmlData(story, Fields.Page, dataSource);
                     item.Section = GetXmlData(story, Fields.Section, dataSource);
 
@@ -354,7 +342,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex, $"File contents for data source '{dataSource.Code}' is invalid.");
+                _logger.LogWarning(ex, $"File contents for data source '{dataSource.Code}' is invalid.");
                 throw;
             }
         }
@@ -375,7 +363,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     {
         var articles = new List<SourceContent>();
         var dataSource = manager.DataSource;
-        var fmsDocs = GetFmsFileContentList(dir, dataSource);
+        var fmsDocs = GetFileContentList<string>(dir, dataSource);
 
         // Iterate over the files in the list and process the stories they contain.
         foreach (KeyValuePair<string, string> document in fmsDocs)
@@ -384,7 +372,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
             {
                 // Extract a list of stories from the current document. Replace the story delimiter with a string that
                 // facilitates the extraction of stories using regular expressions in single-line mode.
-                var doc = document.Value.Replace(GetConnectionValue(dataSource, Fields.Item), Fields.FmsStoryDelim) + Fields.FmsEofFlag;
+                var doc = document.Value.Replace(dataSource.GetConnectionValue(Fields.Item), Fields.FmsStoryDelim) + Fields.FmsEofFlag;
                 var matches = Regex.Matches(doc, "<story>(.+?)</story>", RegexOptions.Singleline);
                 var source = "";
 
@@ -402,10 +390,10 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
                     item.Source = source;
                     item.Title = GetFmsData(filtered, Fields.Headline, dataSource);
                     item.Uid = GetFmsData(filtered, Fields.Id, dataSource);
-                    item.Summary = GetFmsData(preFiltered + "<break>", Fields.Story, dataSource);
+                    item.Body = GetFmsData(preFiltered + "<break>", Fields.Story, dataSource);
                     item.Language = GetFmsData(filtered, Fields.Lang, dataSource);
                     item.FilePath = document.Key;
-                    item.Abstract = GetFmsData(filtered, Fields.Summary, dataSource);
+                    item.Summary = GetFmsData(filtered, Fields.Summary, dataSource);
                     item.Page = GetFmsData(filtered, Fields.Page, dataSource);
                     item.Section = GetFmsData(filtered, Fields.Section, dataSource);
 
@@ -418,7 +406,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(ex, $"File contents for data source '{dataSource.Code}' is invalid.");
+                _logger.LogWarning(ex, $"File contents for data source '{dataSource.Code}' is invalid.");
                 throw;
             }
         }
@@ -441,39 +429,18 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     private async Task<string> GetItemSourceCodeAsync(DataSourceModel dataSource, string paperName)
     {
         // The default for selfPublished is false, so all self-published papers must have a value in connection string.
-        var selfPublished = GetConnectionValue(dataSource, Fields.SelfPublished);
-        selfPublished = !String.IsNullOrEmpty(selfPublished) ? selfPublished : "true";
+        var selfPublished = dataSource.GetConnectionValue<bool>(Fields.SelfPublished);
 
-        if (Boolean.Parse(selfPublished))
+        if (selfPublished)
         {
             return dataSource.Code;
         }
         else
         {
-            var childDataSource = await _api.GetDataSourceByNameAsync(paperName);
-            return childDataSource != null ? childDataSource.Code : "No code found for: " + paperName;
+            // Removed the api endpoint GetDataSourceByNameAsync, so defaulting to the parent code for now.
+            // This is so provide working code until I can implement the "sources" attribute of the Connection string.
+            return dataSource.Code;
         }
-    }
-
-    /// <summary>
-    /// Get a value from the data source Connection string. If the key does not exist, return the empty string.
-    /// </summary>
-    /// <param name="dataSource"></param>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private static string GetConnectionValue(DataSourceModel dataSource, string key)
-    {
-        if (!dataSource.Connection.TryGetValue(key, out object? element)) return "";
-
-        var value = (JsonElement)element;
-        if (value.ValueKind == JsonValueKind.String)
-        {
-            var result = value.GetString() ?? throw new InvalidOperationException($"Data source connection '{key}' cannot be null, empty or whitespace.");
-            return result;
-        }
-
-        throw new InvalidOperationException($"Data source connection '{key}' is not a valid string value");
     }
 
     /// <summary>
@@ -483,36 +450,22 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <param name="dir"></param>
     /// <param name="dataSource"></param>
     /// <returns></returns>
-    private Dictionary<string, XmlDocument> GetXmlFileContentList(string dir, DataSourceModel dataSource)
+    private Dictionary<string, T> GetFileContentList<T>(string dir, DataSourceModel dataSource)
+    where T : class
     {
-        var fileContentList = new Dictionary<string, XmlDocument>();
+        var fileContentList = new Dictionary<string, T>();
         var fileList = Directory.GetFiles(dir);
 
         foreach (string filePath in fileList)
         {
-            var validDocument = GetValidXmlDocument(filePath, dataSource);
-            fileContentList.Add(filePath, validDocument);
-        }
+            T doc = typeof(T).FullName switch
+            {
+                "System.Xml.XmlDocument" => GetValidXmlDocument(filePath, dataSource) as T ?? throw new InvalidOperationException("Unexpected null return value."),
+                "System.String" => ReadFileContents(filePath) as T ?? throw new InvalidOperationException("Unexpected null return value."),
+                _ => throw new ArgumentException($"Invalid type argument in GetFileContentList: {typeof(T).FullName}")
+            };
 
-        return fileContentList;
-    }
-
-    /// <summary>
-    /// Get a list of FMS files from the import directory and return a Dictionary of strings (one per file) keyed by
-    /// the file path of each file.
-    /// </summary>
-    /// <param name="dir"></param>
-    /// <param name="dataSource"></param>
-    /// <returns></returns>
-    private Dictionary<string, string> GetFmsFileContentList(string dir, DataSourceModel dataSource)
-    {
-        var fileContentList = new Dictionary<string, string>();
-        var fileList = Directory.GetFiles(dir);
-
-        foreach (string filePath in fileList)
-        {
-            var document = ReadFileContents(filePath);
-            fileContentList.Add(filePath, document);
+            fileContentList.Add(filePath, doc);
         }
 
         return fileContentList;
@@ -538,23 +491,17 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
         var xmlTxt = ReadFileContents(filePath);
 
         // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
-        var addParent = GetConnectionValue(dataSource, Fields.AddParent);
-        if (!String.IsNullOrEmpty(addParent))
+        var addParent = dataSource.GetConnectionValue<bool>(Fields.AddParent);
+        if (addParent)
         {
-            if (Boolean.Parse(addParent))
-            {
-                xmlTxt = FixParentTag(xmlTxt);
-            }
+            xmlTxt = FixParentTag(xmlTxt);
         }
 
         // BCNG stories contain invalid XHTML content which must be escaped to parse the document.
-        var escapeContent = GetConnectionValue(dataSource, Fields.EscapeContent);
-        if (!String.IsNullOrEmpty(escapeContent))
+        var escapeContent = dataSource.GetConnectionValue<bool>(Fields.EscapeContent);
+        if (escapeContent)
         {
-            if (Boolean.Parse(escapeContent))
-            {
-                xmlTxt = StoryToCdata(xmlTxt, dataSource);
-            }
+            xmlTxt = StoryToCdata(xmlTxt, dataSource);
         }
 
         try
@@ -604,7 +551,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <returns></returns>
     private string StoryToCdata(string xmlTxt, DataSourceModel dataSource)
     {
-        var storyTag = GetConnectionValue(dataSource, Fields.Story);
+        var storyTag = dataSource.GetConnectionValue(Fields.Story);
 
         if (!String.IsNullOrEmpty(storyTag))
         {
@@ -644,7 +591,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <returns></returns>
     private DateTime GetPublishedOn(string dateStr, DataSourceModel dataSource)
     {
-        var dateFmt = GetConnectionValue(dataSource, Fields.DateFmt);
+        var dateFmt = dataSource.GetConnectionValue(Fields.DateFmt);
         if (!String.IsNullOrEmpty(dateFmt))
         {
             var dateTime = DateTime.ParseExact(dateStr, dateFmt, CultureInfo.InvariantCulture);

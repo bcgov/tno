@@ -11,6 +11,6 @@ public class FilemonitorOptions : IngestServiceOptions
     /// <summary>
     /// get/set - The root path from which to import files.
     /// </summary>
-    public string ImportRoot { get; set; } = "";
+    public string FilePath { get; set; } = "";
     #endregion
 }

@@ -57,11 +57,6 @@ public abstract class ContentBase
     public string FilePath { get; set; } = "";
 
     /// <summary>
-    /// get/set - The abstract for the content.
-    /// </summary>
-    public string Abstract { get; set; } = "";
-
-    /// <summary>
     /// get/set - The section containing the content.
     /// </summary>
     public string Section { get; set; } = "";

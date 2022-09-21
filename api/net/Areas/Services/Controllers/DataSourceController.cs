@@ -64,22 +64,6 @@ public class DataSourceController : ControllerBase
     }
 
     /// <summary>
-    /// Find a data source for the specified 'name'.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("name/{name}")]
-    [Produces("application/json")]
-    [ProducesResponseType(typeof(DataSourceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NoContent)]
-    [SwaggerOperation(Tags = new[] { "DataSource" })]
-    public IActionResult FindByName(string name)
-    {
-        var result = _serviceDataSource.FindByName(name);
-        if (result == null) return new NoContentResult();
-        return new JsonResult(new DataSourceModel(result, _serializerOptions));
-    }
-
-    /// <summary>
     /// Find an array of data sources for the specified media type.
     /// </summary>
     /// <returns></returns>
