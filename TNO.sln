@@ -61,6 +61,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Syndication", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Transcription", "services\net\transcription\TNO.Services.Transcription.csproj", "{1A1017A0-DCA4-45E6-B8CE-6FDF3913E7EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Filemonitor", "services\net\filemonitor\TNO.Services.Filemonitor.csproj", "{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -162,6 +164,10 @@ Global
 		{1A1017A0-DCA4-45E6-B8CE-6FDF3913E7EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A1017A0-DCA4-45E6-B8CE-6FDF3913E7EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A1017A0-DCA4-45E6-B8CE-6FDF3913E7EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{992AF305-F9BA-43E5-B18F-EA7D056ABFA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{16EA028B-B4C8-416D-BE54-D73D75483668} = {F627B24A-217D-4BF1-BC77-E1A92DBCD07F}
@@ -190,5 +196,6 @@ Global
 		{F94EA73C-B2DF-4824-B9BD-422EF1C950BB} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
 		{A8E3354A-B47A-4B0A-B648-9AB98793FEDF} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
 		{1A1017A0-DCA4-45E6-B8CE-6FDF3913E7EE} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
+		{992AF305-F9BA-43E5-B18F-EA7D056ABFA9} = {448D6DE6-6887-48EC-A202-18C7EB428ACD}
 	EndGlobalSection
 EndGlobal

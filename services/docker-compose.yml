@@ -112,33 +112,33 @@ services:
       retries: 3
       start_period: 30s
 
-  # file:
-  #   image: tno:file
-  #   profiles:
-  #     - all
-  #     - service
-  #   restart: "no"
-  #   container_name: tno-file
-  #   build:
-  #     context: ./
-  #     dockerfile: services/net/file/Dockerfile
-  #   env_file:
-  #     - services/net/file/.env
-  #   ports:
-  #     - ${FILE_PORT:-40024}:8081
-  #   depends_on:
-  #     - api
-  #     - broker
-  #   networks:
-  #     - tno
-  #   volumes:
-  #     - tno-av-data:/data
-  #   healthcheck:
-  #     test: curl -s -f http://localhost:8081/health || exit 1
-  #     interval: 1m
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 30s
+  filemonitor:
+    image: tno:filemonitor
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-filemonitor
+    build:
+      context: ./
+      dockerfile: services/net/filemonitor/Dockerfile
+    env_file:
+      - services/net/filemonitor/.env
+    ports:
+      - ${FILE_PORT:-40024}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   content:
     image: tno:content

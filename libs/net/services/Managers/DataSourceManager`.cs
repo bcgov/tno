@@ -51,7 +51,7 @@ public abstract class DataSourceManager<TDataSourceIngestManager, TOption> : Ser
     /// <returns></returns>
     public override async Task RunAsync()
     {
-        var dataSources = await GetDataSourcesAsync();
+        var dataSources = await GetDataSourcesAsync(); // Hello
 
         // Run at the shortest interval of all schedules.
         var delay = dataSources.Min(ds => ds.DataSourceSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? _options.DefaultDelayMS;

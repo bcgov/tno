@@ -324,6 +324,42 @@
         "${workspaceFolder}/nlp/TNO.Services.NLP.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-filemonitor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/filemonitor/TNO.Services.Filemonitor.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-filemonitor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/filemonitor/TNO.Services.Filemonitor.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-filemonitor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/filemonitor/TNO.Services.Filemonitor.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }
