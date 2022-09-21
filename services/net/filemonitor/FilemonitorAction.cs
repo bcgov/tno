@@ -76,10 +76,10 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
         switch (format)
         {
             case "xml":
-                articles = await GetXmlArticlesAsync(dir, manager);
+                articles = GetXmlArticles(dir, manager);
                 break;
             case "fms":
-                articles = await GetFmsArticlesAsync(dir, manager);
+                articles = GetFmsArticles(dir, manager);
                 break;
             default:
                 throw new InvalidOperationException($"Invalid import file format defined for '{manager.DataSource.Code}'");
@@ -307,7 +307,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <param name="dir"></param>
     /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task<List<SourceContent>> GetXmlArticlesAsync(string dir, IDataSourceIngestManager manager) // should this be async?
+    private List<SourceContent> GetXmlArticles(string dir, IDataSourceIngestManager manager) // should this be async?
     {
         var articles = new List<SourceContent>();
         var dataSource = manager.DataSource;
@@ -325,7 +325,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
                 {
                     var item = new SourceContent();
                     var papername = GetXmlData(story, Fields.Papername, dataSource);
-                    item.Source = await GetItemSourceCodeAsync(dataSource, papername);
+                    item.Source = GetItemSourceCode(dataSource, papername);
                     item.Title = GetXmlData(story, Fields.Headline, dataSource);
                     item.Uid = GetXmlData(story, Fields.Id, dataSource);
                     item.Body = GetXmlData(story, Fields.Story, dataSource);
@@ -359,7 +359,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <param name="dir"></param>
     /// <param name="manager"></param>
     /// <returns></returns>
-    private async Task<List<SourceContent>> GetFmsArticlesAsync(string dir, IDataSourceIngestManager manager)
+    private List<SourceContent> GetFmsArticles(string dir, IDataSourceIngestManager manager)
     {
         var articles = new List<SourceContent>();
         var dataSource = manager.DataSource;
@@ -386,7 +386,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
                     var filtered = preFiltered.Replace("\n\n", Fields.FmsFieldDelim);
 
                     var papername = GetFmsData(filtered, Fields.Papername, dataSource);
-                    source = string.IsNullOrEmpty(source) ? await GetItemSourceCodeAsync(dataSource, papername) : source;
+                    source = string.IsNullOrEmpty(source) ? GetItemSourceCode(dataSource, papername) : source;
                     item.Source = source;
                     item.Title = GetFmsData(filtered, Fields.Headline, dataSource);
                     item.Uid = GetFmsData(filtered, Fields.Id, dataSource);
@@ -426,7 +426,7 @@ public class FilemonitorAction : IngestAction<FilemonitorOptions>
     /// <param name="paperName"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<string> GetItemSourceCodeAsync(DataSourceModel dataSource, string paperName)
+    private string GetItemSourceCode(DataSourceModel dataSource, string paperName)
     {
         // The default for selfPublished is false, so all self-published papers must have a value in connection string.
         var selfPublished = dataSource.GetConnectionValue<bool>(Fields.SelfPublished);
