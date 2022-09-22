@@ -31,7 +31,7 @@ INSERT INTO public.ingest_schedule (
   , CURRENT_TIMESTAMP
 ), (
   (SELECT id FROM public.ingest WHERE name = 'CBC Victoria - Stream')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC Victoria - Stream') -- schedule_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBCV - 01') -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
@@ -40,7 +40,7 @@ INSERT INTO public.ingest_schedule (
   , CURRENT_TIMESTAMP
 ), (
   (SELECT id FROM public.ingest WHERE name = 'CBC Victoria - Clips')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC Victoria - Clips')  -- schedule_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBCV - 02')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP

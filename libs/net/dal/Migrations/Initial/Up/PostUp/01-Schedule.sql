@@ -94,7 +94,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'CBCV - 01' -- name
+  'CBCV - 02' -- name
   , '' -- description
   , true -- is_enabled
   , 3 -- schedule_type
