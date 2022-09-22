@@ -4,7 +4,7 @@ import { NavBar } from 'features/navbar';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useToastError } from 'store/hooks';
-import { Button, Footer, Header, useKeycloakWrapper } from 'tno-core';
+import { Button, Footer, Header, SummonContext, useKeycloakWrapper } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
 import * as styled from './styled';
@@ -25,8 +25,18 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
   const keycloak = useKeycloakWrapper();
   useToastError();
 
+  const state = React.useContext(SummonContext);
   keycloak.instance.onTokenExpired = () => {
-    keycloak.instance.logout();
+    keycloak.instance
+      .updateToken(86400)
+      .then(function (refreshed: boolean) {
+        if (refreshed) {
+          state.setToken(keycloak.instance.token);
+        }
+      })
+      .catch(function () {
+        keycloak.instance.logout();
+      });
   };
 
   return (
