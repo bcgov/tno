@@ -48,10 +48,10 @@ export const ContentForm = styled.div`
     overflow-y: auto;
   }
 
-  .tab-container div:has([name='transcription']) {
+  .tab-container div:has([name='body']) {
     height: 90%;
 
-    textarea[name='transcription'] {
+    textarea[name='body'] {
       flex: auto;
       min-height: 65px;
       resize: none;
