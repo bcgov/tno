@@ -14,7 +14,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - Primary key to content.
     /// </summary>
-    public long Id { get; set; } = default!;
+    public long Id { get; set; }
 
     /// <summary>
     /// get/set - The status of the content.
@@ -22,34 +22,24 @@ public class ContentModel : AuditColumnsModel
     public ContentStatus Status { get; set; } = ContentStatus.Draft;
 
     /// <summary>
-    /// get/set - The workflow status of the content.
+    /// get/set - The type of content and form to use.
     /// </summary>
-    public WorkflowStatus WorkflowStatus { get; set; } = WorkflowStatus.InProgress;
+    public ContentType ContentType { get; set; } = ContentType.Snippet;
 
     /// <summary>
-    /// get/set - Foreign key to content type.
+    /// get/set - Foreign key to product.
     /// </summary>
-    public int ContentTypeId { get; set; } = default!;
+    public int ProductId { get; set; }
 
     /// <summary>
-    /// get/set - The content type.
+    /// get/set - The product.
     /// </summary>
-    public ContentTypeModel? ContentType { get; set; }
-
-    /// <summary>
-    /// get/set - Foreign key to media type.
-    /// </summary>
-    public int MediaTypeId { get; set; } = default!;
-
-    /// <summary>
-    /// get/set - The content type.
-    /// </summary>
-    public MediaTypeModel? MediaType { get; set; }
+    public ProductModel? Product { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
     /// </summary>
-    public int LicenseId { get; set; } = default!;
+    public int LicenseId { get; set; }
 
     /// <summary>
     /// get/set - The content type.
@@ -74,7 +64,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - Foreign key to user who owns the content.
     /// </summary>
-    public int? OwnerId { get; set; } = default!;
+    public int? OwnerId { get; set; }
 
     /// <summary>
     /// get/set - The content type.
@@ -84,17 +74,17 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - Foreign key to data source.
     /// </summary>
-    public int? DataSourceId { get; set; }
+    public int? SourceId { get; set; }
 
     /// <summary>
     /// get/set - The data source.
     /// </summary>
-    public DataSourceModel? DataSource { get; set; }
+    public SourceModel? Source { get; set; }
 
     /// <summary>
-    /// get/set - The id of the source.
+    /// get/set - A source that isn't linked or maintained in a list.
     /// </summary>
-    public string Source { get; set; } = "";
+    public string OtherSource { get; set; } = "";
 
     /// <summary>
     /// get/set - The headline.
@@ -130,6 +120,11 @@ public class ContentModel : AuditColumnsModel
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
+
+    /// <summary>
+    /// get/set - Print content properties.
+    /// </summary>
+    public PrintContentModel? PrintContent { get; set; }
 
     /// <summary>
     /// get/set - Upload files with content.
@@ -192,20 +187,18 @@ public class ContentModel : AuditColumnsModel
     {
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
         this.Status = entity.Status;
-        this.WorkflowStatus = entity.WorkflowStatus;
-        this.ContentTypeId = entity.ContentTypeId;
-        this.ContentType = entity.ContentType != null ? new ContentTypeModel(entity.ContentType) : null;
-        this.MediaTypeId = entity.MediaTypeId;
-        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
+        this.ProductId = entity.ProductId;
+        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
+        this.ContentType = entity.ContentType;
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.SeriesId = entity.SeriesId;
         this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
-        this.DataSourceId = entity.DataSourceId;
-        this.DataSource = entity.DataSource != null ? new DataSourceModel(entity.DataSource) : null;
-        this.Source = entity.Source;
+        this.SourceId = entity.SourceId;
+        this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
+        this.OtherSource = entity.OtherSource;
         this.Headline = entity.Headline;
         this.Uid = entity.Uid;
         this.Page = entity.Page;
@@ -213,6 +206,8 @@ public class ContentModel : AuditColumnsModel
         this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
         this.PublishedOn = entity.PublishedOn;
+
+        this.PrintContent = entity.PrintContent != null ? new PrintContentModel(entity.PrintContent) : null;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Categories = entity.CategoriesManyToMany.Select(e => new ContentCategoryModel(e));
@@ -232,11 +227,10 @@ public class ContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Content(ContentModel model)
     {
-        var entity = new Entities.Content(model.Uid, model.Headline, model.Source, model.DataSourceId, model.ContentTypeId, model.MediaTypeId, model.LicenseId, model.OwnerId)
+        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.ProductId, model.OwnerId)
         {
             Id = model.Id,
             Status = model.Status,
-            WorkflowStatus = model.WorkflowStatus,
             SeriesId = model.SeriesId,
             Page = model.Page,
             PublishedOn = model.PublishedOn,
@@ -245,6 +239,11 @@ public class ContentModel : AuditColumnsModel
             SourceUrl = model.SourceUrl,
             Version = model.Version ?? 0,
         };
+
+        if (model.PrintContent != null)
+        {
+            entity.PrintContent = new Entities.PrintContent(entity, model.PrintContent.Edition, model.PrintContent.Section, model.PrintContent.StoryType, model.PrintContent.Byline);
+        }
 
         if (!String.IsNullOrWhiteSpace(model.OtherSeries))
         {

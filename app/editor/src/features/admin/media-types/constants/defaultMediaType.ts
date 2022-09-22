@@ -1,4 +1,4 @@
-import { IMediaTypeModel } from 'hooks';
+import { ContentTypeName, IMediaTypeModel } from 'hooks';
 
 export const defaultMediaType: IMediaTypeModel = {
   id: 0,
@@ -6,6 +6,7 @@ export const defaultMediaType: IMediaTypeModel = {
   description: '',
   isEnabled: true,
   sortOrder: 0,
+  contentType: ContentTypeName.Snippet,
   autoTranscribe: false,
   disableTranscribe: false,
 };

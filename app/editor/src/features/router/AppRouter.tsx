@@ -1,10 +1,11 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { AdminRouter } from 'features/admin';
-import { ContentForm, ContentListView } from 'features/content';
+import { ContentForm, ContentListView, ContentLogs } from 'features/content';
 import { Login } from 'features/login';
+import { ReportsRouter } from 'features/reports';
 import { StorageListView } from 'features/storage';
-import { ContentType } from 'hooks';
+import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useApp } from 'store/hooks';
@@ -51,6 +52,12 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           }
         />
         <Route
+          path="contents/log"
+          element={
+            <PrivateRoute claims={Claim.administrator} element={<ContentLogs />}></PrivateRoute>
+          }
+        />
+        <Route
           path="/contents/combined/:id"
           element={
             <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
@@ -61,7 +68,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           element={
             <PrivateRoute
               claims={Claim.editor}
-              element={<ContentForm contentType={ContentType.Snippet} />}
+              element={<ContentForm contentType={ContentTypeName.Snippet} />}
             ></PrivateRoute>
           }
         />
@@ -70,7 +77,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           element={
             <PrivateRoute
               claims={Claim.editor}
-              element={<ContentForm contentType={ContentType.Print} />}
+              element={<ContentForm contentType={ContentTypeName.PrintContent} />}
             ></PrivateRoute>
           }
         />
@@ -79,6 +86,10 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           element={
             <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
           }
+        />
+        <Route
+          path="reports/*"
+          element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}
         />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -13,6 +13,7 @@
     "kowl",
     "Kustomization",
     "kustomize",
+    "notnull",
     "opennlp",
     "Swashbuckle"
   ],

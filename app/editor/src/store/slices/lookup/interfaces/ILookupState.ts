@@ -3,15 +3,14 @@ import {
   ICacheModel,
   ICategoryModel,
   IClaimModel,
-  IContentTypeModel,
-  IDataLocationModel,
-  IDataSourceModel,
   ILicenseModel,
   IMediaTypeModel,
+  IMetricModel,
+  IProductModel,
   IRoleModel,
   ISeriesModel,
   ISourceActionModel,
-  ISourceMetricModel,
+  ISourceModel,
   ITagModel,
   ITonePoolModel,
   IUserModel,
@@ -22,15 +21,14 @@ export interface ILookupState {
   actions: IActionModel[];
   categories: ICategoryModel[];
   claims: IClaimModel[];
-  contentTypes: IContentTypeModel[];
-  dataLocations: IDataLocationModel[];
-  dataSources: IDataSourceModel[];
+  products: IProductModel[];
   licenses: ILicenseModel[];
   mediaTypes: IMediaTypeModel[];
   roles: IRoleModel[];
   series: ISeriesModel[];
+  sources: ISourceModel[];
   sourceActions: ISourceActionModel[];
-  sourceMetrics: ISourceMetricModel[];
+  metrics: IMetricModel[];
   tags: ITagModel[];
   tonePools: ITonePoolModel[];
   users: IUserModel[];

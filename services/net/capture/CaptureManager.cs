@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Managers;
 using TNO.Services.Capture.Config;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Models.Extensions;
 
 namespace TNO.Services.Capture;
@@ -10,7 +10,7 @@ namespace TNO.Services.Capture;
 /// <summary>
 /// CaptureManager class, provides a way to manage the capture service.
 /// </summary>
-public class CaptureManager : DataSourceManager<CaptureDataSourceManager, CaptureOptions>
+public class CaptureManager : IngestManager<CaptureIngestActionManager, CaptureOptions>
 {
     #region Constructors
     /// <summary>
@@ -22,7 +22,7 @@ public class CaptureManager : DataSourceManager<CaptureDataSourceManager, Captur
     /// <param name="logger"></param>
     public CaptureManager(
         IApiService api,
-        DataSourceIngestManagerFactory<CaptureDataSourceManager, CaptureOptions> factory,
+        IngestManagerFactory<CaptureIngestActionManager, CaptureOptions> factory,
         IOptions<CaptureOptions> options,
         ILogger<CaptureManager> logger)
         : base(api, factory, options, logger)
@@ -34,21 +34,21 @@ public class CaptureManager : DataSourceManager<CaptureDataSourceManager, Captur
     /// Only data sources of serviceType=stream.
     /// </summary>
     /// <returns></returns>
-    public override async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync()
+    public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
-        var dataSources = await base.GetDataSourcesAsync();
+        var ingests = await base.GetIngestsAsync();
 
-        return dataSources.Where(ds => IsStream(ds));
+        return ingests.Where(ds => IsStream(ds));
     }
 
     /// <summary>
     /// Determine if the data source is a stream service type.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    private static bool IsStream(DataSourceModel dataSource)
+    private static bool IsStream(IngestModel ingest)
     {
-        return dataSource.GetConnectionValue("serviceType") == "stream";
+        return ingest.GetConfigurationValue("serviceType") == "stream";
     }
     #endregion
 }

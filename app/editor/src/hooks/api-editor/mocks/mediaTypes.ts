@@ -1,4 +1,4 @@
-import { IMediaTypeModel } from '..';
+import { ContentTypeName, IMediaTypeModel } from '..';
 
 export const mockMediaTypes: IMediaTypeModel[] = [
   {
@@ -7,6 +7,7 @@ export const mockMediaTypes: IMediaTypeModel[] = [
     description: '',
     sortOrder: 0,
     isEnabled: true,
+    contentType: ContentTypeName.Snippet,
     autoTranscribe: false,
     disableTranscribe: false,
   },

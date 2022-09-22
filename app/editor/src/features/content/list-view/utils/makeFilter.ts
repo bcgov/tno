@@ -17,10 +17,11 @@ export const makeFilter = (
   return {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
-    mediaTypeId: +filter.mediaTypeId > 0 ? +filter.mediaTypeId : undefined,
-    ownerId: +filter.ownerId > 0 ? +filter.ownerId : undefined,
-    userId: +filter.userId > 0 ? +filter.userId : undefined,
-    contentTypeId: filter.contentTypeId !== 0 ? filter.contentTypeId : undefined,
+    sourceId: filter.sourceId !== 0 ? filter.sourceId : undefined,
+    productId: filter.productId !== 0 ? filter.productId : undefined,
+    contentType: filter.contentType,
+    ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
+    userId: +filter.userId !== 0 ? +filter.userId : undefined,
     createdStartOn: advanced.startDate
       ? moment(advanced.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),

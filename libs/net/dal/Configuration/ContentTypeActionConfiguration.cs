@@ -8,12 +8,11 @@ public class ContentTypeActionConfiguration : AuditColumnsConfiguration<ContentT
 {
     public override void Configure(EntityTypeBuilder<ContentTypeAction> builder)
     {
-        builder.HasKey(m => new { m.ContentTypeId, m.ActionId });
-        builder.Property(m => m.ContentTypeId).IsRequired().ValueGeneratedNever();
+        builder.HasKey(m => new { m.ContentType, m.ActionId });
+        builder.Property(m => m.ContentType).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.ActionId).IsRequired().ValueGeneratedNever();
 
-        builder.HasOne(m => m.ContentType).WithMany(m => m.ActionsManyToMany).HasForeignKey(m => m.ContentTypeId).OnDelete(DeleteBehavior.Cascade);
-        builder.HasOne(m => m.Action).WithMany(m => m.ContentTypesManyToMany).HasForeignKey(m => m.ActionId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Action).WithMany(m => m.ContentTypes).HasForeignKey(m => m.ActionId).OnDelete(DeleteBehavior.Cascade);
 
         base.Configure(builder);
 

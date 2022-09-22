@@ -1,0 +1,16 @@
+import { FormPage } from 'components/form/formpage';
+import styled from 'styled-components';
+
+export const SourceList = styled(FormPage)`
+  .filter {
+    display: flex;
+    align-items: center;
+    input {
+      margin-top: 3.5%;
+    }
+    button {
+      background-color: white;
+    }
+    background-color: #f5f5f5;
+  }
+`;

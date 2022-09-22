@@ -12,8 +12,10 @@ export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
     pageSize: 100,
-    mediaTypeId: 0,
-    contentTypeId: 0,
+    printContent: false,
+    sourceId: 0,
+    otherSource: '',
+    productId: 0,
     ownerId: '',
     userId: '',
     timeFrame: 0,

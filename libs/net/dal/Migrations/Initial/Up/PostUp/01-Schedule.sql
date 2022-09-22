@@ -22,10 +22,61 @@ INSERT INTO public.schedule (
     , "updated_by"
     , "updated_on"
     , "version"
-) VALUES (
-      'daily' --name
-  , ''
-  , true -- is_enabled          
+) VALUES
+
+-- ******************************************************
+-- CBC News Video
+-- ******************************************************
+(
+  'CBC News - 01' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 3 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '07:00:00' -- start_at
+  , '07:15:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+),
+(
+  'CBC News - 02' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 3 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '07:12:00' -- start_at
+  , '07:20:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+),
+
+-- ******************************************************
+-- CBC Victoria Radio
+-- ******************************************************
+(
+  'CBCV - 01' -- name
+  , '' -- description
+  , true -- is_enabled
   , 2 -- schedule_type
   , 30000 -- delay_ms
   , NULL -- run_on
@@ -43,9 +94,9 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-      'morning' --name
-  , ''
-  , true -- is_enabled          
+  'CBCV - 01' -- name
+  , '' -- description
+  , true -- is_enabled
   , 3 -- schedule_type
   , 30000 -- delay_ms
   , NULL -- run_on
@@ -62,10 +113,15 @@ INSERT INTO public.schedule (
   , '' -- updated_on
   , CURRENT_TIMESTAMP -- version
   , '0'
-), (
-      'default' --name
-  , ''
-  , true -- is_enabled          
+),
+
+-- ******************************************************
+-- Continuous Schedules
+-- ******************************************************
+(
+  'Castanet' -- name
+  , '' -- description
+  , true -- is_enabled
   , 1 -- schedule_type
   , 60000 -- delay_ms
   , NULL -- run_on
@@ -83,9 +139,9 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-      'default' --name
-  , ''
-  , true -- is_enabled          
+  'Canadian Press Wire' -- name
+  , '' -- description
+  , true -- is_enabled
   , 1 -- schedule_type
   , 60000 -- delay_ms
   , NULL -- run_on

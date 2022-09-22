@@ -1,5 +1,5 @@
 import { FormPage } from 'components/form/formpage';
-import { ContentType, useCombinedView, useTooltips } from 'hooks';
+import { ContentTypeName, useCombinedView, useTooltips } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { SortingRule } from 'react-table';
 import { useApp, useContent } from 'store/hooks';
 import { Button, ButtonVariant, Col, Page, PagedTable, Row, Show } from 'tno-core';
 
-import { FormPicker } from '../form';
+import { ContentForm } from '../form';
 import { ContentFilter } from '.';
 import { columns, defaultPage } from './constants';
 import { IContentListFilter } from './interfaces';
@@ -18,11 +18,11 @@ export const ContentListView: React.FC = () => {
   const [{ userInfo }, { isUserReady }] = useApp();
   const { id } = useParams();
   const [{ filter, filterAdvanced, content }, { findContent, storeFilter }] = useContent();
-  const [contentType, setContentType] = React.useState<ContentType>();
   const navigate = useNavigate();
   const combined = useCombinedView();
   useTooltips();
 
+  const [contentType, setContentType] = React.useState<ContentTypeName>(ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
   const [activeId, setActiveId] = React.useState<number>(parseInt(id ?? '0'));
 
@@ -99,7 +99,7 @@ export const ContentListView: React.FC = () => {
 
   const handleRowClick = (content: IContentModel) => {
     setActiveId(content.id);
-    setContentType(content.contentTypeId);
+    setContentType(content.contentType);
     navigate(`/contents/combined/${content.id}`);
   };
 
@@ -165,7 +165,7 @@ export const ContentListView: React.FC = () => {
           </Col>
           <Show visible={combined}>
             <Col className="right-pane">
-              <FormPicker contentType={contentType!} />
+              <ContentForm contentType={contentType} />
             </Col>
           </Show>
         </Row>

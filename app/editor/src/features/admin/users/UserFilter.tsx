@@ -1,7 +1,6 @@
 import { IconButton, Select } from 'components/form';
 import { UserStatusName } from 'hooks';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useUsers } from 'store/hooks/admin';
 import { FieldSize, Text } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
@@ -16,8 +15,6 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [filter, setFilter] = useState<IUserListFilter>(userFilter);
   const statusOptions = getEnumStringOptions(UserStatusName);
-
-  const navigate = useNavigate();
 
   /** Handle enter key pressed for user filter */
   React.useEffect(() => {
@@ -37,13 +34,6 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
 
   return (
     <styled.UserFilter>
-      <Row className="add-media" justifyContent="flex-end">
-        <IconButton
-          iconType="plus"
-          label="Add New User"
-          onClick={() => navigate('/admin/users/0')}
-        />
-      </Row>
       <Row className="filter-bar" justifyContent="center">
         <Text
           onChange={(e) => {

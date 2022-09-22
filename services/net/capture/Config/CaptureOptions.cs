@@ -9,8 +9,8 @@ public class CaptureOptions : CommandOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - The path to store files.
+    /// get/set - The path to the local mapped volume.
     /// </summary>
-    public string OutputPath { get; set; } = "";
+    public string VolumePath { get; set; } = "";
     #endregion
 }

@@ -42,14 +42,9 @@ public class Action : BaseType<int>
     public virtual List<ContentAction> ContentsManyToMany { get; } = new List<ContentAction>();
 
     /// <summary>
-    /// get - Collection of content types that have this action.
+    /// get - Collection of content types
     /// </summary>
-    public virtual List<ContentType> ContentTypes { get; } = new List<ContentType>();
-
-    /// <summary>
-    /// get - Collection of content type actions.
-    /// </summary>
-    public virtual List<ContentTypeAction> ContentTypesManyToMany { get; } = new List<ContentTypeAction>();
+    public virtual List<ContentTypeAction> ContentTypes { get; } = new List<ContentTypeAction>();
     #endregion
 
     #region Constructors

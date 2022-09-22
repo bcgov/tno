@@ -16,7 +16,7 @@ public class ContentReferenceConfiguration : AuditColumnsConfiguration<ContentRe
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.SourceUpdateOn);
 
-        builder.HasIndex(m => new { m.PublishedOn, m.Partition, m.Offset, m.WorkflowStatus });
+        builder.HasIndex(m => new { m.PublishedOn, m.Partition, m.Offset, m.Status });
 
         base.Configure(builder);
     }

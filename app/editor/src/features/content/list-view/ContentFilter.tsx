@@ -1,5 +1,5 @@
 import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select, SelectDate } from 'components/form';
-import { IContentModel } from 'hooks/api-editor';
+import { ContentTypeName, IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
@@ -26,17 +26,13 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   updated,
   setUpdated,
 }) => {
-  const [{ contentTypes, mediaTypes, users }] = useLookup();
+  const [{ products, mediaTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
   const [advancedHover, setAdvancedHover] = React.useState(false);
 
-  const [mediaTypeOptions, setMediaTypeOptions] = React.useState<IOptionItem[]>([]);
-  const [contentTypeOptions, setContentTypeOptions] = React.useState<IOptionItem[]>([]);
+  const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [timeframe, setTimeframe] = React.useState(timeFrames[Number(filter.timeFrame)]);
-
-  const printContentId = (contentTypeOptions.find((ct) => ct.label === 'Print')?.value ??
-    0) as number;
 
   React.useEffect(() => {
     if (!!updated) {
@@ -46,12 +42,8 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   }, [updated, filter, storeFilterAdvanced, search, setUpdated, filterAdvanced]);
 
   React.useEffect(() => {
-    setContentTypeOptions(getSortableOptions(contentTypes));
-  }, [contentTypes]);
-
-  React.useEffect(() => {
-    setMediaTypeOptions(getSortableOptions(mediaTypes, [new OptionItem<number>('All Media', 0)]));
-  }, [mediaTypes]);
+    setProductOptions(getSortableOptions(products, [new OptionItem<number>('Any', 0)]));
+  }, [products]);
 
   React.useEffect(() => {
     setUserOptions(
@@ -63,8 +55,8 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   }, [users]);
 
   React.useEffect(() => {
-    onReady?.(!!users.length && !!contentTypes.length && !!mediaTypes.length);
-  }, [users, contentTypes, mediaTypes, onReady]);
+    onReady?.(!!users.length && !!products.length && !!mediaTypes.length);
+  }, [users, products, mediaTypes, onReady]);
 
   /** Handle enter key pressed for advanced filter */
   React.useEffect(() => {
@@ -101,20 +93,20 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   return (
     <styled.ContentFilter className="content-filter">
       <div>
-        <Loader size="5em" visible={!users.length || !contentTypes.length || !mediaTypes.length} />
+        <Loader size="5em" visible={!users.length || !products.length || !mediaTypes.length} />
         <Select
-          name="mediaType"
-          label="Media Type"
-          options={mediaTypeOptions}
-          value={mediaTypeOptions.find((mt) => mt.value === filter.mediaTypeId)}
-          defaultValue={mediaTypeOptions[0]}
+          name="productId"
+          label="Product Designation"
+          options={productOptions}
+          value={productOptions.find((mt) => mt.value === filter.productId)}
+          defaultValue={productOptions[0]}
           onChange={(newValue) => {
             setUpdated && setUpdated(true);
-            var mediaTypeId = (newValue as IOptionItem).value ?? 0;
+            var productId = (newValue as IOptionItem).value ?? 0;
             storeFilter({
               ...filter,
               pageIndex: 0,
-              mediaTypeId: mediaTypeId as number,
+              productId: productId as number,
             });
           }}
         />
@@ -151,14 +143,15 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 name="isPrintContent"
                 label="Print Content"
                 tooltip="Newspaper content without audio/video"
-                value={printContentId}
-                checked={filter.contentTypeId !== 0}
+                value={filter.printContent}
+                checked={filter.printContent}
                 onChange={(e) => {
                   setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
-                    contentTypeId: e.target.checked ? printContentId : 0,
+                    printContent: e.target.checked,
+                    contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
                   });
                 }}
               />

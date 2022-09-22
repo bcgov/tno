@@ -1,4 +1,4 @@
-namespace TNO.Services.Filemonitor;
+namespace TNO.Services.FileMonitor;
 
 /// <summary>
 /// Field names/values for the extraction of newspaper data.

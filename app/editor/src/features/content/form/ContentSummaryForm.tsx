@@ -4,7 +4,8 @@ import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { ContentType, IUserModel } from 'hooks/api-editor';
+import { useCombinedView } from 'hooks';
+import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
@@ -24,7 +25,7 @@ const tagMatch = /(?!\[).+?(?=\])/g;
 export interface IContentSummaryFormProps {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
-  contentType: ContentType;
+  contentType: ContentTypeName;
 }
 
 /**
@@ -42,6 +43,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
+  const combined = useCombinedView();
 
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
@@ -96,7 +98,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const extractTags = (values: string[]) => {
     return tags
       .filter((tag) => values.some((value: string) => value.toLowerCase() === tag.id.toLowerCase()))
-      .map((tag) => ({ ...tag }));
+      .map((tag) => tag);
   };
 
   const setMedia = () => {
@@ -108,7 +110,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
       <Col className="content-properties">
         <Row>
           <Col>
-            <Show visible={contentType === ContentType.Snippet}>
+            <Show visible={contentType === ContentTypeName.Snippet}>
               <Row>
                 <FormikSelect
                   name="seriesId"
@@ -196,12 +198,12 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 label="Time"
                 onChange={(e) => setPublishedOnTime(e.target.value)}
               />
-              <Show visible={contentType === ContentType.Snippet}>
+              <Show visible={contentType === ContentTypeName.Snippet}>
                 <FormikText name="page" label="Page" onChange={handleChange} />
               </Show>
             </Row>
           </Col>
-          <Show visible={contentType !== ContentType.Print}>
+          <Show visible={contentType === ContentTypeName.Snippet}>
             <Col className="licenses">
               <RadioGroup
                 label="License"
@@ -215,27 +217,33 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Show>
         </Row>
         <Row>
-          <FormikTextArea
-            name="summary"
-            label={contentType === ContentType.Print ? 'Content' : 'Summary'}
-            width={FieldSize.Stretch}
-            required
-            value={values.summary}
-            onChange={handleChange}
-            onBlur={(e) => {
-              const value = e.currentTarget.value;
-              if (!!value) {
-                const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
-                const tags = extractTags(values);
-                setFieldValue('tags', tags);
-              }
-            }}
-          />
+          <Col flex="1 1 0">
+            <FormikTextArea
+              name="summary"
+              label="Summary"
+              required
+              onBlur={(e) => {
+                const value = e.currentTarget.value;
+                if (!!value) {
+                  const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
+                  const tags = extractTags(values);
+                  setFieldValue('tags', tags);
+                }
+              }}
+            />
+          </Col>
         </Row>
+        <Show visible={contentType !== ContentTypeName.Snippet}>
+          <Row>
+            <Col flex="1 1 0">
+              <FormikTextArea name="body" label="Story" />
+            </Col>
+          </Row>
+        </Show>
         <Row>
           <FormikText
             disabled
-            width={FieldSize.Large}
+            width={combined ? FieldSize.Big : FieldSize.Large}
             name="tags"
             label="Tags"
             value={values.tags.map((t) => t.id).join(', ')}
@@ -265,7 +273,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             }}
           />
         </Row>
-        <Show visible={contentType === ContentType.Snippet}>
+        <Show visible={contentType === ContentTypeName.Snippet}>
           <Row className="row-margins">
             <Upload
               id="upload"
@@ -278,7 +286,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 setFieldValue('fileReferences', []);
               }}
               onDownload={() => {
-                download(values.id, file?.name ?? `${values.source}-${values.id}`);
+                download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
               }}
               onDelete={() => {
                 setStreamUrl('');

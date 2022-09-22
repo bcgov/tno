@@ -2,20 +2,38 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// ContentCategory class, provides an entity model to link (many-to-many) content with categories.
+/// </summary>
 [Table("content_category")]
 public class ContentCategory : AuditColumns, IEquatable<ContentCategory>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Primary key and foreign key to content.
+    /// </summary>
     [Column("content_id")]
     public long ContentId { get; set; }
 
+    /// <summary>
+    /// get/set - The content.
+    /// </summary>
     public virtual Content? Content { get; set; }
 
+    /// <summary>
+    /// get/set - Primary key and foreign key to category.
+    /// </summary>
     [Column("category_id")]
     public int CategoryId { get; set; }
 
+    /// <summary>
+    /// get/set - The category.
+    /// </summary>
     public virtual Category? Category { get; set; }
 
+    /// <summary>
+    /// get/set - The score of the category.
+    /// </summary>
     [Column("score")]
     public int Score { get; set; }
     #endregion

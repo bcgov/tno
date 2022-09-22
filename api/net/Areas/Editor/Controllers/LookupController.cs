@@ -32,15 +32,14 @@ public class LookupController : ControllerBase
     private readonly IActionService _actionService;
     private readonly ICategoryService _categoryService;
     private readonly IClaimService _claimService;
-    private readonly IContentTypeService _contentTypeService;
-    private readonly IDataLocationService _dataLocationService;
-    private readonly IDataSourceService _dataSourceService;
+    private readonly IProductService _productService;
+    private readonly ISourceService _sourceService;
     private readonly ILicenseService _licenseService;
     private readonly IMediaTypeService _mediaTypeService;
     private readonly IRoleService _roleService;
     private readonly ISeriesService _seriesService;
     private readonly ISourceActionService _sourceActionService;
-    private readonly ISourceMetricService _sourceMetricService;
+    private readonly IMetricService _metricService;
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
     private readonly IUserService _userService;
@@ -53,15 +52,14 @@ public class LookupController : ControllerBase
     /// <param name="actionService"></param>
     /// <param name="categoryService"></param>
     /// <param name="claimService"></param>
-    /// <param name="contentTypeService"></param>
-    /// <param name="dataLocationService"></param>
-    /// <param name="dataSourceService"></param>
+    /// <param name="productService"></param>
+    /// <param name="sourceService"></param>
     /// <param name="licenseService"></param>
     /// <param name="mediaTypeService"></param>
     /// <param name="roleService"></param>
     /// <param name="seriesService"></param>
     /// <param name="sourceActionService"></param>
-    /// <param name="sourceMetricService"></param>
+    /// <param name="metricService"></param>
     /// <param name="tagService"></param>
     /// <param name="tonePoolService"></param>
     /// <param name="userService"></param>
@@ -70,15 +68,14 @@ public class LookupController : ControllerBase
         IActionService actionService,
         ICategoryService categoryService,
         IClaimService claimService,
-        IContentTypeService contentTypeService,
-        IDataLocationService dataLocationService,
-        IDataSourceService dataSourceService,
+        IProductService productService,
+        ISourceService sourceService,
         ILicenseService licenseService,
         IMediaTypeService mediaTypeService,
         IRoleService roleService,
         ISeriesService seriesService,
         ISourceActionService sourceActionService,
-        ISourceMetricService sourceMetricService,
+        IMetricService metricService,
         ITagService tagService,
         ITonePoolService tonePoolService,
         IUserService userService,
@@ -87,15 +84,14 @@ public class LookupController : ControllerBase
         _actionService = actionService;
         _categoryService = categoryService;
         _claimService = claimService;
-        _contentTypeService = contentTypeService;
-        _dataLocationService = dataLocationService;
-        _dataSourceService = dataSourceService;
+        _productService = productService;
+        _sourceService = sourceService;
         _licenseService = licenseService;
         _mediaTypeService = mediaTypeService;
         _roleService = roleService;
         _seriesService = seriesService;
         _sourceActionService = sourceActionService;
-        _sourceMetricService = sourceMetricService;
+        _metricService = metricService;
         _tagService = tagService;
         _tonePoolService = tonePoolService;
         _userService = userService;
@@ -120,15 +116,14 @@ public class LookupController : ControllerBase
         var actions = _actionService.FindAll();
         var categories = _categoryService.FindAll();
         var claims = _claimService.FindAll();
-        var contentTypes = _contentTypeService.FindAll();
-        var dataLocations = _dataLocationService.FindAll();
-        var dataSources = _dataSourceService.FindAll();
+        var products = _productService.FindAll();
+        var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var mediaTypes = _mediaTypeService.FindAll();
         var roles = _roleService.FindAll();
         var series = _seriesService.FindAll();
         var sourceActions = _sourceActionService.FindAll();
-        var sourceMetrics = _sourceMetricService.FindAll();
+        var metrics = _metricService.FindAll();
         var tagServices = _tagService.FindAll();
         var tonePools = _tonePoolService.FindAll();
         var users = _userService.FindAll();
@@ -136,15 +131,14 @@ public class LookupController : ControllerBase
             actions,
             categories,
             claims,
-            contentTypes,
-            dataLocations,
-            dataSources,
+            products,
+            sources,
             license,
             mediaTypes,
             roles,
             series,
             sourceActions,
-            sourceMetrics,
+            metrics,
             tagServices,
             tonePools,
             users,

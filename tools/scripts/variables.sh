@@ -18,7 +18,7 @@ else
     echo "Your keycloak username: $keycloakUser"
 fi
 
-export keycloakPassword=$("$GREP" -Po 'KEYCLOAK_USER=\K.*$' ./auth/keycloak/.env 2>/dev/null)
+export keycloakPassword=$("$GREP" -Po 'KEYCLOAK_PASSWORD=\K.*$' ./auth/keycloak/.env 2>/dev/null)
 if [ -z "$keycloakPassword" ]
 then
     echo 'Enter a password for the keycloak realm administrator'
@@ -66,7 +66,7 @@ export elasticUser=elastic
 # Asure configuration
 ######################################################################
 
-export azureCognitiveServiceKey=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureCognitiveServiceKey=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=\K.*$' ./api/net/.env 2>/dev/null)
 if [ -z "$azureCognitiveServiceKey" ]
 then
     echo 'Enter your Azure Cognitive Service subscription key.'
@@ -76,7 +76,7 @@ else
     echo "Your Azure Cognitive Service subscription key: $azureCognitiveServiceKey"
 fi
 
-export azureCognitiveServiceRegion=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureCognitiveServiceRegion=$("$GREP" -Po 'COGNITIVE_SERVICES_SPEECH_REGION=\K.*$' ./api/net/.env 2>/dev/null)
 if [ -z "$azureCognitiveServiceRegion" ]
 then
     echo 'Enter your Azure Cognitive Service region (i.e. canadacentral).'
@@ -86,7 +86,7 @@ else
     echo "Your Azure Cognitive Service region: $azureCognitiveServiceRegion"
 fi
 
-export azureVideoAnalyzerKey=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureVideoAnalyzerKey=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=\K.*$' ./api/net/.env 2>/dev/null)
 if [ -z "$azureVideoAnalyzerKey" ]
 then
     echo 'Enter your Azure Video Analyzer subscription key.'
@@ -96,7 +96,7 @@ else
     echo "Your Azure Video Analyzer subscription key: $azureVideoAnalyzerKey"
 fi
 
-export azureVideoAccountId=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureVideoAccountId=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_ACCOUNT_ID=\K.*$' ./api/net/.env 2>/dev/null)
 if [ -z "$azureVideoAccountId" ]
 then
     echo 'Enter your Azure Video Analyzer account ID.'
@@ -106,7 +106,7 @@ else
     echo "Your Azure Video Analyzer account ID: $azureVideoAccountId"
 fi
 
-export azureVideoLocation=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/editor/.env 2>/dev/null)
+export azureVideoLocation=$("$GREP" -Po 'AZURE_VIDEO_ANALYZER_LOCATION=\K.*$' ./api/net/.env 2>/dev/null)
 if [ -z "$azureVideoLocation" ]
 then
     echo 'Enter your Azure Video Analyzer location (i.e. trial).'

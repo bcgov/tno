@@ -45,9 +45,9 @@ public class Schedule : AuditColumns
     [Column("day_of_month")]
     public int DayOfMonth { get; set; }
 
-    public virtual List<DataSource> DataSources { get; set; } = new List<DataSource>();
+    public virtual List<Ingest> Ingests { get; set; } = new List<Ingest>();
 
-    public virtual List<DataSourceSchedule> DataSourcesManyToMany { get; set; } = new List<DataSourceSchedule>();
+    public virtual List<IngestSchedule> IngestsManyToMany { get; set; } = new List<IngestSchedule>();
     #endregion
 
     #region Constructors

@@ -1,10 +1,10 @@
-import { FormPage } from 'components/form/formpage/styled';
+import { FormPage, IconButton } from 'components/form';
 import { ISeriesModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSeries } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { GridTable } from 'tno-core';
+import { Col, GridTable, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { SeriesListFilter } from './SeriesListFilter';
@@ -19,7 +19,7 @@ export const SeriesList: React.FC = () => {
 
   React.useEffect(() => {
     if (!series.length) {
-      api.findAllSeriess().then((data) => {
+      api.findAllSeries().then((data) => {
         setItems(data);
       });
     } else {
@@ -30,6 +30,16 @@ export const SeriesList: React.FC = () => {
   return (
     <styled.SeriesList>
       <FormPage>
+        <Row className="add-media" justifyContent="flex-end">
+          <Col flex="1 1 0">
+            Series provide a way to identify the author, byline or the television series of content.
+          </Col>
+          <IconButton
+            iconType="plus"
+            label={`Add new series`}
+            onClick={() => navigate(`/admin/series/0`)}
+          />
+        </Row>
         <GridTable
           columns={columns}
           header={SeriesListFilter}

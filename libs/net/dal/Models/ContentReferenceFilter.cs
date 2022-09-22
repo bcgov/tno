@@ -7,7 +7,7 @@ namespace TNO.DAL.Models;
 public class ContentReferenceFilter : PageFilter
 {
     #region Properties
-    public WorkflowStatus? WorkflowStatus { get; set; }
+    public WorkflowStatus? Status { get; set; }
     public int? Offset { get; set; }
     public int? Partition { get; set; }
     public string? Source { get; set; }
@@ -28,6 +28,8 @@ public class ContentReferenceFilter : PageFilter
     public ContentReferenceFilter(Dictionary<string, StringValues> queryParams) : base(queryParams)
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
+
+        this.Status = filter.GetEnumNullValue<WorkflowStatus>(nameof(this.Status));
 
         this.Source = filter.GetStringValue(nameof(this.Source));
         this.Uid = filter.GetStringValue(nameof(this.Uid));

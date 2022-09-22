@@ -7,15 +7,14 @@ namespace TNO.DAL.Models;
 public class ContentFilter : PageFilter
 {
     #region Properties
-    public ContentStatus? State { get; set; }
-    public WorkflowStatus? WorkflowStatus { get; set; }
-    public int? ContentTypeId { get; set; }
-    public int? MediaTypeId { get; set; }
-    public string? MediaType { get; set; }
+    public ContentStatus? Status { get; set; }
+    public string? Product { get; set; }
+    public int? ProductId { get; set; }
+    public ContentType? ContentType { get; set; }
     public int? OwnerId { get; set; }
     public int? UserId { get; set; }
-    public int? DataSourceId { get; set; }
-    public string? Source { get; set; }
+    public int? SourceId { get; set; }
+    public string? OtherSource { get; set; }
     public string? Headline { get; set; }
     public string? PageName { get; set; }
     public DateTime? CreatedOn { get; set; }
@@ -42,20 +41,22 @@ public class ContentFilter : PageFilter
     {
         var filter = new Dictionary<string, StringValues>(queryParams, StringComparer.OrdinalIgnoreCase);
 
-        this.Source = filter.GetStringValue(nameof(this.Source));
+        this.Product = filter.GetStringValue(nameof(this.Product));
+        this.OtherSource = filter.GetStringValue(nameof(this.OtherSource));
         this.Headline = filter.GetStringValue(nameof(this.Headline));
         this.Section = filter.GetStringValue(nameof(this.Section));
         this.PageName = filter.GetStringValue(nameof(this.PageName));
         this.Edition = filter.GetStringValue(nameof(this.Edition));
         this.StoryType = filter.GetStringValue(nameof(this.StoryType));
         this.Byline = filter.GetStringValue(nameof(this.Byline));
-        this.MediaType = filter.GetStringValue(nameof(this.MediaType));
 
-        this.ContentTypeId = filter.GetIntNullValue(nameof(this.ContentTypeId));
-        this.MediaTypeId = filter.GetIntNullValue(nameof(this.MediaTypeId));
+        this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));
+        this.ContentType = filter.GetEnumNullValue<ContentType>(nameof(this.ContentType));
+
+        this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.UserId = filter.GetIntNullValue(nameof(this.UserId));
-        this.DataSourceId = filter.GetIntNullValue(nameof(this.DataSourceId));
+        this.SourceId = filter.GetIntNullValue(nameof(this.SourceId));
 
         this.CreatedOn = filter.GetDateTimeNullValue(nameof(this.CreatedOn));
         this.CreatedStartOn = filter.GetDateTimeNullValue(nameof(this.CreatedStartOn));

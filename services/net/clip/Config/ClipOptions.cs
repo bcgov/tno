@@ -9,14 +9,9 @@ public class ClipOptions : CommandOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - The path to captured files.
+    /// get/set - The path to the local mapped volume.
     /// </summary>
-    public string CapturePath { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The path to store files.
-    /// </summary>
-    public string OutputPath { get; set; } = "";
+    public string VolumePath { get; set; } = "";
 
     /// <summary>
     /// get/set - Limit the time after a schedule 'StopAt' time has passed that will still result in a verified schedule.

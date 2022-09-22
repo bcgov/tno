@@ -1,12 +1,12 @@
-import { FormPage } from 'components/form/formpage/styled';
+import { FormPage, IconButton } from 'components/form';
 import { IActionModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActions } from 'store/hooks/admin/actions';
 import { useApp } from 'store/hooks/app/useApp';
-import { GridTable } from 'tno-core';
+import { Col, GridTable, Row } from 'tno-core';
 
-import { CategoryListFilter } from './ActionListFilter';
+import { ActionListFilter } from './ActionListFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
@@ -30,9 +30,20 @@ export const ActionList: React.FC = () => {
   return (
     <styled.ActionList>
       <FormPage>
+        <Row className="add-media" justifyContent="flex-end">
+          <Col flex="1 1 0">
+            Actions provide a way for administrators to identify actions that should be performed on
+            content, or which reports content should be included in.
+          </Col>
+          <IconButton
+            iconType="plus"
+            label={`Add new action`}
+            onClick={() => navigate(`/admin/actions/0`)}
+          />
+        </Row>
         <GridTable
           columns={columns}
-          header={CategoryListFilter}
+          header={ActionListFilter}
           manualPageSize
           isLoading={!!requests.length}
           data={items}

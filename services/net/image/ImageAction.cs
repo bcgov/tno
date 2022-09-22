@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka;
@@ -12,6 +12,7 @@ using TNO.Services.Actions.Managers;
 using TNO.Services.Image.Config;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
+using TNO.Core.Exceptions;
 
 namespace TNO.Services.Image;
 
@@ -67,16 +68,28 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+        this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
+
+        // Extract the ingest configuration settings.
+        var inputFileCode = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("code")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("code");
+        if (String.IsNullOrWhiteSpace(inputFileCode)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'code'.");
+
+        // TODO: Handle different remote connections.
         // TODO: create new account to access server
-        var username = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("username")) ? this.Options.Username : manager.DataSource.GetConnectionValue("username");
-        var filename = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("filename")) ? this.Options.PrivateKeyFileName : manager.DataSource.GetConnectionValue("filename");
-        var hostname = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("hostname")) ? this.Options.HostName : manager.DataSource.GetConnectionValue("hostname");
-        var mountPath = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputpath")) ? this.Options.InputPath : GetInputPath(manager.DataSource);
-        var inputFileCode = String.IsNullOrEmpty(manager.DataSource.GetConnectionValue("inputfilecode")) ? manager.DataSource.Code: manager.DataSource.GetConnectionValue("inputfilecode");
-        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, filename);
+        // Extract the source connection configuration settings.
+        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
+        var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
+        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
+        var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
+        if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
+        if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
+        if (String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'.");
+        if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
+
+        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+
         if (File.Exists(sshKeyFile))
         {
             var keyFile = new PrivateKeyFile(sshKeyFile);
@@ -85,106 +98,84 @@ public class ImageAction : IngestAction<ImageOptions>
             var connectionInfo = new ConnectionInfo(hostname,
                                                     username,
                                                     new PrivateKeyAuthenticationMethod(username, keyFiles));
-            try
+            using var client = new SftpClient(connectionInfo);
+            client.Connect();
+
+            var files = await FetchImage(client, remotePath);
+            files = files.Where(f => f.Name.Contains(inputFileCode));
+
+            foreach (var file in files)
             {
-                using (var client = new SftpClient(connectionInfo))
+                var content = CreateContentReference(manager.Ingest, file.Name);
+                var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
+
+                var sendMessage = manager.Ingest.PostToKafka();
+                if (reference == null)
                 {
-                    client.Connect();
+                    reference = await this.Api.AddContentReferenceAsync(content);
+                }
+                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                {
+                    // If another process has it in progress only attempt to do an import if it's
+                    // more than an 2 minutes old. Assumption is that it is stuck.
+                    reference = await this.Api.UpdateContentReferenceAsync(reference);
+                }
+                else sendMessage = false;
 
-                    var files = await FetchImage(client, mountPath);
-                    files = files.Where(f => ((f.Name.Contains(inputFileCode))));
+                if (reference != null)
+                {
+                    await CopyImage(client, manager.Ingest, Path.Combine(remotePath, file.Name));
 
-                    foreach (var file in files)
+                    if (sendMessage)
                     {
-                        var content = CreateContentReference(manager.DataSource, file.Name);
-                        var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
-
-                        // Frontpage Content Type ID 4
-                        var sendMessage = manager.DataSource.ContentTypeId == 4;
-
-                        if (reference == null)
-                        {
-                            reference = await this.Api.AddContentReferenceAsync(content);
-                        }
-                        else if (reference.WorkflowStatus == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
-                        {
-                            // If another process has it in progress only attempt to do an import if it's
-                            // more than an 2 minutes old. Assumption is that it is stuck.
-                            reference = await this.Api.UpdateContentReferenceAsync(reference);
-                        }
-                        else sendMessage = false;
-
-                        if (reference != null)
-                        {
-                            await CopyImage(client, manager.DataSource, file.Name);
-
-                            if (sendMessage)
-                            {
-                                var messageResult = await SendMessageAsync(manager.DataSource, reference);
-                                reference.Partition = messageResult.Partition;
-                                reference.Offset = messageResult.Offset;
-                            }
-
-                            reference.WorkflowStatus = (int)WorkflowStatus.Received;
-                            await this.Api.UpdateContentReferenceAsync(reference);
-                        }
+                        var messageResult = await SendMessageAsync(manager.Ingest, reference);
+                        reference.Partition = messageResult.Partition;
+                        reference.Offset = messageResult.Offset;
                     }
 
-                    client.Disconnect();
-
+                    reference.Status = (int)WorkflowStatus.Received;
+                    await this.Api.UpdateContentReferenceAsync(reference);
                 }
             }
-            catch (Exception e)
-            {
-                this.Logger.LogError(e.Message);
-            }
+
+            client.Disconnect();
         }
         else
         {
-            this.Logger.LogError("SSH Private key file does not exist: " + sshKeyFile);
+            this.Logger.LogError("SSH Private key file does not exist: {file}", sshKeyFile);
         }
 
     }
 
     /// <summary>
-    /// Remove the configured mapping path.
-    /// Any pods which need access to this file will need to know the original mapping path.
+    /// Get the output path to store the file.
     /// </summary>
-    /// <param name="path"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    private string GetFilePath(string path)
+    protected string GetOutputPath(IngestModel ingest)
     {
-        return path.ReplaceFirst($"{this.Options.OutputPath}{Path.DirectorySeparatorChar}", "")!;
+        // TODO: Handle different destination connections.
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd/}");
     }
 
     /// <summary>
-    /// Get the output path to store the file.
+    /// Get the path to the source file.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    protected string GetOutputPath(DataSourceModel dataSource)
+    protected string GetInputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.OutputPath, $"{dataSource.Code}/{GetLocalDateTime(dataSource, DateTime.Now):yyyy-MM-dd/}");
-    }
-
-    /// <summary>
-    /// Get the output path to store the file.
-    /// </summary>
-    /// <param name="dataSource"></param>
-    /// <returns></returns>
-    protected string GetInputPath(DataSourceModel dataSource)
-    {
-        return Path.Combine(dataSource.GetConnectionValue("inputpath"), $"{GetLocalDateTime(dataSource, DateTime.Now):yyyy/MM/dd/}");
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", $"{GetLocalDateTime(ingest, DateTime.Now):yyyy/MM/dd/}");
     }
 
 
     /// <summary>
     /// Fetch the image from the remote data source based on configuration.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private async Task<IEnumerable<SftpFile>> FetchImage(SftpClient client, string remoteFullName)
+    private static async Task<IEnumerable<SftpFile>> FetchImage(SftpClient client, string remoteFullName)
     {
         // TODO: use private keys in ./keys folder to connect to remote data source.
         // TODO: Fetch image from source data location.  Only continue if the image exists.
@@ -196,10 +187,10 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <summary>
     /// Perform image processing based on configuration.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    private Task ProcessImage(DataSourceModel dataSource)
+    private Task ProcessImage(IngestModel ingest)
     {
         // TODO: Process Image based on configuration.
         throw new NotImplementedException();
@@ -210,67 +201,64 @@ public class ImageAction : IngestAction<ImageOptions>
     /// Copy image from image server
     /// </summary>
     /// <param name="client"></param>
-    /// <param name="dataSource"></param>
-    /// <param name="fileName"></param>
+    /// <param name="ingest"></param>
+    /// <param name="pathToFile"></param>
     /// <returns></returns>
-    private async Task CopyImage(SftpClient client, DataSourceModel dataSource, string fileName)
+    private async Task CopyImage(SftpClient client, IngestModel ingest, string pathToFile)
     {
         // Copy image to destination data location.
         // TODO: Eventually handle different destination data locations based on config.
-        var inputPath = GetInputPath(dataSource);
-        var inputFile = Path.Combine(inputPath, fileName);
-        var outputPath = GetOutputPath(dataSource);
+        var outputPath = GetOutputPath(ingest);
+        var fileName = Path.GetFileName(pathToFile);
         var outputFile = Path.Combine(outputPath, fileName);
-        var inputFileCode = String.IsNullOrEmpty(dataSource.GetConnectionValue("inputfilecode")) ? dataSource.Code : dataSource.GetConnectionValue("inputfilecode");
 
-        if (!System.IO.File.Exists(outputFile) && fileName.Contains(inputFileCode))
+        if (!System.IO.File.Exists(outputFile))
         {
             if (!Directory.Exists(outputPath))
             {
                 Directory.CreateDirectory(outputPath);
             }
-            using (var saveFile = File.OpenWrite(outputFile))
-            {
-                var task = Task.Factory.FromAsync(client.BeginDownloadFile(inputFile, saveFile), client.EndDownloadFile);
-                await task;
-            }
+            using var saveFile = File.OpenWrite(outputFile);
+            var task = Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
+            await task;
         }
     }
 
     /// <summary>
     /// Create a content reference for this clip.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    private ContentReferenceModel CreateContentReference(DataSourceModel dataSource, string filename)
+    private ContentReferenceModel CreateContentReference(IngestModel ingest, string filename)
     {
-        var today = GetLocalDateTime(dataSource, DateTime.UtcNow);
+        var today = GetLocalDateTime(ingest, DateTime.UtcNow);
         var publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, DateTimeKind.Local);
         return new ContentReferenceModel()
         {
-            Source = dataSource.Code,
+            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
             Uid = $"{filename}",
             PublishedOn = publishedOn.ToUniversalTime(),
-            Topic = dataSource.Topic,
-            WorkflowStatus = (int)WorkflowStatus.InProgress
+            Topic = ingest.Topic,
+            Status = (int)WorkflowStatus.InProgress
         };
     }
 
     /// <summary>
     /// Send message to kafka with new source content.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(DataSourceModel dataSource, ContentReferenceModel reference)
+    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(IngestModel ingest, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
-        var content = new SourceContent(SourceMediaType.Image, reference.Source, reference.Uid, $"{dataSource.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
+        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{ingest.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
         {
-            StreamUrl = dataSource.Parent?.GetConnectionValue("url") ?? "",
-            FilePath = Path.Combine(GetOutputPath(dataSource), reference.Uid),
-            Language = dataSource.Parent?.GetConnectionValue("language") ?? ""
+            StreamUrl = ingest.GetConfigurationValue("url") ?? "",
+            FilePath = Path.Combine(GetOutputPath(ingest), reference.Uid),
+            Language = ingest.GetConfigurationValue("language") ?? ""
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
@@ -280,12 +268,12 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <summary>
     /// Only return schedules that have passed and are within the 'ScheduleLimiter' configuration setting.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    protected IEnumerable<ScheduleModel> GetSchedules(DataSourceModel dataSource)
+    protected IEnumerable<ScheduleModel> GetSchedules(IngestModel ingest)
     {
-        var now = GetLocalDateTime(dataSource, DateTime.UtcNow).TimeOfDay;
-        return dataSource.DataSourceSchedules.Where(s =>
+        var now = GetLocalDateTime(ingest, DateTime.UtcNow).TimeOfDay;
+        return ingest.IngestSchedules.Where(s =>
             s.Schedule != null &&
             s.Schedule.StopAt != null &&
             s.Schedule.StopAt.Value <= now
@@ -296,12 +284,12 @@ public class ImageAction : IngestAction<ImageOptions>
     /// Convert to timezone and return as local.
     /// Dates should be stored in the timezone of the data source.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="date"></param>
     /// <returns></returns>
-    protected DateTime GetLocalDateTime(DataSourceModel dataSource, DateTime date)
+    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
     {
-        return date.ToTimeZone(DataSourceIngestManager<ImageOptions>.GetTimeZone(dataSource, this.Options.TimeZone));
+        return date.ToTimeZone(IngestActionManager<ImageOptions>.GetTimeZone(ingest, this.Options.TimeZone));
     }
 
     #endregion

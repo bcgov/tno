@@ -6,6 +6,11 @@ namespace TNO.Entities;
 public enum ScheduleType
 {
     /// <summary>
+    /// This schedule does not run.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// Continually runs.
     /// </summary>
     Continuous = 1,

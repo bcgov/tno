@@ -22,19 +22,24 @@ public class ContentModel : AuditColumnsModel
     public ContentStatus Status { get; set; } = ContentStatus.Draft;
 
     /// <summary>
-    /// get/set - The workflow status of the content.
+    /// get/set - The type of content and form to use.
     /// </summary>
-    public WorkflowStatus WorkflowStatus { get; set; } = WorkflowStatus.InProgress;
+    public ContentType ContentType { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to content type.
+    /// get/set - Foreign key to source.
     /// </summary>
-    public int ContentTypeId { get; set; }
+    public int? SourceId { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to media type.
+    /// get/set - The id of the source.
     /// </summary>
-    public int MediaTypeId { get; set; }
+    public string OtherSource { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Foreign key to product.
+    /// </summary>
+    public int ProductId { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
@@ -55,16 +60,6 @@ public class ContentModel : AuditColumnsModel
     /// get/set - Foreign key to user who owns the content.
     /// </summary>
     public int? OwnerId { get; set; }
-
-    /// <summary>
-    /// get/set - Foreign key to data source.
-    /// </summary>
-    public int? DataSourceId { get; set; }
-
-    /// <summary>
-    /// get/set - The id of the source.
-    /// </summary>
-    public string Source { get; set; } = "";
 
     /// <summary>
     /// get/set - The headline.
@@ -152,14 +147,13 @@ public class ContentModel : AuditColumnsModel
     {
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
         this.Status = entity.Status;
-        this.WorkflowStatus = entity.WorkflowStatus;
-        this.ContentTypeId = entity.ContentTypeId;
-        this.MediaTypeId = entity.MediaTypeId;
+        this.ContentType = entity.ContentType;
+        this.SourceId = entity.SourceId;
+        this.OtherSource = entity.OtherSource;
+        this.ProductId = entity.ProductId;
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.OwnerId = entity.OwnerId;
-        this.DataSourceId = entity.DataSourceId;
-        this.Source = entity.Source;
         this.Headline = entity.Headline;
         this.Uid = entity.Uid;
         this.Page = entity.Page;
@@ -184,11 +178,10 @@ public class ContentModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Content(ContentModel model)
     {
-        var entity = new Entities.Content(model.Uid, model.Headline, model.Source, model.DataSourceId, model.ContentTypeId, model.MediaTypeId, model.LicenseId, model.OwnerId)
+        var entity = new Entities.Content(model.Uid, model.Headline, model.OtherSource, model.SourceId, model.ContentType, model.LicenseId, model.ProductId, model.OwnerId)
         {
             Id = model.Id,
             Status = model.Status,
-            WorkflowStatus = model.WorkflowStatus,
             SeriesId = model.SeriesId,
             Page = model.Page,
             PublishedOn = model.PublishedOn,

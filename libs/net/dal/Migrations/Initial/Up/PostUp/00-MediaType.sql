@@ -4,133 +4,88 @@ BEGIN
 
 INSERT INTO public.media_type (
   "name"
+  , "description"
   , "is_enabled"
+  , "content_type"
+  , "auto_transcribe"
+  , "disable_transcribe"
   , "created_by_id"
   , "created_by"
   , "updated_by_id"
   , "updated_by"
 ) VALUES (
   'Syndication' -- 1
-  , true
+  , 'RSS/ATOM feeds from newswire services such as Castanet and CP News'
+  , true -- is_enabled
+  , 3 -- content_type - Story
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Television' -- 2
-  , true
+  'Audio' -- 2
+  , 'Audio streams, or files such as talk shows/commentary focused on #BCPolicy'
+  , true -- is_enabled
+  , 0 -- content_type - Snippet
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Talk Radio' -- 3
-  , true
+  'Video' -- 3
+  , 'Video streams, or files including 15 television stations'
+  , true -- is_enabled
+  , 0 -- content_type - Snippet
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'News Radio' -- 4
-  , true
+  'Image' -- 4
+  , 'Front pages from newspapers, and Screenshot from the Corporate Calendar Look Ahead Report'
+  , true -- is_enabled
+  , 2 -- content_type - Image
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'CC News' -- 5
-  , true
+  'Paper' -- 5
+  , 'Text files from newspapers, 2 national dailies, 11 provincial dailies'
+  , true -- is_enabled
+  , 1 -- content_type - Print Content
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'CP News' -- 6
-  , true
+  'HTML' -- 6
+  , 'Webpage scraping for news'
+  , true -- is_enabled
+  , 3 -- content_type - Story
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'XML' -- 7
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Regional' -- 8
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Social Media' -- 9
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'AV Archive' -- 10
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Today''s Edition' -- 11
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Transcript' -- 12
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Scrum' -- 13
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Webcast' -- 14
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'HTML' -- 15
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Image' -- 16
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Newspaper' -- 17
-  , true
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Internet' -- 18
-  , true
+  'Social Media' -- 7
+  , 'Social media platforms such as Twitter, Facebook'
+  , true -- is_enabled
+  , 3 -- content_type - Story
+  , false -- auto_transcribe
+  , false -- disable_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

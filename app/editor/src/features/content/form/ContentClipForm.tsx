@@ -42,7 +42,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   // TODO: Hardcoding the folder location isn't ideal as the API may be configured differently.
-  const defaultPath = `/clip/${content.source}`;
+  const defaultPath = `/clip/${content.otherSource}`;
   const [path, setPath] = React.useState(initPath ?? defaultPath);
   const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
   const [streamUrl, setStreamUrl] = React.useState<string>();

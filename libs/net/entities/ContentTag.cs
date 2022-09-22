@@ -2,18 +2,33 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNO.Entities;
 
+/// <summary>
+/// ContentTag class, provides an entity model that links (many-to-many) content with tags.
+/// </summary>
 [Table("content_tag")]
 public class ContentTag : AuditColumns, IEquatable<ContentTag>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Primary key and foreign key to content.
+    /// </summary>
     [Column("content_id")]
     public long ContentId { get; set; }
 
+    /// <summary>
+    /// get/set - The content.
+    /// </summary>
     public virtual Content? Content { get; set; }
 
+    /// <summary>
+    /// get/set - Primary key and foreign key to the tag.
+    /// </summary>
     [Column("tag_id")]
     public string TagId { get; set; } = "";
 
+    /// <summary>
+    /// get/set - The tag.
+    /// </summary>
     public Tag? Tag { get; set; }
     #endregion
 

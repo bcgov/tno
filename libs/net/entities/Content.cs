@@ -24,33 +24,27 @@ public class Content : AuditColumns
     public ContentStatus Status { get; set; }
 
     /// <summary>
-    /// get/set - The workflow status.
-    /// TODO: I think this can be removed, but I need to double check.
+    /// get/set - Identifies the type of content and the form to use.
     /// </summary>
-    [Column("workflow_status")]
-    public WorkflowStatus WorkflowStatus { get; set; }
+    [Column("content_type")]
+    public ContentType ContentType { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to the content type.
+    /// get/set - Foreign key to the source.
     /// </summary>
-    [Column("content_type_id")]
-    public int ContentTypeId { get; set; }
+    [Column("source_id")]
+    public int? SourceId { get; set; }
 
     /// <summary>
-    /// get/set - Content type of this story.  Is used to control which form to use.
+    /// get/set - The source of the story.
     /// </summary>
-    public virtual ContentType? ContentType { get; set; }
+    public virtual Source? Source { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to the media type.
+    /// get/set - The source code to identify the publisher.
     /// </summary>
-    [Column("media_type_id")]
-    public int MediaTypeId { get; set; }
-
-    /// <summary>
-    /// get/set - The media type of this story.
-    /// </summary>
-    public virtual MediaType? MediaType { get; set; }
+    [Column("source")]
+    public string OtherSource { get; set; } = "";
 
     /// <summary>
     /// get/set - The foreign key to the license.
@@ -62,6 +56,17 @@ public class Content : AuditColumns
     /// get/set - The license to apply to this story.
     /// </summary>
     public virtual License? License { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to the product.
+    /// </summary>
+    [Column("product_id")]
+    public int ProductId { get; set; }
+
+    /// <summary>
+    /// get/set - The product this content will be placed in.
+    /// </summary>
+    public virtual Product? Product { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to the series.
@@ -84,23 +89,6 @@ public class Content : AuditColumns
     /// get/set - The owner of the story.  Or the user responsible for it.
     /// </summary>
     public virtual User? Owner { get; set; }
-
-    /// <summary>
-    /// get/set - Foreign key to the data source.
-    /// </summary>
-    [Column("data_source_id")]
-    public int? DataSourceId { get; set; }
-
-    /// <summary>
-    /// get/set - The data source of the story.
-    /// </summary>
-    public virtual DataSource? DataSource { get; set; }
-
-    /// <summary>
-    /// get/set - The source code to identify the publisher.
-    /// </summary>
-    [Column("source")]
-    public string Source { get; set; } = "";
 
     /// <summary>
     /// get/set - Story headline.
@@ -222,109 +210,145 @@ public class Content : AuditColumns
     protected Content() { }
 
     /// <summary>
-    /// Creates a new instance of a Content object, initialises with specified parameters.
+    /// Creates a new instance of a Content object, initializes with specified parameters.
     /// </summary>
     /// <param name="uid"></param>
     /// <param name="headline"></param>
-    /// <param name="source"></param>
     /// <param name="contentType"></param>
-    /// <param name="mediaType"></param>
     /// <param name="license"></param>
+    /// <param name="product"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string source, ContentType contentType, MediaType mediaType, License license, User? owner = null)
+    private Content(string uid, string headline, ContentType contentType, License license, Product product, User? owner = null)
     {
         if (String.IsNullOrWhiteSpace(headline)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(headline));
-        if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
 
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Headline = headline;
-        this.Source = source;
-        this.ContentTypeId = contentType?.Id ?? throw new ArgumentNullException(nameof(contentType));
         this.ContentType = contentType;
-        this.MediaTypeId = mediaType?.Id ?? throw new ArgumentNullException(nameof(mediaType));
-        this.MediaType = mediaType;
         this.LicenseId = license?.Id ?? throw new ArgumentNullException(nameof(license));
         this.License = license;
+        this.ProductId = product?.Id ?? throw new ArgumentNullException(nameof(product));
+        this.Product = product;
         this.OwnerId = owner?.Id;
         this.Owner = owner;
     }
 
     /// <summary>
-    /// Creates a new instance of a Content object, initialises with specified parameters.
+    /// Creates a new instance of a Content object, initializes with specified parameters.
     /// </summary>
     /// <param name="uid"></param>
     /// <param name="headline"></param>
     /// <param name="source"></param>
-    /// <param name="contentTypeId"></param>
-    /// <param name="mediaTypeId"></param>
+    /// <param name="contentType"></param>
+    /// <param name="license"></param>
+    /// <param name="product"></param>
+    /// <param name="owner"></param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, string source, ContentType contentType, License license, Product product, User? owner = null)
+        : this(uid, headline, contentType, license, product, owner)
+    {
+        if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
+
+        this.OtherSource = source;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Content object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="headline"></param>
+    /// <param name="contentType"></param>
     /// <param name="licenseId"></param>
+    /// <param name="productId"></param>
     /// <param name="ownerId"></param>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string source, int contentTypeId, int mediaTypeId, int licenseId, int? ownerId = null)
+    private Content(string uid, string headline, ContentType contentType, int licenseId, int productId, int? ownerId = null)
     {
         if (String.IsNullOrWhiteSpace(headline)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(headline));
-        if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
 
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Headline = headline;
-        this.Source = source;
-        this.ContentTypeId = contentTypeId;
-        this.MediaTypeId = mediaTypeId;
+        this.ContentType = contentType;
         this.LicenseId = licenseId;
+        this.ProductId = productId;
         this.OwnerId = ownerId;
     }
 
     /// <summary>
-    /// Creates a new instance of a Content object, initialises with specified parameters.
-    /// </summary>
-    /// <param name="uid"></param>
-    /// <param name="headline"></param>
-    /// <param name="dataSource"></param>
-    /// <param name="contentType"></param>
-    /// <param name="mediaType"></param>
-    /// <param name="license"></param>
-    /// <param name="owner"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, DataSource dataSource, ContentType contentType, MediaType mediaType, License license, User? owner = null) : this(uid, headline, dataSource.Code, contentType, mediaType, license, owner)
-    {
-        this.DataSourceId = dataSource?.Id ?? throw new ArgumentNullException(nameof(dataSource));
-        this.DataSource = dataSource;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a Content object, initialises with specified parameters.
-    /// </summary>
-    /// <param name="uid"></param>
-    /// <param name="headline"></param>
-    /// <param name="dataSource"></param>
-    /// <param name="contentTypeId"></param>
-    /// <param name="mediaTypeId"></param>
-    /// <param name="licenseId"></param>
-    /// <param name="ownerId"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, DataSource dataSource, int contentTypeId, int mediaTypeId, int licenseId, int? ownerId = null) : this(uid, headline, dataSource.Code, contentTypeId, mediaTypeId, licenseId, ownerId)
-    {
-        this.DataSourceId = dataSource?.Id ?? throw new ArgumentNullException(nameof(dataSource));
-        this.DataSource = dataSource;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a Content object, initialises with specified parameters.
+    /// Creates a new instance of a Content object, initializes with specified parameters.
     /// </summary>
     /// <param name="uid"></param>
     /// <param name="headline"></param>
     /// <param name="source"></param>
-    /// <param name="dataSourceId"></param>
-    /// <param name="contentTypeId"></param>
-    /// <param name="mediaTypeId"></param>
+    /// <param name="contentType"></param>
     /// <param name="licenseId"></param>
+    /// <param name="productId"></param>
     /// <param name="ownerId"></param>
-    public Content(string uid, string headline, string source, int? dataSourceId, int contentTypeId, int mediaTypeId, int licenseId, int? ownerId = null) : this(uid, headline, source, contentTypeId, mediaTypeId, licenseId, ownerId)
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, string source, ContentType contentType, int licenseId, int productId, int? ownerId = null)
+        : this(uid, headline, contentType, licenseId, productId, ownerId)
     {
-        this.DataSourceId = dataSourceId;
+        if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(source));
+
+        this.OtherSource = source;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Content object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="headline"></param>
+    /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="license"></param>
+    /// <param name="product"></param>
+    /// <param name="owner"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, Source source, ContentType contentType, License license, Product product, User? owner = null) : this(uid, headline, contentType, license, product, owner)
+    {
+        this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
+        this.Source = source;
+        this.OtherSource = source.Code;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Content object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="headline"></param>
+    /// <param name="otherSource"></param>
+    /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="license"></param>
+    /// <param name="product"></param>
+    /// <param name="owner"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null) : this(uid, headline, otherSource, contentType, license, product, owner)
+    {
+        this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
+        this.Source = source;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Content object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="headline"></param>
+    /// <param name="otherSource"></param>
+    /// <param name="sourceId"></param>
+    /// <param name="contentType"></param>
+    /// <param name="licenseId"></param>
+    /// <param name="productId"></param>
+    /// <param name="ownerId"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int productId, int? ownerId = null) : this(uid, headline, otherSource, contentType, licenseId, productId, ownerId)
+    {
+        this.SourceId = sourceId;
     }
     #endregion
 }

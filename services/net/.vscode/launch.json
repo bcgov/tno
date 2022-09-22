@@ -163,7 +163,7 @@
       "request": "launch",
       "preLaunchTask": "build-filemonitor",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/filemonitor/bin/Debug/net6.0/TNO.Services.Filemonitor.dll",
+      "program": "${workspaceFolder}/filemonitor/bin/Debug/net6.0/TNO.Services.FileMonitor.dll",
       "args": [],
       "cwd": "${workspaceFolder}/filemonitor",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

@@ -1,50 +1,90 @@
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 
 namespace TNO.Services;
 
 /// <summary>
-/// IApiService interface, provides a way to interace with the API.
+/// IApiService interface, provides a way to interact with the API.
 /// </summary>
 public interface IApiService
 {
+    #region Lookups
     /// <summary>
-    /// Make an AJAX request to the api to fetch all data sources.
+    /// Make an AJAX request to the api to get the lookups.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync();
+    public Task<LookupModel?> GetLookupsAsync();
+    #endregion
 
+    #region Sources
     /// <summary>
-    /// Make an AJAX request to the api to fetch data sources for the specified media type.
+    /// Make an AJAX request to the api to fetch all sources.
     /// </summary>
-    /// <param name="mediaType"></param>
     /// <returns></returns>
-    public Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync(string mediaType);
+    public Task<IEnumerable<SourceModel>> GetSourcesAsync();
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch the data source for the specified 'code'.
+    /// Make an AJAX request to the api to fetch the sources for the specified 'code'.
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public Task<DataSourceModel?> GetDataSourceAsync(string code);
+    public Task<SourceModel?> GetSourceForCodeAsync(string code);
+    #endregion
 
+    #region Connections
+    /// <summary>
+    /// Make an AJAX request to the api to get the connection.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<ConnectionModel?> GetConnectionAsync(int id);
+    #endregion
+
+    #region Ingests
+    /// <summary>
+    /// Make an AJAX request to the api to fetch the ingest for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<IngestModel?> GetIngestAsync(int id);
+
+    /// <summary>
+    /// Make an AJAX request to the api to fetch all ingests.
+    /// </summary>
+    /// <returns></returns>
+    public Task<IEnumerable<IngestModel>> GetIngestsAsync();
+
+    /// <summary>
+    /// Make an AJAX request to the api to fetch ingests for the specified media type.
+    /// </summary>
+    /// <param name="mediaType"></param>
+    /// <returns></returns>
+    public Task<IEnumerable<IngestModel>> GetIngestsForMediaTypeAsync(string mediaType);
+
+    /// <summary>
+    /// Make an AJAX request to the api to fetch the ingest for the specified 'topic'.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <returns></returns>
+    public Task<IEnumerable<IngestModel>> GetIngestsForTopicAsync(string topic);
+    #endregion
+
+    #region Contents
     /// <summary>
     /// Make an AJAX request to the api to update the content for the specified ContentModel.
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     public Task<ContentModel?> UpdateContentAsync(ContentModel content);
 
     /// <summary>
-    /// Make an AJAX request to the api to update the data source.
+    /// Make an AJAX request to the api to update the ingest.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    public Task<DataSourceModel?> UpdateDataSourceAsync(DataSourceModel dataSource);
+    public Task<IngestModel?> UpdateIngestAsync(IngestModel ingest);
 
     /// <summary>
     /// Make an AJAX request to the api to find the content reference for the specified key.
@@ -86,12 +126,6 @@ public interface IApiService
     Task<ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName);
 
     /// <summary>
-    /// Make an AJAX request to the api to get the lookups.
-    /// </summary>
-    /// <returns></returns>
-    public Task<LookupModel?> GetLookupsAsync();
-
-    /// <summary>
     /// Make an AJAX request to the api to find the specified content.
     /// </summary>
     /// <param name="uid"></param>
@@ -105,4 +139,5 @@ public interface IApiService
     /// <param name="id"></param>
     /// <returns></returns>
     Task<ContentModel?> FindContentByIdAsync(long id);
+    #endregion
 }

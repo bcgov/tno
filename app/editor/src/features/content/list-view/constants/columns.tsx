@@ -6,29 +6,30 @@ import { formatIdirUsername } from 'utils/formatIdir';
 export const columns = (minimize: boolean = false) => {
   const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
     {
-      id: 'headline',
+      id: 'id',
       Header: 'Headline',
       accessor: 'headline',
+      width: 5,
       Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
     },
     {
-      id: 'source',
+      id: 'otherSource',
       Header: 'Source',
-      maxWidth: 40,
-      accessor: 'source',
+      width: 1,
+      accessor: 'otherSource',
       Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
     },
     {
-      id: 'mediaType',
+      id: 'productId',
       Header: 'Type',
-      maxWidth: 50,
-      accessor: (row) => row.mediaType?.name,
+      width: 2,
+      accessor: (row) => row.product?.name,
       Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
     },
     {
-      id: 'section',
-      Header: 'Section/Page',
-      maxWidth: 50,
+      id: 'page',
+      Header: 'Section Page',
+      width: 1,
       accessor: (row) =>
         row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
       Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
@@ -36,7 +37,7 @@ export const columns = (minimize: boolean = false) => {
     {
       id: 'publishedOn',
       Header: 'Pub Date',
-      maxWidth: 40,
+      width: 1,
       accessor: (row) => row.publishedOn ?? row.createdOn,
       Cell: ({ value }: any) => <Date value={value} />,
     },
@@ -44,7 +45,7 @@ export const columns = (minimize: boolean = false) => {
       id: 'use',
       Header: 'Use',
       disableSortBy: true,
-      maxWidth: 20,
+      width: 1,
       accessor: (row) =>
         row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
       Cell: ({ value }: { value: boolean }) => {
@@ -57,14 +58,14 @@ export const columns = (minimize: boolean = false) => {
     columns.splice(4, 0, {
       id: 'ownerId',
       Header: 'Username',
-      maxWidth: 80,
+      width: 1,
       accessor: (row) => row.owner?.displayName,
       Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
     });
     columns.splice(5, 0, {
       id: 'status',
       Header: 'Status',
-      maxWidth: 50,
+      width: 1,
       accessor: (row) => row.status,
     });
   }

@@ -22,7 +22,7 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int WorkflowStatus { get; set; }
+    public int Status { get; set; }
 
     /// <summary>
     /// get/set -
@@ -64,7 +64,7 @@ public class ContentReferenceModel : AuditColumnsModel
     {
         this.Source = entity.Source;
         this.Uid = entity.Uid;
-        this.WorkflowStatus = (int)entity.WorkflowStatus;
+        this.Status = (int)entity.Status;
         this.Topic = entity.Topic;
         this.Offset = entity.Offset;
         this.Partition = entity.Partition;
@@ -90,7 +90,7 @@ public class ContentReferenceModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.ContentReference(ContentReferenceModel model)
     {
-        var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, model.Offset, model.Partition, (WorkflowStatus)Enum.ToObject(typeof(WorkflowStatus), model.WorkflowStatus))
+        var entity = new Entities.ContentReference(model.Source, model.Uid, model.Topic, model.Offset, model.Partition, (WorkflowStatus)Enum.ToObject(typeof(WorkflowStatus), model.Status))
         {
             PublishedOn = model.PublishedOn,
             SourceUpdateOn = model.SourceUpdateOn,

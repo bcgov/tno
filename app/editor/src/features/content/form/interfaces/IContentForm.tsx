@@ -1,6 +1,7 @@
 import { IOptionItem } from 'components/form';
 import {
   ContentStatusName,
+  ContentTypeName,
   IContentActionModel,
   IContentCategoryModel,
   IContentLabelModel,
@@ -9,7 +10,6 @@ import {
   IContentTonePoolModel,
   IFileReferenceModel,
   ITimeTrackingModel,
-  WorkflowStatusName,
 } from 'hooks/api-editor';
 
 export interface IContentForm {
@@ -18,19 +18,18 @@ export interface IContentForm {
   sourceUrl: string;
   headline: string;
   status: ContentStatusName;
-  workflowStatus: WorkflowStatusName;
+  contentType: ContentTypeName;
   ownerId: number | '';
-  contentTypeId: number;
-  mediaTypeId: number;
+  productId: number;
   licenseId: number;
-  dataSourceId?: number;
-  source: string;
+  sourceId?: number;
   otherSource: string;
+  tempSource: string;
   seriesId?: number;
   otherSeries: string;
   page: string;
   summary: string;
-  transcription: string;
+  body: string;
   actions: IContentActionModel[];
   categories: IContentCategoryModel[];
   tags: IContentTagModel[];

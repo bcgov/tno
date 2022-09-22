@@ -37,7 +37,7 @@ public class ImageService : IngestService
         services
             .Configure<ImageOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<ImageOptions>, ImageAction>()
-            .AddTransient<DataSourceIngestManagerFactory<ImageDataSourceManager, ImageOptions>>()
+            .AddTransient<IngestManagerFactory<ImageIngestActionManager, ImageOptions>>()
             .AddSingleton<IServiceManager, ImageManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

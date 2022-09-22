@@ -13,7 +13,7 @@ import { toModel } from './utils';
  */
 export const ContentTranscriptForm: React.FC = () => {
   const [, { transcribe, nlp }] = useContent();
-  const { values, setFieldValue, isSubmitting } = useFormikContext<IContentForm>();
+  const { values, isSubmitting } = useFormikContext<IContentForm>();
 
   const handleTranscribe = async (values: IContentForm) => {
     await transcribe(toModel(values));
@@ -45,12 +45,7 @@ export const ContentTranscriptForm: React.FC = () => {
           NLP
         </Button>
       </Show>
-      <FormikTextArea
-        name="transcription"
-        label="Transcript"
-        value={values.transcription}
-        onChange={(e: any) => setFieldValue('transcription', e.target.value)}
-      />
+      <FormikTextArea name="body" label="Transcript" value={values.body} />
     </styled.ContentTranscriptForm>
   );
 };

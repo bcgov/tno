@@ -27,44 +27,63 @@ export const NavBar: React.FC = () => {
               claim={Claim.administrator}
             />
           </div>
+          <div className="report" onMouseOver={() => setActiveHover('report')}>
+            <NavBarItem
+              activeHoverTab={activeHover}
+              navigateTo="/reports"
+              label="Reports"
+              claim={Claim.administrator}
+            />
+          </div>
         </Row>
       </NavBarGroup>
       <NavBarGroup hover className="navbar">
         <Row hidden={!activeHover}>
+          {/* Editor */}
           <Show visible={activeHover === 'editor'}>
             <NavBarItem navigateTo="/contents" label="Snippets" claim={Claim.editor} />
             <NavBarItem navigateTo="/storage" label="Storage" claim={Claim.editor} />
-          </Show>
-          <Show visible={activeHover === 'admin'}>
-            <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
             <NavBarItem
-              navigateTo="/admin/data/sources"
-              label="Sources"
-              claim={Claim.administrator}
-            />
-            <NavBarItem
-              navigateTo="/admin/media/types"
-              label="Media Types"
-              claim={Claim.administrator}
-            />
-            <NavBarItem
-              navigateTo="/admin/reports/cbra"
-              label="CBRA Report"
-              claim={Claim.administrator}
-            />
-            <NavBarItem
-              navigateTo="/admin/contents/log"
+              navigateTo="/contents/log"
               label="Linked Snippet Log"
               claim={Claim.administrator}
             />
+          </Show>
+
+          {/* Admin */}
+          <Show visible={activeHover === 'admin'}>
+            <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
+            <NavBarItem navigateTo="/admin/sources" label="Sources" claim={Claim.administrator} />
+            <NavBarItem navigateTo="/admin/products" label="Products" claim={Claim.administrator} />
+            <NavBarItem navigateTo="/admin/series" label="Series" claim={Claim.administrator} />
             <NavBarItem
               navigateTo="/admin/categories"
               label="Categories"
               claim={Claim.administrator}
             />
             <NavBarItem navigateTo="/admin/tags" label="Tags" claim={Claim.administrator} />
+            <NavBarItem navigateTo="/admin/licenses" label="Licenses" claim={Claim.administrator} />
             <NavBarItem navigateTo="/admin/actions" label="Actions" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/series" label="Series" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/media/types"
+              label="Media Types"
+              claim={Claim.administrator}
+            />
+            <NavBarItem
+              navigateTo="/admin/connections"
+              label="Connections"
+              claim={Claim.administrator}
+            />
+            <NavBarItem navigateTo="/admin/ingests" label="Ingest" claim={Claim.administrator} />
+          </Show>
+
+          {/* Reports */}
+          <Show visible={activeHover === 'report'}>
+            <NavBarItem
+              navigateTo="/reports/cbra"
+              label="CBRA Report"
+              claim={Claim.administrator}
+            />
           </Show>
         </Row>
       </NavBarGroup>

@@ -9,16 +9,19 @@ export const columns: (Column<IMediaTypeModel> &
     id: 'id',
     Header: 'Name',
     accessor: 'name',
+    width: 2,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Description',
     accessor: 'description',
+    width: 7,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Enabled',
     accessor: 'isEnabled',
+    width: 1,
     Cell: (cell) => <Checkbox checked={cell.value} />,
   },
 ];

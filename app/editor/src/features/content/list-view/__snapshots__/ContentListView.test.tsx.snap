@@ -3,42 +3,42 @@
 exports[`renders correctly... 1`] = `
 <div>
   <div
-    class="sc-jfmDQi cdzMQf"
+    class="sc-olbas hSASDJ"
   >
     <div
-      class="sc-bczRLJ jlavgA form-page"
+      class="sc-ikZpkk bbAqvH form-page"
     >
       <div
-        class="sc-ftvSup fxxjnN"
+        class="sc-iBkjds aKHRi"
         direction="row"
         wrap="nowrap"
       >
         <div
-          class="sc-iBkjds hPyNYl left-pane"
+          class="sc-gKXOVf kfUyED left-pane"
           direction="column"
         >
           <div
-            class="sc-iNWwEs kdcAzf content-filter"
+            class="sc-eKszNL eKBqlr content-filter"
           >
             <div>
               <div
-                class="sc-iBkjds hPyNYl sc-ciZhAO hrGZIe frm-in"
+                class="sc-gKXOVf kfUyED sc-ciZhAO hrGZIe frm-in"
                 direction="column"
               >
                 <label
                   class=""
-                  for="sel-mediaType"
+                  for="sel-productId"
                 >
-                  Media Type
+                  Product Designation
                 </label>
                 <div
-                  class="sc-ftvSup hVGmhU"
-                  data-for="main-tooltip"
+                  class="sc-iBkjds hlCHXr"
+                  data-for="select-tooltip"
                   direction="row"
                 >
                   <div
                     class="sc-jdAMXn cyHOHD css-b62m3t-container"
-                    id="sel-mediaType"
+                    id="sel-productId"
                   >
                     <span
                       class="css-1f43avz-a11yText-A11yText"
@@ -111,7 +111,7 @@ exports[`renders correctly... 1`] = `
                       </div>
                     </div>
                     <input
-                      name="mediaType"
+                      name="productId"
                       type="hidden"
                       value=""
                     />
@@ -123,9 +123,94 @@ exports[`renders correctly... 1`] = `
                   tabindex="-1"
                   value=""
                 />
+                <div
+                  class="__react_component_tooltip t5468c70d-62b0-4e26-babe-f7d823731d6c place-top type-dark"
+                  data-id="tooltip"
+                  id="select-tooltip"
+                >
+                  <style
+                    aria-hidden="true"
+                  >
+                    
+  	.t5468c70d-62b0-4e26-babe-f7d823731d6c {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t5468c70d-62b0-4e26-babe-f7d823731d6c.place-top {
+        margin-top: -10px;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-bottom {
+        margin-top: 10px;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-left {
+        margin-left: -10px;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-right {
+        margin-left: 10px;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t5468c70d-62b0-4e26-babe-f7d823731d6c.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  
+                  </style>
+                </div>
               </div>
               <div
-                class="sc-iBkjds hPyNYl sc-ciZhAO hrGZIe frm-in"
+                class="sc-gKXOVf kfUyED sc-ciZhAO hrGZIe frm-in"
                 direction="column"
               >
                 <label
@@ -135,8 +220,8 @@ exports[`renders correctly... 1`] = `
                   User
                 </label>
                 <div
-                  class="sc-ftvSup hVGmhU"
-                  data-for="main-tooltip"
+                  class="sc-iBkjds hlCHXr"
+                  data-for="select-tooltip"
                   direction="row"
                 >
                   <div
@@ -226,6 +311,91 @@ exports[`renders correctly... 1`] = `
                   tabindex="-1"
                   value=""
                 />
+                <div
+                  class="__react_component_tooltip t866bd378-2fb3-47c9-b52e-7d63ae005956 place-top type-dark"
+                  data-id="tooltip"
+                  id="select-tooltip"
+                >
+                  <style
+                    aria-hidden="true"
+                  >
+                    
+  	.t866bd378-2fb3-47c9-b52e-7d63ae005956 {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.t866bd378-2fb3-47c9-b52e-7d63ae005956.place-top {
+        margin-top: -10px;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-bottom {
+        margin-top: 10px;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-left {
+        margin-left: -10px;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-right {
+        margin-left: 10px;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .t866bd378-2fb3-47c9-b52e-7d63ae005956.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  
+                  </style>
+                </div>
               </div>
               <div
                 class="sc-gXmSlM ezYLKt frm-in rag"
@@ -321,35 +491,35 @@ exports[`renders correctly... 1`] = `
                 >
                   <div>
                     <div
-                      class="sc-bZkfAO cpAuEZ frm-in chk"
+                      class="sc-ezWOiH cSknoo frm-in chk"
                       data-for="main-tooltip"
                       data-tip="Newspaper content without audio/video"
                     >
                       <div>
                         <input
-                          checked=""
-                          class="sc-kLLXSd hzgJQN"
-                          id="isPrintContent-0"
+                          class="sc-bZkfAO kpjNYO"
+                          id="isPrintContent-true"
                           name="isPrintContent"
                           role="none"
                           type="checkbox"
-                          value="0"
+                          value="true"
                         />
                         <label
-                          for="isPrintContent-0"
+                          for="isPrintContent-true"
                         >
                           Print Content
                         </label>
                       </div>
                     </div>
                     <div
-                      class="sc-bZkfAO cpAuEZ frm-in chk"
+                      class="sc-ezWOiH cSknoo frm-in chk"
                       data-for="main-tooltip"
+                      data-tip="Content included in Event of the Day"
                     >
                       <div>
                         <input
                           checked=""
-                          class="sc-kLLXSd hzgJQN"
+                          class="sc-bZkfAO kpjNYO"
                           id="included-Included"
                           name="included"
                           role="none"
@@ -359,18 +529,19 @@ exports[`renders correctly... 1`] = `
                         <label
                           for="included-Included"
                         >
-                          Included
+                          Included in EoD
                         </label>
                       </div>
                     </div>
                     <div
-                      class="sc-bZkfAO cpAuEZ frm-in chk"
+                      class="sc-ezWOiH cSknoo frm-in chk"
                       data-for="main-tooltip"
+                      data-tip="Content identified as on ticker"
                     >
                       <div>
                         <input
                           checked=""
-                          class="sc-kLLXSd hzgJQN"
+                          class="sc-bZkfAO kpjNYO"
                           id="ticker-On Ticker"
                           name="ticker"
                           role="none"
@@ -387,13 +558,14 @@ exports[`renders correctly... 1`] = `
                   </div>
                   <div>
                     <div
-                      class="sc-bZkfAO cpAuEZ frm-in chk"
+                      class="sc-ezWOiH cSknoo frm-in chk"
                       data-for="main-tooltip"
+                      data-tip="Content identified as commentary"
                     >
                       <div>
                         <input
                           checked=""
-                          class="sc-kLLXSd hzgJQN"
+                          class="sc-bZkfAO kpjNYO"
                           id="commentary-Commentary"
                           name="commentary"
                           role="none"
@@ -408,13 +580,14 @@ exports[`renders correctly... 1`] = `
                       </div>
                     </div>
                     <div
-                      class="sc-bZkfAO cpAuEZ frm-in chk"
+                      class="sc-ezWOiH cSknoo frm-in chk"
                       data-for="main-tooltip"
+                      data-tip="Content identified as a top story"
                     >
                       <div>
                         <input
                           checked=""
-                          class="sc-kLLXSd hzgJQN"
+                          class="sc-bZkfAO kpjNYO"
                           id="topStory-Top Story"
                           name="topStory"
                           role="none"
@@ -444,7 +617,7 @@ exports[`renders correctly... 1`] = `
                 class="box-content"
               >
                 <div
-                  class="sc-iBkjds hPyNYl sc-ciZhAO hrGZIe frm-in"
+                  class="sc-gKXOVf kfUyED sc-ciZhAO hrGZIe frm-in"
                   direction="column"
                 >
                   <label
@@ -454,8 +627,8 @@ exports[`renders correctly... 1`] = `
                     Field Type
                   </label>
                   <div
-                    class="sc-ftvSup hVGmhU"
-                    data-for="main-tooltip"
+                    class="sc-iBkjds hlCHXr"
+                    data-for="select-tooltip"
                     direction="row"
                   >
                     <div
@@ -545,9 +718,94 @@ exports[`renders correctly... 1`] = `
                     tabindex="-1"
                     value=""
                   />
+                  <div
+                    class="__react_component_tooltip tff67e51d-cd4c-4d71-81eb-7a52fa56b14d place-top type-dark"
+                    data-id="tooltip"
+                    id="select-tooltip"
+                  >
+                    <style
+                      aria-hidden="true"
+                    >
+                      
+  	.tff67e51d-cd4c-4d71-81eb-7a52fa56b14d {
+	    color: #fff;
+	    background: #222;
+	    border: 1px solid transparent;
+  	}
+
+  	.tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-top {
+        margin-top: -10px;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-top::before {
+        border-top: 8px solid transparent;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-top::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        bottom: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-top-color: #222;
+        border-top-style: solid;
+        border-top-width: 6px;
+    }
+
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-bottom {
+        margin-top: 10px;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-bottom::before {
+        border-bottom: 8px solid transparent;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-bottom::after {
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        top: -6px;
+        left: 50%;
+        margin-left: -8px;
+        border-bottom-color: #222;
+        border-bottom-style: solid;
+        border-bottom-width: 6px;
+    }
+
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-left {
+        margin-left: -10px;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-left::before {
+        border-left: 8px solid transparent;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-left::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        right: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-left-color: #222;
+        border-left-style: solid;
+        border-left-width: 6px;
+    }
+
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-right {
+        margin-left: 10px;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-right::before {
+        border-right: 8px solid transparent;
+    }
+    .tff67e51d-cd4c-4d71-81eb-7a52fa56b14d.place-right::after {
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
+        left: -6px;
+        top: 50%;
+        margin-top: -4px;
+        border-right-color: #222;
+        border-right-style: solid;
+        border-right-width: 6px;
+    }
+  
+                    </style>
+                  </div>
                 </div>
                 <div
-                  class="sc-iBkjds hPyNYl sc-jqUVSM eSVdRa frm-in"
+                  class="sc-gKXOVf kfUyED sc-papXJ hYTOAr frm-in"
                   direction="column"
                 >
                   <label
@@ -557,11 +815,11 @@ exports[`renders correctly... 1`] = `
                     Search Terms
                   </label>
                   <div
-                    class="sc-ftvSup iUwnoo"
+                    class="sc-iBkjds fXRMrf"
                     direction="row"
                   >
                     <input
-                      class="sc-kDDrLX hGqhCl txt test"
+                      class="sc-jqUVSM leDEwi txt test"
                       data-for="main-tooltip"
                       name="searchTerm"
                       role="none"
@@ -573,7 +831,7 @@ exports[`renders correctly... 1`] = `
                 </div>
               </div>
               <div
-                class="sc-iBkjds ihqnzA frm-in dateRange"
+                class="sc-gKXOVf exWIMq frm-in dateRange"
                 direction="column"
               >
                 <label
@@ -583,11 +841,11 @@ exports[`renders correctly... 1`] = `
                   Date Range
                 </label>
                 <div
-                  class="sc-ftvSup hVGmhU"
+                  class="sc-iBkjds hlCHXr"
                   direction="row"
                 >
                   <div
-                    class="sc-ikZpkk ceeucT frm-in"
+                    class="sc-kLLXSd fKHfEr frm-in"
                     width="10em"
                   >
                     <div
@@ -607,7 +865,7 @@ exports[`renders correctly... 1`] = `
                     </div>
                   </div>
                   <div
-                    class="sc-ikZpkk ceeucT frm-in"
+                    class="sc-kLLXSd fKHfEr frm-in"
                     width="10em"
                   >
                     <div
@@ -629,7 +887,7 @@ exports[`renders correctly... 1`] = `
                 </div>
               </div>
               <button
-                class="sc-jSMfEi rKlLe btn "
+                class="sc-eCYdqJ GWhWw btn "
                 data-for="main-tooltip"
                 name="search"
                 type="button"
@@ -639,7 +897,7 @@ exports[`renders correctly... 1`] = `
                 </div>
               </button>
               <button
-                class="sc-jSMfEi idlvJD btn "
+                class="sc-eCYdqJ jrZZUV btn "
                 data-for="main-tooltip"
                 name="clear"
                 type="button"
@@ -651,11 +909,11 @@ exports[`renders correctly... 1`] = `
             </div>
           </div>
           <div
-            class="sc-ftvSup hVGmhU content-list"
+            class="sc-iBkjds hlCHXr content-list"
             direction="row"
           >
             <div
-              class="sc-iqcoie fUkCfm table"
+              class="sc-kDDrLX fuRJXH table"
               role="table"
               style="min-width: 0px;"
             >
@@ -670,7 +928,7 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 150 0 auto; min-width: 0px; width: 150px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 5 0 auto; min-width: 0px; width: 5px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
                     Headline
@@ -692,7 +950,7 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 150 0 auto; min-width: 0px; width: 150px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 1 0 auto; min-width: 0px; width: 1px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
                     Source
@@ -714,7 +972,7 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 100 0 auto; min-width: 0px; width: 100px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 2 0 auto; min-width: 0px; width: 2px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
                     Type
@@ -736,10 +994,10 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 125 0 auto; min-width: 0px; width: 125px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 1 0 auto; min-width: 0px; width: 1px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
-                    Section/Page
+                    Section Page
                     <svg
                       class="filterable"
                       fill="currentColor"
@@ -758,7 +1016,7 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 125 0 auto; min-width: 0px; width: 125px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 1 0 auto; min-width: 0px; width: 1px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
                     Username
@@ -780,7 +1038,7 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 100 0 auto; min-width: 0px; width: 100px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 1 0 auto; min-width: 0px; width: 1px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
                     Status
@@ -802,10 +1060,10 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 100 0 auto; min-width: 0px; width: 100px; cursor: pointer;"
+                    style="box-sizing: border-box; flex: 1 0 auto; min-width: 0px; width: 1px; cursor: pointer;"
                     title="Toggle SortBy"
                   >
-                    Date
+                    Pub Date
                     <svg
                       class="filterable"
                       fill="currentColor"
@@ -824,35 +1082,35 @@ exports[`renders correctly... 1`] = `
                   <div
                     colspan="1"
                     role="columnheader"
-                    style="box-sizing: border-box; flex: 50 0 auto; min-width: 0px; width: 50px;"
+                    style="box-sizing: border-box; flex: 1 0 auto; min-width: 0px; width: 1px;"
                   >
                     Use
                   </div>
                 </div>
               </div>
               <div
-                class="sc-ftvSup ga-dPbw"
+                class="sc-iBkjds dzAJpz"
                 direction="row"
               >
                 <div
-                  class="sc-eCYdqJ gGjiiJ"
+                  class="sc-hKMtZM ldylOE"
                 >
                   <span
-                    class="sc-hKMtZM nhpAe"
+                    class="sc-dkzDqf icKNkF"
                   >
                     Loading...
                   </span>
                 </div>
               </div>
               <div
-                class="sc-crXcEl ggPRmH"
+                class="sc-iqcoie tRkXg"
               >
                 <div
-                  class="sc-ftvSup ga-dPbw button-container"
+                  class="sc-iBkjds dzAJpz button-container"
                   direction="row"
                 >
                   <button
-                    class="sc-jSMfEi haOFwA btn "
+                    class="sc-eCYdqJ jGzYem btn "
                     data-for="main-tooltip"
                     disabled=""
                     name="firstPage"
@@ -875,7 +1133,7 @@ exports[`renders correctly... 1`] = `
                     </div>
                   </button>
                   <button
-                    class="sc-jSMfEi haOFwA btn active"
+                    class="sc-eCYdqJ jGzYem btn active"
                     data-for="main-tooltip"
                     disabled=""
                     type="button"
@@ -885,7 +1143,7 @@ exports[`renders correctly... 1`] = `
                     </div>
                   </button>
                   <button
-                    class="sc-jSMfEi haOFwA btn "
+                    class="sc-eCYdqJ jGzYem btn "
                     data-for="main-tooltip"
                     disabled=""
                     name="lastPage"
@@ -912,11 +1170,11 @@ exports[`renders correctly... 1`] = `
             </div>
           </div>
           <div
-            class="sc-ftvSup hVGmhU content-actions"
+            class="sc-iBkjds hlCHXr content-actions"
             direction="row"
           >
             <button
-              class="sc-jSMfEi idlvJD btn "
+              class="sc-eCYdqJ jrZZUV btn "
               data-for="main-tooltip"
               name="create"
               type="button"
@@ -926,7 +1184,7 @@ exports[`renders correctly... 1`] = `
               </div>
             </button>
             <button
-              class="sc-jSMfEi idlvJD btn "
+              class="sc-eCYdqJ jrZZUV btn "
               data-for="main-tooltip"
               name="create"
               type="button"
@@ -939,7 +1197,7 @@ exports[`renders correctly... 1`] = `
               Send to
             </div>
             <button
-              class="sc-jSMfEi idlvJD btn "
+              class="sc-eCYdqJ jrZZUV btn "
               data-for="main-tooltip"
               data-tip="Under Construction"
               disabled=""
@@ -951,7 +1209,7 @@ exports[`renders correctly... 1`] = `
               </div>
             </button>
             <button
-              class="sc-jSMfEi idlvJD btn "
+              class="sc-eCYdqJ jrZZUV btn "
               data-for="main-tooltip"
               data-tip="Under Construction"
               disabled=""
@@ -963,7 +1221,7 @@ exports[`renders correctly... 1`] = `
               </div>
             </button>
             <button
-              class="sc-jSMfEi idlvJD btn "
+              class="sc-eCYdqJ jrZZUV btn "
               data-for="main-tooltip"
               data-tip="Under Construction"
               disabled=""

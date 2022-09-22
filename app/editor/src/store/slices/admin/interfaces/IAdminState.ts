@@ -2,21 +2,29 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import {
   IActionModel,
   ICategoryModel,
-  IDataSourceModel,
+  IConnectionModel,
+  IIngestModel,
+  ILicenseModel,
   IMediaTypeModel,
   IPaged,
+  IProductModel,
   ISeriesModel,
+  ISourceModel,
   ITagModel,
   IUserModel,
 } from 'hooks/api-editor';
 
 export interface IAdminState {
-  dataSources: IDataSourceModel[];
+  sources: ISourceModel[];
+  connections: IConnectionModel[];
+  products: IProductModel[];
+  ingests: IIngestModel[];
   mediaTypes: IMediaTypeModel[];
   users: IPaged<IUserModel>;
   categories: ICategoryModel[];
   tags: ITagModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
+  licenses: ILicenseModel[];
   userFilter: IUserListFilter;
 }

@@ -15,9 +15,9 @@ public class TranscriptionOptions : ServiceOptions
     public string Topics { get; set; } = "";
 
     /// <summary>
-    /// get/set - The path to clip files.
+    /// get/set - The path to the local mapped volume.
     /// </summary>
-    public string FilePath { get; set; } = "";
+    public string VolumePath { get; set; } = "";
 
     /// <summary>
     /// get/set - region for speech account.

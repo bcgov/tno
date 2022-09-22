@@ -1,4 +1,4 @@
-﻿namespace TNO.Services.Filemonitor;
+﻿namespace TNO.Services.FileMonitor;
 
 /// <summary>
 /// Program static class, runs program.
@@ -13,7 +13,7 @@ public static class Program
     public static Task<int> Main(string[] args)
     {
         // Run the syndication service console program.
-        var program = new FilemonitorService(args);
+        var program = new FileMonitorService(args);
         return program.RunAsync();
     }
 }

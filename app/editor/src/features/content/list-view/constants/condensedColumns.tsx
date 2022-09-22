@@ -5,17 +5,17 @@ import { formatIdirUsername } from 'utils';
 
 export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
   {
-    id: 'headline',
+    id: 'id',
     Header: () => <div className="center">Headline</div>,
     accessor: 'headline',
-    width: 180,
+    width: 4,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
-    id: 'source',
+    id: 'otherSource',
     Header: () => <div className="center">Source</div>,
-    accessor: 'source',
-    width: 100,
+    accessor: 'otherSource',
+    width: 1,
     Cell: ({ value }) => (
       <Ellipsis>
         <div className="center">{value}</div>
@@ -23,10 +23,10 @@ export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<I
     ),
   },
   {
-    id: 'mediaType',
+    id: 'productId',
     Header: () => <div className="center">Type</div>,
-    width: 100,
-    accessor: (row) => row.mediaType?.name,
+    width: 2,
+    accessor: (row) => row.product?.name,
     Cell: ({ value }: { value: string }) => (
       <Ellipsis>
         <div className="center">{value}</div>
@@ -36,14 +36,14 @@ export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<I
   {
     id: 'page',
     Header: () => <div className="center">Page</div>,
-    width: 70,
+    width: 1,
     accessor: (row) => row.page,
     Cell: ({ value }: { value: string }) => <div className="center">{value}</div>,
   },
   {
-    id: 'ownerId',
+    id: 'owner',
     Header: () => <div className="center">Username</div>,
-    width: 100,
+    width: 1,
     accessor: (row) => row.owner?.displayName,
     Cell: ({ value }: { value: string }) => (
       <Ellipsis>
@@ -54,14 +54,14 @@ export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<I
   {
     id: 'status',
     Header: () => <div className="center">Status</div>,
-    width: 100,
+    width: 1,
     accessor: (row) => row.status,
     Cell: ({ value }: { value: string }) => <div className="center">{value}</div>,
   },
   {
     id: 'publishedOn',
     Header: () => <div className="center">Pub Date</div>,
-    width: 100,
+    width: 1,
     accessor: (row) => row.publishedOn ?? row.createdOn,
     Cell: ({ value }: any) => (
       <div className="center">
@@ -73,7 +73,7 @@ export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<I
     id: 'use',
     Header: () => <div className="center">Use</div>,
     disableSortBy: true,
-    width: 50,
+    width: 1,
     accessor: (row) =>
       row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
     Cell: ({ value }: { value: boolean }) => {

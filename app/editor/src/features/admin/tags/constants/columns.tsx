@@ -8,18 +8,20 @@ export const columns: (Column<ITagModel> &
   {
     id: 'id',
     Header: 'Name',
-    width: 50,
     accessor: 'name',
+    width: 1,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Description',
-    width: 300,
+    width: 8,
     accessor: 'description',
+    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Enabled',
     accessor: 'isEnabled',
+    width: 1,
     Cell: (cell) => <Checkbox checked={cell.value} />,
   },
 ];

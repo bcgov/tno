@@ -1,8 +1,14 @@
 import { IconButton, LabelPosition } from 'components/form';
-import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
+import {
+  FormikCheckbox,
+  FormikForm,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+} from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
+import { useModal, useTooltips } from 'hooks';
 import { IMediaTypeModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
@@ -12,7 +18,7 @@ import { toast } from 'react-toastify';
 import { useMediaTypes } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
-import { defaultMediaType } from './constants';
+import { contentTypeOptions, defaultMediaType } from './constants';
 import * as styled from './styled';
 
 /** The page used to view and edit media types in the administrative section. */
@@ -21,6 +27,8 @@ export const MediaTypeForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
+  useTooltips();
+
   const mediaTypeId = Number(id);
   const [mediaType, setMediaType] = React.useState<IMediaTypeModel>(
     (state as any)?.mediaType ?? defaultMediaType,
@@ -63,11 +71,23 @@ export const MediaTypeForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <div className="form-container">
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
+              <FormikSelect
+                name="contentType"
+                label="Content Type"
+                tooltip="Controls which form is used for this type of content"
+                width={FieldSize.Big}
+                value={contentTypeOptions.find((o) => o.value === values.contentType) ?? ''}
+                onChange={(newValue: any) => {
+                  setFieldValue('contentType', newValue.value);
+                }}
+                options={contentTypeOptions}
+                required
+              />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"

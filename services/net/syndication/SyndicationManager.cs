@@ -8,7 +8,7 @@ namespace TNO.Services.Syndication;
 /// <summary>
 /// SyndicationManager class, provides a way to manage the syndication service.
 /// </summary>
-public class SyndicationManager : DataSourceManager<SyndicationDataSourceManager, SyndicationOptions>
+public class SyndicationManager : IngestManager<SyndicationIngestActionManager, SyndicationOptions>
 {
     #region Constructors
     /// <summary>
@@ -20,7 +20,7 @@ public class SyndicationManager : DataSourceManager<SyndicationDataSourceManager
     /// <param name="logger"></param>
     public SyndicationManager(
         IApiService api,
-        DataSourceIngestManagerFactory<SyndicationDataSourceManager, SyndicationOptions> factory,
+        IngestManagerFactory<SyndicationIngestActionManager, SyndicationOptions> factory,
         IOptions<SyndicationOptions> options,
         ILogger<SyndicationManager> logger)
         : base(api, factory, options, logger)

@@ -2,14 +2,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Managers;
 using TNO.Services.Image.Config;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 
 namespace TNO.Services.Image;
 
 /// <summary>
 /// ImageManager class, provides a way to manage the image service.
 /// </summary>
-public class ImageManager : DataSourceManager<ImageDataSourceManager, ImageOptions>
+public class ImageManager : IngestManager<ImageIngestActionManager, ImageOptions>
 {
     #region Constructors
     /// <summary>
@@ -21,7 +21,7 @@ public class ImageManager : DataSourceManager<ImageDataSourceManager, ImageOptio
     /// <param name="logger"></param>
     public ImageManager(
         IApiService api,
-        DataSourceIngestManagerFactory<ImageDataSourceManager, ImageOptions> factory,
+        IngestManagerFactory<ImageIngestActionManager, ImageOptions> factory,
         IOptions<ImageOptions> options,
         ILogger<ImageManager> logger)
         : base(api, factory, options, logger)
@@ -34,9 +34,9 @@ public class ImageManager : DataSourceManager<ImageDataSourceManager, ImageOptio
     /// Get the data sources for the image services.
     /// </summary>
     /// <returns></returns>
-    public override async Task<IEnumerable<DataSourceModel>> GetDataSourcesAsync()
+    public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
-        var dataSources = await base.GetDataSourcesAsync();
+        var dataSources = await base.GetIngestsAsync();
 
         return dataSources.Where(ds => IsImage(ds));
     }
@@ -46,7 +46,7 @@ public class ImageManager : DataSourceManager<ImageDataSourceManager, ImageOptio
     /// </summary>
     /// <param name="dataSource"></param>
     /// <returns></returns>
-    private bool IsImage(DataSourceModel dataSource)
+    private bool IsImage(IngestModel dataSource)
     {
         return _options.GetMediaTypes().Contains(dataSource.MediaType?.Name);
     }

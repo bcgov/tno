@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Services.Models.DataSource;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
@@ -44,12 +44,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public override async Task PerformActionAsync<T>(IDataSourceIngestManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
+    public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for data source '{Code}'", manager.DataSource.Code);
+        this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // Each schedule will have its own process.
-        foreach (var schedule in GetSchedules(manager.DataSource))
+        foreach (var schedule in GetSchedules(manager.Ingest))
         {
             var process = await GetProcessAsync(manager, schedule);
             var isRunning = IsRunning(process);
@@ -72,11 +72,11 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <summary>
     /// Only return schedules that relevant.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    protected virtual IEnumerable<ScheduleModel> GetSchedules(DataSourceModel dataSource)
+    protected virtual IEnumerable<ScheduleModel> GetSchedules(IngestModel ingest)
     {
-        return dataSource.DataSourceSchedules.Where(s =>
+        return ingest.IngestSchedules.Where(s =>
             s.Schedule != null
         ).Select(ds => ds.Schedule!);
     }
@@ -84,12 +84,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <summary>
     /// Generate a process key to identify it.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual string GenerateProcessKey(DataSourceModel dataSource, ScheduleModel schedule)
+    protected virtual string GenerateProcessKey(IngestModel ingest, ScheduleModel schedule)
     {
-        return $"{dataSource.Code}-{schedule.Name}:{schedule.Id}";
+        return $"{ingest.Source?.Code}-{schedule.Name}:{schedule.Id}";
     }
 
     /// <summary>
@@ -147,16 +147,16 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual ICommandProcess GetProcess(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual ICommandProcess GetProcess(IIngestServiceActionManager manager, ScheduleModel schedule)
     {
-        var key = GenerateProcessKey(manager.DataSource, schedule);
+        var key = GenerateProcessKey(manager.Ingest, schedule);
         if (manager.Values.GetValueOrDefault(key) is not ICommandProcess value)
         {
             var process = new System.Diagnostics.Process();
             value = new CommandProcess(process);
 
             process.StartInfo.Verb = key;
-            var cmd = GetCommand(manager.DataSource);
+            var cmd = GetCommand(manager.Ingest);
             process.StartInfo.FileName = String.IsNullOrWhiteSpace(cmd) ? this.Options.Command : cmd;
             process.StartInfo.Arguments = GenerateCommandArgumentsAsync(value, manager, schedule).Result;
             process.StartInfo.UseShellExecute = false;
@@ -180,7 +180,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual Task<ICommandProcess> GetProcessAsync(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual Task<ICommandProcess> GetProcessAsync(IIngestServiceActionManager manager, ScheduleModel schedule)
     {
         return Task.FromResult(GetProcess(manager, schedule));
     }
@@ -190,9 +190,9 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
-    protected virtual void RemoveProcess(IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual void RemoveProcess(IIngestServiceActionManager manager, ScheduleModel schedule)
     {
-        manager.Values.Remove(GenerateProcessKey(manager.DataSource, schedule));
+        manager.Values.Remove(GenerateProcessKey(manager.Ingest, schedule));
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="sender"></param>
     /// <param name="manager"></param>
     /// <param name="e"></param>
-    protected async Task OnExitedAsync(object? sender, IDataSourceIngestManager manager, EventArgs e)
+    protected async Task OnExitedAsync(object? sender, IIngestServiceActionManager manager, EventArgs e)
     {
         if (sender is System.Diagnostics.Process process)
         {
@@ -260,12 +260,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// Convert to timezone and return as local.
     /// Dates should be stored in the timezone of the data source.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="date"></param>
     /// <returns></returns>
-    protected DateTime GetLocalDateTime(DataSourceModel dataSource, DateTime date)
+    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
     {
-        return date.ToTimeZone(CommandDataSourceManager.GetTimeZone(dataSource, this.Options.TimeZone));
+        return date.ToTimeZone(CommandIngestActionManager.GetTimeZone(ingest, this.Options.TimeZone));
     }
 
     /// <summary>
@@ -275,10 +275,10 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual string GenerateCommandArguments(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual string GenerateCommandArguments(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
     {
         // TODO: This should be only arguments.
-        return GetCommand(manager.DataSource)?.Replace("\"", "'") ?? "";
+        return GetCommand(manager.Ingest)?.Replace("\"", "'") ?? "";
     }
 
     /// <summary>
@@ -288,7 +288,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="manager"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    protected virtual Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IDataSourceIngestManager manager, ScheduleModel schedule)
+    protected virtual Task<string> GenerateCommandArgumentsAsync(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
     {
         return Task.FromResult(GenerateCommandArguments(process, manager, schedule));
     }
@@ -296,12 +296,12 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <summary>
     /// Get the other arguments from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string? GetCommand(DataSourceModel dataSource)
+    private static string? GetCommand(IngestModel ingest)
     {
-        return dataSource.GetConnectionValue<string?>("cmd");
+        return ingest.GetConfigurationValue<string?>("cmd");
     }
     #endregion
 }

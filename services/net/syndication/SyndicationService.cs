@@ -5,7 +5,7 @@ using TNO.Services.Syndication.Config;
 namespace TNO.Services.Syndication;
 
 /// <summary>
-/// SyndicationService abstrct class, provides a console application that runs service, and an api.
+/// SyndicationService abstract class, provides a console application that runs service, and an api.
 /// </summary>
 public class SyndicationService : IngestService
 {
@@ -37,7 +37,7 @@ public class SyndicationService : IngestService
         services
             .Configure<SyndicationOptions>(this.Configuration.GetSection("Service"))
             .AddTransient<IIngestAction<SyndicationOptions>, SyndicationAction>()
-            .AddTransient<DataSourceIngestManagerFactory<SyndicationDataSourceManager, SyndicationOptions>>()
+            .AddTransient<IngestManagerFactory<SyndicationIngestActionManager, SyndicationOptions>>()
             .AddSingleton<IServiceManager, SyndicationManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
