@@ -7,18 +7,26 @@ export const columns: (Column<ITagModel> &
   UseFiltersColumnOptions<ITagModel>)[] = [
   {
     id: 'id',
+    Header: 'Code',
+    accessor: 'id',
+    width: 1,
+  },
+  {
+    id: 'name',
     Header: 'Name',
     accessor: 'name',
-    width: 1,
+    width: 3,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
+    id: 'description',
     Header: 'Description',
-    width: 8,
+    width: 5,
     accessor: 'description',
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
+    id: 'isEnabled',
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,
