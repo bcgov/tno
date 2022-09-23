@@ -7,7 +7,7 @@ namespace TNO.Entities;
 
 /// <summary>
 /// Ingest class, provides an entity model which enabled configuring different ingestion services.
-/// An ingestion service fetches content for a specified source, source connection, and media type.
+/// An ingestion service fetches content for a specified source, source connection, and ingest type.
 /// It will the provide a way to import content to the specified product and destination connection.
 /// </summary>
 [Cache("ingests", "lookups")]
@@ -59,15 +59,15 @@ public class Ingest : AuditColumns
     public virtual Source? Source { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to media type.
+    /// get/set - Foreign key to ingest type.
     /// </summary>
-    [Column("media_type_id")]
-    public int MediaTypeId { get; set; }
+    [Column("ingest_type_id")]
+    public int IngestTypeId { get; set; }
 
     /// <summary>
-    /// get/set - The media type.
+    /// get/set - The ingest type.
     /// </summary>
-    public virtual MediaType? MediaType { get; set; }
+    public virtual IngestType? IngestType { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to product.
@@ -139,14 +139,14 @@ public class Ingest : AuditColumns
     #region Constructors
     protected Ingest() { }
 
-    public Ingest(string name, Source source, MediaType mediaType, Product product, Connection sourceConnection, Connection destinationConnection)
+    public Ingest(string name, Source source, IngestType ingestType, Product product, Connection sourceConnection, Connection destinationConnection)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
 
         this.Name = name;
         this.Topic = source?.Code ?? throw new ArgumentNullException(nameof(source));
-        this.MediaTypeId = mediaType?.Id ?? throw new ArgumentNullException(nameof(mediaType));
-        this.MediaType = mediaType;
+        this.IngestTypeId = ingestType?.Id ?? throw new ArgumentNullException(nameof(ingestType));
+        this.IngestType = ingestType;
         this.ProductId = product?.Id ?? throw new ArgumentNullException(nameof(product));
         this.Product = product;
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
@@ -158,7 +158,7 @@ public class Ingest : AuditColumns
         this.ScheduleType = ScheduleType.None;
     }
 
-    public Ingest(string name, string topic, int sourceId, int mediaTypeId, int productId, int sourceConnectionId, int destinationConnectionId)
+    public Ingest(string name, string topic, int sourceId, int ingestTypeId, int productId, int sourceConnectionId, int destinationConnectionId)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
         if (String.IsNullOrWhiteSpace(topic)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(topic));
@@ -166,15 +166,15 @@ public class Ingest : AuditColumns
         this.Name = name;
         this.Topic = topic;
         this.SourceId = sourceId;
-        this.MediaTypeId = mediaTypeId;
+        this.IngestTypeId = ingestTypeId;
         this.ProductId = productId;
         this.SourceConnectionId = sourceConnectionId;
         this.DestinationConnectionId = destinationConnectionId;
         this.ScheduleType = ScheduleType.None;
     }
 
-    public Ingest(string name, string topic, int sourceId, int mediaTypeId, int productId, int sourceConnectionId, int destinationConnectionId, ScheduleType scheduleType)
-        : this(name, topic, sourceId, mediaTypeId, productId, sourceConnectionId, destinationConnectionId)
+    public Ingest(string name, string topic, int sourceId, int ingestTypeId, int productId, int sourceConnectionId, int destinationConnectionId, ScheduleType scheduleType)
+        : this(name, topic, sourceId, ingestTypeId, productId, sourceConnectionId, destinationConnectionId)
     {
         this.ScheduleType = scheduleType;
     }

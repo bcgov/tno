@@ -87,18 +87,13 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
                       label="Details"
                       exact
                       activePaths={[`${id}`]}
-                      hasErrors={hasErrors(errors, [
-                        'name',
-                        'topic',
-                        'mediaTypeId',
-                        'sourceId',
-                        'productId',
-                      ])}
+                      hasErrors={hasErrors(errors, ['name', 'topic', 'sourceId', 'productId'])}
                     />
                     <Tab
                       navigateTo="settings"
                       label="Settings"
                       hasErrors={hasErrors(errors, [
+                        'ingestTypeId',
                         'sourceConnectionId',
                         'destinationConnectionId',
                         'configuration',

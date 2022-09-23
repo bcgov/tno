@@ -26,7 +26,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   updated,
   setUpdated,
 }) => {
-  const [{ products, mediaTypes, users }] = useLookup();
+  const [{ products, ingestTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
   const [advancedHover, setAdvancedHover] = React.useState(false);
 
@@ -55,8 +55,8 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   }, [users]);
 
   React.useEffect(() => {
-    onReady?.(!!users.length && !!products.length && !!mediaTypes.length);
-  }, [users, products, mediaTypes, onReady]);
+    onReady?.(!!users.length && !!products.length && !!ingestTypes.length);
+  }, [users, products, ingestTypes, onReady]);
 
   /** Handle enter key pressed for advanced filter */
   React.useEffect(() => {
@@ -93,7 +93,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   return (
     <styled.ContentFilter className="content-filter">
       <div>
-        <Loader size="5em" visible={!users.length || !products.length || !mediaTypes.length} />
+        <Loader size="5em" visible={!users.length || !products.length || !ingestTypes.length} />
         <Select
           name="productId"
           label="Product Designation"

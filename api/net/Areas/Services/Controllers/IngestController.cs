@@ -78,16 +78,16 @@ public class IngestController : ControllerBase
     }
 
     /// <summary>
-    /// Find an array of ingests for the specified media type.
+    /// Find an array of ingests for the specified ingest type.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("for/media/type/{mediaTypeName}")]
+    [HttpGet("for/ingest/type/{ingestTypeName}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(IEnumerable<IngestModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
-    public IActionResult FindByMediaType(string mediaTypeName)
+    public IActionResult FindByIngestType(string ingestTypeName)
     {
-        var result = _serviceIngest.FindByMediaType(mediaTypeName, true);
+        var result = _serviceIngest.FindByIngestType(ingestTypeName, true);
         return new JsonResult(result.Select(ds => new IngestModel(ds, _serializerOptions)));
     }
 

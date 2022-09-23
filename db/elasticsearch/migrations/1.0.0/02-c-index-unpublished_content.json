@@ -55,6 +55,7 @@
         "properties": {
           "id": { "type": "integer" },
           "name": { "type": "keyword" },
+          "categoryType": { "type": "keyword" },
           "score": { "type": "integer" }
         }
       },

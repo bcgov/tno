@@ -13,7 +13,7 @@ const mockUseLookups = [
   {
     products: [{ name: 'Product 1', id: 1 }],
     licenses: [{ name: 'License 1', id: 1 }],
-    mediaTypes: [{ name: 'Media 1', id: 1 }],
+    ingestTypes: [{ name: 'Ingest 1', id: 1 }],
     users: [{ name: 'user', id: 1, displayName: 'displayName', username: 'test' }],
   },
 ];

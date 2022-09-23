@@ -223,7 +223,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var content = item.Content as TextSyndicationContent;
         var (title, summary) = HandleInvalidEncoding(item);
         var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
-        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         return new SourceContent(source, contentType, ingest.ProductId, ingest.DestinationConnectionId, item.Id, title, summary, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",

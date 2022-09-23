@@ -136,7 +136,7 @@ export const LicenseForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this media type?"
+              body="Are you sure you wish to remove this License?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"

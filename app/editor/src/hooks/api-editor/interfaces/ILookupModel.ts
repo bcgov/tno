@@ -2,8 +2,8 @@ import {
   IActionModel,
   ICategoryModel,
   IClaimModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IMetricModel,
   IProductModel,
   IRoleModel,
@@ -22,7 +22,7 @@ export interface ILookupModel {
   products: IProductModel[];
   sources: ISourceModel[];
   licenses: ILicenseModel[];
-  mediaTypes: IMediaTypeModel[];
+  ingestTypes: IIngestTypeModel[];
   roles: IRoleModel[];
   series: ISeriesModel[];
   sourceActions: ISourceActionModel[];

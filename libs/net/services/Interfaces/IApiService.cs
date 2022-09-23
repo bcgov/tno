@@ -57,11 +57,11 @@ public interface IApiService
     public Task<IEnumerable<IngestModel>> GetIngestsAsync();
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch ingests for the specified media type.
+    /// Make an AJAX request to the api to fetch ingests for the specified ingest type.
     /// </summary>
-    /// <param name="mediaType"></param>
+    /// <param name="ingestType"></param>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModel>> GetIngestsForMediaTypeAsync(string mediaType);
+    public Task<IEnumerable<IngestModel>> GetIngestsForIngestTypeAsync(string ingestType);
 
     /// <summary>
     /// Make an AJAX request to the api to fetch the ingest for the specified 'topic'.

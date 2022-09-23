@@ -51,8 +51,20 @@ INSERT INTO public.connection (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Internet' -- 4
-  , 'Streaming data source' -- description
+  'Local Volume - Images' -- 3
+  , 'A locally mapped volume location for image files' -- description
+  , true -- is_enabled
+  , 0 -- connection_type - Local Volume
+  , '{ "path": "images" }' -- configuration
+  , false -- is_read_only
+  , 0 -- sort_order
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Public Internet' -- 4
+  , 'Internet based data sources that do not require security (i.e. HTML, Streaming)' -- description
   , true -- is_enabled
   , 3 -- connection_type - HTTP
   , '{}' -- configuration

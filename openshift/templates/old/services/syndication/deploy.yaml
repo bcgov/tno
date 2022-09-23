@@ -45,9 +45,9 @@ parameters:
     description: The maximum number of failed attempts before stopping the service.
     required: true
     value: "5"
-  - name: DATA_SOURCE_MEDIA_TYPE
-    displayName: Data Source Media Type
-    description: The name of the media type that this service will ingest.
+  - name: INGEST_TYPE
+    displayName: Ingest Type
+    description: The name of the ingest type that this service will ingest.
     required: true
     value: Syndication
   - name: KAFKA_LOGS_TOPIC
@@ -134,7 +134,7 @@ objects:
       KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID}
       KAFKA_LOGS_TOPIC: ${KAFKA_LOGS_TOPIC}
       MAX_FAILED_ATTEMPTS: ${MAX_FAILED_ATTEMPTS}
-      DATA_SOURCE_MEDIA_TYPE: ${DATA_SOURCE_MEDIA_TYPE}
+      INGEST_TYPE: ${INGEST_TYPE}
 
   # How the app will be deployed to the pod.
   - kind: DeploymentConfig
@@ -233,11 +233,11 @@ objects:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
                       key: MAX_FAILED_ATTEMPTS
-                - name: DATA_SOURCE_MEDIA_TYPE
+                - name: INGEST_TYPE
                   valueFrom:
                     configMapKeyRef:
                       name: ${SOLUTION_NAME}-${APP_NAME}
-                      key: DATA_SOURCE_MEDIA_TYPE
+                      key: INGEST_TYPE
               # livenessProbe:
               #   httpGet:
               #     path: '/health'

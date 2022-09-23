@@ -18,6 +18,12 @@ public class ContentCategoryModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The value of the category.
     /// </summary>
     public int Score { get; set; }
+
+    /// <summary>
+    /// get/set - The type of category (issue, proactive).
+    /// </summary>
+    public CategoryType CategoryType { get; set; }
+    public bool AutoTranscribe { get; set; }
     #endregion
 
     #region Constructors
@@ -36,6 +42,7 @@ public class ContentCategoryModel : BaseTypeWithAuditColumnsModel<int>
         this.Id = entity.CategoryId;
         this.Name = entity.Category?.Name ?? "";
         this.Score = entity.Score;
+        this.CategoryType = entity.Category?.CategoryType ?? CategoryType.Issues;
         this.CreatedBy = entity.CreatedBy;
         this.CreatedById = entity.CreatedById;
         this.CreatedOn = entity.CreatedOn;

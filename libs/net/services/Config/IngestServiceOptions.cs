@@ -7,19 +7,19 @@ public class IngestServiceOptions : ServiceOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - An array of media type this service will ingest (comma separated).
+    /// get/set - An array of ingest type this service will ingest (comma separated).
     /// </summary>
-    public string MediaTypes { get; set; } = "";
+    public string IngestTypes { get; set; } = "";
     #endregion
 
     #region Methods
     /// <summary>
-    /// Get an array of media types.
+    /// Get an array of ingest types.
     /// </summary>
     /// <returns></returns>
-    public string[] GetMediaTypes()
+    public string[] GetIngestTypes()
     {
-        return this.MediaTypes.Split(',').Select(v => v.Trim()).ToArray();
+        return this.IngestTypes.Split(',').Select(v => v.Trim()).ToArray();
     }
     #endregion
 }

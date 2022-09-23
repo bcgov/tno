@@ -10,7 +10,7 @@ export const VideoTuner: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikSelect label="Timezone" name="configuration.timeZone" options={TimeZones} required />
       <FormikText
         label="Volume"
@@ -23,6 +23,6 @@ export const VideoTuner: React.FC = (props) => {
         name="configuration.frequency"
         value={values.configuration.frequency}
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

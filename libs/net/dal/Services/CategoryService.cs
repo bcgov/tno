@@ -35,6 +35,9 @@ public class CategoryService : BaseService<Category, int>, ICategoryService
         if (!String.IsNullOrWhiteSpace(filter.Description))
             query = query.Where(c => EF.Functions.Like(c.Description.ToLower(), $"%{filter.Description.ToLower()}%"));
 
+        if (filter.CategoryType.HasValue)
+            query = query.Where(c => c.CategoryType == filter.CategoryType);
+
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)

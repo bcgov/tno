@@ -2,7 +2,7 @@ import { ScheduleTypeName } from '../constants';
 import {
   IAuditColumnsModel,
   IConnectionModel,
-  IMediaTypeModel,
+  IIngestTypeModel,
   IProductModel,
   IScheduleModel,
   ISourceModel,
@@ -17,8 +17,8 @@ export interface IIngestModel extends IAuditColumnsModel {
 
   sourceId: number;
   source?: ISourceModel;
-  mediaTypeId: number;
-  mediaType?: IMediaTypeModel;
+  ingestTypeId: number;
+  ingestType?: IIngestTypeModel;
   productId: number;
   product?: IProductModel;
   scheduleType: ScheduleTypeName;

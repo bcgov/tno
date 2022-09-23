@@ -73,6 +73,7 @@ public class ImageAction : IngestAction<ImageOptions>
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // Extract the ingest configuration settings.
+        // TODO: Change to regex to allow for more advanced searches.
         var inputFileCode = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("code")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("code");
         if (String.IsNullOrWhiteSpace(inputFileCode)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'code'.");
 
@@ -253,12 +254,12 @@ public class ImageAction : IngestAction<ImageOptions>
     private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(IngestModel ingest, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
-        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{ingest.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
         {
-            StreamUrl = ingest.GetConfigurationValue("url") ?? "",
+            StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = Path.Combine(GetOutputPath(ingest), reference.Uid),
-            Language = ingest.GetConfigurationValue("language") ?? ""
+            Language = ingest.GetConfigurationValue("language")
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");

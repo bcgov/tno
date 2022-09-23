@@ -26,7 +26,7 @@ export const Video: React.FC = (props) => {
   const serviceType = ServiceTypes.find((t) => t.value === values.configuration.serviceType);
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikSelect
         label="Service Type"
         name="configuration.serviceType"
@@ -34,6 +34,6 @@ export const Video: React.FC = (props) => {
         value={serviceType}
       />
       {ConnectionSettings()}
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

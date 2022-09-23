@@ -5,6 +5,5 @@ export interface IPrintContentModel extends IAuditColumnsModel {
   content?: IContentModel;
   edition: string;
   section: string;
-  storyType: string;
   byline: string;
 }

@@ -3,6 +3,7 @@ export * from './AudioClip';
 export * from './AudioStream';
 export * from './AudioTuner';
 export * from './AVArchive';
+export * from './FrontPage';
 export * from './Image';
 export * from './IngestConfiguration';
 export * from './Newspaper';

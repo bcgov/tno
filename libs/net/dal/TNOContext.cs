@@ -26,7 +26,6 @@ public class TNOContext : DbContext
     public DbSet<ContentLink> ContentLinks => Set<ContentLink>();
     public DbSet<FileReference> FileReferences => Set<FileReference>();
     public DbSet<TimeTracking> TimeTrackings => Set<TimeTracking>();
-    public DbSet<MediaType> MediaTypes => Set<MediaType>();
     public DbSet<License> Licenses => Set<License>();
     public DbSet<Series> Series => Set<Series>();
     public DbSet<Product> Products => Set<Product>();
@@ -40,6 +39,7 @@ public class TNOContext : DbContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ContentTag> ContentTags => Set<ContentTag>();
     public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<IngestType> IngestTypes => Set<IngestType>();
     public DbSet<Ingest> Ingests => Set<Ingest>();
     public DbSet<IngestState> IngestStates => Set<IngestState>();
     public DbSet<IngestSchedule> IngestSchedules => Set<IngestSchedule>();

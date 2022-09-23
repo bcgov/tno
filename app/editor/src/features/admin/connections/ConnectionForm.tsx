@@ -162,7 +162,7 @@ export const ConnectionForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this media type?"
+              body="Are you sure you wish to remove this connection?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"

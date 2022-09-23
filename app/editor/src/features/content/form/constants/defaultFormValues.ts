@@ -35,7 +35,6 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     // Print Content
     section: '',
     edition: '',
-    storyType: '',
     byline: '',
   };
 };

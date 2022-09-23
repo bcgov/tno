@@ -4,8 +4,8 @@ import {
   ICategoryModel,
   IConnectionModel,
   IIngestModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IPaged,
   IProductModel,
   ISeriesModel,
@@ -19,7 +19,7 @@ export interface IAdminState {
   connections: IConnectionModel[];
   products: IProductModel[];
   ingests: IIngestModel[];
-  mediaTypes: IMediaTypeModel[];
+  ingestTypes: IIngestTypeModel[];
   users: IPaged<IUserModel>;
   categories: ICategoryModel[];
   tags: ITagModel[];

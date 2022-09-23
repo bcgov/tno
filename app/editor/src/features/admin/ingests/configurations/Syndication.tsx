@@ -13,7 +13,7 @@ export const Syndication: React.FC = (props) => {
   useTooltips();
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikText
         label="Syndication Feed URL"
         name="configuration.url"
@@ -49,6 +49,6 @@ export const Syndication: React.FC = (props) => {
           setFieldValue('configuration.fetchContent', e.currentTarget.checked);
         }}
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

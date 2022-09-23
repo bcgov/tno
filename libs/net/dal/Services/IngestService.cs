@@ -41,13 +41,13 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         var result = this.Context.Ingests
             .AsNoTracking()
             .Include(ds => ds.Product)
-            .Include(ds => ds.MediaType)
+            .Include(ds => ds.IngestType)
             .Include(ds => ds.Source)
             .Include(ds => ds.State)
             .Include(ds => ds.SourceConnection)
             .Include(ds => ds.DestinationConnection)
             .OrderBy(ds => ds.Name)
-            .ThenBy(ds => ds.MediaTypeId)
+            .ThenBy(ds => ds.IngestTypeId)
             .ToArray();
 
         /// TODO: Only allow admin to include connection information.
@@ -72,7 +72,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         var query = this.Context.Ingests
             .AsNoTracking()
             .Include(ds => ds.Product)
-            .Include(ds => ds.MediaType)
+            .Include(ds => ds.IngestType)
             .Include(ds => ds.Source)
             .Include(ds => ds.State)
             .Include(ds => ds.SourceConnection)
@@ -84,8 +84,8 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         if (!String.IsNullOrWhiteSpace(filter.Topic))
             query = query.Where(ds => EF.Functions.Like(ds.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
 
-        if (filter.MediaTypeId.HasValue)
-            query = query.Where(ds => ds.MediaTypeId == filter.MediaTypeId);
+        if (filter.IngestTypeId.HasValue)
+            query = query.Where(ds => ds.IngestTypeId == filter.IngestTypeId);
         if (filter.SourceId.HasValue)
             query = query.Where(ds => ds.SourceId == filter.SourceId);
         if (filter.ProductId.HasValue)
@@ -100,7 +100,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         if (filter.Sort?.Any() == true)
             query = query.OrderByProperty(filter.Sort);
         else
-            query = query.OrderBy(ds => ds.Name).ThenBy(ds => ds.MediaTypeId).ThenBy(ds => ds.IsEnabled);
+            query = query.OrderBy(ds => ds.Name).ThenBy(ds => ds.IngestTypeId).ThenBy(ds => ds.IsEnabled);
 
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);
@@ -117,24 +117,24 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     }
 
     /// <summary>
-    /// Find and return all data sources that match the specified 'mediaTypeName'.
+    /// Find and return all data sources that match the specified 'ingestTypeName'.
     /// Removes connection information with possible secrets by default.
     /// </summary>
-    /// <param name="mediaTypeName">Name of media type</param>
+    /// <param name="ingestTypeName">Name of ingest type</param>
     /// <param name="includeConnection">Whether or not to include connection information</param>
     /// <returns></returns>
-    public IEnumerable<Ingest> FindByMediaType(string mediaTypeName, bool includeConnection)
+    public IEnumerable<Ingest> FindByIngestType(string ingestTypeName, bool includeConnection)
     {
         var result = this.Context.Ingests
             .AsNoTracking()
             .Include(ds => ds.Product)
-            .Include(ds => ds.MediaType)
+            .Include(ds => ds.IngestType)
             .Include(ds => ds.Source)
             .Include(ds => ds.State)
             .Include(ds => ds.SourceConnection)
             .Include(ds => ds.DestinationConnection)
             .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
-            .Where(ds => ds.MediaType!.Name.ToLower() == mediaTypeName.ToLower())
+            .Where(ds => ds.IngestType!.Name.ToLower() == ingestTypeName.ToLower())
             .ToArray();
 
         /// TODO: Only allow admin to include connection information.
@@ -150,7 +150,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     /// Find and return all data sources that match the specified 'topic'.
     /// Removes connection information with possible secrets by default.
     /// </summary>
-    /// <param name="topic">Name of media type</param>
+    /// <param name="topic">Name of ingest type</param>
     /// <param name="includeConnection">Whether or not to include connection information</param>
     /// <returns></returns>
     public IEnumerable<Ingest> FindByTopic(string topic, bool includeConnection)
@@ -158,7 +158,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         var result = this.Context.Ingests
             .AsNoTracking()
             .Include(ds => ds.Product)
-            .Include(ds => ds.MediaType)
+            .Include(ds => ds.IngestType)
             .Include(ds => ds.Source)
             .Include(ds => ds.State)
             .Include(ds => ds.SourceConnection)
@@ -186,7 +186,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         return this.Context.Ingests
             .Include(ds => ds.Product)
-            .Include(ds => ds.MediaType)
+            .Include(ds => ds.IngestType)
             .Include(ds => ds.Source)
             .Include(ds => ds.State)
             .Include(ds => ds.SourceConnection)

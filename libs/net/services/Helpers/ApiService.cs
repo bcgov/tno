@@ -123,13 +123,13 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch ingests for the specified media type.
+    /// Make an AJAX request to the api to fetch ingests for the specified ingest type.
     /// </summary>
-    /// <param name="mediaType"></param>
+    /// <param name="ingestType"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<IngestModel>> GetIngestsForMediaTypeAsync(string mediaType)
+    public async Task<IEnumerable<IngestModel>> GetIngestsForIngestTypeAsync(string ingestType)
     {
-        var url = new Uri(_options.ApiUrl, $"services/ingests/for/media/type/{mediaType}");
+        var url = new Uri(_options.ApiUrl, $"services/ingests/for/ingest/type/{ingestType}");
         var result = await _client.GetAsync<IngestModel[]>(url);
         return result ?? Array.Empty<IngestModel>();
     }

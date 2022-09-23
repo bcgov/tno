@@ -1,4 +1,6 @@
 export * from './ActionName';
+export * from './CategoryType';
+export * from './CategoryTypeName';
 export * from './ConnectionType';
 export * from './ConnectionTypeName';
 export * from './ContentStatus';

@@ -46,7 +46,6 @@ export function toForm(model: IContentModel): IContentForm {
     // Print Content
     section: model.printContent?.section ?? '',
     edition: model.printContent?.edition ?? '',
-    storyType: model.printContent?.storyType ?? '',
     byline: model.printContent?.byline ?? '',
     version: model.version,
   };

@@ -63,7 +63,6 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           name="ownerId"
           tooltip="The user that manages this content"
           options={users}
-          // onChange={handleMediaTypeChange}
         />
       </Col>
       <Col>

@@ -4,8 +4,8 @@ import { IIngestModel } from 'hooks/api-editor';
 export const sortIngest = <T extends IIngestModel>(a: T, b: T) => {
   if (a.name < b.name) return -1;
   if (a.name > b.name) return 1;
-  if (a.mediaTypeId < b.mediaTypeId) return -1;
-  if (a.mediaTypeId > b.mediaTypeId) return 1;
+  if (a.ingestTypeId < b.ingestTypeId) return -1;
+  if (a.ingestTypeId > b.ingestTypeId) return 1;
   return 0;
 };
 

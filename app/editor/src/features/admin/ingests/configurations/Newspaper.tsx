@@ -9,7 +9,7 @@ export const Newspaper: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikText
         label="Page Numbers"
         name="configuration.pageNumbers"
@@ -20,6 +20,6 @@ export const Newspaper: React.FC = (props) => {
         name="configuration.sections"
         value={values.configuration.sections}
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

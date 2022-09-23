@@ -39,9 +39,9 @@ public class LookupModel
     public IEnumerable<License.LicenseModel> Licenses { get; set; } = Array.Empty<License.LicenseModel>();
 
     /// <summary>
-    /// get/set - An array of all media types.
+    /// get/set - An array of all ingest types.
     /// </summary>
-    public IEnumerable<MediaType.MediaTypeModel> MediaTypes { get; set; } = Array.Empty<MediaType.MediaTypeModel>();
+    public IEnumerable<IngestType.IngestTypeModel> IngestTypes { get; set; } = Array.Empty<IngestType.IngestTypeModel>();
 
     /// <summary>
     /// get/set - An array of all roles.
@@ -94,7 +94,7 @@ public class LookupModel
     /// <param name="products"></param>
     /// <param name="sources"></param>
     /// <param name="license"></param>
-    /// <param name="mediaTypes"></param>
+    /// <param name="ingestTypes"></param>
     /// <param name="roles"></param>
     /// <param name="series"></param>
     /// <param name="sourceActions"></param>
@@ -110,7 +110,7 @@ public class LookupModel
         IEnumerable<Entities.Product> products,
         IEnumerable<Entities.Source> sources,
         IEnumerable<Entities.License> license,
-        IEnumerable<Entities.MediaType> mediaTypes,
+        IEnumerable<Entities.IngestType> ingestTypes,
         IEnumerable<Entities.Role> roles,
         IEnumerable<Entities.Series> series,
         IEnumerable<Entities.SourceAction> sourceActions,
@@ -126,7 +126,7 @@ public class LookupModel
         this.Products = products.Select(a => new Product.ProductModel(a));
         this.Sources = sources.Select(a => new Source.SourceModel(a, options));
         this.Licenses = license.Select(a => new License.LicenseModel(a));
-        this.MediaTypes = mediaTypes.Select(a => new MediaType.MediaTypeModel(a));
+        this.IngestTypes = ingestTypes.Select(a => new IngestType.IngestTypeModel(a));
         this.Roles = roles.Select(a => new Role.RoleModel(a));
         this.Series = series.Select(a => new Series.SeriesModel(a));
         this.SourceActions = sourceActions.Select(a => new SourceAction.SourceActionModel(a));

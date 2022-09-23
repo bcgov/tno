@@ -17,9 +17,6 @@ public class PrintContent : AuditColumns
     [Column("section")]
     public string Section { get; set; } = "";
 
-    [Column("story_type")]
-    public string StoryType { get; set; } = "";
-
     [Column("byline")]
     public string Byline { get; set; } = "";
     #endregion
@@ -27,13 +24,12 @@ public class PrintContent : AuditColumns
     #region Constructors
     protected PrintContent() { }
 
-    public PrintContent(Content content, string edition, string section, string storyType, string byline)
+    public PrintContent(Content content, string edition, string section, string byline)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.Edition = edition ?? throw new ArgumentNullException(nameof(edition));
         this.Section = section ?? throw new ArgumentNullException(nameof(section));
-        this.StoryType = storyType ?? throw new ArgumentNullException(nameof(storyType));
         this.Byline = byline ?? throw new ArgumentNullException(nameof(byline));
     }
     #endregion

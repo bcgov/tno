@@ -242,7 +242,7 @@ public class ContentModel : AuditColumnsModel
 
         if (model.PrintContent != null)
         {
-            entity.PrintContent = new Entities.PrintContent(entity, model.PrintContent.Edition, model.PrintContent.Section, model.PrintContent.StoryType, model.PrintContent.Byline);
+            entity.PrintContent = new Entities.PrintContent(entity, model.PrintContent.Edition, model.PrintContent.Section, model.PrintContent.Byline);
         }
 
         if (!String.IsNullOrWhiteSpace(model.OtherSeries))

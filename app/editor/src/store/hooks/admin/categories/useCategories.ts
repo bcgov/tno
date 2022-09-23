@@ -37,7 +37,7 @@ export const useCategories = (): [IAdminState, ICategoryController] => {
       getCategory: async (id: number) => {
         const result = await dispatch<ICategoryModel>('get-category', () => api.getCategory(id));
         store.storeCategories(
-          state.mediaTypes.map((ds) => {
+          state.categories.map((ds) => {
             if (ds.id === result.id) return result;
             return ds;
           }),
@@ -46,7 +46,7 @@ export const useCategories = (): [IAdminState, ICategoryController] => {
       },
       addCategory: async (model: ICategoryModel) => {
         const result = await dispatch<ICategoryModel>('add-category', () => api.addCategory(model));
-        store.storeCategories([...state.mediaTypes, result]);
+        store.storeCategories([...state.categories, result]);
         return result;
       },
       updateCategory: async (model: ICategoryModel) => {
@@ -54,7 +54,7 @@ export const useCategories = (): [IAdminState, ICategoryController] => {
           api.updateCategory(model),
         );
         store.storeCategories(
-          state.mediaTypes.map((ds) => {
+          state.categories.map((ds) => {
             if (ds.id === result.id) return result;
             return ds;
           }),
@@ -65,11 +65,11 @@ export const useCategories = (): [IAdminState, ICategoryController] => {
         const result = await dispatch<ICategoryModel>('delete-category', () =>
           api.deleteCategory(model),
         );
-        store.storeCategories(state.mediaTypes.filter((ds) => ds.id !== result.id));
+        store.storeCategories(state.categories.filter((ds) => ds.id !== result.id));
         return result;
       },
     }),
-    // The state.mediaTypes will cause it to fire twice!
+    // The state.categories will cause it to fire twice!
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [api, dispatch, store],
   );

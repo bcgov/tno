@@ -4,7 +4,7 @@ namespace TNO.Services;
 
 /// <summary>
 /// IIngestManager interface, provides a way to manage several ingest schedules.
-/// It will fetch all ingests for the configured media types.
+/// It will fetch all ingests for the configured ingest types.
 /// It will ensure all ingests are being run based on their schedules.
 /// </summary>
 public interface IIngestManager : IServiceManager

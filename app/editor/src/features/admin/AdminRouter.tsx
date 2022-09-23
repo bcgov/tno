@@ -14,10 +14,10 @@ import {
   IngestList,
   IngestSchedule,
   IngestSettings,
+  IngestTypeForm,
+  IngestTypeList,
   LicenseForm,
   LicenseList,
-  MediaTypeForm,
-  MediaTypeList,
   ProductForm,
   ProductList,
   ReachEarnedMedia,
@@ -38,9 +38,6 @@ export const AdminRouter: React.FC = () => {
       <Route index element={<Navigate to="users" />} />
       <Route path="users" element={<UserList />} />
       <Route path="users/:id" element={<UserForm />} />
-
-      <Route path="media/types" element={<MediaTypeList />} />
-      <Route path="media/types/:id" element={<MediaTypeForm />} />
 
       <Route path="categories" element={<CategoryList />} />
       <Route path="categories/:id" element={<CategoryForm />} />
@@ -69,6 +66,9 @@ export const AdminRouter: React.FC = () => {
 
       <Route path="connections" element={<ConnectionList />} />
       <Route path="connections/:id" element={<ConnectionForm />} />
+
+      <Route path="ingest/types" element={<IngestTypeList />} />
+      <Route path="ingest/types/:id" element={<IngestTypeForm />} />
 
       <Route path="ingests" element={<IngestList />} />
       <Route path="ingests/:id" element={<IngestForm />}>

@@ -8,7 +8,7 @@ export const defaultIngest: IIngestModel = {
   isEnabled: false,
   sourceId: 0,
   productId: 0,
-  mediaTypeId: 0,
+  ingestTypeId: 0,
   scheduleType: ScheduleTypeName.None,
   configuration: {
     post: true,

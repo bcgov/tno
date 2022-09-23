@@ -3,13 +3,13 @@ using TNO.API.Models;
 namespace TNO.API.Areas.Admin.Models.Series;
 
 /// <summary>
-/// SeriesModel class, provides a model that represents an media type.
+/// SeriesModel class, provides a model that represents an series.
 /// </summary>
 public class SeriesModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
-    /// get/set - The primary key of the type model.
+    /// get/set - The primary key of the series.
     /// </summary>
     public int Id { get; set; }
 
@@ -19,7 +19,7 @@ public class SeriesModel : AuditColumnsModel
     public string Name { get; set; } = "";
 
     /// <summary>
-    /// get/set - A description of the type model.
+    /// get/set - A description of the series.
     /// </summary>
     public string Description { get; set; } = "";
 

@@ -19,9 +19,9 @@ export const columns: (Column<IIngestModel> &
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
-    Header: 'Media Type',
+    Header: 'Type',
     width: 1,
-    accessor: (row) => row.mediaType?.name,
+    accessor: (row) => row.ingestType?.name,
     Cell: ({ value }: any) => <Ellipsis>{value}</Ellipsis>,
   },
   {

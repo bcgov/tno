@@ -48,7 +48,6 @@ export function toModel(values: IContentForm): IContentModel {
           contentId: values.id,
           edition: values.edition,
           section: values.section,
-          storyType: values.storyType,
           byline: values.byline,
         },
     publishedOn: moment(values.publishedOn).toDate(),

@@ -4,8 +4,8 @@ import {
   ICategoryModel,
   IConnectionModel,
   IIngestModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IPaged,
   IProductModel,
   ISeriesModel,
@@ -21,8 +21,8 @@ import {
   storeAdminCategories,
   storeAdminConnections,
   storeAdminIngests,
+  storeAdminIngestTypes,
   storeAdminLicenses,
-  storeAdminMediaTypes,
   storeAdminProducts,
   storeAdminSeries,
   storeAdminSources,
@@ -41,7 +41,7 @@ export interface IAdminStore {
   storeProducts: (products: IProductModel[]) => void;
   storeLicenses: (products: ILicenseModel[]) => void;
   storeIngests: (ingests: IIngestModel[]) => void;
-  storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
+  storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
   storeCategories: (categories: ICategoryModel[]) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
   storeTags: (tags: ITagModel[]) => void;
@@ -70,8 +70,8 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       storeIngests: (ingests: IIngestModel[]) => {
         dispatch(storeAdminIngests(ingests));
       },
-      storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => {
-        dispatch(storeAdminMediaTypes(mediaTypes));
+      storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => {
+        dispatch(storeAdminIngestTypes(ingestTypes));
       },
       storeUsers: (users: IPaged<IUserModel>) => {
         dispatch(storeAdminUsers(users));
