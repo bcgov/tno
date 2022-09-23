@@ -1,4 +1,4 @@
-import { ContentStatusName, ContentType, ContentTypeName } from 'hooks/api-editor';
+import { ContentStatusName, ContentTypeName } from 'hooks/api-editor';
 
 import { IContentForm } from '../interfaces';
 

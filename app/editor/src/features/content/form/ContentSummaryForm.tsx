@@ -5,7 +5,7 @@ import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
 import { getIn, useFormikContext } from 'formik';
 import { useCombinedView } from 'hooks';
-import { ContentType, ContentTypeName, IUserModel } from 'hooks/api-editor';
+import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
