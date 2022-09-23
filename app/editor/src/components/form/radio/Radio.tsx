@@ -12,6 +12,8 @@ export interface IRadioProps extends InputHTMLAttributes<HTMLInputElement> {
    * The tooltip to show on hover.
    */
   tooltip?: string;
+  /** Error message for the radio button */
+  error?: string;
 }
 
 /**
@@ -25,11 +27,13 @@ export const Radio: React.FC<IRadioProps> = ({
   tooltip,
   children,
   className,
+  error,
   ...rest
 }) => {
   return (
     <styled.Radio
       type={type}
+      error={error}
       variant={variant}
       className={`rad ${className ?? ''}`}
       data-for="main-tooltip"

@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, Row, Tab, Tabs } from 'tno-core';
+import { hasErrors } from 'utils';
 
 import { defaultSource } from './constants';
 import * as styled from './styled';
@@ -48,10 +49,6 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/sources/${result.id}`);
     } catch {}
-  };
-
-  const hasErrors = (errors: any, props: string[]) => {
-    return props.some((p) => !!errors[p]);
   };
 
   return (

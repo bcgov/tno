@@ -120,6 +120,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                     <Radio
                       id={`rad-${name}-${item.value}`}
                       name={name}
+                      error={error}
                       value={item.value}
                       checked={item.value === (selected as IOptionItem)?.value}
                       onChange={handleChange}
@@ -141,6 +142,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                       name={name}
                       value={value}
                       checked={value === selected}
+                      error={error}
                       {...rest}
                       onChange={handleChange}
                     />
@@ -153,6 +155,7 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
                 return (
                   <span key={value}>
                     <Radio
+                      error={error}
                       id={`rad-${name}-${value}`}
                       name={name}
                       value={value}

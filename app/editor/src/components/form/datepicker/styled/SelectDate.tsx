@@ -12,6 +12,11 @@ export const SelectDate = styled.div<ISelectDateProps>`
     font-weight: 700;
   }
 
+  p[role='alert'] {
+    font-weight: 0.85em;
+    color: ${(props) => props.theme.css.dangerColor};
+  }
+
   .react-datepicker-wrapper {
     min-width: 12ch;
 
@@ -46,26 +51,8 @@ export const SelectDate = styled.div<ISelectDateProps>`
         }
       }};
 
-      background-color: ${(props) => {
-        switch (props.variant) {
-          case SelectDateVariant.primary:
-            return props.theme.css.inputBackgroundColor;
-          case SelectDateVariant.secondary:
-            return '#6c757d';
-          case SelectDateVariant.success:
-            return '#43893e';
-          case SelectDateVariant.info:
-            return '#96c0e6';
-          case SelectDateVariant.warning:
-            return '#f9ca54';
-          case SelectDateVariant.danger:
-            return '#d93e45';
-          case SelectDateVariant.link:
-            return 'transparent';
-          default:
-            return '#38598a';
-        }
-      }};
+      background-color: ${(props) => !!props.error && '#e19596'};
+
       border-color: ${(props) => {
         switch (props.variant) {
           case SelectDateVariant.primary:
@@ -77,7 +64,7 @@ export const SelectDate = styled.div<ISelectDateProps>`
           case SelectDateVariant.info:
             return '#96c0e6';
           case SelectDateVariant.warning:
-            return '#f9ca54';
+            return '#574040';
           case SelectDateVariant.danger:
             return '#d93e45';
           case SelectDateVariant.link:

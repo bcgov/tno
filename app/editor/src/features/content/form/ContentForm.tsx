@@ -24,12 +24,14 @@ import {
 } from 'hooks';
 import { ContentStatusName, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
+import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
 import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines, FaSpinner } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
+import { hasErrors } from 'utils';
 
 import { ContentFormSchema } from '../validation';
 import {
@@ -70,6 +72,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
 
   const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('properties');
+  const [savePressed, setSavePressed] = React.useState(false);
+  const [clipErrors, setClipErrors] = React.useState<string>('');
   const [content, setContent] = React.useState<IContentForm>({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
@@ -101,6 +105,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
       fetchContent(+id);
     }
   }, [id, fetchContent]);
+
+  const { setShowValidationToast } = useTabValidationToasts();
 
   const handleSubmit = async (values: IContentForm) => {
     let contentResult: IContentModel | null = null;
@@ -414,8 +420,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                         <>
                           <Tab
                             label="Properties"
-                            onClick={() => setActive('properties')}
+                            onClick={() => {
+                              setActive('properties');
+                            }}
                             active={active === 'properties'}
+                            hasErrors={
+                              hasErrors(props.errors, ['publishedOn', 'tone', 'summary']) &&
+                              active !== 'properties'
+                            }
+                            showErrorOnSave={{ value: true, savePressed: savePressed }}
+                            setShowValidationToast={setShowValidationToast}
                           />
                           <Tab
                             label="Transcript"
@@ -426,6 +440,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                             label="Clips"
                             onClick={() => setActive('clips')}
                             active={active === 'clips'}
+                            hasErrors={!!clipErrors && active !== 'clips'}
+                            showErrorOnSave={{ value: true, savePressed: savePressed }}
                           />
                           <Tab
                             label="Labels"
@@ -440,13 +456,18 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                           content={content}
                           setContent={setContent}
                           contentType={contentType}
+                          savePressed={savePressed}
                         />
                       </Show>
                       <Show visible={active === 'transcript'}>
                         <ContentTranscriptForm />
                       </Show>
                       <Show visible={active === 'clips'}>
-                        <ContentClipForm content={content} setContent={setContent} />
+                        <ContentClipForm
+                          content={content}
+                          setContent={setContent}
+                          setClipErrors={setClipErrors}
+                        />
                       </Show>
                       <Show visible={active === 'labels'}>
                         <ContentLabelsForm />
@@ -462,7 +483,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   </Show>
                 </Row>
                 <Row>
-                  <Button type="submit" disabled={props.isSubmitting}>
+                  <Button
+                    type="submit"
+                    disabled={props.isSubmitting}
+                    onClick={() => setSavePressed(true)}
+                  >
                     Save
                   </Button>
                   <Show visible={!!props.values.id}>

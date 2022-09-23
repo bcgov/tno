@@ -3,7 +3,7 @@ import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'comp
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
-import { useFormikContext } from 'formik';
+import { getIn, useFormikContext } from 'formik';
 import { useCombinedView } from 'hooks';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
@@ -26,6 +26,7 @@ export interface IContentSummaryFormProps {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
   contentType: ContentTypeName;
+  savePressed?: boolean;
 }
 
 /**
@@ -37,10 +38,11 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   setContent,
   content,
   contentType,
+  savePressed,
 }) => {
   const keycloak = useKeycloakWrapper();
   const [{ series, categories, licenses, tags, users }] = useLookup();
-  const { values, setFieldValue, handleChange } = useFormikContext<IContentForm>();
+  const { values, setFieldValue, handleChange, errors } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
   const combined = useCombinedView();
@@ -104,6 +106,8 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const setMedia = () => {
     setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/upload/stream?path=${path}`);
   };
+
+  const toningError = getIn(errors, 'tone');
 
   return (
     <styled.ContentSummaryForm>
@@ -264,6 +268,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           <FormikRadioGroup
             label="Toning"
             direction="row"
+            error={savePressed && toningError}
             name="tonePool"
             required
             options={toningOptions}
