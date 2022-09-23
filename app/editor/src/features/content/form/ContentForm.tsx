@@ -290,6 +290,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                             label="Headline"
                             value={props.values.headline}
                           />
+                          <Show visible={contentType === ContentTypeName.PrintContent}>
+                            <FormikText name="byline" label="Byline" required />
+                          </Show>
                         </Col>
                         <Col>
                           <Button
@@ -361,7 +364,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                           <FormikText name="storyType" label="Story Type" required />
                           <FormikText name="page" label="Page" />
                         </Row>
-                        <FormikText name="byline" label="Byline" required />
                       </Show>
                       <Show visible={contentType === ContentTypeName.Snippet}>
                         <FormikText
