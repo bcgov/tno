@@ -34,8 +34,8 @@ public class FileMonitorIngestActionManager : IngestActionManager<FileMonitorOpt
     /// <returns></returns>
     public override bool VerifyIngest()
     {
-        var importDir = this.Ingest.GetConfigurationValue("importDir");
-        return !String.IsNullOrWhiteSpace(importDir);
+        var filePattern = this.Ingest.GetConfigurationValue("filePattern");
+        return !String.IsNullOrWhiteSpace(filePattern);
     }
     #endregion
 }
