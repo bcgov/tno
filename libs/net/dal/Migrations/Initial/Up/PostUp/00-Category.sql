@@ -5,247 +5,251 @@ BEGIN
 INSERT INTO public.category (
   "name"
   , "is_enabled"
+  , "category_type"
   , "auto_transcribe"
   , "created_by_id"
   , "created_by"
   , "updated_by_id"
   , "updated_by"
 ) VALUES (
-  'Red tape'
-  , true
-  , false
+  'Malcolmson - suicide prevention (ProActive Comms)'
+  , true -- is_enabled
+  , 1 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Youth sports'
-  , true
-  , false
+  'Repeat offender recommendations (ProActive Comms)'
+  , true -- is_enabled
+  , 1 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Schoenborn hearing'
-  , true
-  , false
+  'Alberta Is Calling'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Cruise ship season'
-  , true
-  , false
+  'Ambulance waits'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'TMX purchase'
-  , true
-  , false
+  'ArriveCan app'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Overdose crisis'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Single-use fees'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Powell River name change'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'ICBC profit'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Forced patient transfers'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Used car tax'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'FOI fees'
-  , true
-  , false
+  'BC NDP leadership'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'BC crime'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Farnworth - Lytton recovery'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Highway 99 rockslide'
-  , true
-  , false
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'BC housing costs'
-  , true
-  , false
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Gasoline prices'
-  , true
-  , false
+  'COVID-19 update'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Climate change'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Dam release lawsuit'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Daycare death sentencing'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ER closure'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Gang violence'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Health care decline'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'IIO investigation'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'Inflation concerns'
-  , true
-  , false
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'UBC Okanagan death'
-  , true
-  , false
+  'Mackenzie - seniors report'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'COVID-19 restrictions'
-  , true
-  , false
+  'Municipal election'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Autism funding'
-  , true
-  , false
+  'Old-growth protesters'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Craig James trial'
-  , true
-  , false
+  'Overdose crisis'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Farnworth - sexual assault svcs'
-  , true
-  , false
+  'Port strike'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Hospital parking fees'
-  , true
-  , false
+  'Street lawlessness'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Khalsa parade cancelled'
-  , true
-  , false
+  'Surrey South by-election'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Animal feed prices'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'By-election'
-  , true
-  , false
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'COVID-19 rapid testing'
-  , true
-  , false
+  'Truth and Reconciliation Day'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
   'Ukraine invasion'
-  , true
-  , false
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Russian investments'
-  , true
-  , false
+  'Wildfire season'
+  , true -- is_enabled
+  , 0 -- category_type
+  , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

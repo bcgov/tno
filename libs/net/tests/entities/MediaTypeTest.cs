@@ -5,14 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 [Trait("category", "unit")]
 [Trait("group", "entities")]
 [ExcludeFromCodeCoverage]
-public class MediaTypeTest
+public class IngestTypeTest
 {
     [Fact]
     public void Constructor1()
     {
         // Arrange
         // Act
-        var item = new TNO.Entities.MediaType("test");
+        var item = new TNO.Entities.IngestType("test");
 
         // Assert
         Assert.Equal(0, item.Id);

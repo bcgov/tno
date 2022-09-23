@@ -9,7 +9,7 @@ export const AVArchive: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikText
         label="Volume Range"
         name="configuration.volumeRange"
@@ -20,6 +20,6 @@ export const AVArchive: React.FC = (props) => {
         name="configuration.frameRate"
         value={values.configuration.frameRate}
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

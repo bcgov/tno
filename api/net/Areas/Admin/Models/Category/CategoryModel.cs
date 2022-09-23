@@ -1,9 +1,10 @@
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.Category;
 
 /// <summary>
-/// CategoryModel class, provides a model that represents an media type.
+/// CategoryModel class, provides a model that represents an category.
 /// </summary>
 public class CategoryModel : AuditColumnsModel
 {
@@ -34,7 +35,12 @@ public class CategoryModel : AuditColumnsModel
     public int SortOrder { get; set; }
 
     /// <summary>
-    /// get/set - Whether content with this category should be automatically transcribed.
+    /// get/set - The type of category (issue, proactive).
+    /// </summary>
+    public CategoryType CategoryType { get; set; }
+
+    /// <summary>
+    /// get/set - Whether content with this series should automatically be transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
     #endregion
@@ -56,6 +62,7 @@ public class CategoryModel : AuditColumnsModel
         this.Description = entity.Description;
         this.SortOrder = entity.SortOrder;
         this.IsEnabled = entity.IsEnabled;
+        this.CategoryType = entity.CategoryType;
         this.AutoTranscribe = entity.AutoTranscribe;
     }
     #endregion
@@ -67,7 +74,7 @@ public class CategoryModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Category(CategoryModel model)
     {
-        var entity = new Entities.Category(model.Name)
+        var entity = new Entities.Category(model.Name, model.CategoryType)
         {
             Id = model.Id,
             Name = model.Name,

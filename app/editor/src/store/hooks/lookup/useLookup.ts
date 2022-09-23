@@ -3,9 +3,9 @@ import {
   ICacheModel,
   ICategoryModel,
   IClaimModel,
+  IIngestTypeModel,
   ILicenseModel,
   ILookupModel,
-  IMediaTypeModel,
   IMetricModel,
   IProductModel,
   IRoleModel,
@@ -19,9 +19,9 @@ import {
   useApiCache,
   useApiCategories,
   useApiClaims,
+  useApiIngestTypes,
   useApiLicenses,
   useApiLookups,
-  useApiMediaTypes,
   useApiMetrics,
   useApiProducts,
   useApiRoles,
@@ -49,7 +49,7 @@ interface ILookupController {
   getCategories: (refresh?: boolean) => Promise<ICategoryModel[]>;
   getProducts: (refresh?: boolean) => Promise<IProductModel[]>;
   getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
-  getMediaTypes: (refresh?: boolean) => Promise<IMediaTypeModel[]>;
+  getIngestTypes: (refresh?: boolean) => Promise<IIngestTypeModel[]>;
   getSources: (refresh?: boolean) => Promise<ISourceModel[]>;
   getSeries: (refresh?: boolean) => Promise<ISeriesModel[]>;
   getTags: (refresh?: boolean) => Promise<ITagModel[]>;
@@ -69,7 +69,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const products = useApiProducts();
   const sources = useApiSources();
   const licenses = useApiLicenses();
-  const mediaTypes = useApiMediaTypes();
+  const ingestTypes = useApiIngestTypes();
   const roles = useApiRoles();
   const series = useApiSeries();
   const sourceActions = useApiSourceActions();
@@ -97,7 +97,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('claims', results.claims, store.storeClaims);
               saveToLocalStorage('products', results.products, store.storeProducts);
               saveToLocalStorage('sources', results.sources, store.storeSources);
-              saveToLocalStorage('media_types', results.mediaTypes, store.storeMediaTypes);
+              saveToLocalStorage('ingest_types', results.ingestTypes, store.storeIngestTypes);
               saveToLocalStorage('licenses', results.licenses, store.storeLicenses);
               saveToLocalStorage('roles', results.roles, store.storeRoles);
               saveToLocalStorage('series', results.series, store.storeSeries);
@@ -114,7 +114,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 claims: getFromLocalStorage<IClaimModel[]>('claims', []),
                 products: getFromLocalStorage<IProductModel[]>('products', []),
                 sources: getFromLocalStorage<ISourceModel[]>('sources', []),
-                mediaTypes: getFromLocalStorage<IMediaTypeModel[]>('media_types', []),
+                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
                 licenses: getFromLocalStorage<ILicenseModel[]>('licenses', []),
                 roles: getFromLocalStorage<IRoleModel[]>('roles', []),
                 series: getFromLocalStorage<ISeriesModel[]>('series', []),
@@ -129,7 +129,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeClaims(lookups.claims);
               store.storeProducts(lookups.products);
               store.storeSources(lookups.sources);
-              store.storeMediaTypes(lookups.mediaTypes);
+              store.storeIngestTypes(lookups.ingestTypes);
               store.storeLicenses(lookups.licenses);
               store.storeRoles(lookups.roles);
               store.storeSeries(lookups.series);
@@ -216,14 +216,14 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           },
         );
       },
-      getMediaTypes: async () => {
-        return await fetchIfNoneMatch<IMediaTypeModel[]>(
-          'media_types',
+      getIngestTypes: async () => {
+        return await fetchIfNoneMatch<IIngestTypeModel[]>(
+          'ingest_types',
           dispatch,
-          (etag) => mediaTypes.getMediaTypes(etag),
+          (etag) => ingestTypes.getIngestTypes(etag),
           (results) => {
             const values = results ?? [];
-            store.storeMediaTypes(values);
+            store.storeIngestTypes(values);
             return values;
           },
         );
@@ -327,7 +327,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       dispatch,
       licenses,
       lookups,
-      mediaTypes,
+      ingestTypes,
       roles,
       series,
       sourceActions,

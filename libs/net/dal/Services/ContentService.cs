@@ -48,8 +48,6 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (!String.IsNullOrWhiteSpace(filter.Edition))
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Edition.ToLower(), $"%{filter.Edition.ToLower()}%"));
-        if (!String.IsNullOrWhiteSpace(filter.StoryType))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.StoryType.ToLower(), $"%{filter.StoryType.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Byline))
             query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline.ToLower(), $"%{filter.Byline.ToLower()}%"));
 

@@ -14,7 +14,7 @@ export const AudioClip: React.FC = (props) => {
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikSelect
         label="Timezone"
         name="configuration.timeZone"
@@ -61,6 +61,6 @@ export const AudioClip: React.FC = (props) => {
         name="configuration.throwOnMissingFile"
         tooltip="The service will throw an error if the capture file is not found or is missing data"
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

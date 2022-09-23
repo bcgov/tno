@@ -4,8 +4,8 @@ import {
   ICacheModel,
   ICategoryModel,
   IClaimModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IMetricModel,
   IProductModel,
   IRoleModel,
@@ -26,7 +26,7 @@ export const initialLookupState: ILookupState = {
   claims: [],
   products: [],
   licenses: [],
-  mediaTypes: [],
+  ingestTypes: [],
   roles: [],
   series: [],
   sources: [],
@@ -73,8 +73,8 @@ export const lookupSlice = createSlice({
     storeLicenses(state: ILookupState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
     },
-    storeMediaTypes(state: ILookupState, action: PayloadAction<IMediaTypeModel[]>) {
-      state.mediaTypes = action.payload;
+    storeIngestTypes(state: ILookupState, action: PayloadAction<IIngestTypeModel[]>) {
+      state.ingestTypes = action.payload;
     },
     storeRoles(state: ILookupState, action: PayloadAction<IRoleModel[]>) {
       state.roles = action.payload;
@@ -108,7 +108,7 @@ export const {
   storeClaims,
   storeProducts,
   storeLicenses,
-  storeMediaTypes,
+  storeIngestTypes,
   storeRoles,
   storeSeries,
   storeSources,

@@ -35,7 +35,7 @@ public class LookupController : ControllerBase
     private readonly IProductService _productService;
     private readonly ISourceService _sourceService;
     private readonly ILicenseService _licenseService;
-    private readonly IMediaTypeService _mediaTypeService;
+    private readonly IIngestTypeService _ingestTypeService;
     private readonly IRoleService _roleService;
     private readonly ISeriesService _seriesService;
     private readonly ISourceActionService _sourceActionService;
@@ -55,7 +55,7 @@ public class LookupController : ControllerBase
     /// <param name="productService"></param>
     /// <param name="sourceService"></param>
     /// <param name="licenseService"></param>
-    /// <param name="mediaTypeService"></param>
+    /// <param name="ingestTypeService"></param>
     /// <param name="roleService"></param>
     /// <param name="seriesService"></param>
     /// <param name="sourceActionService"></param>
@@ -71,7 +71,7 @@ public class LookupController : ControllerBase
         IProductService productService,
         ISourceService sourceService,
         ILicenseService licenseService,
-        IMediaTypeService mediaTypeService,
+        IIngestTypeService ingestTypeService,
         IRoleService roleService,
         ISeriesService seriesService,
         ISourceActionService sourceActionService,
@@ -87,7 +87,7 @@ public class LookupController : ControllerBase
         _productService = productService;
         _sourceService = sourceService;
         _licenseService = licenseService;
-        _mediaTypeService = mediaTypeService;
+        _ingestTypeService = ingestTypeService;
         _roleService = roleService;
         _seriesService = seriesService;
         _sourceActionService = sourceActionService;
@@ -119,7 +119,7 @@ public class LookupController : ControllerBase
         var products = _productService.FindAll();
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
-        var mediaTypes = _mediaTypeService.FindAll();
+        var ingestTypes = _ingestTypeService.FindAll();
         var roles = _roleService.FindAll();
         var series = _seriesService.FindAll();
         var sourceActions = _sourceActionService.FindAll();
@@ -134,7 +134,7 @@ public class LookupController : ControllerBase
             products,
             sources,
             license,
-            mediaTypes,
+            ingestTypes,
             roles,
             series,
             sourceActions,

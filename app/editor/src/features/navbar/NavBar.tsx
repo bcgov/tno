@@ -65,16 +65,16 @@ export const NavBar: React.FC = () => {
             <NavBarItem navigateTo="/admin/licenses" label="Licenses" claim={Claim.administrator} />
             <NavBarItem navigateTo="/admin/actions" label="Actions" claim={Claim.administrator} />
             <NavBarItem
-              navigateTo="/admin/media/types"
-              label="Media Types"
-              claim={Claim.administrator}
-            />
-            <NavBarItem
               navigateTo="/admin/connections"
               label="Connections"
               claim={Claim.administrator}
             />
             <NavBarItem navigateTo="/admin/ingests" label="Ingest" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/ingest/types"
+              label="Ingest Types"
+              claim={Claim.administrator}
+            />
           </Show>
 
           {/* Reports */}

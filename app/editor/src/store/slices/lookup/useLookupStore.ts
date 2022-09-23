@@ -3,8 +3,8 @@ import {
   ICacheModel,
   ICategoryModel,
   IClaimModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IMetricModel,
   IProductModel,
   IRoleModel,
@@ -23,8 +23,8 @@ import {
   storeCache,
   storeCategories,
   storeClaims,
+  storeIngestTypes,
   storeLicenses,
-  storeMediaTypes,
   storeMetrics,
   storeProducts,
   storeRoles,
@@ -47,7 +47,7 @@ export interface ILookupStore {
   storeProducts: (contentTypes: IProductModel[]) => void;
   storeSources: (sources: ISourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
-  storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => void;
+  storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
   storeRoles: (roles: IRoleModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
   storeSourceActions: (actions: ISourceActionModel[]) => void;
@@ -87,8 +87,8 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeLicenses: (licenses: ILicenseModel[]) => {
         dispatch(storeLicenses(licenses));
       },
-      storeMediaTypes: (mediaTypes: IMediaTypeModel[]) => {
-        dispatch(storeMediaTypes(mediaTypes));
+      storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => {
+        dispatch(storeIngestTypes(ingestTypes));
       },
       storeRoles: (roles: IRoleModel[]) => {
         dispatch(storeRoles(roles));

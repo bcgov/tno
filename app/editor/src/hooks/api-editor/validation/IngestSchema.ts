@@ -14,7 +14,7 @@ export const IngestSchema = object().shape({
     .test('length', 'Maximum length is 20', (val) => (val?.length ?? 0) <= 20),
 
   sourceId: number().integer().min(1, 'Source required').required(),
-  mediaTypeId: number().integer().min(1, 'Media Type required').required(),
+  ingestTypeId: number().integer().min(1, 'Ingest Type required').required(),
   productId: number().integer().min(1, 'Product required').required(),
   sourceConnectionId: number().integer().min(1, 'Source connection required').required(),
   destinationConnectionId: number().integer().min(1, 'Destination connection required').required(),

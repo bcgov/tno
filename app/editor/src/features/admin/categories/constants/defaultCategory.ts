@@ -1,4 +1,4 @@
-import { ICategoryModel } from 'hooks';
+import { CategoryTypeName, ICategoryModel } from 'hooks';
 
 export const defaultCategory: ICategoryModel = {
   id: 0,
@@ -6,5 +6,6 @@ export const defaultCategory: ICategoryModel = {
   description: '',
   isEnabled: true,
   sortOrder: 0,
+  categoryType: CategoryTypeName.Issues,
   autoTranscribe: false,
 };

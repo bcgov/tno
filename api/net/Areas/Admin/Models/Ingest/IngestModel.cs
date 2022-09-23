@@ -58,12 +58,12 @@ public class IngestModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int MediaTypeId { get; set; }
+    public int IngestTypeId { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public MediaTypeModel? MediaType { get; set; }
+    public IngestTypeModel? IngestType { get; set; }
 
     /// <summary>
     /// get/set -
@@ -138,8 +138,8 @@ public class IngestModel : AuditColumnsModel
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
         this.RetryLimit = entity.RetryLimit;
 
-        this.MediaTypeId = entity.MediaTypeId;
-        this.MediaType = entity.MediaType != null ? new MediaTypeModel(entity.MediaType) : null;
+        this.IngestTypeId = entity.IngestTypeId;
+        this.IngestType = entity.IngestType != null ? new IngestTypeModel(entity.IngestType) : null;
         this.SourceId = entity.SourceId;
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.ProductId = entity.ProductId;
@@ -175,7 +175,7 @@ public class IngestModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Ingest(IngestModel model)
     {
-        var entity = new Entities.Ingest(model.Name, model.Topic, model.SourceId, model.MediaTypeId, model.ProductId, model.SourceConnectionId, model.DestinationConnectionId)
+        var entity = new Entities.Ingest(model.Name, model.Topic, model.SourceId, model.IngestTypeId, model.ProductId, model.SourceConnectionId, model.DestinationConnectionId)
         {
             Id = model.Id,
             Description = model.Description,

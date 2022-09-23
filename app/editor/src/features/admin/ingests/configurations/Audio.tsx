@@ -14,7 +14,7 @@ export const Audio: React.FC = (props) => {
   const serviceType = ServiceTypes.find((t) => t.value === values.configuration.serviceType);
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikSelect
         label="Service Type"
         name="configuration.serviceType"
@@ -30,6 +30,6 @@ export const Audio: React.FC = (props) => {
       <Show visible={values.configuration.serviceType === 'tuner'}>
         <AudioTuner />
       </Show>
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

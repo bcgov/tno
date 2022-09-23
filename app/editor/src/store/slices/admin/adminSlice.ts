@@ -5,8 +5,8 @@ import {
   ICategoryModel,
   IConnectionModel,
   IIngestModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IPaged,
   IProductModel,
   ISeriesModel,
@@ -22,7 +22,7 @@ export const initialAdminState: IAdminState = {
   connections: [],
   products: [],
   ingests: [],
-  mediaTypes: [],
+  ingestTypes: [],
   users: { page: 1, quantity: 10, items: [], total: 0 },
   categories: [],
   tags: [],
@@ -55,8 +55,8 @@ export const adminSlice = createSlice({
     storeLicenses(state: IAdminState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
     },
-    storeMediaTypes(state: IAdminState, action: PayloadAction<IMediaTypeModel[]>) {
-      state.mediaTypes = action.payload;
+    storeIngestTypes(state: IAdminState, action: PayloadAction<IIngestTypeModel[]>) {
+      state.ingestTypes = action.payload;
     },
     storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
       state.users = action.payload;
@@ -85,7 +85,7 @@ export const {
   storeProducts: storeAdminProducts,
   storeLicenses: storeAdminLicenses,
   storeIngests: storeAdminIngests,
-  storeMediaTypes: storeAdminMediaTypes,
+  storeIngestTypes: storeAdminIngestTypes,
   storeUsers: storeAdminUsers,
   storeCategories: storeAdminCategories,
   storeTags: storeAdminTags,

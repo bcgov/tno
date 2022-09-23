@@ -8,7 +8,7 @@ public class IngestFilter : PageFilter
     #region Properties
     public string? Name { get; set; }
     public string? Topic { get; set; }
-    public int? MediaTypeId { get; set; }
+    public int? IngestTypeId { get; set; }
     public int? SourceId { get; set; }
     public int? ProductId { get; set; }
     public int? SourceConnectionId { get; set; }
@@ -26,7 +26,7 @@ public class IngestFilter : PageFilter
         this.Name = filter.GetStringValue(nameof(this.Name));
         this.Topic = filter.GetStringValue(nameof(this.Topic));
 
-        this.MediaTypeId = filter.GetIntNullValue(nameof(this.MediaTypeId));
+        this.IngestTypeId = filter.GetIntNullValue(nameof(this.IngestTypeId));
         this.SourceId = filter.GetIntNullValue(nameof(this.SourceId));
         this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
         this.SourceConnectionId = filter.GetIntNullValue(nameof(this.SourceConnectionId));

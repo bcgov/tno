@@ -3,8 +3,8 @@ import {
   ICacheModel,
   ICategoryModel,
   IClaimModel,
+  IIngestTypeModel,
   ILicenseModel,
-  IMediaTypeModel,
   IMetricModel,
   IProductModel,
   IRoleModel,
@@ -23,7 +23,7 @@ export interface ILookupState {
   claims: IClaimModel[];
   products: IProductModel[];
   licenses: ILicenseModel[];
-  mediaTypes: IMediaTypeModel[];
+  ingestTypes: IIngestTypeModel[];
   roles: IRoleModel[];
   series: ISeriesModel[];
   sources: ISourceModel[];

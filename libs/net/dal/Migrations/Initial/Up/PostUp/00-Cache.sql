@@ -91,7 +91,7 @@ INSERT INTO public.cache (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'media_types' -- key
+  'ingest_types' -- key
   , gen_random_uuid() -- value
   , '' -- description
   , DEFAULT_USER_ID

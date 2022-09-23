@@ -21,11 +21,6 @@ public class PrintContentModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public string StoryType { get; set; } = "";
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
     public string Byline { get; set; } = "";
     #endregion
 
@@ -43,7 +38,6 @@ public class PrintContentModel : AuditColumnsModel
     {
         this.Edition = entity?.Edition ?? throw new ArgumentNullException(nameof(entity));
         this.Section = entity.Section;
-        this.StoryType = entity.StoryType;
         this.Byline = entity.Byline;
     }
 
@@ -57,7 +51,6 @@ public class PrintContentModel : AuditColumnsModel
 
         this.Edition = entity.PrintContent.Edition;
         this.Section = entity.PrintContent.Section;
-        this.StoryType = entity.PrintContent.StoryType;
         this.Byline = entity.PrintContent.Byline;
     }
     #endregion

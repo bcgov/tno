@@ -18,7 +18,7 @@ public class ImportService
     private readonly TNOContext _destinationContext;
 
     private List<ContentType> _contentTypes = new();
-    private List<MediaType> _mediaTypes = new();
+    private List<IngestType> _ingestTypes = new();
     private List<DataSource> _dataSources = new();
     private List<License> _licenses = new();
     private List<Category> _categories = new();
@@ -49,19 +49,19 @@ public class ImportService
     #endregion
 
     #region Methods
-    private MediaType GetMediaType(string type)
+    private IngestType GetIngestType(string type)
     {
         var name = type;
         if (name == "Radio News") name = "News Radio";
         if (name == "TV News") name = "Television";
 
-        return _mediaTypes.First(mt => mt.Name.ToLower() == name.ToLower());
+        return _ingestTypes.First(mt => mt.Name.ToLower() == name.ToLower());
     }
 
     private void InitializeLookups()
     {
         _contentTypes = _destinationContext.ContentTypes.ToList();
-        _mediaTypes = _destinationContext.MediaTypes.ToList();
+        _ingestTypes = _destinationContext.IngestTypes.ToList();
         _dataSources = _destinationContext.DataSources.ToList();
         _licenses = _destinationContext.Licenses.OrderBy(l => l.Id).ToList();
         _categories = _destinationContext.Categories.ToList();
@@ -90,8 +90,8 @@ public class ImportService
     {
         var source = _dataSources.FirstOrDefault(ds => ds.Name.ToLower() == newsItem.Source.ToLower());
         var headline = String.IsNullOrWhiteSpace(newsItem.Title) ? "NO TITLE PROVIDED" : newsItem.Title;
-        var mediaType = GetMediaType(newsItem.Type);
-        var content = new Content(uid, headline, newsItem.Source, source?.Id, _defaultContentType.Id, mediaType.Id, source?.LicenseId ?? _defaultLicense.Id, _defaultUser.Id)
+        var ingestType = GetIngestType(newsItem.Type);
+        var content = new Content(uid, headline, newsItem.Source, source?.Id, _defaultContentType.Id, ingestType.Id, source?.LicenseId ?? _defaultLicense.Id, _defaultUser.Id)
         {
             Status = newsItem.Published ? ContentStatus.Published : ContentStatus.Draft,
             WorkflowStatus = newsItem.Published ? WorkflowStatus.Published : WorkflowStatus.Success,

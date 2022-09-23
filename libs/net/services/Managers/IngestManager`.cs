@@ -7,7 +7,7 @@ namespace TNO.Services.Managers;
 
 /// <summary>
 /// IngestManager class, provides a way to manage several ingest schedules.
-/// It will fetch all ingests for the configured media types.
+/// It will fetch all ingests for the configured ingest types.
 /// It will ensure all ingests are being run based on their schedules.
 /// </summary>
 public abstract class IngestManager<TIngestServiceActionManager, TOption> : ServiceManager<TOption>, IIngestManager
@@ -140,24 +140,24 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     }
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch ingests for the configured media types.
+    /// Make an AJAX request to the api to fetch ingests for the configured ingest types.
     /// </summary>
     /// <returns></returns>
     public virtual async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
         var ingests = new List<IngestModel>();
-        foreach (var mediaType in _options.GetMediaTypes())
+        foreach (var ingestType in _options.GetIngestTypes())
         {
             try
             {
                 // If the service isn't running, don't make additional requests.
                 if (this.State.Status == ServiceStatus.Paused || this.State.Status == ServiceStatus.Sleeping) continue;
 
-                ingests.AddRange(await _api.GetIngestsForMediaTypeAsync(mediaType));
+                ingests.AddRange(await _api.GetIngestsForIngestTypeAsync(ingestType));
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(ex, "Failed to fetch ingests for media type", mediaType);
+                this.Logger.LogError(ex, "Failed to fetch ingests for ingest type", ingestType);
                 this.State.RecordFailure();
             }
         }

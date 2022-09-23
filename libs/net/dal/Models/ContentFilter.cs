@@ -28,7 +28,6 @@ public class ContentFilter : PageFilter
     public DateTime? PublishedEndOn { get; set; }
     public string? Section { get; set; }
     public string? Edition { get; set; }
-    public string? StoryType { get; set; }
     public string? Byline { get; set; }
     public string[] Actions { get; set; } = Array.Empty<string>();
     public string[] Sort { get; set; } = Array.Empty<string>();
@@ -47,7 +46,6 @@ public class ContentFilter : PageFilter
         this.Section = filter.GetStringValue(nameof(this.Section));
         this.PageName = filter.GetStringValue(nameof(this.PageName));
         this.Edition = filter.GetStringValue(nameof(this.Edition));
-        this.StoryType = filter.GetStringValue(nameof(this.StoryType));
         this.Byline = filter.GetStringValue(nameof(this.Byline));
 
         this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));

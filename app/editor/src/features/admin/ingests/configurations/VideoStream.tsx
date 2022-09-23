@@ -21,7 +21,7 @@ export const VideoStream: React.FC = (props) => {
   const language = Languages.find((t) => t.value === values.configuration.language);
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikText
         label="Stream URL"
         name="configuration.url"
@@ -69,6 +69,6 @@ export const VideoStream: React.FC = (props) => {
         name="configuration.otherArgs"
         tooltip="Any other arguments to pass to the command"
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

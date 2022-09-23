@@ -1,2 +1,2 @@
 export * from './Connection';
-export * from './MediaType';
+export * from './IngestType';

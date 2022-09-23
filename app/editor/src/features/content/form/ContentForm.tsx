@@ -42,7 +42,7 @@ import {
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { switchStatus, toForm, toModel } from './utils';
+import { isSnippetForm, switchStatus, toForm, toModel } from './utils';
 
 export interface IContentFormProps {
   /** The content type this form will create */
@@ -141,7 +141,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
 
       if (!originalId)
         navigate(
-          `${contentResult?.contentType === ContentTypeName.Snippet ? '/snippets/' : '/papers/'}${
+          `${isSnippetForm(contentResult?.contentType) ? '/snippets/' : '/papers/'}${
             combined ? '/contents/combined/' : ''
           }${contentResult.id}`,
         );
@@ -202,7 +202,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                 variant={ButtonVariant.secondary}
                 tooltip="Full Page View"
                 onClick={() => {
-                  if (contentType === ContentTypeName.Snippet) navigate(`/snippets/${id}`);
+                  if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
                   else navigate(`/papers/${id}`);
                 }}
               >
@@ -217,7 +217,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   const id = page?.items[indexPosition - 1]?.id;
                   if (!!id) {
                     if (!!combined) navigate(`/contents/combined/${id}`);
-                    else if (contentType === ContentTypeName.Snippet) navigate(`/snippets/${id}`);
+                    else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
                     else navigate(`/papers/${id}`);
                   }
                 }}
@@ -231,7 +231,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                 onClick={() => {
                   const id = page?.items[indexPosition + 1]?.id;
                   if (combined) navigate(`/contents/combined/${id}`);
-                  else if (contentType === ContentTypeName.Snippet) navigate(`/snippets/${id}`);
+                  else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
                   else navigate(`/papers/${id}`);
                 }}
                 disabled={!enableNext}
@@ -290,7 +290,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                             label="Headline"
                             value={props.values.headline}
                           />
-                          <Show visible={contentType === ContentTypeName.PrintContent}>
+                          <Show visible={!isSnippetForm(contentType)}>
                             <FormikText name="byline" label="Byline" required />
                           </Show>
                         </Col>
@@ -352,20 +352,19 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                             required
                           />
                         </Col>
-                        <Show visible={contentType !== ContentTypeName.Snippet}>
+                        <Show visible={!isSnippetForm(contentType)}>
                           <Col grow={1}>
                             <FormikText name="edition" label="Edition" />
                           </Col>
                         </Show>
                       </Row>
-                      <Show visible={contentType !== ContentTypeName.Snippet}>
+                      <Show visible={!isSnippetForm(contentType)}>
                         <Row>
                           <FormikText name="section" label="Section" required />
-                          <FormikText name="storyType" label="Story Type" required />
                           <FormikText name="page" label="Page" />
                         </Row>
                       </Show>
-                      <Show visible={contentType === ContentTypeName.Snippet}>
+                      <Show visible={isSnippetForm(contentType)}>
                         <FormikText
                           name="sourceUrl"
                           label="Source URL"
@@ -408,7 +407,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   </Show>
                 </Row>
                 <Row>
-                  <Show visible={contentType === ContentTypeName.Snippet}>
+                  <Show visible={isSnippetForm(contentType)}>
                     <Tabs
                       className={`tabs ${size === 1 ? 'small' : 'large'}`}
                       tabs={
@@ -454,7 +453,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                       </Show>
                     </Tabs>
                   </Show>
-                  <Show visible={contentType !== ContentTypeName.Snippet}>
+                  <Show visible={!isSnippetForm(contentType)}>
                     <ContentSummaryForm
                       content={content}
                       setContent={setContent}

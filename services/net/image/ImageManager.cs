@@ -42,13 +42,13 @@ public class ImageManager : IngestManager<ImageIngestActionManager, ImageOptions
     }
 
     /// <summary>
-    /// Determine if the data source of the correct media type for this service.
+    /// Determine if the data source of the correct ingest type for this service.
     /// </summary>
     /// <param name="dataSource"></param>
     /// <returns></returns>
     private bool IsImage(IngestModel dataSource)
     {
-        return _options.GetMediaTypes().Contains(dataSource.MediaType?.Name);
+        return _options.GetIngestTypes().Contains(dataSource.IngestType?.Name);
     }
     #endregion
 }

@@ -12,6 +12,12 @@ public class Category : BaseType<int>
 {
     #region Properties
     /// <summary>
+    /// get/set - The type of category (issue, proactive).
+    /// </summary>
+    [Column("category_type")]
+    public CategoryType CategoryType { get; set; }
+
+    /// <summary>
     /// get/set - Whether content with this series should automatically be transcribed.
     /// </summary>
     [Column("auto_transcribe")]
@@ -31,8 +37,9 @@ public class Category : BaseType<int>
     #region Constructors
     protected Category() { }
 
-    public Category(string name) : base(name)
+    public Category(string name, CategoryType type = CategoryType.Issues) : base(name)
     {
+        this.CategoryType = type;
     }
     #endregion
 }

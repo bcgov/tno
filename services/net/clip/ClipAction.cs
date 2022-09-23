@@ -179,7 +179,7 @@ public class ClipAction : CommandAction<ClipOptions>
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
-        var contentType = ingest.MediaType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing media content type.");
+        var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
         var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url") ?? "",

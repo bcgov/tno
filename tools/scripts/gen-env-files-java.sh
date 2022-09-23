@@ -191,7 +191,7 @@ KAFKA_LOGS_TOPIC=logs-capture
 
 KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 KAFKA_CLIENT_ID=audio-capture-01
-Service__AzureCognitiveServicesKey={ENTER A VALID KEY} 
+Service__AzureCognitiveServicesKey={ENTER A VALID KEY}
 
 MAX_FAILED_ATTEMPTS=5" >> ./services/net/transcription/.env
     echo "./services/net/transcription/.env created"

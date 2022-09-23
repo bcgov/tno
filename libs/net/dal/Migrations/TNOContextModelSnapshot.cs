@@ -202,6 +202,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("auto_transcribe");
 
+                    b.Property<int>("CategoryType")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_type");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -489,12 +493,12 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("headline");
 
+                    b.Property<int?>("IngestTypeId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("LicenseId")
                         .HasColumnType("integer")
                         .HasColumnName("license_id");
-
-                    b.Property<int?>("MediaTypeId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("OtherSource")
                         .IsRequired()
@@ -574,9 +578,9 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LicenseId");
+                    b.HasIndex("IngestTypeId");
 
-                    b.HasIndex("MediaTypeId");
+                    b.HasIndex("LicenseId");
 
                     b.HasIndex("OwnerId");
 
@@ -1302,13 +1306,13 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("destination_connection_id");
 
+                    b.Property<int>("IngestTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ingest_type_id");
+
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("is_enabled");
-
-                    b.Property<int>("MediaTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("media_type_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1373,7 +1377,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("DestinationConnectionId");
 
-                    b.HasIndex("MediaTypeId");
+                    b.HasIndex("IngestTypeId");
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -1464,91 +1468,7 @@ namespace TNO.DAL.Migrations
                     b.ToTable("ingest_service");
                 });
 
-            modelBuilder.Entity("TNO.Entities.License", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<int>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("sort_order");
-
-                    b.Property<int>("TTL")
-                        .HasColumnType("integer")
-                        .HasColumnName("ttl");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<Guid>("UpdatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by_id");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("license");
-                });
-
-            modelBuilder.Entity("TNO.Entities.MediaType", b =>
+            modelBuilder.Entity("TNO.Entities.IngestType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1637,7 +1557,91 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("media_type");
+                    b.ToTable("ingest_type");
+                });
+
+            modelBuilder.Entity("TNO.Entities.License", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<int>("TTL")
+                        .HasColumnType("integer")
+                        .HasColumnName("ttl");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_id");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("license");
                 });
 
             modelBuilder.Entity("TNO.Entities.Metric", b =>
@@ -1760,12 +1764,6 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("section");
 
-                    b.Property<string>("StoryType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("story_type");
-
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -1791,7 +1789,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("ContentId");
 
-                    b.HasIndex("Edition", "Section", "StoryType");
+                    b.HasIndex("Edition", "Section");
 
                     b.ToTable("print_content");
                 });
@@ -2977,15 +2975,15 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Content", b =>
                 {
+                    b.HasOne("TNO.Entities.IngestType", null)
+                        .WithMany("Contents")
+                        .HasForeignKey("IngestTypeId");
+
                     b.HasOne("TNO.Entities.License", "License")
                         .WithMany("Contents")
                         .HasForeignKey("LicenseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("TNO.Entities.MediaType", null)
-                        .WithMany("Contents")
-                        .HasForeignKey("MediaTypeId");
 
                     b.HasOne("TNO.Entities.User", "Owner")
                         .WithMany("Contents")
@@ -3166,9 +3164,9 @@ namespace TNO.DAL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TNO.Entities.MediaType", "MediaType")
+                    b.HasOne("TNO.Entities.IngestType", "IngestType")
                         .WithMany("Ingests")
-                        .HasForeignKey("MediaTypeId")
+                        .HasForeignKey("IngestTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -3192,7 +3190,7 @@ namespace TNO.DAL.Migrations
 
                     b.Navigation("DestinationConnection");
 
-                    b.Navigation("MediaType");
+                    b.Navigation("IngestType");
 
                     b.Navigation("Product");
 
@@ -3420,18 +3418,18 @@ namespace TNO.DAL.Migrations
                     b.Navigation("State");
                 });
 
+            modelBuilder.Entity("TNO.Entities.IngestType", b =>
+                {
+                    b.Navigation("Contents");
+
+                    b.Navigation("Ingests");
+                });
+
             modelBuilder.Entity("TNO.Entities.License", b =>
                 {
                     b.Navigation("Contents");
 
                     b.Navigation("Sources");
-                });
-
-            modelBuilder.Entity("TNO.Entities.MediaType", b =>
-                {
-                    b.Navigation("Contents");
-
-                    b.Navigation("Ingests");
                 });
 
             modelBuilder.Entity("TNO.Entities.Metric", b =>

@@ -20,7 +20,7 @@ export const VideoClip: React.FC = (props) => {
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
 
   return (
-    <styled.MediaType>
+    <styled.IngestType>
       <FormikSelect
         label="Timezone"
         name="configuration.timeZone"
@@ -78,6 +78,6 @@ export const VideoClip: React.FC = (props) => {
           setFieldValue('configuration.throwOnMissingFile', e.currentTarget.checked);
         }}
       />
-    </styled.MediaType>
+    </styled.IngestType>
   );
 };

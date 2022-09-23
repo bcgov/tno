@@ -1,8 +1,14 @@
 import { IconButton, LabelPosition } from 'components/form';
-import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
+import {
+  FormikCheckbox,
+  FormikForm,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+} from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { ICategoryModel, useModal } from 'hooks';
+import { CategoryTypeName, ICategoryModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -10,6 +16,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCategories } from 'store/hooks/admin/categories';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
+import { getEnumStringOptions } from 'utils';
 
 import { defaultCategory } from './constants';
 import * as styled from './styled';
@@ -20,12 +27,14 @@ export const CategoryForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const categoryId = Number(id);
+  const { toggle, isShowing } = useModal();
+
   const [category, setCategory] = React.useState<ICategoryModel>(
     (state as any)?.category ?? defaultCategory,
   );
 
-  const { toggle, isShowing } = useModal();
+  const categoryId = Number(id);
+  const categoryTypeOptions = getEnumStringOptions(CategoryTypeName);
 
   React.useEffect(() => {
     if (!!categoryId && category?.id !== categoryId) {
@@ -67,12 +76,24 @@ export const CategoryForm: React.FC = () => {
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
+              <FormikSelect
+                label="Category Type"
+                name="categoryType"
+                options={categoryTypeOptions}
+                value={categoryTypeOptions.find((o) => o.value === values.categoryType)}
+                width={FieldSize.Medium}
+              />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"
                 label="Sort Order"
                 type="number"
                 className="sort-order"
+              />
+              <FormikCheckbox
+                labelPosition={LabelPosition.Top}
+                label="Auto Transcribe"
+                name="autoTranscribe"
               />
               <FormikCheckbox
                 labelPosition={LabelPosition.Top}
@@ -128,7 +149,7 @@ export const CategoryForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this media type?"
+              body="Are you sure you wish to remove this category?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"
