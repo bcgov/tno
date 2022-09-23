@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import { useTags } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
+import { useTooltips } from './../../../hooks/useTooltips';
 import { defaultTag } from './constants';
 import * as styled from './styled';
 
@@ -21,27 +22,27 @@ export const TagsForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const tagId = id;
+  useTooltips();
+
   const [tag, setTag] = React.useState<ITagModel>((state as any)?.tag ?? defaultTag);
 
   const { toggle, isShowing } = useModal();
 
   React.useEffect(() => {
-    if (!!tagId && tag?.id !== tagId && tagId !== 'NEW') {
-      api.getTag(tagId).then((data) => {
+    if (!!id && tag?.id !== id && id !== '***') {
+      api.getTag(id).then((data) => {
         setTag(data);
       });
     }
-  }, [api, tag?.id, tagId]);
+  }, [api, tag?.id, id]);
 
   const handleSubmit = async (values: ITagModel) => {
     try {
       const originalId = values.id;
-      values.id = values.name;
-      const result = tagId === 'NEW' ? await api.addTag(values) : await api.updateTag(values);
+      const result = id === '***' ? await api.addTag(values) : await api.updateTag(values);
       setTag(result);
       toast.success(`${result.name} has successfully been saved.`);
-      if (!originalId) navigate(`/admin/tags/${result.id}`);
+      if (originalId !== values.id) navigate(`/admin/tags/${result.id}`);
     } catch {}
   };
 
@@ -55,14 +56,21 @@ export const TagsForm: React.FC = () => {
       />
       <FormikForm
         initialValues={tag}
-        onSubmit={(values, { setSubmitting, setFieldValue }) => {
+        onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, errors }) => (
           <div className="form-container">
             <Col className="form-inputs">
+              <FormikText
+                width={FieldSize.Large}
+                name="id"
+                label="Code"
+                disabled={id !== '***'}
+                tooltip="Cannot change the tag code after it has been created"
+              />
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <FormikText

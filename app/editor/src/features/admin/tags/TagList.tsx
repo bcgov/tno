@@ -35,7 +35,7 @@ export const TagList: React.FC = () => {
           <IconButton
             iconType="plus"
             label={`Add new tag`}
-            onClick={() => navigate(`/admin/tags/NEW`)}
+            onClick={() => navigate(`/admin/tags/***`)}
           />
         </Row>
         <GridTable
