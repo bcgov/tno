@@ -22,6 +22,8 @@ export interface IContentClipFormProps {
   setContent: (content: IContentForm) => void;
   /** The initial path to load */
   path?: string;
+  /** Pass the clip errors back to the content form */
+  setClipErrors: (errors: string) => void;
 }
 
 /**
@@ -33,6 +35,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   content,
   setContent,
   path: initPath,
+  setClipErrors,
 }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { toggle, isShowing } = useModal();
@@ -64,6 +67,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
       });
     });
   }, [defaultPath, path, storageApi]);
+
+  React.useEffect(() => {
+    setClipErrors(error);
+  }, [error, setClipErrors]);
 
   React.useEffect(() => {
     if (!!streamUrl && !!videoRef.current) {

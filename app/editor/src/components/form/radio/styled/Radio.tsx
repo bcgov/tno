@@ -5,6 +5,7 @@ import { IRadioProps, RadioVariant } from '..';
 export const Radio = styled.input<IRadioProps>`
   label {
     cursor: hover;
+    background-color: ${(props) => !!props.error && 'red'}
   }
   box-sizing: border-box;
   margin: 1px 2px 1px 2px;
@@ -37,25 +38,7 @@ export const Radio = styled.input<IRadioProps>`
         return props.theme.css.primaryColor;
     }
   }};
-  background-color: ${(props) => {
-    switch (props.variant) {
-      case RadioVariant.primary:
-        return props.theme.css.inputBackgroundColor;
-      case RadioVariant.secondary:
-        return '#6c757d';
-      case RadioVariant.success:
-        return '#43893e';
-      case RadioVariant.info:
-        return '#96c0e6';
-      case RadioVariant.warning:
-        return '#f9ca54';
-      case RadioVariant.danger:
-        return '#d93e45';
-      case RadioVariant.link:
-        return 'transparent';
-      default:
-        return '#38598a';
-    }
+
   }};
   border-color: ${(props) => {
     switch (props.variant) {

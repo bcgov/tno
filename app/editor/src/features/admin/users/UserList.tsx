@@ -36,9 +36,7 @@ export const UserList: React.FC = () => {
 
   const handleChangePage = React.useCallback(
     (pi: number, ps?: number) => {
-      console.log(pi, ps);
       if (userFilter.pageIndex !== pi || userFilter.pageSize !== ps) {
-        console.log('here');
         storeFilter({ ...userFilter, pageIndex: pi, pageSize: ps ?? userFilter.pageSize });
       }
     },

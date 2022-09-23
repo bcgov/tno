@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 import { Claim, useKeycloakWrapper } from '../../hooks/keycloak';
 import * as styled from './styled';
@@ -33,6 +35,17 @@ export interface ITabProps extends React.HTMLProps<HTMLButtonElement> {
    * Whether the tab has any errors.
    */
   hasErrors?: boolean;
+  /**
+   * Whether to only display tab error on save
+   */
+  showErrorOnSave?: {
+    /** Whether or not this should be enabled */
+    value: boolean;
+    /** Used to track whether the save button has been pressed on the parent form */
+    savePressed: boolean;
+  };
+  /** Determine when to show the toast for tab validation */
+  setShowValidationToast?: (value: boolean) => void;
 }
 
 /**
@@ -52,6 +65,11 @@ export const Tab: React.FC<ITabProps> = ({
   exact = false,
   hasErrors = false,
   onClick,
+  showErrorOnSave = {
+    value: false,
+    savePressed: false,
+  },
+  setShowValidationToast,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,12 +80,18 @@ export const Tab: React.FC<ITabProps> = ({
     isActivePath(location.pathname, navigateTo, exact) ||
     activePaths.some((p) => isActivePath(location.pathname, p, exact));
 
+  let hasError = showErrorOnSave.value ? hasErrors && showErrorOnSave.savePressed : hasErrors;
+
+  React.useEffect(() => {
+    hasError && !!setShowValidationToast && setShowValidationToast(true);
+  }, [hasError, setShowValidationToast]);
+
   return hasClaim ? (
     <styled.Tab
       onClick={(e) => (onClick ? onClick(e as any) : navigate(navigateTo!!))}
       active={!!navigateTo ? isActive : active}
       className={`${className ?? 'tab'}`}
-      hasErrors={hasErrors}
+      hasErrors={hasError}
     >
       <span>{label}</span>
       {children}

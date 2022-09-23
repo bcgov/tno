@@ -59,7 +59,14 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
   const [startDate, setStartDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
 
   return (
-    <styled.SelectDate className="frm-in" variant={variant} required={required} width={width}>
+    <styled.SelectDate
+      className="frm-in"
+      variant={!!error ? SelectDateVariant.warning : variant}
+      required={required}
+      error={error}
+      width={width}
+      role={!!error ? 'alert' : 'none'}
+    >
       {label && (
         <label className={required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
           {label}

@@ -1,6 +1,7 @@
 import { IOptionItem } from 'components/form';
 import {
   ContentStatusName,
+  ContentType,
   ContentTypeName,
   IContentActionModel,
   IContentCategoryModel,

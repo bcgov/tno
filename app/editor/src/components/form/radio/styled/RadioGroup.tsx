@@ -10,6 +10,10 @@ export const RadioGroup = styled.div<IRadioGroupProps<any>>`
     cursor: pointer;
   }
 
+  p[role='alert'] {
+    color: ${(props) => props.theme.css.dangerColor};
+  }
+
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};

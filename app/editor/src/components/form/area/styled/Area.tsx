@@ -1,11 +1,6 @@
 import styled from 'styled-components';
 
 export const Area = styled.div`
-  p[role='alert'] {
-    color: red;
-    margin-bottom: 1em;
-  }
-
   .back-btn {
     width: fit-content;
   }
