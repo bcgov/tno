@@ -1,5 +1,0 @@
-{
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "cSpell.words": ["Appender", "appenders", "Jsoup"],
-  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx8G -Xms100m"
-}
