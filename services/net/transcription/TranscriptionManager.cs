@@ -231,13 +231,23 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
         var path = content.FileReferences.FirstOrDefault()?.Path;
-        var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
-        if (File.Exists(safePath))
+        var safePath = Path.Join(_options.FilePath, path.MakeRelativePath());
+        var debugPath = Path.GetFullPath(safePath);
+        var debugPath2 = Path.GetFullPath(path);
+        //var debugPath2 = safePath;
+        //var debugPath2 = safePath;
+        if (File.Exists(debugPath2))
         {
             this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
 
             var original = content.Body;
-            var fileBytes = File.ReadAllBytes(safePath);
+            var mediaType = await IsVideoAsync(debugPath2) ? SourceMediaType.Video : SourceMediaType.Audio;
+
+            if (mediaType == SourceMediaType.Video) {
+                await Video2Audio(debugPath2);
+                debugPath2 = debugPath2.Replace("mp4","mp3");
+            }
+            var fileBytes = File.ReadAllBytes(debugPath2);
 
             var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
 
@@ -265,7 +275,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
         else
         {
-            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, path);
+            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
         }
     }
 
@@ -329,6 +339,44 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Check if the clip file contains a video stream.
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    private async Task<bool> IsVideoAsync(string file)
+    {
+        var process = new System.Diagnostics.Process();
+        process.StartInfo.Verb = $"Stream Type";
+        process.StartInfo.FileName = "/bin/sh";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.CreateNoWindow = true;
+        process.Start();
+
+        var output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        return !String.IsNullOrWhiteSpace(output);
+    }
+
+    private async Task<bool> Video2Audio(string file)
+    {
+        var destFile = file.Replace("mp4", "mp3");
+        var process = new System.Diagnostics.Process();
+        process.StartInfo.Verb = $"Stream Type";
+        process.StartInfo.FileName = "/bin/sh";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i -y {file} {destFile} \"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.CreateNoWindow = true;
+        process.Start();
+
+        var output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        return !String.IsNullOrWhiteSpace(output);
     }
     #endregion
 }
