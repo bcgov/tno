@@ -255,10 +255,10 @@ public class ImageAction : IngestAction<ImageOptions>
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{ingest.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
+        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, reference.Uid, $"{ingest.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
-            FilePath = Path.Combine(GetOutputPath(ingest), reference.Uid),
+            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd/}", reference.Uid),
             Language = ingest.GetConfigurationValue("language")
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);
