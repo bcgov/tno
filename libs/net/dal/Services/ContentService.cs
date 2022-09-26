@@ -112,7 +112,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             }
         }
         else
-            query = query.OrderByDescending(c => c.Id);
+            query = query.OrderByDescending(c => c.PublishedOn).ThenByDescending(c => c.Id);
 
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);
