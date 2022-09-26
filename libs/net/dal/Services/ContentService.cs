@@ -8,11 +8,20 @@ using TNO.Entities.Models;
 
 namespace TNO.DAL.Services;
 
+/// <summary>
+/// ContentService class, provides the Data Access Layer (DAL) service for interacting with content with the database.
+/// </summary>
 public class ContentService : BaseService<Content, long>, IContentService
 {
     #region Properties
     #endregion
-
+    /// <summary>
+    /// Creates a new instance of a ContentService object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="principal"></param>
+    /// <param name="serviceProvider"></param>
+    /// <param name="logger"></param>
     #region Constructors
     public ContentService(TNOContext dbContext,
         ClaimsPrincipal principal,
@@ -23,7 +32,11 @@ public class ContentService : BaseService<Content, long>, IContentService
     #endregion
 
     #region Methods
-
+    /// <summary>
+    /// Find content that matches the specified 'filter'.
+    /// </summary>
+    /// <param name="filter">Filter to apply to the query.</param>
+    /// <returns>A page of content items that match the filter.</returns>
     public IPaged<Content> Find(ContentFilter filter)
     {
         var query = this.Context.Contents
@@ -55,6 +68,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => c.ContentType == filter.ContentType);
         if (filter.Status.HasValue)
             query = query.Where(c => c.Status == filter.Status);
+
+        if (filter.IncludedInCategory.HasValue)
+            query = query.Where(c => c.CategoriesManyToMany.Any());
 
         if (filter.ProductId.HasValue)
             query = query.Where(c => c.ProductId == filter.ProductId);

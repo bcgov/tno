@@ -11,6 +11,7 @@ export interface IContentFilter extends IPageFilter {
   pageName?: string;
   section?: string;
   status?: ContentStatus;
+  includedInCategory?: boolean;
   createdOn?: string;
   createdStartOn?: string;
   createdEndOn?: string;
