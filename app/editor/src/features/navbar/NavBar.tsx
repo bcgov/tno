@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Claim, NavBarGroup, NavBarItem, Show } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex/row';
 
@@ -23,28 +23,21 @@ export const NavBar: React.FC = () => {
     }, 2000);
   };
 
-  const handleClickOutside = () => {
-    isCancel = true;
-    setActiveHover('');
+  const ref = useRef<any>();
+
+  const handleClickOutside = (event: { target: any }) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      isCancel = true;
+      setActiveHover('');
+    }
   };
 
-  const useOutsideClick = (callback: () => void) => {
-    const ref = React.useRef<any>();
-    React.useEffect(() => {
-      const handleClick = (event: { target: any }) => {
-        if (ref.current && !ref.current.contains(event.target)) {
-          callback();
-        }
-      };
-      document.addEventListener('click', handleClick, true);
-      return () => {
-        document.removeEventListener('click', handleClick, true);
-      };
-    }, [callback, ref]);
-    return ref;
-  };
-
-  const ref = useOutsideClick(handleClickOutside);
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside, false);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, false);
+    };
+  });
 
   return (
     <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
