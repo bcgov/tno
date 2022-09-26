@@ -179,11 +179,12 @@ public class ClipAction : CommandAction<ClipOptions>
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
+        var path = file.Replace(this.Options.VolumePath, "");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, ingest.DestinationConnectionId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
+        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url") ?? "",
-            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path") ?? "", file?.MakeRelativePath() ?? ""),
+            FilePath = path?.MakeRelativePath() ?? "",
             Language = ingest.GetConfigurationValue("language") ?? ""
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);

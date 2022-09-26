@@ -68,7 +68,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
     #endregion
 
-    #region Methoi
+    #region Methods
     /// <summary>
     /// Continually poll for updated data source configuration.
     /// When there are topics to listen too it will initialize a Kafka consumer.
@@ -260,8 +260,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 {
                     // TODO: Handle different storage locations.
                     // If the source content references a connection then fetch it to get the storage location of the file.
-                    var connection = model.ConnectionId.HasValue ? await _api.GetConnectionAsync(model.ConnectionId.Value) : null;
-                    var fullPath = Path.Combine(_options.VolumePath, connection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", model.FilePath.MakeRelativePath());
+                    var fullPath = Path.Combine(_options.VolumePath, model.FilePath.MakeRelativePath());
                     if (File.Exists(fullPath))
                     {
                         var file = File.OpenRead(fullPath);
