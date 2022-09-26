@@ -6,94 +6,99 @@ namespace TNO.Services.FileMonitor;
 public static class Fields
 {
     /// <summary>
-    /// Key to the "papername" connection string value.
+    /// Key to the "papername" configuration string value.
     /// </summary>
     public const string Papername = "papername";
 
     /// <summary>
-    /// Key to the "headline" connection string value.
+    /// Key to the "headline" configuration string value.
     /// </summary>
     public const string Headline = "headline";
 
     /// <summary>
-    /// Key to the "summary" connection string value.
+    /// Key to the "summary" configuration string value.
     /// </summary>
     public const string Summary = "summary";
 
     /// <summary>
-    /// Key to the "story" connection string value.
+    /// Key to the "story" configuration string value.
     /// </summary>
     public const string Story = "story";
 
     /// <summary>
-    /// Key to the "author" connection string value.
+    /// Key to the "author" configuration string value.
     /// </summary>
     public const string Author = "author";
 
     /// <summary>
-    /// Key to the "date" connection string value.
+    /// Key to the "date" configuration string value.
     /// </summary>
     public const string Date = "date";
 
     /// <summary>
-    /// Key to the "lang" connection string value.
+    /// Key to the "lang" configuration string value.
     /// </summary>
     public const string Lang = "lang";
 
     /// <summary>
-    /// Key to the "section" connection string value.
+    /// Key to the "section" configuration string value.
     /// </summary>
     public const string Section = "section";
 
     /// <summary>
-    /// Key to the "id" connection string value.
+    /// Key to the "id" configuration string value.
     /// </summary>
     public const string Id = "id";
 
     /// <summary>
-    /// Key to the "tags" connection string value.
+    /// Key to the "tags" configuration string value.
     /// </summary>
     public const string Tags = "tags";
 
     /// <summary>
-    /// Key to the "page" connection string value.
+    /// Key to the "page" configuration string value.
     /// </summary>
     public const string Page = "page";
 
     /// <summary>
-    /// Key to the "item" connection string value.
+    /// Key to the "item" configuration string value.
     /// </summary>
     public const string Item = "item";
 
     /// <summary>
-    /// Key to the "dateFmt" connection string value.
+    /// Key to the "dateFmt" configuration string value.
     /// </summary>
     public const string DateFmt = "dateFmt";
 
     /// <summary>
-    /// Key to the "escapeContent" connection string value.
+    /// Key to the "escapeContent" configuration string value.
     /// </summary>
     public const string EscapeContent = "escapeContent";
 
     /// <summary>
-    /// Key to the "addParent" connection string value.
+    /// Key to the "addParent" configuration string value.
     /// </summary>
     public const string AddParent = "addParent";
 
     /// <summary>
-    /// Key to the "fileFormat" connection string value.
+    /// Key to the "fileFormat" configuration string value.
     /// </summary>
     public const string FileFormat = "fileFormat";
 
     /// <summary>
-    /// Key to the "importDir" connection string value.
+    /// Key to the "importDir" configuration string value.
     /// </summary>
     public const string ImportDir = "importDir";
 
     /// <summary>
-    /// Key to the "selfPublished" connection string value.
+    /// Key to the "selfPublished" configuration string value.
     /// </summary>
     public const string SelfPublished = "selfPublished";
+
+    /// <summary>
+    /// Key to the "sources" configuration string value.
+    /// </summary>
+    public const string Sources = "sources";
 
     /// <summary>
     /// FMS story delimiter string.
