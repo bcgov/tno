@@ -47,6 +47,7 @@ export const VideoStream: React.FC = (props) => {
         tooltip="Format of the stream"
         placeholder="mp4"
       />
+      <p>Use "{'{schedule.Name}'}.mp4" to name the file with the schedule name.</p>
       <FormikText
         label="File Name"
         name="configuration.fileName"
