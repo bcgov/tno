@@ -22,6 +22,7 @@ export const makeFilter = (
     contentType: filter.contentType,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
+    includedInCategory: filter.includedInCategory ? true : undefined,
     createdStartOn: advanced.startDate
       ? moment(advanced.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
@@ -45,7 +46,6 @@ export const makeFilter = (
  */
 const applyActions = (filter: IContentListFilter) => {
   const actions = [];
-  if (filter.included) actions.push('Included');
   if (filter.onTicker) actions.push('On Ticker');
   if (filter.commentary) actions.push('Commentary');
   if (filter.topStory) actions.push('Top Story');
