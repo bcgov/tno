@@ -7,8 +7,47 @@ import { Row } from 'tno-core/dist/components/flex/row';
  */
 export const NavBar: React.FC = () => {
   const [activeHover, setActiveHover] = useState<string>('');
+
+  let isHover = false;
+  let isCancel = false;
+
+  const onMouseOver = () => {
+    isHover = true;
+  };
+
+  const onMouseLeave = () => {
+    isHover = false;
+    setTimeout(() => {
+      if (!isHover && !isCancel) setActiveHover('');
+      if (isCancel) isCancel = false;
+    }, 2000);
+  };
+
+  const handleClickOutside = () => {
+    isCancel = true;
+    setActiveHover('');
+  };
+
+  const useOutsideClick = (callback: () => void) => {
+    const ref = React.useRef<any>();
+    React.useEffect(() => {
+      const handleClick = (event: { target: any }) => {
+        if (ref.current && !ref.current.contains(event.target)) {
+          callback();
+        }
+      };
+      document.addEventListener('click', handleClick, true);
+      return () => {
+        document.removeEventListener('click', handleClick, true);
+      };
+    }, [callback, ref]);
+    return ref;
+  };
+
+  const ref = useOutsideClick(handleClickOutside);
+
   return (
-    <div onMouseLeave={() => setActiveHover('')}>
+    <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
       <NavBarGroup className="navbar">
         <Row>
           <div className="editor" onMouseOver={() => setActiveHover('editor')}>
