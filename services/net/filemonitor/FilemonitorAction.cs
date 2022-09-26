@@ -71,15 +71,18 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
 
         var format = manager.Ingest.GetConfigurationValue(Fields.FileFormat);
+        var selfPublished = manager.Ingest.GetConfigurationValue<bool>(Fields.SelfPublished);
+        var sources = selfPublished ? new Dictionary<string, string>() : GetSourcesForIngester(manager.Ingest);
+
         format = !String.IsNullOrEmpty(format) ? format : "xml";
 
         switch (format)
         {
             case "xml":
-                articles = GetXmlArticles(dir, manager);
+                articles = GetXmlArticles(dir, manager, sources);
                 break;
             case "fms":
-                articles = GetFmsArticles(dir, manager);
+                articles = GetFmsArticles(dir, manager, sources);
                 break;
             default:
                 throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'");
@@ -306,8 +309,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="dir"></param>
     /// <param name="manager"></param>
+    /// <param name="sources"></param>
     /// <returns></returns>
-    private List<SourceContent> GetXmlArticles(string dir, IIngestServiceActionManager manager) // should this be async?
+    private List<SourceContent> GetXmlArticles(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
     {
         var articles = new List<SourceContent>();
         var ingest = manager.Ingest;
@@ -325,7 +329,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 {
                     var item = new SourceContent();
                     var papername = GetXmlData(story, Fields.Papername, ingest);
-                    item.Source = GetItemSourceCode(ingest, papername);
+                    item.Source = GetItemSourceCode(ingest, papername, sources);
                     item.Title = GetXmlData(story, Fields.Headline, ingest);
                     item.Uid = GetXmlData(story, Fields.Id, ingest);
                     item.Body = GetXmlData(story, Fields.Story, ingest);
@@ -333,6 +337,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     item.Summary = GetXmlData(story, Fields.Summary, ingest);
                     item.Page = GetXmlData(story, Fields.Page, ingest);
                     item.Section = GetXmlData(story, Fields.Section, ingest);
+                    item.Language = ingest.GetConfigurationValue("language");
+                    item.ProductId = ingest.ProductId;
 
                     item.Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest));
                     item.PublishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest);
@@ -358,8 +364,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="dir"></param>
     /// <param name="manager"></param>
+    /// <param name="sources"></param>
     /// <returns></returns>
-    private List<SourceContent> GetFmsArticles(string dir, IIngestServiceActionManager manager)
+    private List<SourceContent> GetFmsArticles(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
     {
         var articles = new List<SourceContent>();
         var ingest = manager.Ingest;
@@ -386,16 +393,17 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     var filtered = preFiltered.Replace("\n\n", Fields.FmsFieldDelim);
 
                     var papername = GetFmsData(filtered, Fields.Papername, ingest);
-                    source = string.IsNullOrEmpty(source) ? GetItemSourceCode(ingest, papername) : source;
+                    source = string.IsNullOrEmpty(source) ? GetItemSourceCode(ingest, papername, sources) : source;
                     item.Source = source;
                     item.Title = GetFmsData(filtered, Fields.Headline, ingest);
                     item.Uid = GetFmsData(filtered, Fields.Id, ingest);
                     item.Body = GetFmsData(preFiltered + "<break>", Fields.Story, ingest);
-                    item.Language = GetFmsData(filtered, Fields.Lang, ingest);
                     item.FilePath = document.Key;
                     item.Summary = GetFmsData(filtered, Fields.Summary, ingest);
                     item.Page = GetFmsData(filtered, Fields.Page, ingest);
                     item.Section = GetFmsData(filtered, Fields.Section, ingest);
+                    item.Language = ingest.GetConfigurationValue("language");
+                    item.ProductId = ingest.ProductId;
 
                     item.Tags = GetTagList(filtered, ingest);
                     item.Authors = GetAuthorList(GetFmsData(filtered, Fields.Author, ingest));
@@ -415,33 +423,64 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     }
 
     /// <summary>
-    /// Get the ingest's source "code" value. If the ingest is selfPublished (relates to only one publication) the code
-    /// of the ingest is returned. If the content string attribute "selfPublished" is false, the actual ingest for
-    /// the publication is retrieved by the value of the paperName parameter.
-    ///
-    /// The name of each paper is not guaranteed to be unique, so we may have to define multiple ingests for the same
-    /// publication, one for each unique name.
+    /// Get the "code" value for the current paper. If the ingest is selfPublished (relates to only one publication) the sources
+    /// dictionary will be empty and the code for the ingester will be returned. If sources is not empty it will contain a list
+    /// of paper names and their corresponding codes. In this case the code for the item is retrieved using the paperName
+    /// parameter as the key to the dictionary.
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="paperName"></param>
+    /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private string GetItemSourceCode(IngestModel ingest, string paperName)
+    private string GetItemSourceCode(IngestModel ingest, string paperName, Dictionary<string, string> sources)
     {
-        // The default for selfPublished is false, so all self-published papers must have a value in configuration string.
-        var selfPublished = ingest.GetConfigurationValue<bool>(Fields.SelfPublished);
-
-        if (selfPublished)
+        if (sources.Count == 0) // Self published
         {
             return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         }
         else
         {
-            // Removed the api endpoint GetIngestByNameAsync, so defaulting to the parent code for now.
-            // This is so provide working code until I can implement the "sources" attribute of the Connection string.
-            // TODO: Incomplete, this should be extracting from configuration.
-            return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+            var code = "";
+            if (sources.TryGetValue(paperName, out code))
+            {
+                return code;
+            }
+            else
+            {
+                throw new InvalidOperationException($"Paper '{paperName}' not in configuration string for ingester '{ingest.Name}'.");
+            }
         }
+    }
+
+    /// <summary>
+    /// Get a dictionary containing key/value pairs of the form "papername=code" extracted from the ingest record's
+    /// sources attribute.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private Dictionary<string, string> GetSourcesForIngester(IngestModel ingest)
+    {
+        var sources = new Dictionary<string, string>();
+        var sourcesStr = ingest.GetConfigurationValue(Fields.Sources);
+        var sourcesArr = sourcesStr.Split("&");
+
+        foreach (var source in sourcesArr)
+        {
+            var pair = source.Split('=');
+
+            if (pair.Length == 2)
+            {
+                sources.Add(pair[0], pair[1]);
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+            }
+        }
+
+        return sources;
     }
 
     /// <summary>
