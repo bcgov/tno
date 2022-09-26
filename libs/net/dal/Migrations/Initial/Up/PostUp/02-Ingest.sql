@@ -329,6 +329,7 @@ INSERT INTO public.ingest (
       "url": "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master4.m3u8",
       "timeZone": "Pacific Standard Time",
       "language": "en-CA",
+      "fileName": "{schedule.Name}.mp4",
       "post": true,
       "import": true }' -- configuration
   , 3 -- schedule_type
