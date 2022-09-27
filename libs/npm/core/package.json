@@ -1,115 +1,115 @@
 {
-    "name": "tno-core",
-    "description": "TNO shared library",
-    "version": "0.0.172",
-    "homepage": "https://github.com/bcgov/tno",
-    "license": "Apache-2.0",
-    "files": [
-        "dist/**/*",
-        "src/**/*",
-        "package.json"
+  "name": "tno-core",
+  "description": "TNO shared library",
+  "version": "0.0.173",
+  "homepage": "https://github.com/bcgov/tno",
+  "license": "Apache-2.0",
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "package.json"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "unpkg": "dist/index.min.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@headlessui/react": "^1.7.2",
+    "@react-keycloak/web": "^3.4.0",
+    "axios": "^0.27.2",
+    "dequal": "^2.0.3",
+    "formik": "^2.2.9",
+    "keycloak-js": "^19.0.2",
+    "lodash": "^4.17.21",
+    "lodash.throttle": "^4.1.1",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.37",
+    "react": "^18.2.0",
+    "react-datepicker": "^4.8.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0",
+    "react-inlinesvg": "^3.0.1",
+    "react-router-dom": "^6.4.1",
+    "react-table": "^7.8.0",
+    "react-toastify": "^9.0.8",
+    "react-tooltip": "^4.2.21",
+    "styled-components": "^5.3.5"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/customize-cra": "^1.0.3",
+    "@types/jest": "^29.0.3",
+    "@types/lodash.throttle": "^4.1.7",
+    "@types/node": "^18.7.23",
+    "@types/pretty": "^2.0.1",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/react-table": "^7.7.12",
+    "@types/styled-components": "^5.1.26",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
+    "axios-mock-adapter": "^1.21.2",
+    "compression-webpack-plugin": "^10.0.0",
+    "copyfiles": "^2.4.1",
+    "cross-env": "^7.0.3",
+    "customize-cra": "^1.0.0",
+    "eslint": "^8.24.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-flowtype": "^8.0.3",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "node-sass": "^7.0.3",
+    "prettier": "^2.7.1",
+    "pretty": "^2.0.0",
+    "pretty-quick": "^3.1.3",
+    "sass-extract": "^2.1.0",
+    "sass-extract-js": "^0.4.0",
+    "sass-extract-loader": "^1.1.0",
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.8.3"
+  },
+  "resolutions": {},
+  "scripts": {
+    "prebuild": "rm -rf dist/",
+    "build": "tsc --build",
+    "postbuild": "yarn run copy-files",
+    "copy-files": "copyfiles ./src/@types/*.* ./src/@types/**/*.* ./src/css/**/*.* ./src/assets/*.* dist -a -u 1",
+    "clean": "rm -rf dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete;",
+    "pretty-quick": "pretty-quick",
+    "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
+    "check": "prettier --check \"./src/**/*.{js,jsx,ts,tsx,css,scss}\"",
+    "prepublish": "yarn build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "plugin:prettier/recommended"
     ],
-    "main": "dist/index.js",
-    "module": "dist/index.js",
-    "unpkg": "dist/index.min.js",
-    "types": "dist/index.d.ts",
-    "dependencies": {
-        "@headlessui/react": "^1.6.1",
-        "@react-keycloak/web": "^3.4.0",
-        "axios": "^0.27.2",
-        "dequal": "^2.0.2",
-        "formik": "^2.2.9",
-        "keycloak-js": "^17.0.1",
-        "lodash": "^4.17.21",
-        "lodash.throttle": "^4.1.1",
-        "moment": "^2.29.3",
-        "moment-timezone": "^0.5.34",
-        "react": "^18.1.0",
-        "react-datepicker": "^4.8.0",
-        "react-dom": "^18.1.0",
-        "react-icons": "^4.3.1",
-        "react-inlinesvg": "^3.0.0",
-        "react-router-dom": "^6.3.0",
-        "react-table": "^7.8.0",
-        "react-toastify": "^9.0.1",
-        "react-tooltip": "^4.2.21",
-        "styled-components": "^5.3.5"
-    },
-    "devDependencies": {
-        "@testing-library/jest-dom": "^5.16.4",
-        "@testing-library/react": "^13.2.0",
-        "@testing-library/user-event": "^14.2.0",
-        "@types/customize-cra": "^1.0.2",
-        "@types/jest": "^27.5.1",
-        "@types/lodash.throttle": "^4.1.7",
-        "@types/node": "^17.0.34",
-        "@types/pretty": "^2.0.1",
-        "@types/react": "^18.0.9",
-        "@types/react-dom": "^18.0.4",
-        "@types/react-router-dom": "^5.3.3",
-        "@types/react-table": "^7.7.12",
-        "@types/styled-components": "^5.1.25",
-        "@typescript-eslint/eslint-plugin": "^5.25.0",
-        "@typescript-eslint/parser": "^5.25.0",
-        "axios-mock-adapter": "^1.20.0",
-        "compression-webpack-plugin": "^10.0.0",
-        "copyfiles": "^2.4.1",
-        "cross-env": "^7.0.3",
-        "customize-cra": "^1.0.0",
-        "eslint": "^8.15.0",
-        "eslint-config-prettier": "^8.5.0",
-        "eslint-config-react-app": "^7.0.1",
-        "eslint-plugin-flowtype": "^8.0.3",
-        "eslint-plugin-prettier": "^4.0.0",
-        "eslint-plugin-react-hooks": "^4.5.0",
-        "eslint-plugin-simple-import-sort": "^7.0.0",
-        "node-sass": "^7.0.1",
-        "prettier": "^2.6.2",
-        "pretty": "^2.0.0",
-        "pretty-quick": "^3.1.3",
-        "sass-extract": "^2.1.0",
-        "sass-extract-js": "^0.4.0",
-        "sass-extract-loader": "^1.1.0",
-        "ts-loader": "^9.3.0",
-        "typescript": "^4.6.4"
-    },
-    "resolutions": {},
-    "scripts": {
-        "prebuild": "rm -rf dist/",
-        "build": "tsc --build",
-        "postbuild": "yarn run copy-files",
-        "copy-files": "copyfiles ./src/@types/*.* ./src/@types/**/*.* ./src/css/**/*.* ./src/assets/*.* dist -a -u 1",
-        "clean": "rm -rf dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete;",
-        "pretty-quick": "pretty-quick",
-        "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",
-        "lint:fix": "npm run lint -- --fix",
-        "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
-        "check": "prettier --check \"./src/**/*.{js,jsx,ts,tsx,css,scss}\"",
-        "prepublish": "yarn build"
-    },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "plugin:prettier/recommended"
-        ],
-        "plugins": [
-            "simple-import-sort"
-        ],
-        "rules": {
-            "simple-import-sort/imports": "error",
-            "simple-import-sort/exports": "error"
-        }
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
+    "plugins": [
+      "simple-import-sort"
+    ],
+    "rules": {
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error"
     }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

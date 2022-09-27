@@ -14,18 +14,19 @@ import { IContentListFilter } from './interfaces';
 import * as styled from './styled';
 
 export interface IContentFilterProps {
+  /** Function to call when the filter changes. */
   search: (filter: IContentListFilter) => Promise<Page<IContentModel>>;
-  onReady?: (isReady: boolean) => void;
-  updated?: boolean;
-  setUpdated?: (updated: boolean) => void;
 }
 
-export const ContentFilter: React.FC<IContentFilterProps> = ({
-  search,
-  onReady,
-  updated,
-  setUpdated,
-}) => {
+/**
+ * ContentFilter component provides a filter form to update the search results.
+ * There are two types of filters (standard, advanced).
+ * The standard filter will execute the 'search' function immediately on a change.
+ * The advanced filter will execute the 'search' function only when requested by the user.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
   const [{ products, ingestTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
   const [advancedHover, setAdvancedHover] = React.useState(false);
@@ -33,18 +34,9 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
 
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
-  const [timeFrame, setTimeFrame] = React.useState(timeFrames[Number(filter.timeFrame)]);
-
-  React.useEffect(() => {
-    if (!!updated) {
-      search({
-        ...filter,
-        pageIndex: 0,
-        ...filterAdvanced,
-      });
-      setUpdated && setUpdated(false);
-    }
-  }, [updated, filter, storeFilterAdvanced, search, setUpdated, filterAdvanced]);
+  const [timeFrame, setTimeFrame] = React.useState<IOptionItem>(
+    timeFrames[Number(filter.timeFrame)],
+  );
 
   React.useEffect(() => {
     setProductOptions(getSortableOptions(products, [new OptionItem<number>('Any', 0)]));
@@ -58,10 +50,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
       ),
     );
   }, [users]);
-
-  React.useEffect(() => {
-    onReady?.(!!users.length && !!products.length && !!ingestTypes.length);
-  }, [users, products, ingestTypes, onReady]);
 
   /** Handle enter key pressed for advanced filter */
   React.useEffect(() => {
@@ -79,15 +67,17 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
     };
   }, [filter, filterAdvanced, search, advancedHover]);
 
-  const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = +e.target.value;
-    const option = timeFrames.find((tf) => tf.value === value) ?? timeFrame;
-    setTimeFrame(option);
-    setUpdated && setUpdated(true);
+  // Convert the selected option into the value.
+  const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    values?: IOptionItem,
+  ) => {
+    const value = values ?? timeFrame;
+    setTimeFrame(value);
     storeFilter({
       ...filter,
       pageIndex: 0,
-      timeFrame: timeFrame?.value ?? 0,
+      timeFrame: +`${value.value ?? 0}`,
     });
   };
 
@@ -102,7 +92,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
           value={productOptions.find((mt) => mt.value === filter.productId)}
           defaultValue={productOptions[0]}
           onChange={(newValue) => {
-            setUpdated && setUpdated(true);
             var productId = (newValue as IOptionItem).value ?? 0;
             storeFilter({
               ...filter,
@@ -118,7 +107,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
           value={userOptions.find((u) => u.value === filter.userId)}
           onChange={(newValue) => {
             var userId = (newValue as IOptionItem).value ?? '';
-            setUpdated && setUpdated(true);
             storeFilter({
               ...filter,
               pageIndex: 0,
@@ -147,7 +135,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 value={filter.printContent}
                 checked={filter.printContent}
                 onChange={(e) => {
-                  setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
@@ -181,7 +168,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                     pageIndex: 0,
                     onTicker: e.target.checked ? e.target.value : '',
                   });
-                  setUpdated && setUpdated(true);
                 }}
               />
             </div>
@@ -193,7 +179,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 tooltip="Content identified as commentary"
                 checked={filter.commentary !== ''}
                 onChange={(e) => {
-                  setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
@@ -208,7 +193,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                 tooltip="Content identified as a top story"
                 checked={filter.topStory !== ''}
                 onChange={(e) => {
-                  setUpdated && setUpdated(true);
                   storeFilter({
                     ...filter,
                     pageIndex: 0,

@@ -9,7 +9,7 @@ export type FormikFormProps<
   ExtraProps = {},
 > = FormikConfig<Values> & ExtraProps;
 
-export interface IFormikFormProps<Values> extends FormikFormProps<Values> {
+export interface IFormikFormProps<Values extends FormikValues> extends FormikFormProps<Values> {
   /**
    * Manually control when the loading spinner overlay is visible.
    */
