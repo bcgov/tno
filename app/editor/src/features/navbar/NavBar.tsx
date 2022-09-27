@@ -8,29 +8,11 @@ import { Row } from 'tno-core/dist/components/flex/row';
 export const NavBar: React.FC = () => {
   const [activeHover, setActiveHover] = useState<string>('');
 
-  let isHover = false;
-  let isCancel = false;
-
-  const onMouseOver = () => {
-    isHover = true;
-  };
-
-  const onMouseLeave = () => {
-    isHover = false;
-    setTimeout(() => {
-      if (!isHover && !isCancel) setActiveHover('');
-      if (isCancel) isCancel = false;
-    }, 2000);
-  };
+  const [hide, setHide] = useState<boolean>(false);
+  const hideRef = useRef(hide);
+  hideRef.current = hide;
 
   const ref = useRef<any>();
-
-  const handleClickOutside = (event: { target: any }) => {
-    if (ref.current && !ref.current.contains(event.target)) {
-      isCancel = true;
-      setActiveHover('');
-    }
-  };
 
   useEffect(() => {
     document.addEventListener('click', handleClickOutside, false);
@@ -38,6 +20,24 @@ export const NavBar: React.FC = () => {
       document.removeEventListener('click', handleClickOutside, false);
     };
   });
+
+  const onMouseOver = () => {
+    setHide(false);
+  };
+
+  const onMouseLeave = () => {
+    setHide(true);
+    setTimeout(() => {
+      if (hideRef.current) setActiveHover('');
+    }, 2000);
+  };
+
+  const handleClickOutside = (event: { target: any }) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setHide(true);
+      setActiveHover('');
+    }
+  };
 
   return (
     <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
