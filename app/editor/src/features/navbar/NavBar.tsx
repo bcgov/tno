@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Claim, NavBarGroup, NavBarItem, Show } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex/row';
 
@@ -7,8 +7,37 @@ import { Row } from 'tno-core/dist/components/flex/row';
  */
 export const NavBar: React.FC = () => {
   const [activeHover, setActiveHover] = useState<string>('');
+
+  const hideRef = useRef(false);
+  const ref = useRef<any>();
+
+  useEffect(() => {
+    document.addEventListener('click', handleClickOutside, false);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, false);
+    };
+  });
+
+  const onMouseOver = () => {
+    hideRef.current = false;
+  };
+
+  const onMouseLeave = () => {
+    hideRef.current = true;
+    setTimeout(() => {
+      if (hideRef.current) setActiveHover('');
+    }, 2000);
+  };
+
+  const handleClickOutside = (event: { target: any }) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      hideRef.current = true;
+      setActiveHover('');
+    }
+  };
+
   return (
-    <div onMouseLeave={() => setActiveHover('')}>
+    <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
       <NavBarGroup className="navbar">
         <Row>
           <div className="editor" onMouseOver={() => setActiveHover('editor')}>
