@@ -9,6 +9,8 @@ using TNO.Services.Managers;
 using TNO.Services.Content.Config;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using System.Security.Cryptography.Xml;
+using TNO.Entities;
 
 namespace TNO.Services.Content;
 
@@ -68,7 +70,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
     #endregion
 
-    #region Methoi
+    #region Methods
     /// <summary>
     /// Continually poll for updated data source configuration.
     /// When there are topics to listen too it will initialize a Kafka consumer.
@@ -260,24 +262,34 @@ public class ContentManager : ServiceManager<ContentOptions>
                 {
                     // TODO: Handle different storage locations.
                     // If the source content references a connection then fetch it to get the storage location of the file.
-                    var connection = model.ConnectionId.HasValue ? await _api.GetConnectionAsync(model.ConnectionId.Value) : null;
-                    var fullPath = Path.Combine(_options.VolumePath, connection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", model.FilePath.MakeRelativePath());
+                    var fullPath = Path.Combine(_options.VolumePath, model.FilePath.MakeRelativePath());
                     if (File.Exists(fullPath))
                     {
                         var file = File.OpenRead(fullPath);
                         var fileName = Path.GetFileName(fullPath);
-                        await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
+                        content = await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
 
                         // Send a Kafka message to the transcription topic
                         if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
                         {
-                            await SendMessageAsync(content);
+                            await SendMessageAsync(content!);
                         }
                     }
                     else
                     {
                         // TODO: Not sure if this should be considered a failure or not.
                         this.Logger.LogWarning("File not found.  Content ID: {id}, File: {path}", content.Id, fullPath);
+                    }
+                }
+
+                if (content != null)
+                {
+                    // Update the status of the content reference.
+                    var reference = await _api.FindContentReferenceAsync(content.OtherSource, content.Uid);
+                    if (reference != null)
+                    {
+                        reference.Status = (int)WorkflowStatus.Imported;
+                        await _api.UpdateContentReferenceAsync(reference);
                     }
                 }
             }

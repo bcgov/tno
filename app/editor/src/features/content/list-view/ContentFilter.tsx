@@ -1,7 +1,7 @@
 import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select, SelectDate } from 'components/form';
+import { useTooltips } from 'hooks';
 import { ContentTypeName, IContentModel } from 'hooks/api-editor';
 import React from 'react';
-import ReactTooltip from 'react-tooltip';
 import { useContent, useLookup } from 'store/hooks';
 import { initialContentState } from 'store/slices';
 import { Button, ButtonVariant, FieldSize, Loader, Text } from 'tno-core';
@@ -29,14 +29,19 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
   const [{ products, ingestTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
   const [advancedHover, setAdvancedHover] = React.useState(false);
+  useTooltips();
 
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
-  const [timeframe, setTimeframe] = React.useState(timeFrames[Number(filter.timeFrame)]);
+  const [timeFrame, setTimeFrame] = React.useState(timeFrames[Number(filter.timeFrame)]);
 
   React.useEffect(() => {
     if (!!updated) {
-      search({ ...filter, pageIndex: 0, ...filterAdvanced });
+      search({
+        ...filter,
+        pageIndex: 0,
+        ...filterAdvanced,
+      });
       setUpdated && setUpdated(false);
     }
   }, [updated, filter, storeFilterAdvanced, search, setUpdated, filterAdvanced]);
@@ -74,14 +79,10 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
     };
   }, [filter, filterAdvanced, search, advancedHover]);
 
-  React.useEffect(() => {
-    ReactTooltip.rebuild();
-  });
-
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = +e.target.value;
-    const timeFrame = timeFrames.find((tf) => tf.value === value);
-    setTimeframe(timeframe);
+    const option = timeFrames.find((tf) => tf.value === value) ?? timeFrame;
+    setTimeFrame(option);
     setUpdated && setUpdated(true);
     storeFilter({
       ...filter,
@@ -130,7 +131,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
           label="Time Frame"
           direction="col-row"
           tooltip="Date created"
-          value={timeframe}
+          value={timeFrame}
           options={timeFrames}
           onChange={handleTimeChange}
           disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
@@ -150,22 +151,21 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
-                    printContent: e.target.checked,
                     contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
                   });
                 }}
               />
               <Checkbox
-                name="included"
+                name="includedInCategory"
                 label="Included in EoD"
                 tooltip="Content included in Event of the Day"
-                value="Included"
-                checked={filter.included !== ''}
+                value={filter.includedInCategory}
+                checked={filter.includedInCategory}
                 onChange={(e) => {
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
-                    included: e.target.checked ? e.target.value : '',
+                    includedInCategory: e.target.checked,
                   });
                 }}
               />

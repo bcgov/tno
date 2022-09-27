@@ -6,6 +6,7 @@ export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
   printContent: boolean;
+  includedInCategory: boolean;
   contentType?: ContentTypeName;
   sourceId: number;
   otherSource: string;
@@ -14,7 +15,6 @@ export interface IContentListFilter {
   userId: number | '';
   timeFrame: number | '';
   // Actions
-  included: string;
   onTicker: string;
   commentary: string;
   topStory: string;

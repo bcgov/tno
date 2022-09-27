@@ -57,11 +57,6 @@ public abstract class ContentBase
     public string Summary { get; set; } = "";
 
     /// <summary>
-    /// get/set - Foreign key to the connection used to store the file.
-    /// </summary>
-    public int? ConnectionId { get; set; }
-
-    /// <summary>
     /// get/set - The path to the file associated with this content.
     /// This path will be relative to a data location that is available to the consuming service.
     /// Essentially the path is meaningless without the additional context, but is critical to fetch the file.
@@ -129,45 +124,6 @@ public abstract class ContentBase
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Title = title ?? throw new ArgumentNullException(nameof(title));
         this.Summary = summary ?? throw new ArgumentNullException(nameof(summary));
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ContentBase object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="contentType"></param>
-    /// <param name="productId"></param>
-    /// <param name="connectionId"></param>
-    /// <param name="uid"></param>
-    /// <param name="title"></param>
-    /// <param name="summary"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public ContentBase(string source, ContentType contentType, int productId, int? connectionId, string uid, string title, string summary)
-    {
-        this.ContentType = contentType;
-        this.ProductId = productId;
-        this.ConnectionId = connectionId;
-        this.Source = source ?? throw new ArgumentNullException(nameof(source));
-        this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
-        this.Title = title ?? throw new ArgumentNullException(nameof(title));
-        this.Summary = summary ?? throw new ArgumentNullException(nameof(summary));
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ContentBase object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="source"></param>
-    /// <param name="contentType"></param>
-    /// <param name="productId"></param>
-    /// <param name="connectionId"></param>
-    /// <param name="uid"></param>
-    /// <param name="title"></param>
-    /// <param name="summary"></param>
-    /// <param name="publishedOn"></param>
-    public ContentBase(string source, ContentType contentType, int productId, int? connectionId, string uid, string title, string summary, DateTime publishedOn)
-        : this(source, contentType, productId, connectionId, uid, title, summary)
-    {
-        this.PublishedOn = publishedOn;
     }
 
     /// <summary>

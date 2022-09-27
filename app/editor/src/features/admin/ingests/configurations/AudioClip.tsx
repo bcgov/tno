@@ -28,6 +28,7 @@ export const AudioClip: React.FC = (props) => {
         tooltip="Format of the clip"
         placeholder="mp3"
       />
+      <p>Use "{'{schedule.Name}'}.mp3" to name the file with the schedule name.</p>
       <FormikText
         label="File Name"
         name="configuration.fileName"

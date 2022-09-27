@@ -19,11 +19,5 @@ public class SourceContent : ContentBase
     {
         this.Body = body ?? throw new ArgumentNullException(nameof(body));
     }
-
-    public SourceContent(string source, ContentType contentType, int productId, int? connectionId, string uid, string title, string summary, string body, DateTime publishedOn)
-        : base(source, contentType, productId, connectionId, uid, title, summary, publishedOn)
-    {
-        this.Body = body ?? throw new ArgumentNullException(nameof(body));
-    }
     #endregion
 }
