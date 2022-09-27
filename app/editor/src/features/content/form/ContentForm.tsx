@@ -9,6 +9,7 @@ import {
   FormikHidden,
   FormikSelect,
   FormikText,
+  FormikTextArea,
 } from 'components/formik';
 import { Modal } from 'components/modal';
 import { FormikProps } from 'formik';
@@ -267,7 +268,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                   <Show visible={size === 0}>
                     <Row flex="1 1 100%" wrap="nowrap">
                       <Col flex="1 1 0%">
-                        <FormikText
+                        <FormikTextArea
                           name="headline"
                           required
                           label="Headline"
@@ -290,7 +291,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                     <Col flex="1.5 1 0%">
                       <Row wrap="nowrap">
                         <Col flex="1 1 0%">
-                          <FormikText
+                          <FormikTextArea
                             name="headline"
                             required
                             label="Headline"
