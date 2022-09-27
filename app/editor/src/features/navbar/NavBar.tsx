@@ -8,10 +8,7 @@ import { Row } from 'tno-core/dist/components/flex/row';
 export const NavBar: React.FC = () => {
   const [activeHover, setActiveHover] = useState<string>('');
 
-  const [hide, setHide] = useState<boolean>(false);
-  const hideRef = useRef(hide);
-  hideRef.current = hide;
-
+  const hideRef = useRef(false);
   const ref = useRef<any>();
 
   useEffect(() => {
@@ -22,11 +19,11 @@ export const NavBar: React.FC = () => {
   });
 
   const onMouseOver = () => {
-    setHide(false);
+    hideRef.current = false;
   };
 
   const onMouseLeave = () => {
-    setHide(true);
+    hideRef.current = true;
     setTimeout(() => {
       if (hideRef.current) setActiveHover('');
     }, 2000);
@@ -34,7 +31,7 @@ export const NavBar: React.FC = () => {
 
   const handleClickOutside = (event: { target: any }) => {
     if (ref.current && !ref.current.contains(event.target)) {
-      setHide(true);
+      hideRef.current = true;
       setActiveHover('');
     }
   };
