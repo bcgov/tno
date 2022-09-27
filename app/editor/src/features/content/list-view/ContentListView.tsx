@@ -22,7 +22,7 @@ export const ContentListView: React.FC = () => {
   const combined = useCombinedView();
   useTooltips();
 
-  const [contentType, setContentType] = React.useState<ContentTypeName>(ContentTypeName.Snippet);
+  const [contentType, setContentType] = React.useState(ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
   const [activeId, setActiveId] = React.useState<number>(parseInt(id ?? '0'));
 
@@ -135,31 +135,6 @@ export const ContentListView: React.FC = () => {
                 variant={ButtonVariant.secondary}
               >
                 Create Print Content
-              </Button>
-              <div>Send to</div>
-              <Button
-                name="create"
-                variant={ButtonVariant.secondary}
-                disabled
-                tooltip="Under Construction"
-              >
-                Front Pages
-              </Button>
-              <Button
-                name="create"
-                variant={ButtonVariant.secondary}
-                disabled
-                tooltip="Under Construction"
-              >
-                Top Stories
-              </Button>
-              <Button
-                name="create"
-                variant={ButtonVariant.secondary}
-                disabled
-                tooltip="Under Construction"
-              >
-                Commentary
               </Button>
             </Row>
           </Col>

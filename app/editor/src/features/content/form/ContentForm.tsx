@@ -56,13 +56,23 @@ export interface IContentFormProps {
  * Snippet Form edit and create form for default view. Path will be appended with content id.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
+export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initContentType }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [{ sources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
+    {
+      getContent,
+      addContent,
+      updateContent,
+      deleteContent,
+      upload,
+      publishContent,
+      attach,
+      transcribe,
+      nlp,
+    },
   ] = useContent();
   const { isShowing, toggle } = useModal();
   const { userId } = useUserLookups();
@@ -71,6 +81,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
   const combined = useCombinedView();
   useTooltips();
 
+  const [contentType, setContentType] = React.useState(initContentType);
   const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
@@ -96,6 +107,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
     (id: number) => {
       getContent(id).then((data) => {
         setContent(toForm(data));
+        // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
+        setContentType(data.contentType);
       });
     },
     [getContent],
@@ -184,6 +197,32 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
       } catch {
         // Ignore this failure it is handled by our global ajax requests.
       }
+    }
+  };
+
+  const handleTranscribe = async (values: IContentForm) => {
+    try {
+      // Save before submitting request.
+      await handleSubmit(values);
+      await transcribe(toModel(values));
+
+      toast.success(`"${values.headline}" has successfully requested a transcript`);
+    } catch {
+      // Ignore this failure it is handled by our global ajax requests.
+    }
+  };
+
+  const handleNLP = async (values: IContentForm) => {
+    try {
+      // Save before submitting request.
+      await handleSubmit(values);
+      await nlp(toModel(values));
+
+      toast.success(
+        `"${values.headline}" has successfully requested a Natural Language Processing`,
+      );
+    } catch {
+      // Ignore this failure it is handled by our global ajax requests.
     }
   };
 
@@ -432,18 +471,20 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                             showErrorOnSave={{ value: true, savePressed: savePressed }}
                             setShowValidationToast={setShowValidationToast}
                           />
-                          <Tab
-                            label="Transcript"
-                            onClick={() => setActive('transcript')}
-                            active={active === 'transcript'}
-                          />
-                          <Tab
-                            label="Clips"
-                            onClick={() => setActive('clips')}
-                            active={active === 'clips'}
-                            hasErrors={!!clipErrors && active !== 'clips'}
-                            showErrorOnSave={{ value: true, savePressed: savePressed }}
-                          />
+                          <Show visible={props.values.contentType === ContentTypeName.Snippet}>
+                            <Tab
+                              label="Transcript"
+                              onClick={() => setActive('transcript')}
+                              active={active === 'transcript'}
+                            />
+                            <Tab
+                              label="Clips"
+                              onClick={() => setActive('clips')}
+                              active={active === 'clips'}
+                              hasErrors={!!clipErrors && active !== 'clips'}
+                              showErrorOnSave={{ value: true, savePressed: savePressed }}
+                            />
+                          </Show>
                           <Tab
                             label="Labels"
                             onClick={() => setActive('labels')}
@@ -499,6 +540,33 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType }) => {
                     >
                       Publish
                     </Button>
+                    <Show
+                      visible={
+                        !!props.values.id && props.values.contentType === ContentTypeName.Snippet
+                      }
+                    >
+                      <Button
+                        onClick={() => handleTranscribe(props.values)}
+                        variant={ButtonVariant.action}
+                        disabled={
+                          props.isSubmitting ||
+                          !props.values.fileReferences.length ||
+                          (props.values.fileReferences.length > 0 &&
+                            !props.values.fileReferences[0].isUploaded)
+                        }
+                      >
+                        Request Transcribe
+                      </Button>
+                    </Show>
+                    <Show visible={!!props.values.id && props.values.body.length > 0}>
+                      <Button
+                        onClick={() => handleNLP(props.values)}
+                        variant={ButtonVariant.action}
+                        disabled={props.isSubmitting}
+                      >
+                        Request NLP
+                      </Button>
+                    </Show>
                     <Button
                       onClick={toggle}
                       variant={ButtonVariant.danger}

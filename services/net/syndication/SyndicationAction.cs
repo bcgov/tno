@@ -160,6 +160,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 var html = await this.GetContentAsync(link);
                 if (item.PublishDate == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, ingest);
                 var text = StringExtensions.SanitizeContent(html);
+                // Only update the summary if it's empty.
                 if (String.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
                 item.Content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
             }
@@ -220,11 +221,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     private SourceContent CreateSourceContent(IngestModel ingest, SyndicationItem item)
     {
-        var content = item.Content as TextSyndicationContent;
-        var (title, summary) = HandleInvalidEncoding(item);
+        var (title, summary, body) = HandleInvalidEncoding(item);
         var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        return new SourceContent(source, contentType, ingest.ProductId, item.Id, title, summary, content?.Text ?? item.Content?.ToString() ?? "", item.PublishDate.UtcDateTime)
+        return new SourceContent(source, contentType, ingest.ProductId, item.Id, title, summary, body, item.PublishDate.UtcDateTime)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",
@@ -239,11 +239,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// Handle invalid encoding characters before sending to Kafka.
     /// </summary>
     /// <param name="item"></param>
-    /// <returns>updated title and summary</returns>
-    private (string title, string summary) HandleInvalidEncoding(SyndicationItem item)
+    /// <returns>updated title, summary, body</returns>
+    private (string title, string summary, string body) HandleInvalidEncoding(SyndicationItem item)
     {
         var title = item.Title.Text;
         var summary = item.Summary.Text;
+        var content = item.Content as TextSyndicationContent;
+        var body = content?.Text ?? item.Content?.ToString() ?? "";
         if (!string.IsNullOrEmpty(this.Options.InvalidEncodings) && this.Options.EncodingSets != null)
         {
             foreach (var encodingSet in this.Options.EncodingSets)
@@ -255,10 +257,11 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     var newValue = keyValue[1];
                     if (title.Contains(oldValue)) title = title.Replace(oldValue, newValue);
                     if (summary.Contains(oldValue)) summary = summary.Replace(oldValue, newValue);
+                    if (body.Contains(oldValue)) body = body.Replace(oldValue, newValue);
                 }
             }
         }
-        return (title, summary);
+        return (title, summary, body);
     }
 
     /// <summary>

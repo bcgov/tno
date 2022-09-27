@@ -247,10 +247,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                     OtherSeries = null, // TODO: Provide default series from Data Source config settings.
                     OwnerId = source?.OwnerId,
                     Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
-                    Uid = result.Message.Value.Uid,
+                    Uid = model.Uid,
                     Page = "", // TODO: Provide default page from Data Source config settings.
                     Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : model.Summary,
-                    Body = "",
+                    Body = model.Body,
                     SourceUrl = model.Link,
                     PublishedOn = model.PublishedOn,
                 };
