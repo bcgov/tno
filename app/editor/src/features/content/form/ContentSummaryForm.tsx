@@ -195,11 +195,11 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               />
               <TimeInput
                 name="publishedOnTime"
+                label="Time"
                 disabled={!values.publishedOn}
                 placeholder={
                   !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : 'HH:MM:SS'
                 }
-                label="Time"
                 onChange={(e) => setPublishedOnTime(e.target.value)}
               />
               <Show visible={contentType === ContentTypeName.Snippet}>
@@ -210,9 +210,9 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           <Show visible={contentType === ContentTypeName.Snippet}>
             <Col className="licenses">
               <RadioGroup
+                name="expireOptions"
                 label="License"
                 spaceUnderRadio
-                name="expireOptions"
                 options={licenseOptions}
                 value={licenseOptions.find((e) => e.value === values?.licenseId)}
                 onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
@@ -222,34 +222,44 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         </Row>
         <Row>
           <Col flex="1 1 0">
-            <FormikTextArea
-              name="summary"
-              label="Summary"
-              required
-              onBlur={(e) => {
-                const value = e.currentTarget.value;
-                if (!!value) {
-                  const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
-                  const tags = extractTags(values);
-                  setFieldValue('tags', tags);
-                }
-              }}
-            />
+            <Show visible={contentType === ContentTypeName.Snippet}>
+              <FormikTextArea
+                name="summary"
+                label="Summary"
+                required
+                onBlur={(e) => {
+                  const value = e.currentTarget.value;
+                  if (!!value) {
+                    const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
+                    const tags = extractTags(values);
+                    setFieldValue('tags', tags);
+                  }
+                }}
+              />
+            </Show>
+            <Show visible={contentType !== ContentTypeName.Snippet}>
+              <FormikTextArea
+                name="body"
+                label="Story"
+                required
+                onBlur={(e) => {
+                  const value = e.currentTarget.value;
+                  if (!!value) {
+                    const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
+                    const tags = extractTags(values);
+                    setFieldValue('tags', tags);
+                  }
+                }}
+              />
+            </Show>
           </Col>
         </Row>
-        <Show visible={contentType !== ContentTypeName.Snippet}>
-          <Row>
-            <Col flex="1 1 0">
-              <FormikTextArea name="body" label="Story" />
-            </Col>
-          </Row>
-        </Show>
         <Row>
           <FormikText
-            disabled
-            width={combined ? FieldSize.Big : FieldSize.Large}
             name="tags"
             label="Tags"
+            disabled
+            width={combined ? FieldSize.Big : FieldSize.Large}
             value={values.tags.map((t) => t.id).join(', ')}
           />
           <Button
