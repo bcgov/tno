@@ -233,24 +233,19 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(_options.FilePath, path.MakeRelativePath());
 
-        var debugPath = Path.GetFullPath(safePath);
-        var debugPath2 = Path.GetFullPath(path);
-
-        //var debugPath2 = safePath;
-        //var debugPath2 = safePath;
-        var mediaType = await IsVideoAsync(debugPath2) ? SourceMediaType.Video : SourceMediaType.Audio;
+        var mediaType = await IsVideoAsync(safePath) ? SourceMediaType.Video : SourceMediaType.Audio;
         if (mediaType == SourceMediaType.Video)
         {
-            var convertFilePath = debugPath2.Replace(Path.GetExtension(debugPath2), ".mp3");
-            await Video2Audio(debugPath2, convertFilePath);
-            debugPath2 = convertFilePath;
+            var convertFilePath = safePath.Replace(Path.GetExtension(safePath), ".mp3");
+            await Video2Audio(safePath, convertFilePath);
+            safePath = convertFilePath;
         }
-        if (File.Exists(debugPath2))
+        if (File.Exists(safePath))
         {
             this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
 
             var original = content.Body;
-            var fileBytes = File.ReadAllBytes(debugPath2);
+            var fileBytes = File.ReadAllBytes(safePath);
             var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
 
             // Fetch content again because it may have been updated by an external source.
