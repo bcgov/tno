@@ -117,7 +117,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
             _cancelToken = new CancellationTokenSource();
-            _consumer = Task.Factory.StartNew(() => ConsumerHandler(), _cancelToken.Token);
+            _consumer = ConsumerHandlerAsync();
         }
     }
 
@@ -125,12 +125,12 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// Keep consuming messages from Kafka until the service stops running.
     /// </summary>
     /// <returns></returns>
-    private async Task ConsumerHandler()
+    private async Task ConsumerHandlerAsync()
     {
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            await this.Consumer.ConsumeAsync(HandleMessageAsync);
+            await this.Consumer.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
@@ -181,39 +181,41 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <returns></returns>
     private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
     {
-        try
+        // The service has stopped, so to should consuming messages.
+        if (this.State.Status != ServiceStatus.Running)
         {
-            // The service has stopped, so to should consuming messages.
-            if (this.State.Status != ServiceStatus.Running)
-            {
-                this.Consumer.Stop();
-                this.State.Stop();
-            }
-
-            var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
-            if (content != null)
-            {
-                // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
-                await UpdateTranscriptionAsync(content);
-            }
-            else
-            {
-                // Identify requests for transcription for content that does not exist.
-                this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
-            }
-
-            // Successful run clears any errors.
-            this.State.ResetFailures();
-            _retries = 0;
-            return ConsumerAction.Proceed;
+            this.Consumer.Stop();
+            this.State.Stop();
+            return ConsumerAction.Stop;
         }
-        catch (HttpClientRequestException ex)
+        else
         {
-            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
+            try
+            {
+                var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
+                if (content != null)
+                {
+                    // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
+                    await UpdateTranscriptionAsync(content);
+                }
+                else
+                {
+                    // Identify requests for transcription for content that does not exist.
+                    this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
+                }
+
+                // Successful run clears any errors.
+                this.State.ResetFailures();
+                _retries = 0;
+                return ConsumerAction.Proceed;
+            }
+            catch (HttpClientRequestException ex)
+            {
+                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
+            }
+
+            return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
         }
-
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -242,7 +244,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (result != null && !String.IsNullOrWhiteSpace(transcript))
             {
                 // The transcription may have been edited during this process and now those changes will be lost.
-                if (original != result.Body) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
+                if (String.CompareOrdinal(original, result.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
 
                 result.Body = transcript;
                 await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
@@ -302,7 +304,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             if (e.Reason == CancellationReason.Error)
             {
                 sb.AppendLine("*** SPEECH TRANSCRIPTION ERROR ***");
-                this.Logger.LogError("Speech transcription failed", e.ErrorDetails);
+                this.Logger.LogError("Speech transcription error. {details}", e.ErrorDetails);
                 this.State.RecordFailure();
             }
             sem.Release();

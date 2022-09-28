@@ -555,7 +555,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                             !props.values.fileReferences[0].isUploaded)
                         }
                       >
-                        Request Transcribe
+                        Request Transcript
                       </Button>
                     </Show>
                     <Show visible={!!props.values.id && props.values.body.length > 0}>

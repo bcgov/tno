@@ -8,6 +8,12 @@ For Windows installation. Open a command prompt as an administrator.
 
 `choco install Kustomize`
 
+## Kustomize Command
+
+```bash
+oc kustomize ./overlays/dev | oc create -f -
+```
+
 ## Solution Installation
 
 | Service                                                 | Description                                               |

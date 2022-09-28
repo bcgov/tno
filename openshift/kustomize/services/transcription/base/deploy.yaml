@@ -37,9 +37,9 @@ spec:
         component: transcription-service
     spec:
       volumes:
-        - name: av-storage
+        - name: file-storage
           persistentVolumeClaim:
-            claimName: av-storage
+            claimName: file-storage
       containers:
         - name: transcription-service
           image: ""
@@ -48,7 +48,7 @@ spec:
             - containerPort: 8080
               protocol: TCP
           volumeMounts:
-            - name: av-storage
+            - name: file-storage
               mountPath: /data
           resources:
             requests:
@@ -143,11 +143,11 @@ spec:
                 configMapKeyRef:
                   name: transcription-service
                   key: TOPICS
-            - name: Service__FilePath
+            - name: Service__VolumePath
               valueFrom:
                 configMapKeyRef:
                   name: transcription-service
-                  key: FILE_PATH
+                  key: VOLUME_PATH
             - name: Service__NotificationTopic
               valueFrom:
                 configMapKeyRef:

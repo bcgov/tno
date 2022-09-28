@@ -128,6 +128,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <summary>
     /// Listen for a message from Kafka.
     /// Place this in a loop if you want to receive more than one message.
+    /// Wrapped in a try+catch so that consuming failures should never result in a dead thread.
     /// </summary>
     /// <param name="action"></param>
     /// <param name="cancellationToken"></param>
@@ -150,12 +151,12 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             // This provides a way to keep trying to handle the current result because of some kind of intermittent failure.
             if (_currentResult == null)
             {
-                _logger.LogDebug("Waiting to receive message from Kafka topics:'{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
+                _logger.LogDebug("Waiting to receive message from Kafka topics: '{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
                 // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
                 _currentResult = this.Consumer!.Consume(cancellationToken);
 
-                _logger.LogInformation("Message received from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
+                _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
 
                 if (!this.IsPaused)
                 {
@@ -164,18 +165,25 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                     this.IsPaused = true;
                 }
             }
-
-            proceed = await action(_currentResult);
-            if (proceed == ConsumerAction.Proceed)
+            else
             {
-                // Manually commit to inform Kafka this message has successfully been handled.
-                // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
-                if (_config.EnableAutoCommit == false)
+                _logger.LogDebug("Retrying prior message from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
+            }
+
+            if (_currentResult != null)
+            {
+                proceed = await action(_currentResult);
+                if (proceed == ConsumerAction.Proceed)
                 {
-                    this.Consumer?.Commit(_currentResult);
-                    _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
+                    // Manually commit to inform Kafka this message has successfully been handled.
+                    // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
+                    if (_config.EnableAutoCommit == false)
+                    {
+                        this.Consumer?.Commit(_currentResult);
+                        _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
+                    }
+                    _currentResult = null;
                 }
-                _currentResult = null;
             }
         }
         catch (Exception ex)

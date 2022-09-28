@@ -155,7 +155,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, ScheduleModel schedule)
     {
         var today = GetLocalDateTime(ingest, DateTime.UtcNow);
-        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, DateTimeKind.Local) + schedule.StartAt;
+        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, today.Kind) + schedule.StartAt;
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' missing source code."),
