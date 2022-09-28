@@ -232,23 +232,25 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // Remote storage locations may not be easily accessible by this service.
         var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(_options.FilePath, path.MakeRelativePath());
+
         var debugPath = Path.GetFullPath(safePath);
         var debugPath2 = Path.GetFullPath(path);
+
         //var debugPath2 = safePath;
         //var debugPath2 = safePath;
+        var mediaType = await IsVideoAsync(debugPath2) ? SourceMediaType.Video : SourceMediaType.Audio;
+        if (mediaType == SourceMediaType.Video)
+        {
+            var convertFilePath = debugPath2.Replace(Path.GetExtension(debugPath2), ".mp3");
+            await Video2Audio(debugPath2, convertFilePath);
+            debugPath2 = convertFilePath;
+        }
         if (File.Exists(debugPath2))
         {
             this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
 
             var original = content.Body;
-            var mediaType = await IsVideoAsync(debugPath2) ? SourceMediaType.Video : SourceMediaType.Audio;
-
-            if (mediaType == SourceMediaType.Video) {
-                await Video2Audio(debugPath2);
-                debugPath2 = debugPath2.Replace("mp4","mp3");
-            }
             var fileBytes = File.ReadAllBytes(debugPath2);
-
             var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
 
             // Fetch content again because it may have been updated by an external source.
@@ -272,10 +274,15 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 // The content is no longer available for some reason.
                 this.Logger.LogError("Content no longer exists. Content ID: {Id}", content.Id);
             }
+
         }
         else
         {
-            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
+            if (mediaType == SourceMediaType.Video) {
+                this.Logger.LogError("Video File failed to converted to audio. Content ID: {Id}, Path: {path}", content.Id, safePath);
+            } else {
+                this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
+            }
         }
     }
 
@@ -346,6 +353,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
+    /// The same as Capture and Clip services, to be re-factored
     private async Task<bool> IsVideoAsync(string file)
     {
         var process = new System.Diagnostics.Process();
@@ -362,13 +370,18 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         return !String.IsNullOrWhiteSpace(output);
     }
 
-    private async Task<bool> Video2Audio(string file)
+    /// <summary>
+    /// video to audio
+    /// </summary>
+    /// <param name="file">video file</param>
+    /// <returns></returns>
+    private async Task<bool> Video2Audio(string srcFile, string destFile)
     {
-        var destFile = file.Replace("mp4", "mp3");
+
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffmpeg -i -y {file} {destFile} \"";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i {srcFile} -y {destFile} \"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
