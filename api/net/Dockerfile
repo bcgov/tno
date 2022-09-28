@@ -28,19 +28,21 @@ COPY --from=publish /app/publish .
 COPY api/net/entrypoint.sh .
 RUN chmod +x /app/entrypoint.sh
 
-RUN useradd --create-home appuser
+# RUN useradd --create-home appuser
 
 # This volume is the local storage for uploaded files.
 RUN mkdir /data
 VOLUME /data
-RUN chmod -R 0777 /data
+RUN chgrp -R 0 /data && \
+    chmod -R g=u /data
 
 # This volume is the local storage for capture A/V files.
 RUN mkdir /av
 VOLUME /av
-RUN chmod -R 0777 /av
+RUN chgrp -R 0 /av && \
+    chmod -R g=u /av
 
-USER appuser
+# USER appuser
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

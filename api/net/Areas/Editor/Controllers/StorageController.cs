@@ -1,4 +1,5 @@
 using System.Net;
+using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -181,7 +182,7 @@ public class StorageController : ControllerBase
     public IActionResult Move(string path, string destination, [FromRoute] string? location = "capture")
     {
         var rootPath = _options.GetRootPath(location);
-        var safePath = Path.Combine(rootPath, path.MakeRelativePath());
+        var safePath = Path.Combine(rootPath, HttpUtility.UrlDecode(path).MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File does not exist: '{path}'");
 
         var safeDestination = Path.Combine(rootPath, destination.MakeRelativePath());
@@ -210,7 +211,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public IActionResult Delete(string path, [FromRoute] string? location = "capture")
     {
-        var safePath = Path.Combine(_options.GetRootPath(location), path.MakeRelativePath());
+        var safePath = Path.Combine(_options.GetRootPath(location), HttpUtility.UrlDecode(path).MakeRelativePath());
         if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
 
         // TODO: Only certain users should be allowed to delete certain files/folders.
@@ -235,7 +236,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public async Task<IActionResult> CreateClipAsync(string path, int start, int end, string outputName)
     {
-        var safePath = Path.Combine(_options.CapturePath, path.MakeRelativePath());
+        var safePath = Path.Combine(_options.CapturePath, HttpUtility.UrlDecode(path).MakeRelativePath());
         var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, outputName);
         return new JsonResult(new ItemModel(file));
     }
@@ -253,7 +254,7 @@ public class StorageController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Storage" })]
     public async Task<IActionResult> JoinClipsAsync(string path, string prefix)
     {
-        var safePath = Path.Combine(_options.CapturePath, path.MakeRelativePath());
+        var safePath = Path.Combine(_options.CapturePath, HttpUtility.UrlDecode(path).MakeRelativePath());
         var file = await FfmpegHelper.JoinClipsAsync(safePath, prefix);
         return new JsonResult(new ItemModel(file));
     }

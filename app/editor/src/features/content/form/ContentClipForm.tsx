@@ -124,25 +124,33 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
       setError('Filename is a required field.');
     } else {
       setError('');
-      await storageApi.clip(`${folder.path}/${currFile}`, start, end, prefix).then((item) => {
-        setFolder({ ...folder, items: [...folder.items, item] });
-        setStart('');
-        setEnd('');
-      });
+      try {
+        await storageApi.clip(`${folder.path}/${currFile}`, start, end, prefix).then((item) => {
+          setFolder({ ...folder, items: [...folder.items, item] });
+          setStart('');
+          setEnd('');
+        });
+      } catch {
+        // Ignore error it's already handled.
+      }
     }
   };
 
   const joinClips = async () => {
-    await storageApi.join(`${folder.path}/${currFile}`, prefix).then((item) => {
-      setItem(item);
-      setFolder({ ...folder, items: [...folder.items, item] });
-      setStart('');
-      setEnd('');
-      setCurrFile(!!item ? item.name : '');
-      setStreamUrl(
-        !!item ? `/api/editor/storage/stream?path=${folder.path}/${item.name}` : undefined,
-      );
-    });
+    try {
+      await storageApi.join(`${folder.path}/${currFile}`, prefix).then((item) => {
+        setItem(item);
+        setFolder({ ...folder, items: [...folder.items, item] });
+        setStart('');
+        setEnd('');
+        setCurrFile(!!item ? item.name : '');
+        setStreamUrl(
+          !!item ? `/api/editor/storage/stream?path=${folder.path}/${item.name}` : undefined,
+        );
+      });
+    } catch {
+      // Ignore error it's already handled.
+    }
   };
 
   const getTime = () => {
