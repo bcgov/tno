@@ -1,6 +1,7 @@
+import { FormPage } from 'components/form';
 import styled from 'styled-components';
 
-export const ContentListView = styled.div`
+export const ContentListView = styled(FormPage)`
   .content-list {
     table {
       background: transparent;
@@ -44,4 +45,6 @@ export const ContentListView = styled.div`
     flex-direction: column;
     flex: 1 1 0%;
   }
+
+  min-height: fit-content;
 `;

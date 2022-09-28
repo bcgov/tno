@@ -105,46 +105,44 @@ export const ContentListView: React.FC = () => {
 
   return (
     <styled.ContentListView>
-      <FormPage>
-        <Row wrap="nowrap">
-          <Col className="left-pane">
-            <ContentFilter search={fetch} />
-            <Row className="content-list">
-              <PagedTable
-                columns={columns(combined)}
-                page={page}
-                isLoading={loading}
-                sorting={{ sortBy: filter.sort }}
-                onRowClick={(row) => handleRowClick(row.original)}
-                activeId={activeId}
-                onChangePage={handleChangePage}
-                onChangeSort={handleChangeSort}
-              />
-            </Row>
-            <Row className="content-actions">
-              <Button
-                name="create"
-                onClick={() => navigate('/snippets/0')}
-                variant={ButtonVariant.secondary}
-              >
-                Create Snippet
-              </Button>
-              <Button
-                name="create"
-                onClick={() => navigate('/papers/0')}
-                variant={ButtonVariant.secondary}
-              >
-                Create Print Content
-              </Button>
-            </Row>
+      <Row wrap="nowrap">
+        <Col className="left-pane">
+          <ContentFilter search={fetch} />
+          <Row className="content-list">
+            <PagedTable
+              columns={columns(combined)}
+              page={page}
+              isLoading={loading}
+              sorting={{ sortBy: filter.sort }}
+              onRowClick={(row) => handleRowClick(row.original)}
+              activeId={activeId}
+              onChangePage={handleChangePage}
+              onChangeSort={handleChangeSort}
+            />
+          </Row>
+          <Row className="content-actions">
+            <Button
+              name="create"
+              onClick={() => navigate('/snippets/0')}
+              variant={ButtonVariant.secondary}
+            >
+              Create Snippet
+            </Button>
+            <Button
+              name="create"
+              onClick={() => navigate('/papers/0')}
+              variant={ButtonVariant.secondary}
+            >
+              Create Print Content
+            </Button>
+          </Row>
+        </Col>
+        <Show visible={combined}>
+          <Col className="right-pane">
+            <ContentForm contentType={contentType} />
           </Col>
-          <Show visible={combined}>
-            <Col className="right-pane">
-              <ContentForm contentType={contentType} />
-            </Col>
-          </Show>
-        </Row>
-      </FormPage>
+        </Show>
+      </Row>
     </styled.ContentListView>
   );
 };
