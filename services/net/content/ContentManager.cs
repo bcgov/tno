@@ -150,7 +150,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
             _cancelToken = new CancellationTokenSource();
-            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
+            _consumer = ConsumerHandlerAsync();
         }
     }
 
@@ -163,7 +163,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            await this.Consumer.ConsumeAsync(HandleMessageAsync);
+            await this.Consumer.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.

@@ -19,5 +19,5 @@ data:
   KAFKA_CLIENT_ID: Transcription
   MAX_FAIL_LIMIT: "5"
   TOPICS: transcribe
-  FILE_PATH: /data/clip
+  VOLUME_PATH: /data
   NOTIFICATION_TOPIC: ""
