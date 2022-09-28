@@ -22,8 +22,8 @@ public static class FfmpegHelper
         var (Cmd, Output) = GenerateClipCommand(path, start, end, outputName);
         var process = CreateProcess(Cmd, "clip");
         var code = await RunProcessAsync(process);
-        // TODO: propogate exception properly.
-        if (code != 0) throw new Exception("An unexpected error occurred while joining clips");
+        // TODO: propagate exception properly.
+        if (code != 0) throw new Exception($"An unexpected error occurred while creating clip '{path}'");
         return Output;
     }
 
@@ -41,8 +41,8 @@ public static class FfmpegHelper
         // TODO: A failure will not clean up the mux file.
         var code = await RunProcessAsync(process);
         File.Delete(muxfile);
-        // TODO: propogate exception properly.
-        if (code != 0) throw new Exception("An unexpected error occurred while joining clips");
+        // TODO: propagate exception properly.
+        if (code != 0) throw new Exception($"An unexpected error occurred while joining clip '{path}'");
         return Output;
     }
 
@@ -64,7 +64,7 @@ public static class FfmpegHelper
         var count = Directory.GetFiles(directory, $"{outputName}_*.{ext}").Length;
         var output = $"{Path.Combine(directory, outputName)}_{count + 1}.{ext}";
 
-        return ($"ffmpeg -ss {start} -t {duration} -i {path} -c:a copy {output}", output);
+        return ($"ffmpeg -ss {start} -t {duration} -i '{path}' -c:a copy '{output}'", output);
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public static class FfmpegHelper
         var directory = Path.GetDirectoryName(path) ?? "";
         var output = Path.Combine(directory, $"{prefix}-final.{ext}");
 
-        return ($"ffmpeg -f concat -safe 0 -i {muxFile} {output}", output);
+        return ($"ffmpeg -f concat -safe 0 -i '{muxFile}' '{output}'", output);
     }
 
     /// <summary>
