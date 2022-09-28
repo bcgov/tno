@@ -1,4 +1,3 @@
-import { FormPage } from 'components/form/formpage';
 import { ContentTypeName, useCombinedView, useTooltips } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
