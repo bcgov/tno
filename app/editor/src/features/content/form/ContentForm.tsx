@@ -97,12 +97,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
 
   const determineActions = () => {
     switch (contentType) {
-      case ContentTypeName.Snippet:
-        return (a: IActionModel) => a.valueType === ValueType.Boolean;
       case ContentTypeName.PrintContent:
         return (a: IActionModel) =>
           a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
+      case ContentTypeName.Snippet:
       // TODO: Determine actions for remaining content types
+      // eslint-disable-next-line no-fallthrough
       default:
         return (a: IActionModel) => a.valueType === ValueType.Boolean;
     }
