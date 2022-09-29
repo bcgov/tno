@@ -478,7 +478,9 @@ public class ClipAction : CommandAction<ClipOptions>
     private static string GetCopy(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("copy");
-        return String.IsNullOrWhiteSpace(value) ? " -c:v copy -c:a copy" : $" {value}";
+        // Attempting to use this copy command is much faster, but it corrupts the output file...
+        // return String.IsNullOrWhiteSpace(value) ? " -c:v copy -c:a copy" : $" {value}";
+        return String.IsNullOrWhiteSpace(value) ? "" : $" {value}";
     }
     #endregion
 }
