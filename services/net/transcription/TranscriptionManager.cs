@@ -361,7 +361,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         await process.WaitForExitAsync();
         var result = process.ExitCode;
         if (result != 0) {
-            this.Logger.LogError("Speech convertion error. {details}", output);
+            this.Logger.LogError("Speech convertion error. Error code: {errorcode}, Details: {details}", result, output);
         }
         return result == 0 ? destFile : string.Empty;
     }
