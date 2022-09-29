@@ -232,40 +232,49 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // Remote storage locations may not be easily accessible by this service.
         var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
+
         if (File.Exists(safePath))
         {
-            this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
-
-            var original = content.Body;
-            var fileBytes = File.ReadAllBytes(safePath);
-
-            var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
-
-            // Fetch content again because it may have been updated by an external source.
-            // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-            var result = await _api.FindContentByIdAsync(content.Id);
-            if (result != null && !String.IsNullOrWhiteSpace(transcript))
-            {
-                // The transcription may have been edited during this process and now those changes will be lost.
-                if (String.CompareOrdinal(original, result.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
-
-                result.Body = transcript;
-                await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
-                this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", content.Id);
+            // convert to audio if it's video file
+            var isVideo = Path.GetExtension(safePath).ToLower() == ".mp4";
+            if (isVideo) {
+                safePath = await Video2Audio(safePath);
             }
-            else if (String.IsNullOrWhiteSpace(transcript))
+
+            if (!String.IsNullOrEmpty(safePath))
             {
-                this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", content.Id);
-            }
-            else
-            {
-                // The content is no longer available for some reason.
-                this.Logger.LogError("Content no longer exists. Content ID: {Id}", content.Id);
+                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
+
+                var original = content.Body;
+                var fileBytes = File.ReadAllBytes(safePath);
+                var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
+
+                // Fetch content again because it may have been updated by an external source.
+                // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
+                var result = await _api.FindContentByIdAsync(content.Id);
+                if (result != null && !String.IsNullOrWhiteSpace(transcript))
+                {
+                    // The transcription may have been edited during this process and now those changes will be lost.
+                    if (String.CompareOrdinal(original, result.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
+
+                    result.Body = transcript;
+                    await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
+                    this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", content.Id);
+                }
+                else if (String.IsNullOrWhiteSpace(transcript))
+                {
+                    this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", content.Id);
+                }
+                else
+                {
+                    // The content is no longer available for some reason.
+                    this.Logger.LogError("Content no longer exists. Content ID: {Id}", content.Id);
+                }
             }
         }
         else
         {
-            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, path);
+            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
         }
     }
 
@@ -329,6 +338,31 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// video to audio
+    /// </summary>
+    /// <param name="file">video file</param>
+    /// <returns>audio file name</returns>
+    private async Task<string> Video2Audio(string srcFile)
+    {
+        var destFile = srcFile.Replace(Path.GetExtension(srcFile), ".mp3");
+        var process = new System.Diagnostics.Process();
+        process.StartInfo.Verb = $"Stream Type";
+        process.StartInfo.FileName = "/bin/sh";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i {srcFile} -y {destFile} 2>&1 \"";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.CreateNoWindow = true;
+        process.Start();
+        var output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        var result = process.ExitCode;
+        if (result != 0) {
+            this.Logger.LogError("Speech convertion error. Error code: {errorcode}, Details: {details}", result, output);
+        }
+        return result == 0 ? destFile : string.Empty;
     }
     #endregion
 }
