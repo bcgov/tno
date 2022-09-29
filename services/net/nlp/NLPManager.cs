@@ -125,8 +125,11 @@ public class NLPManager : ServiceManager<NLPOptions>
     {
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
+            // Make sure the prior task is cancelled before creating a new one.
+            if (_cancelToken?.IsCancellationRequested == false)
+                _cancelToken?.Cancel();
             _cancelToken = new CancellationTokenSource();
-            _consumer = ConsumerHandlerAsync();
+            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
         }
     }
 
