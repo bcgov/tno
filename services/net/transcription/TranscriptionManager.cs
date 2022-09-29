@@ -233,9 +233,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
 
-        var debugPath = Path.GetFullPath(safePath);
-        var debugPath2 = Path.GetFullPath(path);
-        safePath = debugPath2;
+        // convert to audio if it's video file
         var isVideo = await IsVideoAsync(safePath);
         if (isVideo) {
             var convertFilePath = await Video2Audio(safePath);
@@ -243,6 +241,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 safePath = convertFilePath;
             }
         }
+
         if (File.Exists(safePath))
         {
             this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
