@@ -8,10 +8,6 @@ export const ContentForm = styled.div`
     padding: 0;
   }
 
-  #txa-summary {
-    height: 6.25em;
-  }
-
   .condensed {
     border: solid 1px grey;
     border-radius: 0.25em;
@@ -46,16 +42,6 @@ export const ContentForm = styled.div`
   .tab-container {
     height: calc(100vh - 580px);
     overflow-y: auto;
-  }
-
-  .tab-container div:has([name='body']) {
-    height: 90%;
-
-    textarea[name='body'] {
-      flex: auto;
-      min-height: 65px;
-      resize: none;
-    }
   }
 
   .tabs.small {
