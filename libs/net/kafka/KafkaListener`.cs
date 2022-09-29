@@ -160,6 +160,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
                 if (!this.IsPaused)
                 {
+                    _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", this.Consumer.Subscription ?? new List<string>()));
                     // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
                     this.Consumer.Pause(this.Consumer.Assignment);
                     this.IsPaused = true;
@@ -185,6 +186,10 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                     _currentResult = null;
                 }
             }
+            else
+            {
+                _logger.LogError("Unexpected consumer with no message");
+            }
         }
         catch (Exception ex)
         {
@@ -198,8 +203,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             if (proceed == ConsumerAction.Stop) this.Stop();
             else if (this.IsPaused && proceed == ConsumerAction.Proceed)
             {
-                this.Consumer?.Resume(this.Consumer.Assignment);
+                _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));
                 this.IsPaused = false;
+                this.Consumer?.Resume(this.Consumer.Assignment);
             }
         }
     }

@@ -110,14 +110,17 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
     /// <summary>
     /// Creates a new cancellation token.
-    /// Create a new thread if the prior one isn't running anymore.
+    /// Create a new Task if the prior one isn't running anymore.
     /// </summary>
     private void ConsumeMessages()
     {
         if (_consumer == null || _notRunning.Contains(_consumer.Status))
         {
+            // Make sure the prior task is cancelled before creating a new one.
+            if (_cancelToken?.IsCancellationRequested == false)
+                _cancelToken?.Cancel();
             _cancelToken = new CancellationTokenSource();
-            _consumer = ConsumerHandlerAsync();
+            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
         }
     }
 
