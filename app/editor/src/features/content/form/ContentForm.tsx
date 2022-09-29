@@ -96,11 +96,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
   const determineActions = () => {
-    if (contentType === ContentTypeName.Snippet)
-      return (a: IActionModel) => a.valueType === ValueType.Boolean;
-    if (contentType === ContentTypeName.PrintContent)
-      return (a: IActionModel) =>
-        a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
+    switch (contentType) {
+      case ContentTypeName.PrintContent:
+        return (a: IActionModel) =>
+          a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
+      case ContentTypeName.Snippet:
+      // TODO: Determine actions for remaining content types
+      // eslint-disable-next-line no-fallthrough
+      default:
+        return (a: IActionModel) => a.valueType === ValueType.Boolean;
+    }
   };
 
   const fetchContent = React.useCallback(
