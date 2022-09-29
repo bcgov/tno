@@ -231,14 +231,17 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
         var path = content.FileReferences.FirstOrDefault()?.Path;
-        var safePath = Path.Join(_options.FilePath, path.MakeRelativePath());
+        var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
 
-        var mediaType = await IsVideoAsync(safePath) ? SourceMediaType.Video : SourceMediaType.Audio;
-        if (mediaType == SourceMediaType.Video)
-        {
-            var convertFilePath = safePath.Replace(Path.GetExtension(safePath), ".mp3");
-            await Video2Audio(safePath, convertFilePath);
-            safePath = convertFilePath;
+        var debugPath = Path.GetFullPath(safePath);
+        var debugPath2 = Path.GetFullPath(path);
+        safePath = debugPath2;
+        var isVideo = await IsVideoAsync(safePath);
+        if (isVideo) {
+            var convertFilePath = await Video2Audio(safePath);
+            if (!String.IsNullOrEmpty(convertFilePath)) {
+                safePath = convertFilePath;
+            }
         }
         if (File.Exists(safePath))
         {
@@ -273,11 +276,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
         else
         {
-            if (mediaType == SourceMediaType.Video) {
-                this.Logger.LogError("Video File failed to converted to audio. Content ID: {Id}, Path: {path}", content.Id, safePath);
-            } else {
-                this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
-            }
+            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
         }
     }
 
@@ -369,14 +368,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// video to audio
     /// </summary>
     /// <param name="file">video file</param>
-    /// <returns></returns>
-    private async Task<bool> Video2Audio(string srcFile, string destFile)
+    /// <returns>audio file name</returns>
+    private async Task<string> Video2Audio(string srcFile)
     {
-
+        var destFile = srcFile.Replace(Path.GetExtension(srcFile), ".mp3");
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffmpeg -i {srcFile} -y {destFile} \"";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i {srcFile} -y {destFile} 2>&1 \"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
@@ -384,7 +383,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
-        return !String.IsNullOrWhiteSpace(output);
+        var result = process.ExitCode;
+        return result == 0 ? destFile : string.Empty;
     }
     #endregion
 }
