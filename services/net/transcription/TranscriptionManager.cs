@@ -232,20 +232,19 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // Remote storage locations may not be easily accessible by this service.
         var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
-       
+
         if (File.Exists(safePath))
         {
-            this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
-
             // convert to audio if it's video file
             var isVideo = Path.GetExtension(safePath).ToLower() == ".mp4";
             if (isVideo) {
-                var convertFilePath = await Video2Audio(safePath);
-                safePath = convertFilePath;
+                safePath = await Video2Audio(safePath);
             }
 
-            if (!isVideo || !String.IsNullOrEmpty(safePath))
+            if (!String.IsNullOrEmpty(safePath))
             {
+                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
+
                 var original = content.Body;
                 var fileBytes = File.ReadAllBytes(safePath);
                 var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
