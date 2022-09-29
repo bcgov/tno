@@ -16,9 +16,6 @@ export const ContentListView = styled(FormPage)`
   }
 
   .content-actions {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-
     button {
       display: block;
     }
