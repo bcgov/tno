@@ -253,7 +253,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     Uid = model.Uid,
                     Page = "", // TODO: Provide default page from Data Source config settings.
                     Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : model.Summary,
-                    Body = model.Body,
+                    Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.Snippet ? "" : model.Summary,
                     SourceUrl = model.Link,
                     PublishedOn = model.PublishedOn,
                 };

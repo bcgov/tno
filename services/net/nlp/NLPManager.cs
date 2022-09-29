@@ -237,7 +237,7 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <returns></returns>
     private async Task UpdateContentAsync(ContentModel content)
     {
-        this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
+        this.Logger.LogInformation("NLP requested.  Content ID: {Id}", content.Id);
 
         var labels = await RequestNlpAsync(content); // TODO: Extract language from data source.
 
