@@ -1,5 +1,6 @@
 import { IOptionItem, OptionItem } from 'components/form';
 import { ISortableModel } from 'hooks/api-editor';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 
 export const sortSortable = <T extends ISortableModel<any>>(a: T, b: T) => {
   if (a.sortOrder < b.sortOrder) return -1;
@@ -14,5 +15,5 @@ export const getSortableOptions = <T extends ISortableModel<any>>(
   prepend: IOptionItem[] = [],
   map: (item: T) => IOptionItem = (i) => new OptionItem(i.name, i.id),
 ) => {
-  return prepend.concat([...items].sort(sortSortable).map(map));
+  return prepend.concat([...filterEnabled(items)].sort(sortSortable).map(map));
 };
