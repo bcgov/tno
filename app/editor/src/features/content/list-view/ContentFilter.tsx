@@ -39,7 +39,12 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
   );
 
   React.useEffect(() => {
-    setProductOptions(getSortableOptions(products, [new OptionItem<number>('Any', 0)]));
+    setProductOptions(
+      getSortableOptions(
+        products.filter((p) => p.isEnabled),
+        [new OptionItem<number>('Any', 0)],
+      ),
+    );
   }, [products]);
 
   React.useEffect(() => {
