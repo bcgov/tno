@@ -1,6 +1,5 @@
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { InputHTMLAttributes } from 'react';
+import { FaInfoCircle } from 'react-icons/fa';
 
 import { Row } from '../../flex';
 import { FieldSize } from '../constants';
@@ -69,7 +68,7 @@ export const Text: React.FC<ITextProps> = ({
           <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
             {label}
           </label>
-          {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+          {tooltip && <FaInfoCircle />}
         </div>
       )}
       <Row nowrap>
