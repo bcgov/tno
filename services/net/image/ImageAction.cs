@@ -80,7 +80,7 @@ public class ImageAction : IngestAction<ImageOptions>
         // TODO: Handle different remote connections.
         // TODO: create new account to access server
         // Extract the source connection configuration settings.
-        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
+        var remotePath = GetInputPath(manager.Ingest);
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
         var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
@@ -166,7 +166,8 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     protected string GetInputPath(IngestModel ingest)
     {
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", $"{GetLocalDateTime(ingest, DateTime.Now):yyyy/MM/dd/}");
+        var currentDate = GetLocalDateTime(ingest, DateTime.Now);
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString());
     }
 
 
