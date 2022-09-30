@@ -11,6 +11,7 @@ using TNO.Models.Extensions;
 using TNO.Kafka.Models;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
+using System.Diagnostics;
 
 namespace TNO.Services.Clip;
 
@@ -136,6 +137,20 @@ public class ClipAction : CommandAction<ClipOptions>
     }
 
     /// <summary>
+    /// FFMPEG sends all logs to the error output.  There isn't a way to tell the difference regrettably.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="manager"></param>
+    /// <param name="e"></param>
+    protected override void OnErrorReceived(object? sender, IIngestServiceActionManager? manager, DataReceivedEventArgs e)
+    {
+        if (!String.IsNullOrWhiteSpace(e.Data))
+        {
+            this.Logger.LogInformation("{data}", e.Data);
+        }
+    }
+
+    /// <summary>
     /// Stop the specified process.
     /// </summary>
     /// <param name="process"></param>
@@ -212,10 +227,14 @@ public class ClipAction : CommandAction<ClipOptions>
         process.StartInfo.FileName = "/bin/sh";
         process.StartInfo.Arguments = $"-c \"ffmpeg -i '{file}' 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.CreateNoWindow = true;
-        process.ErrorDataReceived += OnError;
+        process.EnableRaisingEvents = true;
+        process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, null, e);
+        process.OutputDataReceived += (sender, e) => OnOutputReceived(sender, null, e);
         process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
@@ -385,10 +404,15 @@ public class ClipAction : CommandAction<ClipOptions>
         // Video stream duration
         // process.StartInfo.Arguments = $"-c \"ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
         process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.CreateNoWindow = true;
-        process.ErrorDataReceived += OnError;
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.EnableRaisingEvents = true;
+        process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, null, e);
+        process.OutputDataReceived += (sender, e) => OnOutputReceived(sender, null, e);
         process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
