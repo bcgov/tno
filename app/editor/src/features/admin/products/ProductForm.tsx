@@ -2,7 +2,7 @@ import { IconButton, LabelPosition } from 'components/form';
 import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { IProductModel, useModal } from 'hooks';
+import { IProductModel, useLookupSync, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -41,9 +41,13 @@ export const ProductForm: React.FC = () => {
       const result = !product.id ? await api.addProduct(values) : await api.updateProduct(values);
       setProduct(result);
       toast.success(`${result.name} has successfully been saved.`);
+
       if (!originalId) navigate(`/admin/products/${result.id}`);
     } catch {}
   };
+
+  /** ensure admin products is synced with lookup products when an admin changes a product lookup */
+  useLookupSync(handleSubmit);
 
   return (
     <styled.ProductForm>

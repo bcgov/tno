@@ -1,4 +1,4 @@
-import { ContentTypeName, useCombinedView, useLookupSync, useTooltips } from 'hooks';
+import { ContentTypeName, useCombinedView, useTooltips } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -20,8 +20,6 @@ export const ContentListView: React.FC = () => {
   const navigate = useNavigate();
   const combined = useCombinedView();
   useTooltips();
-  useLookupSync();
-
   const [contentType, setContentType] = React.useState(ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
   const [activeId, setActiveId] = React.useState<number>(parseInt(id ?? '0'));
