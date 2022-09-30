@@ -107,8 +107,16 @@ public class ClipAction : CommandAction<ClipOptions>
                             reference.Offset = messageResult.Offset;
                         }
 
-                        reference.Status = (int)WorkflowStatus.Received;
-                        await this.Api.UpdateContentReferenceAsync(reference);
+
+                        // The content service will often already have imported this content before we can update the content reference.
+                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
+                        if (reference != null)
+                        {
+                            // Assuming some success at this point, even though a stop command can be called for different reasons.
+                            if (reference.Status != (int)WorkflowStatus.Imported)
+                                reference.Status = (int)WorkflowStatus.Received;
+                            await this.Api.UpdateContentReferenceAsync(reference);
+                        }
                     }
                 }
                 else if (name == "stop")
@@ -478,9 +486,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private static string GetCopy(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("copy");
-        // Attempting to use this copy command is much faster, but it corrupts the output file...
-        // return String.IsNullOrWhiteSpace(value) ? " -c:v copy -c:a copy" : $" {value}";
-        return String.IsNullOrWhiteSpace(value) ? "" : $" {value}";
+        return String.IsNullOrWhiteSpace(value) ? " -c:v copy -c:a copy" : $" {value}";
     }
     #endregion
 }

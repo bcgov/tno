@@ -70,7 +70,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        _logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
+        _logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
         var url = GetUrl(manager.Ingest);
 
         var feed = await GetFeedAsync(url, manager);
@@ -107,6 +107,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
                         (reference.Status != (int)WorkflowStatus.InProgress && item.PublishDate != DateTime.MinValue && reference.UpdatedOn != item.PublishDate.UtcDateTime))
                 {
+                    _logger.LogDebug("Updating existing content '{name}':{id}", manager.Ingest.Name, item.Id);
                     // TODO: verify a hash of the content to ensure it has changed. This may be slow
                     // however, but would ensure the content was physically updated.
 
@@ -125,16 +126,21 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                     // Update content reference with Kafka response.
                     if (result != null)
-                        await UpdateContentReferenceAsync(reference, result);
+                    {
+                        // The content service will often already have imported this content before we can update the content reference.
+                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
+                        if (reference != null)
+                            await UpdateContentReferenceAsync(reference, result);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                // Reached limit return to data source manager.
+                // Reached limit return to ingest manager.
                 if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
                     throw;
 
-                _logger.LogError(ex, "Failed to ingest item for data source '{name}'", manager.Ingest.Name);
+                _logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
                 await manager.RecordFailureAsync();
             }
         }
@@ -228,7 +234,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",
-            Language = "", // TODO: Need to extract this from the data source, or determine it after transcription.
+            Language = "", // TODO: Need to extract this from the ingest, or determine it after transcription.
             Authors = item.Authors.Select(a => new Author(a.Name, a.Email, a.Uri)),
             UpdatedOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
             Tags = item.Categories.Select(c => new TNO.Kafka.Models.Tag(c.Name, c.Label))
@@ -295,7 +301,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     {
         reference.Offset = result.Offset;
         reference.Partition = result.Partition;
-        reference.Status = (int)WorkflowStatus.Received;
+        if (reference.Status != (int)WorkflowStatus.Imported)
+            reference.Status = (int)WorkflowStatus.Received;
         return await this.Api.UpdateContentReferenceAsync(reference);
     }
 
@@ -338,7 +345,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Syndication feed for data source '{name}' is invalid.", manager.Ingest.Name);
+            _logger.LogInformation(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
 
             var settings = new XmlReaderSettings()
             {
@@ -353,7 +360,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     }
 
     /// <summary>
-    /// Extract the URL from the data source connection settings.
+    /// Extract the URL from the ingest connection settings.
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
