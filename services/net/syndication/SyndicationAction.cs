@@ -18,6 +18,8 @@ using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
+using TNO.Core.Exceptions;
+using System.Net;
 
 namespace TNO.Services.Syndication;
 
@@ -127,10 +129,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     // Update content reference with Kafka response.
                     if (result != null)
                     {
-                        // The content service will often already have imported this content before we can update the content reference.
-                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
-                        if (reference != null)
-                            await UpdateContentReferenceAsync(reference, result);
+                        await UpdateContentReferenceAsync(reference, result);
                     }
                 }
             }
@@ -292,22 +291,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
     /// <summary>
     /// Send AJAX request to api to update content reference.
-    /// This content reference has been successfully recieved by Kafka.
-    /// </summary>
-    /// <param name="reference"></param>
-    /// <param name="result"></param>
-    /// <returns></returns>
-    private async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, DeliveryResult<string, SourceContent> result)
-    {
-        reference.Offset = result.Offset;
-        reference.Partition = result.Partition;
-        if (reference.Status != (int)WorkflowStatus.Imported)
-            reference.Status = (int)WorkflowStatus.Received;
-        return await this.Api.UpdateContentReferenceAsync(reference);
-    }
-
-    /// <summary>
-    /// Send AJAX request to api to update content reference.
     /// </summary>
     /// <param name="reference"></param>
     /// <param name="item"></param>
@@ -316,7 +299,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     {
         reference.PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
         reference.SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
-        return await this.Api.UpdateContentReferenceAsync(reference);
+        return await UpdateContentReferenceAsync(reference);
     }
 
     /// <summary>

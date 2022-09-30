@@ -10,6 +10,8 @@ using TNO.Kafka.Models;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
+using TNO.Core.Exceptions;
+using System.Net;
 
 namespace TNO.Services.Capture;
 
@@ -91,22 +93,8 @@ public class CaptureAction : CommandAction<CaptureOptions>
 
                 if (reference != null)
                 {
-                    if (manager.Ingest.PostToKafka())
-                    {
-                        var messageResult = await SendMessageAsync(process, manager.Ingest, schedule, reference);
-                        reference.Partition = messageResult.Partition;
-                        reference.Offset = messageResult.Offset;
-                    }
-
-                    // The content service will often already have imported this content before we can update the content reference.
-                    reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
-                    if (reference != null)
-                    {
-                        // Assuming some success at this point, even though a stop command can be called for different reasons.
-                        if (reference.Status != (int)WorkflowStatus.Imported)
-                            reference.Status = (int)WorkflowStatus.Received;
-                        await this.Api.UpdateContentReferenceAsync(reference);
-                    }
+                    var messageResult = manager.Ingest.PostToKafka() ? await SendMessageAsync(process, manager.Ingest, schedule, reference) : null;
+                    await UpdateContentReferenceAsync(reference, messageResult);
                 }
             }
         }

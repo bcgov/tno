@@ -13,6 +13,8 @@ using TNO.Kafka;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.FileMonitor.Config;
+using TNO.Core.Exceptions;
+using System.Net;
 
 namespace TNO.Services.FileMonitor;
 
@@ -134,13 +136,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     var result = await _kafka.SendMessageAsync(manager.Ingest.Topic, item);
 
                     // Update content reference with Kafka response.
-                    if (result != null)
-                    {
-                        // The content service will often already have imported this content before we can update the content reference.
-                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
-                        if (reference != null)
-                            await UpdateContentReferenceAsync(reference, result);
-                    }
+                    await UpdateContentReferenceAsync(reference, result);
                 }
             }
             catch (Exception ex)
@@ -174,22 +170,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         };
 
         return await this.Api.AddContentReferenceAsync(model);
-    }
-
-    /// <summary>
-    /// Send AJAX request to api to update content reference.
-    /// This content reference has been successfully received by Kafka.
-    /// </summary>
-    /// <param name="reference"></param>
-    /// <param name="result"></param>
-    /// <returns></returns>
-    private async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, DeliveryResult<string, SourceContent> result)
-    {
-        reference.Offset = result.Offset;
-        reference.Partition = result.Partition;
-        if (reference.Status != (int)WorkflowStatus.Imported)
-            reference.Status = (int)WorkflowStatus.Received;
-        return await this.Api.UpdateContentReferenceAsync(reference);
     }
 
     /// <summary>
