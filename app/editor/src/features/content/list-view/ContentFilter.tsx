@@ -3,7 +3,6 @@ import { useTooltips } from 'hooks';
 import { ContentTypeName, IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
 import { initialContentState } from 'store/slices';
 import { Button, ButtonVariant, FieldSize, Loader, Text } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
