@@ -167,7 +167,7 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetInputPath(IngestModel ingest)
     {
         var currentDate = GetLocalDateTime(ingest, DateTime.Now);
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString());
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
     }
 
 
