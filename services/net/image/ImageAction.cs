@@ -80,7 +80,7 @@ public class ImageAction : IngestAction<ImageOptions>
         // TODO: Handle different remote connections.
         // TODO: create new account to access server
         // Extract the source connection configuration settings.
-        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
+        var remotePath = GetInputPath(manager.Ingest);
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
         var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
@@ -96,50 +96,56 @@ public class ImageAction : IngestAction<ImageOptions>
             var keyFile = new PrivateKeyFile(sshKeyFile);
 
             var keyFiles = new[] { keyFile };
-            var connectionInfo = new ConnectionInfo(hostname,
+            try {
+                var connectionInfo = new ConnectionInfo(hostname,
                                                     username,
                                                     new PrivateKeyAuthenticationMethod(username, keyFiles));
-            using var client = new SftpClient(connectionInfo);
-            client.Connect();
+                using var client = new SftpClient(connectionInfo);
+                client.Connect();
+                var files = await FetchImage(client, remotePath);
+                files = files.Where(f => f.Name.Contains(inputFileCode));
 
-            var files = await FetchImage(client, remotePath);
-            files = files.Where(f => f.Name.Contains(inputFileCode));
-
-            foreach (var file in files)
-            {
-                var content = CreateContentReference(manager.Ingest, file.Name);
-                var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
-
-                var sendMessage = manager.Ingest.PostToKafka();
-                if (reference == null)
+                foreach (var file in files)
                 {
-                    reference = await this.Api.AddContentReferenceAsync(content);
-                }
-                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
-                {
-                    // If another process has it in progress only attempt to do an import if it's
-                    // more than an 2 minutes old. Assumption is that it is stuck.
-                    reference = await this.Api.UpdateContentReferenceAsync(reference);
-                }
-                else sendMessage = false;
+                    var content = CreateContentReference(manager.Ingest, file.Name);
+                    var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
 
-                if (reference != null)
-                {
-                    await CopyImage(client, manager.Ingest, Path.Combine(remotePath, file.Name));
-
-                    if (sendMessage)
+                    var sendMessage = manager.Ingest.PostToKafka();
+                    if (reference == null)
                     {
-                        var messageResult = await SendMessageAsync(manager.Ingest, reference);
-                        reference.Partition = messageResult.Partition;
-                        reference.Offset = messageResult.Offset;
+                        reference = await this.Api.AddContentReferenceAsync(content);
                     }
+                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                    {
+                        // If another process has it in progress only attempt to do an import if it's
+                        // more than an 2 minutes old. Assumption is that it is stuck.
+                        reference = await this.Api.UpdateContentReferenceAsync(reference);
+                    }
+                    else sendMessage = false;
 
-                    reference.Status = (int)WorkflowStatus.Received;
-                    await this.Api.UpdateContentReferenceAsync(reference);
+                    if (reference != null)
+                    {
+                        await CopyImage(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+
+                        if (sendMessage)
+                        {
+                            var messageResult = await SendMessageAsync(manager.Ingest, reference);
+                            reference.Partition = messageResult.Partition;
+                            reference.Offset = messageResult.Offset;
+                        }
+
+                        reference.Status = (int)WorkflowStatus.Received;
+                        await this.Api.UpdateContentReferenceAsync(reference);
+                    }
                 }
-            }
 
-            client.Disconnect();
+                client.Disconnect();
+
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError("SSH connection exception: {error}", e.Message);
+            }
         }
         else
         {
@@ -166,7 +172,8 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     protected string GetInputPath(IngestModel ingest)
     {
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", $"{GetLocalDateTime(ingest, DateTime.Now):yyyy/MM/dd/}");
+        var currentDate = GetLocalDateTime(ingest, DateTime.Now);
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
     }
 
 
