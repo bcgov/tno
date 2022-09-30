@@ -135,7 +135,12 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                     // Update content reference with Kafka response.
                     if (result != null)
-                        await UpdateContentReferenceAsync(reference, result);
+                    {
+                        // The content service will often already have imported this content before we can update the content reference.
+                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
+                        if (reference != null)
+                            await UpdateContentReferenceAsync(reference, result);
+                    }
                 }
             }
             catch (Exception ex)
@@ -182,7 +187,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         reference.Offset = result.Offset;
         reference.Partition = result.Partition;
-        reference.Status = (int)WorkflowStatus.Received;
+        if (reference.Status != (int)WorkflowStatus.Imported)
+            reference.Status = (int)WorkflowStatus.Received;
         return await this.Api.UpdateContentReferenceAsync(reference);
     }
 

@@ -58,6 +58,7 @@ export const AudioStream: React.FC = (props) => {
         label="Other Arguments"
         name="configuration.otherArgs"
         tooltip="Any other arguments to pass to the command"
+        placeholder="-acodec mp3 -ab 257k"
       />
     </styled.IngestType>
   );

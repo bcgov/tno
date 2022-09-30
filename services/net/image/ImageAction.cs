@@ -96,7 +96,8 @@ public class ImageAction : IngestAction<ImageOptions>
             var keyFile = new PrivateKeyFile(sshKeyFile);
 
             var keyFiles = new[] { keyFile };
-            try {
+            try
+            {
                 var connectionInfo = new ConnectionInfo(hostname,
                                                     username,
                                                     new PrivateKeyAuthenticationMethod(username, keyFiles));
@@ -134,8 +135,15 @@ public class ImageAction : IngestAction<ImageOptions>
                             reference.Offset = messageResult.Offset;
                         }
 
-                        reference.Status = (int)WorkflowStatus.Received;
-                        await this.Api.UpdateContentReferenceAsync(reference);
+                        // The content service will often already have imported this content before we can update the content reference.
+                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
+                        if (reference != null)
+                        {
+                            // Assuming some success at this point, even though a stop command can be called for different reasons.
+                            if (reference.Status != (int)WorkflowStatus.Imported)
+                                reference.Status = (int)WorkflowStatus.Received;
+                            await this.Api.UpdateContentReferenceAsync(reference);
+                        }
                     }
                 }
 

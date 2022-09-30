@@ -97,9 +97,15 @@ public class CaptureAction : CommandAction<CaptureOptions>
                         reference.Offset = messageResult.Offset;
                     }
 
-                    // Assuming some success at this point, even though a stop command can be called for different reasons.
-                    reference.Status = (int)WorkflowStatus.Received;
-                    await this.Api.UpdateContentReferenceAsync(reference);
+                    // The content service will often already have imported this content before we can update the content reference.
+                    reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
+                    if (reference != null)
+                    {
+                        // Assuming some success at this point, even though a stop command can be called for different reasons.
+                        if (reference.Status != (int)WorkflowStatus.Imported)
+                            reference.Status = (int)WorkflowStatus.Received;
+                        await this.Api.UpdateContentReferenceAsync(reference);
+                    }
                 }
             }
         }
@@ -231,7 +237,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     {
         var value = ingest.GetConfigurationValue("url");
         var options = new UriCreationOptions();
-        if (!Uri.TryCreate(value, options, out Uri? uri)) throw new InvalidOperationException("Data source connection 'url' is not a valid format.");
+        if (!Uri.TryCreate(value, options, out Uri? uri)) throw new InvalidOperationException("Ingest connection 'url' is not a valid format.");
         return $"-i {uri.ToString().Replace(" ", "+")}";
     }
 
