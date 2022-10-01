@@ -1,3 +1,5 @@
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Error } from 'components/form';
 import { InputHTMLAttributes } from 'react';
 import React from 'react';
@@ -49,9 +51,12 @@ export const TextArea: React.FC<ITextAreaProps> = ({
   return (
     <styled.TextArea className="frm-in">
       {label && (
-        <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txa-${name}`}>
-          {label}
-        </label>
+        <div title={tooltip}>
+          <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txa-${name}`}>
+            {label}
+          </label>
+          {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+        </div>
       )}
       <styled.TextAreaField
         id={id}
@@ -59,7 +64,6 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         variant={variant}
         className={`txa ${className ?? ''}`}
         data-for="main-tooltip"
-        data-tip={tooltip}
         width={width}
         role={error ? 'alert' : 'none'}
         onInput={(e) => {

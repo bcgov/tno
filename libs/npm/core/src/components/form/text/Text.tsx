@@ -1,4 +1,5 @@
 import React, { InputHTMLAttributes } from 'react';
+import { FaInfoCircle } from 'react-icons/fa';
 
 import { Row } from '../../flex';
 import { FieldSize } from '../constants';
@@ -63,9 +64,12 @@ export const Text: React.FC<ITextProps> = ({
   return (
     <styled.Text className="frm-in">
       {label && (
-        <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
-          {label}
-        </label>
+        <div title={tooltip}>
+          <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
+            {label}
+          </label>
+          {tooltip && <FaInfoCircle />}
+        </div>
       )}
       <Row nowrap>
         <styled.TextField
@@ -75,7 +79,6 @@ export const Text: React.FC<ITextProps> = ({
           variant={variant}
           className={`txt ${className ?? ''}`}
           data-for="main-tooltip"
-          data-tip={tooltip}
           width={width}
           role={error ? 'alert' : 'none'}
           value={formatter(value)}
