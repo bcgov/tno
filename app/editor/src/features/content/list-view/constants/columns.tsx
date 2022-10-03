@@ -10,7 +10,7 @@ export const columns = (minimize: boolean = false) => {
       Header: 'Headline',
       accessor: 'headline',
       width: 5,
-      Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+      Cell: ({ value }) => <Ellipsis title={value}>{value}</Ellipsis>,
     },
     {
       id: 'otherSource',
