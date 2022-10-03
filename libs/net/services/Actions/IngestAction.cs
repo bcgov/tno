@@ -1,4 +1,10 @@
+using System.Net;
+using Confluent.Kafka;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.ContentReference;
+using TNO.Core.Exceptions;
+using TNO.Entities;
+using TNO.Kafka.Models;
 using TNO.Services.Config;
 
 namespace TNO.Services.Actions;
@@ -46,6 +52,65 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     public override Task PerformActionAsync<T>(IServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         return PerformActionAsync((IIngestServiceActionManager)manager, name, data, cancellationToken);
+    }
+
+    /// <summary>
+    /// Update the content reference with the Kafka position information.
+    /// Send AJAX request to api to update content reference.
+    /// This content reference has been successfully received by Kafka.
+    /// Handles optimistic concurrency issue resulting from a race condition with the Content Service.
+    /// </summary>
+    /// <param name="reference"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, DeliveryResult<string, SourceContent>? result)
+    {
+        if (result != null)
+        {
+            reference.Offset = result.Offset;
+            reference.Partition = result.Partition;
+        }
+        if (reference.Status != (int)WorkflowStatus.Imported)
+            reference.Status = (int)WorkflowStatus.Received;
+        return await UpdateContentReferenceAsync(reference);
+    }
+
+    /// <summary>
+    /// Send AJAX request to api to update content reference.
+    /// This content reference has been successfully received by Kafka.
+    /// Handles optimistic concurrency issue resulting from a race condition with the Content Service.
+    /// </summary>
+    /// <param name="reference"></param>
+    /// <returns></returns>
+    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference)
+    {
+        try
+        {
+            return await this.Api.UpdateContentReferenceAsync(reference);
+        }
+        catch (HttpClientRequestException ex)
+        {
+            if (ex.Response != null && ex.Response.Content != null)
+            {
+                // The content service will often already have imported this content before we can update the content reference.
+                // TODO: Not certain if the body of the error will always contain `DbUpdateConcurrencyException`.
+                var body = await ex.Response.Content.ReadAsStringAsync();
+                if (ex.StatusCode == HttpStatusCode.BadRequest && body?.Contains("DbUpdateConcurrencyException") == true)
+                {
+                    var current = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
+                    if (current != null)
+                    {
+                        // Do not change the status if it has been imported.
+                        if (current.Status == (int)WorkflowStatus.Imported)
+                            reference.Status = (int)WorkflowStatus.Imported;
+                        reference.Version = current.Version;
+                        return await this.Api.UpdateContentReferenceAsync(reference);
+                    }
+                }
+            }
+
+            throw;
+        }
     }
     #endregion
 }

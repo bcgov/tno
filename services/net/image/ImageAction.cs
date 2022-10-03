@@ -13,6 +13,7 @@ using TNO.Services.Image.Config;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using TNO.Core.Exceptions;
+using System.Net;
 
 namespace TNO.Services.Image;
 
@@ -128,22 +129,8 @@ public class ImageAction : IngestAction<ImageOptions>
                     {
                         await CopyImage(client, manager.Ingest, Path.Combine(remotePath, file.Name));
 
-                        if (sendMessage)
-                        {
-                            var messageResult = await SendMessageAsync(manager.Ingest, reference);
-                            reference.Partition = messageResult.Partition;
-                            reference.Offset = messageResult.Offset;
-                        }
-
-                        // The content service will often already have imported this content before we can update the content reference.
-                        reference = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
-                        if (reference != null)
-                        {
-                            // Assuming some success at this point, even though a stop command can be called for different reasons.
-                            if (reference.Status != (int)WorkflowStatus.Imported)
-                                reference.Status = (int)WorkflowStatus.Received;
-                            await this.Api.UpdateContentReferenceAsync(reference);
-                        }
+                        var messageResult = sendMessage ? await SendMessageAsync(manager.Ingest, reference) : null;
+                        await UpdateContentReferenceAsync(reference, messageResult);
                     }
                 }
 
