@@ -4,6 +4,12 @@ import { Col } from 'tno-core/dist/components/flex';
 export const TextArea = styled(Col)`
   padding-right: 0.5em;
 
+  label {
+    svg {
+      margin-left: 0.25em;
+    }
+  }
+
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};
