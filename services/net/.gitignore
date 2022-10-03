@@ -13,6 +13,7 @@ nupkg/
 capture/data
 data
 image/keys
+filemonitor/keys
 
 # IDE - VSCode
 .vscode/*

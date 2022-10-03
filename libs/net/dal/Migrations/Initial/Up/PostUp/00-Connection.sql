@@ -79,8 +79,20 @@ INSERT INTO public.connection (
   , 'Meltwater and Blacks News Group upload files to this location.' -- description
   , true -- is_enabled
   , 7 -- connection_type - SSH
-  , '{}' -- configuration
+  , '{"path":"/dsk98/processed/","username":"ckayfish","hostname":"scharnhorst.tno.gov.bc.ca","keyFileName":"id_rsa"}' -- configuration
   , true -- is_read_only
+  , 0 -- sort_order
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+),  (
+  'Monitored file location' -- 6
+  , 'This is the location to which newspaper import files are placed when they are retrieved from the remote server.' -- description
+  , true -- is_enabled
+  , 0 -- connection_type - Local Volume
+  , '{}' -- configuration
+  , false -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID
   , ''
