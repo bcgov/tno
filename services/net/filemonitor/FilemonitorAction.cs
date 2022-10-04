@@ -149,7 +149,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
         else
         {
-            _logger.LogError("SSH Private key file does not exist: {file}", sshKeyFile);
+            throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
         }
     }
 
@@ -600,7 +600,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             else
             {
-                throw new ArgumentException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
             }
         }
 
