@@ -111,40 +111,38 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
     <styled.ContentSummaryForm className="content-properties">
       <Row>
         <Col>
-          <Show visible={contentType === ContentTypeName.Snippet}>
-            <Row>
-              <FormikSelect
-                name="seriesId"
-                label="Series"
-                width={FieldSize.Medium}
-                value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={seriesOptions}
-                isDisabled={!!values.otherSeries}
-                onChange={(e) => {
+          <Row>
+            <FormikSelect
+              name="seriesId"
+              label="Series"
+              width={FieldSize.Medium}
+              value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
+              options={seriesOptions}
+              isDisabled={!!values.otherSeries}
+              onChange={(e) => {
+                setFieldValue('otherSeries', '');
+              }}
+            />
+            <FormikText
+              name="otherSeries"
+              label="Other Series"
+              width={FieldSize.Medium}
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                setFieldValue('otherSeries', value);
+                if (!!value) setFieldValue('seriesId', undefined);
+              }}
+              onBlur={() => {
+                const found = series.find(
+                  (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
+                );
+                if (!!found) {
+                  setFieldValue('seriesId', found.id);
                   setFieldValue('otherSeries', '');
-                }}
-              />
-              <FormikText
-                name="otherSeries"
-                label="Other Series"
-                width={FieldSize.Medium}
-                onChange={(e) => {
-                  const value = e.currentTarget.value;
-                  setFieldValue('otherSeries', value);
-                  if (!!value) setFieldValue('seriesId', undefined);
-                }}
-                onBlur={() => {
-                  const found = series.find(
-                    (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
-                  );
-                  if (!!found) {
-                    setFieldValue('seriesId', found.id);
-                    setFieldValue('otherSeries', '');
-                  }
-                }}
-              />
-            </Row>
-          </Show>
+                }
+              }}
+            />
+          </Row>
           <Row alignContent="flex-start" alignItems="flex-start">
             <FormikSelect
               name="categories"
@@ -320,64 +318,58 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             HTML5 Video is required for this example
           </video>
         </Col>
-        <Row className="row-margins">
-          <FormikText className="sm" name="prep" label="Prep Time (minutes)" type="number" />
-          <Button
-            className="top-spacer add-time"
-            variant={ButtonVariant.secondary}
-            disabled={isNaN((values as any).prep)}
-            onClick={() => {
-              setEffort(effort!! + Number((values as any).prep));
-              setFieldValue('timeTrackings', [
-                ...values.timeTrackings,
-                {
-                  userId: userId ?? 0,
-                  activity: !!values.id ? 'Updated' : 'Created',
-                  effort: (values as any).prep,
-                  createdOn: new Date(),
-                },
-              ]);
-              setFieldValue('prep', '');
-            }}
-          >
-            Add
-          </Button>
-          <FormikText
-            disabled
-            className="sm"
-            name="total"
-            label="Total"
-            value={effort?.toString()}
-          />
-          <Button
-            onClick={() => {
-              setContent({ ...content, timeTrackings: values.timeTrackings });
-              toggle();
-            }}
-            className="top-spacer"
-            variant={ButtonVariant.secondary}
-          >
-            View Log
-          </Button>
-          <Modal
-            hide={toggle}
-            isShowing={isShowing}
-            headerText="Prep Time Log"
-            body={
-              <TimeLogTable
-                setTotalEffort={setEffort}
-                totalEffort={effort}
-                data={values.timeTrackings}
-              />
-            }
-            customButtons={
-              <Button variant={ButtonVariant.secondary} onClick={toggle}>
-                Close
-              </Button>
-            }
-          />
-        </Row>
       </Show>
+      <Row className="row-margins">
+        <FormikText className="sm" name="prep" label="Prep Time (minutes)" type="number" />
+        <Button
+          className="top-spacer add-time"
+          variant={ButtonVariant.secondary}
+          disabled={isNaN((values as any).prep)}
+          onClick={() => {
+            setEffort(effort!! + Number((values as any).prep));
+            setFieldValue('timeTrackings', [
+              ...values.timeTrackings,
+              {
+                userId: userId ?? 0,
+                activity: !!values.id ? 'Updated' : 'Created',
+                effort: (values as any).prep,
+                createdOn: new Date(),
+              },
+            ]);
+            setFieldValue('prep', '');
+          }}
+        >
+          Add
+        </Button>
+        <FormikText disabled className="sm" name="total" label="Total" value={effort?.toString()} />
+        <Button
+          onClick={() => {
+            setContent({ ...content, timeTrackings: values.timeTrackings });
+            toggle();
+          }}
+          className="top-spacer"
+          variant={ButtonVariant.secondary}
+        >
+          View Log
+        </Button>
+        <Modal
+          hide={toggle}
+          isShowing={isShowing}
+          headerText="Prep Time Log"
+          body={
+            <TimeLogTable
+              setTotalEffort={setEffort}
+              totalEffort={effort}
+              data={values.timeTrackings}
+            />
+          }
+          customButtons={
+            <Button variant={ButtonVariant.secondary} onClick={toggle}>
+              Close
+            </Button>
+          }
+        />
+      </Row>
     </styled.ContentSummaryForm>
   );
 };

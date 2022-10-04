@@ -101,6 +101,21 @@ export const ContentListView: React.FC = () => {
     navigate(`/contents/combined/${content.id}`);
   };
 
+  const hideColumns = (combined: boolean, contentType?: ContentTypeName) => {
+    const hiddenColumns = [];
+
+    if (combined) {
+      hiddenColumns.push('ownerId');
+      hiddenColumns.push('status');
+    }
+
+    if (contentType !== ContentTypeName.PrintContent) {
+      hiddenColumns.push('page');
+    }
+
+    return hiddenColumns;
+  };
+
   return (
     <styled.ContentListView>
       <Row wrap="nowrap">
@@ -108,8 +123,8 @@ export const ContentListView: React.FC = () => {
           <ContentFilter search={fetch} />
           <Row className="content-list">
             <PagedTable
-              columns={columns(combined)}
-              hiddenColumns={filter.contentType === ContentTypeName.PrintContent ? [] : ['page']}
+              columns={columns()}
+              hiddenColumns={hideColumns(combined, filter.contentType)}
               page={page}
               isLoading={loading}
               sorting={{ sortBy: filter.sort }}

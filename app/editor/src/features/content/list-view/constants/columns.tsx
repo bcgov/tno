@@ -3,7 +3,7 @@ import { Column, UseSortByColumnOptions } from 'react-table';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 import { formatIdirUsername } from 'utils/formatIdir';
 
-export const columns = (minimize: boolean = false) => {
+export const columns = () => {
   const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
     {
       id: 'id',
@@ -35,6 +35,19 @@ export const columns = (minimize: boolean = false) => {
       Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
     },
     {
+      id: 'ownerId',
+      Header: 'Username',
+      width: 1,
+      accessor: (row) => row.owner?.displayName,
+      Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
+    },
+    {
+      id: 'status',
+      Header: 'Status',
+      width: 1,
+      accessor: (row) => row.status,
+    },
+    {
       id: 'publishedOn',
       Header: 'Pub Date',
       width: 1,
@@ -53,22 +66,6 @@ export const columns = (minimize: boolean = false) => {
       },
     },
   ];
-
-  if (!minimize) {
-    columns.splice(4, 0, {
-      id: 'ownerId',
-      Header: 'Username',
-      width: 1,
-      accessor: (row) => row.owner?.displayName,
-      Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
-    });
-    columns.splice(5, 0, {
-      id: 'status',
-      Header: 'Status',
-      width: 1,
-      accessor: (row) => row.status,
-    });
-  }
 
   return columns;
 };

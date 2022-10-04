@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Column,
+  IdType,
   Row,
   SortingRule,
   useFilters,
@@ -103,7 +104,7 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
   /**
    * Provide an array of columns to hide from the table
    */
-  hiddenColumns?: string[];
+  hiddenColumns?: IdType<CT>[];
 }
 
 /**
@@ -150,6 +151,7 @@ export const GridTable = <T extends object>({
         pageIndex: initialPageIndex,
         pageSize: initialPageSize,
         sortBy: initialSortBy,
+        hiddenColumns: hiddenColumns,
       },
     },
     useFilters,
@@ -192,9 +194,9 @@ export const GridTable = <T extends object>({
 
   // The user / system disables a column
   React.useEffect(() => {
-    if (hiddenColumns) setHiddenColumns(hiddenColumns);
+    setHiddenColumns(hiddenColumns);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hiddenColumns]);
+  }, [JSON.stringify(hiddenColumns), setHiddenColumns]);
 
   // The user has manually changed the pageIndex.
   React.useEffect(() => {
