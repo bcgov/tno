@@ -139,6 +139,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                     ...filter,
                     pageIndex: 0,
                     contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
+                    printContent: e.target.checked,
                   });
                 }}
               />

@@ -24,11 +24,13 @@ export const PagedTable = <CT extends object = Record<string, unknown>>({
   isLoading,
   header,
   sorting,
+  hiddenColumns,
   activeId,
 }: IPagedTableProps<CT>) => {
   return (
     <GridTable
       columns={columns}
+      hiddenColumns={hiddenColumns}
       data={page.items}
       isLoading={isLoading}
       activeId={activeId}
