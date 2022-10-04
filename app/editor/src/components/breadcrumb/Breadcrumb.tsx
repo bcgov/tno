@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 
@@ -15,30 +15,33 @@ export interface IBreadcrumbProps {
  */
 export const Breadcrumb: React.FC<IBreadcrumbProps> = ({ path, setPath }) => {
   const [, setSearchParams] = useSearchParams();
+
+  React.useEffect(() => {
+    setSearchParams({ path: path });
+  }, [path, setSearchParams]);
+
   /** split path into array in order to display breadcrumb as individual items */
   let splitPath = path.split('/');
   const checkPath = (index: number, item: string) => {
     if (index === 0) setPath(`${item}`);
-    /** last item not clickeable */
+    /** last item not clickable */
     if (index !== splitPath.length - 1) setPath(splitPath.slice(0, index + 1).join('/'));
   };
 
-  useEffect(() => {
-    setSearchParams({ path: path });
-  }, [path, setSearchParams]);
   return (
     <styled.Breadcrumb>
-      <p>Directory:&nbsp;</p>
+      <p>Directory:</p>
       <FaFolder
-        className={splitPath.length === 1 ? 'current' : 'clickeable'}
+        className={splitPath.length === 1 ? 'current' : 'clickable'}
         onClick={() => checkPath(0, '')}
       />
-      {splitPath.map((i: string, index: number) => (
+      {splitPath.map((name: string, index: number) => (
         <p
-          className={index !== splitPath.length - 1 ? 'clickeable' : 'current'}
-          onClick={() => checkPath(index, i)}
+          key={`${name}-${index}`}
+          className={index !== splitPath.length - 1 ? 'clickable' : 'current'}
+          onClick={() => checkPath(index, name)}
         >
-          {i}
+          {name}
         </p>
       ))}
     </styled.Breadcrumb>

@@ -12,7 +12,6 @@ export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
     pageSize: 100,
-    printContent: false,
     includedInCategory: false,
     sourceId: 0,
     otherSource: '',

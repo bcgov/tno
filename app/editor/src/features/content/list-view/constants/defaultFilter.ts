@@ -4,7 +4,6 @@ import { defaultPage } from './defaultPage';
 export const defaultFilter: IContentListFilter = {
   pageIndex: defaultPage.pageIndex,
   pageSize: defaultPage.pageSize,
-  printContent: false,
   includedInCategory: false,
   sourceId: 0,
   otherSource: '',

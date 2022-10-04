@@ -2,7 +2,11 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const Breadcrumb = styled(Row)`
-  .clickeable {
+  & p:first-child {
+    margin-right: 0.25em;
+  }
+
+  .clickable {
     color: ${(props) => props.theme.css.primaryLightColor};
     cursor: pointer;
     :after {
