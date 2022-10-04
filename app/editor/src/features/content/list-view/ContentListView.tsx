@@ -20,7 +20,6 @@ export const ContentListView: React.FC = () => {
   const navigate = useNavigate();
   const combined = useCombinedView();
   useTooltips();
-
   const [contentType, setContentType] = React.useState(ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
   const [activeId, setActiveId] = React.useState<number>(parseInt(id ?? '0'));

@@ -42,13 +42,34 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       return result;
     },
     addContent: async (content: IContentModel) => {
-      return await dispatch('add-content', () => api.addContent(content));
+      const result = await dispatch('add-content', () => api.addContent(content));
+      if (state.content) {
+        actions.storeContent({ ...state.content, items: [...state.content.items, content] });
+      }
+      return result;
     },
     updateContent: async (content: IContentModel) => {
-      return await dispatch('update-content', () => api.updateContent(content));
+      const result = await dispatch('update-content', () => api.updateContent(content));
+      if (state.content) {
+        actions.storeContent({
+          ...state.content,
+          items: state.content.items.map((i: IContentModel) => {
+            if (i.id === content.id) return content;
+            return i;
+          }),
+        });
+      }
+      return result;
     },
     deleteContent: async (content: IContentModel) => {
-      return await dispatch('delete-content', () => api.deleteContent(content));
+      const result = await dispatch('delete-content', () => api.deleteContent(content));
+      if (state.content) {
+        actions.storeContent({
+          ...state.content,
+          items: state.content.items.filter((i: IContentModel) => i.id !== content.id),
+        });
+      }
+      return result;
     },
     transcribe: async (content: IContentModel) => {
       return await dispatch('transcribe-content', () => api.transcribe(content));
