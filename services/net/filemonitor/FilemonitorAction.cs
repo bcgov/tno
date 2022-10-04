@@ -582,7 +582,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="FormatException"></exception>
     private Dictionary<string, string> GetSourcesForIngester(IngestModel ingest)
     {
         var sources = new Dictionary<string, string>();
@@ -599,7 +599,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             else
             {
-                throw new FormatException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
             }
         }
 
