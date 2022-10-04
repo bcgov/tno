@@ -108,7 +108,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     public async Task FetchFiles(IIngestServiceActionManager manager)
     {
         // Extract the ingest configuration settings
-        var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("filePattern");
+        var code = manager.Ingest.Source?.Code ?? "";
+        var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
         filePattern = filePattern.Replace("<date>", $"{GetLocalDateTime(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
         Regex match = new Regex(filePattern);
         if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
@@ -468,8 +469,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"File contents for ingest '{ingest.Name}' is invalid.");
-                throw;
+                throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
             }
         }
 
@@ -538,8 +538,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"File contents for ingest '{ingest.Name}' is invalid.");
-                throw;
+                throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
             }
         }
 
@@ -600,7 +599,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             else
             {
-                throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                throw new FormatException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
             }
         }
 
