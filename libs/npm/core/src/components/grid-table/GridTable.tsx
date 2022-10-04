@@ -100,6 +100,10 @@ export interface IGridTableProps<CT extends object = Record<string, unknown>> {
    * Whether to include manual page sizing on the pager
    */
   manualPageSize?: boolean;
+  /**
+   * Provide an array of columns to hide from the table
+   */
+  hiddenColumns?: string[];
 }
 
 /**
@@ -119,6 +123,7 @@ export const GridTable = <T extends object>({
   paging,
   sorting,
   isLoading,
+  hiddenColumns = [],
   filters,
   activeId,
   activeAssessor = 'id',
@@ -168,6 +173,7 @@ export const GridTable = <T extends object>({
     nextPage,
     previousPage,
     setPageSize,
+    setHiddenColumns,
     state: { pageIndex, pageSize, sortBy },
   } = instance;
   const [currentPage, setCurrentPage] = React.useState({ pageIndex, pageSize });
@@ -183,6 +189,12 @@ export const GridTable = <T extends object>({
     pageIndex,
     pageSize,
   };
+
+  // The user / system disables a column
+  React.useEffect(() => {
+    if (hiddenColumns) setHiddenColumns(hiddenColumns);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hiddenColumns]);
 
   // The user has manually changed the pageIndex.
   React.useEffect(() => {
