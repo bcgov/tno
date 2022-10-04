@@ -91,7 +91,7 @@ INSERT INTO public.connection (
   , 'This is the location to which newspaper import files are placed when they are retrieved from the remote server.' -- description
   , true -- is_enabled
   , 0 -- connection_type - Local Volume
-  , '{}' -- configuration
+  , '{"path": "papers"}' -- configuration
   , false -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID
