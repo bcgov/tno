@@ -109,7 +109,7 @@ export const ContentListView: React.FC = () => {
           <Row className="content-list">
             <PagedTable
               columns={columns(combined)}
-              hiddenColumns={filter.printContent ? [] : ['page']}
+              hiddenColumns={filter.contentType === ContentTypeName.PrintContent ? [] : ['page']}
               page={page}
               isLoading={loading}
               sorting={{ sortBy: filter.sort }}

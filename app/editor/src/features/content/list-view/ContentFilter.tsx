@@ -132,14 +132,13 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                 name="isPrintContent"
                 label="Print Content"
                 tooltip="Newspaper content without audio/video"
-                value={filter.printContent}
-                checked={filter.printContent}
+                value={filter.contentType === ContentTypeName.PrintContent}
+                checked={filter.contentType === ContentTypeName.PrintContent}
                 onChange={(e) => {
                   storeFilter({
                     ...filter,
                     pageIndex: 0,
                     contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
-                    printContent: e.target.checked,
                   });
                 }}
               />
