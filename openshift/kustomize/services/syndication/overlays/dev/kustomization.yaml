@@ -10,9 +10,9 @@ generatorOptions:
   disableNameSuffixHash: true
 
 configMapGenerator:
-  - name: services
-    envs:
+  - envs:
       - config.env
+    name: services
 
 patches:
   - target:
@@ -27,13 +27,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 120Mi
+        value: 100Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 200Mi
+        value: 150Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: syndication-service:dev

@@ -76,11 +76,6 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: KEYCLOAK_AUTHORITY
-            - name: Auth__Keycloak__Realm
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_REALM
             - name: Auth__Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
@@ -96,7 +91,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: content-service
-                  key: KAKFA_GROUP_ID
+                  key: KAFKA_CLIENT_ID
             - name: Kafka__Consumer__BootstrapServers
               valueFrom:
                 configMapKeyRef:
@@ -107,7 +102,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: content-service
-                  key: KAKFA_GROUP_ID
+                  key: KAFKA_CLIENT_ID
             - name: Kafka__Producer__BootstrapServers
               valueFrom:
                 configMapKeyRef:

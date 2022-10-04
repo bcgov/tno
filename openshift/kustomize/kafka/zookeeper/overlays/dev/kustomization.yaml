@@ -22,13 +22,13 @@ patches:
         value: 25m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 125Mi
+        value: 250Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 1Gi
+        value: 750Mi
       - op: replace
         path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
         value: 1Gi
