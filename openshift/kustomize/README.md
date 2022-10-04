@@ -20,3 +20,12 @@ oc kustomize ./overlays/dev | oc create -f -
 | ------------------------------------------------------- | --------------------------------------------------------- |
 | [CrunchyDB HA Cluster](./postgres/crunchy/README.md)    | High availability PostgreSQL database cluster.            |
 | [CrunchyDB HA Monitoring](./postgres/monitor/README.md) | High availability PostgreSQL database cluster monitoring. |
+
+## Setup Environment
+
+To setup each environment start with the Kafka installation.
+This will create a service-account in the environment that is required.
+
+```bash
+oc kustomize kafka/zookeeper/overlays/test | oc create -f -
+```

@@ -354,7 +354,7 @@ INSERT INTO public.ingest (
   , 'CBCV' -- topic
   , talkRadioId -- product_id
   , '{ "serviceType":"stream",
-      "url": "https://cbcradiolive.akamaized.net/hls/live/2041051/ES_R1PVI/master.m3u8",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_vcr",
       "timeZone":"Pacific Standard Time",
       "language": "en-CA",
       "post": false,
