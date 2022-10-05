@@ -4,7 +4,7 @@ export enum UserStatus {
    */
   Preapproved = 0,
   /**
-   * User exists in Keycloak, but has never been activiated in TNO.
+   * User exists in Keycloak, but has never been activated in TNO.
    */
   Authenticated = 1,
   /**

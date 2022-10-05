@@ -48,9 +48,9 @@ export const PreapprovedRequest: React.FC<IPreapprovedRequestProps> = ({ user, s
     <Col className="preApproval">
       <h2>Existing Account</h2>
       <p>
-        If you had a prior registered account with TNO, enter your registered email address and
-        click 'Send Code'. If your prior email address matches an approved account, you will receive
-        an email with a code.
+        If you had a prior registered account with Media Monitoring Insights & Analysis, enter your
+        registered email address and click 'Send Code'. If your prior email address matches an
+        approved account, you will receive an email with a code.
       </p>
       <FormikForm
         initialValues={register}

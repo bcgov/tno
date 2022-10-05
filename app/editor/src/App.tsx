@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
 import { createKeycloakInstance, Loading, useKeycloakEventHandler } from 'tno-core';
 
-const appName = 'TNO News Service';
+const appName = 'Media Monitoring Insights & Analysis';
 
 function App() {
   const keycloakEventHandler = useKeycloakEventHandler();

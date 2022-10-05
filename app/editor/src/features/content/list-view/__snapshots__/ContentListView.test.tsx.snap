@@ -744,7 +744,7 @@ exports[`renders correctly... 1`] = `
                   style="box-sizing: border-box; flex: 2 0 auto; min-width: 0px; width: 2px; cursor: pointer;"
                   title="Toggle SortBy"
                 >
-                  Type
+                  Designation
                   <svg
                     class="filterable"
                     fill="currentColor"
