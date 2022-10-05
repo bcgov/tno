@@ -2889,6 +2889,32 @@ INSERT INTO public.source (
   , DEFAULT_USER_ID
   , ''
 ), (
+  'Blacks Newsgroup'
+  , 'BCNG'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Meltwater'
+  , 'MELTWATER'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
   'Union of BC Indian Chiefs'
   , 'UBCIC'
   , '' -- short_name

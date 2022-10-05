@@ -65,6 +65,24 @@ INSERT INTO public.ingest_schedule (
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'Blacks Newsgroup')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'Blacks Newsgroup')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'Meltwater')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'Meltwater')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
 );
 
 END $$;

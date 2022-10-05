@@ -1,8 +1,9 @@
 DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
-DECLARE syndicationId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Syndication'); -- ingest_type_id
-DECLARE videoId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Video'); -- ingest_type_id
-DECLARE audioId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Audio'); -- ingest_type_id
+DECLARE syndicationId INT := (SELECT id FROM public.media_type WHERE Name = 'Syndication'); -- media_type_id
+DECLARE videoId INT := (SELECT id FROM public.media_type WHERE Name = 'Video'); -- media_type_id
+DECLARE audioId INT := (SELECT id FROM public.media_type WHERE Name = 'Audio'); -- media_type_id
+DECLARE paperId INT := (SELECT id FROM public.media_type WHERE Name = 'Paper'); -- media_type_id
 
 DECLARE wireId INT := (SELECT id FROM public.product WHERE Name = 'Wire'); -- product_id
 DECLARE weeklyPrintId INT := (SELECT id FROM public.product WHERE Name = 'Weekly Print'); -- product_id
@@ -147,19 +148,138 @@ INSERT INTO public.ingest (
   'Globe and Mail'
   , '' -- description
   , true -- is_enabled
-  , syndicationId -- ingest_type_id
+  , paperId -- media_type_id
   , (SELECT id FROM public.source WHERE code = 'GLOBE') -- source_id
   , 'GLOBE' -- topic
-  , wireId -- product_id
-  , '{ "url":"sftp://gamdelivery.globeandmail.ca/", "username":"", "password":"",
-      "timeZone": "Pacific Standard Time",
+  , weeklyPrintId -- product_id
+  , '{ "timeZone": "Pacific Standard Time",
       "language": "en-CA",
       "post": true,
-      "import": true }' -- configuration
+      "import": true,
+      "papername":"pubdata!name",
+      "headline":"hl1",
+      "summary":"hl1",
+      "story":"body.content",
+      "author":"byline",
+      "date":"pubdata!date.publication",
+      "id":"pubdata!id",
+      "section":"pubdata!position.section",
+      "page":"pubdata!position.sequence",
+      "item":"nitf","dateFmt":"yyyyMMdd",
+      "selfPublished": true,
+      "dateOffset": -1 }' -- configuration
   , 0 -- schedule_type
   , 3 -- retry_limit
-  , conPublicInternetId --destination_connection_id
-  , conNoneId--destination_connection_id
+  , 5 -- source_connection_id
+  , 6 -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'StarMetro'
+  , '' -- description
+  , true -- is_enabled
+  , paperId -- media_type_id
+  , (SELECT id FROM public.source WHERE code = 'STARMETRO') -- source_id
+  , 'STARMETRO' -- topic
+  , weeklyPrintId -- product_id
+  , '{ "timeZone": "Pacific Standard Time",
+      "language": "en-CA",
+      "post": true,
+      "import": true,
+      "papername": "pubdata!name",
+      "headline": "hl1",
+      "summary": "hl1",
+      "story": "body.content",
+      "author": "byline",
+      "date": "pubdata!date.publication",
+      "id": "doc-id!id-string",
+      "section": "pubdata!position.section",
+      "page": "pubdata!position.sequence",
+      "item": "nitf",
+      "dateFmt": "yyyyMMdd",
+      "escape-content": false,
+      "add-parent": false,
+      "selfPublished": true,
+      "dateOffset": -1 }' -- configuration
+  , 0 -- schedule_type
+  , 3 -- retry_limit
+  , 5 -- source_connection_id
+  , 6 -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Blacks Newsgroup'
+  , '' -- description
+  , true -- is_enabled
+  , paperId -- media_type_id
+  , (SELECT id FROM public.source WHERE code = 'BCNG') -- source_id
+  , 'BCNG' -- topic
+  , weeklyPrintId -- product_id
+  , '{ "timeZone":"Pacific Standard Time",
+      "language":"en-CA",
+      "post":false,
+      "import":false,
+      "papername":"papername",
+      "headline":"headline",
+      "summary":"summary",
+      "story":"story",
+      "author":"author",
+      "date":"date","id":"id",
+      "item":"bcng",
+      "page":"page",
+      "section":"category",
+      "dateFmt":"MM-dd-yyyy",
+      "escapeContent":true,
+      "addParent":true,
+      "selfPublished":false,
+      "filePattern":"^bcng-<date>-(.+).xml$",
+      "dateOffset": -1,
+      "sources":"Maple Ridge-Pitt Meadows News=MRN&100 Mile House Free Press=100MILE&Arrow Lakes News=ARROWLAKE&Ashcroft Cache Creek Journal=ASHJOUR&Barriere Star Journal=BARRSTARR&Boundary Creek Times=BCT&Burns Lake Lakes District News=BLLDN&Caledonia Courier=CC&Castlegar News=CN&Clearwater Times=CT&Coast Mountain News=CMN&Cranbrook Townsman=CDT&Creston Valley Advance=CVA&Sicamouse Eagle Valley News=SEVN&Fernie Free Press=TFP&Golden Star=GS&Grand Forks Gazette=GFG&Houston Today=HT&Invermere Valley Echo=IVE&Kamloops This Week=KTW&Kelowna Capital News=KCN&Keremeos Review=KR&Kimberley Bulletin=KDB&Kitimat Northern Sentinel=KS&Kootenay News Advertiser=KNA&Lake Country Calendar=LCC&Salmon Arm Lakeshore News=SALN&Merritt Herald=MH&Nelson Star=NS&North Delta Reporter=NDR&Prince Rupert Northern View=NV&Penticton Western News=PW&Prince George Free Press=PGFP&Quesnel Cariboo Observer=QCO&Revelstoke Review=RTR&Rossland News=RN&Salmon Arm Observer=SAO&Similkameen Spotlight=SIMSP&Smithers Interior News=SIN&Summerland Review=SR&Terrace Standard=TSTD&Trail Daily Times=TDT&Comox Valley Echo=CVE&Vanderhoof Omineca Express=VOE&Vernon Morning Star=VMS&Williams Lake Tribune=WLT&Abbotsford News=ABBNEWS&Agassiz-Harrison Observer=AGASSIZ&Aldergrove Star=ALDERSTAR&Bowen Island Undercurrent=BIU&Chilliwack Times=CTIMES&Cloverdale Reporter=CRR&Hope Standard=HS&Langley Times=LT&Langley Advance Times=LA&Mission City Record=MCR&North Shore Outlook=NSO&Peace Arch News=PAN&Richmond Review=RR&Surrey Now-Leader=SURN&Alberni Valley News=AVN&Campbell River Mirror=CRM&Comox Valley Record=CCVR&Cowichan News Leader Pictorial=CNLP&Cowichan Valley Citizen=CVC&Goldstream News Gazette=GG&Gulf Islands Driftwood=GID&Ladysmith Chronicle=LC&Lake Cowichan Gazette=LCG&Monday Magazine=MM&The Daily News (Nanaimo)=NANAIMO&Nanaimo News Bulletin=NNB&North Island Gazette=NIG&Oak Bay News=OBN&Parksville Qualicum Beach News=PQN&Peninsula News Review=PNR&Saanich News=SN&Sooke News Mirror=SNM&Tofino-Ucluelet Westerly News=TUWN&Victoria News=VN&Vancouver Island Free Daily=VIFD&The Free Press=TFP&Chemainus Valley Courier=CHVC&Agassiz Observer=AGASSIZ&Maple Ridge News=MRN&Chilliwack Progress=CP&The Northern View=NV&Haida Gwaii Observer=HGO" }' -- configuration
+  , 0 -- schedule_type
+  , 3 -- retry_limit
+  , 5 -- source_connection_id
+  , 6 -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Meltwater'
+  , '' -- description
+  , true -- is_enabled
+  , paperId -- media_type_id
+  , (SELECT id FROM public.source WHERE code = 'MELTWATER') -- source_id
+  , 'MELTWATER' -- topic
+  , weeklyPrintId -- product_id
+  , '{ "timeZone":"Pacific Standard Time",
+      "language":"en-CA",
+      "post":false,
+      "import":false,
+      "papername":"!@PAPER=",
+      "headline":"!@HEAD=",
+      "summary":"!@ABSTRACT=",
+      "story":"!@TEXT=",
+      "author":"!@BYLINE=",
+      "date":"!@DATE=",
+      "lang":"!@LANG=",
+      "section":"!@SECTION=",
+      "id":"!@IDNUMBER=",
+      "tags":"!@LKW=",
+      "page":"!@PAGE=",
+      "item":"**START-IO-STORY**",
+      "dateFmt":"yyyyMMdd",
+      "fileFormat":"fms",
+      "filePattern":"^(.+)<date>(.+).fms$",
+      "dateOffset": -1,
+      "sources":"Vancouver Sun=SUN&The Province=PROVINCE&Times Colonist (Victoria)=TC&National Post=POST&Kelowna Daily Courier=KELOWNA&Delta Optimist=DO&North Shore News=NSN&Burnaby Now=BNOW&New West Record=NWR&Richmond News=RNEWS&Alaska Highway News=AHN&Squamish Chief=SC&Merritt Herald=MH&Tri-City News=TCN&Coast Reporter=CORE&Dawson Creek Mirror=DCMR&Kamloops This Week=KTW&Peachland View=PV&Prince George Citizen=PGC&Oliver Chronicle=APOC" }' -- configuration
+  , 0 -- schedule_type
+  , 3 -- retry_limit
+  , 5 -- source_connection_id
+  , 6 -- destination_connection_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
