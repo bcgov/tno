@@ -1,9 +1,9 @@
 DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
-DECLARE syndicationId INT := (SELECT id FROM public.media_type WHERE Name = 'Syndication'); -- media_type_id
-DECLARE videoId INT := (SELECT id FROM public.media_type WHERE Name = 'Video'); -- media_type_id
-DECLARE audioId INT := (SELECT id FROM public.media_type WHERE Name = 'Audio'); -- media_type_id
-DECLARE paperId INT := (SELECT id FROM public.media_type WHERE Name = 'Paper'); -- media_type_id
+DECLARE syndicationId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Syndication'); -- media_type_id
+DECLARE videoId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Video'); -- media_type_id
+DECLARE audioId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Audio'); -- media_type_id
+DECLARE paperId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Paper'); -- media_type_id
 
 DECLARE wireId INT := (SELECT id FROM public.product WHERE Name = 'Wire'); -- product_id
 DECLARE weeklyPrintId INT := (SELECT id FROM public.product WHERE Name = 'Weekly Print'); -- product_id
