@@ -24,7 +24,7 @@ export const condensedColumns: (Column<IContentModel> & UseSortByColumnOptions<I
   },
   {
     id: 'productId',
-    Header: () => <div className="center">Type</div>,
+    Header: () => <div className="center">Designation</div>,
     width: 2,
     accessor: (row) => row.product?.name,
     Cell: ({ value }: { value: string }) => (

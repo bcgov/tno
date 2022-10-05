@@ -49,8 +49,8 @@ export const AccessRequest: React.FC = (props) => {
         <Row className="welcome">
           <h1>Welcome</h1>
           <p>
-            Hello {keycloak.getDisplayName()}, If this is the first time signing into Today's News
-            Online (TNO), you will need to request approval.
+            Hello {keycloak.getDisplayName()}, If this is the first time signing into Media
+            Monitoring Insights & Analysis, you will need to request approval.
           </p>
         </Row>
         <Row gap="1em" justifyContent="space-evenly">

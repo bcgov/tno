@@ -23,7 +23,7 @@ export const LoginPanel: React.FC = () => {
     <div className="loginPanel">
       <div className="headerSection">
         <p>
-          Welcome to <b>TNO News</b>
+          Welcome to <b>Media Monitoring Insights & Analysis</b>
         </p>
         <Col alignItems="center" gap="1em">
           <p>Sign In</p>

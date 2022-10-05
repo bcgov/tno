@@ -93,38 +93,38 @@ it('displays the date in the correct format', async () => {
   await waitFor(() => expect(getByText('05/12/2022')).toBeInTheDocument());
 });
 
-it('displays the source', async () => {
+it('displays the Source column', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText(/TEST/)).toBeInTheDocument());
+  await waitFor(() => expect(getByText('Source')).toBeInTheDocument());
 });
 
-it('displays the product', async () => {
+it('displays the Designation column', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('News')).toBeInTheDocument());
+  await waitFor(() => expect(getByText('Designation')).toBeInTheDocument());
 });
 
-it('displays the status', async () => {
+it('displays the status column', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Publish')).toBeInTheDocument());
+  await waitFor(() => expect(getByText('Pub Date')).toBeInTheDocument());
 });
 
-it('displays the section/page', async () => {
+it('displays the Use column', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('A32')).toBeInTheDocument());
+  await waitFor(() => expect(getByText('Use')).toBeInTheDocument());
 });

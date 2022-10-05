@@ -21,7 +21,7 @@ export const columns = () => {
     },
     {
       id: 'productId',
-      Header: 'Type',
+      Header: 'Designation',
       width: 2,
       accessor: (row) => row.product?.name,
       Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
