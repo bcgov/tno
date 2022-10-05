@@ -9,11 +9,6 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 
-# configMapGenerator:
-#   - name: services
-#     envs:
-#       - config.env
-
 patches:
   - target:
       kind: DeploymentConfig
@@ -27,13 +22,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 250Mi
+        value: 50Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 100m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 500Mi
+        value: 100Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: transcription-service:dev

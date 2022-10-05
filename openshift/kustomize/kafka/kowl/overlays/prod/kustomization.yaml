@@ -22,13 +22,13 @@ patches:
         value: 15m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 100Mi
+        value: 50Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 50m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 150Mi
+        value: 100Mi
   - target:
       kind: Route
       name: kowl

@@ -4,6 +4,10 @@ This TNO solution is primarily hosted within Openshift.
 Everything relevant and required by the solution is capture as "Infrastructure as Code" so that it is easily setup, configured, built, and deployed.
 You can find all templates files and instructions for Openshift in this folder.
 
+## Platform Registry Services
+
+The Exchange Lab has an app that provides a way to request a new product, or provision more resource quotas here [https://registry.developer.gov.bc.ca/dashboard](https://registry.developer.gov.bc.ca/dashboard)
+
 ## Helpful Tips
 
 There are a number of helpful tips here - [openshift.tips](https://openshift.tips/)

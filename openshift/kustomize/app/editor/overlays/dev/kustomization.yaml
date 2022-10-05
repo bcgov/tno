@@ -9,28 +9,28 @@ resources:
 patches:
   - target:
       kind: ConfigMap
-      name: api
+      name: editor-sso
     patch: |-
       - op: replace
-        path: /data/KEYCLOAK_AUTHORITY
-        value: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
-  - target:
-      kind: PersistentVolumeClaim
-      name: file-storage
-    patch: |-
-      - op: replace
-        path: /spec/resources/requests/storage
-        value: 10Gi
+        path: /data/keycloak.json
+        value: '{
+          "realm": "gcpe",
+          "auth-server-url": "https://dev.oidc.gov.bc.ca/auth/",
+          "ssl-required": "external",
+          "resource": "tno-app",
+          "public-client": true,
+          "confidential-port": 0
+          }'
   - target:
       kind: Route
-      name: api
+      name: editor
     patch: |-
       - op: replace
         path: /spec/host
         value: tno-dev.apps.silver.devops.gov.bc.ca
   - target:
       kind: DeploymentConfig
-      name: api
+      name: editor
     patch: |-
       - op: replace
         path: /spec/replicas
@@ -40,13 +40,13 @@ patches:
         value: 20m
       - op: replace
         path: /spec/template/spec/containers/0/resources/requests/memory
-        value: 250Mi
+        value: 50Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
         value: 100m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 500Mi
+        value: 100Mi
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
-        value: api:dev
+        value: editor:dev

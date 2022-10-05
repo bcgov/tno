@@ -92,11 +92,6 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: KEYCLOAK_AUTHORITY
-            - name: Auth__Keycloak__Realm
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KEYCLOAK_REALM
             - name: Auth__Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
