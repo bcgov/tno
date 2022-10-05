@@ -7,11 +7,15 @@ using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Http;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
 using TNO.Kafka;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
+using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
 using TNO.Core.Exceptions;
 using System.Net;
@@ -64,7 +68,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
         _logger.LogDebug($"Performing ingestion service action for ingest '{manager.Ingest.Name}'");
-        var dir = Path.Join(_options.Value.VolumePath, manager.Ingest.GetConfigurationValue(Fields.ImportDir));
+
+        var dir = GetMonitorPath(manager.Ingest);
         var articles = new List<SourceContent>();
 
         if (String.IsNullOrEmpty(dir))
@@ -72,6 +77,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             throw new InvalidOperationException($"No import directory defined for ingest '{manager.Ingest.Name}'");
         }
 
+        await FetchFiles(manager);
         var format = manager.Ingest.GetConfigurationValue(Fields.FileFormat);
         var selfPublished = manager.Ingest.GetConfigurationValue<bool>(Fields.SelfPublished);
         var sources = selfPublished ? new Dictionary<string, string>() : GetSourcesForIngester(manager.Ingest);
@@ -91,6 +97,130 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
 
         await ImportArticlesAsync(manager, articles);
+    }
+
+    /// <summary>
+    /// Retrieve files for this connection from the remote server.
+    /// </summary>
+    /// <param name="manager"></param>
+
+    /// <returns></returns>
+    public async Task FetchFiles(IIngestServiceActionManager manager)
+    {
+        // Extract the ingest configuration settings
+        var code = manager.Ingest.Source?.Code ?? "";
+        var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
+        filePattern = filePattern.Replace("<date>", $"{GetLocalDateTime(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
+        Regex match = new Regex(filePattern);
+        if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
+
+        // TODO: create new account to access server
+        // Extract the source connection configuration settings.
+        var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
+        var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
+        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
+        var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
+        if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
+        if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
+        if (String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'.");
+        if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
+
+        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+
+        if (File.Exists(sshKeyFile))
+        {
+            var keyFile = new PrivateKeyFile(sshKeyFile);
+
+            var keyFiles = new[] { keyFile };
+            var connectionInfo = new ConnectionInfo(hostname,
+                                                    username,
+                                                    new PrivateKeyAuthenticationMethod(username, keyFiles));
+            using var client = new SftpClient(connectionInfo);
+            client.Connect();
+
+            var files = await FetchFileListing(client, remotePath);
+            files = files.Where(f => match.Match(f.Name).Success);
+
+            foreach (var file in files)
+            {
+                await CopyFile(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+            }
+
+            client.Disconnect();
+        }
+        else
+        {
+            throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+        }
+    }
+
+    /// <summary>
+    /// Fetch a list of file names from the remote data source based on configuration.
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="remoteFullName"></param>
+    /// <returns></returns>
+    private static async Task<IEnumerable<SftpFile>> FetchFileListing(SftpClient client, string remoteFullName)
+    {
+        // TODO: Fetch file from source data location.  Only continue if the image exists.
+        return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(remoteFullName, callback, obj), client.EndListDirectory, null);
+    }
+
+    /// <summary>
+    /// Copy a file for processing from the remote server
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="ingest"></param>
+    /// <param name="pathToFile"></param>
+    /// <returns></returns>
+    private async Task CopyFile(SftpClient client, IngestModel ingest, string pathToFile)
+    {
+        var outputPath = GetMonitorPath(ingest);
+        var fileName = Path.GetFileName(pathToFile);
+        var outputFile = Path.Combine(outputPath, fileName);
+
+        if (!System.IO.File.Exists(outputFile))
+        {
+            if (!Directory.Exists(outputPath))
+            {
+                Directory.CreateDirectory(outputPath);
+            }
+            using var saveFile = File.OpenWrite(outputFile);
+            var task = Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
+            await task;
+        }
+    }
+
+    /// <summary>
+    /// Get the output path to store the file.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    protected string GetMonitorPath(IngestModel ingest)
+    {
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd/}");
+    }
+
+    /// <summary>
+    /// Get the path to the source file.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    protected string GetInputPath(IngestModel ingest)
+    {
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", $"{GetLocalDateTime(ingest, DateTime.Now):yyyy/MM/dd/}");
+    }
+
+    /// <summary>
+    /// Convert to timezone and return as local.
+    /// Dates should be stored in the timezone of the data source.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
+    {
+        return date.ToTimeZone(IngestActionManager<FileMonitorOptions>.GetTimeZone(ingest, this.Options.TimeZone));
     }
 
     /// <summary>
@@ -313,29 +443,33 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 // Iterate over the list of stories and add a new item to the articles list for each story.
                 foreach (XmlElement story in elementList)
                 {
-                    var item = new SourceContent();
                     var papername = GetXmlData(story, Fields.Papername, ingest);
-                    item.Source = GetItemSourceCode(ingest, papername, sources);
-                    item.Title = GetXmlData(story, Fields.Headline, ingest);
-                    item.Uid = GetXmlData(story, Fields.Id, ingest);
-                    item.Body = GetXmlData(story, Fields.Story, ingest);
-                    item.FilePath = document.Key;
-                    item.Summary = GetXmlData(story, Fields.Summary, ingest);
-                    item.Page = GetXmlData(story, Fields.Page, ingest);
-                    item.Section = GetXmlData(story, Fields.Section, ingest);
-                    item.Language = ingest.GetConfigurationValue("language");
-                    item.ProductId = ingest.ProductId;
+                    var code = GetItemSourceCode(ingest, papername, sources);
 
-                    item.Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest));
-                    item.PublishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest);
+                    if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
+                    {
+                        var item = new SourceContent();
+                        item.Source = GetItemSourceCode(ingest, papername, sources);
+                        item.Title = GetXmlData(story, Fields.Headline, ingest);
+                        item.Uid = GetXmlData(story, Fields.Id, ingest);
+                        item.Body = GetXmlData(story, Fields.Story, ingest);
+                        item.FilePath = document.Key;
+                        item.Summary = GetXmlData(story, Fields.Summary, ingest);
+                        item.Page = GetXmlData(story, Fields.Page, ingest);
+                        item.Section = GetXmlData(story, Fields.Section, ingest);
+                        item.Language = ingest.GetConfigurationValue("language");
+                        item.ProductId = ingest.ProductId;
 
-                    articles.Add(item);
+                        item.Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest));
+                        item.PublishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest);
+
+                        articles.Add(item);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"File contents for ingest '{ingest.Name}' is invalid.");
-                throw;
+                throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
             }
         }
 
@@ -367,7 +501,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 // facilitates the extraction of stories using regular expressions in single-line mode.
                 var doc = document.Value.Replace(ingest.GetConfigurationValue(Fields.Item), Fields.FmsStoryDelim) + Fields.FmsEofFlag;
                 var matches = Regex.Matches(doc, "<story>(.+?)</story>", RegexOptions.Singleline);
-                var source = "";
+                var code = "";
 
                 // Iterate over the list of stories and add a new item to the articles list for each story.
                 foreach (Match story in matches)
@@ -379,29 +513,32 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     var filtered = preFiltered.Replace("\n\n", Fields.FmsFieldDelim);
 
                     var papername = GetFmsData(filtered, Fields.Papername, ingest);
-                    source = string.IsNullOrEmpty(source) ? GetItemSourceCode(ingest, papername, sources) : source;
-                    item.Source = source;
-                    item.Title = GetFmsData(filtered, Fields.Headline, ingest);
-                    item.Uid = GetFmsData(filtered, Fields.Id, ingest);
-                    item.Body = GetFmsData(preFiltered + "<break>", Fields.Story, ingest);
-                    item.FilePath = document.Key;
-                    item.Summary = GetFmsData(filtered, Fields.Summary, ingest);
-                    item.Page = GetFmsData(filtered, Fields.Page, ingest);
-                    item.Section = GetFmsData(filtered, Fields.Section, ingest);
-                    item.Language = ingest.GetConfigurationValue("language");
-                    item.ProductId = ingest.ProductId;
+                    code = string.IsNullOrEmpty(code) ? GetItemSourceCode(ingest, papername, sources) : code;
 
-                    item.Tags = GetTagList(filtered, ingest);
-                    item.Authors = GetAuthorList(GetFmsData(filtered, Fields.Author, ingest));
-                    item.PublishedOn = GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest);
+                    if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
+                    {
+                        item.Source = code;
+                        item.Title = GetFmsData(filtered, Fields.Headline, ingest);
+                        item.Uid = GetFmsData(filtered, Fields.Id, ingest);
+                        item.Body = GetFmsData(preFiltered + "<break>", Fields.Story, ingest);
+                        item.FilePath = document.Key;
+                        item.Summary = GetFmsData(filtered, Fields.Summary, ingest);
+                        item.Page = GetFmsData(filtered, Fields.Page, ingest);
+                        item.Section = GetFmsData(filtered, Fields.Section, ingest);
+                        item.Language = ingest.GetConfigurationValue("language");
+                        item.ProductId = ingest.ProductId;
 
-                    articles.Add(item);
+                        item.Tags = GetTagList(filtered, ingest);
+                        item.Authors = GetAuthorList(GetFmsData(filtered, Fields.Author, ingest));
+                        item.PublishedOn = GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest);
+
+                        articles.Add(item);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"File contents for ingest '{ingest.Name}' is invalid.");
-                throw;
+                throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
             }
         }
 
@@ -445,7 +582,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="FormatException"></exception>
     private Dictionary<string, string> GetSourcesForIngester(IngestModel ingest)
     {
         var sources = new Dictionary<string, string>();
@@ -462,7 +599,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             else
             {
-                throw new ArgumentException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
             }
         }
 

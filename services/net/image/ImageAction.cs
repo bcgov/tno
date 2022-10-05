@@ -74,7 +74,6 @@ public class ImageAction : IngestAction<ImageOptions>
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // Extract the ingest configuration settings.
-        // TODO: Change to regex to allow for more advanced searches.
         var inputFileCode = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("code")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("code");
         if (String.IsNullOrWhiteSpace(inputFileCode)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'code'.");
 
