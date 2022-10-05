@@ -224,7 +224,10 @@ export const GridTable = <T extends object>({
         {headerGroups.map((headerGroup) => (
           <div className="rh" {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
-              <div {...column.getHeaderProps(column.getSortByToggleProps())}>
+              <div
+                {...column.getHeaderProps(column.getSortByToggleProps())}
+                className={`h-${column.id}`}
+              >
                 {column.render('Header') as unknown as React.ReactNode}
                 <SortIndicator column={column} />
               </div>
