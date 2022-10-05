@@ -3,6 +3,8 @@ import { Column, UseSortByColumnOptions } from 'react-table';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
 import { formatIdirUsername } from 'utils/formatIdir';
 
+import { getStatusText } from '../utils';
+
 export const columns = () => {
   const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
     {
@@ -45,14 +47,18 @@ export const columns = () => {
       id: 'status',
       Header: 'Status',
       width: 1,
-      accessor: (row) => row.status,
+      accessor: (row) => <div className="center">{getStatusText(row.status)}</div>,
     },
     {
       id: 'publishedOn',
       Header: 'Pub Date',
       width: 1,
       accessor: (row) => row.publishedOn ?? row.createdOn,
-      Cell: ({ value }: any) => <Date value={value} />,
+      Cell: ({ value }: any) => (
+        <div className="center">
+          <Date value={value} />
+        </div>
+      ),
     },
     {
       id: 'use',
@@ -62,7 +68,11 @@ export const columns = () => {
       accessor: (row) =>
         row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
       Cell: ({ value }: { value: boolean }) => {
-        return <Checkbox checked={value} />;
+        return (
+          <div className="center">
+            <Checkbox checked={value} />
+          </div>
+        );
       },
     },
   ];

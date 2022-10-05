@@ -2,6 +2,8 @@ import { FormPage } from 'components/form';
 import styled from 'styled-components';
 
 export const ContentListView = styled(FormPage)`
+  min-height: fit-content;
+
   .content-list {
     table {
       background: transparent;
@@ -43,5 +45,21 @@ export const ContentListView = styled(FormPage)`
     flex: 1 1 0%;
   }
 
-  min-height: fit-content;
+  .h-status {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .h-publishedOn {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .h-use {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
 `;
