@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { store } from 'store';
 import { ThemeProvider } from 'styled-components';
 import { SummonProvider } from 'tno-core';
+import { UploadContextWrapper } from 'upload-context';
 
 import App from './App';
 import css from './css/_variables.module.scss';
@@ -17,7 +18,9 @@ const Index = () => {
       <ThemeProvider theme={{ css }}>
         <Provider store={store}>
           <SummonProvider>
-            <App />
+            <UploadContextWrapper>
+              <App />
+            </UploadContextWrapper>
           </SummonProvider>
         </Provider>
       </ThemeProvider>
