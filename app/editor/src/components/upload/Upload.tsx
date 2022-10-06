@@ -1,7 +1,7 @@
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks/modal';
 import React, { ButtonHTMLAttributes } from 'react';
-import { Button, ButtonVariant, Col } from 'tno-core';
+import { Button, ButtonVariant, Col, Show } from 'tno-core';
 
 import { IFile } from '.';
 import * as styled from './styled';
@@ -19,6 +19,7 @@ export interface IUploadProps
   onDelete?: () => void;
   file?: IFile;
   verifyDelete?: boolean;
+  downloadable?: boolean;
 }
 
 /**
@@ -31,6 +32,7 @@ export const Upload: React.FC<IUploadProps> = ({
   className,
   file: initFile,
   verifyDelete = true,
+  downloadable = true,
   onClick,
   onSelect,
   onDownload,
@@ -42,16 +44,16 @@ export const Upload: React.FC<IUploadProps> = ({
 
   const [file, setFile] = React.useState<IFile>();
 
+  /** Duration / metadata WIP */
+  // const [duration, setDuration] = useState(0);
+  const reader = new FileReader();
+  const fileName = generateName(file) ?? generateName(initFile);
+
   React.useEffect(() => {
     if (!!initFile) {
       setFile(undefined);
     }
   }, [initFile]);
-
-  /** Duration / metadata WIP */
-  // const [duration, setDuration] = useState(0);
-  const reader = new FileReader();
-  const fileName = generateName(file) ?? generateName(initFile);
 
   const handleDelete = () => {
     if (!!fileRef.current) {
@@ -96,17 +98,17 @@ export const Upload: React.FC<IUploadProps> = ({
         }}
       />
       <Col className="file">
-        {!!fileName && (
+        <Show visible={!!fileName}>
           <Button
             variant={ButtonVariant.link}
             onClick={() => onDownload?.()}
-            disabled={!onDownload || !!file}
+            disabled={!onDownload || !!file || !downloadable}
           >
             {fileName}
           </Button>
-        )}
+        </Show>
       </Col>
-      {!!fileName && (
+      <Show visible={!!fileName}>
         <Button
           variant={ButtonVariant.danger}
           onClick={() => {
@@ -116,7 +118,7 @@ export const Upload: React.FC<IUploadProps> = ({
         >
           Remove File
         </Button>
-      )}
+      </Show>
       {/* Modal to appear when removing a file */}
       <Modal
         isShowing={isShowing}

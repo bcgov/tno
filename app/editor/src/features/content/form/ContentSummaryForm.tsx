@@ -53,11 +53,12 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
-  const path = values.fileReferences.length ? values.fileReferences[0].path : undefined;
-  const file = values.fileReferences.length
+  const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
+  const path = fileReference?.path;
+  const file = !!fileReference
     ? ({
-        name: values.fileReferences[0].fileName,
-        size: values.fileReferences[0].size,
+        name: fileReference.fileName,
+        size: fileReference.size,
       } as IFile)
     : undefined;
   const [streamUrl, setStreamUrl] = React.useState<string>('');
@@ -285,6 +286,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             id="upload"
             name="file"
             file={file}
+            downloadable={fileReference?.isUploaded}
             onSelect={(e) => {
               const file = !!e.target?.files?.length ? e.target.files[0] : undefined;
               setFieldValue('file', file);
@@ -301,15 +303,17 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               }
             }}
           />
-          <Button
-            onClick={() => {
-              setMedia();
-            }}
-            variant={ButtonVariant.secondary}
-            className={!file ? 'hidden' : 'show-player'}
-          >
-            {!!streamUrl ? 'Hide Player' : 'Show Player'}
-          </Button>
+          <Show visible={fileReference?.isUploaded ?? false}>
+            <Button
+              onClick={() => {
+                setMedia();
+              }}
+              variant={ButtonVariant.secondary}
+              className={!file ? 'hidden' : 'show-player'}
+            >
+              {!!streamUrl ? 'Hide Player' : 'Show Player'}
+            </Button>
+          </Show>
         </Row>
         <Col className="video" alignItems="stretch">
           <video ref={videoRef} className={!streamUrl ? 'hidden' : ''} controls>
