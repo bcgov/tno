@@ -114,11 +114,6 @@ spec:
                 configMapKeyRef:
                   name: filemonitor-service
                   key: TOPICS
-            - name: Service__NotificationTopic
-              valueFrom:
-                configMapKeyRef:
-                  name: filemonitor-service
-                  key: NOTIFICATION_TOPIC
             - name: Service__PrivateKeysPath
               valueFrom:
                 configMapKeyRef:

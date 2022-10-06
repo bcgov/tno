@@ -3,30 +3,30 @@
 kind: ImageStream
 apiVersion: image.openshift.io/v1
 metadata:
-  name: image-service
+  name: filemonitor-service
   annotations:
     description: Destination for built images.
   labels:
-    name: image-service
+    name: filemonitor-service
     part-of: tno
     version: 1.0.0
-    component: image
+    component: filemonitor
     managed-by: kustomize
-    created-by: alessia.yanchen
+    created-by: stuart.morse
 
 ---
 # The build config that will be created will be named for the branch you created it for.
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: image-service.dev
+  name: filemonitor-service.dev
   annotations:
     description: Build image from Dockerfile in git repo.
   labels:
-    name: image-service
+    name: filemonitor-service
     part-of: tno
     version: 1.0.0
-    component: image
+    component: filemonitor
     managed-by: kustomize
     created-by: jeremy.foster
     branch: dev
@@ -45,11 +45,11 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/image/Dockerfile
+      dockerfilePath: services/net/filemonitor/Dockerfile
   output:
     to:
       kind: ImageStreamTag
-      name: image-service:latest
+      name: filemonitor-service:latest
   resources:
     requests:
       cpu: 20m

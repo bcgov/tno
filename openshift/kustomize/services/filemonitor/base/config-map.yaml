@@ -18,6 +18,6 @@ type: Opaque
 data:
   KAKFA_CLIENT_ID: Filemonitor
   MAX_FAIL_LIMIT: "5"
-  TOPICS: BCNG, MELTWATER
-  FILE_PATH: /data/papers
+  TOPICS:
+  FILE_PATH: /data
   NOTIFICATION_TOPIC: ""
