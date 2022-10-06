@@ -1,7 +1,9 @@
 using System.Text.Json;
+using System.Collections.Concurrent;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using TNO.Kafka.Models;
 using TNO.Kafka.Serializers;
 
 namespace TNO.Kafka;
@@ -20,6 +22,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private bool _disposed = false;
     private bool _open = false;
     private ConsumeResult<TKey, TValue>? _currentResult = null;
+    private int _currentThread = 0;
+    private readonly int _maxThreads = 10;
+    private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, ConsumeResult<TKey, TValue>> _currentResults = new();
     #endregion
 
     #region Properties
@@ -42,6 +47,10 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// get - An array of topics this consumer is subscribed to.
     /// </summary>
     public string[] Topics { get; private set; } = Array.Empty<string>();
+
+    private bool IsTranscription => _currentResult is ConsumeResult<string, TranscriptRequest>;
+    private bool OverLimit => _currentThread > _maxThreads;
+    private bool ReachOrOverLimit => _currentThread >= _maxThreads;
     #endregion
 
     #region Events
@@ -149,7 +158,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
             // If not currently working on a result, wait for a new one.
             // This provides a way to keep trying to handle the current result because of some kind of intermittent failure.
-            if (_currentResult == null)
+            if (_currentResult == null || (IsTranscription && !ReachOrOverLimit))
             {
                 _logger.LogDebug("Waiting to receive message from Kafka topics: '{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
@@ -158,7 +167,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
                 _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
 
-                if (!this.IsPaused)
+                if (IsTranscription) Interlocked.Increment(ref _currentThread);
+
+                if (!this.IsPaused && (!IsTranscription || ReachOrOverLimit))
                 {
                     _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", this.Consumer.Subscription ?? new List<string>()));
                     // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
@@ -173,17 +184,30 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
             if (_currentResult != null)
             {
-                proceed = await action(_currentResult);
-                if (proceed == ConsumerAction.Proceed)
+                if (!IsTranscription)
                 {
-                    // Manually commit to inform Kafka this message has successfully been handled.
-                    // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
-                    if (_config.EnableAutoCommit == false)
+                    proceed = await RunActionAsync(action, _currentResult);
+                }
+                else if (!OverLimit && !_currentResults.ContainsKey(_currentResult))
+                {
+                    var current = _currentResult;
+                    _currentResults[current] = current;
+                    _ = Task.Run(async () =>
                     {
-                        this.Consumer?.Commit(_currentResult);
-                        _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
-                    }
-                    _currentResult = null;
+                        var proceed = ConsumerAction.Stop;
+                        try
+                        {
+                            proceed = await RunActionAsync(action, _currentResults[current]);
+                        }
+                        catch (Exception ex)
+                        {
+                            proceed = HandleException(ex);
+                        }
+                        finally
+                        {
+                            FinalCleanUp(proceed);
+                        }
+                    }, cancellationToken);
                 }
             }
             else
@@ -193,20 +217,56 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         }
         catch (Exception ex)
         {
-            // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
-            // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
-            _logger.LogError(ex, "Error while consuming. {message}", ex.Message);
-            proceed = this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
+            proceed = HandleException(ex);
         }
         finally
         {
-            if (proceed == ConsumerAction.Stop) this.Stop();
-            else if (this.IsPaused && proceed == ConsumerAction.Proceed)
+            if (!IsTranscription) FinalCleanUp(proceed);
+        }
+    }
+
+    private async Task<ConsumerAction> RunActionAsync(
+        Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action,
+        ConsumeResult<TKey, TValue>? _currentResult)
+    {
+        var result = await action(_currentResult!);
+        if (result == ConsumerAction.Proceed)
+        {
+            // Manually commit to inform Kafka this message has successfully been handled.
+            // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
+            if (_config.EnableAutoCommit == false)
             {
-                _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));
-                this.IsPaused = false;
-                this.Consumer?.Resume(this.Consumer.Assignment);
+                this.Consumer?.Commit(_currentResult);
+                _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult!.Topic, _currentResult.Message.Key);
             }
+            
+            if (IsTranscription)
+            {
+                Interlocked.Decrement(ref _currentThread); 
+                _currentResults.TryRemove(_currentResult!, out _);
+            }
+
+            _currentResult = null;
+        }
+        return result;
+    }
+
+    private ConsumerAction HandleException(Exception ex)
+    {
+        // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
+        // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
+        _logger.LogError(ex, "Error while consuming. {message}", ex.Message);
+        return this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
+    }
+
+    private void FinalCleanUp(ConsumerAction proceed)
+    {
+        if (proceed == ConsumerAction.Stop) this.Stop();
+        else if (this.IsPaused && proceed == ConsumerAction.Proceed)
+        {
+            _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));
+            this.IsPaused = false;
+            this.Consumer?.Resume(this.Consumer.Assignment);
         }
     }
 
