@@ -5,6 +5,7 @@ import { ISelectDateProps, SelectDateVariant } from '..';
 export const SelectDate = styled.div<ISelectDateProps>`
   box-sizing: border-box;
   padding-right: 0.5em;
+  width: ${(props) => props.width};
 
   .required:after {
     content: ' *';
@@ -18,14 +19,12 @@ export const SelectDate = styled.div<ISelectDateProps>`
   }
 
   .react-datepicker-wrapper {
-    min-width: 12ch;
-
     input {
       padding: 0.375rem 0.75rem;
       text-decoration: ${(props) =>
         props.variant === SelectDateVariant.link ? 'underline' : 'none'};
       display: flex;
-      width: ${(props) => props.width};
+      width: ${(props) => `calc(${props.width} - 1.5rem - 0.5em)`};
       flex-direction: column;
       font-weight: 400;
       text-align: left;

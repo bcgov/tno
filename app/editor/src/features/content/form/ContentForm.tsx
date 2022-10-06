@@ -78,10 +78,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
   const { userId } = useUserLookups();
   const sourceOptions = useSourceOptions();
   const productOptions = useProductOptions();
-  const combined = useCombinedView();
+  const { combined, formType } = useCombinedView(initContentType);
   useTooltips();
 
-  const [contentType, setContentType] = React.useState(initContentType);
+  const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
@@ -242,7 +242,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                 variant={ButtonVariant.secondary}
                 tooltip="Combined View"
                 onClick={() => {
-                  navigate(`/contents/combined/${id}`);
+                  navigate(`/contents/combined/${id}?form=${contentType}`);
                 }}
               >
                 <FontAwesomeIcon icon={faTableColumns} />
