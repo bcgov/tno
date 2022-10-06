@@ -18,5 +18,4 @@ type: Opaque
 data:
   KAFKA_CLIENT_ID: Clip
   MAX_FAIL_LIMIT: "5"
-  OUTPUT_PATH: /data/clip
-  CAPTURE_PATH: /data/capture
+  VOLUME_PATH: /data

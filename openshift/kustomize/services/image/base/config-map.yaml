@@ -18,6 +18,4 @@ type: Opaque
 data:
   KAKFA_CLIENT_ID: Image
   MAX_FAIL_LIMIT: "5"
-  TOPICS: image
-  FILE_PATH: /data/image
-  NOTIFICATION_TOPIC: ""
+  VOLUME_PATH: /data
