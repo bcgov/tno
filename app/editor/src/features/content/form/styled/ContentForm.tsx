@@ -39,9 +39,11 @@ export const ContentForm = styled.div`
     display: none;
   }
 
-  .tab-container {
-    height: calc(100vh - 580px);
-    overflow-y: auto;
+  .tabs.fit {
+    .tab-container {
+      height: calc(100vh - 580px);
+      overflow-y: auto;
+    }
   }
 
   .tabs.small {

@@ -460,7 +460,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                 <Row>
                   <Show visible={isSnippetForm(contentType)}>
                     <Tabs
-                      className={`tabs ${size === 1 ? 'small' : 'large'}`}
+                      className={`${combined ? 'fit' : 'expand'} ${size === 1 ? 'small' : 'large'}`}
                       tabs={
                         <>
                           <Tab
