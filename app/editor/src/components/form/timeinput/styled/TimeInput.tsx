@@ -1,12 +1,13 @@
+import { InputHTMLAttributes } from 'react';
 import styled from 'styled-components';
-import { Col } from 'tno-core';
 
-export const TimeInput = styled(Col)`
+export const TimeInput = styled.div<InputHTMLAttributes<HTMLInputElement>>`
+  margin-right: 0.5em;
+  width: ${(props) => props.width};
+
   label {
     font-weight: 700;
   }
-
-  margin-right: 0.5em;
 
   .required:after {
     content: ' *';
@@ -15,6 +16,12 @@ export const TimeInput = styled(Col)`
   }
 
   .masked-input {
+    border-radius: 0.25rem;
+    border: 1px solid #606060;
+    line-height: 1.6;
+    padding: 0.375rem 0.75rem;
+    width: ${(props) => `calc(${props.width} - 1.5rem - 0.5em)`};
+
     :required {
       border-color: ${(props) => props.theme.css.inputRequiredBorderColor};
     }
@@ -23,11 +30,6 @@ export const TimeInput = styled(Col)`
       outline: 0;
       box-shadow: 0 0 0 0.2rem #2684ff;
     }
-
-    border-radius: 0.25rem;
-    height: 2.225rem;
-    border: 1px solid #606060;
-    line-height: 1.6;
   }
 
   p[role='alert'] {

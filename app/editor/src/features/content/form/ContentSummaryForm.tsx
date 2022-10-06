@@ -40,7 +40,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 }) => {
   const keycloak = useKeycloakWrapper();
   const [{ series, categories, licenses, tags, users }] = useLookup();
-  const { values, setFieldValue, handleChange, errors } = useFormikContext<IContentForm>();
+  const { values, setFieldValue, errors } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
   const combined = useCombinedView();
@@ -169,7 +169,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               disabled={!values.categories.length}
             />
           </Row>
-          <Row>
+          <Row alignContent="flex-start" alignItems="flex-start">
             <FormikDatePicker
               name="publishedOn"
               label="Published On"
@@ -192,14 +192,12 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               name="publishedOnTime"
               label="Time"
               disabled={!values.publishedOn}
+              width="7em"
               placeholder={
                 !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : 'HH:MM:SS'
               }
               onChange={(e) => setPublishedOnTime(e.target.value)}
             />
-            <Show visible={contentType === ContentTypeName.Snippet}>
-              <FormikText name="page" label="Page" onChange={handleChange} />
-            </Show>
           </Row>
         </Col>
         <Col className="licenses">

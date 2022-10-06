@@ -24,7 +24,7 @@ export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, ...rest }) 
     return hours.concat(':').concat(minutes).concat(':').concat(seconds) as any;
   };
   return (
-    <styled.TimeInput>
+    <styled.TimeInput {...rest}>
       <Show visible={!!label}>
         <label className={rest.required ? 'required' : ''}>{label}</label>
       </Show>

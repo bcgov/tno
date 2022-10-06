@@ -612,7 +612,7 @@ exports[`renders correctly... 1`] = `
                 direction="row"
               >
                 <div
-                  class="sc-kLLXSd jueNfc frm-in"
+                  class="sc-kLLXSd hHcUYA frm-in"
                   role="none"
                   width="10em"
                 >
@@ -633,7 +633,7 @@ exports[`renders correctly... 1`] = `
                   </div>
                 </div>
                 <div
-                  class="sc-kLLXSd jueNfc frm-in"
+                  class="sc-kLLXSd hHcUYA frm-in"
                   role="none"
                   width="10em"
                 >

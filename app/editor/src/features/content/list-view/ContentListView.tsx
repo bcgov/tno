@@ -13,14 +13,19 @@ import { IContentListFilter } from './interfaces';
 import * as styled from './styled';
 import { makeFilter } from './utils';
 
+/**
+ * ContentListView provides a way to list, search and select content for viewing and editing.
+ * Also provides a combined view which splits the page into two columns.
+ * @returns Component
+ */
 export const ContentListView: React.FC = () => {
   const [{ userInfo }, { isUserReady }] = useApp();
   const { id } = useParams();
   const [{ filter, filterAdvanced, content }, { findContent, storeFilter }] = useContent();
   const navigate = useNavigate();
-  const combined = useCombinedView();
+  const { combined, formType } = useCombinedView();
   useTooltips();
-  const [contentType, setContentType] = React.useState(ContentTypeName.Snippet);
+  const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
   const [activeId, setActiveId] = React.useState<number>(parseInt(id ?? '0'));
 
