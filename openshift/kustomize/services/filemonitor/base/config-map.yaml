@@ -1,0 +1,23 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: filemonitor-service
+  namespace: default
+  annotations:
+    description: Filemonitor service configuration settings
+  labels:
+    name: filemonitor-service
+    part-of: tno
+    version: 1.0.0
+    component: filemonitor-service
+    managed-by: kustomize
+    created-by: jeremy.foster
+type: Opaque
+data:
+  KAKFA_CLIENT_ID: Filemonitor
+  MAX_FAIL_LIMIT: "5"
+  TOPICS: BCNG, MELTWATER
+  FILE_PATH: /data/papers
+  NOTIFICATION_TOPIC: ""

@@ -571,7 +571,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             else
             {
-                throw new InvalidOperationException($"Paper '{paperName}' not in configuration string for ingester '{ingest.Name}'.");
+                _logger.LogWarning($"Paper '{paperName}' not in configuration string for ingester '{ingest.Name}'.");
+                return "";
             }
         }
     }
