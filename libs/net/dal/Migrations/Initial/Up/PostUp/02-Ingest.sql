@@ -461,7 +461,7 @@ INSERT INTO public.ingest (
   , 1 -- schedule_type
   , 3 -- retry_limit
   , conSSHId --destination_connection_id
-  , conLocalClipsId -- destination_connection_id
+  , conLocalImagesId -- destination_connection_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -489,7 +489,7 @@ INSERT INTO public.ingest (
   , 3 -- schedule_type
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
-  , conLocalImagesId -- destination_connection_id
+  , conLocalClipsId -- destination_connection_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID

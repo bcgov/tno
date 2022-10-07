@@ -58,7 +58,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
             <FormikTimeInput
               name={field('startAt')}
               value={getIn(values, field('startAt')) ?? ''}
-              width={FieldSize.Tiny}
+              width="7em"
               onChange={(e: any) => setFieldValue(field('startAt'), e.target.value)}
               placeholder="HH:MM:SS"
               required
@@ -67,7 +67,7 @@ export const ScheduleDaily: React.FC<IScheduleDailyProps> = ({
             <FormikTimeInput
               name={field('stopAt')}
               value={getIn(values, field('stopAt')) ?? ''}
-              width={FieldSize.Tiny}
+              width="7em"
               onChange={(e: any) => setFieldValue(field('stopAt'), e.target.value)}
               placeholder="HH:MM:SS"
               required
