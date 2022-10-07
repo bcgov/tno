@@ -10,8 +10,6 @@ using TNO.Kafka.Models;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
-using TNO.Core.Exceptions;
-using System.Net;
 
 namespace TNO.Services.Capture;
 
@@ -172,14 +170,9 @@ public class CaptureAction : CommandAction<CaptureOptions>
         process.StartInfo.Arguments = $"-c \"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardOutput = true;
         process.EnableRaisingEvents = true;
-        process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, null, e);
-        process.OutputDataReceived += (sender, e) => OnOutputReceived(sender, null, e);
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
@@ -192,6 +185,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, ScheduleModel schedule)
     {
         var today = GetLocalDateTime(ingest, DateTime.UtcNow);
@@ -256,7 +250,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private string GetOutput(IngestModel ingest, ScheduleModel schedule)
     {
         string filename;
@@ -290,7 +283,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private static string GetFormat(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("format");
@@ -302,7 +294,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private static string GetVolume(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("volume");
@@ -314,7 +305,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private static string GetOtherArgs(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("otherArgs");

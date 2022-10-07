@@ -167,6 +167,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
             process.EnableRaisingEvents = true;
             process.Exited += async (sender, e) => await OnExitedAsync(sender, manager, e);
             process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, manager, e);
