@@ -74,8 +74,8 @@ public class ImageAction : IngestAction<ImageOptions>
         this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
 
         // Extract the ingest configuration settings.
-        var inputFileCode = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("code")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("code");
-        if (String.IsNullOrWhiteSpace(inputFileCode)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'code'.");
+        var inputFileName = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
+        if (String.IsNullOrWhiteSpace(inputFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'fileName'.");
 
         // TODO: Handle different remote connections.
         // TODO: create new account to access server
@@ -104,7 +104,7 @@ public class ImageAction : IngestAction<ImageOptions>
                 using var client = new SftpClient(connectionInfo);
                 client.Connect();
                 var files = await FetchImage(client, remotePath);
-                files = files.Where(f => f.Name.Contains(inputFileCode));
+                files = files.Where(f => f.Name.Contains(inputFileName));
 
                 foreach (var file in files)
                 {
@@ -176,7 +176,6 @@ public class ImageAction : IngestAction<ImageOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     private static async Task<IEnumerable<SftpFile>> FetchImage(SftpClient client, string remoteFullName)
     {
         // TODO: use private keys in ./keys folder to connect to remote data source.

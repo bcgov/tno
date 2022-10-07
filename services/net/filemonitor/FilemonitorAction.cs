@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Globalization;
-using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
@@ -18,7 +17,6 @@ using TNO.Services.Actions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
 using TNO.Core.Exceptions;
-using System.Net;
 
 namespace TNO.Services.FileMonitor;
 

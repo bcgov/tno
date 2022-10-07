@@ -62,8 +62,20 @@ INSERT INTO public.connection (
   , ''
   , DEFAULT_USER_ID
   , ''
+),  (
+  'Local Volume - Papers' -- 4
+  , 'This is the location to which newspaper import files are placed when they are retrieved from the remote server.' -- description
+  , true -- is_enabled
+  , 0 -- connection_type - Local Volume
+  , '{"path": "papers"}' -- configuration
+  , false -- is_read_only
+  , 0 -- sort_order
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ), (
-  'Public Internet' -- 4
+  'Public Internet' -- 5
   , 'Internet based data sources that do not require security (i.e. HTML, Streaming)' -- description
   , true -- is_enabled
   , 3 -- connection_type - HTTP
@@ -75,24 +87,12 @@ INSERT INTO public.connection (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'SSH - Newspaper Upload' -- 5
+  'SSH - Newspaper Upload' -- 6
   , 'Meltwater and Blacks News Group upload files to this location.' -- description
   , true -- is_enabled
   , 7 -- connection_type - SSH
   , '{"path":"/dsk98/processed/","username":"ckayfish","hostname":"scharnhorst.tno.gov.bc.ca","keyFileName":"id_rsa"}' -- configuration
   , true -- is_read_only
-  , 0 -- sort_order
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-),  (
-  'Monitored file location' -- 6
-  , 'This is the location to which newspaper import files are placed when they are retrieved from the remote server.' -- description
-  , true -- is_enabled
-  , 0 -- connection_type - Local Volume
-  , '{"path": "papers"}' -- configuration
-  , false -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID
   , ''

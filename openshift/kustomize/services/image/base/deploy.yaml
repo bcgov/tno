@@ -118,7 +118,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: image-service
-                  key: ../keys
+                  key: KEY_PATH
             - name: Service__PrivateKeyFileName
               valueFrom:
                 secretKeyRef:
