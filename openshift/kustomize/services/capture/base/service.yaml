@@ -7,13 +7,13 @@ metadata:
   namespace: default
   annotations:
     description: Exposes and load balances the application pods.
+    created-by: jeremy.foster
   labels:
     name: capture-service
     part-of: tno
     version: 1.0.0
     component: capture-service
     managed-by: kustomize
-    created-by: jeremy.foster
 spec:
   ports:
     - name: 8080-tcp

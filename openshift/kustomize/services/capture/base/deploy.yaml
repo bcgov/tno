@@ -7,13 +7,13 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy capture-service
+    created-by: jeremy.foster
   labels:
     name: capture-service
     part-of: tno
     version: 1.0.0
     component: capture-service
     managed-by: kustomize
-    created-by: jeremy.foster
 spec:
   replicas: 1
   selector:

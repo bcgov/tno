@@ -22,8 +22,17 @@ RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as deploy
 
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends procps curl libc6-dev libgdiplus
+
 WORKDIR /app
 COPY --from=build /build .
+RUN  if test -e ../services/net/filemonitor/keys/id_rsa; then COPY ../services/net/filemonitor/keys/ id_rsa* keys/ && chmod 0777 keys && chmod -R 0777 /app/keys/; fi
+
+# This volume is the local storage for uploaded files.
+RUN mkdir /data
+VOLUME /data
+RUN chmod -R 0777 /data
 
 # Run container by default as user with id 1001 (default)
 USER 1001

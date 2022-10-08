@@ -1,0 +1,59 @@
+---
+# The final build filemonitor.
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: filemonitor-service
+  annotations:
+    description: Destination for built filemonitors.
+    created-by: jeremy.foster, stuart.morse
+  labels:
+    name: filemonitor-service
+    part-of: tno
+    version: 1.0.0
+    component: filemonitor
+    managed-by: kustomize
+
+---
+# The build config that will be created will be named for the branch you created it for.
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: filemonitor-service.dev
+  annotations:
+    description: Build filemonitor from Dockerfile in git repo.
+    created-by: jeremy.foster, stuart.morse
+  labels:
+    name: filemonitor-service
+    part-of: tno
+    version: 1.0.0
+    component: filemonitor
+    managed-by: kustomize
+    branch: dev
+spec:
+  completionDeadlineSeconds: 1800
+  triggers:
+    - type: ImageChange
+    - type: ConfigChange
+  runPolicy: Serial
+  source:
+    git:
+      uri: https://github.com/bcgov/tno.git
+      ref: dev
+    contextDir: ./
+  strategy:
+    type: Docker
+    dockerStrategy:
+      filemonitorOptimizationPolicy: SkipLayers
+      dockerfilePath: services/net/filemonitor/Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: filemonitor-service:latest
+  resources:
+    requests:
+      cpu: 20m
+      memory: 250Mi
+    limits:
+      cpu: 500m
+      memory: 2Gi

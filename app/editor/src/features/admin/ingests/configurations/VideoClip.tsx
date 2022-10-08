@@ -26,7 +26,7 @@ export const VideoClip: React.FC = (props) => {
         name="configuration.timeZone"
         tooltip="Timezone of the source"
         options={TimeZones}
-        defaultValue={timeZone}
+        value={timeZone}
       />
       <FormikText
         label="Format"

@@ -10,3 +10,5 @@ resources:
   - clip.yaml
   - indexing.yaml
   - transcription.yaml
+  - image.yaml
+  - filemonitor.yaml

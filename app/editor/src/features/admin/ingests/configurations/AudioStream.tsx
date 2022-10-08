@@ -27,13 +27,13 @@ export const AudioStream: React.FC = (props) => {
         name="configuration.timeZone"
         tooltip="Timezone of the source"
         options={TimeZones}
-        defaultValue={timeZone}
+        value={timeZone}
       />
       <FormikSelect
         label="Language"
         name="configuration.language"
         options={Languages}
-        defaultValue={language}
+        value={language}
       />
       <FormikText
         label="Format"

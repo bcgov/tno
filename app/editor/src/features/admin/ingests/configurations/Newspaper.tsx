@@ -33,7 +33,7 @@ export const Newspaper: React.FC = (props) => {
             name="configuration.timeZone"
             tooltip="Timezone of the source"
             options={TimeZones}
-            defaultValue={timeZone}
+            value={timeZone}
           />
         </Col>
         <Col flex="1 1 0">
@@ -41,7 +41,7 @@ export const Newspaper: React.FC = (props) => {
             label="Date Offset"
             name="configuration.dateOffset"
             type="number"
-            defaultValue={0}
+            value={0}
             tooltip="Which day to parse (0 = today)"
           />
         </Col>
@@ -53,7 +53,7 @@ export const Newspaper: React.FC = (props) => {
             name="configuration.fileFormat"
             tooltip="The file extension (xml, fms)"
             options={FileTypes}
-            defaultValue={fileType}
+            value={fileType}
             required
           />
         </Col>
@@ -62,7 +62,7 @@ export const Newspaper: React.FC = (props) => {
             label="Default Language"
             name="configuration.language"
             options={Languages}
-            defaultValue={language}
+            value={language}
             tooltip="The language of the content unless specified by the path below"
           />
         </Col>

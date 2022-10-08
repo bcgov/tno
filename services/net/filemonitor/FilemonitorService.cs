@@ -5,7 +5,7 @@ using TNO.Services.FileMonitor.Config;
 namespace TNO.Services.FileMonitor;
 
 /// <summary>
-/// SyndicationService abstrct class, provides a console application that runs service, and an api.
+/// SyndicationService class, provides a console application that runs service, and an api.
 /// </summary>
 public class FileMonitorService : IngestService
 {
