@@ -9,7 +9,7 @@ import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Claim, NotFound } from 'tno-core';
+import { Claim, InternalServerError, NotFound } from 'tno-core';
 
 import { PrivateRoute } from '.';
 
@@ -91,6 +91,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           path="reports/*"
           element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}
         />
+        <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

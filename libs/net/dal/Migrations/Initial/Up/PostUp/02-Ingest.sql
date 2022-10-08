@@ -312,6 +312,7 @@ INSERT INTO public.ingest (
       "language": "en-CA",
       "post": true,
       "import": true,
+      "path": "processed",
       "papername": "pubdata!name",
       "headline": "hl1",
       "summary": "hl1",
@@ -345,6 +346,7 @@ INSERT INTO public.ingest (
       "language": "en-CA",
       "post": true,
       "import": true,
+      "path": "processed",
       "papername": "pubdata!name",
       "headline": "hl1",
       "summary": "hl1",
@@ -380,6 +382,7 @@ INSERT INTO public.ingest (
       "language": "en-CA",
       "post": true,
       "import": true,
+      "path": "processed",
       "papername": "papername",
       "headline": "headline",
       "summary": "summary",
@@ -416,6 +419,7 @@ INSERT INTO public.ingest (
       "language": "en-CA",
       "post": true,
       "import": true,
+      "path": "processed",
       "papername": "!@PAPER=",
       "headline": "!@HEAD=",
       "summary": "!@ABSTRACT=",
@@ -454,7 +458,7 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'GLOBE') -- source_id
   , 'GLOBE' -- topic
   , frontPageId -- product_id
-  , '{ "path": "/dsk98/binaryroot",
+  , '{ "path": "binaryroot",
       "fileName": "sv-GLB",
       "post": true,
       "import": true }' -- configuration

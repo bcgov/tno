@@ -24,6 +24,18 @@ export const Newspaper: React.FC = (props) => {
           <FormikCheckbox label="Escape Content" name="configuration.escapeContent" />
           <FormikCheckbox label="Add Parent" name="configuration.addParent" />
         </Col>
+        <Col flex="1 1 0"></Col>
+      </Row>
+      <Row>
+        <Col flex="1 1 0">
+          <FormikSelect
+            label="Timezone"
+            name="configuration.timeZone"
+            tooltip="Timezone of the source"
+            options={TimeZones}
+            defaultValue={timeZone}
+          />
+        </Col>
         <Col flex="1 1 0">
           <FormikText
             label="Date Offset"
@@ -37,11 +49,12 @@ export const Newspaper: React.FC = (props) => {
       <Row>
         <Col flex="1 1 0">
           <FormikSelect
-            label="Timezone"
-            name="configuration.timeZone"
-            tooltip="Timezone of the source"
-            options={TimeZones}
-            defaultValue={timeZone}
+            label="File Type"
+            name="configuration.fileFormat"
+            tooltip="The file extension (xml, fms)"
+            options={FileTypes}
+            defaultValue={fileType}
+            required
           />
         </Col>
         <Col flex="1 1 0">
@@ -56,13 +69,10 @@ export const Newspaper: React.FC = (props) => {
       </Row>
       <Row>
         <Col flex="1 1 0">
-          <FormikSelect
-            label="File Type"
-            name="configuration.fileFormat"
-            tooltip="The file extension (xml, fms)"
-            options={FileTypes}
-            defaultValue={fileType}
-            required
+          <FormikText
+            label="Path to Files"
+            name="configuration.path"
+            value={values.configuration.path}
           />
         </Col>
         <Col flex="1 1 0">

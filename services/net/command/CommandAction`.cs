@@ -283,18 +283,6 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     }
 
     /// <summary>
-    /// Convert to timezone and return as local.
-    /// Dates should be stored in the timezone of the data source.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <param name="date"></param>
-    /// <returns></returns>
-    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
-    {
-        return date.ToTimeZone(CommandIngestActionManager.GetTimeZone(ingest, this.Options.TimeZone));
-    }
-
-    /// <summary>
     /// Generate the command arguments for this service action.
     /// </summary>
     /// <param name="process"></param>

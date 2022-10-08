@@ -156,7 +156,7 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetOutputPath(IngestModel ingest)
     {
         // TODO: Handle different destination connections.
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd/}");
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
     }
 
     /// <summary>
@@ -166,8 +166,8 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     protected string GetInputPath(IngestModel ingest)
     {
-        var currentDate = GetLocalDateTime(ingest, DateTime.Now);
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
+        var currentDate = GetDateTimeForTimeZone(ingest);
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
     }
 
 
@@ -232,13 +232,13 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, string filename)
     {
-        var today = GetLocalDateTime(ingest, DateTime.UtcNow);
-        var publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, DateTimeKind.Local);
+        var today = GetDateTimeForTimeZone(ingest);
+        var publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
             Uid = $"{filename}",
-            PublishedOn = publishedOn.ToUniversalTime(),
+            PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress
         };
@@ -258,7 +258,7 @@ public class ImageAction : IngestAction<ImageOptions>
         var content = new SourceContent(reference.Source, contentType, ingest.ProductId, reference.Uid, $"{ingest.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
-            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd/}", reference.Uid),
+            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}", reference.Uid),
             Language = ingest.GetConfigurationValue("language")
         };
         var result = await this.Producer.SendMessageAsync(reference.Topic, content);
@@ -273,25 +273,12 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     protected IEnumerable<ScheduleModel> GetSchedules(IngestModel ingest)
     {
-        var now = GetLocalDateTime(ingest, DateTime.UtcNow).TimeOfDay;
+        var now = GetDateTimeForTimeZone(ingest).TimeOfDay;
         return ingest.IngestSchedules.Where(s =>
             s.Schedule != null &&
             s.Schedule.StopAt != null &&
             s.Schedule.StopAt.Value <= now
         ).Select(s => s.Schedule!);
     }
-
-    /// <summary>
-    /// Convert to timezone and return as local.
-    /// Dates should be stored in the timezone of the data source.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <param name="date"></param>
-    /// <returns></returns>
-    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
-    {
-        return date.ToTimeZone(IngestActionManager<ImageOptions>.GetTimeZone(ingest, this.Options.TimeZone));
-    }
-
     #endregion
 }

@@ -118,7 +118,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <returns></returns>
     public virtual bool VerifySchedule(ScheduleModel schedule)
     {
-        return VerifySchedule(GetSourceDateTime(DateTime.UtcNow), schedule);
+        return VerifySchedule(GetSourceDateTime(DateTime.Now), schedule);
     }
 
     /// <summary>
@@ -268,7 +268,6 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// <summary>
     /// Get the timezone arguments from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     protected string GetTimeZone()
@@ -277,15 +276,24 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     }
 
     /// <summary>
+    /// Get the TimeZoneInfo for the current ingest configuration settings.
+    /// </summary>
+    /// <returns></returns>
+    public TimeZoneInfo GetTimeZoneInfo()
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById(GetTimeZone());
+    }
+
+    /// <summary>
     /// Get the timezone arguments from the connection settings.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="defaultTimeZone"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static string GetTimeZone(IngestModel dataSource, string defaultTimeZone)
+    public static string GetTimeZone(IngestModel ingest, string defaultTimeZone)
     {
-        var value = dataSource.GetConfigurationValue("timeZone");
+        var value = ingest.GetConfigurationValue("timeZone");
         return String.IsNullOrWhiteSpace(value) ? defaultTimeZone : value;
     }
     #endregion
