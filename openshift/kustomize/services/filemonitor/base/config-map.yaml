@@ -1,0 +1,23 @@
+---
+# Configuration settings
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: filemonitor-service
+  namespace: default
+  annotations:
+    description: Image service configuration settings
+    created-by: jeremy.foster, stuart.morse
+  labels:
+    name: filemonitor-service
+    part-of: tno
+    version: 1.0.0
+    component: filemonitor-service
+    managed-by: kustomize
+type: Opaque
+data:
+  KAKFA_CLIENT_ID: Image
+  MAX_FAIL_LIMIT: "5"
+  VOLUME_PATH: /data
+  KEY_PATH: ../keys
+  TOPICS: ""

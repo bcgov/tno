@@ -11,13 +11,6 @@ generatorOptions:
 
 patches:
   - target:
-      kind: PersistentVolumeClaim
-      name: av-storage
-    patch: |-
-      - op: replace
-        path: /spec/resources/requests/storage
-        value: 5Gi
-  - target:
       kind: DeploymentConfig
       name: image-service
     patch: |-

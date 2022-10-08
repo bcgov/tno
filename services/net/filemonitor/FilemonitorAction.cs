@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Core.Http;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
@@ -14,10 +13,8 @@ using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
-using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
 using TNO.Core.Exceptions;
-using System.IO;
 
 namespace TNO.Services.FileMonitor;
 
@@ -29,29 +26,22 @@ namespace TNO.Services.FileMonitor;
 public class FileMonitorAction : IngestAction<FileMonitorOptions>
 {
     #region Variables
-    private readonly IHttpRequestClient _httpClient;
     private readonly IKafkaMessenger _kafka;
     private readonly ILogger _logger;
-    private readonly IApiService _api;
-    private readonly IOptions<FileMonitorOptions> _options;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a FileMonitorAction, initializes with specified parameters.
     /// </summary>
-    /// <param name="httpClient"></param>
     /// <param name="api"></param>
     /// <param name="kafka"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public FileMonitorAction(IHttpRequestClient httpClient, IApiService api, IKafkaMessenger kafka, IOptions<FileMonitorOptions> options, ILogger<FileMonitorAction> logger) : base(api, options)
+    public FileMonitorAction(IApiService api, IKafkaMessenger kafka, IOptions<FileMonitorOptions> options, ILogger<FileMonitorAction> logger) : base(api, options)
     {
-        _httpClient = httpClient;
         _kafka = kafka;
         _logger = logger;
-        _api = api;
-        _options = options;
     }
     #endregion
 
@@ -64,37 +54,32 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        _logger.LogDebug($"Performing ingestion service action for ingest '{manager.Ingest.Name}'");
+        _logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
         var dir = GetOutputPath(manager.Ingest);
-        var articles = new List<SourceContent>();
 
         if (String.IsNullOrEmpty(dir))
         {
             throw new InvalidOperationException($"No import directory defined for ingest '{manager.Ingest.Name}'");
         }
 
-        await FetchFiles(manager);
+        await FetchFilesFromRemoteAsync(manager);
         var format = manager.Ingest.GetConfigurationValue(Fields.FileFormat);
         var selfPublished = manager.Ingest.GetConfigurationValue<bool>(Fields.SelfPublished);
-        var sources = selfPublished ? new Dictionary<string, string>() : GetSourcesForIngester(manager.Ingest);
+        var sources = selfPublished ? new Dictionary<string, string>() : GetSourcesForIngest(manager.Ingest);
 
         format = !String.IsNullOrEmpty(format) ? format : "xml";
 
-        switch (format)
+        _logger.LogDebug("Parsing files for '{name}'", manager.Ingest.Name);
+        var articles = format.ToLower() switch
         {
-            case "xml":
-                articles = GetXmlArticles(dir, manager, sources);
-                break;
-            case "fms":
-                articles = GetFmsArticles(dir, manager, sources);
-                break;
-            default:
-                throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'");
-        }
-
+            "xml" => GetXmlArticles(dir, manager, sources),
+            "fms" => GetFmsArticles(dir, manager, sources),
+            _ => throw new InvalidOperationException($"Invalid import file format defined for '{manager.Ingest.Name}'"),
+        };
         await ImportArticlesAsync(manager, articles);
     }
 
@@ -102,15 +87,15 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// Retrieve files for this connection from the remote server.
     /// </summary>
     /// <param name="manager"></param>
-
     /// <returns></returns>
-    public async Task FetchFiles(IIngestServiceActionManager manager)
+    /// <exception cref="ConfigurationException"></exception>
+    public async Task FetchFilesFromRemoteAsync(IIngestServiceActionManager manager)
     {
         // Extract the ingest configuration settings
         var code = manager.Ingest.Source?.Code ?? "";
         var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
         filePattern = filePattern.Replace("<date>", $"{GetDateTimeForTimeZone(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
-        Regex match = new Regex(filePattern);
+        var match = new Regex(filePattern);
         if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
 
         // Extract the source connection configuration settings.
@@ -139,12 +124,13 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             using var client = new SftpClient(connectionInfo);
             client.Connect();
 
-            var files = await FetchFileListing(client, remotePath);
+            var files = await FetchFileListingAsync(client, remotePath);
             files = files.Where(f => match.Match(f.Name).Success);
+            _logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
 
             foreach (var file in files)
             {
-                await CopyFile(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+                await CopyFileAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
             }
 
             client.Disconnect();
@@ -159,12 +145,13 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// Fetch a list of file names from the remote data source based on configuration.
     /// </summary>
     /// <param name="client"></param>
-    /// <param name="remoteFullName"></param>
+    /// <param name="path"></param>
     /// <returns></returns>
-    private static async Task<IEnumerable<SftpFile>> FetchFileListing(SftpClient client, string remoteFullName)
+    private async Task<IEnumerable<SftpFile>> FetchFileListingAsync(SftpClient client, string path)
     {
+        _logger.LogDebug("Requesting files at this path '{path}'", path);
         // TODO: Fetch file from source data location.  Only continue if the image exists.
-        return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(remoteFullName, callback, obj), client.EndListDirectory, null);
+        return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
     }
 
     /// <summary>
@@ -174,21 +161,26 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="ingest"></param>
     /// <param name="pathToFile"></param>
     /// <returns></returns>
-    private async Task CopyFile(SftpClient client, IngestModel ingest, string pathToFile)
+    private async Task CopyFileAsync(SftpClient client, IngestModel ingest, string pathToFile)
     {
         var outputPath = GetOutputPath(ingest);
         var fileName = Path.GetFileName(pathToFile);
         var outputFile = Path.Combine(outputPath, fileName);
 
-        if (!System.IO.File.Exists(outputFile))
+        if (!File.Exists(outputFile))
         {
             if (!Directory.Exists(outputPath))
             {
                 Directory.CreateDirectory(outputPath);
             }
             using var saveFile = File.OpenWrite(outputFile);
-            var task = Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
-            await task;
+            await Task.Factory.FromAsync(client.BeginDownloadFile(pathToFile, saveFile), client.EndDownloadFile);
+
+            _logger.LogDebug("File copied '{file}'", pathToFile);
+        }
+        else
+        {
+            _logger.LogDebug("File already exists '{file}'", pathToFile);
         }
     }
 
@@ -276,6 +268,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="ingest"></param>
     /// <param name="item"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SourceContent item)
     {
         // Add a content reference record.
@@ -330,6 +323,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="key"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private string GetXmlData(XmlElement story, string key, IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue(key);
@@ -342,7 +336,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         else
         {
             var comps = value.Split('!');
-            if (comps.Count() == 2) // Tag and attribute name present
+            if (comps.Length == 2) // Tag and attribute name present
             {
                 XmlNodeList nodeList = story.GetElementsByTagName(comps[0]);
 
@@ -356,7 +350,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 }
             }
             else
-            if (comps.Count() == 1) // Tag name only
+            if (comps.Length == 1) // Tag name only
             {
                 try
                 {
@@ -365,7 +359,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, $"Error extracting node '{key}' for ingest {ingest.Name}.");
+                    _logger.LogWarning(e, "Error extracting node '{key}' for ingest {name}.", key, ingest.Name);
                 }
             }
         }
@@ -383,7 +377,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="key"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private string GetFmsData(string story, string key, IngestModel ingest)
+    /// <exception cref="InvalidOperationException"></exception>
+    private static string GetFmsData(string story, string key, IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue(key);
 
@@ -416,6 +411,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="manager"></param>
     /// <param name="sources"></param>
     /// <returns></returns>
+    /// <exception cref="FormatException"></exception>
     private List<SourceContent> GetXmlArticles(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
     {
         var articles = new List<SourceContent>();
@@ -432,25 +428,27 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 // Iterate over the list of stories and add a new item to the articles list for each story.
                 foreach (XmlElement story in elementList)
                 {
-                    var papername = GetXmlData(story, Fields.Papername, ingest);
+                    var papername = GetXmlData(story, Fields.PaperName, ingest);
                     var code = GetItemSourceCode(ingest, papername, sources);
 
                     if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
                     {
-                        var item = new SourceContent();
-                        item.Source = GetItemSourceCode(ingest, papername, sources);
-                        item.Title = GetXmlData(story, Fields.Headline, ingest);
-                        item.Uid = GetXmlData(story, Fields.Id, ingest);
-                        item.Body = GetXmlData(story, Fields.Story, ingest);
-                        item.FilePath = document.Key;
-                        item.Summary = GetXmlData(story, Fields.Summary, ingest);
-                        item.Page = GetXmlData(story, Fields.Page, ingest);
-                        item.Section = GetXmlData(story, Fields.Section, ingest);
-                        item.Language = ingest.GetConfigurationValue("language");
-                        item.ProductId = ingest.ProductId;
+                        var item = new SourceContent
+                        {
+                            Source = GetItemSourceCode(ingest, papername, sources),
+                            Title = GetXmlData(story, Fields.Headline, ingest),
+                            Uid = GetXmlData(story, Fields.Id, ingest),
+                            Body = GetXmlData(story, Fields.Story, ingest),
+                            FilePath = document.Key,
+                            Summary = GetXmlData(story, Fields.Summary, ingest),
+                            Page = GetXmlData(story, Fields.Page, ingest),
+                            Section = GetXmlData(story, Fields.Section, ingest),
+                            Language = ingest.GetConfigurationValue("language"),
+                            ProductId = ingest.ProductId,
 
-                        item.Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest));
-                        item.PublishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest);
+                            Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest)),
+                            PublishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest)
+                        };
 
                         articles.Add(item);
                     }
@@ -475,6 +473,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="manager"></param>
     /// <param name="sources"></param>
     /// <returns></returns>
+    /// <exception cref="FormatException"></exception>
     private List<SourceContent> GetFmsArticles(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
     {
         var articles = new List<SourceContent>();
@@ -493,7 +492,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 var code = "";
 
                 // Iterate over the list of stories and add a new item to the articles list for each story.
-                foreach (Match story in matches)
+                foreach (Match story in matches.Cast<Match>())
                 {
                     var item = new SourceContent();
                     var preFiltered = story.Groups[1].Value;
@@ -501,7 +500,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                     // Single line mode prevents matching on "\n\n", so replace this with a meaningful field delimiter.
                     var filtered = preFiltered.Replace("\n\n", Fields.FmsFieldDelim);
 
-                    var papername = GetFmsData(filtered, Fields.Papername, ingest);
+                    var papername = GetFmsData(filtered, Fields.PaperName, ingest);
                     code = string.IsNullOrEmpty(code) ? GetItemSourceCode(ingest, papername, sources) : code;
 
                     if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
@@ -536,7 +535,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
     /// <summary>
     /// Get the "code" value for the current paper. If the ingest is selfPublished (relates to only one publication) the sources
-    /// dictionary will be empty and the code for the ingester will be returned. If sources is not empty it will contain a list
+    /// dictionary will be empty and the code for the ingest will be returned. If sources is not empty it will contain a list
     /// of paper names and their corresponding codes. In this case the code for the item is retrieved using the paperName
     /// parameter as the key to the dictionary.
     /// </summary>
@@ -553,14 +552,14 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
         else
         {
-            var code = "";
-            if (sources.TryGetValue(paperName, out code))
+            if (sources.TryGetValue(paperName, out string? code))
             {
-                return code;
+                return code ?? "";
             }
             else
             {
-                throw new InvalidOperationException($"Paper '{paperName}' not in configuration string for ingester '{ingest.Name}'.");
+                _logger.LogWarning("Paper '{paperName}' not in configuration string for ingest '{ingest.Name}'.", paperName, ingest.Name);
+                return "";
             }
         }
     }
@@ -571,8 +570,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="FormatException"></exception>
-    private Dictionary<string, string> GetSourcesForIngester(IngestModel ingest)
+    /// <exception cref="ConfigurationException"></exception>
+    private static Dictionary<string, string> GetSourcesForIngest(IngestModel ingest)
     {
         var sources = new Dictionary<string, string>();
         var sourcesStr = ingest.GetConfigurationValue(Fields.Sources);
@@ -599,24 +598,30 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// Get a list of XML files from the import directory and return a Dictionary of XmlDocument objects (one per file) keyed by
     /// the file path of each file. Calls GetValidXmlDocument() to apply fixes where the publisher provides invalid XML content.
     /// </summary>
-    /// <param name="dir"></param>
+    /// <param name="pathToFiles"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private Dictionary<string, T> GetFileContentList<T>(string dir, IngestModel ingest)
-    where T : class
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    private Dictionary<string, T> GetFileContentList<T>(string pathToFiles, IngestModel ingest)
+        where T : class
     {
         var fileContentList = new Dictionary<string, T>();
-        var fileList = Directory.GetFiles(dir);
+
+        if (!Directory.Exists(pathToFiles)) return fileContentList;
+
+        var fileList = Directory.GetFiles(pathToFiles);
 
         foreach (string filePath in fileList)
         {
             T doc = typeof(T).FullName switch
             {
                 "System.Xml.XmlDocument" => GetValidXmlDocument(filePath, ingest) as T ?? throw new InvalidOperationException("Unexpected null return value."),
-                "System.String" => ReadFileContents(filePath) as T ?? throw new InvalidOperationException("Unexpected null return value."),
+                "System.String" => ReadFileContents(filePath, ingest) as T ?? throw new InvalidOperationException("Unexpected null return value."),
                 _ => throw new ArgumentException($"Invalid type argument in GetFileContentList: {typeof(T).FullName}")
             };
 
+            // TODO: This is a bad design we're putting everything into memory at once.  It should be performing work on one file at a time.
             fileContentList.Add(filePath, doc);
         }
 
@@ -640,7 +645,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private XmlDocument GetValidXmlDocument(string filePath, IngestModel ingest)
     {
         var xmlDoc = new XmlDocument();
-        var xmlTxt = ReadFileContents(filePath);
+        var xmlTxt = ReadFileContents(filePath, ingest);
 
         // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
         var addParent = ingest.GetConfigurationValue<bool>(Fields.AddParent);
@@ -662,7 +667,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
         catch (System.Xml.XmlException e)
         {
-            _logger.LogError(e, $"Failed to ingest item from file '{filePath}'");
+            _logger.LogError(e, "Failed to ingest item from file '{path}'", filePath);
             throw e;
         }
 
@@ -673,10 +678,12 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// Get the contents of the file at the location indicated by filePath as a string.
     /// </summary>
     /// <param name="filePath"></param>
+    /// <param name="ingest"></param>
     /// <returns></returns>
-    private string ReadFileContents(string filePath)
+    private string ReadFileContents(string filePath, IngestModel ingest)
     {
-        System.IO.StreamReader sr = new System.IO.StreamReader(filePath);
+        _logger.LogDebug("Reading file '{file}' for ingest '{name}'", filePath, ingest.Name);
+        var sr = new System.IO.StreamReader(filePath);
         var contents = sr.ReadToEnd();
         sr.Close();
 
@@ -689,7 +696,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="xmlTxt"></param>
     /// <returns></returns>
-    private string FixParentTag(string xmlTxt)
+    private static string FixParentTag(string xmlTxt)
     {
         var pos = xmlTxt.IndexOf("?>");
         return String.Concat(xmlTxt.Insert(pos + 2, "\n<document>\n"), "\n</document>\n");
@@ -701,7 +708,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="xmlTxt"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private string StoryToCdata(string xmlTxt, IngestModel ingest)
+    private static string StoryToCdata(string xmlTxt, IngestModel ingest)
     {
         var storyTag = ingest.GetConfigurationValue(Fields.Story);
 
@@ -728,10 +735,12 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="author"></param>
     /// <returns></returns>
-    private List<Author> GetAuthorList(string author)
+    private static List<Author> GetAuthorList(string author)
     {
-        var authors = new List<Author>();
-        authors.Add(new Author(author.Trim(), "", ""));
+        var authors = new List<Author>
+        {
+            new Author(author.Trim(), "", "")
+        };
         return authors;
     }
 
@@ -741,7 +750,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="dateStr"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private DateTime GetPublishedOn(string dateStr, IngestModel ingest)
+    private static DateTime GetPublishedOn(string dateStr, IngestModel ingest)
     {
         var dateFmt = ingest.GetConfigurationValue(Fields.DateFmt);
         if (!String.IsNullOrEmpty(dateFmt))
@@ -761,7 +770,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="filtered"></param>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private List<TNO.Kafka.Models.Tag> GetTagList(string filtered, IngestModel ingest)
+    private static List<TNO.Kafka.Models.Tag> GetTagList(string filtered, IngestModel ingest)
     {
         var tags = GetFmsData(filtered, Fields.Tags, ingest);
         var tagArray = tags.Split(',');
