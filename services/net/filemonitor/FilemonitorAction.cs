@@ -17,6 +17,7 @@ using TNO.Services.Actions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.FileMonitor.Config;
 using TNO.Core.Exceptions;
+using System.IO;
 
 namespace TNO.Services.FileMonitor;
 
@@ -67,7 +68,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         _logger.LogDebug($"Performing ingestion service action for ingest '{manager.Ingest.Name}'");
 
-        var dir = GetMonitorPath(manager.Ingest);
+        var dir = GetOutputPath(manager.Ingest);
         var articles = new List<SourceContent>();
 
         if (String.IsNullOrEmpty(dir))
@@ -108,11 +109,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         // Extract the ingest configuration settings
         var code = manager.Ingest.Source?.Code ?? "";
         var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
-        filePattern = filePattern.Replace("<date>", $"{GetLocalDateTime(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
+        filePattern = filePattern.Replace("<date>", $"{GetDateTimeForTimeZone(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
         Regex match = new Regex(filePattern);
         if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
 
-        // TODO: create new account to access server
         // Extract the source connection configuration settings.
         var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
@@ -122,6 +122,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
         if (String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'.");
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
+
+        // The ingest configuration may have a different path than the root connection path.
+        remotePath = Path.Combine(remotePath, manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
 
         var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
 
@@ -173,7 +176,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private async Task CopyFile(SftpClient client, IngestModel ingest, string pathToFile)
     {
-        var outputPath = GetMonitorPath(ingest);
+        var outputPath = GetOutputPath(ingest);
         var fileName = Path.GetFileName(pathToFile);
         var outputFile = Path.Combine(outputPath, fileName);
 
@@ -194,9 +197,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    protected string GetMonitorPath(IngestModel ingest)
+    protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd/}");
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
     }
 
     /// <summary>
@@ -206,19 +209,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     protected string GetInputPath(IngestModel ingest)
     {
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", $"{GetLocalDateTime(ingest, DateTime.Now):yyyy/MM/dd/}");
-    }
-
-    /// <summary>
-    /// Convert to timezone and return as local.
-    /// Dates should be stored in the timezone of the data source.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <param name="date"></param>
-    /// <returns></returns>
-    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
-    {
-        return date.ToTimeZone(IngestActionManager<FileMonitorOptions>.GetTimeZone(ingest, this.Options.TimeZone));
+        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{GetDateTimeForTimeZone(ingest):yyyy/MM/dd/}");
     }
 
     /// <summary>

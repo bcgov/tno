@@ -80,6 +80,16 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               }}
               required
             />
+            <Show
+              visible={values.sourceConnection?.connectionType === ConnectionTypeName.LocalVolume}
+            >
+              <FormikText
+                label="Path"
+                name="_.path"
+                value={values.sourceConnection?.configuration.path}
+                disabled
+              />
+            </Show>
             <Show visible={values.sourceConnection?.connectionType === ConnectionTypeName.SSH}>
               <FormikText
                 label="Hostname"
@@ -110,7 +120,7 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               <Row>
                 <Col flex="1 1 0">
                   <FormikText
-                    label="Connection Path to Files"
+                    label="Volume Path"
                     name="_.path"
                     value={values.sourceConnection?.configuration.path}
                     disabled
@@ -140,6 +150,18 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               }}
               required
             />
+            <Show
+              visible={
+                values.destinationConnection?.connectionType === ConnectionTypeName.LocalVolume
+              }
+            >
+              <FormikText
+                label="Path"
+                name="_.path"
+                value={values.destinationConnection?.configuration.path}
+                disabled
+              />
+            </Show>
             <p>
               Select if content should be posted to Kafka. If the service doesn't generate content
               it doesn't need to capture.

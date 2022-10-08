@@ -14,6 +14,6 @@ public static class DateTimeExtensions
     public static DateTime ToTimeZone(this DateTime date, string timeZoneId)
     {
         var timezone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-        return new DateTime(TimeZoneInfo.ConvertTime(date, timezone).Ticks, DateTimeKind.Local);
+        return TimeZoneInfo.ConvertTime(date, timezone);
     }
 }
