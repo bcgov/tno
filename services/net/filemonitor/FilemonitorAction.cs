@@ -433,21 +433,20 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                     if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
                     {
-                        var item = new SourceContent
+                        var item = new SourceContent(
+                            GetItemSourceCode(ingest, papername, sources),
+                            ContentType.PrintContent,
+                            ingest.ProductId,
+                            GetXmlData(story, Fields.Id, ingest),
+                            GetXmlData(story, Fields.Headline, ingest),
+                            GetXmlData(story, Fields.Summary, ingest),
+                            GetXmlData(story, Fields.Story, ingest),
+                            GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest))
                         {
-                            Source = GetItemSourceCode(ingest, papername, sources),
-                            Title = GetXmlData(story, Fields.Headline, ingest),
-                            Uid = GetXmlData(story, Fields.Id, ingest),
-                            Body = GetXmlData(story, Fields.Story, ingest),
-                            FilePath = document.Key,
-                            Summary = GetXmlData(story, Fields.Summary, ingest),
                             Page = GetXmlData(story, Fields.Page, ingest),
                             Section = GetXmlData(story, Fields.Section, ingest),
                             Language = ingest.GetConfigurationValue("language"),
-                            ProductId = ingest.ProductId,
-
                             Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest)),
-                            PublishedOn = GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest)
                         };
 
                         articles.Add(item);
@@ -494,7 +493,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 // Iterate over the list of stories and add a new item to the articles list for each story.
                 foreach (Match story in matches.Cast<Match>())
                 {
-                    var item = new SourceContent();
                     var preFiltered = story.Groups[1].Value;
 
                     // Single line mode prevents matching on "\n\n", so replace this with a meaningful field delimiter.
@@ -505,20 +503,23 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
                     if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
                     {
-                        item.Source = code;
-                        item.Title = GetFmsData(filtered, Fields.Headline, ingest);
-                        item.Uid = GetFmsData(filtered, Fields.Id, ingest);
-                        item.Body = GetFmsData(preFiltered + "<break>", Fields.Story, ingest);
-                        item.FilePath = document.Key;
-                        item.Summary = GetFmsData(filtered, Fields.Summary, ingest);
-                        item.Page = GetFmsData(filtered, Fields.Page, ingest);
-                        item.Section = GetFmsData(filtered, Fields.Section, ingest);
-                        item.Language = ingest.GetConfigurationValue("language");
-                        item.ProductId = ingest.ProductId;
+                        var item = new SourceContent(
+                            code,
+                            ContentType.PrintContent,
+                            ingest.ProductId,
+                            GetFmsData(filtered, Fields.Id, ingest),
+                            GetFmsData(filtered, Fields.Headline, ingest),
+                            GetFmsData(filtered, Fields.Summary, ingest),
+                            GetFmsData(preFiltered + "<break>", Fields.Story, ingest),
+                            GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest))
+                        {
+                            Page = GetFmsData(filtered, Fields.Page, ingest),
+                            Section = GetFmsData(filtered, Fields.Section, ingest),
+                            Language = ingest.GetConfigurationValue("language"),
 
-                        item.Tags = GetTagList(filtered, ingest);
-                        item.Authors = GetAuthorList(GetFmsData(filtered, Fields.Author, ingest));
-                        item.PublishedOn = GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest);
+                            Tags = GetTagList(filtered, ingest),
+                            Authors = GetAuthorList(GetFmsData(filtered, Fields.Author, ingest))
+                        };
 
                         articles.Add(item);
                     }
