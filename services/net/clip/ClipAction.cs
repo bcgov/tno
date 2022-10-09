@@ -12,7 +12,6 @@ using TNO.Kafka.Models;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
-using System.Net;
 
 namespace TNO.Services.Clip;
 
@@ -163,13 +162,15 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <returns></returns>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, ScheduleModel schedule)
     {
-        var today = GetLocalDateTime(ingest, DateTime.UtcNow);
-        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, today.Kind) + schedule.StartAt;
+        var today = GetDateTimeForTimeZone(ingest);
+        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, today.Kind);
+        if (schedule.StartAt.HasValue)
+            publishedOn = publishedOn.Add(schedule.StartAt.Value);
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' missing source code."),
             Uid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
-            PublishedOn = publishedOn?.ToUniversalTime(),
+            PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress
         };
@@ -213,14 +214,9 @@ public class ClipAction : CommandAction<ClipOptions>
         process.StartInfo.FileName = "/bin/sh";
         process.StartInfo.Arguments = $"-c \"ffmpeg -i '{file}' 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardOutput = true;
         process.EnableRaisingEvents = true;
-        process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, null, e);
-        process.OutputDataReceived += (sender, e) => OnOutputReceived(sender, null, e);
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
@@ -235,7 +231,7 @@ public class ClipAction : CommandAction<ClipOptions>
     protected override IEnumerable<ScheduleModel> GetSchedules(IngestModel ingest)
     {
         var keepChecking = bool.Parse(ingest.GetConfigurationValue("keepChecking"));
-        var now = GetLocalDateTime(ingest, DateTime.UtcNow).TimeOfDay;
+        var now = GetDateTimeForTimeZone(ingest).TimeOfDay;
         return ingest.IngestSchedules.Where(s =>
             s.Schedule != null &&
             s.Schedule.StopAt != null &&
@@ -309,7 +305,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private async Task<string> GetInputFileAsync(IngestModel ingest, ScheduleModel schedule)
     {
         // TODO: Handle issue where capture failed and has multiple files.
-        var path = Path.Combine(this.Options.VolumePath, ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd}");
+        var path = Path.Combine(this.Options.VolumePath, ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
         var clipStart = schedule.StartAt;
 
         // Review each file that was captured to determine which one is valid for this clip schedule.
@@ -383,7 +379,7 @@ public class ClipAction : CommandAction<ClipOptions>
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
-        // Intial
+        // Initial
         process.StartInfo.Arguments = $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"";
         // Format (container) duration
         // process.StartInfo.Arguments = $"-c \"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
@@ -391,14 +387,9 @@ public class ClipAction : CommandAction<ClipOptions>
         // process.StartInfo.Arguments = $"-c \"ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardOutput = true;
         process.EnableRaisingEvents = true;
-        process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, null, e);
-        process.OutputDataReceived += (sender, e) => OnOutputReceived(sender, null, e);
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
@@ -427,7 +418,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <returns></returns>
     protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd}");
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
     }
 
     /// <summary>

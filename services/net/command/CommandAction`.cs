@@ -167,6 +167,7 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
             process.EnableRaisingEvents = true;
             process.Exited += async (sender, e) => await OnExitedAsync(sender, manager, e);
             process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, manager, e);
@@ -279,18 +280,6 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
         {
             return false;
         }
-    }
-
-    /// <summary>
-    /// Convert to timezone and return as local.
-    /// Dates should be stored in the timezone of the data source.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <param name="date"></param>
-    /// <returns></returns>
-    protected DateTime GetLocalDateTime(IngestModel ingest, DateTime date)
-    {
-        return date.ToTimeZone(CommandIngestActionManager.GetTimeZone(ingest, this.Options.TimeZone));
     }
 
     /// <summary>

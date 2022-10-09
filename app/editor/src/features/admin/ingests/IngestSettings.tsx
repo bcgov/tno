@@ -1,6 +1,6 @@
-import { FormikCheckbox, FormikSelect } from 'components/formik';
+import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
+import { ConnectionTypeName, useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -80,6 +80,62 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               }}
               required
             />
+            <Show
+              visible={values.sourceConnection?.connectionType === ConnectionTypeName.LocalVolume}
+            >
+              <FormikText
+                label="Path"
+                name="_.path"
+                value={values.sourceConnection?.configuration.path}
+                disabled
+              />
+            </Show>
+            <Show visible={values.sourceConnection?.connectionType === ConnectionTypeName.SSH}>
+              <FormikText
+                label="Hostname"
+                name="_.hostname"
+                value={values.sourceConnection?.configuration.hostname}
+                disabled
+              />
+              <Row>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Username"
+                    name="_.username"
+                    value={values.sourceConnection?.configuration.username}
+                    disabled
+                  />
+                </Col>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Password"
+                    name="_.password"
+                    value={values.sourceConnection?.configuration.password}
+                    type="password"
+                    disabled
+                    autoComplete="off"
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Volume Path"
+                    name="_.path"
+                    value={values.sourceConnection?.configuration.path}
+                    disabled
+                  />
+                </Col>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Key Filename"
+                    name="_.keyFileName"
+                    value={values.sourceConnection?.configuration.keyFileName}
+                    disabled
+                  />
+                </Col>
+              </Row>
+            </Show>
             <p>
               If the ingest service will generate files select the connection that represents the
               destination for these files, otherwise select 'None'.
@@ -94,6 +150,18 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               }}
               required
             />
+            <Show
+              visible={
+                values.destinationConnection?.connectionType === ConnectionTypeName.LocalVolume
+              }
+            >
+              <FormikText
+                label="Path"
+                name="_.path"
+                value={values.destinationConnection?.configuration.path}
+                disabled
+              />
+            </Show>
             <p>
               Select if content should be posted to Kafka. If the service doesn't generate content
               it doesn't need to capture.

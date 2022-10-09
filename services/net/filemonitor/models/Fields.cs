@@ -8,7 +8,7 @@ public static class Fields
     /// <summary>
     /// Key to the "papername" configuration string value.
     /// </summary>
-    public const string Papername = "papername";
+    public const string PaperName = "papername";
 
     /// <summary>
     /// Key to the "headline" configuration string value.

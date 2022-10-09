@@ -7,15 +7,17 @@ metadata:
   namespace: default
   annotations:
     description: Image service configuration settings
+    created-by: jeremy.foster, alessia.yanchen
   labels:
     name: image-service
     part-of: tno
     version: 1.0.0
     component: image-service
     managed-by: kustomize
-    created-by: jeremy.foster
 type: Opaque
 data:
   KAKFA_CLIENT_ID: Image
   MAX_FAIL_LIMIT: "5"
   VOLUME_PATH: /data
+  KEY_PATH: ../keys
+  TOPICS: ""

@@ -77,7 +77,6 @@ export const GridTable = styled.div`
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
     padding: 0.25em;
-    font-size: small;
 
     input[type='checkbox'] {
       width: 2em;

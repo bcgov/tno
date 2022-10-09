@@ -7,13 +7,13 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy image-service
+    created-by: jeremy.foster, alessia.yanchen
   labels:
     name: image-service
     part-of: tno
     version: 1.0.0
     component: image-service
     managed-by: kustomize
-    created-by: jeremy.foster
 spec:
   replicas: 1
   selector:
@@ -43,6 +43,8 @@ spec:
         - name: ssh-key
           secret:
             secretName: ssh-key # name of the Secret
+            optional: false
+            defaultMode: 420
       containers:
         - name: image-service
           image: ""
@@ -118,7 +120,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: image-service
-                  key: ../keys
+                  key: KEY_PATH
             - name: Service__PrivateKeyFileName
               valueFrom:
                 secretKeyRef:

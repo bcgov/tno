@@ -7,13 +7,13 @@ metadata:
   namespace: default
   annotations:
     description: Defines how to deploy syndication-service
+    created-by: jeremy.foster
   labels:
     name: syndication-service
     part-of: tno
     version: 1.0.0
     component: syndication-service
     managed-by: kustomize
-    created-by: jeremy.foster
 spec:
   replicas: 1
   selector:

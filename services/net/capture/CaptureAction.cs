@@ -10,8 +10,6 @@ using TNO.Kafka.Models;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
-using TNO.Core.Exceptions;
-using System.Net;
 
 namespace TNO.Services.Capture;
 
@@ -166,20 +164,15 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <returns></returns>
     private async Task<bool> IsVideoAsync(string file)
     {
-        var process = new System.Diagnostics.Process();
+        var process = new Process();
         process.StartInfo.Verb = $"Stream Type";
         process.StartInfo.FileName = "/bin/sh";
         process.StartInfo.Arguments = $"-c \"ffmpeg -i {file} 2>&1 | grep Video | awk '{{print $0}}' | tr -d ,\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardOutput = true;
         process.EnableRaisingEvents = true;
-        process.ErrorDataReceived += (sender, e) => OnErrorReceived(sender, null, e);
-        process.OutputDataReceived += (sender, e) => OnOutputReceived(sender, null, e);
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
 
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
@@ -192,15 +185,18 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, ScheduleModel schedule)
     {
-        var today = GetLocalDateTime(ingest, DateTime.UtcNow);
-        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, today.Kind) + schedule.StartAt;
+        var today = GetDateTimeForTimeZone(ingest);
+        var publishedOn = new DateTime(today.Year, today.Month, today.Day, 0, 0, 0, today.Kind);
+        if (schedule.StartAt.HasValue)
+            publishedOn = publishedOn.Add(schedule.StartAt.Value);
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
             Uid = $"{schedule.Name}:{schedule.Id}-{publishedOn:yyyy-MM-dd-hh-mm-ss}",
-            PublishedOn = publishedOn?.ToUniversalTime(),
+            PublishedOn = this.ToTimeZone(publishedOn, ingest).ToUniversalTime(),
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress
         };
@@ -232,7 +228,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <returns></returns>
     protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetLocalDateTime(ingest, DateTime.Now):yyyy-MM-dd}");
+        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
     }
 
     /// <summary>
@@ -256,7 +252,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="ingest"></param>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private string GetOutput(IngestModel ingest, ScheduleModel schedule)
     {
         string filename;
@@ -272,7 +267,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
         {
             // Streams that do not generate content will prepend the created time.
             // This should be the time for the timezone configured for the schedule.
-            var now = GetLocalDateTime(ingest, DateTime.UtcNow);
+            var now = GetDateTimeForTimeZone(ingest);
             filename = $"{now.Hour:00}-{now.Minute:00}-{now.Second:00}-{(String.IsNullOrWhiteSpace(configuredName) ? $"{schedule.Name}.mp3" : configuredName.Replace("{schedule.Name}", schedule.Name))}";
         }
 
@@ -290,7 +285,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private static string GetFormat(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("format");
@@ -302,7 +296,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private static string GetVolume(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("volume");
@@ -314,7 +307,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
     private static string GetOtherArgs(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("otherArgs");

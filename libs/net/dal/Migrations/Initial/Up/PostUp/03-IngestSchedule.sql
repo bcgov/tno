@@ -83,6 +83,15 @@ INSERT INTO public.ingest_schedule (
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'Globe & Mail - Front Pages')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'GLOBE')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
 );
 
 END $$;

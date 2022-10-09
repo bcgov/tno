@@ -237,7 +237,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         {
             // convert to audio if it's video file
             var isVideo = Path.GetExtension(safePath).ToLower() == ".mp4";
-            if (isVideo) {
+            if (isVideo)
+            {
                 safePath = await Video2Audio(safePath);
             }
 
@@ -359,7 +360,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
         var result = process.ExitCode;
-        if (result != 0) {
+        if (result != 0)
+        {
             this.Logger.LogError("Speech convertion error. Error code: {errorcode}, Details: {details}", result, output);
         }
         return result == 0 ? destFile : string.Empty;

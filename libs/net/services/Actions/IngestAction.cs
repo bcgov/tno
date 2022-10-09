@@ -2,9 +2,12 @@ using System.Net;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.ContentReference;
+using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
+using TNO.Services.Actions.Managers;
 using TNO.Services.Config;
 
 namespace TNO.Services.Actions;
@@ -111,6 +114,52 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
 
             throw;
         }
+    }
+
+    /// <summary>
+    /// Get the TimeZoneInfo for the specified ingest configuration.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    protected TimeZoneInfo GetTimeZone(IngestModel ingest)
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
+    }
+
+    /// <summary>
+    /// Converts the specified date to the ingest timezone.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    protected DateTime ToTimeZone(DateTime date, IngestModel ingest)
+    {
+        var tz = TimeZoneInfo.FindSystemTimeZoneById(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
+        return TimeZoneInfo.ConvertTimeToUtc(date, tz);
+    }
+
+    /// <summary>
+    /// Convert to timezone and return as local.
+    /// Dates should be stored in the timezone of the data source.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    protected DateTime GetDateTimeForTimeZone(IngestModel ingest)
+    {
+        return DateTime.Now.ToTimeZone(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
+    }
+
+    /// <summary>
+    /// Convert to timezone and return as local.
+    /// Dates should be stored in the timezone of the data source.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    protected DateTime GetDateTimeForTimeZone(IngestModel ingest, DateTime date)
+    {
+        return date.ToTimeZone(IngestActionManager<TOptions>.GetTimeZone(ingest, this.Options.TimeZone));
     }
     #endregion
 }
