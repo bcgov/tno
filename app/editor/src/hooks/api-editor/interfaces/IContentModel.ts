@@ -39,7 +39,7 @@ export interface IContentModel extends IAuditColumnsModel {
   headline: string;
   uid?: string;
   page: string;
-  publishedOn: Date;
+  publishedOn: string;
   summary: string;
   body?: string;
   sourceUrl?: string;

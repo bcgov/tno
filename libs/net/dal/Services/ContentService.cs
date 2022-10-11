@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
@@ -182,17 +183,35 @@ public class ContentService : BaseService<Content, long>, IContentService
         return query.FirstOrDefault();
     }
 
+    /// <summary>
+    /// Add the specified 'entity' to the database
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     public override Content Add(Content entity)
     {
         entity.AddToContext(this.Context);
         base.Add(entity);
+
+        // Ensure all content has a UID.
+        if (entity.GuaranteeUid())
+            base.Update(entity);
+
         return entity;
     }
 
+    /// <summary>
+    /// Update the specified 'entity' in the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// TODO: Switch to not found exception throughout services.
     public override Content Update(Content entity)
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
+        entity.GuaranteeUid();
         base.Update(original);
         return original;
     }

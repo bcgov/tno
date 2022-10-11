@@ -15,7 +15,7 @@ export const mockContents: IContentModel[] = [
     headline: 'test',
     otherSource: 'source',
     page: 'page',
-    publishedOn: new Date(),
+    publishedOn: new Date().toISOString(),
     summary: '',
   },
   {
@@ -31,7 +31,7 @@ export const mockContents: IContentModel[] = [
     headline: 'test',
     otherSource: 'source',
     page: 'page',
-    publishedOn: new Date(),
+    publishedOn: new Date().toISOString(),
     summary: '',
   },
   {
@@ -47,7 +47,7 @@ export const mockContents: IContentModel[] = [
     headline: 'test',
     otherSource: 'source',
     page: 'page',
-    publishedOn: new Date(),
+    publishedOn: new Date().toISOString(),
     summary: '',
   },
   {
@@ -63,7 +63,7 @@ export const mockContents: IContentModel[] = [
     headline: 'test',
     otherSource: 'source',
     page: 'page',
-    publishedOn: new Date(),
+    publishedOn: new Date().toISOString(),
     summary: '',
   },
   {
@@ -79,7 +79,7 @@ export const mockContents: IContentModel[] = [
     headline: 'test',
     otherSource: 'source',
     page: 'page',
-    publishedOn: new Date(),
+    publishedOn: new Date().toISOString(),
     summary: '',
   },
   {
@@ -95,7 +95,7 @@ export const mockContents: IContentModel[] = [
     headline: 'test',
     otherSource: 'source',
     page: 'page',
-    publishedOn: new Date(),
+    publishedOn: new Date().toISOString(),
     summary: '',
   },
 ];

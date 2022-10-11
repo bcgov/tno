@@ -420,12 +420,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                           name="sourceUrl"
                           label="Source URL"
                           tooltip="The URL to the original source story"
-                          onChange={(e) => {
-                            props.handleChange(e);
-                            if (!!props.values.uid && !!e.currentTarget.value)
-                              props.setFieldValue('uid', e.currentTarget.value);
-                            else props.setFieldValue('uid', '');
-                          }}
                         />
                       </Show>
                     </Col>

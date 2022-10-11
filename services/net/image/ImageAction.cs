@@ -17,7 +17,7 @@ namespace TNO.Services.Image;
 
 /// <summary>
 /// ImageAction class, performs the image ingestion action.
-/// Fetch image from data source location.
+/// Fetch image from ingest location.
 /// Send content reference to API.
 /// Process image based on configuration.
 /// Send message to Kafka.
@@ -67,9 +67,10 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="data"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        this.Logger.LogDebug("Performing ingestion service action for data source '{name}'", manager.Ingest.Name);
+        this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
         // Extract the ingest configuration settings.
         var inputFileName = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("fileName")) ? manager.Ingest.Source?.Code : manager.Ingest.GetConfigurationValue("fileName");
@@ -94,53 +95,47 @@ public class ImageAction : IngestAction<ImageOptions>
             var keyFile = new PrivateKeyFile(sshKeyFile);
 
             var keyFiles = new[] { keyFile };
-            try
-            {
-                var connectionInfo = new ConnectionInfo(hostname,
-                                                    username,
-                                                    new PrivateKeyAuthenticationMethod(username, keyFiles));
-                using var client = new SftpClient(connectionInfo);
-                client.Connect();
-                var files = await FetchImageAsync(client, remotePath);
-                files = files.Where(f => f.Name.Contains(inputFileName));
+            var connectionInfo = new ConnectionInfo(hostname,
+                                                username,
+                                                new PrivateKeyAuthenticationMethod(username, keyFiles));
+            using var client = new SftpClient(connectionInfo);
+            client.Connect();
+            var files = await FetchImagesAsync(client, remotePath);
+            files = files.Where(f => f.Name.Contains(inputFileName));
+            this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);
 
-                foreach (var file in files)
+            foreach (var file in files)
+            {
+                var content = CreateContentReference(manager.Ingest, file.Name);
+                var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
+
+                var sendMessage = manager.Ingest.PostToKafka();
+                if (reference == null)
                 {
-                    var content = CreateContentReference(manager.Ingest, file.Name);
-                    var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
-
-                    var sendMessage = manager.Ingest.PostToKafka();
-                    if (reference == null)
-                    {
-                        reference = await this.Api.AddContentReferenceAsync(content);
-                    }
-                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
-                    {
-                        // If another process has it in progress only attempt to do an import if it's
-                        // more than an 2 minutes old. Assumption is that it is stuck.
-                        reference = await this.Api.UpdateContentReferenceAsync(reference);
-                    }
-                    else sendMessage = false;
-
-                    if (reference != null)
-                    {
-                        await CopyImageAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
-
-                        var messageResult = sendMessage ? await SendMessageAsync(manager.Ingest, reference) : null;
-                        await UpdateContentReferenceAsync(reference, messageResult);
-                    }
+                    reference = await this.Api.AddContentReferenceAsync(content);
                 }
+                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                {
+                    // If another process has it in progress only attempt to do an import if it's
+                    // more than an 2 minutes old. Assumption is that it is stuck.
+                    reference = await this.Api.UpdateContentReferenceAsync(reference);
+                }
+                else sendMessage = false;
 
-                client.Disconnect();
+                if (reference != null)
+                {
+                    await CopyImageAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+
+                    var messageResult = sendMessage ? await SendMessageAsync(manager.Ingest, reference) : null;
+                    await UpdateContentReferenceAsync(reference, messageResult);
+                }
             }
-            catch (Exception e)
-            {
-                this.Logger.LogError("SSH connection exception: {error}", e.Message);
-            }
+
+            client.Disconnect();
         }
         else
         {
-            this.Logger.LogError("SSH Private key file does not exist: {file}", sshKeyFile);
+            throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
         }
     }
 
@@ -167,15 +162,15 @@ public class ImageAction : IngestAction<ImageOptions>
     }
 
     /// <summary>
-    /// Fetch the image from the remote data source based on configuration.
+    /// Fetch the image from the remote ingest based on configuration.
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    private static async Task<IEnumerable<SftpFile>> FetchImageAsync(SftpClient client, string remoteFullName)
+    private static async Task<IEnumerable<SftpFile>> FetchImagesAsync(SftpClient client, string remoteFullName)
     {
-        // TODO: use private keys in ./keys folder to connect to remote data source.
+        // TODO: use private keys in ./keys folder to connect to remote ingest.
         // TODO: Fetch image from source data location.  Only continue if the image exists.
-        // TODO: Eventually handle different data source locations based on config.
+        // TODO: Eventually handle different ingest locations based on config.
         return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(remoteFullName, callback, obj), client.EndListDirectory, null);
     }
 
