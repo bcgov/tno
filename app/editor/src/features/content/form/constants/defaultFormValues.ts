@@ -23,6 +23,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     summary: '',
     body: '',
     publishedOn: '',
+    publishedOnTime: '',
     actions: [],
     categories: [],
     tags: [],

@@ -1,5 +1,4 @@
 import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
-import moment from 'moment';
 
 import { IContentForm } from '../interfaces';
 
@@ -50,7 +49,7 @@ export function toModel(values: IContentForm): IContentModel {
           section: values.section,
           byline: values.byline,
         },
-    publishedOn: moment(values.publishedOn).toDate(),
+    publishedOn: values.publishedOn,
     version: values.version,
   };
 }

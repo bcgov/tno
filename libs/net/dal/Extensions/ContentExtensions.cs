@@ -1,3 +1,4 @@
+using System.Web;
 using Microsoft.EntityFrameworkCore;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
@@ -11,7 +12,36 @@ namespace TNO.DAL.Extensions;
 public static class ContentExtensions
 {
     /// <summary>
-    /// Update the context entity state.
+    /// Ensures that the specified content has a 'Uid'.
+    /// If it doesn't it generates one from either the 'SourceUrl', or the 'Id'.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns>True if a new 'Uid' was generated.</returns>
+    public static bool GuaranteeUid(this Content content)
+    {
+        // Generate a UID for all content.
+        if (String.IsNullOrWhiteSpace(content.Uid))
+        {
+            if (!String.IsNullOrWhiteSpace(content.SourceUrl) && Uri.TryCreate(content.SourceUrl, UriKind.Absolute, out Uri? uri))
+            {
+                var builder = new UriBuilder(uri!);
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["_id"] = content.Id.ToString();
+                builder.Query = query.ToString();
+                content.Uid = builder.ToString();
+            }
+            else
+            {
+                content.Uid = $"tno-{content.Id:00000000}";
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Update the context entity state so that it and related entities are added to the database.
     /// </summary>
     /// <param name="updated"></param>
     /// <param name="context"></param>
@@ -36,6 +66,13 @@ public static class ContentExtensions
         return updated;
     }
 
+    /// <summary>
+    /// Update the context entity state so that it and related entities are updated in the database.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="original"></param>
+    /// <param name="updated"></param>
+    /// <returns></returns>
     public static TNOContext UpdateContext(this TNOContext context, Content original, Content updated)
     {
         var oactions = context.ContentActions.Where(a => a.ContentId == updated.Id).ToArray();
@@ -198,7 +235,6 @@ public static class ContentExtensions
         context.ResetVersion(original);
         return context;
     }
-
 
     /// <summary>
     /// Determine the full path to the file including the configured storage location.
