@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Kafka.Models;
 using TNO.Kafka.Serializers;
 
 namespace TNO.Kafka;
@@ -22,8 +21,6 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private bool _disposed = false;
     private bool _open = false;
     private ConsumeResult<TKey, TValue>? _currentResult = null;
-    private int _currentThread = 0;
-    private readonly int _maxThreads = 10;
     private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, ConsumeResult<TKey, TValue>> _currentResults = new();
     #endregion
 
@@ -48,9 +45,12 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// </summary>
     public string[] Topics { get; private set; } = Array.Empty<string>();
 
-    private bool IsTranscription => _currentResult is ConsumeResult<string, TranscriptRequest>;
-    private bool OverLimit => _currentThread > _maxThreads;
-    private bool ReachOrOverLimit => _currentThread >= _maxThreads;
+    /// <summary>
+    /// get/set - The max threads for running service.
+    /// </summary>
+    public int MaxThreads { get; set; } = 1;
+    private bool UseMultiThreads => MaxThreads > 1;
+    private bool ReachOrOverLimit => _currentResults.Count >= MaxThreads;
     #endregion
 
     #region Events
@@ -158,7 +158,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
             // If not currently working on a result, wait for a new one.
             // This provides a way to keep trying to handle the current result because of some kind of intermittent failure.
-            if (_currentResult == null || (IsTranscription && !ReachOrOverLimit))
+            if (_currentResult == null || !ReachOrOverLimit)
             {
                 _logger.LogDebug("Waiting to receive message from Kafka topics: '{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
@@ -167,9 +167,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
                 _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
 
-                if (IsTranscription) Interlocked.Increment(ref _currentThread);
-
-                if (!this.IsPaused && (!IsTranscription || ReachOrOverLimit))
+                if (!this.IsPaused && (!UseMultiThreads || ReachOrOverLimit))
                 {
                     _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", this.Consumer.Subscription ?? new List<string>()));
                     // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
@@ -184,11 +182,11 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
             if (_currentResult != null)
             {
-                if (!IsTranscription)
+                if (!UseMultiThreads)
                 {
                     proceed = await RunActionAsync(action, _currentResult);
                 }
-                else if (!OverLimit && !_currentResults.ContainsKey(_currentResult))
+                else if (!ReachOrOverLimit && !_currentResults.ContainsKey(_currentResult))
                 {
                     var current = _currentResult;
                     _currentResults[current] = current;
@@ -205,7 +203,8 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                         }
                         finally
                         {
-                            FinalCleanUp(proceed);
+                            _currentResults.TryRemove(current, out _);
+                            FinalCleanUp(proceed, cancellationToken);
                         }
                     }, cancellationToken);
                 }
@@ -221,7 +220,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         }
         finally
         {
-            if (!IsTranscription) FinalCleanUp(proceed);
+            if (!UseMultiThreads) FinalCleanUp(proceed);
         }
     }
 
@@ -240,12 +239,6 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult!.Topic, _currentResult.Message.Key);
             }
             
-            if (IsTranscription)
-            {
-                Interlocked.Decrement(ref _currentThread); 
-                _currentResults.TryRemove(_currentResult!, out _);
-            }
-
             _currentResult = null;
         }
         return result;
@@ -259,9 +252,16 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         return this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
     }
 
-    private void FinalCleanUp(ConsumerAction proceed)
+    private void FinalCleanUp(ConsumerAction proceed, CancellationToken cancellationToken = default)
     {
-        if (proceed == ConsumerAction.Stop) this.Stop();
+        if (proceed == ConsumerAction.Stop)
+        {
+            if (UseMultiThreads && !_currentResults.IsEmpty)
+            {
+                _currentResults.Clear();
+            }
+            this.Stop();
+        }
         else if (this.IsPaused && proceed == ConsumerAction.Proceed)
         {
             _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));

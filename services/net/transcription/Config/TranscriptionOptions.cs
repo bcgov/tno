@@ -35,6 +35,10 @@ public class TranscriptionOptions : ServiceOptions
     /// </summary>
     public int RetryLimit { get; set; } = 3;
 
+    /// <summary>
+    /// get/set - The max threads for running transcription service.
+    /// </summary>
+    public int MaxThreads { get; set; } = 10;
     #endregion
 
     #region Methods

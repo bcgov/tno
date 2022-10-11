@@ -51,6 +51,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         this.Consumer = consumer;
         this.Consumer.OnError += ConsumerErrorHandler;
         this.Consumer.OnStop += ConsumerStopHandler;
+        this.Consumer.MaxThreads = options.Value.MaxThreads;
     }
     #endregion
 
