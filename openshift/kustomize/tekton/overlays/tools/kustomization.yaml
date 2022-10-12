@@ -9,7 +9,7 @@ resources:
 patches:
   - target:
       kind: PersistentVolumeClaim
-      name: pipeline
+      name: pipelines
     patch: |-
       - op: replace
         path: /spec/resources/requests/storage
