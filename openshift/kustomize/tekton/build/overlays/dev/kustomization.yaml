@@ -9,7 +9,7 @@ resources:
 patches:
   - target:
       kind: BuildConfig
-      name: api.dev
+      name: debian-git.dev
     patch: |-
       - op: replace
         path: /spec/source/git/uri

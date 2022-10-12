@@ -9,11 +9,11 @@ resources:
 patches:
   - target:
       kind: BuildConfig
-      name: api.dev
+      name: debian-git.master
     patch: |-
       - op: replace
         path: /spec/source/git/uri
         value: https://github.com/bcgov/tno.git
       - op: replace
         path: /spec/source/git/ref
-        value: dev
+        value: master
