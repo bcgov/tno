@@ -21,7 +21,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private bool _disposed = false;
     private bool _open = false;
     private ConsumeResult<TKey, TValue>? _currentResult = null;
-    private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, ConsumeResult<TKey, TValue>> _currentResults = new();
+    private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, bool> _currentResults = new();
     #endregion
 
     #region Properties
@@ -50,7 +50,8 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// </summary>
     public int MaxThreads { get; set; } = 1;
     private bool UseMultiThreads => MaxThreads > 1;
-    private bool ReachOrOverLimit => _currentResults.Count >= MaxThreads;
+    private bool OverLimit => _currentResults.Count > MaxThreads;
+    private bool ReachOrOverLimit => _currentResults.Count >= MaxThreads;    
     #endregion
 
     #region Events
@@ -167,7 +168,8 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
                 _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
 
-                if (!this.IsPaused && (!UseMultiThreads || ReachOrOverLimit))
+                _currentResults[_currentResult] = false;
+                if (!this.IsPaused && ReachOrOverLimit)
                 {
                     _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", this.Consumer.Subscription ?? new List<string>()));
                     // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
@@ -177,7 +179,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             }
             else
             {
-                _logger.LogDebug("Retrying prior message from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
+                _logger.LogDebug("Retrying prior message from Kafka topic: '{topic}' key:'{key}'", _currentResult!.Topic, _currentResult.Message.Key);
             }
 
             if (_currentResult != null)
@@ -186,16 +188,19 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 {
                     proceed = await RunActionAsync(action, _currentResult);
                 }
-                else if (!ReachOrOverLimit && !_currentResults.ContainsKey(_currentResult))
+                else if (!OverLimit && !_currentResults[_currentResult])
                 {
                     var current = _currentResult;
-                    _currentResults[current] = current;
+                    _currentResults[current] = true;
                     _ = Task.Run(async () =>
                     {
                         var proceed = ConsumerAction.Stop;
                         try
                         {
-                            proceed = await RunActionAsync(action, _currentResults[current]);
+                            do
+                            {
+                                proceed = await RunActionAsync(action, current);
+                            } while (proceed == ConsumerAction.Retry);
                         }
                         catch (Exception ex)
                         {
@@ -203,7 +208,6 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                         }
                         finally
                         {
-                            _currentResults.TryRemove(current, out _);
                             FinalCleanUp(proceed, cancellationToken);
                         }
                     }, cancellationToken);
@@ -226,20 +230,22 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
     private async Task<ConsumerAction> RunActionAsync(
         Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action,
-        ConsumeResult<TKey, TValue>? _currentResult)
+        ConsumeResult<TKey, TValue>? currentResult)
     {
-        var result = await action(_currentResult!);
+        var result = await action(currentResult!);
         if (result == ConsumerAction.Proceed)
         {
             // Manually commit to inform Kafka this message has successfully been handled.
             // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
             if (_config.EnableAutoCommit == false)
             {
-                this.Consumer?.Commit(_currentResult);
-                _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult!.Topic, _currentResult.Message.Key);
+                this.Consumer?.Commit(currentResult);
+                _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", currentResult!.Topic, currentResult.Message.Key);
             }
             
-            _currentResult = null;
+            _currentResults.TryRemove(currentResult!, out _);
+
+            if (!UseMultiThreads) currentResult = null;
         }
         return result;
     }
@@ -256,13 +262,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     {
         if (proceed == ConsumerAction.Stop)
         {
-            if (UseMultiThreads && !_currentResults.IsEmpty)
-            {
-                _currentResults.Clear();
-            }
             this.Stop();
         }
-        else if (this.IsPaused && proceed == ConsumerAction.Proceed)
+        else if (this.IsPaused && proceed == ConsumerAction.Proceed && _currentResults.IsEmpty)
         {
             _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));
             this.IsPaused = false;
