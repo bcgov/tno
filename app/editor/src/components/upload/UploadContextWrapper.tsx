@@ -2,15 +2,16 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import { useStorage } from 'store/hooks';
 
-import { IUploadFile, IUploadManager } from './interfaces';
+import { FetchState, IUploadManager, IUploadState } from './interfaces';
 import { UploadContext, UploadFilesContext } from './UploadContext';
 
 export interface IUploadContextWrapperProps {
   children: React.ReactElement;
 }
 
+/** Wrapper to provide file upload context, supporting 'site-wide' uploads. */
 export const UploadContextWrapper: React.FC<IUploadContextWrapperProps> = ({ children }) => {
-  const [file, setFile] = React.useState<IUploadFile>();
+  const [file, setFile] = React.useState<IUploadState>();
   const storage = useStorage();
 
   const toastId = React.useRef<any>(null);
@@ -22,7 +23,7 @@ export const UploadContextWrapper: React.FC<IUploadContextWrapperProps> = ({ chi
 
       setFile({
         name: file.name,
-        status: 'pending',
+        status: FetchState.pending,
         loaded: 0,
         total: file.size,
       });
@@ -39,11 +40,11 @@ export const UploadContextWrapper: React.FC<IUploadContextWrapperProps> = ({ chi
           }
         })
         .then(() => {
-          setFile((prev) => ({ ...prev!, status: 'success' }));
+          setFile((prev) => ({ ...prev!, status: FetchState.success }));
           toast.done(toastId.current);
         })
         .catch(() => {
-          setFile((prev) => ({ ...prev!, status: 'failure' }));
+          setFile((prev) => ({ ...prev!, status: FetchState.failure }));
         });
     },
     [storage],

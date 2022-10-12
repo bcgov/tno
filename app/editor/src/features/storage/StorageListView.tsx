@@ -1,11 +1,10 @@
-import { Upload } from 'components/upload';
+import { Upload, useUpload } from 'components/upload';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import { FaCloudDownloadAlt, FaPhotoVideo, FaPlay, FaRegFolder, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useStorage } from 'store/hooks';
 import { Button, Col, Row, Show, Text } from 'tno-core';
-import { useUpload } from 'upload-context/UploadContext';
 
 import { defaultFolder } from './constants';
 import * as styled from './styled';

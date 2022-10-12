@@ -1,6 +1,6 @@
 import { FetchState } from './FetchState';
 
-export interface IUploadFile {
+export interface IUploadState {
   name: string;
   status: FetchState;
   loaded: number;

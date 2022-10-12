@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IUploadFile, IUploadManager } from './interfaces';
+import { FetchState, IUploadManager, IUploadState } from './interfaces';
 
 export const UploadContext = React.createContext<IUploadManager>({
   upload: () => {
@@ -8,11 +8,12 @@ export const UploadContext = React.createContext<IUploadManager>({
   },
 });
 
-export const UploadFilesContext = React.createContext<IUploadFile>({
+export const UploadFilesContext = React.createContext<IUploadState>({
   name: '',
-  status: 'pending',
+  status: FetchState.pending,
   loaded: 0,
   total: 0,
 });
 
+/** Hook used to integrate site-wide uploads on a given component */
 export const useUpload = (): IUploadManager => React.useContext(UploadContext);
