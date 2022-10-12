@@ -52,7 +52,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
   const [effort, setEffort] = React.useState(0);
-  const [publishedOnTime, setPublishedOnTime] = React.useState<string>();
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
@@ -82,14 +81,11 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [values.timeTrackings]);
 
   React.useEffect(() => {
-    const date = new Date(values.publishedOn);
-    const hours = publishedOnTime?.split(':');
-    if (!!hours && !publishedOnTime?.includes('_') && publishedOnTime !== '') {
-      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-      setPublishedOnTime('');
-      setFieldValue('publishedOn', date);
-    }
-  }, [publishedOnTime, setFieldValue, values.publishedOn]);
+    setFieldValue(
+      'publishedOnTime',
+      !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : '',
+    );
+  }, [setFieldValue, values.publishedOn]);
 
   React.useEffect(() => {
     setCategoryOptions(getSortableOptions(categories));
@@ -207,10 +203,22 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               label="Time"
               disabled={!values.publishedOn}
               width="7em"
+              value={!!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : ''}
               placeholder={
                 !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : 'HH:MM:SS'
               }
-              onChange={(e) => setPublishedOnTime(e.target.value)}
+              onChange={(e) => {
+                const date = new Date(values.publishedOn);
+                const hours = e.target.value?.split(':');
+                if (
+                  !!hours &&
+                  !values.publishedOnTime?.includes('_') &&
+                  values.publishedOnTime !== ''
+                ) {
+                  date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                  setFieldValue('publishedOn', date.toISOString());
+                }
+              }}
             />
           </Row>
         </Col>

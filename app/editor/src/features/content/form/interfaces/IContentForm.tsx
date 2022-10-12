@@ -42,6 +42,7 @@ export interface IContentForm {
   file?: File | null;
   links: IContentLinkModel[];
   publishedOn: string;
+  publishedOnTime: string;
   version?: number;
   // Print Content
   section: string;

@@ -50,7 +50,7 @@ export function toModel(values: IContentForm): IContentModel {
           section: values.section,
           byline: values.byline,
         },
-    publishedOn: moment(values.publishedOn).toDate(),
+    publishedOn: moment(values.publishedOn).toISOString(),
     version: values.version,
   };
 }

@@ -43,29 +43,47 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   const [hidden, setHidden] = React.useState<IContentActionCheckbox[]>([]);
 
   React.useEffect(() => {
+    // Needed this to reset the hidden values when new content is loaded.
+    // Otherwise the checkboxes that have the extra input results in an invalid checked.
+    setHidden((state) =>
+      state.map((h) => {
+        const found = formActions.find((a) => a.id === h.id);
+        return { ...h, value: !!found?.value };
+      }),
+    );
+  }, [values.id, formActions]);
+
+  React.useEffect(() => {
     // Make sure the available actions are all included in the content.
     if (!!init && !!actions.length && values.actions.length !== actions.length) {
       const defaultActions = [...values.actions];
       actions.forEach((action) => {
-        const found = values.actions.find((va) => va.id === action.id);
+        let found = values.actions.find((va) => va.id === action.id);
         if (found === undefined) {
-          defaultActions.push({ ...action, value: action.defaultValue });
+          found = { ...action, value: action.defaultValue };
+          defaultActions.push(found);
+        }
+        if (found.name === ActionName.Alert && contentType === ContentTypeName.PrintContent) {
+          // Default PrintContent to not alert.
+          found.value = 'false';
         }
       });
       setFieldValue(name, defaultActions);
     }
-  }, [setFieldValue, actions, values.actions, init, name]);
+  }, [setFieldValue, actions, values.actions, init, name, contentType]);
 
   React.useEffect(() => {
-    setHidden(formActions.map((a) => ({ id: a.id, value: !!a.value })));
+    // When form action values are changed the hidden checkbox values must update so that the checkbox works correctly.
+    setHidden((state) => {
+      return formActions.map((a) => {
+        const found = state.find((i) => i.id === a.id);
+        return { id: a.id, value: !!a.value ? true : found?.value ?? false };
+      });
+    });
   }, [formActions]);
 
   const options = actions.filter(filter).map((a) => {
     const index = formActions.findIndex((ca) => ca.id === a.id);
-    if (contentType === ContentTypeName.PrintContent) {
-      const alertIndex = formActions.findIndex((a) => a.name === ActionName.Alert);
-      if (alertIndex !== -1) formActions[alertIndex].value = 'false';
-    }
     const found = formActions[index];
     return (
       <React.Fragment key={a.id}>
