@@ -3,13 +3,13 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: debian-git
+  name: git
   namespace: default
   annotations:
     description: Defines how to deploy git
     created-by: jeremy.foster
   labels:
-    name: debian-git
+    name: git
     part-of: tno
     version: 1.0.0
     component: git
@@ -19,15 +19,6 @@ spec:
   test: false
   triggers:
     - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - api
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: debian-git:latest
   selector:
     part-of: tno
     component: git
@@ -41,7 +32,7 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: debian-git
+      name: git
       labels:
         part-of: tno
         component: git
@@ -51,8 +42,8 @@ spec:
           persistentVolumeClaim:
             claimName: pipelines
       containers:
-        - name: debian-git
-          image: ""
+        - name: git
+          image: bitnami/git:latest
           imagePullPolicy: Always
           ports:
           volumeMounts:
@@ -63,10 +54,8 @@ spec:
               cpu: 20m
               memory: 50Mi
             limits:
-              cpu: 100m
-              memory: 500Mi
-          env:
-          livenessProbe:
+              cpu: 50m
+              memory: 150Mi
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext: {}

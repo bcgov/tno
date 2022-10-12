@@ -69,7 +69,7 @@ parameters:
     value: https://tno-dev.apps.silver.devops.gov.bc.ca
 
 objects:
-  - apiVersion: tekton.dev/v1alpha1
+  - apiVersion: tekton.dev/v1beta1
     kind: Pipeline
     metadata:
       name: full-pipeline

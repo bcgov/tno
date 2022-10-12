@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Condition
+metadata:
+  name: has-changed
+spec:
+  workspaces:
+    - name: source
+  params:
+    - name: PATH
+  check:
+    image: alpine/git:latest
+    script: |
+      changes() {
+        git diff --name-only --diff-filter=AMDR --cached @~..@
+      }
+
+      if changes | grep -q $(params.PATH) {
+        exit 0
+      }
+
+      exit 1
