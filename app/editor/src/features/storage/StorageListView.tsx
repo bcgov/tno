@@ -1,4 +1,4 @@
-import { Upload } from 'components/upload';
+import { Upload, useUpload } from 'components/upload';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import { FaCloudDownloadAlt, FaPhotoVideo, FaPlay, FaRegFolder, FaTrash } from 'react-icons/fa';
@@ -18,6 +18,8 @@ export const StorageListView: React.FC = (props) => {
   const [streamUrl, setStreamUrl] = React.useState<string>();
   const [item, setItem] = React.useState<IItemModel>();
   const [file, setFile] = React.useState<File>();
+
+  const { upload } = useUpload();
 
   React.useEffect(() => {
     storage.getFolder(path).then((data) => {
@@ -44,16 +46,6 @@ export const StorageListView: React.FC = (props) => {
       selectItem();
       setFolder({ ...folder, items: folder.items.filter((i) => i.name !== item.name) });
       toast.success(`${item.name} has been deleted`);
-    } catch {
-      // Ignore error a toast would have already been displayed with the error.
-    }
-  };
-
-  const upload = async (file: File) => {
-    try {
-      var item = await storage.upload(!!folder.path ? folder.path : '/', file, false);
-      setFolder({ ...folder, items: [item, ...folder.items] });
-      setFile(undefined);
     } catch {
       // Ignore error a toast would have already been displayed with the error.
     }

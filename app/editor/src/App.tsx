@@ -2,6 +2,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { LayoutAnonymous } from 'components/layout';
+import { UploadContextWrapper } from 'components/upload';
 import { AppRouter } from 'features/router';
 import { KeycloakInstance } from 'keycloak-js';
 import React from 'react';
@@ -35,7 +36,9 @@ function App() {
           }
           onEvent={keycloakEventHandler(keycloak)}
         >
-          <AppRouter name={appName} />
+          <UploadContextWrapper>
+            <AppRouter name={appName} />
+          </UploadContextWrapper>
         </ReactKeycloakProvider>
       ) : (
         <LayoutAnonymous name={appName}>
