@@ -11,5 +11,5 @@ export const SourceSchema = object().shape({
     .required('Code is a required field.')
     .test('length', 'Maximum length is 20', (val) => (val?.length ?? 0) <= 20),
 
-  licenseId: number().integer().min(1, 'License is a required field').required(),
+  licenseId: number().integer().min(1, 'License is a required field.').required(),
 });
