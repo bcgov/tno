@@ -5,11 +5,11 @@ import { number, object, string } from 'yup';
  */
 export const SourceSchema = object().shape({
   name: string()
-    .required()
+    .required('Legal Name is a required field.')
     .test('length', 'Maximum length is 50', (val) => (val?.length ?? 0) <= 50),
   code: string()
-    .required()
+    .required('Code is a required field.')
     .test('length', 'Maximum length is 20', (val) => (val?.length ?? 0) <= 20),
 
-  licenseId: number().integer().min(1, 'License required').required(),
+  licenseId: number().integer().min(1, 'License is a required field.').required(),
 });
