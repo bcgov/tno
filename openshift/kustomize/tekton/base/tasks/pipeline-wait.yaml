@@ -1,0 +1,55 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: pipeline-wait
+  description: |
+    Makes the pipeline wait until a prior pipeline completes.
+  annotations:
+    tekton.dev/displayName: Git Pull
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: git
+  labels:
+    name: pipeline-wait
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: PIPELINE_NAME
+      description: The name of current pipeline run
+      type: string
+  workspaces:
+    - name: manifest-dir
+      description: >-
+        The workspace which contains kubernetes manifests which we want to apply
+        on the cluster.
+      optional: true
+    - name: kubeconfig-dir
+      description: >-
+        The workspace which contains the the kubeconfig file if in case we want
+        to run the oc command on another cluster.
+      optional: true
+  steps:
+    - name: oc
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      resources: {}
+      script: |
+        #!/usr/bin/env bash
+        [[ "$(workspaces.manifest-dir.bound)" == "true" ]] && \
+        cd $(workspaces.manifest-dir.path)
+
+        [[ "$(workspaces.kubeconfig-dir.bound)" == "true" ]] && \
+        [[ -f $(workspaces.kubeconfig-dir.path)/kubeconfig ]] && \
+        export KUBECONFIG=$(workspaces.kubeconfig-dir.path)/kubeconfig
+
+        while true; do
+          PIPELINE_RUN=$(oc get pipelineruns --sort-by=.metadata.creationTimestamp | awk 'NR>1 {if (($5 == "") && ($3 == "Running") ) {print $0}}' | awk 'NR==1 {print $1}')
+          if [[ "$(params.PIPELINE_NAME)" == "${PIPELINE_RUN}" ]]; then
+            echo "All pending pipelineruns have been completed"
+            break
+          else
+            echo "Waiting for ${PIPELINE_RUN} to complete"
+            sleep 1m
+          fi
+        done

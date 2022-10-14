@@ -52,7 +52,7 @@ parameters:
     required: true
 
 objects:
-  - apiVersion: ops.gov.bc.ca/v1alpha1
+  - apiVersion: ops.gov.bc.ca/v1beta1
     kind: SysdigTeam
     metadata:
       name: ${PROJECT_NAMESPACE}-sysdigteam

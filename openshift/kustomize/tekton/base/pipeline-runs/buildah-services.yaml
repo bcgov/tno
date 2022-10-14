@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: buildah-services-
+  annotations:
+    description: >-
+      Build an docker image from a GIT repository using an existing BuildConfig.
+      Then deploy to the specified environment.
+    tags: "oc,git,docker,build,deploy"
+  labels:
+    name: buildah-services-pipeline
+    part-of: tno
+    version: 1.0.0
+    component: pipeline
+    managed-by: kustomize
+spec:
+  pipelineRef:
+    name: buildah-services
+  params:
+    - name: GIT_REF
+      value: dev
+    - name: IMAGE_TAG
+      value: latest
+    - name: CONTEXT
+      value: tno
+  serviceAccountName: pipeline
+  timeout: 1h45m0s
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: pipelines
+    - name: conditions
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Mi
+          storageClassName: netapp-file-standard
+          volumeMode: Filesystem
+    - name: owasp-settings
+      emptyDir: {}

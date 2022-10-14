@@ -1,4 +1,6 @@
-FROM debian:latest
+FROM alpine:latest
 
-RUN apt-get -y update
-RUN apt-get -y install git
+RUN apk update
+RUN apk add git
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]

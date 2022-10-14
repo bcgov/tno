@@ -1,0 +1,422 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-services
+  annotations:
+    tekton.dev/displayName: Buildah Pipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    name: buildah-services
+    part-of: tno
+    version: 1.0.0
+    component: pipeline
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_REF
+      description: >-
+        The git revision reference to build.
+      type: string
+      default: dev
+
+    - name: CONTEXT
+      description: >-
+        The root path to the git repo.
+      type: string
+      default: tno
+
+    - name: IMAGE_TAG
+      description: >-
+        The tag given to the built images.
+        Use this to create versioned images.
+      type: string
+      default: latest
+
+    - name: PROJECT_SHORTNAME
+      description: >-
+        The project namespace shortname.
+        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      type: string
+      default: 9b301c
+
+    - name: DEPLOY_TO
+      description: >-
+        Identify the environment to deploy the solution to [dev,test,prod,tools].
+      type: string
+      default: dev
+
+  workspaces:
+    - name: source
+      description: |
+        Git repo source code.
+    - name: conditions
+      description: |
+        Pipeline configuration file.
+
+  tasks:
+    - name: git
+      taskRef:
+        name: git-conditions
+        kind: Task
+      params:
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+
+    - name: build-syndication
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: syndication
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: syndication/Dockerfile
+        - name: IMAGE
+          value: syndication-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-syndication
+      runAfter:
+        - build-syndication
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: syndication-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-capture
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: capture
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: capture/Dockerfile
+        - name: IMAGE
+          value: capture-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-capture
+      runAfter:
+        - build-capture
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: capture-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-clip
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: clip
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: clip/Dockerfile
+        - name: IMAGE
+          value: clip-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-clip
+      runAfter:
+        - build-clip
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: clip-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-filemonitor
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: filemonitor
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: filemonitor/Dockerfile
+        - name: IMAGE
+          value: filemonitor-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-filemonitor
+      runAfter:
+        - build-filemonitor
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: filemonitor-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-image
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: image
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: image/Dockerfile
+        - name: IMAGE
+          value: image-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-image
+      runAfter:
+        - build-image
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: image-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-content
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: content
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: content/Dockerfile
+        - name: IMAGE
+          value: content-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-content
+      runAfter:
+        - build-content
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: content-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-indexing
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: indexing
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: indexing/Dockerfile
+        - name: IMAGE
+          value: indexing-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-indexing
+      runAfter:
+        - build-indexing
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: indexing-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-transcription
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: transcription
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: transcription/Dockerfile
+        - name: IMAGE
+          value: transcription-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-transcription
+      runAfter:
+        - build-transcription
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: transcription-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: build-nlp
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: nlp
+        - name: CONTEXT
+          value: $(params.CONTEXT)/services/net
+        - name: DOCKERFILE
+          value: nlp/Dockerfile
+        - name: IMAGE
+          value: nlp-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: deploy-nlp
+      runAfter:
+        - build-nlp
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: nlp-service
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)

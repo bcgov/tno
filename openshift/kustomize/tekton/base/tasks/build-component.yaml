@@ -1,0 +1,106 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-component
+  description: |
+    Using Buildah build a new image from source code and push the new image
+    to the specified image registry.
+    Only build the images that have been identified as updated by git.
+  annotations:
+    tekton.dev/displayName: Buildah Image
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build
+  labels:
+    name: build-component
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: CONTEXT
+      description: Path to the source code to build.
+      default: .
+    - name: DOCKERFILE
+      description: Path to the Dockerfile to build.
+      default: ./Dockerfile
+
+    - name: COMPONENT
+      description: |
+        The name of the component (often the same as the image name).
+        This must match the component names setup in the git-conditions Task.
+    - name: IMAGE_REGISTRY
+      description: The Root url of the image registry.
+      default: image-registry.openshift-image-registry.svc:5000/9b301c-tools
+    - name: IMAGE
+      description: Reference of the image buildah will produce.
+      default: db-migration
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+
+    - name: STORAGE_DRIVER
+      description: Set buildah storage driver
+      default: vfs
+  workspaces:
+    - name: source
+    - name: conditions
+      mountPath: /data
+  steps:
+    - name: build
+      image: buildah:latest
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: IMAGE_REGISTRY_USER
+          valueFrom:
+            secretKeyRef:
+              name: pipelines
+              key: username
+        - name: IMAGE_REGISTRY_PASS
+          valueFrom:
+            secretKeyRef:
+              name: pipelines
+              key: password
+      resources:
+        requests:
+          memory: 250Mi
+          cpu: 250m
+        limits:
+          memory: 1Gi
+          cpu: 500m
+      script: |
+        #!/usr/bin/env bash
+
+        # Place config into environment variables.
+        if test -f $(workspaces.conditions.path)/build.env; then
+          export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
+        else
+          echo 'Workspace conditions build.env not found'
+          exit 1;
+        fi
+
+        # Dynamic variable to control what will be built.
+        COMPONENT='BUILD_$(params.COMPONENT)'
+        COMPONENT=${COMPONENT^^}
+        echo $COMPONENT=${!COMPONENT}
+
+        # Check if this image needs to be built.
+        if [ "${!COMPONENT}" = true ]; then
+          echo 'Build $(params.IMAGE)'
+          if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
+            buildah login \
+              -u $IMAGE_REGISTRY_USER \
+              -p $IMAGE_REGISTRY_PASS $(params.IMAGE_REGISTRY) > /dev/null
+          fi
+
+          # Build the image.
+          buildah --storage-driver=$(params.STORAGE_DRIVER) bud \
+            --no-cache -f $(params.DOCKERFILE) -t $(params.IMAGE_REGISTRY)/$(params.IMAGE):$(params.IMAGE_TAG) --isolation chroot $(params.CONTEXT)
+
+          # Push the image to the registry.
+          buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/$(params.IMAGE):$(params.IMAGE_TAG)
+          set -x
+        else
+          echo 'Do not build $(params.IMAGE)'
+        fi

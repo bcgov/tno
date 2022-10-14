@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: example-git-pull-run
+
+spec:
+  taskRef:
+    kind: Task
+    name: git-pull
+
+  params:
+    - name: GIT_REF
+      value: dev
+    - name: CONTEXT
+      value: ./tno
+
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: pipelines

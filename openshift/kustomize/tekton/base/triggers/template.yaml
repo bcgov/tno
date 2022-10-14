@@ -1,0 +1,60 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: git-app
+  component: app
+spec:
+  params:
+    - name: GIT_SOURCE
+      description: Identify the git source
+    - name: VERSION
+      description: The version to tag the image with
+    - name: DEPLOY_TO
+      description: The environment to deploy to
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: buildah-main-$(tt.params.VERSION)-
+        annotations:
+          description: >-
+            Build an docker image from a GIT repository using an existing BuildConfig.
+            Then deploy to the specified environment.
+          tags: "oc,git,docker,build,deploy"
+        labels:
+          name: buildah-main-$(tt.params.VERSION)
+          part-of: tno
+          version: $(tt.params.VERSION)
+          component: pipeline
+          managed-by: kustomize
+          tekton.dev/pipeline: buildah-main
+      spec:
+        pipelineRef:
+          name: buildah-main
+        serviceAccountName: pipeline
+        timeout: 1h45m0s
+        params:
+          - name: GIT_REF
+            value: $(tt.params.GIT_SOURCE)
+          - name: IMAGE_TAG
+            value: $(tt.params.VERSION)
+          - name: CONTEXT
+            value: tno
+          - name: DEPLOY_TO
+            value: $(tt.params.DEPLOY_TO)
+        workspaces:
+          - name: source
+            persistentVolumeClaim:
+              claimName: pipelines
+          - name: conditions
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 50Mi
+                storageClassName: netapp-file-standard
+                volumeMode: Filesystem
+          - name: owasp-settings
+            emptyDir: {}

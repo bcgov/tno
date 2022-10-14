@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oc-patch-route
+  description: >-
+    This task uses oc cli to update a route and point it to the specified service.
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+  labels:
+    name: oc-patch-route
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: PROJECT
+      description: The project namespace.
+      type: string
+      default: 9b301c-dev
+    - name: ROUTE
+      description: The name of the route to update.
+      type: string
+    - name: SERVICE
+      description: The name of the service to point the route to.
+      type: string
+
+  steps:
+    - name: update-route
+      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      resources: {}
+      script: |
+        echo "Pointing route '$(params.ROUTE)' to '$(params.SERVICE)' in $(params.PROJECT)"
+
+        oc patch route/$(params.ROUTE) -n $(params.PROJECT) -p '{"spec":{"to":{"name":"$(params.SERVICE)"}}}'

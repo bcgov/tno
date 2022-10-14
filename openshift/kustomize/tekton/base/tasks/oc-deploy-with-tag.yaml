@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oc-deploy-with-tag
+  description: >-
+    This task will tag a specific image with the environment name.
+    This will deploy the image if there is a DeployConfig trigger listening for the environment tag.
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+  labels:
+    name: oc-deploy-with-tag
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: PROJECT_SHORTNAME
+      description: The project namespace.
+      type: string
+      default: 9b301c
+    - name: IMAGE
+      description: The name given to the built image.
+      type: string
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+    - name: ENV
+      description: The environment to deploy to.
+      type: string
+    - name: TIMEOUT
+      description: The timeout before it will stop waiting for the pod to become available.
+      type: string
+      default: "60s"
+
+  steps:
+    - name: deploy
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      resources: {}
+      script: |
+        echo "Tagging image to trigger deployment to $(params.ENV)"
+        oc tag $(params.IMAGE):$(params.IMAGE_TAG) $(params.IMAGE):$(params.ENV)
+
+        echo "Waiting for deployment to roll out"
+        oc wait --for=condition=available --timeout=$(params.TIMEOUT) dc/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+
+        # timeout(10) {
+        # dc.rollout().status('--watch=true')
+        # }
