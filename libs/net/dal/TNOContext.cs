@@ -56,6 +56,7 @@ public class TNOContext : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<RoleClaim> RoleClaims => Set<RoleClaim>();
     public DbSet<Claim> Claims => Set<Claim>();
+    public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
     #endregion
 
     #region Constructors

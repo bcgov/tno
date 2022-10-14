@@ -1,8 +1,7 @@
 namespace TNO.Entities;
 
 /// <summary>
-/// Provides content status to determine the stage the content is in.
-/// Content status represents either what process should be performed.
+/// Provides value types which control what users can enter for data.
 /// </summary>
 public enum ValueType
 {

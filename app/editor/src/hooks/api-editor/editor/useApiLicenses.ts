@@ -21,7 +21,7 @@ export const useApiLicenses = (
   return React.useRef({
     getLicenses: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ILicenseModel[], AxiosResponse<ILicenseModel[], never>, any>(
+      return api.get<ILicenseModel[], AxiosResponse<ILicenseModel[]>, any>(
         `/editor/licenses`,
         config,
       );

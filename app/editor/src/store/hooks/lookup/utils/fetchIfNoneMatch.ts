@@ -17,12 +17,8 @@ import { initFromLocalStorage } from '.';
  */
 export const fetchIfNoneMatch = async <T>(
   key: string,
-  dispatch: <T>(
-    url: string,
-    request: () => Promise<AxiosResponse<T, any>>,
-    response?: ((response: AxiosResponse<T, any>) => void) | undefined,
-  ) => Promise<T>,
-  fetch: (etag?: string) => Promise<AxiosResponse<T, any>>,
+  dispatch: <T>(url: string, request: () => Promise<AxiosResponse<T>>) => Promise<AxiosResponse<T>>,
+  fetch: (etag?: string) => Promise<AxiosResponse<T>>,
   store: (results?: T) => T,
   saveResults: boolean = true,
 ) => {
@@ -36,15 +32,10 @@ export const fetchIfNoneMatch = async <T>(
             ? getFromLocalStorage<ICacheModel[]>('etags', []).find((c) => c.key === key)?.value
             : undefined;
 
-        const result = await dispatch(
-          key,
-          () => fetch(etag),
-          (response) => {
-            etag = response.headers['etag'];
-          },
-        );
+        const response = await dispatch(key, () => fetch(etag));
+        etag = response.headers['etag'];
 
-        store(result);
+        store(response.data);
         const cache = addOrUpdateArray(
           { key: key, value: etag },
           getFromLocalStorage<ICacheModel[]>('etags', []),
@@ -52,7 +43,7 @@ export const fetchIfNoneMatch = async <T>(
         );
         localStorage.setItem('etags', JSON.stringify(cache));
 
-        return result;
+        return response.data;
       } catch (error) {
         const ae = error as AxiosError;
         // 304 means the client already has up-to-date results.

@@ -590,7 +590,9 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex("SourceId");
 
-                    b.HasIndex("Status", "PublishedOn", "OtherSource", "Uid", "Page");
+                    b.HasIndex("PublishedOn", "CreatedOn");
+
+                    b.HasIndex("ContentType", "OtherSource", "Uid", "Page", "Status");
 
                     b.ToTable("content");
                 });
@@ -2973,6 +2975,98 @@ namespace TNO.DAL.Migrations
                     b.ToTable("user_role");
                 });
 
+            modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("AssignedId")
+                        .HasColumnType("integer")
+                        .HasColumnName("assigned_id");
+
+                    b.Property<long?>("ContentId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("content_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("note");
+
+                    b.Property<int?>("RequestorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("requestor_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_id");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.Property<int>("WorkType")
+                        .HasColumnType("integer")
+                        .HasColumnName("work_type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedId");
+
+                    b.HasIndex("ContentId");
+
+                    b.HasIndex("RequestorId");
+
+                    b.HasIndex("WorkType", "Status", "CreatedOn");
+
+                    b.ToTable("work_order");
+                });
+
             modelBuilder.Entity("TNO.Entities.Content", b =>
                 {
                     b.HasOne("TNO.Entities.IngestType", null)
@@ -3364,6 +3458,30 @@ namespace TNO.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
+                {
+                    b.HasOne("TNO.Entities.User", "Assigned")
+                        .WithMany("WorkOrdersAssigned")
+                        .HasForeignKey("AssignedId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TNO.Entities.Content", "Content")
+                        .WithMany("WorkOrders")
+                        .HasForeignKey("ContentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("TNO.Entities.User", "Requestor")
+                        .WithMany("WorkOrderRequests")
+                        .HasForeignKey("RequestorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Assigned");
+
+                    b.Navigation("Content");
+
+                    b.Navigation("Requestor");
+                });
+
             modelBuilder.Entity("TNO.Entities.Action", b =>
                 {
                     b.Navigation("ContentTypes");
@@ -3409,6 +3527,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TimeTrackings");
 
                     b.Navigation("TonePoolsManyToMany");
+
+                    b.Navigation("WorkOrders");
                 });
 
             modelBuilder.Entity("TNO.Entities.Ingest", b =>
@@ -3496,6 +3616,10 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TimeTrackings");
 
                     b.Navigation("TonePools");
+
+                    b.Navigation("WorkOrderRequests");
+
+                    b.Navigation("WorkOrdersAssigned");
                 });
 #pragma warning restore 612, 618
         }

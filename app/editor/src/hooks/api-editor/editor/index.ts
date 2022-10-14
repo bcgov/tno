@@ -16,3 +16,4 @@ export * from './useApiStorage';
 export * from './useApiTags';
 export * from './useApiTonePools';
 export * from './useApiUsers';
+export * from './useApiWorkOrders';

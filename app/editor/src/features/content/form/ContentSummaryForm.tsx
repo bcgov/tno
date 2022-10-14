@@ -9,8 +9,6 @@ import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
@@ -46,7 +44,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
   const combined = useCombinedView();
-  const navigate = useNavigate();
 
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
@@ -65,16 +62,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
     : undefined;
   const [streamUrl, setStreamUrl] = React.useState<string>('');
   const videoRef = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    // This should never occur, but if keycloak is not configured correctly, or the local storage is missing their account it can.
-    if (!userId) {
-      toast.error(
-        'Your user account is missing.  Try refreshing your page.  If the issue persists contact support.',
-      );
-      navigate('/error');
-    }
-  }, [navigate, userId]);
 
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
