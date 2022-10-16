@@ -67,7 +67,9 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            if (this.State.Status == ServiceStatus.RequestSleep ||
+                this.State.Status == ServiceStatus.RequestPause ||
+                this.Consumer.StopNeeded)
             {
                 // An API request or failures have requested the service to stop.
                 this.Logger.LogInformation("The service is stopping: '{Status}'", this.State.Status);
@@ -132,7 +134,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private async Task ConsumerHandlerAsync()
     {
         while (this.State.Status == ServiceStatus.Running &&
-            _cancelToken?.IsCancellationRequested == false)
+            _cancelToken?.IsCancellationRequested == false &&
+            !this.Consumer.StopNeeded)
         {
             await this.Consumer.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
@@ -186,7 +189,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
     {
         // The service has stopped, so to should consuming messages.
-        if (this.State.Status != ServiceStatus.Running)
+        if (this.State.Status != ServiceStatus.Running || this.Consumer.StopNeeded)
         {
             this.Consumer.Stop();
             this.State.Stop();

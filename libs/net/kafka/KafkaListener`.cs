@@ -21,6 +21,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private bool _disposed = false;
     private bool _open = false;
     private ConsumeResult<TKey, TValue>? _currentResult = null;
+    private readonly object _lockObj = new();
     private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, bool> _currentResults = new();
     #endregion
 
@@ -46,12 +47,17 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     public string[] Topics { get; private set; } = Array.Empty<string>();
 
     /// <summary>
+    /// get - Whether the listener should stop consuming messages.
+    /// </summary>
+    public bool StopNeeded { get; private set; }
+
+    /// <summary>
     /// get/set - The max threads for running service.
     /// </summary>
     public int MaxThreads { get; set; } = 1;
     private bool UseMultiThreads => MaxThreads > 1;
     private bool OverLimit => _currentResults.Count > MaxThreads;
-    private bool ReachOrOverLimit => _currentResults.Count >= MaxThreads;    
+    private bool ReachOrOverLimit => _currentResults.Count >= MaxThreads;
     #endregion
 
     #region Events
@@ -148,8 +154,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     {
         if (action == null) throw new ArgumentNullException(nameof(action));
 
-        // Do not continue if the token has been cancelled.
-        if (cancellationToken.IsCancellationRequested) return;
+        // Do not continue if the token has been cancelled or the listener needs stopping.
+        if (cancellationToken.IsCancellationRequested || StopNeeded) return;
+
         var proceed = ConsumerAction.Stop;
         this.IsConsuming = true;
 
@@ -184,13 +191,13 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
             if (_currentResult != null)
             {
+                var current = _currentResult;
                 if (!UseMultiThreads)
                 {
                     proceed = await RunActionAsync(action, _currentResult);
                 }
-                else if (!OverLimit && !_currentResults[_currentResult])
+                else if (!OverLimit && _currentResults.ContainsKey(current) && !_currentResults[current])
                 {
-                    var current = _currentResult;
                     _currentResults[current] = true;
                     _ = Task.Run(async () =>
                     {
@@ -208,7 +215,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                         }
                         finally
                         {
-                            FinalCleanUp(proceed, cancellationToken);
+                            FinalCleanUp(proceed);
                         }
                     }, cancellationToken);
                 }
@@ -242,7 +249,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 this.Consumer?.Commit(currentResult);
                 _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", currentResult!.Topic, currentResult.Message.Key);
             }
-            
+
             _currentResults.TryRemove(currentResult!, out _);
 
             if (!UseMultiThreads) currentResult = null;
@@ -258,11 +265,16 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         return this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
     }
 
-    private void FinalCleanUp(ConsumerAction proceed, CancellationToken cancellationToken = default)
+    private void FinalCleanUp(ConsumerAction proceed)
     {
         if (proceed == ConsumerAction.Stop)
         {
-            this.Stop();
+            if (!UseMultiThreads) this.Stop();
+            else
+                lock (_lockObj)
+                {
+                    if (!StopNeeded) StopNeeded = true;
+                }
         }
         else if (this.IsPaused && proceed == ConsumerAction.Proceed && _currentResults.IsEmpty)
         {

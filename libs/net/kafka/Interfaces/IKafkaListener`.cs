@@ -44,6 +44,11 @@ public interface IKafkaListener<TKey, TValue>
     /// get/set - The max threads for running service.
     /// </summary>
     public int MaxThreads { get; set; }
+
+    /// <summary>
+    /// get - Whether the listener should stop consuming messages.
+    /// </summary>
+    public bool StopNeeded { get; }
     #endregion
 
     #region Events
