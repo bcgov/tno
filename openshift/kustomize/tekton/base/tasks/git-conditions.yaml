@@ -1,0 +1,110 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-conditions
+  description: |
+    Update the git repo in the shared workspace with the latest commits for the
+    specified branch reference.
+    Creates a build.env file containing all the components that should be built based
+    on the changes made in the referenced commit.
+  annotations:
+    tekton.dev/displayName: Git Pull
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: git
+  labels:
+    name: git-output
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_REF
+      description: Git reference or branch to build from.
+      default: dev
+
+    - name: CONTEXT
+      description: Path to the source code to build.
+      default: .
+  workspaces:
+    - name: source
+    - name: output
+      mountPath: /data
+  steps:
+    - name: pull
+      image: bitnami/git:latest
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
+      resources:
+        requests:
+          memory: 100Mi
+          cpu: 50m
+        limits:
+          memory: 500Mi
+          cpu: 100m
+      script: |
+        #!/usr/bin/env bash
+        pwd
+
+        # Update the git repo with the latest commit.
+        git config --global --add safe.directory '*'
+        git checkout $(params.GIT_REF)
+        git pull
+        git show -s
+
+        # Identify what has changed.
+        DIFF=$(git diff --name-only --diff-filter=AMDR @~..@)
+        cd $(workspaces.output.path)
+        pwd
+        touch build.env
+
+        # Identify what needs to be built and deployed.
+        function build_service {
+          BUILD='BUILD_${1^^}=true'
+          if grep -s services/net/$1 <<< $DIFF; then
+            echo '$BUILD' >> build.env
+          elif grep -s libs/net/services <<< $DIFF; then
+            echo '$BUILD' >> build.env
+          elif grep -s libs/net/kafka <<< $DIFF; then
+            echo '$BUILD' >> build.env
+          elif grep -s libs/net/core <<< $DIFF; then
+            echo '$BUILD' >> build.env
+          fi
+        }
+
+        if grep -s libs/net/dal <<< $DIFF; then
+          echo 'BUILD_DB=true' >> build.env
+        fi
+
+        if grep -s app/editor <<< $DIFF; then
+          echo 'BUILD_EDITOR=true' >> build.env
+        fi
+
+        if grep -s api/net <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/dal <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/core <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/entities <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/models <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/ches <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/keycloak <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        elif grep -s libs/net/reports <<< $DIFF; then
+          echo 'BUILD_API=true' >> build.env
+        fi
+
+        build_service 'capture'
+        build_service 'clip'
+        build_service 'syndication'
+        build_service 'image'
+        build_service 'filemonitor'
+        build_service 'content'
+        build_service 'transcription'
+        build_service 'nlp'
+        build_service 'indexing'
+
+        cat build.env

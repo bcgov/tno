@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: example-buildah-run
+
+spec:
+  taskRef:
+    kind: Task
+    name: buildah
+
+  params:
+    - name: CONTEXT
+      value: ./tno
+    - name: DOCKERFILE
+      value: ./api/net/Dockerfile
+    - name: IMAGE
+      value: api
+
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: pipelines

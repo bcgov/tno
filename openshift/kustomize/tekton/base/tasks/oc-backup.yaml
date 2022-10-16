@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: oc-backup
+  description: >-
+    This task makes a remote SSH connection to the database backup service and starts a backup.
+  annotations:
+    tekton.dev/displayName: openshift client
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: cli
+  labels:
+    name: oc-backup
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: PROJECT
+      description: The project namespace to run the database backup in.
+      type: string
+      default: 9b301c-dev
+    - name: DEPLOYMENT_CONFIG
+      description: The name of the DeploymentConfig that is running the database backup service.
+      type: string
+    - name: ARGS
+      description: >-
+        The arguments to include when executing the backup.sh script.
+        -l : List existing backups
+        -h : Display help information
+        -c : Display current configuration
+        -1 : Run a single backup
+        -r <spec> : Restore the database with the specified <spec>
+      type: string
+      default: "-1"
+  steps:
+    - name: build
+      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      resources: {}
+      script: |
+        echo "Running Database Backup"
+        oc rsh -n $(params.PROJECT) dc/$(params.DEPLOYMENT_CONFIG) bash -c './backup.sh $(params.ARGS)'

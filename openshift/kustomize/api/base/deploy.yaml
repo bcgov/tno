@@ -16,6 +16,7 @@ metadata:
     created-by: jeremy.foster
 spec:
   replicas: 3
+  test: false
   selector:
     part-of: tno
     component: api
@@ -27,6 +28,17 @@ spec:
       timeoutSeconds: 600
       updatePeriodSeconds: 1
     type: Rolling
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - api
+        from:
+          kind: ImageStreamTag
+          namespace: 9b301c-tools
+          name: api:dev
   template:
     metadata:
       name: api
@@ -205,15 +217,3 @@ spec:
       restartPolicy: Always
       securityContext: {}
       terminationGracePeriodSeconds: 30
-  test: false
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - api
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: api:dev

@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-pull
+  description: |
+    Update the git repo in the shared workspace with the latest commits for the
+    specified branch reference.
+  annotations:
+    tekton.dev/displayName: Git Pull
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: git
+  labels:
+    name: git-pull
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_REF
+      description: Git reference or branch to build from.
+      default: dev
+
+    - name: CONTEXT
+      description: Path to the source code to build.
+      default: .
+  workspaces:
+    - name: source
+  steps:
+    - name: git-pull
+      image: bitnami/git:latest
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
+      resources:
+        requests:
+          memory: 100Mi
+          cpu: 50m
+        limits:
+          memory: 500Mi
+          cpu: 100m
+      script: |
+        #!/usr/bin/env bash
+        pwd
+
+        # Update the git repo with the latest commit.
+        git config --global --add safe.directory '*'
+        git checkout $(params.GIT_REF)
+        git pull

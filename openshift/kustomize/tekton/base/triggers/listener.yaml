@@ -1,0 +1,85 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: git-webhook
+  component: app
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: github-listener
+      bindings:
+        - ref: git-dev
+      template:
+        ref: git-app
+      interceptors:
+        - github:
+            secretRef:
+              secretName: tno-webhook
+              secretKey: webhook
+            eventTypes:
+              - push
+        - cel:
+            filter: >-
+              body.ref == 'refs/heads/dev'
+              && (body.commits.exists(c, c.added.exists(m, m.startsWith('app/editor')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/editor')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/editor')))
+                || body.head_commit.added.exists(m, m.startsWith('app/editor'))
+                || body.head_commit.modified.exists(m, m.startsWith('app/editor'))
+                || body.head_commit.removed.exists(m, m.startsWith('app/editor'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('api/net')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('api/net')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('api/net')))
+                || body.head_commit.added.exists(m, m.startsWith('api/net'))
+                || body.head_commit.modified.exists(m, m.startsWith('api/net'))
+                || body.head_commit.removed.exists(m, m.startsWith('api/net'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/dal')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/dal')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/dal')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/dal'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/dal'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/dal'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/entities')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/entities')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/entities')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/entities'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/entities'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/entities'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/core')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/core')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/core')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/core'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/core'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/core'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/ches')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/ches')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/ches')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/ches'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/ches'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/ches'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/keycloak')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/keycloak')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/keycloak')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/keycloak'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/keycloak'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/keycloak'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/models')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/models')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/models')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/models'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/models'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/models'))
+
+                || body.commits.exists(c, c.added.exists(m, m.startsWith('libs/net/reports')))
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('libs/net/reports')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('libs/net/reports')))
+                || body.head_commit.added.exists(m, m.startsWith('libs/net/reports'))
+                || body.head_commit.modified.exists(m, m.startsWith('libs/net/reports'))
+                || body.head_commit.removed.exists(m, m.startsWith('libs/net/reports')))

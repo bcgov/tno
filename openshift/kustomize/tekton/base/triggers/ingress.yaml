@@ -1,0 +1,36 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: git-webhook
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+    - host: tno-tekton.apps.silver.devops.gov.bc.ca
+      http:
+        paths:
+          - path: /hooks
+            pathType: Exact
+            backend:
+              service:
+                name: el-git-webhook
+                port:
+                  number: 8080
+
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: git-webhook
+spec:
+  host: tno-tekton.apps.silver.devops.gov.bc.ca
+  path: /hooks
+  to:
+    kind: Service
+    name: el-git-webhook
+    weight: 100
+  port:
+    targetPort: http-listener
+  wildcardPolicy: None
