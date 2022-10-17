@@ -19,6 +19,7 @@ DECLARE conLocalImagesId INT := (SELECT id FROM public.connection WHERE Name = '
 DECLARE conLocalPapersId INT := (SELECT id FROM public.connection WHERE Name = 'Local Volume - Papers'); -- connection_id
 DECLARE conPublicInternetId INT := (SELECT id FROM public.connection WHERE Name = 'Public Internet'); -- connection_id
 DECLARE conSSHId INT := (SELECT id FROM public.connection WHERE Name = 'SSH - Newspaper Upload'); -- connection_id
+DECLARE conGlobeSSHId INT := (SELECT id FROM public.connection WHERE Name = 'SSH - Globe Newspaper Upload'); -- connection_id
 BEGIN
 
 INSERT INTO public.ingest (
@@ -301,7 +302,7 @@ INSERT INTO public.ingest (
 -- Paper
 -- ******************************************************
 (
-  'Globe and Mail'
+  'Globe & Mail - Articles'
   , '' -- description
   , true -- is_enabled
   , ingestPaperId -- media_type_id
@@ -312,7 +313,7 @@ INSERT INTO public.ingest (
       "language": "en-CA",
       "post": true,
       "import": true,
-      "path": "processed",
+      "path": "",
       "papername": "pubdata!name",
       "headline": "hl1",
       "summary": "hl1",
@@ -325,10 +326,12 @@ INSERT INTO public.ingest (
       "item": "nitf",
       "dateFmt": "yyyyMMdd",
       "selfPublished": true,
-      "dateOffset": -1 }' -- configuration
+      "filePattern":"^<date>(.+).xml$",
+      "passwordAuth":true,
+      "dateOffset": 0 }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit
-  , conSSHId -- source_connection_id
+  , conGlobeSSHId -- source_connection_id
   , conLocalPapersId -- destination_connection_id
   , DEFAULT_USER_ID
   , ''

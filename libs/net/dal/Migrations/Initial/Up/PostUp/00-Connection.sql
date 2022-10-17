@@ -98,6 +98,18 @@ INSERT INTO public.connection (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+  'SSH - Globe Newspaper Upload' -- 6
+  , 'Globe and Mail upload files to this location.' -- description
+  , true -- is_enabled
+  , 7 -- connection_type - SSH
+  , '{"path":"/","username":"nc0002","hostname":"gamdelivery.globeandmail.ca","password": "rond9dil"}' -- configuration
+  , true -- is_read_only
+  , 0 -- sort_order
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 END $$;
