@@ -22,10 +22,7 @@ export const useApiRoles = (
   return React.useRef({
     getRoles: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IRoleModel[], AxiosResponse<IRoleModel[], never>, any>(
-        `/editor/roles`,
-        config,
-      );
+      return api.get<IRoleModel[], AxiosResponse<IRoleModel[]>, any>(`/editor/roles`, config);
     },
   }).current;
 };

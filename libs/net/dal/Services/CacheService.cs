@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace TNO.DAL.Services;
@@ -17,7 +18,9 @@ public class CacheService : BaseService<Entities.Cache, string>, ICacheService
     #region Methods
     public IEnumerable<Entities.Cache> FindAll()
     {
-        return this.Context.Cache.ToArray();
+        return this.Context.Cache
+            .AsNoTracking()
+            .ToArray();
     }
     #endregion
 }

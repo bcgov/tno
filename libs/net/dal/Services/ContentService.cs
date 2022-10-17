@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
@@ -41,6 +40,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     public IPaged<Content> Find(ContentFilter filter)
     {
         var query = this.Context.Contents
+            .AsNoTracking()
             .Include(c => c.Product)
             .Include(c => c.Source)
             .Include(c => c.Series)

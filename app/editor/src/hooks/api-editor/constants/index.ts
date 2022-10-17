@@ -20,3 +20,7 @@ export * from './UserStatusName';
 export * from './ValueType';
 export * from './WorkflowStatus';
 export * from './WorkflowStatusName';
+export * from './WorkOrderStatus';
+export * from './WorkOrderStatusName';
+export * from './WorkOrderType';
+export * from './WorkOrderTypeName';

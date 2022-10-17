@@ -20,30 +20,27 @@ export const useApiAdminIngests = (
 
   return React.useRef({
     findAllIngests: () => {
-      return api.get<IIngestModel[], AxiosResponse<IIngestModel[], never>, any>(`/admin/ingests`);
+      return api.get<IIngestModel[], AxiosResponse<IIngestModel[]>, any>(`/admin/ingests`);
     },
     findIngests: () => {
-      return api.get<IPaged<IIngestModel>, AxiosResponse<IPaged<IIngestModel>, never>, any>(
+      return api.get<IPaged<IIngestModel>, AxiosResponse<IPaged<IIngestModel>>, any>(
         `/admin/ingests/find`,
       );
     },
     getIngest: (id: number) => {
-      return api.get<IIngestModel, AxiosResponse<IIngestModel, never>, any>(`/admin/ingests/${id}`);
+      return api.get<IIngestModel, AxiosResponse<IIngestModel>, any>(`/admin/ingests/${id}`);
     },
     addIngest: (model: IIngestModel) => {
-      return api.post<IIngestModel, AxiosResponse<IIngestModel, never>, any>(
-        `/admin/ingests`,
-        model,
-      );
+      return api.post<IIngestModel, AxiosResponse<IIngestModel>, any>(`/admin/ingests`, model);
     },
     updateIngest: (model: IIngestModel) => {
-      return api.put<IIngestModel, AxiosResponse<IIngestModel, never>, any>(
+      return api.put<IIngestModel, AxiosResponse<IIngestModel>, any>(
         `/admin/ingests/${model.id}`,
         model,
       );
     },
     deleteIngest: (model: IIngestModel) => {
-      return api.delete<IIngestModel, AxiosResponse<IIngestModel, never>, any>(
+      return api.delete<IIngestModel, AxiosResponse<IIngestModel>, any>(
         `/admin/ingests/${model.id}`,
         { data: model },
       );
