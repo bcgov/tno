@@ -1,5 +1,5 @@
 import { IconButton } from 'components/form';
-import { makeUserFilter } from 'features/content/list-view/utils/makeUserFilter';
+import { makeUserFilter } from 'features/admin/users/utils/makeUserFilter';
 import { IUserModel } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

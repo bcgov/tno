@@ -10,3 +10,4 @@ export * from './series';
 export * from './sources';
 export * from './tags';
 export * from './users';
+export * from './work-orders';

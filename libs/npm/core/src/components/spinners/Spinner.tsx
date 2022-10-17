@@ -1,7 +1,7 @@
 import { SpinnerVariant } from '.';
 import * as styled from './styled';
 
-export interface ISpinnerProps {
+export interface ISpinnerProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
   /**
    * Spinner variant style options.
    */
@@ -20,9 +20,16 @@ export interface ISpinnerProps {
 export const Spinner: React.FC<ISpinnerProps> = ({
   variant = SpinnerVariant.primary,
   size = '2rem',
+  className,
+  ...rest
 }) => {
   return (
-    <styled.Spinner variant={variant} size={size}>
+    <styled.Spinner
+      className={`spinner${!!className ? ` ${className}` : ''}`}
+      variant={variant}
+      size={size}
+      {...rest}
+    >
       <styled.Loading>Loading...</styled.Loading>
     </styled.Spinner>
   );

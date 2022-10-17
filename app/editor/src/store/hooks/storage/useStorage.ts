@@ -1,7 +1,7 @@
 import { IFolderModel, IItemModel, useApiStorage } from 'hooks/api-editor';
 import React from 'react';
 
-import { useApiDispatcher } from '..';
+import { useAjaxWrapper } from '..';
 
 interface IStorageController {
   folderExists: (path?: string, location?: string) => Promise<boolean>;
@@ -22,7 +22,7 @@ interface IStorageController {
 }
 
 export const useStorage = (): IStorageController => {
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const api = useApiStorage();
 
   const controller = React.useMemo(

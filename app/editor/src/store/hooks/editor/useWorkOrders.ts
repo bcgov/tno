@@ -1,19 +1,35 @@
 import { AxiosResponse } from 'axios';
-import { IContentModel, IWorkOrderModel, useApiWorkOrders } from 'hooks/api-editor';
+import {
+  IContentModel,
+  IPaged,
+  IWorkOrderFilter,
+  IWorkOrderModel,
+  useApiWorkOrders,
+} from 'hooks/api-editor';
 import React from 'react';
 
-import { useApiDispatcher } from '..';
+import { useAjaxWrapper } from '..';
 
 interface IWorkOrderController {
+  findWorkOrders: (filter: IWorkOrderFilter) => Promise<AxiosResponse<IPaged<IWorkOrderModel>>>;
   transcribe: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   nlp: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
 }
 
 export const useWorkOrders = (): [any, IWorkOrderController] => {
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const api = useApiWorkOrders();
 
   const controller = React.useRef({
+    findWorkOrders: async (filter: IWorkOrderFilter) => {
+      const response = await dispatch<IPaged<IWorkOrderModel>>(
+        'find-work-orders',
+        () => api.findWorkOrders(filter),
+        undefined,
+        true,
+      );
+      return response;
+    },
     transcribe: async (content: IContentModel) => {
       return await dispatch('transcribe-content', () => api.transcribe(content));
     },

@@ -2,7 +2,14 @@ import { AxiosError, AxiosResponse } from 'axios';
 import React from 'react';
 import { useAppStore } from 'store/slices';
 
-export const useApiDispatcher = () => {
+/**
+ * Hook provides a common way to make AJAX requests.
+ * All requests are added to a a log.
+ * All errors are added to the error log.
+ * When a request completes it is removed from the log.
+ * @returns Function to dispatch AJAX requests.
+ */
+export const useAjaxWrapper = () => {
   const [, app] = useAppStore();
 
   return React.useMemo(
@@ -10,9 +17,11 @@ export const useApiDispatcher = () => {
       async <T>(
         name: string,
         request: () => Promise<AxiosResponse<T>>,
+        group: string | string[] | undefined = undefined,
+        isSilent: boolean = false,
       ): Promise<AxiosResponse<T>> => {
         try {
-          app.addRequest(name);
+          app.addRequest(name, group, isSilent);
           return await request();
         } catch (error) {
           // TODO: Capture error information.

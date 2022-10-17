@@ -10,3 +10,4 @@ export * from './useSeries';
 export * from './useSources';
 export * from './useTags';
 export * from './useUsers';
+export * from './useWorkOrders';

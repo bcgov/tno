@@ -104,6 +104,11 @@ export const NavBar: React.FC = () => {
               label="Ingest Types"
               claim={Claim.administrator}
             />
+            <NavBarItem
+              navigateTo="/admin/work/orders"
+              label="Work Orders"
+              claim={Claim.administrator}
+            />
           </Show>
 
           {/* Reports */}

@@ -1,7 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserInfoModel } from 'hooks/api-editor';
 
-import { IAppState, IErrorModel } from '.';
+import { IAjaxRequest, IAppState, IErrorModel } from '.';
+
+const defaultState: IAppState = {
+  requests: [],
+  showErrors: false,
+  errors: [],
+};
 
 /**
  * The following is a shorthand method for creating a reducer with paired actions and action creators.
@@ -10,11 +16,7 @@ import { IAppState, IErrorModel } from '.';
  */
 export const appSlice = createSlice({
   name: 'app',
-  initialState: {
-    requests: [],
-    showErrors: false,
-    errors: [],
-  },
+  initialState: defaultState,
   reducers: {
     storeToken(state: IAppState, action: PayloadAction<any>) {
       state.token = action.payload;
@@ -22,11 +24,11 @@ export const appSlice = createSlice({
     storeUserInfo(state: IAppState, action: PayloadAction<IUserInfoModel | undefined>) {
       state.userInfo = action.payload;
     },
-    addRequest(state: IAppState, action: PayloadAction<string>) {
+    addRequest(state: IAppState, action: PayloadAction<IAjaxRequest>) {
       state.requests.push(action.payload);
     },
     removeRequest(state: IAppState, action: PayloadAction<string>) {
-      const index = state.requests.indexOf(action.payload);
+      const index = state.requests.findIndex((r) => r.url === action.payload);
       state.requests.splice(index, 1);
     },
     clearRequests(state: IAppState) {

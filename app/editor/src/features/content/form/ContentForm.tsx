@@ -23,16 +23,36 @@ import {
   useTooltips,
   useUserLookups,
   WorkOrderStatusName,
+  WorkOrderTypeName,
 } from 'hooks';
 import { ContentStatusName, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
-import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines, FaSpinner } from 'react-icons/fa';
+import {
+  FaBars,
+  FaCheckCircle,
+  FaChevronLeft,
+  FaChevronRight,
+  FaGripLines,
+  FaSpinner,
+} from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent, useLookup, useWorkOrders } from 'store/hooks';
-import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
+import { IAjaxRequest } from 'store/slices';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  Row,
+  Show,
+  Spinner,
+  SpinnerVariant,
+  Tab,
+  Tabs,
+} from 'tno-core';
 import { hasErrors } from 'utils';
 
 import { ContentFormSchema } from '../validation';
@@ -49,15 +69,18 @@ import * as styled from './styled';
 import { isSnippetForm, switchStatus, toForm, toModel } from './utils';
 
 export interface IContentFormProps {
-  /** The content type this form will create */
-  contentType: ContentTypeName;
+  /** Control what form elements are visible. */
+  contentType?: ContentTypeName;
 }
 
 /**
  * Snippet Form edit and create form for default view. Path will be appended with content id.
+ * @param param0 Component properties.
  * @returns Edit/Create Form for Content
  */
-export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initContentType }) => {
+export const ContentForm: React.FC<IContentFormProps> = ({
+  contentType: initContentType = ContentTypeName.Snippet,
+}) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [{ sources, tonePools, series }, { getSeries }] = useLookup();
@@ -66,7 +89,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
     { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
   ] = useContent();
   const [, { transcribe, nlp }] = useWorkOrders();
-  const { isShowing, toggle } = useModal();
+  const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
+  const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
+  const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
   const { userId } = useUserLookups();
   const sourceOptions = useSourceOptions();
   const productOptions = useProductOptions();
@@ -86,6 +111,25 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
+  const isTranscribing = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.Transcription &&
+      [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(i.status),
+  );
+  const isTranscribed = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Completed,
+  );
+  const isNLPing = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
+      [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(i.status),
+  );
+  const isNLPed = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
+      i.status === WorkOrderStatusName.Completed,
+  );
 
   const determineActions = () => {
     switch (contentType) {
@@ -203,6 +247,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
       // Save before submitting request.
       await handleSubmit(values);
       const response = await transcribe(toModel(values));
+      setContent({ ...content, workOrders: [response.data, ...content.workOrders] });
 
       if (response.status === 200) toast.success('A transcript has been requested');
       else if (response.status === 208) {
@@ -221,6 +266,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
       // Save before submitting request.
       await handleSubmit(values);
       const response = await nlp(toModel(values));
+      setContent({ ...content, workOrders: [response.data, ...content.workOrders] });
 
       if (response.status === 200) toast.success('An NLP has been requested');
       else if (response.status === 208) {
@@ -306,6 +352,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
             onSubmit={handleSubmit}
             validationSchema={ContentFormSchema}
             initialValues={content}
+            loading={(request: IAjaxRequest) =>
+              !request.isSilent && request.group.some((g) => g === 'content' || g === 'lookup')
+            }
           >
             {(props) => (
               <Col>
@@ -477,7 +526,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                               label="Transcript"
                               onClick={() => setActive('transcript')}
                               active={active === 'transcript'}
-                            />
+                            >
+                              <Show visible={isTranscribing}>
+                                <Spinner variant={SpinnerVariant.light} size="0.5em" />
+                              </Show>
+                              <Show visible={isTranscribed && !isTranscribing}>
+                                <FaCheckCircle className="spinner" />
+                              </Show>
+                            </Tab>
                             <Tab
                               label="Clips"
                               onClick={() => setActive('clips')}
@@ -490,7 +546,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                             label="Labels"
                             onClick={() => setActive('labels')}
                             active={active === 'labels'}
-                          />
+                          >
+                            <Show visible={isNLPing}>
+                              <Spinner variant={SpinnerVariant.light} size="0.5em" />
+                            </Show>
+                            <Show visible={isNLPed && !isNLPing}>
+                              <FaCheckCircle className="spinner" />
+                            </Show>
+                          </Tab>
                         </>
                       }
                     >
@@ -547,7 +610,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                       }
                     >
                       <Button
-                        onClick={() => handleTranscribe(props.values)}
+                        onClick={() =>
+                          isTranscribed && !isTranscribing
+                            ? toggleTranscribe()
+                            : handleTranscribe(props.values)
+                        }
                         variant={ButtonVariant.action}
                         disabled={
                           props.isSubmitting ||
@@ -555,21 +622,25 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                           (props.values.fileReferences.length > 0 &&
                             !props.values.fileReferences[0].isUploaded)
                         }
+                        tooltip="Request a transcription"
                       >
-                        Request Transcript
+                        Transcribe
                       </Button>
                     </Show>
                     <Show visible={!!props.values.id && props.values.body.length > 0}>
                       <Button
-                        onClick={() => handleNLP(props.values)}
+                        onClick={() =>
+                          isNLPed && !isNLPing ? toggleNLP() : handleNLP(props.values)
+                        }
                         variant={ButtonVariant.action}
                         disabled={props.isSubmitting}
+                        tooltip="Request Natural Language Processing"
                       >
-                        Request NLP
+                        NLP
                       </Button>
                     </Show>
                     <Button
-                      onClick={toggle}
+                      onClick={toggleDelete}
                       variant={ButtonVariant.danger}
                       disabled={props.isSubmitting}
                     >
@@ -580,16 +651,46 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
                 <Modal
                   headerText="Confirm Removal"
                   body="Are you sure you wish to delete this content?"
-                  isShowing={isShowing}
-                  hide={toggle}
+                  isShowing={showDeleteModal}
+                  hide={toggleDelete}
                   type="delete"
                   confirmText="Yes, Delete It"
                   onConfirm={async () => {
                     try {
                       await deleteContent(toModel(props.values));
                     } finally {
-                      toggle();
+                      toggleDelete();
                       navigate('/contents');
+                    }
+                  }}
+                />
+                <Modal
+                  headerText="Confirm Transcript Request"
+                  body="Content has already been transcribed, do you want to transcribe again?"
+                  isShowing={showTranscribeModal}
+                  hide={toggleTranscribe}
+                  type="default"
+                  confirmText="Yes, transcribe"
+                  onConfirm={async () => {
+                    try {
+                      await handleTranscribe(props.values);
+                    } finally {
+                      toggleTranscribe();
+                    }
+                  }}
+                />
+                <Modal
+                  headerText="Confirm NLP Request"
+                  body="Content has already been Natural Language Processed, do you want to process again?"
+                  isShowing={showNLPModal}
+                  hide={toggleNLP}
+                  type="default"
+                  confirmText="Yes, process"
+                  onConfirm={async () => {
+                    try {
+                      await handleNLP(props.values);
+                    } finally {
+                      toggleNLP();
                     }
                   }}
                 />

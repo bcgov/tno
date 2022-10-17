@@ -127,8 +127,8 @@ public class ContentController : ControllerBase
 
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
-        var reference = content.FileReferences.Any() ? new ContentFileReference(content.FileReferences.First(), files.First()) : new ContentFileReference(content, files.First());
-        await _fileReferenceService.Upload(reference);
+        if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First());
+        else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()));
 
         return new JsonResult(new ContentModel(content));
     }

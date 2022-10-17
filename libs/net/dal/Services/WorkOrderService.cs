@@ -40,6 +40,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     public IPaged<WorkOrder> Find(WorkOrderFilter filter)
     {
         var query = this.Context.WorkOrders
+            .Include(m => m.Content)
             .AsNoTracking()
             .AsQueryable();
 
@@ -108,6 +109,18 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             .OrderByDescending(c => c.CreatedOn);
 
         return query.ToArray();
+    }
+
+    /// <summary>
+    /// Find the work order for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public override WorkOrder? FindById(long id)
+    {
+        return this.Context.WorkOrders
+            .Include(m => m.Content)
+            .FirstOrDefault(m => m.Id == id);
     }
     #endregion
 }

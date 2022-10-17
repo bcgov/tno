@@ -1,7 +1,7 @@
 import { IContentReferenceModel, IPaged, useApiAdminContentReferences } from 'hooks/api-editor';
 import { IContentReferenceFilter } from 'hooks/api-editor/interfaces/IContentReferenceFilter';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IContentReferenceController {
@@ -31,7 +31,7 @@ interface IContentReferenceController {
  */
 export const useContentReferences = (): [IAdminState, IContentReferenceController] => {
   const api = useApiAdminContentReferences();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const [state] = useAdminStore();
 
   const controller = React.useMemo(

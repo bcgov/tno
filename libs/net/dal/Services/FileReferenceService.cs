@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Config;
@@ -53,11 +54,34 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     }
 
     /// <summary>
+    /// Delete the original file and upload the new file for the content.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public async Task<FileReference> UploadAsync(Content content, IFormFile file)
+    {
+        if (!content.FileReferences.Any()) throw new InvalidOperationException("Content does not have a file to replace");
+
+        var original = content.FileReferences.First();
+        var originalPath = original.GetFilePath(this.Context, _options);
+
+        // Delete the original file if it exists.
+        if (File.Exists(originalPath))
+            File.Delete(originalPath);
+
+        var fileReference = new ContentFileReference(original, file);
+        var result = await UploadAsync(fileReference);
+
+        return result;
+    }
+
+    /// <summary>
     /// Upload the file to the configured data location and add or update the specified file reference.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public async Task<FileReference> Upload(ContentFileReference model)
+    public async Task<FileReference> UploadAsync(ContentFileReference model)
     {
         // TODO: Handle different data locations.
         var path = model.GetFilePath(this.Context, _options);
@@ -80,6 +104,29 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
 
         this.Context.CommitTransaction();
         return entity;
+    }
+
+    /// <summary>
+    /// Delete the original file and upload the new file for the content.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    public FileReference Attach(Content content, FileInfo file)
+    {
+        if (!content.FileReferences.Any()) throw new InvalidOperationException("Content does not have a file to replace");
+
+        var original = content.FileReferences.First();
+        var originalPath = original.GetFilePath(this.Context, _options);
+
+        // Delete the original file if it exists.
+        if (File.Exists(originalPath))
+            File.Delete(originalPath);
+
+        var fileReference = new ContentFileReference(original, file);
+        var result = Attach(fileReference);
+
+        return result;
     }
 
     /// <summary>

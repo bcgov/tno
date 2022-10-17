@@ -2,7 +2,7 @@ import { ICategoryModel, IPaged } from 'hooks';
 import { useApiAdminCategories } from 'hooks/api-editor/admin/useApiAdminCategories';
 import { ICategoryFilter } from 'hooks/api-editor/interfaces/ICategoryFilter';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface ICategoryController {
@@ -16,7 +16,7 @@ interface ICategoryController {
 
 export const useCategories = (): [IAdminState, ICategoryController] => {
   const api = useApiAdminCategories();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
 
   const controller = React.useMemo(

@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: buildah-services
+  name: buildah-$(params.CONTEXT)/services
   annotations:
     tekton.dev/displayName: Buildah Pipeline
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy
   labels:
-    name: buildah-services
+    name: buildah-$(params.CONTEXT)/services
     part-of: tno
     version: 1.0.0
     component: pipeline
@@ -80,9 +80,9 @@ spec:
         - name: COMPONENT
           value: syndication
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: syndication/Dockerfile
+          value: $(params.CONTEXT)/services/net/syndication/Dockerfile
         - name: IMAGE
           value: syndication-service
         - name: IMAGE_TAG
@@ -119,9 +119,9 @@ spec:
         - name: COMPONENT
           value: capture
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: capture/Dockerfile
+          value: $(params.CONTEXT)/services/net/capture/Dockerfile
         - name: IMAGE
           value: capture-service
         - name: IMAGE_TAG
@@ -158,9 +158,9 @@ spec:
         - name: COMPONENT
           value: clip
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: clip/Dockerfile
+          value: $(params.CONTEXT)/services/net/clip/Dockerfile
         - name: IMAGE
           value: clip-service
         - name: IMAGE_TAG
@@ -197,9 +197,9 @@ spec:
         - name: COMPONENT
           value: filemonitor
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: filemonitor/Dockerfile
+          value: $(params.CONTEXT)/services/net/filemonitor/Dockerfile
         - name: IMAGE
           value: filemonitor-service
         - name: IMAGE_TAG
@@ -236,9 +236,9 @@ spec:
         - name: COMPONENT
           value: image
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: image/Dockerfile
+          value: $(params.CONTEXT)/services/net/image/Dockerfile
         - name: IMAGE
           value: image-service
         - name: IMAGE_TAG
@@ -275,9 +275,9 @@ spec:
         - name: COMPONENT
           value: content
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: content/Dockerfile
+          value: $(params.CONTEXT)/services/net/content/Dockerfile
         - name: IMAGE
           value: content-service
         - name: IMAGE_TAG
@@ -314,9 +314,9 @@ spec:
         - name: COMPONENT
           value: indexing
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: indexing/Dockerfile
+          value: $(params.CONTEXT)/services/net/indexing/Dockerfile
         - name: IMAGE
           value: indexing-service
         - name: IMAGE_TAG
@@ -353,9 +353,9 @@ spec:
         - name: COMPONENT
           value: transcription
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: transcription/Dockerfile
+          value: $(params.CONTEXT)/services/net/transcription/Dockerfile
         - name: IMAGE
           value: transcription-service
         - name: IMAGE_TAG
@@ -392,9 +392,9 @@ spec:
         - name: COMPONENT
           value: nlp
         - name: CONTEXT
-          value: $(params.CONTEXT)/services/net
+          value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: nlp/Dockerfile
+          value: $(params.CONTEXT)/services/net/nlp/Dockerfile
         - name: IMAGE
           value: nlp-service
         - name: IMAGE_TAG

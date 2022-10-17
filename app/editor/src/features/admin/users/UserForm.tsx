@@ -7,17 +7,17 @@ import {
   FormikTextArea,
 } from 'components/formik';
 import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
+import { useModal, useTooltips } from 'hooks';
 import { IUserModel, UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import ReactTooltip from 'react-tooltip';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import { Button, ButtonVariant, Show } from 'tno-core';
 import { Col, Row } from 'tno-core';
+import { getEnumStringOptions } from 'utils';
 
 import { defaultUser } from './constants';
 import * as styled from './styled';
@@ -33,6 +33,7 @@ export const UserForm: React.FC = () => {
   const userId = Number(id);
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
+  useTooltips();
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [roleOptions, setRoleOptions] = React.useState(
@@ -40,11 +41,7 @@ export const UserForm: React.FC = () => {
   );
 
   const isLinkedToKeycloak = user.key !== '00000000-0000-0000-0000-000000000000';
-  const statusOptions = [
-    UserStatusName.Requested,
-    UserStatusName.Approved,
-    UserStatusName.Denied,
-  ].map((s) => new OptionItem(s, s));
+  const statusOptions = getEnumStringOptions(UserStatusName);
 
   React.useEffect(() => {
     if (!!userId && user?.id !== userId) {
@@ -57,10 +54,6 @@ export const UserForm: React.FC = () => {
   React.useEffect(() => {
     setRoleOptions(lookups.roles.map((r) => new OptionItem(r.name, r.id)));
   }, [lookups.roles]);
-
-  React.useEffect(() => {
-    ReactTooltip.rebuild();
-  });
 
   const handleSubmit = async (values: IUserModel) => {
     try {

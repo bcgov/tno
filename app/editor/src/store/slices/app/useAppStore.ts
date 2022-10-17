@@ -17,7 +17,7 @@ import { IAppState, IErrorModel } from './interfaces';
 export interface IAppStore {
   storeToken: (token: any) => void;
   storeUserInfo: (user?: IUserInfoModel) => void;
-  addRequest: (url: string) => void;
+  addRequest: (url: string, group?: string | string[], isSilent?: boolean) => void;
   removeRequest: (url: string) => void;
   clearRequests: () => void;
   addError: (error: IErrorModel) => void;
@@ -25,6 +25,10 @@ export interface IAppStore {
   clearErrors: () => void;
 }
 
+/**
+ * Hook
+ * @returns Array with state and controller.
+ */
 export const useAppStore = (): [IAppState, IAppStore] => {
   const dispatch = useAppDispatch();
   const state = useAppSelector((store) => store.app);
@@ -37,8 +41,13 @@ export const useAppStore = (): [IAppState, IAppStore] => {
       storeUserInfo: (user?: IUserInfoModel) => {
         dispatch(storeUserInfo(user));
       },
-      addRequest: (url: string) => {
-        dispatch(addRequest(url));
+      addRequest: (
+        url: string,
+        group: string | string[] | undefined = undefined,
+        isSilent: boolean = false,
+      ) => {
+        var groups = Array.isArray(group) ? group : !!group ? [group] : [];
+        dispatch(addRequest({ url, group: groups, isSilent }));
       },
       removeRequest: (url: string) => {
         dispatch(removeRequest(url));

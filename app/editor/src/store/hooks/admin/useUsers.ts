@@ -2,7 +2,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IPaged, IUserModel, useApiAdminUsers } from 'hooks/api-editor';
 import { IUserFilter } from 'hooks/api-editor/interfaces/IUserFilter';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IUserController {
@@ -16,7 +16,7 @@ interface IUserController {
 
 export const useUsers = (): [IAdminState, IUserController] => {
   const api = useApiAdminUsers();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
 
   const controller = React.useMemo(

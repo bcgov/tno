@@ -1,9 +1,9 @@
-import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { IUserFilter } from 'hooks';
+import { IWorkOrderFilter } from 'hooks';
 
-import { ISortBy } from '../interfaces';
+import { ISortBy } from '../../../content/list-view/interfaces';
+import { IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 
-export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
+export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFilter => {
   return {
     ...filter,
     page: filter.pageIndex + 1,

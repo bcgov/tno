@@ -19,7 +19,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private readonly ILogger _logger;
     private bool _disposed = false;
     private bool _open = false;
-    private ConsumeResult<TKey, TValue>? _currentResult = null;
+    private Task? _activeHandler;
     #endregion
 
     #region Properties
@@ -29,7 +29,12 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     protected IConsumer<TKey, TValue>? Consumer { get; private set; }
 
     /// <summary>
-    /// get - Whether the listener is actively consuming messages.
+    /// get - Whether the listener should await the message handler.
+    /// </summary>
+    public bool IsLongRunningJob { get; set; }
+
+    /// <summary>
+    /// get - Whether the listener is currently consuming messages.
     /// </summary>
     public bool IsConsuming { get; private set; }
 
@@ -83,7 +88,6 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             builder.SetKeyDeserializer(new DefaultJsonSerializer<TKey>(_serializerOptions));
         if (typeof(TValue).IsClass && typeof(TValue) != typeof(string))
             builder.SetValueDeserializer(new DefaultJsonSerializer<TValue>(_serializerOptions));
-
         return builder.Build();
     }
 
@@ -134,61 +138,45 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="cancellationToken"></param>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action, CancellationToken cancellationToken)
+    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task> action, CancellationToken cancellationToken)
     {
         if (action == null) throw new ArgumentNullException(nameof(action));
 
         // Do not continue if the token has been cancelled.
-        if (cancellationToken.IsCancellationRequested) return;
-        var proceed = ConsumerAction.Stop;
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
         this.IsConsuming = true;
 
         try
         {
             if (!_open) this.Open();
 
-            // If not currently working on a result, wait for a new one.
-            // This provides a way to keep trying to handle the current result because of some kind of intermittent failure.
-            if (_currentResult == null)
-            {
+            if (!this.IsPaused)
                 _logger.LogDebug("Waiting to receive message from Kafka topics: '{topic}'", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
 
-                // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
-                _currentResult = this.Consumer!.Consume(cancellationToken);
-
-                _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
-
-                if (!this.IsPaused)
+            // I don't understand why Kafka didn't use an async+await pattern here, but this function blocks until it receives a message.
+            var consumeResult = this.Consumer!.Consume(cancellationToken);
+            if (consumeResult != null)
+            {
+                _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
+                if (this.IsLongRunningJob)
                 {
-                    _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", this.Consumer.Subscription ?? new List<string>()));
-                    // TODO: Pausing is only required if the action takes too long.  This current implementation isn't efficient.
-                    this.Consumer.Pause(this.Consumer.Assignment);
-                    this.IsPaused = true;
+                    // Cannot await for the action to complete because if it takes too long the Kafka consumer will leave the group.
+                    // If the consumer receives another message before the prior action completes it'll result in numerous orphaned threads.
+                    // Either we need to maintain a dictionary, throw an error, or limit the number.
+                    // When `IsLongRunningJob` it should pause consumption.
+                    _activeHandler = Task.Run(() => action(consumeResult), cancellationToken);
+                    Pause();
                 }
+                else
+                    await action(consumeResult);
             }
             else
             {
-                _logger.LogDebug("Retrying prior message from Kafka topic: '{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
-            }
-
-            if (_currentResult != null)
-            {
-                proceed = await action(_currentResult);
-                if (proceed == ConsumerAction.Proceed)
-                {
-                    // Manually commit to inform Kafka this message has successfully been handled.
-                    // TODO: Convert to more efficient process and use EnableAutoOffsetStore=false - https://docs.confluent.io/kafka-clients/dotnet/current/overview.html#store-offsets
-                    if (_config.EnableAutoCommit == false)
-                    {
-                        this.Consumer?.Commit(_currentResult);
-                        _logger.LogDebug("Message committed from Kafka topic:'{topic}' key:'{key}'", _currentResult.Topic, _currentResult.Message.Key);
-                    }
-                    _currentResult = null;
-                }
-            }
-            else
-            {
-                _logger.LogError("Unexpected consumer with no message");
+                _logger.LogWarning("Unexpected consume containing no message");
             }
         }
         catch (Exception ex)
@@ -196,17 +184,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
             // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
             // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
             _logger.LogError(ex, "Error while consuming. {message}", ex.Message);
-            proceed = this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
-        }
-        finally
-        {
-            if (proceed == ConsumerAction.Stop) this.Stop();
-            else if (this.IsPaused && proceed == ConsumerAction.Proceed)
-            {
-                _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));
-                this.IsPaused = false;
-                this.Consumer?.Resume(this.Consumer.Assignment);
-            }
+            this.OnError?.Invoke(this, new ErrorEventArgs(ex));
         }
     }
 
@@ -218,10 +196,69 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="action"></param>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action)
+    public async Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task> action)
     {
         var cancelToken = new CancellationTokenSource();
         await ConsumeAsync(action, cancelToken.Token);
+    }
+
+    /// <summary>
+    /// Inform Kafka that the specified 'result' has been completed for this consumer group.
+    /// </summary>
+    /// <param name="result"></param>
+    public void Commit(ConsumeResult<TKey, TValue> result)
+    {
+        this.Consumer?.Commit(result);
+        _logger.LogDebug("Message committed from topic:'{topic}' key:'{key}'", result.Topic, result.Message.Key);
+    }
+
+    /// <summary>
+    /// Pause consuming messages from the current assignment.
+    /// </summary>
+    public void Pause()
+    {
+        if (this.Consumer != null)
+            Pause(this.Consumer.Assignment);
+    }
+
+    /// <summary>
+    /// Pause consuming messages from the specified partitions.
+    /// </summary>
+    /// <param name="partitions"></param>
+    public void Pause(IEnumerable<TopicPartition> partitions)
+    {
+        _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
+        this.IsPaused = true;
+        this.Consumer?.Pause(partitions);
+    }
+
+    /// <summary>
+    /// Resume consuming messages from the current assignment.
+    /// </summary>
+    public void Resume()
+    {
+        if (this.Consumer != null)
+            Resume(this.Consumer.Assignment);
+    }
+
+    /// <summary>
+    /// Resume consuming messages from the specified partitions.
+    /// </summary>
+    /// <param name="partitions"></param>
+    public void Resume(IEnumerable<TopicPartition> partitions)
+    {
+        _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
+        this.IsPaused = false;
+        this.Consumer?.Resume(partitions);
+    }
+
+    /// <summary>
+    /// Get the position for the specific topic partition.
+    /// </summary>
+    /// <returns></returns>
+    public Offset? Position(TopicPartition partition)
+    {
+        return this.Consumer?.Position(partition);
     }
 
     /// <summary>

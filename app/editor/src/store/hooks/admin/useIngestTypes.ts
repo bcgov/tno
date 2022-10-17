@@ -5,7 +5,7 @@ import {
   useApiAdminIngestTypes,
 } from 'hooks/api-editor';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IIngestTypeController {
@@ -19,7 +19,7 @@ interface IIngestTypeController {
 
 export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
   const api = useApiAdminIngestTypes();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
 
   const controller = React.useMemo(

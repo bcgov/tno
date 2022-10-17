@@ -59,15 +59,15 @@ spec:
 
         # Identify what needs to be built and deployed.
         function build_service {
-          BUILD='BUILD_${1^^}=true'
+          BUILD=BUILD_${1^^}=true
           if grep -s services/net/$1 <<< $DIFF; then
-            echo '$BUILD' >> build.env
+            echo $BUILD >> build.env
           elif grep -s libs/net/services <<< $DIFF; then
-            echo '$BUILD' >> build.env
+            echo $BUILD >> build.env
           elif grep -s libs/net/kafka <<< $DIFF; then
-            echo '$BUILD' >> build.env
+            echo $BUILD >> build.env
           elif grep -s libs/net/core <<< $DIFF; then
-            echo '$BUILD' >> build.env
+            echo $BUILD >> build.env
           fi
         }
 

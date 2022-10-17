@@ -10,6 +10,7 @@ import {
   IContentTonePoolModel,
   IFileReferenceModel,
   ITimeTrackingModel,
+  IWorkOrderModel,
 } from 'hooks/api-editor';
 
 export interface IContentForm {
@@ -41,6 +42,7 @@ export interface IContentForm {
   fileReferences: IFileReferenceModel[];
   file?: File | null;
   links: IContentLinkModel[];
+  workOrders: IWorkOrderModel[];
   publishedOn: string;
   publishedOnTime: string;
   version?: number;

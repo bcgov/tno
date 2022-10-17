@@ -1,6 +1,6 @@
 import { IActionFilter, IActionModel, IPaged, useApiAdminActions } from 'hooks';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IActionController {
@@ -14,7 +14,7 @@ interface IActionController {
 
 export const useActions = (): [IAdminState, IActionController] => {
   const api = useApiAdminActions();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
 
   const controller = React.useMemo(
