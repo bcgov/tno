@@ -103,7 +103,7 @@ INSERT INTO public.connection (
   , 'Globe and Mail upload files to this location.' -- description
   , true -- is_enabled
   , 7 -- connection_type - SSH
-  , '{"passwordAuth": true,"path":"/","username":"nc0002","hostname":"gamdelivery.globeandmail.ca","password": "rond9dil"}' -- configuration
+  , '{"passwordAuth": true,"path":"/","username":"nc0002","hostname":"gamdelivery.globeandmail.ca","password": ""}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID
