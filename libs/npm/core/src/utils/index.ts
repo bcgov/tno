@@ -3,6 +3,7 @@ export * from './enums';
 export * from './extractResponseData';
 export * from './fromQueryString';
 export * from './hasChanged';
+export * from './hideTooltipOnClick';
 export * from './interfaces';
 export * from './isIE';
 export * from './isInViewPort';
