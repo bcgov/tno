@@ -1,10 +1,7 @@
+import { FormPage } from 'components/form';
 import styled from 'styled-components';
 
-export const ConnectionList = styled.div`
-  width: auto;
-  min-height: 100%;
-  display: flex;
-  justify-content: center;
+export const ConnectionList = styled(FormPage)`
   .filter-bar {
     display: flex;
     align-items: center;

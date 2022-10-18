@@ -17,7 +17,6 @@ export const useCombinedView = (contentType?: ContentTypeName) => {
   React.useEffect(() => {
     setCombined((pathname.match('/combined/')?.length ?? 0) > 0);
   }, [pathname]);
-
   React.useEffect(() => {
     setFormType(type);
   }, [type]);

@@ -1,4 +1,4 @@
-import { FormPage, IconButton } from 'components/form';
+import { IconButton } from 'components/form';
 import { makeUserFilter } from 'features/content/list-view/utils/makeUserFilter';
 import { IUserModel } from 'hooks';
 import React from 'react';
@@ -65,28 +65,26 @@ export const UserList: React.FC = () => {
 
   return (
     <styled.UserList>
-      <FormPage>
-        <Row className="add-media" justifyContent="flex-end">
-          <Col flex="1 1 0">
-            User administration provides a way to approve users and grant them appropriate roles.
-          </Col>
-          <IconButton
-            iconType="plus"
-            label="Add New User"
-            onClick={() => navigate('/admin/users/0')}
-          />
-        </Row>
-        <PagedTable
-          columns={columns}
-          header={UserFilter}
-          sorting={{ sortBy: userFilter.sort }}
-          isLoading={!!requests.length}
-          page={page}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-          onChangeSort={handleChangeSort}
-          onChangePage={handleChangePage}
-        ></PagedTable>
-      </FormPage>
+      <Row className="add-media" justifyContent="flex-end">
+        <Col flex="1 1 0">
+          User administration provides a way to approve users and grant them appropriate roles.
+        </Col>
+        <IconButton
+          iconType="plus"
+          label="Add New User"
+          onClick={() => navigate('/admin/users/0')}
+        />
+      </Row>
+      <PagedTable
+        columns={columns}
+        header={UserFilter}
+        sorting={{ sortBy: userFilter.sort }}
+        isLoading={!!requests.length}
+        page={page}
+        onRowClick={(row) => navigate(`${row.original.id}`)}
+        onChangeSort={handleChangeSort}
+        onChangePage={handleChangePage}
+      ></PagedTable>
     </styled.UserList>
   );
 };

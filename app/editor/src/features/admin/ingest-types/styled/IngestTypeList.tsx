@@ -1,10 +1,7 @@
+import { FormPage } from 'components/form/formpage/styled';
 import styled from 'styled-components';
 
-export const IngestTypeList = styled.div`
-  width: auto;
-  min-height: 100%;
-  display: flex;
-  justify-content: center;
+export const IngestTypeList = styled(FormPage)`
   .filter-bar {
     display: flex;
     align-items: center;
