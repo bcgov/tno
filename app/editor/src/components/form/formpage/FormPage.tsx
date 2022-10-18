@@ -5,6 +5,8 @@ import * as styled from './styled';
 export interface IFormPageProps extends InputHTMLAttributes<HTMLDivElement> {
   /** bypass the default min width */
   minWidth?: string;
+  /** bypass the default max width */
+  maxWidth?: string;
   /** include contents of form page */
   children: React.ReactNode;
 }
