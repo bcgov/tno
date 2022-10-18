@@ -99,16 +99,15 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
         var password = manager.Ingest.SourceConnection?.GetConfigurationValue("password");
-        var passwordAuth = manager.Ingest.GetConfigurationValue<bool>("passwordAuth");
+        var passwordAuth = manager.Ingest.SourceConnection?.GetConfigurationValue<bool>("passwordAuth");
         if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
         if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
-        if (!passwordAuth && String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'");
-        if (passwordAuth && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'password'");
+        if (!(passwordAuth ?? false) && String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'");
+        if ((passwordAuth ?? false) && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'password'");
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
         // The ingest configuration may have a different path than the root connection path.
         remotePath = Path.Combine(remotePath, manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
-        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
 
         if (passwordAuth == true)
         {
@@ -117,18 +116,22 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                                         new PasswordAuthenticationMethod(username, password));
             await FetchFiles(connectionInfo, remotePath, manager);
         }
-        else if (File.Exists(sshKeyFile))
-        {
-            var keyFile = new PrivateKeyFile(sshKeyFile);
-            var keyFiles = new[] { keyFile };
-            var connectionInfo = new ConnectionInfo(hostname,
-                                        username,
-                                        new PrivateKeyAuthenticationMethod(username, keyFiles));
-            await FetchFiles(connectionInfo, remotePath, manager);
-        }
         else
         {
-            throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+            var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+            if (File.Exists(sshKeyFile))
+            {
+                var keyFile = new PrivateKeyFile(sshKeyFile);
+                var keyFiles = new[] { keyFile };
+                var connectionInfo = new ConnectionInfo(hostname,
+                                            username,
+                                            new PrivateKeyAuthenticationMethod(username, keyFiles));
+                await FetchFiles(connectionInfo, remotePath, manager);
+            }
+            else
+            {
+                throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+            }
         }
     }
 

@@ -94,7 +94,7 @@ INSERT INTO public.ingest_schedule (
   , CURRENT_TIMESTAMP
 ), (
   (SELECT id FROM public.ingest WHERE name = 'Globe & Mail - Articles')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'GLOBEA')  -- schedule_id
+  , (SELECT id FROM public.schedule WHERE name = 'GLOBE - Articles')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP

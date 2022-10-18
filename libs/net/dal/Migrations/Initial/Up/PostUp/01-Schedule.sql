@@ -199,7 +199,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'GLOBEA' -- name
+  'GLOBE - Articles' -- name
   , 'Globe and Mail article import' -- description
   , true -- is_enabled
   , 1 -- schedule_type
