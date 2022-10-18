@@ -29,27 +29,25 @@ export const IngestTypeList: React.FC = () => {
 
   return (
     <styled.IngestTypeList>
-      <FormPage>
-        <Row className="add-ingest" justifyContent="flex-end">
-          <Col flex="1 1 0">
-            Ingest types provide a way to identify the ingest that the content represents. Each
-            ingest service is configured to listen to one or more of these ingest types.
-          </Col>
-          <IconButton
-            iconType="plus"
-            label="Add New Ingest Type"
-            onClick={() => navigate('/admin/ingest/types/0')}
-          />
-        </Row>
-        <GridTable
-          columns={columns}
-          header={IngestTypeFilter}
-          manualPageSize
-          isLoading={!!requests.length}
-          data={items}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
-      </FormPage>
+      <Row className="add-ingest" justifyContent="flex-end">
+        <Col flex="1 1 0">
+          Ingest types provide a way to identify the ingest that the content represents. Each ingest
+          service is configured to listen to one or more of these ingest types.
+        </Col>
+        <IconButton
+          iconType="plus"
+          label="Add New Ingest Type"
+          onClick={() => navigate('/admin/ingest/types/0')}
+        />
+      </Row>
+      <GridTable
+        columns={columns}
+        header={IngestTypeFilter}
+        manualPageSize
+        isLoading={!!requests.length}
+        data={items}
+        onRowClick={(row) => navigate(`${row.original.id}`)}
+      ></GridTable>
     </styled.IngestTypeList>
   );
 };

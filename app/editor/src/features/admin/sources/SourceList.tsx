@@ -33,28 +33,26 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
 
   return (
     <styled.SourceList>
-      <FormPage>
-        <Row justifyContent="flex-end">
-          <Col flex="1 1 0">
-            Sources provide a way to identify the source of the content. Generally this would be the
-            publisher, or channel.
-          </Col>
-          <IconButton
-            iconType="plus"
-            label="Add New Source"
-            onClick={() => navigate('/admin/sources/0')}
-          />
-        </Row>
-        <GridTable
-          columns={columns}
-          isLoading={!!requests.length}
-          sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-          manualPageSize
-          data={items}
-          header={SourceFilter}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
-      </FormPage>
+      <Row justifyContent="flex-end">
+        <Col flex="1 1 0">
+          Sources provide a way to identify the source of the content. Generally this would be the
+          publisher, or channel.
+        </Col>
+        <IconButton
+          iconType="plus"
+          label="Add New Source"
+          onClick={() => navigate('/admin/sources/0')}
+        />
+      </Row>
+      <GridTable
+        columns={columns}
+        isLoading={!!requests.length}
+        sorting={{ sortBy: [{ id: 'id', desc: false }] }}
+        manualPageSize
+        data={items}
+        header={SourceFilter}
+        onRowClick={(row) => navigate(`${row.original.id}`)}
+      ></GridTable>
     </styled.SourceList>
   );
 };

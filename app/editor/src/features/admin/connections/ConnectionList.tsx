@@ -29,28 +29,26 @@ export const ConnectionList: React.FC = () => {
 
   return (
     <styled.ConnectionList>
-      <FormPage>
-        <Row className="add-media" justifyContent="flex-end">
-          <Col flex="1 1 0">
-            Connections provide a way to configuration data storage locations and authentication
-            settings. Ingest service configuration requires both a source and destination connection
-            to be configured.
-          </Col>
-          <IconButton
-            iconType="plus"
-            label={`Add new connection`}
-            onClick={() => navigate(`/admin/connections/0`)}
-          />
-        </Row>
-        <GridTable
-          columns={columns}
-          header={ConnectionListFilter}
-          manualPageSize
-          isLoading={!!requests.length}
-          data={items}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
-      </FormPage>
+      <Row className="add-media" justifyContent="flex-end">
+        <Col flex="1 1 0">
+          Connections provide a way to configuration data storage locations and authentication
+          settings. Ingest service configuration requires both a source and destination connection
+          to be configured.
+        </Col>
+        <IconButton
+          iconType="plus"
+          label={`Add new connection`}
+          onClick={() => navigate(`/admin/connections/0`)}
+        />
+      </Row>
+      <GridTable
+        columns={columns}
+        header={ConnectionListFilter}
+        manualPageSize
+        isLoading={!!requests.length}
+        data={items}
+        onRowClick={(row) => navigate(`${row.original.id}`)}
+      ></GridTable>
     </styled.ConnectionList>
   );
 };

@@ -33,28 +33,26 @@ export const IngestList: React.FC<IIngestListProps> = (props) => {
 
   return (
     <styled.IngestList>
-      <FormPage>
-        <Row justifyContent="flex-end">
-          <Col flex="1 1 0">
-            Ingest management provides a way to configure ingestion services. These services run in
-            the background and upload content from external data sources.
-          </Col>
-          <IconButton
-            iconType="plus"
-            label="Add New Ingest"
-            onClick={() => navigate('/admin/ingests/0')}
-          />
-        </Row>
-        <GridTable
-          columns={columns}
-          isLoading={!!requests.length}
-          sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-          manualPageSize
-          data={items}
-          header={IngestFilter}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
-      </FormPage>
+      <Row justifyContent="flex-end">
+        <Col flex="1 1 0">
+          Ingest management provides a way to configure ingestion services. These services run in
+          the background and upload content from external data sources.
+        </Col>
+        <IconButton
+          iconType="plus"
+          label="Add New Ingest"
+          onClick={() => navigate('/admin/ingests/0')}
+        />
+      </Row>
+      <GridTable
+        columns={columns}
+        isLoading={!!requests.length}
+        sorting={{ sortBy: [{ id: 'id', desc: false }] }}
+        manualPageSize
+        data={items}
+        header={IngestFilter}
+        onRowClick={(row) => navigate(`${row.original.id}`)}
+      ></GridTable>
     </styled.IngestList>
   );
 };
