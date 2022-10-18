@@ -1,4 +1,4 @@
-import { FormPage, IconButton } from 'components/form';
+import { IconButton } from 'components/form';
 import { makeUserFilter } from 'features/content/list-view/utils/makeUserFilter';
 import { IUserModel } from 'hooks';
 import React from 'react';

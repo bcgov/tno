@@ -1,4 +1,4 @@
-import { FormPage, IconButton } from 'components/form';
+import { IconButton } from 'components/form';
 import { IConnectionModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
