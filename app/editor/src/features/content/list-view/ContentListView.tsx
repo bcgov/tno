@@ -122,7 +122,7 @@ export const ContentListView: React.FC = () => {
   };
 
   return (
-    <styled.ContentListView>
+    <styled.ContentListView maxWidth={combined ? 'fit-content' : ''}>
       <Row wrap="nowrap">
         <Col className="left-pane">
           <ContentFilter search={fetch} />
