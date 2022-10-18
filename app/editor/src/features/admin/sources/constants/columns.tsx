@@ -9,12 +9,14 @@ export const columns: (Column<ISourceModel> &
     id: 'id',
     Header: 'Name',
     accessor: 'name',
+    sortType: 'string',
     width: 3,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'Code',
     accessor: 'code',
+    sortType: 'string',
     width: 1,
   },
   {
