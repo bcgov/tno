@@ -7,7 +7,7 @@ export const columns: (Column<ISourceModel> &
   UseFiltersColumnOptions<ISourceModel>)[] = [
   {
     id: 'id',
-    Header: 'Source',
+    Header: 'Name',
     accessor: 'name',
     width: 3,
     Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
@@ -16,12 +16,6 @@ export const columns: (Column<ISourceModel> &
     Header: 'Code',
     accessor: 'code',
     width: 1,
-  },
-  {
-    Header: 'Description',
-    accessor: 'description',
-    width: 4,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
   },
   {
     Header: 'License',

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -18,7 +19,9 @@ public class ConnectionService : BaseService<Connection, int>, IConnectionServic
     #region Methods
     public IEnumerable<Connection> FindAll()
     {
-        return this.Context.Connections.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Connections
+            .AsNoTracking()
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
     #endregion
 }

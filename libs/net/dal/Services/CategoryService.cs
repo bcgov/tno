@@ -22,7 +22,9 @@ public class CategoryService : BaseService<Category, int>, ICategoryService
     #region Methods
     public IEnumerable<Category> FindAll()
     {
-        return this.Context.Categories.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Categories
+            .AsNoTracking()
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
     public IPaged<Category> Find(CategoryFilter filter)

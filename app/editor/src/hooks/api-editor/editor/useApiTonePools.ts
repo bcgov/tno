@@ -21,7 +21,7 @@ export const useApiTonePools = (
   return React.useRef({
     getTonePools: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ITonePoolModel[], AxiosResponse<ITonePoolModel[], never>, any>(
+      return api.get<ITonePoolModel[], AxiosResponse<ITonePoolModel[]>, any>(
         `/editor/tone/pools`,
         config,
       );

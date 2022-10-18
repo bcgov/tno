@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import React from 'react';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 
-import { IContentFilter, IContentModel, IPaged, useApi } from '..';
+import { IContentFilter, IContentModel, IPaged, IWorkOrderModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -24,51 +24,49 @@ export const useApiContents = (
         ...filter,
         actions: filter?.actions?.length ? filter.actions : undefined,
       };
-      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>, never>, any>(
+      return api.get<IPaged<IContentModel>, AxiosResponse<IPaged<IContentModel>>, any>(
         `/editor/contents?${toQueryString(params)}`,
       );
     },
     getContent: (id: number) => {
-      return api.get<IContentModel, AxiosResponse<IContentModel, never>, any>(
-        `/editor/contents/${id}`,
-      );
+      return api.get<IContentModel, AxiosResponse<IContentModel>, any>(`/editor/contents/${id}`);
     },
     addContent: (content: IContentModel) => {
-      return api.post<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.post<IContentModel, AxiosResponse<IContentModel>, any>(
         '/editor/contents',
         content,
       );
     },
     updateContent: (content: IContentModel) => {
-      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}`,
         content,
       );
     },
     deleteContent: (content: IContentModel) => {
-      return api.delete<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.delete<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}`,
         { data: content },
       );
     },
     transcribe: (content: IContentModel) => {
-      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.put<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/contents/${content.id}/transcribe`,
       );
     },
     nlp: (content: IContentModel) => {
-      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.put<IWorkOrderModel, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/contents/${content.id}/nlp`,
       );
     },
     publishContent: (content: IContentModel) => {
-      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}/publish`,
         content,
       );
     },
     unpublishContent: (content: IContentModel) => {
-      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}/unpublish`,
         content,
       );
@@ -80,14 +78,14 @@ export const useApiContents = (
     ) => {
       const formData = new FormData();
       formData.append('files', file, file.name);
-      return api.post<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.post<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}/upload?version=${content.version}`,
         formData,
         { onUploadProgress },
       );
     },
     download: async (id: number, fileName: string) => {
-      const response = await api.get<any, AxiosResponse<any, never>, any>(
+      const response = await api.get<any, AxiosResponse<any>, any>(
         `/editor/contents/${id}/download`,
         {
           responseType: 'blob',
@@ -108,7 +106,7 @@ export const useApiContents = (
       const params = {
         path,
       };
-      return api.put<IContentModel, AxiosResponse<IContentModel, never>, any>(
+      return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${id}/attach?${toQueryString(params)}`,
       );
     },

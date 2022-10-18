@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -18,7 +19,9 @@ public class MetricService : BaseService<Metric, int>, IMetricService
     #region Methods
     public IEnumerable<Metric> FindAll()
     {
-        return this.Context.Metrics.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Metrics
+            .AsNoTracking()
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
     #endregion
 }

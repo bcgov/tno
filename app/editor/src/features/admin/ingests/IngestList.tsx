@@ -2,7 +2,7 @@ import { FormPage, IconButton } from 'components/form';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useIngests } from 'store/hooks/admin/ingests';
+import { useIngests } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
 import { Col, Row } from 'tno-core';
 import { GridTable } from 'tno-core/dist/components/grid-table';

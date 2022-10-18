@@ -21,10 +21,7 @@ export const useApiSeries = (
   return React.useRef({
     getSeries: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ISeriesModel[], AxiosResponse<ISeriesModel[], never>, any>(
-        `/editor/series`,
-        config,
-      );
+      return api.get<ISeriesModel[], AxiosResponse<ISeriesModel[]>, any>(`/editor/series`, config);
     },
   }).current;
 };

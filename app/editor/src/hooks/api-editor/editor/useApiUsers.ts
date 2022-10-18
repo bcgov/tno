@@ -22,22 +22,19 @@ export const useApiUsers = (
   return React.useRef({
     getUsers: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IUserModel[], AxiosResponse<IUserModel[], never>, any>(
-        `/editor/users`,
-        config,
-      );
+      return api.get<IUserModel[], AxiosResponse<IUserModel[]>, any>(`/editor/users`, config);
     },
     getUser: (id: number) => {
-      return api.get<IUserModel, AxiosResponse<IUserModel, never>, any>(`/editor/users/${id}`);
+      return api.get<IUserModel, AxiosResponse<IUserModel>, any>(`/editor/users/${id}`);
     },
     requestCode: (model: IRegisterModel) => {
-      return api.put<IRegisterModel, AxiosResponse<IRegisterModel, never>, any>(
+      return api.put<IRegisterModel, AxiosResponse<IRegisterModel>, any>(
         `/editor/users/request/code`,
         model,
       );
     },
     requestApproval: (model: IUserModel) => {
-      return api.put<IUserModel, AxiosResponse<IUserModel, never>, any>(
+      return api.put<IUserModel, AxiosResponse<IUserModel>, any>(
         `/editor/users/request/approval`,
         model,
       );

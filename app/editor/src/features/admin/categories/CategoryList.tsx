@@ -2,7 +2,7 @@ import { FormPage, IconButton } from 'components/form';
 import { ICategoryModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCategories } from 'store/hooks/admin/categories';
+import { useCategories } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
 import { Col, GridTable, Row } from 'tno-core';
 

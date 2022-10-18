@@ -2,7 +2,7 @@ import { FormPage, IconButton } from 'components/form';
 import { ILicenseModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLicenses } from 'store/hooks/admin/licenses';
+import { useLicenses } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
 import { Col, GridTable, Row } from 'tno-core';
 

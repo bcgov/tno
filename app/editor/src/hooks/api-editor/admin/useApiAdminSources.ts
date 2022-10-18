@@ -20,30 +20,27 @@ export const useApiAdminSources = (
 
   return React.useRef({
     findAllSources: () => {
-      return api.get<ISourceModel[], AxiosResponse<ISourceModel[], never>, any>(`/admin/sources`);
+      return api.get<ISourceModel[], AxiosResponse<ISourceModel[]>, any>(`/admin/sources`);
     },
     findSources: () => {
-      return api.get<IPaged<ISourceModel>, AxiosResponse<IPaged<ISourceModel>, never>, any>(
+      return api.get<IPaged<ISourceModel>, AxiosResponse<IPaged<ISourceModel>>, any>(
         `/admin/sources/find`,
       );
     },
     getSource: (id: number) => {
-      return api.get<ISourceModel, AxiosResponse<ISourceModel, never>, any>(`/admin/sources/${id}`);
+      return api.get<ISourceModel, AxiosResponse<ISourceModel>, any>(`/admin/sources/${id}`);
     },
     addSource: (model: ISourceModel) => {
-      return api.post<ISourceModel, AxiosResponse<ISourceModel, never>, any>(
-        `/admin/sources`,
-        model,
-      );
+      return api.post<ISourceModel, AxiosResponse<ISourceModel>, any>(`/admin/sources`, model);
     },
     updateSource: (model: ISourceModel) => {
-      return api.put<ISourceModel, AxiosResponse<ISourceModel, never>, any>(
+      return api.put<ISourceModel, AxiosResponse<ISourceModel>, any>(
         `/admin/sources/${model.id}`,
         model,
       );
     },
     deleteSource: (model: ISourceModel) => {
-      return api.delete<ISourceModel, AxiosResponse<ISourceModel, never>, any>(
+      return api.delete<ISourceModel, AxiosResponse<ISourceModel>, any>(
         `/admin/sources/${model.id}`,
         { data: model },
       );
