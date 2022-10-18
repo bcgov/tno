@@ -57,12 +57,12 @@ export const useApp = (): [IAppState, IAppController] => {
     () => ({
       getUserInfo: async (refresh: boolean = false) => {
         if (userInfo.id !== 0 && !refresh) return userInfo;
-        const response = await dispatch('get-user-info', () => api.getUserInfo());
-        userInfo = response.data;
+        const result = await dispatch('get-user-info', () => api.getUserInfo());
+        userInfo = result;
         store.storeUserInfo(userInfo);
         if (
           (!keycloak.isApproved() || refresh) &&
-          (!!response.data.groups.length || !!response.data.roles.length)
+          (!!result.groups.length || !!result.roles.length)
         )
           await keycloak.instance.updateToken(86400);
         return userInfo;

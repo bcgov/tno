@@ -21,7 +21,7 @@ export const useApiSourceActions = (
   return React.useRef({
     getActions: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ISourceActionModel[], AxiosResponse<ISourceActionModel[]>, any>(
+      return api.get<ISourceActionModel[], AxiosResponse<ISourceActionModel[], never>, any>(
         `/editor/source/actions`,
         config,
       );

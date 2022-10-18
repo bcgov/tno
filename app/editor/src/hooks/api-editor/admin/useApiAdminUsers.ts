@@ -20,23 +20,27 @@ export const useApiAdminUsers = (
 
   return React.useRef({
     findUsers: (filter: IUserFilter) => {
-      return api.get<IPaged<IUserModel>, AxiosResponse<IPaged<IUserModel>>, any>(
+      return api.get<IPaged<IUserModel>, AxiosResponse<IPaged<IUserModel>, never>, any>(
         `/admin/users?${toQueryString(filter)}`,
       );
     },
     getUser: (id: number) => {
-      return api.get<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users/${id}`);
+      return api.get<IUserModel, AxiosResponse<IUserModel, never>, any>(`/admin/users/${id}`);
     },
     addUser: (model: IUserModel) => {
-      return api.post<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users`, model);
+      return api.post<IUserModel, AxiosResponse<IUserModel, never>, any>(`/admin/users`, model);
     },
     updateUser: (model: IUserModel) => {
-      return api.put<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users/${model.id}`, model);
+      return api.put<IUserModel, AxiosResponse<IUserModel, never>, any>(
+        `/admin/users/${model.id}`,
+        model,
+      );
     },
     deleteUser: (model: IUserModel) => {
-      return api.delete<IUserModel, AxiosResponse<IUserModel>, any>(`/admin/users/${model.id}`, {
-        data: model,
-      });
+      return api.delete<IUserModel, AxiosResponse<IUserModel, never>, any>(
+        `/admin/users/${model.id}`,
+        { data: model },
+      );
     },
   }).current;
 };

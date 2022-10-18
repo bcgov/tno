@@ -8,7 +8,7 @@ import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLicenses } from 'store/hooks/admin';
+import { useLicenses } from 'store/hooks/admin/licenses';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
 import { defaultLicense } from './constants';

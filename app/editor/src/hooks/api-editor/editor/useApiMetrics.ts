@@ -21,7 +21,10 @@ export const useApiMetrics = (
   return React.useRef({
     getMetrics: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IMetricModel[], AxiosResponse<IMetricModel[]>, any>(`/editor/metrics`, config);
+      return api.get<IMetricModel[], AxiosResponse<IMetricModel[], never>, any>(
+        `/editor/metrics`,
+        config,
+      );
     },
   }).current;
 };

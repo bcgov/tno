@@ -9,7 +9,6 @@ using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.Core.Exceptions;
 using TNO.Core.Http;
 using TNO.Services.Config;
@@ -279,30 +278,6 @@ public class ApiService : IApiService
     {
         var url = new Uri(_options.ApiUrl, $"editor/lookups");
         return await _client.GetAsync<LookupModel>(url);
-    }
-    #endregion
-
-    #region Work Orders
-    /// <summary>
-    /// Make an AJAX request to the api to get the work order for the specified 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public async Task<WorkOrderModel?> FindWorkOrderAsync(long id)
-    {
-        var url = new Uri(_options.ApiUrl, $"services/work/orders/{id}");
-        return await _client.GetAsync<WorkOrderModel>(url);
-    }
-
-    /// <summary>
-    /// Make an AJAX request to the aip and update the specified 'workOrder'.
-    /// </summary>
-    /// <param name="workOrder"></param>
-    /// <returns></returns>
-    public async Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder)
-    {
-        var url = new Uri(_options.ApiUrl, $"services/work/orders/{workOrder.Id}");
-        return await _client.PutAsync<WorkOrderModel>(url, JsonContent.Create(workOrder));
     }
     #endregion
 }

@@ -20,22 +20,29 @@ export const useApiAdminProducts = (
 
   return React.useRef({
     findAllProducts: () => {
-      return api.get<IProductModel[], AxiosResponse<IProductModel[]>, any>(`/admin/products`);
+      return api.get<IProductModel[], AxiosResponse<IProductModel[], never>, any>(
+        `/admin/products`,
+      );
     },
     getProduct: (id: number) => {
-      return api.get<IProductModel, AxiosResponse<IProductModel>, any>(`/admin/products/${id}`);
+      return api.get<IProductModel, AxiosResponse<IProductModel, never>, any>(
+        `/admin/products/${id}`,
+      );
     },
     addProduct: (model: IProductModel) => {
-      return api.post<IProductModel, AxiosResponse<IProductModel>, any>(`/admin/products`, model);
+      return api.post<IProductModel, AxiosResponse<IProductModel, never>, any>(
+        `/admin/products`,
+        model,
+      );
     },
     updateProduct: (model: IProductModel) => {
-      return api.put<IProductModel, AxiosResponse<IProductModel>, any>(
+      return api.put<IProductModel, AxiosResponse<IProductModel, never>, any>(
         `/admin/products/${model.id}`,
         model,
       );
     },
     deleteProduct: (model: IProductModel) => {
-      return api.delete<IProductModel, AxiosResponse<IProductModel>, any>(
+      return api.delete<IProductModel, AxiosResponse<IProductModel, never>, any>(
         `/admin/products/${model.id}`,
         { data: model },
       );

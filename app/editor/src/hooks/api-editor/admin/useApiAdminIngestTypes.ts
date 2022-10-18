@@ -20,34 +20,34 @@ export const useApiAdminIngestTypes = (
 
   return React.useRef({
     findAllIngestTypes: () => {
-      return api.get<IIngestTypeModel[], AxiosResponse<IIngestTypeModel[]>, any>(
+      return api.get<IIngestTypeModel[], AxiosResponse<IIngestTypeModel[], never>, any>(
         `/admin/ingest/types/all`,
       );
     },
     findIngestTypes: (filter: IIngestTypeFilter) => {
-      return api.get<IPaged<IIngestTypeModel>, AxiosResponse<IPaged<IIngestTypeModel>>, any>(
+      return api.get<IPaged<IIngestTypeModel>, AxiosResponse<IPaged<IIngestTypeModel>, never>, any>(
         `/admin/ingest/types?${toQueryString(filter)}`,
       );
     },
     getIngestType: (id: number) => {
-      return api.get<IIngestTypeModel, AxiosResponse<IIngestTypeModel>, any>(
+      return api.get<IIngestTypeModel, AxiosResponse<IIngestTypeModel, never>, any>(
         `/admin/ingest/types/${id}`,
       );
     },
     addIngestType: (model: IIngestTypeModel) => {
-      return api.post<IIngestTypeModel, AxiosResponse<IIngestTypeModel>, any>(
+      return api.post<IIngestTypeModel, AxiosResponse<IIngestTypeModel, never>, any>(
         `/admin/ingest/types`,
         model,
       );
     },
     updateIngestType: (model: IIngestTypeModel) => {
-      return api.put<IIngestTypeModel, AxiosResponse<IIngestTypeModel>, any>(
+      return api.put<IIngestTypeModel, AxiosResponse<IIngestTypeModel, never>, any>(
         `/admin/ingest/types/${model.id}`,
         model,
       );
     },
     deleteIngestType: (model: IIngestTypeModel) => {
-      return api.delete<IIngestTypeModel, AxiosResponse<IIngestTypeModel>, any>(
+      return api.delete<IIngestTypeModel, AxiosResponse<IIngestTypeModel, never>, any>(
         `/admin/ingest/types/${model.id}`,
         { data: model },
       );

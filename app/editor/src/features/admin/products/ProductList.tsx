@@ -2,7 +2,7 @@ import { FormPage, IconButton } from 'components/form';
 import { IProductModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from 'store/hooks/admin';
+import { useProducts } from 'store/hooks/admin/products';
 import { useApp } from 'store/hooks/app/useApp';
 import { Col, GridTable, Row } from 'tno-core';
 

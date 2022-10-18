@@ -22,7 +22,6 @@ import {
   useSourceOptions,
   useTooltips,
   useUserLookups,
-  WorkOrderStatusName,
 } from 'hooks';
 import { ContentStatusName, IContentModel, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
@@ -31,7 +30,7 @@ import React from 'react';
 import { FaBars, FaChevronLeft, FaChevronRight, FaGripLines, FaSpinner } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useWorkOrders } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
 
@@ -63,9 +62,18 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
   const [{ sources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
+    {
+      getContent,
+      addContent,
+      updateContent,
+      deleteContent,
+      upload,
+      publishContent,
+      attach,
+      transcribe,
+      nlp,
+    },
   ] = useContent();
-  const [, { transcribe, nlp }] = useWorkOrders();
   const { isShowing, toggle } = useModal();
   const { userId } = useUserLookups();
   const sourceOptions = useSourceOptions();
@@ -199,17 +207,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
 
   const handleTranscribe = async (values: IContentForm) => {
     try {
-      // TODO: Only save when required.
       // Save before submitting request.
       await handleSubmit(values);
-      const response = await transcribe(toModel(values));
+      await transcribe(toModel(values));
 
-      if (response.status === 200) toast.success('A transcript has been requested');
-      else if (response.status === 208) {
-        if (response.data.status === WorkOrderStatusName.Completed)
-          toast.warn('Content has already been transcribed');
-        else toast.warn(`An active request for transcription already exists`);
-      }
+      toast.success(`"${values.headline}" has successfully requested a transcript`);
     } catch {
       // Ignore this failure it is handled by our global ajax requests.
     }
@@ -217,17 +219,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
 
   const handleNLP = async (values: IContentForm) => {
     try {
-      // TODO: Only save when required.
       // Save before submitting request.
       await handleSubmit(values);
-      const response = await nlp(toModel(values));
+      await nlp(toModel(values));
 
-      if (response.status === 200) toast.success('An NLP has been requested');
-      else if (response.status === 208) {
-        if (response.data.status === WorkOrderStatusName.Completed)
-          toast.warn('Content has already been processed by NLP');
-        else toast.warn(`An active request for NLP already exists`);
-      }
+      toast.success(
+        `"${values.headline}" has successfully requested a Natural Language Processing`,
+      );
     } catch {
       // Ignore this failure it is handled by our global ajax requests.
     }

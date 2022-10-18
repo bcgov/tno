@@ -20,7 +20,7 @@ export const useApiCache = (
 
   return React.useRef({
     getCache: () => {
-      return api.get<ICacheModel[], AxiosResponse<ICacheModel[]>, any>(`/editor/cache`);
+      return api.get<ICacheModel[], AxiosResponse<ICacheModel[], never>, any>(`/editor/cache`);
     },
   }).current;
 };

@@ -38,8 +38,6 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
-    private readonly IWorkOrderService _workOrderService;
-    private readonly IUserService _userService;
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
@@ -51,24 +49,13 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
-    /// <param name="workOrderService"></param>
-    /// <param name="userService"></param>
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
-    public ContentController(
-        IContentService contentService,
-        IFileReferenceService fileReferenceService,
-        IWorkOrderService workOrderService,
-        IUserService userService,
-        IOptions<StorageOptions> storageOptions,
-        IKafkaMessenger kafkaMessenger,
-        IOptions<KafkaOptions> kafkaOptions)
+    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService, IOptions<StorageOptions> storageOptions, IKafkaMessenger kafkaMessenger, IOptions<KafkaOptions> kafkaOptions)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
-        _workOrderService = workOrderService;
-        _userService = userService;
         _storageOptions = storageOptions.Value;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
@@ -223,6 +210,48 @@ public class ContentController : ControllerBase
         await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(result.Id, IndexAction.Unpublish));
 
         return new JsonResult(new ContentModel(result));
+    }
+
+    /// <summary>
+    /// Request a transcript for the content for the specified 'id'.
+    /// Publish message to kafka to request a transcription.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/transcribe")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> RequestTranscriptionAsync(long id)
+    {
+        var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.TranscriptionTopic)) throw new ConfigurationException("Kafka transcription topic not configured.");
+
+        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TranscriptRequest(content.Id, this.User.GetUsername() ?? "API"));
+        if (result == null) throw new BadRequestException("Transcription request failed");
+        return new JsonResult(new ContentModel(content));
+    }
+
+    /// <summary>
+    /// Request a Natural Language Processing for the content for the specified 'id'.
+    /// Publish message to kafka to request a NLP.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPut("{id}/nlp")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> RequestNLPAsync(long id)
+    {
+        var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Content does not exist");
+        if (String.IsNullOrWhiteSpace(_kafkaOptions.NLPTopic)) throw new ConfigurationException("Kafka NLP topic not configured.");
+
+        var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new NLPRequest(content.Id));
+        if (result == null) throw new BadRequestException("Natural Language Processing request failed");
+        return new JsonResult(new ContentModel(content));
     }
 
     /// <summary>

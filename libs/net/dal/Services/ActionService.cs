@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
+using TNO.Entities;
 using TNO.Entities.Models;
 
 namespace TNO.DAL.Services;
@@ -21,9 +22,7 @@ public class ActionService : BaseService<Entities.Action, int>, IActionService
     #region Methods
     public IEnumerable<Entities.Action> FindAll()
     {
-        return this.Context.Actions
-            .AsNoTracking()
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Actions.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
     public Entities.Action? FindByName(string name)
@@ -32,7 +31,7 @@ public class ActionService : BaseService<Entities.Action, int>, IActionService
             .FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
     }
 
-    public IPaged<Entities.Action> Find(ActionFilter filter)
+     public IPaged<Entities.Action> Find(ActionFilter filter)
     {
         var query = this.Context.Actions
             .AsQueryable();

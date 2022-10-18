@@ -22,9 +22,7 @@ public class IngestTypeService : BaseService<IngestType, int>, IIngestTypeServic
     #region Methods
     public IEnumerable<IngestType> FindAll()
     {
-        return this.Context.IngestTypes
-            .AsNoTracking()
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.IngestTypes.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
     public IPaged<IngestType> Find(IngestTypeFilter filter)

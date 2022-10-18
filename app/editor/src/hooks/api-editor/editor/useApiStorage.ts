@@ -24,7 +24,7 @@ export const useApiStorage = (
       const params = {
         path,
       };
-      return api.get<string, AxiosResponse<string>, any>(
+      return api.get<string, AxiosResponse<string, never>, any>(
         `/editor/storage/exists${location ? `/${location}` : ''}?${toQueryString(params)}`,
       );
     },
@@ -32,7 +32,7 @@ export const useApiStorage = (
       const params = {
         path,
       };
-      return api.get<IFolderModel, AxiosResponse<IFolderModel>, any>(
+      return api.get<IFolderModel, AxiosResponse<IFolderModel, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
       );
     },
@@ -49,7 +49,7 @@ export const useApiStorage = (
       };
       const formData = new FormData();
       formData.append('files', file, file.name);
-      return api.post<IItemModel, AxiosResponse<IItemModel>, any>(
+      return api.post<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}/upload?${toQueryString(params)}`,
         formData,
         { onUploadProgress },
@@ -63,7 +63,7 @@ export const useApiStorage = (
       const params = {
         path,
       };
-      var response = await api.get<any, AxiosResponse<any>, any>(
+      var response = await api.get<any, AxiosResponse<any, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}/stream?${toQueryString(params)}`,
         {
           responseType: 'stream',
@@ -85,7 +85,7 @@ export const useApiStorage = (
       const params = {
         path,
       };
-      var response = await api.get<any, AxiosResponse<any>, any>(
+      var response = await api.get<any, AxiosResponse<any, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}/download?${toQueryString(params)}`,
         {
           responseType: 'blob',
@@ -110,7 +110,7 @@ export const useApiStorage = (
         path,
         destination,
       };
-      return api.put<IItemModel, AxiosResponse<IItemModel>, any>(
+      return api.put<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}/move?${toQueryString(params)}`,
       );
     },
@@ -118,7 +118,7 @@ export const useApiStorage = (
       const params = {
         path,
       };
-      return api.delete<IItemModel, AxiosResponse<IItemModel>, any>(
+      return api.delete<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
       );
     },
@@ -129,7 +129,7 @@ export const useApiStorage = (
         end,
         outputName,
       };
-      return api.post<IItemModel, AxiosResponse<IItemModel>, any>(
+      return api.post<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage/clip?${toQueryString(params)}`,
       );
     },
@@ -138,7 +138,7 @@ export const useApiStorage = (
         path,
         prefix,
       };
-      return api.post<IItemModel, AxiosResponse<IItemModel>, any>(
+      return api.post<IItemModel, AxiosResponse<IItemModel, never>, any>(
         `/editor/storage/join?${toQueryString(params)}`,
       );
     },

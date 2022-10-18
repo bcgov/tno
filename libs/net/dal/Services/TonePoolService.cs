@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -19,9 +18,7 @@ public class TonePoolService : BaseService<TonePool, int>, ITonePoolService
     #region Methods
     public IEnumerable<TonePool> FindAll()
     {
-        return this.Context.TonePools
-            .AsNoTracking()
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.TonePools.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
     #endregion
 }

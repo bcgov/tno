@@ -2,7 +2,6 @@ using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.API.Areas.Services.Models.WorkOrder;
 
 namespace TNO.Services;
 
@@ -140,21 +139,5 @@ public interface IApiService
     /// <param name="id"></param>
     /// <returns></returns>
     Task<ContentModel?> FindContentByIdAsync(long id);
-    #endregion
-
-    #region Work Orders
-    /// <summary>
-    /// Make an AJAX request to the aip and find the work order for the specified 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    Task<WorkOrderModel?> FindWorkOrderAsync(long id);
-
-    /// <summary>
-    /// Make an AJAX request to the aip and update the specified 'workOrder'.
-    /// </summary>
-    /// <param name="workOrder"></param>
-    /// <returns></returns>
-    Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder);
     #endregion
 }

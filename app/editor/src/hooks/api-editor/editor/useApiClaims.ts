@@ -22,7 +22,10 @@ export const useApiClaims = (
   return React.useRef({
     getClaims: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IClaimModel[], AxiosResponse<IClaimModel[]>, any>(`/editor/claims`, config);
+      return api.get<IClaimModel[], AxiosResponse<IClaimModel[], never>, any>(
+        `/editor/claims`,
+        config,
+      );
     },
   }).current;
 };

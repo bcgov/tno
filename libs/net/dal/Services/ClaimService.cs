@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace TNO.DAL.Services;
@@ -18,9 +17,7 @@ public class ClaimService : BaseService<Entities.Claim, int>, IClaimService
     #region Methods
     public IEnumerable<Entities.Claim> FindAll()
     {
-        return this.Context.Claims
-            .AsNoTracking()
-            .OrderBy(a => a.Name).ToArray();
+        return this.Context.Claims.OrderBy(a => a.Name).ToArray();
     }
     #endregion
 }

@@ -19,27 +19,30 @@ export const useApiAdminActions = (
 
   return React.useRef({
     findAllActions: () => {
-      return api.get<IActionModel[], AxiosResponse<IActionModel[]>, any>(`/admin/actions`);
+      return api.get<IActionModel[], AxiosResponse<IActionModel[], never>, any>(`/admin/actions`);
     },
     findActions: (filter: IActionFilter) => {
-      return api.get<IPaged<IActionModel>, AxiosResponse<IPaged<IActionModel>>, any>(
+      return api.get<IPaged<IActionModel>, AxiosResponse<IPaged<IActionModel>, never>, any>(
         `/admin/actions?${toQueryString(filter)}`,
       );
     },
     getAction: (id: number) => {
-      return api.get<IActionModel, AxiosResponse<IActionModel>, any>(`/admin/actions/${id}`);
+      return api.get<IActionModel, AxiosResponse<IActionModel, never>, any>(`/admin/actions/${id}`);
     },
     addAction: (model: IActionModel) => {
-      return api.post<IActionModel, AxiosResponse<IActionModel>, any>(`/admin/actions`, model);
+      return api.post<IActionModel, AxiosResponse<IActionModel, never>, any>(
+        `/admin/actions`,
+        model,
+      );
     },
     updateAction: (model: IActionModel) => {
-      return api.put<IActionModel, AxiosResponse<IActionModel>, any>(
+      return api.put<IActionModel, AxiosResponse<IActionModel, never>, any>(
         `/admin/actions/${model.id}`,
         model,
       );
     },
     deleteAction: (model: IActionModel) => {
-      return api.delete<IActionModel, AxiosResponse<IActionModel>, any>(
+      return api.delete<IActionModel, AxiosResponse<IActionModel, never>, any>(
         `/admin/actions/${model.id}`,
         { data: model },
       );

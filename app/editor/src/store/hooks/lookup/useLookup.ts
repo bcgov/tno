@@ -81,9 +81,9 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const controller = React.useMemo(
     () => ({
       getCache: async () => {
-        const response = await dispatch('cache', () => cache.getCache());
-        store.storeCache(response.data);
-        return response.data;
+        const result = await dispatch('cache', () => cache.getCache());
+        store.storeCache(result);
+        return result;
       },
       getLookups: async () => {
         return await fetchIfNoneMatch<ILookupModel>(

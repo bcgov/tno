@@ -9,7 +9,7 @@ public class UserModel
     /// <summary>
     /// get/set - Primary key to user.
     /// </summary>
-    public int Id { get; set; }
+    public int Id { get; set; } = default!;
 
     /// <summary>
     /// get/set - Unique key to identify the user.

@@ -21,26 +21,30 @@ export const useApiAdminTags = (
 
   return React.useRef({
     findAllTags: () => {
-      return api.get<ITagModel[], AxiosResponse<ITagModel[]>, any>(`/admin/tags/all`);
+      return api.get<ITagModel[], AxiosResponse<ITagModel[], never>, any>(`/admin/tags/all`);
     },
     findTags: (filter: ITagFilter) => {
-      return api.get<IPaged<ITagModel>, AxiosResponse<IPaged<ITagModel>>, any>(
+      return api.get<IPaged<ITagModel>, AxiosResponse<IPaged<ITagModel>, never>, any>(
         `/admin/tags?${toQueryString(filter)}`,
       );
     },
     getTag: (id: string) => {
-      return api.get<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags/${id}`);
+      return api.get<ITagModel, AxiosResponse<ITagModel, never>, any>(`/admin/tags/${id}`);
     },
     addTag: (model: ITagModel) => {
-      return api.post<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags`, model);
+      return api.post<ITagModel, AxiosResponse<ITagModel, never>, any>(`/admin/tags`, model);
     },
     updateTag: (model: ITagModel) => {
-      return api.put<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags/${model.id}`, model);
+      return api.put<ITagModel, AxiosResponse<ITagModel, never>, any>(
+        `/admin/tags/${model.id}`,
+        model,
+      );
     },
     deleteTag: (model: ITagModel) => {
-      return api.delete<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags/${model.id}`, {
-        data: model,
-      });
+      return api.delete<ITagModel, AxiosResponse<ITagModel, never>, any>(
+        `/admin/tags/${model.id}`,
+        { data: model },
+      );
     },
   }).current;
 };

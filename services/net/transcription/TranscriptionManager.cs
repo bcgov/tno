@@ -11,8 +11,6 @@ using TNO.Kafka;
 using TNO.Core.Extensions;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.Core.Exceptions;
-using TNO.API.Areas.Services.Models.WorkOrder;
-using TNO.Entities;
 
 namespace TNO.Services.Transcription;
 
@@ -190,7 +188,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <returns></returns>
     private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
     {
-        var request = result.Message.Value;
         // The service has stopped, so to should consuming messages.
         if (this.State.Status != ServiceStatus.Running || this.Consumer.StopNeeded)
         {
@@ -202,16 +199,16 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         {
             try
             {
-                request.Content = await _api.FindContentByIdAsync(request.ContentId);
-                if (request.Content != null)
+                var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
+                if (content != null)
                 {
                     // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
-                    await UpdateTranscriptionAsync(request);
+                    await UpdateTranscriptionAsync(content);
                 }
                 else
                 {
                     // Identify requests for transcription for content that does not exist.
-                    this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
+                    this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
                 }
 
                 // Successful run clears any errors.
@@ -231,15 +228,13 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <summary>
     /// Make a request to generate a transcription for the specified 'content'.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
-    private async Task UpdateTranscriptionAsync(TranscriptRequest request)
+    private async Task UpdateTranscriptionAsync(ContentModel content)
     {
-        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
-
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
-        var path = request.Content.FileReferences.FirstOrDefault()?.Path;
+        var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
 
         if (File.Exists(safePath))
@@ -253,63 +248,38 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
             if (!String.IsNullOrEmpty(safePath))
             {
-                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", request.Content.Id);
-                await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
+                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", content.Id);
 
-                var original = request.Content.Body;
+                var original = content.Body;
                 var fileBytes = File.ReadAllBytes(safePath);
                 var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
 
                 // Fetch content again because it may have been updated by an external source.
                 // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-                var content = await _api.FindContentByIdAsync(request.Content.Id);
-                if (content != null && !String.IsNullOrWhiteSpace(transcript))
+                var result = await _api.FindContentByIdAsync(content.Id);
+                if (result != null && !String.IsNullOrWhiteSpace(transcript))
                 {
                     // The transcription may have been edited during this process and now those changes will be lost.
-                    if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.Content.Id);
+                    if (String.CompareOrdinal(original, result.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", content.Id);
 
-                    content.Body = transcript;
-                    await _api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
-                    this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.Content.Id);
-
-                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
+                    result.Body = transcript;
+                    await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
+                    this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", content.Id);
                 }
                 else if (String.IsNullOrWhiteSpace(transcript))
                 {
-                    this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", request.Content.Id);
-                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+                    this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", content.Id);
                 }
                 else
                 {
                     // The content is no longer available for some reason.
-                    this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.Content.Id);
-                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+                    this.Logger.LogError("Content no longer exists. Content ID: {Id}", content.Id);
                 }
             }
         }
         else
         {
-            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.Content.Id, safePath);
-            await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
-        }
-    }
-
-    /// <summary>
-    /// Update the work order (if it exists) with the specified 'status'.
-    /// </summary>
-    /// <param name="request"></param>
-    /// <param name="status"></param>
-    /// <returns></returns>
-    private async Task UpdateWorkOrderAsync(TranscriptRequest request, WorkOrderStatus status)
-    {
-        if (request.WorkOrderId > 0)
-        {
-            request.WorkOrder = await _api.FindWorkOrderAsync(request.WorkOrderId);
-            if (request.WorkOrder != null)
-            {
-                request.WorkOrder.Status = status;
-                request.WorkOrder = await _api.UpdateWorkOrderAsync(request.WorkOrder);
-            }
+            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", content.Id, safePath);
         }
     }
 

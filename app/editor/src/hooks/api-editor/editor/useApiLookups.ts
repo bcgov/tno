@@ -21,7 +21,10 @@ export const useApiLookups = (
   return React.useRef({
     getLookups: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ILookupModel, AxiosResponse<ILookupModel>, any>(`/editor/lookups`, config);
+      return api.get<ILookupModel, AxiosResponse<ILookupModel, never>, any>(
+        `/editor/lookups`,
+        config,
+      );
     },
   }).current;
 };

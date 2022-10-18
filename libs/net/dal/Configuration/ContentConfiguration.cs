@@ -37,8 +37,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasMany(m => m.Tags).WithMany(m => m.Contents).UsingEntity<ContentTag>();
         builder.HasMany(m => m.TonePools).WithMany(m => m.Contents).UsingEntity<ContentTonePool>();
 
-        builder.HasIndex(m => new { m.PublishedOn, m.CreatedOn });
-        builder.HasIndex(m => new { m.ContentType, m.OtherSource, m.Uid, m.Page, m.Status });
+        builder.HasIndex(m => new { m.Status, m.PublishedOn, m.OtherSource, m.Uid, m.Page });
 
         base.Configure(builder);
     }

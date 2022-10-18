@@ -21,27 +21,32 @@ export const useApiAdminSeries = (
 
   return React.useRef({
     findAllSeries: () => {
-      return api.get<ISeriesModel[], AxiosResponse<ISeriesModel[]>, any>(`/admin/series/all`);
+      return api.get<ISeriesModel[], AxiosResponse<ISeriesModel[], never>, any>(
+        `/admin/series/all`,
+      );
     },
     findSeries: (filter: ITagFilter) => {
-      return api.get<IPaged<ISeriesModel>, AxiosResponse<IPaged<ISeriesModel>>, any>(
+      return api.get<IPaged<ISeriesModel>, AxiosResponse<IPaged<ISeriesModel>, never>, any>(
         `/admin/Series?${toQueryString(filter)}`,
       );
     },
     getSeries: (id: number) => {
-      return api.get<ISeriesModel, AxiosResponse<ISeriesModel>, any>(`/admin/series/${id}`);
+      return api.get<ISeriesModel, AxiosResponse<ISeriesModel, never>, any>(`/admin/series/${id}`);
     },
     addSeries: (model: ISeriesModel) => {
-      return api.post<ISeriesModel, AxiosResponse<ISeriesModel>, any>(`/admin/series`, model);
+      return api.post<ISeriesModel, AxiosResponse<ISeriesModel, never>, any>(
+        `/admin/series`,
+        model,
+      );
     },
     updateSeries: (model: ISeriesModel) => {
-      return api.put<ISeriesModel, AxiosResponse<ISeriesModel>, any>(
+      return api.put<ISeriesModel, AxiosResponse<ISeriesModel, never>, any>(
         `/admin/series/${model.id}`,
         model,
       );
     },
     deleteSeries: (model: ISeriesModel) => {
-      return api.delete<ISeriesModel, AxiosResponse<ISeriesModel>, any>(
+      return api.delete<ISeriesModel, AxiosResponse<ISeriesModel, never>, any>(
         `/admin/series/${model.id}`,
         { data: model },
       );

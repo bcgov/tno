@@ -21,7 +21,7 @@ export const useApiCategories = (
   return React.useRef({
     getCategories: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ICategoryModel[], AxiosResponse<ICategoryModel[]>, any>(
+      return api.get<ICategoryModel[], AxiosResponse<ICategoryModel[], never>, any>(
         `/editor/categories`,
         config,
       );

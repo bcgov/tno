@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -19,9 +18,7 @@ public class ProductService : BaseService<Product, int>, IProductService
     #region Methods
     public IEnumerable<Product> FindAll()
     {
-        return this.Context.Products
-            .AsNoTracking()
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Products.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
     #endregion
 }

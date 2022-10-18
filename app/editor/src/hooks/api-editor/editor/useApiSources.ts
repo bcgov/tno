@@ -21,7 +21,10 @@ export const useApiSources = (
   return React.useRef({
     getSources: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<ISourceModel[], AxiosResponse<ISourceModel[]>, any>(`/editor/sources`, config);
+      return api.get<ISourceModel[], AxiosResponse<ISourceModel[], never>, any>(
+        `/editor/sources`,
+        config,
+      );
     },
   }).current;
 };

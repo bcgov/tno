@@ -24,7 +24,6 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
     public IPaged<ContentReference> Find(ContentReferenceFilter filter)
     {
         var query = this.Context.ContentReferences
-            .AsNoTracking()
             .AsQueryable();
 
         if (filter.Status.HasValue)

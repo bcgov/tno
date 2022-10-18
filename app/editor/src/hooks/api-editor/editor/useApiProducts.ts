@@ -21,7 +21,7 @@ export const useApiProducts = (
   return React.useRef({
     getProducts: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IProductModel[], AxiosResponse<IProductModel[]>, any>(
+      return api.get<IProductModel[], AxiosResponse<IProductModel[], never>, any>(
         `/editor/products`,
         config,
       );

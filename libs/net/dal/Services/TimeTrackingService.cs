@@ -20,7 +20,6 @@ public class TimeTrackingService : BaseService<TimeTracking, object[]>, ITimeTra
     public IEnumerable<TimeTracking> Find(DateTime from, DateTime to)
     {
         return this.Context.TimeTrackings
-            .AsNoTracking()
             .Include(tt => tt.User)
             .Where(tt => tt.CreatedOn >= from && tt.CreatedOn <= to);
     }

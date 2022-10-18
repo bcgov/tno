@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -19,9 +18,7 @@ public class SourceActionService : BaseService<SourceAction, int>, ISourceAction
     #region Methods
     public IEnumerable<SourceAction> FindAll()
     {
-        return this.Context.SourceActions
-            .AsNoTracking()
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.SourceActions.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
     #endregion
 }

@@ -21,7 +21,10 @@ export const useApiActions = (
   return React.useRef({
     getActions: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IActionModel[], AxiosResponse<IActionModel[]>, any>(`/editor/actions`, config);
+      return api.get<IActionModel[], AxiosResponse<IActionModel[], never>, any>(
+        `/editor/actions`,
+        config,
+      );
     },
   }).current;
 };

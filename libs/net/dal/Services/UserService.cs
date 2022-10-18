@@ -22,15 +22,12 @@ public class UserService : BaseService<User, int>, IUserService
     #region Methods
     public IEnumerable<User> FindAll()
     {
-        return this.Context.Users
-            .AsNoTracking()
-            .OrderBy(a => a.Username).ThenBy(a => a.LastName).ThenBy(a => a.FirstName).ToArray();
+        return this.Context.Users.OrderBy(a => a.Username).ThenBy(a => a.LastName).ThenBy(a => a.FirstName).ToArray();
     }
 
     public IPaged<User> Find(UserFilter filter)
     {
         var query = this.Context.Users
-            .AsNoTracking()
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Username))
