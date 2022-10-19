@@ -29,7 +29,7 @@ export interface ISelectDateProps {
   /** Whether the form field is required. */
   required?: boolean;
   /** The form field size. */
-  width?: FieldSize;
+  width?: FieldSize | string;
   /** Error related to the date picker */
   error?: string;
 }

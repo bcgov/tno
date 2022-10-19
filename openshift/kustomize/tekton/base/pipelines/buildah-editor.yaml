@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: buildah-main
+  name: buildah-editor
   annotations:
     tekton.dev/displayName: Buildah Pipeline
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy
   labels:
-    name: buildah-main
+    name: buildah-editor
     part-of: tno
     version: 1.0.0
     component: pipeline
@@ -88,27 +88,6 @@ spec:
         - name: output
           workspace: conditions
 
-    - name: build-db-migration
-      taskRef:
-        name: build-component
-        kind: Task
-      runAfter:
-        - git
-      params:
-        - name: COMPONENT
-          value: db
-        - name: CONTEXT
-          value: $(params.CONTEXT)/libs/net
-        - name: IMAGE
-          value: db-migration
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-      workspaces:
-        - name: source
-          workspace: source
-        - name: conditions
-          workspace: conditions
-
     - name: build-editor
       taskRef:
         name: build-component
@@ -132,33 +111,8 @@ spec:
         - name: conditions
           workspace: conditions
 
-    - name: build-api
-      taskRef:
-        name: build-component
-        kind: Task
-      runAfter:
-        - git
-      params:
-        - name: COMPONENT
-          value: api
-        - name: CONTEXT
-          value: $(params.CONTEXT)
-        - name: DOCKERFILE
-          value: $(params.CONTEXT)/api/net/Dockerfile
-        - name: IMAGE
-          value: api
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-      workspaces:
-        - name: source
-          workspace: source
-        - name: conditions
-          workspace: conditions
-
     - name: maintenance-on
       runAfter:
-        - build-db-migration
-        - build-api
         - build-editor
       taskRef:
         name: oc-patch-route
@@ -171,46 +125,9 @@ spec:
         - name: SERVICE
           value: nginx
 
-    - name: db-migration
-      runAfter:
-        - maintenance-on
-      taskRef:
-        name: db-migration-conditional
-        kind: Task
-      params:
-        - name: DB_SECRET_NAME
-          value: crunchy-pguser-admin
-        - name: API_NAME
-          value: api
-        - name: IMAGE
-          value: db-migration
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-        - name: DEPLOY_TO
-          value: $(params.DEPLOY_TO)
-      workspaces:
-        - name: conditions
-          workspace: conditions
-
-    - name: deploy-api
-      runAfter:
-        - db-migration
-      taskRef:
-        name: oc-deploy-with-tag
-        kind: Task
-      params:
-        - name: PROJECT_SHORTNAME
-          value: $(params.PROJECT_SHORTNAME)
-        - name: IMAGE
-          value: api
-        - name: IMAGE_TAG
-          value: $(params.IMAGE_TAG)
-        - name: ENV
-          value: $(params.DEPLOY_TO)
-
     - name: deploy-editor
       runAfter:
-        - db-migration
+        - maintenance-on
       taskRef:
         name: oc-deploy-with-tag
         kind: Task
@@ -226,8 +143,6 @@ spec:
 
     - name: maintenance-off
       runAfter:
-        - db-migration
-        - deploy-api
         - deploy-editor
       taskRef:
         name: oc-patch-route
