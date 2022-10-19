@@ -215,7 +215,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
             label="Field Type"
             options={fieldTypes}
             value={filterAdvanced.fieldType}
-            width={FieldSize.Medium}
+            width={FieldSize.Small}
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
@@ -239,9 +239,9 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           <Row>
             <SelectDate
               name="startDate"
-              placeholderText="YYYY MM DD"
+              placeholderText="mm/dd/yyyy"
               selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
-              width={FieldSize.Small}
+              width="8em"
               onChange={(date) =>
                 storeFilterAdvanced({
                   ...filterAdvanced,
@@ -251,9 +251,9 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
             />
             <SelectDate
               name="endDate"
-              placeholderText="YYYY MM DD"
+              placeholderText="mm/dd/yyyy"
               selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
-              width={FieldSize.Small}
+              width="8em"
               onChange={(date) => {
                 date?.setHours(23, 59, 59);
                 storeFilterAdvanced({
