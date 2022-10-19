@@ -194,7 +194,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 var current = _currentResult;
                 if (!UseMultiThreads)
                 {
-                    proceed = await RunActionAsync(action, _currentResult);
+                    proceed = await RunActionAsync(action, current);
                 }
                 else if (!OverLimit && _currentResults.ContainsKey(current) && !_currentResults[current])
                 {
@@ -215,7 +215,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                         }
                         finally
                         {
-                            FinalCleanUp(proceed);
+                            FinalCleanUp(proceed, this.Consumer?.Assignment);
                         }
                     }, cancellationToken);
                 }
@@ -231,7 +231,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         }
         finally
         {
-            if (!UseMultiThreads) FinalCleanUp(proceed);
+            if (!UseMultiThreads) FinalCleanUp(proceed, this.Consumer?.Assignment);
         }
     }
 
@@ -265,7 +265,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         return this.OnError?.Invoke(this, new ErrorEventArgs(ex)) ?? ConsumerAction.Stop;
     }
 
-    private void FinalCleanUp(ConsumerAction proceed)
+    private void FinalCleanUp(ConsumerAction proceed, List<TopicPartition>? assignment)
     {
         if (proceed == ConsumerAction.Stop)
         {
@@ -278,9 +278,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         }
         else if (this.IsPaused && proceed == ConsumerAction.Proceed && _currentResults.IsEmpty)
         {
-            _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer!.Subscription ?? new List<string>()));
+            _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", this.Consumer?.Subscription ?? new List<string>()));
             this.IsPaused = false;
-            this.Consumer?.Resume(this.Consumer.Assignment);
+            this.Consumer?.Resume(assignment);
         }
     }
 
