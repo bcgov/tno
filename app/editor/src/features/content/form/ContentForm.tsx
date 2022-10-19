@@ -46,7 +46,7 @@ import {
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { isSnippetForm, switchStatus, toForm, toModel } from './utils';
+import { isSnippetForm, switchStatus, toForm, toModel, triggerFormikValidate } from './utils';
 
 export interface IContentFormProps {
   /** The content type this form will create */
@@ -178,7 +178,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({ contentType: initCont
 
   const handlePublish = async (props: FormikProps<IContentForm>) => {
     const values = props.values;
-    await props.validateForm(values);
+    triggerFormikValidate(props);
 
     if (props.isValid) {
       const defaultTonePool = tonePools.find((t) => t.name === 'Default');
