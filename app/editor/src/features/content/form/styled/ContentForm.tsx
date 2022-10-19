@@ -54,4 +54,10 @@ export const ContentForm = styled.div`
       height: 100%;
     }
   }
+
+  .tabs.expand {
+    .tab-container {
+      margin-bottom: 3em;
+    }
+  }
 `;
