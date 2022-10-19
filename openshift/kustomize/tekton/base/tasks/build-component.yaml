@@ -67,7 +67,7 @@ spec:
           memory: 250Mi
           cpu: 250m
         limits:
-          memory: 1Gi
+          memory: 2560Mi
           cpu: 500m
       script: |
         #!/usr/bin/env bash

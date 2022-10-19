@@ -277,87 +277,6 @@ namespace TNO.DAL.Migrations
                     b.ToTable("category");
                 });
 
-            modelBuilder.Entity("TNO.Entities.Claim", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<Guid>("Key")
-                        .HasColumnType("uuid")
-                        .HasColumnName("key");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<Guid>("UpdatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by_id");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Key")
-                        .IsUnique();
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("claim");
-                });
-
             modelBuilder.Entity("TNO.Entities.Connection", b =>
                 {
                     b.Property<int>("Id")
@@ -1876,143 +1795,6 @@ namespace TNO.DAL.Migrations
                     b.ToTable("product");
                 });
 
-            modelBuilder.Entity("TNO.Entities.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description")
-                        .HasDefaultValueSql("''");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<Guid>("Key")
-                        .HasColumnType("uuid")
-                        .HasColumnName("key");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<Guid>("UpdatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by_id");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Key")
-                        .IsUnique();
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("role");
-                });
-
-            modelBuilder.Entity("TNO.Entities.RoleClaim", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("role_id");
-
-                    b.Property<int>("ClaimId")
-                        .HasColumnType("integer")
-                        .HasColumnName("claim_id");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<Guid>("UpdatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by_id");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("RoleId", "ClaimId");
-
-                    b.HasIndex("ClaimId");
-
-                    b.ToTable("role_claim");
-                });
-
             modelBuilder.Entity("TNO.Entities.Schedule", b =>
                 {
                     b.Property<int>("Id")
@@ -2817,15 +2599,19 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("display_name");
+                        .HasColumnName("display_name")
+                        .HasDefaultValueSql("''");
 
                     b.Property<string>("Email")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)")
-                        .HasColumnName("email");
+                        .HasColumnName("email")
+                        .HasDefaultValueSql("''");
 
                     b.Property<bool>("EmailVerified")
                         .HasColumnType("boolean")
@@ -2869,6 +2655,14 @@ namespace TNO.DAL.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("note")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<string>("Roles")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("roles")
                         .HasDefaultValueSql("''");
 
                     b.Property<int>("Status")
@@ -2917,62 +2711,6 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("user");
-                });
-
-            modelBuilder.Entity("TNO.Entities.UserRole", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("role_id");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("created_by");
-
-                    b.Property<Guid>("CreatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_id");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("UpdatedBy")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<Guid>("UpdatedById")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by_id");
-
-                    b.Property<DateTime>("UpdatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<long>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("version")
-                        .HasDefaultValueSql("0");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("user_role");
                 });
 
             modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
@@ -3334,25 +3072,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Content");
                 });
 
-            modelBuilder.Entity("TNO.Entities.RoleClaim", b =>
-                {
-                    b.HasOne("TNO.Entities.Claim", "Claim")
-                        .WithMany("RolesManyToMany")
-                        .HasForeignKey("ClaimId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TNO.Entities.Role", "Role")
-                        .WithMany("ClaimsManyToMany")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Claim");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("TNO.Entities.Source", b =>
                 {
                     b.HasOne("TNO.Entities.License", "License")
@@ -3439,25 +3158,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("TNO.Entities.UserRole", b =>
-                {
-                    b.HasOne("TNO.Entities.Role", "Role")
-                        .WithMany("UsersManyToMany")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TNO.Entities.User", "User")
-                        .WithMany("RolesManyToMany")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TNO.Entities.WorkOrder", b =>
                 {
                     b.HasOne("TNO.Entities.User", "Assigned")
@@ -3492,11 +3192,6 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.Category", b =>
                 {
                     b.Navigation("ContentsManyToMany");
-                });
-
-            modelBuilder.Entity("TNO.Entities.Claim", b =>
-                {
-                    b.Navigation("RolesManyToMany");
                 });
 
             modelBuilder.Entity("TNO.Entities.Connection", b =>
@@ -3564,13 +3259,6 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Ingests");
                 });
 
-            modelBuilder.Entity("TNO.Entities.Role", b =>
-                {
-                    b.Navigation("ClaimsManyToMany");
-
-                    b.Navigation("UsersManyToMany");
-                });
-
             modelBuilder.Entity("TNO.Entities.Schedule", b =>
                 {
                     b.Navigation("IngestsManyToMany");
@@ -3610,8 +3298,6 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.User", b =>
                 {
                     b.Navigation("Contents");
-
-                    b.Navigation("RolesManyToMany");
 
                     b.Navigation("TimeTrackings");
 

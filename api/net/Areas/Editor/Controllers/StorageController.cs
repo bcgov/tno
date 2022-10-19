@@ -9,6 +9,7 @@ using TNO.API.Models;
 using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Helpers;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -16,7 +17,7 @@ namespace TNO.API.Areas.Editor.Controllers;
 /// <summary>
 /// StorageController class, provides Storage endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]

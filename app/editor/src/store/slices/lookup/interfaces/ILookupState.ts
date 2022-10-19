@@ -2,7 +2,6 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
-  IClaimModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -20,7 +19,6 @@ export interface ILookupState {
   cache: ICacheModel[];
   actions: IActionModel[];
   categories: ICategoryModel[];
-  claims: IClaimModel[];
   products: IProductModel[];
   licenses: ILicenseModel[];
   ingestTypes: IIngestTypeModel[];

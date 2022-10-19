@@ -74,9 +74,9 @@ public class UserModel : AuditColumnsModel
     public string Note { get; set; } = "";
 
     /// <summary>
-    /// get/set -
+    /// get/set - An array of roles this user belongs to.
     /// </summary>
-    public IEnumerable<RoleModel> Roles { get; set; } = Array.Empty<RoleModel>();
+    public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -104,9 +104,7 @@ public class UserModel : AuditColumnsModel
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
-
-        this.Roles = entity.RolesManyToMany.Where(r => r.Role != null).Select(r => new RoleModel(r.Role!));
-        this.Roles = entity.Roles.Select(r => new RoleModel(r));
+        this.Roles = entity.Roles.Split(",").Select(r => r[1..^1]);
     }
     #endregion
 
@@ -138,10 +136,9 @@ public class UserModel : AuditColumnsModel
             EmailVerified = model.EmailVerified,
             LastLoginOn = model.LastLoginOn,
             Note = model.Note,
+            Roles = String.Join(",", model.Roles.Select(r => $"[{r.ToLower()}]")),
             Version = model.Version ?? 0
         };
-
-        entity.RolesManyToMany.AddRange(model.Roles.Select(r => new Entities.UserRole(entity.Id, r.Id)));
 
         return entity;
     }

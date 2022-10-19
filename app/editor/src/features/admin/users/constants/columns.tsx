@@ -1,7 +1,6 @@
 import { IUserModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
 import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
-import { formatUserRoles } from 'utils';
 
 export const columns: (Column<IUserModel> &
   UseSortByColumnOptions<IUserModel> &
@@ -35,7 +34,7 @@ export const columns: (Column<IUserModel> &
     Header: 'Role(s)',
     accessor: 'roles',
     width: 2,
-    Cell: ({ value }) => <Ellipsis>{formatUserRoles(value)}</Ellipsis>,
+    Cell: ({ value }) => <Ellipsis>{value?.join(', ')}</Ellipsis>,
     disableSortBy: true,
   },
   {

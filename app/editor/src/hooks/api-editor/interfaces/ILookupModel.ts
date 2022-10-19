@@ -1,7 +1,6 @@
 import {
   IActionModel,
   ICategoryModel,
-  IClaimModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -18,7 +17,6 @@ import {
 export interface ILookupModel {
   actions: IActionModel[];
   categories: ICategoryModel[];
-  claims: IClaimModel[];
   products: IProductModel[];
   sources: ISourceModel[];
   licenses: ILicenseModel[];

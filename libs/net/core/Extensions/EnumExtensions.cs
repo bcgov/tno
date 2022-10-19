@@ -8,33 +8,33 @@ namespace TNO.Core.Extensions;
 public static class EnumExtensions
 {
     /// <summary>
-    /// Get the Keycloak name value of the specified permission.
+    /// Get the enum name value of the specified value.
     /// </summary>
-    /// <param name="permission"></param>
+    /// <param name="value"></param>
     /// <returns></returns>
-    public static string? GetName<T>(this T evalue)
+    public static string? GetName<T>(this T value)
     {
-        if (evalue == null) return null;
+        if (value == null) return null;
 
         var enumType = typeof(T);
-        var memberInfos = enumType.GetMember(evalue.ToString() ?? "");
+        var memberInfos = enumType.GetMember(value.ToString() ?? "");
         var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == enumType) ?? throw new InvalidOperationException("Invalid enum type");
         var attribute = (DisplayAttribute?)enumValueMemberInfo.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault();
-        return attribute?.Name;
+        return attribute?.Name ?? value.ToString();
     }
 
     /// <summary>
     /// Convert flagged enum into an array of int.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="evalue"></param>
+    /// <param name="value"></param>
     /// <returns></returns>
-    public static int[] GetFlagValues<T>(this T evalue)
+    public static int[] GetFlagValues<T>(this T value)
         where T : Enum
     {
         return Enum.GetValues(typeof(T))
             .Cast<T>()
-            .Where(v => evalue.HasFlag(v))
+            .Where(v => value.HasFlag(v))
             .Select(v => (int)(object)v)
             .ToArray();
     }
@@ -43,12 +43,12 @@ public static class EnumExtensions
     /// Convert array of int into flagged enum.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="evalues"></param>
+    /// <param name="value"></param>
     /// <returns></returns>
-    public static T ToFlagEnum<T>(this IEnumerable<int> evalues)
+    public static T ToFlagEnum<T>(this IEnumerable<int> value)
         where T : Enum
     {
-        return (T)(object)evalues.Aggregate(0, (c, n) => c |= n);
+        return (T)(object)value.Aggregate(0, (c, n) => c |= n);
     }
 
     /// <summary>

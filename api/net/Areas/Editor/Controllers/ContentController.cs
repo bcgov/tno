@@ -17,13 +17,14 @@ using TNO.Kafka;
 using TNO.API.Config;
 using TNO.Kafka.Models;
 using TNO.Core.Exceptions;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// ContentController class, provides Content endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]

@@ -147,8 +147,8 @@ export const UserForm: React.FC = () => {
                       onClick={(e) => {
                         const id = (values as any).role;
                         const role = lookups.roles.find((r) => r.id === id);
-                        if (role && !values.roles?.some((r) => r.id === id))
-                          setUser({ ...values, roles: [...(values.roles ?? []), role] });
+                        if (role && !values.roles?.some((r) => r === id))
+                          setUser({ ...values, roles: [...(values.roles ?? []), role.id] });
                       }}
                     >
                       Add
@@ -157,16 +157,16 @@ export const UserForm: React.FC = () => {
                 </Col>
               </Row>
               <hr />
-              {user.roles?.map((r) => (
-                <Row alignContent="stretch" key={r.id}>
-                  <Col flex="1 1 auto">{r.name}</Col>
+              {user.roles?.map((role) => (
+                <Row alignContent="stretch" key={role}>
+                  <Col flex="1 1 auto">{role}</Col>
                   <Col>
                     <Button
                       variant={ButtonVariant.danger}
                       onClick={(e) => {
                         setUser({
                           ...values,
-                          roles: values.roles?.filter((ur) => ur.id !== r.id) ?? [],
+                          roles: values.roles?.filter((ur) => ur !== role) ?? [],
                         });
                         setFieldValue('role', 0);
                       }}

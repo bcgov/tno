@@ -1,18 +1,19 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Role;
 using TNO.API.Filters;
 using TNO.API.Models;
-using TNO.DAL.Services;
+using TNO.Core.Exceptions;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// RoleController class, provides Role endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]
@@ -25,7 +26,8 @@ namespace TNO.API.Areas.Editor.Controllers;
 public class RoleController : ControllerBase
 {
     #region Variables
-    private readonly IRoleService _service;
+    private readonly IKeycloakService _service;
+    private readonly Config.KeycloakOptions _options;
     #endregion
 
     #region Constructors
@@ -33,9 +35,11 @@ public class RoleController : ControllerBase
     /// Creates a new instance of a RoleController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public RoleController(IRoleService service)
+    /// <param name="options"></param>
+    public RoleController(IKeycloakService service, IOptions<Config.KeycloakOptions> options)
     {
         _service = service;
+        _options = options.Value;
     }
     #endregion
 
@@ -51,9 +55,12 @@ public class RoleController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Role" })]
     [ETagCacheTableFilter("roles")]
     [ResponseCache(Duration = 5 * 60)]
-    public IActionResult FindAll()
+    public async Task<IActionResult> FindAllAsync()
     {
-        return new JsonResult(_service.FindAll().Select(c => new RoleModel(c)));
+        if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+
+        var roles = await _service.GetRolesAsync(_options.ClientId.Value);
+        return new JsonResult(roles.Select(c => new RoleModel(c.Name!)));
     }
     #endregion
 }

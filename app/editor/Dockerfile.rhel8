@@ -15,6 +15,7 @@ RUN chmod 777 /usr/src/app/nginx/default.conf
 # So we using a `environment.env` file instead.
 RUN if [ -f environment.env ]; then mv -f environment.env .env; fi
 RUN yarn set version berry
+RUN npx browserslist@latest --update-db
 RUN yarn build
 
 # Final image with production build.

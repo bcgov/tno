@@ -104,14 +104,10 @@ public class User : AuditColumns
     public DateTime? CodeCreatedOn { get; set; }
 
     /// <summary>
-    /// get/set - A collection of roles this user belongs to.
+    /// get/set - Comma separated list of roles assigned to this user (i.e. "[admin],[editor]").
     /// </summary>
-    public virtual List<Role> Roles { get; } = new List<Role>();
-
-    /// <summary>
-    /// get/set - A collection of roles this user belongs to (many-to-many).
-    /// </summary>
-    public virtual List<UserRole> RolesManyToMany { get; } = new List<UserRole>();
+    [Column("roles")]
+    public string Roles { get; set; } = "";
 
     /// <summary>
     /// get/set - A collection of content this user owns.

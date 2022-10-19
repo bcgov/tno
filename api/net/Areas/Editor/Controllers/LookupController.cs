@@ -1,13 +1,14 @@
 using System.Net;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Filters;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -15,7 +16,7 @@ namespace TNO.API.Areas.Editor.Controllers;
 /// LookupController class, provides Lookup endpoints for the api.
 /// The purpose is to reduce the number of AJAX requests to fetch separate lookup values.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor, ClientRole.Administrator)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]
@@ -31,18 +32,18 @@ public class LookupController : ControllerBase
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IActionService _actionService;
     private readonly ICategoryService _categoryService;
-    private readonly IClaimService _claimService;
     private readonly IProductService _productService;
     private readonly ISourceService _sourceService;
     private readonly ILicenseService _licenseService;
     private readonly IIngestTypeService _ingestTypeService;
-    private readonly IRoleService _roleService;
     private readonly ISeriesService _seriesService;
     private readonly ISourceActionService _sourceActionService;
     private readonly IMetricService _metricService;
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
     private readonly IUserService _userService;
+    private readonly IKeycloakService _keycloakService;
+    private readonly Config.KeycloakOptions _keycloakOptions;
     #endregion
 
     #region Constructors
@@ -51,50 +52,50 @@ public class LookupController : ControllerBase
     /// </summary>
     /// <param name="actionService"></param>
     /// <param name="categoryService"></param>
-    /// <param name="claimService"></param>
     /// <param name="productService"></param>
     /// <param name="sourceService"></param>
     /// <param name="licenseService"></param>
     /// <param name="ingestTypeService"></param>
-    /// <param name="roleService"></param>
     /// <param name="seriesService"></param>
     /// <param name="sourceActionService"></param>
     /// <param name="metricService"></param>
     /// <param name="tagService"></param>
     /// <param name="tonePoolService"></param>
     /// <param name="userService"></param>
+    /// <param name="keycloakService"></param>
+    /// <param name="keycloakOptions"></param>
     /// <param name="serializerOptions"></param>
     public LookupController(
         IActionService actionService,
         ICategoryService categoryService,
-        IClaimService claimService,
         IProductService productService,
         ISourceService sourceService,
         ILicenseService licenseService,
         IIngestTypeService ingestTypeService,
-        IRoleService roleService,
         ISeriesService seriesService,
         ISourceActionService sourceActionService,
         IMetricService metricService,
         ITagService tagService,
         ITonePoolService tonePoolService,
         IUserService userService,
+        IKeycloakService keycloakService,
+        IOptions<Config.KeycloakOptions> keycloakOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _actionService = actionService;
         _categoryService = categoryService;
-        _claimService = claimService;
         _productService = productService;
         _sourceService = sourceService;
         _licenseService = licenseService;
         _ingestTypeService = ingestTypeService;
-        _roleService = roleService;
         _seriesService = seriesService;
         _sourceActionService = sourceActionService;
         _metricService = metricService;
         _tagService = tagService;
         _tonePoolService = tonePoolService;
         _userService = userService;
+        _keycloakService = keycloakService;
+        _keycloakOptions = keycloakOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -111,16 +112,17 @@ public class LookupController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Lookup" })]
     [ETagCacheTableFilter("lookups")]
     [ResponseCache(Duration = 5 * 60)]
-    public IActionResult FindAll()
+    public async Task<IActionResult> FindAllAsync()
     {
+        if (!_keycloakOptions.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+
         var actions = _actionService.FindAll();
         var categories = _categoryService.FindAll();
-        var claims = _claimService.FindAll();
         var products = _productService.FindAll();
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var ingestTypes = _ingestTypeService.FindAll();
-        var roles = _roleService.FindAll();
+        var roles = (await _keycloakService.GetRolesAsync(_keycloakOptions.ClientId.Value)).Select(r => r.Name!);
         var series = _seriesService.FindAll();
         var sourceActions = _sourceActionService.FindAll();
         var metrics = _metricService.FindAll();
@@ -130,7 +132,6 @@ public class LookupController : ControllerBase
         return new JsonResult(new LookupModel(
             actions,
             categories,
-            claims,
             products,
             sources,
             license,
