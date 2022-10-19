@@ -3,6 +3,11 @@ import { IUserFilter } from 'hooks';
 
 import { ISortBy } from '../../../content/list-view/interfaces';
 
+/**
+ * Creates a IUserFilter that can be passed to the API hook endpoint.
+ * @param {IUserFilter} filter Filter object
+ * @returns new IUserFilter object.
+ */
 export const makeUserFilter = (filter: IUserListFilter): IUserFilter => {
   return {
     ...filter,
