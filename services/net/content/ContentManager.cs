@@ -14,7 +14,7 @@ using TNO.Entities;
 namespace TNO.Services.Content;
 
 /// <summary>
-/// ContentManager class, provides a Kafka Consumer service which imports content from all active topics.
+/// ContentManager class, provides a Kafka Listener service which imports content from all active topics.
 /// </summary>
 public class ContentManager : ServiceManager<ContentOptions>
 {
@@ -34,7 +34,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <summary>
     /// get - Kafka message consumer.
     /// </summary>
-    protected IKafkaListener<string, SourceContent> Consumer { get; private set; }
+    protected IKafkaListener<string, SourceContent> Listener { get; private set; }
 
     /// <summary>
     /// get - Kafka message producer.
@@ -63,9 +63,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     {
         this.KafkaAdmin = kafkaAdmin;
         this.Producer = kafkaMessenger;
-        this.Consumer = kafkaListener;
-        this.Consumer.OnError += ConsumerErrorHandler;
-        this.Consumer.OnStop += ConsumerStopHandler;
+        this.Listener = kafkaListener;
+        this.Listener.OnError += ListenerErrorHandler;
+        this.Listener.OnStop += ListenerStopHandler;
     }
     #endregion
 
@@ -90,7 +90,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 this.State.Stop();
 
                 // The service is stopping or has stopped, consume should stop too.
-                this.Consumer.Stop();
+                this.Listener.Stop();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -116,12 +116,12 @@ public class ContentManager : ServiceManager<ContentOptions>
 
                     if (topics.Length > 0)
                     {
-                        this.Consumer.Subscribe(topics);
+                        this.Listener.Subscribe(topics);
                         ConsumeMessages();
                     }
                     else if (topics.Length == 0)
                     {
-                        this.Consumer.Stop();
+                        this.Listener.Stop();
                     }
                 }
                 catch (Exception ex)
@@ -152,7 +152,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (_cancelToken?.IsCancellationRequested == false)
                 _cancelToken?.Cancel();
             _cancelToken = new CancellationTokenSource();
-            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
+            _consumer = Task.Run(ListenerHandlerAsync, _cancelToken.Token);
         }
     }
 
@@ -160,16 +160,16 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// Keep consuming messages from Kafka until the service stops running.
     /// </summary>
     /// <returns></returns>
-    private async Task ConsumerHandlerAsync()
+    private async Task ListenerHandlerAsync()
     {
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            await this.Consumer.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
+            await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
-        this.Consumer.Stop();
+        this.Listener.Stop();
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns>True if the consumer should retry the message.</returns>
-    private ConsumerAction ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
         // Only the first retry will count as a failure.
         if (_retries == 0)
@@ -187,10 +187,9 @@ public class ContentManager : ServiceManager<ContentOptions>
 
         if (e.GetException() is ConsumeException consume)
         {
-            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
+            if (consume.Error.IsFatal)
+                this.Listener.Stop();
         }
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -198,13 +197,13 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void ConsumerStopHandler(object sender, EventArgs e)
+    private void ListenerStopHandler(object sender, EventArgs e)
     {
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            this.Logger.LogDebug("Consumer thread is being cancelled");
+            this.Logger.LogDebug("Listener thread is being cancelled");
             _cancelToken.Cancel();
         }
     }
@@ -216,7 +215,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="result"></param>
     /// <returns>Whether to continue with the next message.</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, SourceContent> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
         try
         {
@@ -305,14 +304,11 @@ public class ContentManager : ServiceManager<ContentOptions>
             // Successful run clears any errors.
             this.State.ResetFailures();
             _retries = 0;
-            return ConsumerAction.Proceed;
         }
         catch (HttpClientRequestException ex)
         {
             this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
         }
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>

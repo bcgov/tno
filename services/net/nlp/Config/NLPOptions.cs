@@ -24,5 +24,10 @@ public class NLPOptions : ServiceOptions
     /// A retry that ultimately fails will still only count as a single failure for the service.
     /// </summary>
     public int RetryLimit { get; set; } = 3;
+
+    /// <summary>
+    /// get/set - Whether to only accept messages from Kafka that include work orders.
+    /// </summary>
+    public bool AcceptOnlyWorkOrders { get; set; } = true;
     #endregion
 }

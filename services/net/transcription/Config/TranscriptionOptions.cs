@@ -39,17 +39,5 @@ public class TranscriptionOptions : ServiceOptions
     /// get/set - Whether to only accept messages from Kafka that include work orders.
     /// </summary>
     public bool AcceptOnlyWorkOrders { get; set; } = true;
-
-    #endregion
-
-    #region Methods
-    /// <summary>
-    /// Get an array of topics.
-    /// </summary>
-    /// <returns></returns>
-    public string[] GetTopics()
-    {
-        return this.Topics.Split(',').Select(v => v.Trim()).ToArray();
-    }
     #endregion
 }

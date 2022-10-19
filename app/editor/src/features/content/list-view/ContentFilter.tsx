@@ -228,7 +228,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
             label="Search Terms"
             value={filterAdvanced.searchTerm}
             onChange={(e) => {
-              storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value.trim() });
+              storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
             }}
           ></Text>
         </div>

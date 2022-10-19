@@ -30,6 +30,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
 
     /// <summary>
     /// get - Whether the listener should await the message handler.
+    /// If 'true' you will need to Commit and Resume after handling a message.
     /// </summary>
     public bool IsLongRunningJob { get; set; }
 

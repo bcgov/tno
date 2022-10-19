@@ -149,7 +149,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns>True if the consumer should retry the message.</returns>
-    private ConsumerAction ListenerErrorHandler(object sender, ErrorEventArgs e)
+    private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
         // Only the first retry will count as a failure.
         if (_retries == 0)
@@ -157,10 +157,9 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
         if (e.GetException() is ConsumeException consume)
         {
-            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
+            if (consume.Error.IsFatal)
+                this.Listener.Stop();
         }
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -237,6 +236,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     private async Task UpdateTranscriptionAsync(TranscriptRequest request)
     {
         if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
@@ -294,7 +294,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                 }
                 else
                 {
-                    this.Logger.LogWarning("Transcript request ignored because it does not have a work order");
+                    this.Logger.LogWarning("Request ignored because it does not have a work order");
                 }
             }
         }

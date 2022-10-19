@@ -8,7 +8,7 @@ namespace TNO.Kafka;
 /// <param name="sender"></param>
 /// <param name="e"></param>
 /// <returns>Whether the the process should retry consuming the message.</returns>
-public delegate ConsumerAction OnConsumerErrorEventHandler(object sender, ErrorEventArgs e);
+public delegate void OnConsumerErrorEventHandler(object sender, ErrorEventArgs e);
 
 /// <summary>
 /// When a consumer stop occurs this event will fire.

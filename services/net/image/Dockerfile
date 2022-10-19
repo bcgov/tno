@@ -13,6 +13,7 @@ WORKDIR /src
 
 COPY services/net/image services/net/image
 COPY libs/net libs/net
+RUN if [ ! -d services/net/image/keys ]; then mkdir services/net/image/keys; fi
 
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
     fix_permissions "/app" "/tmp"
@@ -27,7 +28,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 COPY --from=build /build .
-RUN  if test -e ../services/net/image/keys/id_rsa; then COPY ../services/net/image/keys/ id_rsa* keys/ && chmod 0777 keys && chmod -R 0777 /app/keys/; fi
+COPY --from=build /src/services/net/image/keys/ keys
+RUN  chmod -R 0777 keys
 
 # This volume is the local storage for uploaded files.
 RUN mkdir /data
