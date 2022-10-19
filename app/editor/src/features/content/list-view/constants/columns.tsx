@@ -1,6 +1,6 @@
 import { ContentStatusName, IContentModel } from 'hooks/api-editor';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Date, Ellipsis } from 'tno-core/dist/components/cell';
+import { Checkbox, Date, Ellipsis } from 'tno-core';
 import { formatIdirUsername } from 'utils/formatIdir';
 
 import { getStatusText } from '../utils';

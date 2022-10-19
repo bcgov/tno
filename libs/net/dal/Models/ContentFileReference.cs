@@ -193,7 +193,7 @@ public class ContentFileReference : IReadonlyFileReference
     /// <summary>
     /// Creates a new instance of a ContentFileReference, initializes with specified parameters.
     /// Use this to create a new FileReference.
-    /// Only use this contructor when the 'content' already exists in the database.
+    /// Only use this constructor when the 'content' already exists in the database.
     /// </summary>
     /// <param name="content"></param>
     /// <param name="file"></param>

@@ -1,6 +1,6 @@
 import { IProductModel, useApiAdminProducts } from 'hooks/api-editor';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IProductController {
@@ -13,7 +13,7 @@ interface IProductController {
 
 export const useProducts = (): [IAdminState, IProductController] => {
   const api = useApiAdminProducts();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
 
   const controller = React.useMemo(

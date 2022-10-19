@@ -1,4 +1,4 @@
-export interface IOptionItem<T extends string | number = string | number> {
+export interface IOptionItem<T extends string | number | undefined = string | number | undefined> {
   discriminator: 'IOption';
   label: string;
   value?: T;

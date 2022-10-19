@@ -35,16 +35,9 @@ public class TranscriptionOptions : ServiceOptions
     /// </summary>
     public int RetryLimit { get; set; } = 3;
 
-    #endregion
-
-    #region Methods
     /// <summary>
-    /// Get an array of topics.
+    /// get/set - Whether to only accept messages from Kafka that include work orders.
     /// </summary>
-    /// <returns></returns>
-    public string[] GetTopics()
-    {
-        return this.Topics.Split(',').Select(v => v.Trim()).ToArray();
-    }
+    public bool AcceptOnlyWorkOrders { get; set; } = true;
     #endregion
 }

@@ -17,10 +17,15 @@ import { initFromLocalStorage } from '.';
  */
 export const fetchIfNoneMatch = async <T>(
   key: string,
-  dispatch: <T>(url: string, request: () => Promise<AxiosResponse<T>>) => Promise<AxiosResponse<T>>,
+  dispatch: <T>(
+    url: string,
+    request: () => Promise<AxiosResponse<T>>,
+    group?: string,
+  ) => Promise<AxiosResponse<T>>,
   fetch: (etag?: string) => Promise<AxiosResponse<T>>,
   store: (results?: T) => T,
   saveResults: boolean = true,
+  group: string | undefined = undefined,
 ) => {
   return await initFromLocalStorage<T>(
     key,
@@ -32,7 +37,7 @@ export const fetchIfNoneMatch = async <T>(
             ? getFromLocalStorage<ICacheModel[]>('etags', []).find((c) => c.key === key)?.value
             : undefined;
 
-        const response = await dispatch(key, () => fetch(etag));
+        const response = await dispatch(key, () => fetch(etag), group);
         etag = response.headers['etag'];
 
         store(response.data);

@@ -1,5 +1,6 @@
 .vs/
 .env
+/data
 
 # Build results
 [Dd]ebug/

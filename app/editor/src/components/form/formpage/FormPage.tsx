@@ -10,6 +10,7 @@ export interface IFormPageProps extends InputHTMLAttributes<HTMLDivElement> {
   /** include contents of form page */
   children: React.ReactNode;
 }
+
 /** Provides a consistent white background "page" used throughout the application */
 export const FormPage: React.FC<IFormPageProps> = ({ children, className, ...rest }) => {
   return (

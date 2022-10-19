@@ -33,6 +33,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     timeTrackings: [],
     fileReferences: [],
     links: [],
+    workOrders: [],
     // Print Content
     section: '',
     edition: '',

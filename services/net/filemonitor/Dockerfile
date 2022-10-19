@@ -13,6 +13,7 @@ WORKDIR /src
 
 COPY services/net/filemonitor services/net/filemonitor
 COPY libs/net libs/net
+RUN if [ ! -d services/net/filemonitor/keys ]; then mkdir services/net/filemonitor/keys; fi
 
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
     fix_permissions "/app" "/tmp"
@@ -27,7 +28,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 COPY --from=build /build .
-RUN  if test -e ../services/net/filemonitor/keys/id_rsa; then COPY ../services/net/filemonitor/keys/ id_rsa* keys/ && chmod 0777 keys && chmod -R 0777 /app/keys/; fi
+COPY --from=build /src/services/net/filemonitor/keys/ keys
+RUN  chmod -R 0777 keys
 
 # This volume is the local storage for uploaded files.
 RUN mkdir /data

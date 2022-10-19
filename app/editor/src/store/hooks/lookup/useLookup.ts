@@ -37,7 +37,7 @@ import { useLookupStore } from 'store/slices';
 import { ILookupState } from 'store/slices/lookup';
 import { getFromLocalStorage } from 'utils';
 
-import { useApiDispatcher } from '..';
+import { useAjaxWrapper } from '..';
 import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
 
 interface ILookupController {
@@ -60,7 +60,7 @@ interface ILookupController {
 
 export const useLookup = (): [ILookupState, ILookupController] => {
   const [state, store] = useLookupStore();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const cache = useApiCache();
   const lookups = useApiLookups();
   const actions = useApiActions();
@@ -142,6 +142,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             }
           },
           false,
+          'lookup',
         );
       },
       getActions: async () => {
@@ -154,6 +155,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeActions(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getCategories: async () => {
@@ -166,6 +169,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeCategories(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getClaims: async () => {
@@ -178,6 +183,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeClaims(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getProducts: async () => {
@@ -190,6 +197,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeProducts(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getSources: async () => {
@@ -202,6 +211,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeSources(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getLicenses: async () => {
@@ -214,6 +225,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeLicenses(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getIngestTypes: async () => {
@@ -226,6 +239,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeIngestTypes(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getRoles: async () => {
@@ -238,6 +253,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeRoles(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getSeries: async () => {
@@ -250,6 +267,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeSeries(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getSourceActions: async () => {
@@ -262,6 +281,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeSourceActions(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getMetrics: async () => {
@@ -274,6 +295,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeMetrics(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getTags: async () => {
@@ -286,6 +309,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeTags(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getTonePools: async () => {
@@ -298,6 +323,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeTonePools(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       getUsers: async () => {
@@ -310,6 +337,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             store.storeUsers(values);
             return values;
           },
+          true,
+          'lookup',
         );
       },
       init: async () => {

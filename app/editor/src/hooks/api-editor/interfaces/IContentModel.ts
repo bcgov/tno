@@ -17,6 +17,7 @@ import {
   IFileReferenceModel,
   IPrintContentModel,
   ITimeTrackingModel,
+  IWorkOrderModel,
 } from '.';
 
 export interface IContentModel extends IAuditColumnsModel {
@@ -51,4 +52,5 @@ export interface IContentModel extends IAuditColumnsModel {
   timeTrackings?: ITimeTrackingModel[];
   fileReferences?: IFileReferenceModel[];
   links?: IContentLinkModel[];
+  workOrders?: IWorkOrderModel[];
 }

@@ -9,25 +9,31 @@ export type FormikFormProps<
   ExtraProps = {},
 > = FormikConfig<Values> & ExtraProps;
 
+/** Provides a predicate to determine if any requests are active. */
+type IsLoading = (request: any) => boolean;
+
 export interface IFormikFormProps<Values extends FormikValues> extends FormikFormProps<Values> {
   /**
    * Manually control when the loading spinner overlay is visible.
    */
-  loading?: boolean;
+  loading?: boolean | IsLoading;
   /**
    * Configuration options for loading spinner overlay.
    */
   load?: {
-    hasRequests: boolean;
     size?: string;
     variant?: SpinnerVariant;
   };
 }
 
+/**
+ * Component provides a Formik form and a page loader.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const FormikForm = <Values extends FormikValues = FormikValues>({
-  loading,
+  loading = (request) => !request.isSilent,
   load = {
-    hasRequests: true,
     size: '5em',
   },
   children,
@@ -41,7 +47,7 @@ export const FormikForm = <Values extends FormikValues = FormikValues>({
       <Loader
         size={load.size}
         variant={load.variant}
-        visible={loading || (load.hasRequests && !!requests.length)}
+        visible={typeof loading === 'function' ? requests.some(loading) : loading}
       />
       <Formik enableReinitialize={enableReinitialize} {...rest}>
         {(props) => (

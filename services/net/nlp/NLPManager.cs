@@ -24,14 +24,15 @@ public class NLPManager : ServiceManager<NLPOptions>
     private CancellationTokenSource? _cancelToken;
     private Task? _consumer;
     private readonly TaskStatus[] _notRunning = new TaskStatus[] { TaskStatus.Canceled, TaskStatus.Faulted, TaskStatus.RanToCompletion };
+    private readonly WorkOrderStatus[] _ignoreWorkOrders = new WorkOrderStatus[] { WorkOrderStatus.Completed, WorkOrderStatus.Cancelled, WorkOrderStatus.Failed };
     private int _retries = 0;
     #endregion
 
     #region Properties
     /// <summary>
-    /// get - Kafka Consumer object.
+    /// get - Kafka Listener object.
     /// </summary>
-    protected IKafkaListener<string, NLPRequest> Consumer { get; private set; }
+    protected IKafkaListener<string, NLPRequest> Listener { get; private set; }
 
     /// <summary>
     /// get - Kafka message producer.
@@ -57,9 +58,10 @@ public class NLPManager : ServiceManager<NLPOptions>
         : base(api, options, logger)
     {
         this.Producer = producer;
-        this.Consumer = consumer;
-        this.Consumer.OnError += ConsumerErrorHandler;
-        this.Consumer.OnStop += ConsumerStopHandler;
+        this.Listener = consumer;
+        this.Listener.IsLongRunningJob = true;
+        this.Listener.OnError += ListenerErrorHandler;
+        this.Listener.OnStop += ListenerStopHandler;
     }
     #endregion
 
@@ -82,7 +84,7 @@ public class NLPManager : ServiceManager<NLPOptions>
                 this.State.Stop();
 
                 // The service is stopping or has stopped, consume should stop too.
-                this.Consumer.Stop();
+                this.Listener.Stop();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -96,12 +98,12 @@ public class NLPManager : ServiceManager<NLPOptions>
 
                     if (topics.Length != 0)
                     {
-                        this.Consumer.Subscribe(topics);
+                        this.Listener.Subscribe(topics);
                         ConsumeMessages();
                     }
                     else if (topics.Length == 0)
                     {
-                        this.Consumer.Stop();
+                        this.Listener.Stop();
                     }
                 }
                 catch (Exception ex)
@@ -129,7 +131,7 @@ public class NLPManager : ServiceManager<NLPOptions>
             if (_cancelToken?.IsCancellationRequested == false)
                 _cancelToken?.Cancel();
             _cancelToken = new CancellationTokenSource();
-            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
+            _consumer = Task.Run(ListenerHandlerAsync, _cancelToken.Token);
         }
     }
 
@@ -137,16 +139,16 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// Keep consuming messages from Kafka until the service stops running.
     /// </summary>
     /// <returns></returns>
-    private async Task ConsumerHandlerAsync()
+    private async Task ListenerHandlerAsync()
     {
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            await this.Consumer.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
+            await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
-        this.Consumer.Stop();
+        this.Listener.Stop();
     }
 
     /// <summary>
@@ -156,7 +158,7 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns>True if the consumer should retry the message.</returns>
-    private ConsumerAction ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
         // Only the first retry will count as a failure.
         if (_retries == 0)
@@ -164,10 +166,9 @@ public class NLPManager : ServiceManager<NLPOptions>
 
         if (e.GetException() is ConsumeException consume)
         {
-            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
+            if (consume.Error.IsFatal)
+                this.Listener.Stop();
         }
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -175,7 +176,7 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void ConsumerStopHandler(object sender, EventArgs e)
+    private void ListenerStopHandler(object sender, EventArgs e)
     {
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
@@ -191,100 +192,150 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, NLPRequest> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, NLPRequest> result)
     {
-        // The service has stopped, so to should consuming messages.
-        if (this.State.Status != ServiceStatus.Running)
+        try
         {
-            this.Consumer.Stop();
-            this.State.Stop();
-            return ConsumerAction.Stop;
-        }
-        else
-        {
-            try
+            var request = result.Message.Value;
+            // The service has stopped, so to should consuming messages.
+            if (this.State.Status != ServiceStatus.Running)
             {
-                var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
-                if (content != null)
+                this.Listener.Stop();
+                this.State.Stop();
+            }
+            else
+            {
+                request.Content = await _api.FindContentByIdAsync(request.ContentId);
+                if (request.Content != null)
                 {
-                    await UpdateContentAsync(content);
-                    await SendIndexingRequest(content);
+                    await UpdateContentAsync(request);
+                    await SendIndexingRequest(request);
                 }
                 else
                 {
                     // Identify requests for transcription for content that does not exist.
-                    this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, result.Message.Value.ContentId);
+                    this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
                 }
+
+                // Inform Kafka this message is completed.
+                this.Listener.Commit(result);
+                this.Listener.Resume();
 
                 // Successful run clears any errors.
                 this.State.ResetFailures();
                 _retries = 0;
-                return ConsumerAction.Proceed;
-            }
-            catch (HttpClientRequestException ex)
-            {
-                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
-            }
 
-            return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex is HttpClientRequestException httpEx)
+            {
+                this.Logger.LogError(ex, "HTTP exception while consuming. {response}", httpEx.Data["body"] ?? "");
+            }
+            else
+            {
+                this.Logger.LogError(ex, "Failed to handle message");
+            }
+            ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
     }
 
     /// <summary>
     /// Make a request to generate a transcription for the specified 'content'.
     /// </summary>
-    /// <param name="content"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
-    private async Task UpdateContentAsync(ContentModel content)
+    /// <exception cref="ArgumentException"></exception>
+    private async Task UpdateContentAsync(NLPRequest request)
     {
-        this.Logger.LogInformation("NLP requested.  Content ID: {Id}", content.Id);
+        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
 
-        var labels = await RequestNlpAsync(content); // TODO: Extract language from data source.
+        this.Logger.LogInformation("NLP requested.  Content ID: {Id}", request.Content.Id);
+        var hasWorkOrder = await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
 
-        // Fetch content again because it may have been updated by an external source.
-        // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-        var result = await _api.FindContentByIdAsync(content.Id);
-        if (result != null && labels.Any())
+
+        if (hasWorkOrder)
         {
-            // Only add new labels.
-            var originalLabels = new List<ContentLabelModel>(result.Labels);
-            foreach (var label in labels)
+            var labels = await RequestNlpAsync(request); // TODO: Extract language from data source.
+
+            // Fetch content again because it may have been updated by an external source.
+            // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
+            var result = await _api.FindContentByIdAsync(request.Content.Id);
+            if (result != null && labels.Any())
             {
-                var original = result.Labels.FirstOrDefault(l => l.Key == label.Key && l.Value == label.Value);
-                if (original == null) originalLabels.Add(label);
-            }
-            result.Labels = originalLabels.ToArray();
+                // Only add new labels.
+                var originalLabels = new List<ContentLabelModel>(result.Labels);
+                foreach (var label in labels)
+                {
+                    var original = result.Labels.FirstOrDefault(l => l.Key == label.Key && l.Value == label.Value);
+                    if (original == null) originalLabels.Add(label);
+                }
+                result.Labels = originalLabels.ToArray();
 
-            await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
-            this.Logger.LogInformation("Labels updated.  Content ID: {Id}", content.Id);
-        }
-        else if (!labels.Any())
-        {
-            this.Logger.LogWarning("Content did not generate a labels. Content ID: {Id}", content.Id);
+                await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
+                this.Logger.LogInformation("Labels updated.  Content ID: {Id}", request.Content.Id);
+
+                await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
+            }
+            else if (!labels.Any())
+            {
+                this.Logger.LogWarning("Content did not generate a labels. Content ID: {Id}", request.Content.Id);
+                await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
+            }
+            else
+            {
+                // The content is no longer available for some reason.
+                this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.Content.Id);
+                await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
+            }
         }
         else
         {
-            // The content is no longer available for some reason.
-            this.Logger.LogError("Content no longer exists. Content ID: {Id}", content.Id);
+            this.Logger.LogWarning("Request ignored because it does not have a work order");
         }
+    }
+
+    /// <summary>
+    /// Update the work order (if it exists) with the specified 'status'.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="status"></param>
+    /// <returns>Whether a work order exists or is not required.</returns>
+    private async Task<bool> UpdateWorkOrderAsync(NLPRequest request, WorkOrderStatus status)
+    {
+        if (request.WorkOrderId > 0)
+        {
+            request.WorkOrder = await _api.FindWorkOrderAsync(request.WorkOrderId);
+            if (request.WorkOrder != null && !_ignoreWorkOrders.Contains(request.WorkOrder.Status))
+            {
+                request.WorkOrder.Status = status;
+                request.WorkOrder = await _api.UpdateWorkOrderAsync(request.WorkOrder);
+                return true;
+            }
+        }
+        return !_options.AcceptOnlyWorkOrders;
     }
 
     /// <summary>
     /// Make a request to OpenNLP models to extract information from content.
     /// </summary>
-    /// <param name="data"></param>
+    /// <param name="request"></param>
     /// <param name="language"></param>
     /// <returns></returns>
-    private Task<ContentLabelModel[]> RequestNlpAsync(ContentModel content)
+    /// <exception cref="ArgumentException"></exception>
+    private Task<ContentLabelModel[]> RequestNlpAsync(NLPRequest request)
     {
+        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
+
         var labels = new List<ContentLabelModel>();
 
-        labels.AddRange(ExtractEntity(content, EntityType.Person));
-        labels.AddRange(ExtractEntity(content, EntityType.Organization));
-        labels.AddRange(ExtractEntity(content, EntityType.Location));
-        labels.AddRange(ExtractEntity(content, EntityType.Date));
-        labels.AddRange(ExtractEntity(content, EntityType.Time));
-        labels.AddRange(ExtractEntity(content, EntityType.Money));
+        labels.AddRange(ExtractEntity(request.Content, EntityType.Person));
+        labels.AddRange(ExtractEntity(request.Content, EntityType.Organization));
+        labels.AddRange(ExtractEntity(request.Content, EntityType.Location));
+        labels.AddRange(ExtractEntity(request.Content, EntityType.Date));
+        labels.AddRange(ExtractEntity(request.Content, EntityType.Time));
+        labels.AddRange(ExtractEntity(request.Content, EntityType.Money));
 
         return Task.FromResult(labels.ToArray());
     }
@@ -312,20 +363,23 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <summary>
     /// Send a request to Kafka to update the indexes in Elasticsearch.
     /// </summary>
-    /// <param name="content"></param>
+    /// <param name="request"></param>
     /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task SendIndexingRequest(ContentModel content)
+    private async Task SendIndexingRequest(NLPRequest request)
     {
+        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
+
         if (!String.IsNullOrWhiteSpace(_options.IndexingTopic))
         {
-            var result = await this.Producer.SendMessageAsync(_options.IndexingTopic, new IndexRequest(content, IndexAction.Index));
-            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {content.Id}");
+            var result = await this.Producer.SendMessageAsync(_options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Index));
+            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {request.Content.Id}");
 
-            if (content.Status == ContentStatus.Published)
+            if (request.Content.Status == ContentStatus.Published)
             {
-                result = await this.Producer.SendMessageAsync(_options.IndexingTopic, new IndexRequest(content, IndexAction.Publish));
-                if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {content.Id}");
+                result = await this.Producer.SendMessageAsync(_options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Publish));
+                if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {request.Content.Id}");
             }
         }
     }

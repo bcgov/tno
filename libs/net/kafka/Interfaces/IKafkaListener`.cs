@@ -8,7 +8,7 @@ namespace TNO.Kafka;
 /// <param name="sender"></param>
 /// <param name="e"></param>
 /// <returns>Whether the the process should retry consuming the message.</returns>
-public delegate ConsumerAction OnConsumerErrorEventHandler(object sender, ErrorEventArgs e);
+public delegate void OnConsumerErrorEventHandler(object sender, ErrorEventArgs e);
 
 /// <summary>
 /// When a consumer stop occurs this event will fire.
@@ -25,6 +25,11 @@ public delegate void OnConsumerStopEventHandler(object sender, EventArgs e);
 public interface IKafkaListener<TKey, TValue>
 {
     #region Properties
+    /// <summary>
+    /// get - Whether the listener should await the message handler.
+    /// </summary>
+    public bool IsLongRunningJob { get; set; }
+
     /// <summary>
     /// get - Whether the listener is actively consuming messages.
     /// </summary>
@@ -77,7 +82,7 @@ public interface IKafkaListener<TKey, TValue>
     /// </summary>
     /// <param name="action"></param>
     /// <returns>Whether the consumer should continue with the next message.</returns>
-    Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action);
+    Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task> action);
 
     /// <summary>
     /// Listen for a message from Kafka.
@@ -86,7 +91,42 @@ public interface IKafkaListener<TKey, TValue>
     /// <param name="action"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>Whether the consumer should continue with the next message.</returns>
-    Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task<ConsumerAction>> action, CancellationToken cancellationToken);
+    Task ConsumeAsync(Func<ConsumeResult<TKey, TValue>, Task> action, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the current position for the specified topic partition.
+    /// </summary>
+    /// <param name="partition"></param>
+    /// <returns></returns>
+    Offset? Position(TopicPartition partition);
+
+    /// <summary>
+    /// Inform Kafka that the specified 'result' has been completed for this consumer group.
+    /// </summary>
+    /// <param name="result"></param>
+    void Commit(ConsumeResult<TKey, TValue> result);
+
+    /// <summary>
+    /// Pause consuming messages from the current assignment.
+    /// </summary>
+    public void Pause();
+
+    /// <summary>
+    /// Pause consuming messages from the specified partitions.
+    /// </summary>
+    /// <param name="partitions"></param>
+    public void Pause(IEnumerable<TopicPartition> partitions);
+
+    /// <summary>
+    /// Resume consuming messages from the current assignment.
+    /// </summary>
+    void Resume();
+
+    /// <summary>
+    /// Resume consuming messages from the specified partitions.
+    /// </summary>
+    /// <param name="partitions"></param>
+    void Resume(IEnumerable<TopicPartition> partitions);
 
     /// <summary>
     /// Stop consuming messages from Kafka.

@@ -28,7 +28,7 @@ export const makeFilter = (
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
     createdEndOn: advanced.endDate ? moment(advanced.endDate).toISOString() : undefined,
     [(advanced?.fieldType?.value as string) ?? 'fake']:
-      advanced.searchTerm !== '' ? advanced.searchTerm : undefined,
+      advanced.searchTerm !== '' ? advanced.searchTerm.trim() : undefined,
     logicalOperator:
       advanced.searchTerm !== '' && advanced.logicalOperator !== ''
         ? advanced.logicalOperator

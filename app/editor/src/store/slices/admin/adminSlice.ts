@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
+import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -13,6 +14,7 @@ import {
   ISourceModel,
   ITagModel,
   IUserModel,
+  IWorkOrderModel,
 } from 'hooks/api-editor';
 
 import { IAdminState } from './interfaces';
@@ -23,17 +25,23 @@ export const initialAdminState: IAdminState = {
   products: [],
   ingests: [],
   ingestTypes: [],
+  userFilter: {
+    pageIndex: 0,
+    pageSize: 10,
+    sort: [],
+  },
   users: { page: 1, quantity: 10, items: [], total: 0 },
   categories: [],
   tags: [],
   actions: [],
   series: [],
   licenses: [],
-  userFilter: {
+  workOrderFilter: {
     pageIndex: 0,
     pageSize: 10,
     sort: [],
   },
+  workOrders: { page: 1, quantity: 10, items: [], total: 0 },
 };
 
 export const adminSlice = createSlice({
@@ -58,6 +66,9 @@ export const adminSlice = createSlice({
     storeIngestTypes(state: IAdminState, action: PayloadAction<IIngestTypeModel[]>) {
       state.ingestTypes = action.payload;
     },
+    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
+      state.userFilter = action.payload;
+    },
     storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
       state.users = action.payload;
     },
@@ -73,8 +84,11 @@ export const adminSlice = createSlice({
     storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
     },
-    storeUserFilter(state: IAdminState, action: PayloadAction<IUserListFilter>) {
-      state.userFilter = action.payload;
+    storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
+      state.workOrderFilter = action.payload;
+    },
+    storeWorkOrders(state: IAdminState, action: PayloadAction<IPaged<IWorkOrderModel>>) {
+      state.workOrders = action.payload;
     },
   },
 });
@@ -86,10 +100,12 @@ export const {
   storeLicenses: storeAdminLicenses,
   storeIngests: storeAdminIngests,
   storeIngestTypes: storeAdminIngestTypes,
+  storeUserFilter: storeAdminUserFilter,
   storeUsers: storeAdminUsers,
   storeCategories: storeAdminCategories,
   storeTags: storeAdminTags,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
-  storeUserFilter: storeAdminUserFilter,
+  storeWorkOrderFilter: storeAdminWorkOrderFilter,
+  storeWorkOrders: storeAdminWorkOrders,
 } = adminSlice.actions;

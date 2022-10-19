@@ -14,7 +14,7 @@ using TNO.Core.Exceptions;
 namespace TNO.Services.Indexing;
 
 /// <summary>
-/// IndexingManager class, provides a Kafka Consumer service which sends content to Elasticsearch for indexing.
+/// IndexingManager class, provides a Kafka Listener service which sends content to Elasticsearch for indexing.
 /// </summary>
 public class IndexingManager : ServiceManager<IndexingOptions>
 {
@@ -34,7 +34,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <summary>
     /// get - Kafka message consumer.
     /// </summary>
-    protected IKafkaListener<string, IndexRequest> Consumer { get; private set; }
+    protected IKafkaListener<string, IndexRequest> Listener { get; private set; }
 
     /// <summary>
     /// get - Kafka message producer.
@@ -68,9 +68,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         this.KafkaAdmin = kafkaAdmin;
         this.Producer = producer;
-        this.Consumer = consumer;
-        this.Consumer.OnError += ConsumerErrorHandler;
-        this.Consumer.OnStop += ConsumerStopHandler;
+        this.Listener = consumer;
+        this.Listener.OnError += ListenerErrorHandler;
+        this.Listener.OnStop += ListenerStopHandler;
 
         // TODO: Change to dependency injection.
         var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri))
@@ -99,7 +99,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 this.State.Stop();
 
                 // The service is stopping or has stopped, consume should stop too.
-                this.Consumer.Stop();
+                this.Listener.Stop();
             }
             else if (this.State.Status != ServiceStatus.Running)
             {
@@ -116,12 +116,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
                     if (topics.Length > 0)
                     {
-                        this.Consumer.Subscribe(topics);
+                        this.Listener.Subscribe(topics);
                         ConsumeMessages();
                     }
                     else if (topics.Length == 0)
                     {
-                        this.Consumer.Stop();
+                        this.Listener.Stop();
                     }
                 }
                 catch (Exception ex)
@@ -152,7 +152,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (_cancelToken?.IsCancellationRequested == false)
                 _cancelToken?.Cancel();
             _cancelToken = new CancellationTokenSource();
-            _consumer = Task.Run(ConsumerHandlerAsync, _cancelToken.Token);
+            _consumer = Task.Run(ListenerHandlerAsync, _cancelToken.Token);
         }
     }
 
@@ -160,16 +160,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// Keep consuming messages from Kafka until the service stops running.
     /// </summary>
     /// <returns></returns>
-    private async Task ConsumerHandlerAsync()
+    private async Task ListenerHandlerAsync()
     {
         while (this.State.Status == ServiceStatus.Running &&
             _cancelToken?.IsCancellationRequested == false)
         {
-            await this.Consumer.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
+            await this.Listener.ConsumeAsync(HandleMessageAsync, _cancelToken.Token);
         }
 
         // The service is stopping or has stopped, consume should stop too.
-        this.Consumer.Stop();
+        this.Listener.Stop();
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns>True if the consumer should retry the message.</returns>
-    private ConsumerAction ConsumerErrorHandler(object sender, ErrorEventArgs e)
+    private void ListenerErrorHandler(object sender, ErrorEventArgs e)
     {
         // Only the first retry will count as a failure.
         if (_retries == 0)
@@ -187,10 +187,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
         if (e.GetException() is ConsumeException consume)
         {
-            return consume.Error.IsFatal ? ConsumerAction.Stop : ConsumerAction.Retry;
+            if (consume.Error.IsFatal)
+                this.Listener.Stop();
         }
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>
@@ -198,7 +197,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void ConsumerStopHandler(object sender, EventArgs e)
+    private void ListenerStopHandler(object sender, EventArgs e)
     {
         if (_consumer != null &&
             !_notRunning.Contains(_consumer.Status) &&
@@ -215,7 +214,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="result"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<ConsumerAction> HandleMessageAsync(ConsumeResult<string, IndexRequest> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, IndexRequest> result)
     {
         try
         {
@@ -251,14 +250,11 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             // Successful run clears any errors.
             this.State.ResetFailures();
             _retries = 0;
-            return ConsumerAction.Proceed;
         }
         catch (HttpClientRequestException ex)
         {
             this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
         }
-
-        return _options.RetryLimit > _retries++ ? ConsumerAction.Retry : ConsumerAction.Stop;
     }
 
     /// <summary>

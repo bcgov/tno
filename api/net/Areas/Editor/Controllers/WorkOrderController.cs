@@ -41,7 +41,7 @@ public class WorkOrderController : ControllerBase
     private readonly KafkaOptions _kafkaOptions;
 
     // The following work order status ensure only a single request can be completed for content.
-    private readonly IEnumerable<WorkOrderStatus> _workLimiterStatus = new[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress, WorkOrderStatus.Completed };
+    private readonly IEnumerable<WorkOrderStatus> _workLimiterStatus = new[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress };
     #endregion
 
     #region Constructors

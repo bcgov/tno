@@ -1,6 +1,6 @@
 import { IRegisterModel, IUserModel, useApiUsers } from 'hooks/api-editor';
 import React from 'react';
-import { useApiDispatcher } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 
 interface IUserController {
   getUser: (id: number) => Promise<IUserModel>;
@@ -10,7 +10,7 @@ interface IUserController {
 
 export const useUsers = (): IUserController => {
   const api = useApiUsers();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
 
   const controller = React.useMemo(
     () => ({

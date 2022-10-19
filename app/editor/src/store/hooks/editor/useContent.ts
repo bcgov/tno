@@ -8,7 +8,7 @@ import React from 'react';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
 
-import { useApiDispatcher } from '..';
+import { useAjaxWrapper } from '..';
 
 interface IContentController {
   getContent: (id: number) => Promise<IContentModel>;
@@ -27,12 +27,12 @@ interface IContentController {
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
   const [state, actions] = useContentStore(props);
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const api = useApiContents();
 
   const controller = React.useRef({
     getContent: async (id: number) => {
-      return (await dispatch('get-content', () => api.getContent(id))).data;
+      return (await dispatch('get-content', () => api.getContent(id), 'content')).data;
     },
     findContent: async (filter: IContentFilter) => {
       const response = await dispatch('find-contents', () => api.findContent(filter));
@@ -40,14 +40,18 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       return response.data;
     },
     addContent: async (content: IContentModel) => {
-      const response = await dispatch('add-content', () => api.addContent(content));
+      const response = await dispatch('add-content', () => api.addContent(content), 'content');
       if (state.content) {
         actions.storeContent({ ...state.content, items: [...state.content.items, content] });
       }
       return response.data;
     },
     updateContent: async (content: IContentModel) => {
-      const response = await dispatch('update-content', () => api.updateContent(content));
+      const response = await dispatch(
+        'update-content',
+        () => api.updateContent(content),
+        'content',
+      );
       if (state.content) {
         actions.storeContent({
           ...state.content,
@@ -60,7 +64,11 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       return response.data;
     },
     deleteContent: async (content: IContentModel) => {
-      const response = await dispatch('delete-content', () => api.deleteContent(content));
+      const response = await dispatch(
+        'delete-content',
+        () => api.deleteContent(content),
+        'content',
+      );
       if (state.content) {
         actions.storeContent({
           ...state.content,
@@ -70,19 +78,22 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       return response.data;
     },
     publishContent: async (content: IContentModel) => {
-      return (await dispatch('publish-content', () => api.publishContent(content))).data;
+      return (await dispatch('publish-content', () => api.publishContent(content), 'content')).data;
     },
     unpublishContent: async (content: IContentModel) => {
-      return (await dispatch('unpublish-content', () => api.unpublishContent(content))).data;
+      return (await dispatch('unpublish-content', () => api.unpublishContent(content), 'content'))
+        .data;
     },
     upload: async (content: IContentModel, file: File) => {
-      return (await dispatch('upload-content', () => api.upload(content, file))).data;
+      return (await dispatch('upload-content', () => api.upload(content, file), 'content')).data;
     },
     download: async (id: number, fileName: string) => {
-      return (await dispatch('download-content', () => api.download(id, fileName))).data;
+      return (await dispatch('download-content', () => api.download(id, fileName), 'content')).data;
     },
     attach: async (id: number, path: string) => {
-      return (await dispatch<IContentModel>('attach-content', () => api.attach(id, path))).data;
+      return (
+        await dispatch<IContentModel>('attach-content', () => api.attach(id, path), 'content')
+      ).data;
     },
     storeFilter: actions.storeFilter,
     storeFilterAdvanced: actions.storeFilterAdvanced,

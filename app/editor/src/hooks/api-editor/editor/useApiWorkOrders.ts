@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
-import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
+import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 
-import { IContentModel, IWorkOrderModel, useApi } from '..';
+import { IContentModel, IPaged, IWorkOrderFilter, IWorkOrderModel, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -19,6 +19,11 @@ export const useApiWorkOrders = (
   const api = useApi(options);
 
   return React.useRef({
+    findWorkOrders: (filter: IWorkOrderFilter) => {
+      return api.get<IPaged<IWorkOrderModel>, AxiosResponse<IPaged<IWorkOrderModel>>, any>(
+        `/editor/work/orders?${toQueryString(filter)}`,
+      );
+    },
     transcribe: (content: IContentModel) => {
       return api.put<never, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/work/orders/transcribe/${content.id}`,

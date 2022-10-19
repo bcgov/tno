@@ -3,7 +3,7 @@ import React from 'react';
 import { IAppState, IErrorModel, useAppStore } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
 
-import { useApiDispatcher } from '..';
+import { useAjaxWrapper } from '..';
 import { useLookup } from '../lookup';
 
 /**
@@ -50,7 +50,7 @@ export const useApp = (): [IAppState, IAppController] => {
   const keycloak = useKeycloakWrapper();
   const [state, store] = useAppStore();
   const [, { init }] = useLookup();
-  const dispatch = useApiDispatcher();
+  const dispatch = useAjaxWrapper();
   const api = useApiAuth();
 
   const controller = React.useMemo(
