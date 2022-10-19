@@ -21,7 +21,7 @@ export const useApiIngestTypes = (
   return React.useRef({
     getIngestTypes: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IIngestTypeModel[], AxiosResponse<IIngestTypeModel[], never>, any>(
+      return api.get<IIngestTypeModel[], AxiosResponse<IIngestTypeModel[]>, any>(
         `/editor/ingest/types`,
         config,
       );

@@ -20,29 +20,29 @@ export const useApiAdminConnections = (
 
   return React.useRef({
     findAllConnections: () => {
-      return api.get<IConnectionModel[], AxiosResponse<IConnectionModel[], never>, any>(
+      return api.get<IConnectionModel[], AxiosResponse<IConnectionModel[]>, any>(
         `/admin/connections`,
       );
     },
     getConnection: (id: number) => {
-      return api.get<IConnectionModel, AxiosResponse<IConnectionModel, never>, any>(
+      return api.get<IConnectionModel, AxiosResponse<IConnectionModel>, any>(
         `/admin/connections/${id}`,
       );
     },
     addConnection: (model: IConnectionModel) => {
-      return api.post<IConnectionModel, AxiosResponse<IConnectionModel, never>, any>(
+      return api.post<IConnectionModel, AxiosResponse<IConnectionModel>, any>(
         `/admin/connections`,
         model,
       );
     },
     updateConnection: (model: IConnectionModel) => {
-      return api.put<IConnectionModel, AxiosResponse<IConnectionModel, never>, any>(
+      return api.put<IConnectionModel, AxiosResponse<IConnectionModel>, any>(
         `/admin/connections/${model.id}`,
         model,
       );
     },
     deleteConnection: (model: IConnectionModel) => {
-      return api.delete<IConnectionModel, AxiosResponse<IConnectionModel, never>, any>(
+      return api.delete<IConnectionModel, AxiosResponse<IConnectionModel>, any>(
         `/admin/connections/${model.id}`,
         { data: model },
       );

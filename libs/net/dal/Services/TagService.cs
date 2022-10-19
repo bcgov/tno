@@ -22,7 +22,9 @@ public class TagService : BaseService<Tag, string>, ITagService
     #region Methods
     public IEnumerable<Tag> FindAll()
     {
-        return this.Context.Tags.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Tags
+            .AsNoTracking()
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
     public IPaged<Tag> Find(TagFilter filter)

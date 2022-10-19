@@ -14,7 +14,7 @@ import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useConnections } from 'store/hooks/admin/connections';
+import { useConnections } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
 import { connectionTypeOptions, defaultConnection } from './constants';

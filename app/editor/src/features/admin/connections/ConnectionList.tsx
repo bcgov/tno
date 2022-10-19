@@ -2,7 +2,7 @@ import { FormPage, IconButton } from 'components/form';
 import { IConnectionModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useConnections } from 'store/hooks/admin/connections';
+import { useConnections } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
 import { Col, GridTable, Row } from 'tno-core';
 

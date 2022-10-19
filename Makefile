@@ -133,15 +133,6 @@ renew: ## Refresh all relevant services that were impacted by prior Pull Request
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
 	@make db-refresh
 	@make refresh n=api
-	@make refresh n=editor
-	@make rebuild n=capture
-	@make rebuild n=clip
-	@make rebuild n=syndication
-	@make rebuild n=image
-	@make rebuild n=filemonitor
-	@make rebuild n=content
-	@make rebuild n=nlp
-	@make rebuild n=indexing
 	@make rebuild n=transcription
 
 ##############################################################################

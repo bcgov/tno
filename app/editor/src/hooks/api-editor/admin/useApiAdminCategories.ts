@@ -21,34 +21,32 @@ export const useApiAdminCategories = (
 
   return React.useRef({
     findAllCategories: () => {
-      return api.get<ICategoryModel[], AxiosResponse<ICategoryModel[], never>, any>(
+      return api.get<ICategoryModel[], AxiosResponse<ICategoryModel[]>, any>(
         `/admin/categories/all`,
       );
     },
     findCategories: (filter: ICategoryFilter) => {
-      return api.get<IPaged<ICategoryModel>, AxiosResponse<IPaged<ICategoryModel>, never>, any>(
+      return api.get<IPaged<ICategoryModel>, AxiosResponse<IPaged<ICategoryModel>>, any>(
         `/admin/categories?${toQueryString(filter)}`,
       );
     },
     getCategory: (id: number) => {
-      return api.get<ICategoryModel, AxiosResponse<ICategoryModel, never>, any>(
-        `/admin/categories/${id}`,
-      );
+      return api.get<ICategoryModel, AxiosResponse<ICategoryModel>, any>(`/admin/categories/${id}`);
     },
     addCategory: (model: ICategoryModel) => {
-      return api.post<ICategoryModel, AxiosResponse<ICategoryModel, never>, any>(
+      return api.post<ICategoryModel, AxiosResponse<ICategoryModel>, any>(
         `/admin/categories`,
         model,
       );
     },
     updateCategory: (model: ICategoryModel) => {
-      return api.put<ICategoryModel, AxiosResponse<ICategoryModel, never>, any>(
+      return api.put<ICategoryModel, AxiosResponse<ICategoryModel>, any>(
         `/admin/categories/${model.id}`,
         model,
       );
     },
     deleteCategory: (model: ICategoryModel) => {
-      return api.delete<ICategoryModel, AxiosResponse<ICategoryModel, never>, any>(
+      return api.delete<ICategoryModel, AxiosResponse<ICategoryModel>, any>(
         `/admin/categories/${model.id}`,
         { data: model },
       );

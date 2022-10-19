@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -18,7 +19,9 @@ public class RoleService : BaseService<Role, int>, IRoleService
     #region Methods
     public IEnumerable<Role> FindAll()
     {
-        return this.Context.Roles.OrderBy(a => a.Name).ToArray();
+        return this.Context.Roles
+            .AsNoTracking()
+            .OrderBy(a => a.Name).ToArray();
     }
     #endregion
 }

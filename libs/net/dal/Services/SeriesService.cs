@@ -22,7 +22,9 @@ public class SeriesService : BaseService<Series, int>, ISeriesService
     #region Methods
     public IEnumerable<Series> FindAll()
     {
-        return this.Context.Series.OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+        return this.Context.Series
+            .AsNoTracking()
+            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
     public IPaged<Series> Find(SeriesFilter filter)
