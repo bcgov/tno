@@ -48,6 +48,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
         columns={clipDirectoryColumns(onDelete, onSelect, onDownload, onAttach, values)}
         header={ClipDirectoryFilter}
         data={data}
+        sorting={{ sortBy: [{ id: 'name', desc: true }] }}
         className="file-table"
         onRowClick={(row) => {
           setActiveId(row.original.name);
