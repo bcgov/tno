@@ -28,13 +28,10 @@ export const ContentFilter = styled.div`
     }
   }
 
-  .dateRange {
-  }
-
   .box-content {
     display: flex;
     flex-direction: row;
-    min-width: 525px;
+    min-width: 300px;
   }
 
   .action-filters {
