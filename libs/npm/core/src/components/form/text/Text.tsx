@@ -64,12 +64,14 @@ export const Text: React.FC<ITextProps> = ({
   return (
     <styled.Text className="frm-in">
       {label && (
-        <div title={tooltip}>
-          <label className={rest.required ? 'required' : ''} htmlFor={id ?? `txt-${name}`}>
-            {label}
-          </label>
-          {tooltip && <FaInfoCircle />}
-        </div>
+        <label
+          data-for="main-tooltip"
+          data-tip={tooltip}
+          className={rest.required ? 'required' : ''}
+          htmlFor={id ?? `txt-${name}`}
+        >
+          {label} {tooltip && <FaInfoCircle />}
+        </label>
       )}
       <Row nowrap>
         <styled.TextField

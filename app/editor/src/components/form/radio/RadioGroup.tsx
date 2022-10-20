@@ -105,12 +105,13 @@ export const RadioGroup = <OT extends string | number | IOptionItem | HTMLOption
     >
       <div>
         {label && (
-          <div title={tooltip}>
-            <label data-for="main-tooltip" className={rest.required ? 'required' : ''}>
-              {label}
-            </label>
-            {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
-          </div>
+          <label
+            data-for="main-tooltip"
+            data-tip={tooltip}
+            className={rest.required ? 'required' : ''}
+          >
+            {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+          </label>
         )}
         {options
           ? options.map((option) => {
