@@ -28,7 +28,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     #region Variables
     private readonly IKafkaMessenger _kafka;
     private readonly ILogger _logger;
-    private readonly IOptions<FileMonitorOptions> _options;
     #endregion
 
     #region Constructors
@@ -43,7 +42,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         _kafka = kafka;
         _logger = logger;
-        _options = options;
     }
     #endregion
 
@@ -96,25 +94,23 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         // Extract the source connection configuration settings.
         var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
-        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
+        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName") ?? "";
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
         var password = manager.Ingest.SourceConnection?.GetConfigurationValue("password");
-        var passwordAuth = manager.Ingest.SourceConnection?.GetConfigurationValue<bool>("passwordAuth");
         if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
         if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
-        if (!(passwordAuth ?? false) && String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'");
-        if ((passwordAuth ?? false) && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'password'");
+        if (String.IsNullOrWhiteSpace(keyFileName) && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' one of 'keyFileName' or 'password' required in source connection.");
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
         // The ingest configuration may have a different path than the root connection path.
         remotePath = Path.Combine(remotePath, manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
 
-        if (passwordAuth == true)
+        ConnectionInfo? connectionInfo = null;
+        AuthenticationMethod? authMethod = null;
+
+        if (!String.IsNullOrWhiteSpace(password))
         {
-            var connectionInfo = new ConnectionInfo(hostname,
-                                        username,
-                                        new PasswordAuthenticationMethod(username, password));
-            await FetchFiles(connectionInfo, remotePath, manager);
+            authMethod = new PasswordAuthenticationMethod(username, password);
         }
         else
         {
@@ -123,18 +119,25 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             {
                 var keyFile = new PrivateKeyFile(sshKeyFile);
                 var keyFiles = new[] { keyFile };
-                var connectionInfo = new ConnectionInfo(hostname,
-                                            username,
-                                            new PrivateKeyAuthenticationMethod(username, keyFiles));
-                await FetchFiles(connectionInfo, remotePath, manager);
+                authMethod = new PrivateKeyAuthenticationMethod(username, keyFiles);
             }
             else
             {
                 throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
             }
         }
+
+        connectionInfo = new ConnectionInfo(hostname, username, authMethod);
+        await FetchFiles(connectionInfo, remotePath, manager);
     }
 
+    /// <summary>
+    /// Fetch all files matching the ingest's file pattern from the remote sftp host.
+    /// </summary>
+    /// <param name="connectionInfo"></param>
+    /// <param name="remotePath"></param>
+    /// <param name="manager"></param>
+    /// <returns></returns>
     private async Task FetchFiles(ConnectionInfo connectionInfo, string remotePath, IIngestServiceActionManager manager)
     {
         // Extract the ingest configuration settings
