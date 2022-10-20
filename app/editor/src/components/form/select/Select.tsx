@@ -85,12 +85,14 @@ export const Select = <OptionType extends IOptionItem>({
   return (
     <styled.Select className="frm-in">
       {label && (
-        <div title={tooltip}>
-          <label className={required ? 'required' : ''} htmlFor={`sel-${name}`}>
-            {label}
-          </label>
-          {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
-        </div>
+        <label
+          data-for="main-tooltip"
+          data-tip={tooltip}
+          className={required ? 'required' : ''}
+          htmlFor={`sel-${name}`}
+        >
+          {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
+        </label>
       )}
       <Row
         onKeyUp={(e) => {

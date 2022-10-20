@@ -52,12 +52,13 @@ export const TextArea: React.FC<ITextAreaProps> = ({
     <styled.TextArea className="frm-in">
       <Show visible={!!label}>
         <label
-          title={tooltip}
+          data-for="main-tooltip"
+          data-tip={tooltip}
           className={rest.required ? 'required' : ''}
           htmlFor={id ?? `txa-${name}`}
         >
           {label}
-          {tooltip && <FontAwesomeIcon title={tooltip} icon={faInfoCircle} />}
+          {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
         </label>
       </Show>
       <styled.TextAreaField
