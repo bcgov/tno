@@ -87,6 +87,10 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [licenses]);
 
   React.useEffect(() => {
+    setStreamUrl(path ? `/api/editor/contents/upload/stream?path=${path}` : '');
+  }, [path]);
+
+  React.useEffect(() => {
     if (!!streamUrl && !!videoRef.current) {
       videoRef.current.src = streamUrl;
     }
