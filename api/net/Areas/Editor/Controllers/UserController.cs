@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.User;
@@ -10,13 +9,14 @@ using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// UserController class, provides User endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]
@@ -84,7 +84,7 @@ public class UserController : ControllerBase
 
     /// <summary>
     /// Request a code to validate a preapproved email address.
-    /// If a code is provied it will validate the code.
+    /// If a code is provided it will validate the code.
     /// If the code is valid it will apply the roles to the user's account and remove the duplicate preapproved account.
     /// </summary>
     /// <param name="model"></param>
@@ -99,10 +99,9 @@ public class UserController : ControllerBase
         // Get the account with the preapproved email address.
         // If multiple accounts have the same email address we cannot preapprove.
         var users = _userService.FindByEmail(model.Email);
-        if (users.Count() != 1) return new JsonResult(new RegisterModel(model.Email, "Your account is not preapproved"));
+        if (users.Count() != 1) return new JsonResult(new RegisterModel(model.Email, "Your account is not preapproved.  There are multiple accounts with this email."));
 
         var preapproved = users.First();
-        if (preapproved == null) return new JsonResult(new RegisterModel(model.Email, "Your account is not preapproved"));
         if (preapproved.Status != UserStatus.Preapproved) return new JsonResult(new RegisterModel(model.Email, "Your account is not preapproved"));
 
         // Get the current authenticated user account.
@@ -116,8 +115,8 @@ public class UserController : ControllerBase
 
             user.Code = "";
             user.Status = UserStatus.Approved;
-            user.RolesManyToMany.AddRange(preapproved.RolesManyToMany.Select(r => new UserRole(user.Id, r.RoleId)));
-            await _keycloakHelper.UpdateUserAsync(user);
+            user.Roles = preapproved.Roles;
+            await _keycloakHelper.UpdateUserAsync(new Admin.Models.User.UserModel(user));
             _userService.Delete(preapproved);
             return new JsonResult(new RegisterModel(model.Email, user.Status, $"An email has been sent to {model.Email}"));
         }

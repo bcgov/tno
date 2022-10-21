@@ -26,6 +26,7 @@ using TNO.DAL;
 using TNO.Keycloak;
 using TNO.Kafka;
 using TNO.API.Config;
+using Microsoft.AspNetCore.Authorization;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -82,6 +83,15 @@ builder.Services.AddControllers(options =>
 builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kestrel"));
 builder.Services.AddOptions<FormOptions>().Bind(config.GetSection("Form"));
 builder.Services.AddOptions<KafkaOptions>().Bind(config.GetSection("Kafka"));
+
+// The following dependencies provide dynamic authorization based on keycloak client roles.
+builder.Services.AddOptions<TNO.API.Config.KeycloakOptions>().Bind(config.GetSection("Keycloak"));
+builder.Services.AddSingleton<IAuthorizationHandler, KeycloakClientRoleHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, ClientRoleAuthorizationPolicyProvider>();
+builder.Services.AddAuthorization(options =>
+    {
+        // options.AddPolicy("administrator", policy => policy.Requirements.Add(new KeycloakClientRoleRequirement("administrator")));
+    });
 
 IdentityModelEventSource.ShowPII = true;
 builder.Services.AddAuthentication(options =>

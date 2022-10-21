@@ -84,29 +84,6 @@ namespace TNO.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "claim",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
-                    key = table.Column<Guid>(type: "uuid", nullable: false),
-                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_claim", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "connection",
                 columns: table => new
                 {
@@ -254,29 +231,6 @@ namespace TNO.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "role",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
-                    key = table.Column<Guid>(type: "uuid", nullable: false),
-                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_role", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "schedule",
                 columns: table => new
                 {
@@ -383,9 +337,9 @@ namespace TNO.DAL.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    email = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    email = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false, defaultValueSql: "''"),
                     key = table.Column<Guid>(type: "uuid", nullable: false),
-                    display_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    display_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, defaultValueSql: "''"),
                     first_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, defaultValueSql: "''"),
                     last_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, defaultValueSql: "''"),
                     is_enabled = table.Column<bool>(type: "boolean", nullable: false),
@@ -396,6 +350,7 @@ namespace TNO.DAL.Migrations
                     note = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
                     code = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false, defaultValueSql: "''"),
                     code_created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    roles = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false, defaultValueSql: "''"),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
@@ -430,37 +385,6 @@ namespace TNO.DAL.Migrations
                         name: "FK_content_type_action_action_action_id",
                         column: x => x.action_id,
                         principalTable: "action",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "role_claim",
-                columns: table => new
-                {
-                    role_id = table.Column<int>(type: "integer", nullable: false),
-                    claim_id = table.Column<int>(type: "integer", nullable: false),
-                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_role_claim", x => new { x.role_id, x.claim_id });
-                    table.ForeignKey(
-                        name: "FK_role_claim_claim_claim_id",
-                        column: x => x.claim_id,
-                        principalTable: "claim",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_role_claim_role_role_id",
-                        column: x => x.role_id,
-                        principalTable: "role",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -532,37 +456,6 @@ namespace TNO.DAL.Migrations
                     table.ForeignKey(
                         name: "FK_tone_pool_user_owner_id",
                         column: x => x.owner_id,
-                        principalTable: "user",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "user_role",
-                columns: table => new
-                {
-                    user_id = table.Column<int>(type: "integer", nullable: false),
-                    role_id = table.Column<int>(type: "integer", nullable: false),
-                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_user_role", x => new { x.user_id, x.role_id });
-                    table.ForeignKey(
-                        name: "FK_user_role_role_role_id",
-                        column: x => x.role_id,
-                        principalTable: "role",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_user_role_user_user_id",
-                        column: x => x.user_id,
                         principalTable: "user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -1181,18 +1074,6 @@ namespace TNO.DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_claim_key",
-                table: "claim",
-                column: "key",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_claim_name",
-                table: "claim",
-                column: "name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_connection_name",
                 table: "connection",
                 column: "name",
@@ -1359,23 +1240,6 @@ namespace TNO.DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_role_key",
-                table: "role",
-                column: "key",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_role_name",
-                table: "role",
-                column: "name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_role_claim_claim_id",
-                table: "role_claim",
-                column: "claim_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_series_name",
                 table: "series",
                 column: "name",
@@ -1464,11 +1328,6 @@ namespace TNO.DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_role_role_id",
-                table: "user_role",
-                column: "role_id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_work_order_assigned_id",
                 table: "work_order",
                 column: "assigned_id");
@@ -1536,9 +1395,6 @@ namespace TNO.DAL.Migrations
                 name: "print_content");
 
             migrationBuilder.DropTable(
-                name: "role_claim");
-
-            migrationBuilder.DropTable(
                 name: "source_metric");
 
             migrationBuilder.DropTable(
@@ -1546,9 +1402,6 @@ namespace TNO.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "time_tracking");
-
-            migrationBuilder.DropTable(
-                name: "user_role");
 
             migrationBuilder.DropTable(
                 name: "work_order");
@@ -1572,16 +1425,10 @@ namespace TNO.DAL.Migrations
                 name: "ingest");
 
             migrationBuilder.DropTable(
-                name: "claim");
-
-            migrationBuilder.DropTable(
                 name: "metric");
 
             migrationBuilder.DropTable(
                 name: "source_action");
-
-            migrationBuilder.DropTable(
-                name: "role");
 
             migrationBuilder.DropTable(
                 name: "content");

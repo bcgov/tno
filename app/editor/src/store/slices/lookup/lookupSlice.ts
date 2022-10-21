@@ -3,7 +3,6 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
-  IClaimModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -23,7 +22,6 @@ export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
   categories: [],
-  claims: [],
   products: [],
   licenses: [],
   ingestTypes: [],
@@ -60,9 +58,6 @@ export const lookupSlice = createSlice({
     },
     storeCategories(state: ILookupState, action: PayloadAction<ICategoryModel[]>) {
       state.categories = action.payload;
-    },
-    storeClaims(state: ILookupState, action: PayloadAction<IClaimModel[]>) {
-      state.claims = action.payload;
     },
     storeProducts(state: ILookupState, action: PayloadAction<IProductModel[]>) {
       state.products = action.payload;
@@ -105,7 +100,6 @@ export const {
   updateCache,
   storeActions,
   storeCategories,
-  storeClaims,
   storeProducts,
   storeLicenses,
   storeIngestTypes,

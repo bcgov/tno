@@ -1,8 +1,6 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.Util;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
 using TNO.API.Keycloak;
@@ -11,13 +9,14 @@ using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
 /// WorkOrderController class, provides WorkOrder endpoints for the admin api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]

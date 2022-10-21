@@ -1,5 +1,5 @@
 import { UserStatusName } from '../constants';
-import { IAuditColumnsModel, IRoleModel } from '.';
+import { IAuditColumnsModel } from '.';
 
 export interface IUserModel extends IAuditColumnsModel {
   id: number;
@@ -15,5 +15,5 @@ export interface IUserModel extends IAuditColumnsModel {
   emailVerified: boolean;
   isSystemAccount: boolean;
   note: string;
-  roles?: IRoleModel[];
+  roles?: string[];
 }

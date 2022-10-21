@@ -142,6 +142,53 @@ namespace TNO.Keycloak
 
             return response.HandleResponse(userId);
         }
+
+        #region Client Roles
+        /// <summary>
+        /// Get the client roles for the specified 'userId'.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="clientId"></param>
+        /// <returns></returns>
+        public async Task<Models.RoleModel[]> GetUserClientRolesAsync(Guid userId, Guid clientId)
+        {
+            var response = await _client.GetAsync($"{GetBaseUrl()}/users/{userId}/role-mappings/clients/{clientId}");
+
+            return await response.HandleResponseAsync<Models.RoleModel[]>() ?? Array.Empty<Models.RoleModel>();
+        }
+
+        /// <summary>
+        /// Add the user to the client role for the specified 'userId' and 'clientId'.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="clientId"></param>
+        /// <param name="roles"></param>
+        /// <returns></returns>
+        public async Task<Guid> AddUserClientRolesAsync(Guid userId, Guid clientId, Models.RoleModel[] roles)
+        {
+            var json = roles.Serialize();
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync($"{GetBaseUrl()}/users/{userId}/role-mappings/clients/{clientId}", content);
+
+            return response.HandleResponse(userId);
+        }
+
+        /// <summary>
+        /// Remove the user from the group for the specified 'userId' and 'groupId'.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="clientId"></param>
+        /// <param name="roles"></param>
+        /// <returns></returns>
+        public async Task<Guid> RemoveUserClientRolesAsync(Guid userId, Guid clientId, Models.RoleModel[] roles)
+        {
+            var json = roles.Serialize();
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _client.DeleteAsync($"{GetBaseUrl()}/users/{userId}/role-mappings/clients/{clientId}", content);
+
+            return response.HandleResponse(userId);
+        }
+        #endregion
         #endregion
     }
 }

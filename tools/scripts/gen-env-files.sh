@@ -189,6 +189,7 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8080
 
+Keycloak__ClientId=89ff6cf4-3755-4329-adab-ccfb74052c97
 keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
 keycloak__ServiceAccount__Authority=http://host.docker.internal:$portKeycloak
 keycloak__ServiceAccount__Secret=

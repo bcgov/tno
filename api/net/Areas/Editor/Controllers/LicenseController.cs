@@ -1,18 +1,18 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.License;
 using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.DAL.Services;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// LicenseController class, provides License endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]

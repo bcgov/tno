@@ -1,4 +1,7 @@
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using TNO.API.Areas.Admin.Models.User;
+using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Keycloak;
@@ -13,8 +16,7 @@ public class KeycloakHelper : IKeycloakHelper
     #region Variables
     private readonly IKeycloakService _keycloakService;
     private readonly IUserService _userService;
-    private readonly IRoleService _roleService;
-    private readonly IClaimService _claimService;
+    private readonly Config.KeycloakOptions _options;
     #endregion
 
     #region Constructors
@@ -23,14 +25,12 @@ public class KeycloakHelper : IKeycloakHelper
     /// </summary>
     /// <param name="keycloakService"></param>
     /// <param name="userService"></param>
-    /// <param name="roleService"></param>
-    /// <param name="claimService"></param>
-    public KeycloakHelper(IKeycloakService keycloakService, IUserService userService, IRoleService roleService, IClaimService claimService)
+    /// <param name="options"></param>
+    public KeycloakHelper(IKeycloakService keycloakService, IUserService userService, IOptions<Config.KeycloakOptions> options)
     {
         _keycloakService = keycloakService;
         _userService = userService;
-        _roleService = roleService;
-        _claimService = claimService;
+        _options = options.Value;
     }
     #endregion
 
@@ -41,43 +41,28 @@ public class KeycloakHelper : IKeycloakHelper
     /// <returns></returns>
     public async Task SyncAsync()
     {
+        if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+
         var users = _userService.FindAll();
         foreach (var user in users)
         {
-            var kuser = (await _keycloakService.GetUsersAsync(0, 10, user.Username)).FirstOrDefault(u => u.Username == user.Username);
-            if (kuser != null && kuser.Id != user.Key)
+            var kUser = (await _keycloakService.GetUsersAsync(0, 10, user.Username)).FirstOrDefault(u => u.Username == user.Username);
+            if (kUser != null && kUser.Id != user.Key)
             {
-                user.Key = kuser.Id;
-                user.Email = kuser.Email ?? user.Email;
-                user.FirstName = kuser.FirstName ?? user.FirstName;
-                user.LastName = kuser.LastName ?? user.LastName;
-                user.EmailVerified = kuser.EmailVerified ?? false;
-                user.IsEnabled = kuser.Enabled;
-                var displayName = kuser.Attributes?["displayName"]?.FirstOrDefault();
+                user.Key = kUser.Id;
+                user.Email = kUser.Email ?? user.Email;
+                user.FirstName = kUser.FirstName ?? user.FirstName;
+                user.LastName = kUser.LastName ?? user.LastName;
+                user.EmailVerified = kUser.EmailVerified ?? false;
+                user.IsEnabled = kUser.Enabled;
+                var displayName = kUser.Attributes?["displayName"]?.FirstOrDefault();
                 user.DisplayName = displayName ?? user.DisplayName;
+
+                // Fetch the roles for the user
+                var roles = await _keycloakService.GetUserClientRolesAsync(kUser.Id, _options.ClientId.Value);
+                user.Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"));
+
                 _userService.Update(user);
-            }
-        }
-
-        var roles = _roleService.FindAll();
-        foreach (var role in roles)
-        {
-            var kgroup = (await _keycloakService.GetGroupsAsync(0, 10, role.Name)).FirstOrDefault(g => g.Name == role.Name);
-            if (kgroup != null && kgroup.Id != role.Key)
-            {
-                role.Key = kgroup.Id;
-                _roleService.Update(role);
-            }
-        }
-
-        var claims = _claimService.FindAll();
-        foreach (var claim in claims)
-        {
-            var krole = (await _keycloakService.GetRolesAsync()).FirstOrDefault(r => r.Name == claim.Name);
-            if (krole != null && krole.Id != claim.Key)
-            {
-                claim.Key = krole.Id;
-                _claimService.Update(claim);
             }
         }
     }
@@ -91,6 +76,8 @@ public class KeycloakHelper : IKeycloakHelper
     /// <returns></returns>
     public async Task<Entities.User?> ActivateAsync(ClaimsPrincipal principal)
     {
+        if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+
         var key = principal.GetUid();
         var username = principal.GetUsername() ?? throw new InvalidOperationException("Username is required but missing from token");
         var user = _userService.FindByKey(key);
@@ -108,22 +95,26 @@ public class KeycloakHelper : IKeycloakHelper
             if (users.Count() == 1) user = users.First();
             else user = _userService.FindByUsername(username);
 
+            // Fetch the roles for the user
+            var roles = await _keycloakService.GetUserClientRolesAsync(key, _options.ClientId.Value);
+
             if (user == null)
             {
-                var kuser = await _keycloakService.GetUserAsync(key);
-                if (kuser == null) throw new InvalidOperationException("The user does not exist in keycloak");
+                var kUser = await _keycloakService.GetUserAsync(key);
+                if (kUser == null) throw new InvalidOperationException("The user does not exist in keycloak");
 
                 // Add the user to the database.
                 user = _userService.Add(new Entities.User(username, email, key)
                 {
-                    DisplayName = kuser.Attributes?["displayName"].FirstOrDefault() ?? principal.GetDisplayName() ?? "",
-                    FirstName = kuser.FirstName ?? principal.GetFirstName() ?? "",
-                    LastName = kuser.LastName ?? principal.GetLastName() ?? "",
-                    IsEnabled = kuser.Enabled,
-                    EmailVerified = kuser.EmailVerified ?? false,
+                    DisplayName = kUser.Attributes?["displayName"].FirstOrDefault() ?? principal.GetDisplayName() ?? "",
+                    FirstName = kUser.FirstName ?? principal.GetFirstName() ?? "",
+                    LastName = kUser.LastName ?? principal.GetLastName() ?? "",
+                    IsEnabled = kUser.Enabled,
+                    EmailVerified = kUser.EmailVerified ?? false,
                     IsSystemAccount = false,
                     Status = Entities.UserStatus.Activated,
                     LastLoginOn = DateTime.UtcNow,
+                    Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"))
                 });
             }
             else if (user != null)
@@ -137,7 +128,9 @@ public class KeycloakHelper : IKeycloakHelper
                 user.LastName = principal.GetLastName() ?? "";
                 user.LastLoginOn = DateTime.UtcNow;
                 user.Status = Entities.UserStatus.Approved;
-                user = await UpdateUserAsync(user);
+                user.Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"));
+                var model = await UpdateUserAsync(new UserModel(user));
+                return (Entities.User)model;
             }
         }
         else
@@ -153,42 +146,54 @@ public class KeycloakHelper : IKeycloakHelper
     /// Update the user in TNO and keycloak linked to the specified 'user'.
     /// If the user 'Key' is not linked it will do nothing.
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    public async Task<Entities.User?> UpdateUserAsync(Entities.User entity)
+    public async Task<UserModel> UpdateUserAsync(UserModel model)
     {
-        var user = _userService.Update(entity);
+        var user = _userService.Update((Entities.User)model);
+        var result = new UserModel(user);
         if (user.Key != Guid.Empty)
         {
-            var kuser = await _keycloakService.GetUserAsync(user.Key);
-            if (kuser != null)
+            var kUser = await _keycloakService.GetUserAsync(user.Key);
+            if (kUser != null)
             {
                 // Update attributes.
-                if (kuser.Attributes == null) kuser.Attributes = new Dictionary<string, string[]>();
-                kuser.Attributes["displayName"] = new[] { user.DisplayName };
-                kuser.EmailVerified = user.EmailVerified;
-                kuser.Enabled = user.IsEnabled;
-                await _keycloakService.UpdateUserAsync(kuser);
+                if (kUser.Attributes == null) kUser.Attributes = new Dictionary<string, string[]>();
+                kUser.Attributes["displayName"] = new[] { user.DisplayName };
+                kUser.EmailVerified = user.EmailVerified;
+                kUser.Enabled = user.IsEnabled;
+                await _keycloakService.UpdateUserAsync(kUser);
 
-                var roles = _roleService.FindAll();
-
-                // Update groups.
-                var userGroups = await _keycloakService.GetUserGroupsAsync(user.Key);
-                foreach (var role in user.RolesManyToMany.Where(r => r.Role?.Key != Guid.Empty).Select(r => r.Role!))
-                {
-                    if (!userGroups.Any(ug => ug.Id == role.Key))
-                        await _keycloakService.AddGroupToUserAsync(user.Key, role.Key);
-                }
-                foreach (var group in userGroups.Where(ug => !user.RolesManyToMany.Select(r => r.Role?.Key).Any(k => k == ug.Id)))
-                {
-                    // Only remove TNO roles from the keycloak groups.
-                    if (roles.Any(r => r.Name == group.Name))
-                        await _keycloakService.RemoveGroupFromUserAsync(user.Key, group.Id);
-                }
+                result.Roles = await UpdateUserRolesAsync(user.Key, model.Roles.ToArray());
             }
         }
 
-        return user;
+        return result;
+    }
+
+    /// <summary>
+    /// Update the specified user with the specified roles.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="roles"></param>
+    /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
+    public async Task<string[]> UpdateUserRolesAsync(Guid key, string[] roles)
+    {
+        if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+
+        var allRoles = await _keycloakService.GetRolesAsync(_options.ClientId.Value);
+        var addRoles = allRoles?.Where(r => roles.Contains(r.Name))?.ToArray() ?? Array.Empty<TNO.Keycloak.Models.RoleModel>();
+        var currentRoles = await _keycloakService.GetUserClientRolesAsync(key, _options.ClientId.Value);
+        var removeRoles = currentRoles.Where(r => !roles.Contains(r.Name)).ToArray() ?? Array.Empty<TNO.Keycloak.Models.RoleModel>();
+
+        if (addRoles.Length > 0)
+            await _keycloakService.AddUserClientRolesAsync(key, _options.ClientId.Value, addRoles);
+        if (removeRoles.Length > 0)
+            await _keycloakService.RemoveUserClientRolesAsync(key, _options.ClientId.Value, removeRoles);
+
+        var result = await _keycloakService.GetUserClientRolesAsync(key, _options.ClientId.Value);
+        return result?.Select(r => r.Name!).ToArray() ?? Array.Empty<string>();
     }
 
     /// <summary>

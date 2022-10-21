@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,13 +9,14 @@ using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
 /// UserController class, provides User endpoints for the admin api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]
@@ -114,9 +114,9 @@ public class UserController : ControllerBase
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync(UserModel model)
     {
-        var result = await _keycloakHelper.UpdateUserAsync((User)model);
+        var result = await _keycloakHelper.UpdateUserAsync(model);
         if (result == null) throw new InvalidOperationException("Keycloak user failed to update");
-        return new JsonResult(new UserModel(result));
+        return new JsonResult(result);
     }
 
     /// <summary>

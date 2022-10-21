@@ -1,10 +1,9 @@
-import { IAuditColumnsModel, IClaimModel } from '.';
+import { IAuditColumnsModel } from '.';
 
 export interface IRoleModel extends IAuditColumnsModel {
-  id: number;
+  id: string;
   key: string;
   name: string;
   description: string;
   isEnabled: boolean;
-  claims?: IClaimModel[];
 }

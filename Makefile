@@ -131,9 +131,9 @@ remove: ## Remove all containers
 
 renew: ## Refresh all relevant services that were impacted by prior Pull Request.
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
-	@make db-refresh
+	@make db-nuke
 	@make refresh n=api
-	@make rebuild n=transcription
+	@make refresh n=editor
 
 ##############################################################################
 # Database Commands

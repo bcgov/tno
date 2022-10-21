@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using TNO.API.Areas.Admin.Models.User;
 
 namespace TNO.API.Keycloak;
 
@@ -26,16 +27,24 @@ public interface IKeycloakHelper
     /// <summary>
     /// Update the user in keycloak linked to this user.
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    Task<Entities.User?> UpdateUserAsync(Entities.User entity);
+    Task<UserModel> UpdateUserAsync(UserModel model);
+
+    /// <summary>
+    /// Update the specified user with the specified roles.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="roles"></param>
+    /// <returns></returns>
+    Task<string[]> UpdateUserRolesAsync(Guid key, string[] roles);
 
     /// <summary>
     /// Delete the user from keycloak linked to the specified 'entity'.
     /// If the user 'Key' is not linked it will do nothing.
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    Task DeleteUserAsync(Entities.User entity);
+    Task DeleteUserAsync(Entities.User model);
     #endregion
 }

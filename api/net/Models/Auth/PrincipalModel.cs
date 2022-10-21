@@ -16,12 +16,12 @@ public class PrincipalModel
     public int Id { get; set; }
 
     /// <summary>
-    /// get/set - Uniqiue key to link to Keycloak.
+    /// get/set - Unique key to link to Keycloak.
     /// </summary>
     public Guid? Key { get; set; }
 
     /// <summary>
-    /// get/set - Unique sername to identify user.
+    /// get/set - Unique username to identify user.
     /// </summary>
     public string? Username { get; set; }
 
@@ -61,11 +61,6 @@ public class PrincipalModel
     public string Note { get; set; } = "";
 
     /// <summary>
-    /// get/set - Keycloak groups, TNO roles.
-    /// </summary>
-    public IEnumerable<string> Groups { get; set; } = Array.Empty<string>();
-
-    /// <summary>
     /// get/set - Keycloak roles, TNO claims.
     /// </summary>
     public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
@@ -93,8 +88,7 @@ public class PrincipalModel
         this.LastName = principal.GetLastName();
         this.Status = user?.Status;
         this.Note = user?.Note ?? "";
-        this.Groups = user?.RolesManyToMany.Where(r => r.Role != null).Select(r => r.Role!.Name) ?? principal.Claims.Where(c => c.Type == "group").Select(c => c.Value);
-        this.Roles = user?.RolesManyToMany.Where(r => r.Role != null).Select(r => r.Role!).SelectMany(r => r.Claims).Select(c => c.Name).Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+        this.Roles = user?.Roles.Split(",").Select(r => r[1..^1]).Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
     }
     #endregion
 }

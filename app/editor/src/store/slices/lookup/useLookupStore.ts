@@ -2,7 +2,6 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
-  IClaimModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -22,7 +21,6 @@ import {
   storeActions,
   storeCache,
   storeCategories,
-  storeClaims,
   storeIngestTypes,
   storeLicenses,
   storeMetrics,
@@ -43,7 +41,6 @@ export interface ILookupStore {
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeCategories: (categories: ICategoryModel[]) => void;
-  storeClaims: (claims: IClaimModel[]) => void;
   storeProducts: (contentTypes: IProductModel[]) => void;
   storeSources: (sources: ISourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
@@ -74,9 +71,6 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeCategories: (categories: ICategoryModel[]) => {
         dispatch(storeCategories(categories));
-      },
-      storeClaims: (claims: IClaimModel[]) => {
-        dispatch(storeClaims(claims));
       },
       storeProducts: (contentTypes: IProductModel[]) => {
         dispatch(storeProducts(contentTypes));

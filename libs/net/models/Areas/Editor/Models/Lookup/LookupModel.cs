@@ -19,11 +19,6 @@ public class LookupModel
     public IEnumerable<Category.CategoryModel> Categories { get; set; } = Array.Empty<Category.CategoryModel>();
 
     /// <summary>
-    /// get/set - An array of all claims.
-    /// </summary>
-    public IEnumerable<Claim.ClaimModel> Claims { get; set; } = Array.Empty<Claim.ClaimModel>();
-
-    /// <summary>
     /// get/set - An array of all products.
     /// </summary>
     public IEnumerable<Product.ProductModel> Products { get; set; } = Array.Empty<Product.ProductModel>();
@@ -106,12 +101,11 @@ public class LookupModel
     public LookupModel(
         IEnumerable<Entities.Action> actions,
         IEnumerable<Entities.Category> categories,
-        IEnumerable<Entities.Claim> claims,
         IEnumerable<Entities.Product> products,
         IEnumerable<Entities.Source> sources,
         IEnumerable<Entities.License> license,
         IEnumerable<Entities.IngestType> ingestTypes,
-        IEnumerable<Entities.Role> roles,
+        IEnumerable<string> roles,
         IEnumerable<Entities.Series> series,
         IEnumerable<Entities.SourceAction> sourceActions,
         IEnumerable<Entities.Metric> metrics,
@@ -122,7 +116,6 @@ public class LookupModel
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
         this.Categories = categories.Select(a => new Category.CategoryModel(a));
-        this.Claims = claims.Select(a => new Claim.ClaimModel(a));
         this.Products = products.Select(a => new Product.ProductModel(a));
         this.Sources = sources.Select(a => new Source.SourceModel(a, options));
         this.Licenses = license.Select(a => new License.LicenseModel(a));

@@ -2,7 +2,6 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
-  IClaimModel,
   IIngestTypeModel,
   ILicenseModel,
   ILookupModel,
@@ -18,7 +17,6 @@ import {
   useApiActions,
   useApiCache,
   useApiCategories,
-  useApiClaims,
   useApiIngestTypes,
   useApiLicenses,
   useApiLookups,
@@ -65,7 +63,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const lookups = useApiLookups();
   const actions = useApiActions();
   const categories = useApiCategories();
-  const claims = useApiClaims();
   const products = useApiProducts();
   const sources = useApiSources();
   const licenses = useApiLicenses();
@@ -94,7 +91,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             if (!!results) {
               saveToLocalStorage('actions', results.actions, store.storeActions);
               saveToLocalStorage('categories', results.categories, store.storeCategories);
-              saveToLocalStorage('claims', results.claims, store.storeClaims);
               saveToLocalStorage('products', results.products, store.storeProducts);
               saveToLocalStorage('sources', results.sources, store.storeSources);
               saveToLocalStorage('ingest_types', results.ingestTypes, store.storeIngestTypes);
@@ -111,7 +107,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               const lookups = {
                 actions: getFromLocalStorage<IActionModel[]>('actions', []),
                 categories: getFromLocalStorage<ICategoryModel[]>('categories', []),
-                claims: getFromLocalStorage<IClaimModel[]>('claims', []),
                 products: getFromLocalStorage<IProductModel[]>('products', []),
                 sources: getFromLocalStorage<ISourceModel[]>('sources', []),
                 ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
@@ -126,7 +121,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               };
               store.storeActions(lookups.actions);
               store.storeCategories(lookups.categories);
-              store.storeClaims(lookups.claims);
               store.storeProducts(lookups.products);
               store.storeSources(lookups.sources);
               store.storeIngestTypes(lookups.ingestTypes);
@@ -167,20 +161,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (results) => {
             const values = results ?? [];
             store.storeCategories(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
-      getClaims: async () => {
-        return await fetchIfNoneMatch<IClaimModel[]>(
-          'claims',
-          dispatch,
-          (etag) => claims.getClaims(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeClaims(values);
             return values;
           },
           true,
@@ -350,7 +330,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       actions,
       cache,
       categories,
-      claims,
       products,
       sources,
       dispatch,

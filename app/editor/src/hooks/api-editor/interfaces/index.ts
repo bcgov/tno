@@ -4,7 +4,6 @@ export * from './IAdminActionModel';
 export * from './IAuditColumnsModel';
 export * from './ICacheModel';
 export * from './ICategoryModel';
-export * from './IClaimModel';
 export * from './IClipModel';
 export * from './IConnectionModel';
 export * from './IContentActionModel';

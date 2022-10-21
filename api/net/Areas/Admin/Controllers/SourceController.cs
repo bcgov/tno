@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -8,13 +7,14 @@ using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
 /// SourceController class, provides Source endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]

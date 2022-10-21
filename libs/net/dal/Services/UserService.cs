@@ -50,7 +50,7 @@ public class UserService : BaseService<User, int>, IUserService
             $"{keyword}%") || EF.Functions.Like(c.LastName.ToLower(), $"{keyword}%"));
         }
         if (!String.IsNullOrWhiteSpace(filter.RoleName))
-            query = query.Where(c => c.Roles.Any(r => r.Name.ToLower() == filter.RoleName.ToLower()));
+            query = query.Where(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{filter.RoleName.ToLower()}]%"));
 
         if (filter.Status != null)
             query = query.Where(c => c.Status == filter.Status);
@@ -73,7 +73,9 @@ public class UserService : BaseService<User, int>, IUserService
             query = query.OrderBy(u => u.Status).OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ThenBy(u => u.Username);
 
         var skip = (filter.Page - 1) * filter.Quantity;
-        query = query.Skip(skip).Take(filter.Quantity).Include(u => u.RolesManyToMany).ThenInclude(u => u.Role);
+        query = query
+            .Skip(skip)
+            .Take(filter.Quantity);
 
         var items = query?.ToArray() ?? Array.Empty<User>();
         return new Paged<User>(items, filter.Page, filter.Quantity, total);
@@ -82,34 +84,29 @@ public class UserService : BaseService<User, int>, IUserService
     public override User? FindById(int id)
     {
         return this.Context.Users
-            .Include(u => u.RolesManyToMany).ThenInclude(u => u.Role)
             .FirstOrDefault(c => c.Id == id);
     }
 
     public User? FindByKey(Guid key)
     {
         return this.Context.Users
-            .Include(u => u.RolesManyToMany).ThenInclude(u => u.Role)
             .Where(u => u.Key == key).FirstOrDefault();
     }
 
     public User? FindByUsername(string username)
     {
         return this.Context.Users
-            .Include(u => u.RolesManyToMany).ThenInclude(u => u.Role)
             .Where(u => u.Username == username).FirstOrDefault();
     }
 
     public IEnumerable<User> FindByEmail(string email)
     {
         return this.Context.Users
-            .Include(u => u.RolesManyToMany).ThenInclude(u => u.Role)
             .Where(u => u.Email == email);
     }
 
     public override User Add(User entity)
     {
-        entity.RolesManyToMany.ForEach(r => this.Context.Add(r));
         base.Add(entity);
         return FindById(entity.Id)!;
     }
@@ -131,17 +128,10 @@ public class UserService : BaseService<User, int>, IUserService
             original.Status = entity.Status;
             original.Note = entity.Note;
             original.Code = entity.Code;
+            original.Roles = entity.Roles;
             if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
             else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
 
-            original.RolesManyToMany.ForEach(r =>
-            {
-                if (!entity.RolesManyToMany.Any(er => er.RoleId == r.RoleId)) this.Context.Remove(r);
-            });
-            entity.RolesManyToMany.ForEach(r =>
-            {
-                if (!original.RolesManyToMany.Any(or => or.RoleId == r.RoleId)) this.Context.Add(r);
-            });
             base.Update(original);
             return FindById(entity.Id)!;
         }

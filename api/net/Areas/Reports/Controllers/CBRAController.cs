@@ -1,9 +1,9 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Models;
 using TNO.DAL.Services;
+using TNO.Keycloak;
 using TNO.Reports;
 
 namespace TNO.API.Areas.Reports.Controllers;
@@ -11,7 +11,7 @@ namespace TNO.API.Areas.Reports.Controllers;
 /// <summary>
 /// CBRAController class, provides CBRA endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("reports")]
 [ApiVersion("1.0")]

@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -15,13 +14,14 @@ using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// WorkOrderController class, provides WorkOrder endpoints for the api.
 /// </summary>
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]
