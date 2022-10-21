@@ -1,4 +1,6 @@
 import React, { ButtonHTMLAttributes } from 'react';
+import ReactTooltip from 'react-tooltip';
+import { hideTooltipOnClick } from 'utils';
 
 import { BouncingSpinner } from '../spinners';
 import { ButtonVariant } from '.';
@@ -33,12 +35,18 @@ export const Button: React.FC<IButtonProps> = ({
   loading = false,
   ...rest
 }) => {
+  const tip = React.useRef(null);
+  const onClickHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
+    tooltip && hideTooltipOnClick(tip.current);
+    rest.onClick && rest.onClick(event);
+  };
   return (
     <styled.Button
       type={type}
       variant={variant}
+      onClick={onClickHandler}
       className={`btn ${className ?? ''}`}
-      data-for="main-tooltip"
+      data-for="button-tooltip"
       data-tip={tooltip}
       {...rest}
     >
@@ -46,6 +54,7 @@ export const Button: React.FC<IButtonProps> = ({
         {children}
         {loading && <BouncingSpinner />}
       </div>
+      <ReactTooltip ref={tip} id="button-tooltip" effect="float" type="light" place="top" />
     </styled.Button>
   );
 };
