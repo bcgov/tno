@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Collections.Concurrent;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,7 +20,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     private readonly ILogger _logger;
     private bool _disposed = false;
     private bool _open = false;
-    private Task? _activeHandler;
+    private readonly ConcurrentDictionary<ConsumeResult<TKey, TValue>, bool> _consumeResults = new();
     #endregion
 
     #region Properties
@@ -48,6 +49,13 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// get - An array of topics this consumer is subscribed to.
     /// </summary>
     public string[] Topics { get; private set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - The max threads for running service.
+    /// </summary>
+    public int MaxThreads { get; set; } = 10;
+
+    private bool ReachOrOverLimit => _consumeResults.Count >= MaxThreads;
     #endregion
 
     #region Events
@@ -165,12 +173,25 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 _logger.LogInformation("Message received from Kafka topic: '{topic}' key:'{key}'", consumeResult.Topic, consumeResult.Message.Key);
                 if (this.IsLongRunningJob)
                 {
+                    var current = consumeResult;
+                    _consumeResults[current] = false;
+                    if (!this.IsPaused && ReachOrOverLimit) Pause();
+
                     // Cannot await for the action to complete because if it takes too long the Kafka consumer will leave the group.
                     // If the consumer receives another message before the prior action completes it'll result in numerous orphaned threads.
                     // Either we need to maintain a dictionary, throw an error, or limit the number.
                     // When `IsLongRunningJob` it should pause consumption.
-                    _activeHandler = Task.Run(() => action(consumeResult), cancellationToken);
-                    Pause();
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await action(current);
+                        }
+                        catch (Exception ex)
+                        {
+                            HandleException(ex);
+                        }
+                    }, cancellationToken);
                 }
                 else
                     await action(consumeResult);
@@ -182,11 +203,16 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         }
         catch (Exception ex)
         {
-            // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
-            // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
-            _logger.LogError(ex, "Error while consuming. {message}", ex.Message);
-            this.OnError?.Invoke(this, new ErrorEventArgs(ex));
+            HandleException(ex);
         }
+    }
+
+    private void HandleException(Exception ex)
+    {
+        // https://github.com/edenhill/librdkafka/blob/master/INTRODUCTION.md#fatal-consumer-errors
+        // An unhandled exception will stop consuming as I don't know of a way to resume the paused consumer.
+        _logger.LogError(ex, "Error while consuming. {message}", ex.Message);
+        this.OnError?.Invoke(this, new ErrorEventArgs(ex));
     }
 
     /// <summary>
@@ -211,6 +237,8 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     {
         this.Consumer?.Commit(result);
         _logger.LogDebug("Message committed from topic:'{topic}' key:'{key}'", result.Topic, result.Message.Key);
+
+        if (this.IsLongRunningJob) _consumeResults.TryRemove(result, out _);
     }
 
     /// <summary>
@@ -228,9 +256,12 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="partitions"></param>
     public void Pause(IEnumerable<TopicPartition> partitions)
     {
-        _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
-        this.IsPaused = true;
-        this.Consumer?.Pause(partitions);
+        if (!this.IsPaused)
+        {
+            _logger.LogDebug("Pausing consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
+            this.IsPaused = true;
+            this.Consumer?.Pause(partitions);
+        }
     }
 
     /// <summary>
@@ -248,9 +279,12 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="partitions"></param>
     public void Resume(IEnumerable<TopicPartition> partitions)
     {
-        _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
-        this.IsPaused = false;
-        this.Consumer?.Resume(partitions);
+        if (this.IsPaused)
+        {
+            _logger.LogDebug("Resuming consumption: {topics}", String.Join(", ", partitions.Select(p => p.Topic).Distinct()));
+            this.IsPaused = false;
+            this.Consumer?.Resume(partitions);
+        }
     }
 
     /// <summary>

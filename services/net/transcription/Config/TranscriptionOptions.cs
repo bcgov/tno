@@ -39,5 +39,10 @@ public class TranscriptionOptions : ServiceOptions
     /// get/set - Whether to only accept messages from Kafka that include work orders.
     /// </summary>
     public bool AcceptOnlyWorkOrders { get; set; } = true;
+
+    /// <summary>
+    /// get/set - The max threads for running transcription service.
+    /// </summary>
+    public int MaxThreads { get; set; } = 10;
     #endregion
 }
