@@ -91,54 +91,74 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <exception cref="ConfigurationException"></exception>
     public async Task FetchFilesFromRemoteAsync(IIngestServiceActionManager manager)
     {
-        // Extract the ingest configuration settings
-        var code = manager.Ingest.Source?.Code ?? "";
-        var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
-        filePattern = filePattern.Replace("<date>", $"{GetDateTimeForTimeZone(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
-        var match = new Regex(filePattern);
-        if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
-
         // Extract the source connection configuration settings.
         var remotePath = manager.Ingest.SourceConnection?.GetConfigurationValue("path");
         var username = manager.Ingest.SourceConnection?.GetConfigurationValue("username");
-        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName");
+        var keyFileName = manager.Ingest.SourceConnection?.GetConfigurationValue("keyFileName") ?? "";
         var hostname = manager.Ingest.SourceConnection?.GetConfigurationValue("hostname");
+        var password = manager.Ingest.SourceConnection?.GetConfigurationValue("password");
         if (String.IsNullOrWhiteSpace(hostname)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'hostname'.");
         if (String.IsNullOrWhiteSpace(username)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'username'.");
-        if (String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'.");
+        if (String.IsNullOrWhiteSpace(keyFileName) && String.IsNullOrWhiteSpace(password)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' one of 'keyFileName' or 'password' required in source connection.");
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
         // The ingest configuration may have a different path than the root connection path.
         remotePath = Path.Combine(remotePath, manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
 
-        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+        ConnectionInfo? connectionInfo = null;
+        AuthenticationMethod? authMethod = null;
 
-        if (File.Exists(sshKeyFile))
+        if (!String.IsNullOrWhiteSpace(password))
         {
-            var keyFile = new PrivateKeyFile(sshKeyFile);
-
-            var keyFiles = new[] { keyFile };
-            var connectionInfo = new ConnectionInfo(hostname,
-                                                    username,
-                                                    new PrivateKeyAuthenticationMethod(username, keyFiles));
-            using var client = new SftpClient(connectionInfo);
-            client.Connect();
-
-            var files = await FetchFileListingAsync(client, remotePath);
-            files = files.Where(f => match.Match(f.Name).Success);
-            _logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
-
-            foreach (var file in files)
-            {
-                await CopyFileAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
-            }
-
-            client.Disconnect();
+            authMethod = new PasswordAuthenticationMethod(username, password);
         }
         else
         {
-            throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+            var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+            if (File.Exists(sshKeyFile))
+            {
+                var keyFile = new PrivateKeyFile(sshKeyFile);
+                var keyFiles = new[] { keyFile };
+                authMethod = new PrivateKeyAuthenticationMethod(username, keyFiles);
+            }
+            else
+            {
+                throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+            }
         }
+
+        connectionInfo = new ConnectionInfo(hostname, username, authMethod);
+        await FetchFiles(connectionInfo, remotePath, manager);
+    }
+
+    /// <summary>
+    /// Fetch all files matching the ingest's file pattern from the remote sftp host.
+    /// </summary>
+    /// <param name="connectionInfo"></param>
+    /// <param name="remotePath"></param>
+    /// <param name="manager"></param>
+    /// <returns></returns>
+    private async Task FetchFiles(ConnectionInfo connectionInfo, string remotePath, IIngestServiceActionManager manager)
+    {
+        // Extract the ingest configuration settings
+        var code = manager.Ingest.Source?.Code ?? "";
+        var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
+        if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
+        filePattern = filePattern.Replace("<date>", $"{GetDateTimeForTimeZone(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
+        var match = new Regex(filePattern);
+        using var client = new SftpClient(connectionInfo);
+        client.Connect();
+
+        var files = await FetchFileListingAsync(client, remotePath);
+        files = files.Where(f => match.Match(f.Name).Success);
+        _logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
+
+        foreach (var file in files)
+        {
+            await CopyFileAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+        }
+
+        client.Disconnect();
     }
 
     /// <summary>
@@ -739,9 +759,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private static List<Author> GetAuthorList(string author)
     {
         var authors = new List<Author>
-        {
-            new Author(author.Trim(), "", "")
-        };
+            {
+                new Author(author.Trim(), "", "")
+            };
         return authors;
     }
 
