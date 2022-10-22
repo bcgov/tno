@@ -17,6 +17,9 @@ patches:
       - op: replace
         path: /data/KEYCLOAK_CLIENT_AUTHORITY
         value: https://oidc.gov.bc.ca
+      - op: replace
+        path: /data/KEYCLOAK_CLIENTID
+        value: 6698eeb8-85a3-4c2b-9a43-9c63e016bcea
   - target:
       kind: PersistentVolumeClaim
       name: file-storage

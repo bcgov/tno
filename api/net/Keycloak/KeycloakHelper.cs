@@ -41,30 +41,69 @@ public class KeycloakHelper : IKeycloakHelper
     /// <returns></returns>
     public async Task SyncAsync()
     {
-        if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
-
         var users = _userService.FindAll();
         foreach (var user in users)
         {
             var kUser = (await _keycloakService.GetUsersAsync(0, 10, user.Username)).FirstOrDefault(u => u.Username == user.Username);
             if (kUser != null && kUser.Id != user.Key)
             {
-                user.Key = kUser.Id;
-                user.Email = kUser.Email ?? user.Email;
-                user.FirstName = kUser.FirstName ?? user.FirstName;
-                user.LastName = kUser.LastName ?? user.LastName;
-                user.EmailVerified = kUser.EmailVerified ?? false;
-                user.IsEnabled = kUser.Enabled;
-                var displayName = kUser.Attributes?["displayName"]?.FirstOrDefault();
-                user.DisplayName = displayName ?? user.DisplayName;
-
-                // Fetch the roles for the user
-                var roles = await _keycloakService.GetUserClientRolesAsync(kUser.Id, _options.ClientId.Value);
-                user.Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"));
-
-                _userService.Update(user);
+                await AddOrUpdateUserAsync(user, kUser);
             }
         }
+
+        var kUsers = await _keycloakService.GetUsersAsync(0, 100);
+        foreach (var kUser in kUsers)
+        {
+            // If the user has a matching key we assume that it has already been synced.
+            var user = users.FirstOrDefault(u => u.Key == kUser.Id);
+            if (user == null)
+            {
+                user = users.FirstOrDefault(u => u.Username == kUser.Username);
+                if (user != null)
+                {
+                    // The user exists in the database but needs to be synced with Keycloak.
+                    await AddOrUpdateUserAsync(user, kUser);
+                }
+                else
+                {
+                    // The user does not exist in the database and will need to be added.
+                    if (!String.IsNullOrWhiteSpace(kUser.Username))
+                    {
+                        await AddOrUpdateUserAsync(new Entities.User(kUser.Username, kUser.Email ?? "", kUser.Id), kUser);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Update the user in the database with the specified keycloak user information.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="kUser"></param>
+    /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
+    private async Task AddOrUpdateUserAsync(Entities.User user, TNO.Keycloak.Models.UserModel kUser)
+    {
+        if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+
+        user.Key = kUser.Id;
+        user.Email = kUser.Email ?? user.Email;
+        user.FirstName = kUser.FirstName ?? user.FirstName;
+        user.LastName = kUser.LastName ?? user.LastName;
+        user.EmailVerified = kUser.EmailVerified ?? false;
+        user.IsEnabled = kUser.Enabled;
+        var displayName = kUser.Attributes?["displayName"]?.FirstOrDefault();
+        user.DisplayName = displayName ?? user.DisplayName;
+
+        // Fetch the roles for the user
+        var roles = await _keycloakService.GetUserClientRolesAsync(kUser.Id, _options.ClientId.Value);
+        user.Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"));
+
+        if (user.Id == 0)
+            _userService.Add(user);
+        else
+            _userService.Update(user);
     }
 
     /// <summary>

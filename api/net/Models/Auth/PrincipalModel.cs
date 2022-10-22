@@ -88,7 +88,10 @@ public class PrincipalModel
         this.LastName = principal.GetLastName();
         this.Status = user?.Status;
         this.Note = user?.Note ?? "";
-        this.Roles = user?.Roles.Split(",").Select(r => r[1..^1]).Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
+        this.Roles = user?.Roles.Split(",")
+            .Where(s => !String.IsNullOrWhiteSpace(s))
+            .Select(r => r[1..^1])
+            .Distinct() ?? principal.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value);
     }
     #endregion
 }
