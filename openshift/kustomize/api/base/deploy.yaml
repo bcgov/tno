@@ -96,6 +96,11 @@ spec:
                 configMapKeyRef:
                   name: api
                   key: KEYCLOAK_AUDIENCE
+            - name: Keycloak__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: KEYCLOAK_CLIENTID
 
             - name: Keycloak__ServiceAccount__Authority
               valueFrom:

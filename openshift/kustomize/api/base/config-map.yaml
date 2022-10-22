@@ -21,6 +21,7 @@ data:
   KEYCLOAK_AUDIENCE: tno-app
   KEYCLOAK_CLIENT_AUTHORITY: https://dev.oidc.gov.bc.ca
   KEYCLOAK_CLIENT_AUDIENCE: tno-service-account
+  KEYCLOAK_CLIENTID: 6698eeb8-85a3-4c2b-9a43-9c63e016bcea
 
   CONNECTION_STRING: Host=crunchy-primary:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 

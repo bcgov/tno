@@ -104,7 +104,7 @@ public class UserModel : AuditColumnsModel
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;
         this.Note = entity.Note;
-        this.Roles = entity.Roles.Split(",").Select(r => r[1..^1]);
+        this.Roles = entity.Roles.Split(",").Where(s => !String.IsNullOrWhiteSpace(s)).Select(r => r[1..^1]);
     }
     #endregion
 
