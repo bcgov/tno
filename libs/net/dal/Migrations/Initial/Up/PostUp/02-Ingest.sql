@@ -473,6 +473,86 @@ INSERT INTO public.ingest (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+  'National Post - Front Pages'
+  , 'National Post newspaper frontpage images' -- description
+  , true -- is_enabled
+  , ingestFrontPageId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'POST') -- source_id
+  , 'POST' -- topic
+  , frontPageId -- product_id
+  , '{ "path": "binaryroot",
+      "fileName": "NTNP",
+      "post": true,
+      "import": true }' -- configuration
+  , 1 -- schedule_type
+  , 3 -- retry_limit
+  , conSSHId --destination_connection_id
+  , conLocalImagesId -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Province - Front Pages'
+  , 'The Province newspaper frontpage images' -- description
+  , true -- is_enabled
+  , ingestFrontPageId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'PROVINCE') -- source_id
+  , 'PROVINCE' -- topic
+  , frontPageId -- product_id
+  , '{ "path": "binaryroot",
+      "fileName": "VAPR",
+      "post": true,
+      "import": true }' -- configuration
+  , 1 -- schedule_type
+  , 3 -- retry_limit
+  , conSSHId --destination_connection_id
+  , conLocalImagesId -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Times Colonist Victoria - Front Pages'
+  , 'Times Colonist Victoria newspaper frontpage images' -- description
+  , true -- is_enabled
+  , ingestFrontPageId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'TC') -- source_id
+  , 'TC' -- topic
+  , frontPageId -- product_id
+  , '{ "path": "binaryroot",
+      "fileName": "VITC",
+      "post": true,
+      "import": true }' -- configuration
+  , 1 -- schedule_type
+  , 3 -- retry_limit
+  , conSSHId --destination_connection_id
+  , conLocalImagesId -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Sun - Front Pages'
+  , 'Vancouver Sun newspaper frontpage images' -- description
+  , true -- is_enabled
+  , ingestFrontPageId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'SUN') -- source_id
+  , 'SUN' -- topic
+  , frontPageId -- product_id
+  , '{ "path": "binaryroot",
+      "fileName": "VASN",
+      "post": true,
+      "import": true }' -- configuration
+  , 1 -- schedule_type
+  , 3 -- retry_limit
+  , conSSHId --destination_connection_id
+  , conLocalImagesId -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 ),
 
 -- ******************************************************
