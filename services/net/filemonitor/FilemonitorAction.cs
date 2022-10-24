@@ -579,8 +579,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             else
             {
+                var defaultSource = ingest.GetConfigurationValue("defaultSource");
                 _logger.LogWarning("Paper '{paperName}' not in configuration string for ingest '{ingest.Name}'.", paperName, ingest.Name);
-                return "";
+                return defaultSource;
             }
         }
     }

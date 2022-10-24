@@ -1,8 +1,10 @@
+import { OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
+import { useLookup } from 'store/hooks';
 import { Col, Row } from 'tno-core';
 
 import { FileTypes, Languages, TimeZones } from './constants';
@@ -15,6 +17,9 @@ export const Newspaper: React.FC = (props) => {
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);
   const fileType = FileTypes.find((t) => t.value === values.configuration.fileFormat);
+  const [lookups] = useLookup();
+  const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code));
+  const source = sources.find((t) => t.value === values.configuration.defaultSource);
 
   return (
     <styled.IngestType>
@@ -194,6 +199,13 @@ export const Newspaper: React.FC = (props) => {
         name="configuration.sources"
         tooltip="Delimited list of paper names and their related source code ({papername}={source}&{papername}={source})"
         placeholder="paper name=source&paper name=source"
+      />
+      <FormikSelect
+        label="Default Source"
+        name="configuration.defaultSource"
+        tooltip="Source to use for publications missing from Sources list. If not set, articles will be discarded"
+        options={sources}
+        value={source}
       />
     </styled.IngestType>
   );
