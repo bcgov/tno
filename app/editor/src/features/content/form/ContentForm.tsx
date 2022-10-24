@@ -12,7 +12,6 @@ import {
   FormikTextArea,
 } from 'components/formik';
 import { Modal } from 'components/modal';
-import { FormikProps } from 'formik';
 import {
   ActionName,
   ContentTypeName,
@@ -66,7 +65,7 @@ import {
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { isSnippetForm, switchStatus, toForm, toModel, triggerFormikValidate } from './utils';
+import { isSnippetForm, switchStatus, toForm, toModel } from './utils';
 
 export interface IContentFormProps {
   /** Control what form elements are visible. */
@@ -86,7 +85,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [{ sources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, publishContent, attach },
+    { getContent, addContent, updateContent, deleteContent, upload, attach },
   ] = useContent();
   const [, { transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
@@ -216,27 +215,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       if (!!contentResult) {
         setContent(toForm(contentResult));
         if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
-      }
-    }
-  };
-
-  const handlePublish = async (props: FormikProps<IContentForm>) => {
-    const values = props.values;
-    triggerFormikValidate(props);
-
-    if (props.isValid) {
-      const defaultTonePool = tonePools.find((t) => t.name === 'Default');
-      values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
-
-      try {
-        const model = toModel(values);
-        const result = await publishContent(model);
-        setContent(toForm(result));
-        toast.success(
-          `"${values.headline}" has successfully requested publishing and has been saved.`,
-        );
-      } catch {
-        // Ignore this failure it is handled by our global ajax requests.
       }
     }
   };
@@ -597,13 +575,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     Save
                   </Button>
                   <Show visible={!!props.values.id}>
-                    <Button
-                      onClick={() => handlePublish(props)}
-                      variant={ButtonVariant.success}
-                      disabled={props.isSubmitting}
-                    >
-                      Publish
-                    </Button>
                     <Show
                       visible={
                         !!props.values.id && props.values.contentType === ContentTypeName.Snippet
