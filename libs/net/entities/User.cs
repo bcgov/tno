@@ -151,10 +151,9 @@ public class User : AuditColumns
     public User(string username, string email, Guid key)
     {
         if (String.IsNullOrWhiteSpace(username)) throw new ArgumentException("Parameter is required, not null, empty or whitespace", nameof(username));
-        if (String.IsNullOrWhiteSpace(email)) throw new ArgumentException("Parameter is required, not null, empty or whitespace", nameof(email));
 
         this.Username = username;
-        this.Email = email;
+        this.Email = email ?? throw new ArgumentNullException(nameof(email));
         this.Key = key;
         this.DisplayName = username;
     }
