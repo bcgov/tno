@@ -15,6 +15,7 @@ export * from './ScheduleTypeName';
 export * from './ScheduleWeekDay';
 export * from './ScheduleWeekDayName';
 export * from './Settings';
+export * from './UserRoleName';
 export * from './UserStatus';
 export * from './UserStatusName';
 export * from './ValueType';

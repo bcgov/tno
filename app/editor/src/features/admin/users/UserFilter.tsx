@@ -1,5 +1,5 @@
 import { IconButton, Select } from 'components/form';
-import { UserStatusName } from 'hooks';
+import { UserRoleName, UserStatusName } from 'hooks';
 import React, { useState } from 'react';
 import { useUsers } from 'store/hooks/admin';
 import { FieldSize, Text } from 'tno-core';
@@ -15,6 +15,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
   const [filter, setFilter] = useState<IUserListFilter>(userFilter);
   const statusOptions = getEnumStringOptions(UserStatusName);
+  const roles = getEnumStringOptions(UserRoleName);
 
   /** Handle enter key pressed for user filter */
   React.useEffect(() => {
@@ -53,13 +54,15 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           placeholder="Search by status"
           value={statusOptions.find((s) => s.value === filter.status) || ''}
         />
-        <Text
-          onChange={(e) => {
-            setFilter({ ...filter, roleName: e.target.value });
+        <Select
+          onChange={(e: any) => {
+            setFilter({ ...filter, roleName: e.value });
           }}
+          width={FieldSize.Medium}
+          options={roles}
           name="role"
           placeholder="Search by role"
-          value={filter.roleName}
+          value={roles.find((s) => s.value === filter.roleName) || ''}
         />
         <IconButton
           iconType="search"
@@ -72,7 +75,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           onClick={() => {
             setFilter({
               sort: [],
-              roleName: '',
+              roleName: undefined,
               keyword: '',
               status: undefined,
               pageIndex: 0,
