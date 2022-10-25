@@ -41,6 +41,12 @@ public class Source : BaseType<int>
     public int? OwnerId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to product.
+    /// </summary>
+    [Column("product_id")]
+    public int? ProductId { get; set; }
+
+    /// <summary>
     /// get/set - The user who owns this source.
     /// </summary>
     public virtual User? Owner { get; set; }

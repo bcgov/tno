@@ -47,6 +47,11 @@ public class SourceModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public int? OwnerId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? ProductId { get; set; }
     #endregion
 
     #region Constructors
@@ -69,6 +74,7 @@ public class SourceModel : AuditColumnsModel
         this.IsEnabled = entity.IsEnabled;
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
+        this.ProductId = entity.ProductId;
     }
     #endregion
 
@@ -96,6 +102,7 @@ public class SourceModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
+            ProductId = model.ProductId,
             Version = model.Version ?? 0
         };
 

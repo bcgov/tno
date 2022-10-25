@@ -465,6 +465,12 @@ namespace TNO.DAL.Migrations
                         principalTable: "user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_source_product_product_id",
+                        column: x => x.product_id,
+                        principalTable: "product",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

@@ -245,7 +245,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     SourceId = source?.Id,
                     OtherSource = model.Source,
                     ContentType = model.ContentType,
-                    ProductId = model.ProductId,
+                    ProductId = productId,
                     LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
                     SeriesId = null, // TODO: Provide default series from Data Source config settings.
                     OtherSeries = null, // TODO: Provide default series from Data Source config settings.

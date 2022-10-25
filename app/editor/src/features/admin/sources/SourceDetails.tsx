@@ -19,6 +19,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
 
   const users = getUserOptions(lookups.users);
   const licenses = getSortableOptions(lookups.licenses);
+  const products = getSortableOptions(lookups.products);
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
@@ -63,6 +64,12 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           name="ownerId"
           tooltip="The user that manages this content"
           options={users}
+        />
+        <FormikSelect
+          label="Product Designation Override"
+          name="productId"
+          tooltip="The product designation the source content will be assigned (overrides the value in the ingest)"
+          options={products}
         />
       </Col>
       <Col>
