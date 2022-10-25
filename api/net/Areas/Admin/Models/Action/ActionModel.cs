@@ -22,6 +22,12 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The default value.
     /// </summary>
     public string DefaultValue { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether this model is enabled.
+    /// </summary>
+    public bool IsEnabled { get; set; }
+
     #endregion
 
     #region Constructors
@@ -38,6 +44,7 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
     {
         this.ValueLabel = entity.ValueLabel;
         this.ValueType = entity.ValueType;
+        this.IsEnabled = entity.IsEnabled;
         this.DefaultValue = entity.DefaultValue;
     }
     #endregion
@@ -63,6 +70,7 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
         {
             Id = model.Id,
             DefaultValue = model.DefaultValue,
+            IsEnabled = model.IsEnabled,
             Version = model.Version ?? 0
         };
 
