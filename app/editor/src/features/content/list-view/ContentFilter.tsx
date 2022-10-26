@@ -118,7 +118,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           name="timeFrame"
           label="Time Frame"
           direction="col-row"
-          tooltip="Date created"
+          tooltip="Date published"
           value={timeFrame}
           options={timeFrames}
           onChange={handleTimeChange}

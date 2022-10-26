@@ -23,10 +23,10 @@ export const makeFilter = (
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
     includedInCategory: filter.includedInCategory ? true : undefined,
-    createdStartOn: advanced.startDate
+    publishedStartOn: advanced.startDate
       ? moment(advanced.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
-    createdEndOn: advanced.endDate ? moment(advanced.endDate).toISOString() : undefined,
+    publishedEndOn: advanced.endDate ? moment(advanced.endDate).toISOString() : undefined,
     [(advanced?.fieldType?.value as string) ?? 'fake']:
       advanced.searchTerm !== '' ? advanced.searchTerm.trim() : undefined,
     logicalOperator:
