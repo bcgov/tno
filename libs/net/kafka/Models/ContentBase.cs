@@ -57,6 +57,11 @@ public abstract class ContentBase
     public string Summary { get; set; } = "";
 
     /// <summary>
+    /// get/set - A data location is where the source was ingested and the files may reside.
+    /// </summary>
+    public string DataLocation { get; set; } = "";
+
+    /// <summary>
     /// get/set - The path to the file associated with this content.
     /// This path will be relative to a data location that is available to the consuming service.
     /// Essentially the path is meaningless without the additional context, but is critical to fetch the file.
@@ -109,6 +114,7 @@ public abstract class ContentBase
     /// <summary>
     /// Creates a new instance of a ContentBase object, initializes with specified parameters.
     /// </summary>
+    /// <param name="dataLocation"></param>
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="productId"></param>
@@ -116,8 +122,9 @@ public abstract class ContentBase
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ContentBase(string source, ContentType contentType, int productId, string uid, string title, string summary)
+    public ContentBase(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary)
     {
+        this.DataLocation = dataLocation;
         this.ContentType = contentType;
         this.ProductId = productId;
         this.Source = source ?? throw new ArgumentNullException(nameof(source));
@@ -129,6 +136,7 @@ public abstract class ContentBase
     /// <summary>
     /// Creates a new instance of a ContentBase object, initializes with specified parameters.
     /// </summary>
+    /// <param name="dataLocation"></param>
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="productId"></param>
@@ -136,8 +144,8 @@ public abstract class ContentBase
     /// <param name="title"></param>
     /// <param name="summary"></param>
     /// <param name="publishedOn"></param>
-    public ContentBase(string source, ContentType contentType, int productId, string uid, string title, string summary, DateTime publishedOn)
-        : this(source, contentType, productId, uid, title, summary)
+    public ContentBase(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary, DateTime publishedOn)
+        : this(dataLocation, source, contentType, productId, uid, title, summary)
     {
         this.PublishedOn = publishedOn;
     }

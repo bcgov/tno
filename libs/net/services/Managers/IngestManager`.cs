@@ -54,8 +54,8 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         var ingests = await GetIngestsAsync();
 
         // Run at the shortest interval of all schedules.
-        var delay = ingests.Min(ds => ds.IngestSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? _options.DefaultDelayMS;
-        if (delay == 0) delay = _options.DefaultDelayMS;
+        var delay = ingests.Min(ds => ds.IngestSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? this.Options.DefaultDelayMS;
+        if (delay == 0) delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)
@@ -68,7 +68,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             else if (!ingests.Any(ds => ds.IsEnabled))
             {
                 // If there are no ingests, then we need to keep the service alive.
-                this.Logger.LogWarning("There are no configured ingests");
+                this.Logger.LogWarning("There are no configured ingests for this data location");
             }
             else
             {
@@ -146,14 +146,16 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     public virtual async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
         var ingests = new List<IngestModel>();
-        foreach (var ingestType in _options.GetIngestTypes())
+        foreach (var ingestType in this.Options.GetIngestTypes())
         {
             try
             {
                 // If the service isn't running, don't make additional requests.
                 if (this.State.Status == ServiceStatus.Paused || this.State.Status == ServiceStatus.Sleeping) continue;
 
-                ingests.AddRange(await _api.GetIngestsForIngestTypeAsync(ingestType));
+                var results = await this.Api.GetIngestsForIngestTypeAsync(ingestType);
+                // Only add the ingest configured for this data location.
+                ingests.AddRange(results.Where(i => i.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())));
             }
             catch (Exception ex)
             {

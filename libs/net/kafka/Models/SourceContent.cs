@@ -8,14 +8,33 @@ namespace TNO.Kafka.Models;
 public class SourceContent : ContentBase
 {
     #region Properties
+    /// <summary>
+    /// get/set - The story body
+    /// </summary>
     public string Body { get; set; } = "";
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a SourceContent object.
+    /// </summary>
     public SourceContent() { }
 
-    public SourceContent(string source, ContentType contentType, int productId, string uid, string title, string summary, string body, DateTime publishedOn)
-        : base(source, contentType, productId, uid, title, summary, publishedOn)
+    /// <summary>
+    /// Creates a new instance of a SourceContent object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="dataLocation"></param>
+    /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="productId"></param>
+    /// <param name="uid"></param>
+    /// <param name="title"></param>
+    /// <param name="summary"></param>
+    /// <param name="body"></param>
+    /// <param name="publishedOn"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public SourceContent(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary, string body, DateTime publishedOn)
+        : base(dataLocation, source, contentType, productId, uid, title, summary, publishedOn)
     {
         this.Body = body ?? throw new ArgumentNullException(nameof(body));
     }

@@ -34,7 +34,6 @@ public static class IngestExtensions
         if (updateChildren == true)
         {
             var oschedules = context.IngestSchedules.Include(d => d.Schedule).Where(m => m.IngestId == updated.Id).ToArray();
-
             oschedules.Except(updated.SchedulesManyToMany).ForEach(a =>
             {
                 context.Entry(a).State = EntityState.Deleted;
@@ -51,7 +50,6 @@ public static class IngestExtensions
                         context.Add(a.Schedule);
                     else if (a.Schedule != null)
                         context.Entry(a.Schedule).State = EntityState.Modified;
-
                 }
                 else if (current != null && current.Schedule != null && a.Schedule != null)
                 {
@@ -69,6 +67,17 @@ public static class IngestExtensions
                     current.Schedule.DayOfMonth = a.Schedule.DayOfMonth;
                     current.Schedule.Version = a.Schedule.Version;
                 }
+            });
+
+            var oDataLocations = context.IngestDataLocations.Include(d => d.DataLocation).Where(m => m.IngestId == updated.Id).ToArray();
+            oDataLocations.Except(updated.DataLocationsManyToMany).ForEach(a =>
+            {
+                context.Entry(a).State = EntityState.Deleted;
+            });
+            updated.DataLocationsManyToMany.ForEach(a =>
+            {
+                var current = oDataLocations.FirstOrDefault(o => o.DataLocationId == a.DataLocationId);
+                if (current == null) original.DataLocationsManyToMany.Add(a);
             });
 
             if (original.State != null && updated.State != null)

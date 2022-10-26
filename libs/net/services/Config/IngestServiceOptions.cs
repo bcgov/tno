@@ -7,9 +7,20 @@ public class IngestServiceOptions : ServiceOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - An array of ingest type this service will ingest (comma separated).
+    /// get/set - The type of service that will be run (i.e. stream|clip|tuner|RPi).
+    /// </summary>
+    public string ServiceType { get; set; } = "";
+
+    /// <summary>
+    /// get/set - An array of ingest type this service will ingest (comma separated) (i.e. "Audio, Video").
     /// </summary>
     public string IngestTypes { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The data location this service is being run in.
+    /// This provides context information for content that is stored on local volumes.
+    /// </summary>
+    public string DataLocation { get; set; } = "";
     #endregion
 
     #region Methods

@@ -10,7 +10,21 @@ export const IngestDetails = styled.div`
     flex-basis: max-content;
   }
 
-  p {
-    max-width: 30ch;
+  hr {
+    width: 100%;
+  }
+
+  .locations {
+    background: ${(props) => props.theme.css.tableColor};
+
+    div[direction='row'] {
+      > div:first-child {
+        padding-left: 1em;
+      }
+    }
+
+    div[direction='row']:nth-child(2n + 2) {
+      background: ${(props) => props.theme.css.light};
+    }
   }
 `;

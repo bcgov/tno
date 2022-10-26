@@ -1,4 +1,5 @@
 export * from './checkbox';
+export * from './error';
 export * from './form';
 export * from './hidden';
 export * from './radio';

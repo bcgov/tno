@@ -17,6 +17,7 @@
     "kustomize",
     "notnull",
     "opennlp",
+    "Renci",
     "Swashbuckle"
   ],
   "java.configuration.updateBuildConfiguration": "interactive"

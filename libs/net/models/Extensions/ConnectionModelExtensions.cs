@@ -13,25 +13,66 @@ public static class ConnectionModelExtensions
     /// Get the connection setting value for the specified key.
     /// Or return an empty string if there is no key or value.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="model"></param>
     /// <param name="key"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static string GetConfigurationValue(this ConnectionModel dataSource, string key)
+    public static string GetConfigurationValue(this ConnectionModel model, string key)
     {
-        return GetConfigurationValue<string>(dataSource, key) ?? "";
+        return GetConfigurationValue<string>(model, key) ?? "";
     }
+
     /// <summary>
     /// Get the connection setting value for the specified key.
     /// Or return an empty string if there is no key or value.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="model"></param>
     /// <param name="key"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static T? GetConfigurationValue<T>(this ConnectionModel dataSource, string key)
+    public static T? GetConfigurationValue<T>(this ConnectionModel model, string key)
     {
-        if (!dataSource.Configuration.TryGetValue(key, out object? value)) return default;
+        return model.Configuration.GetConfigurationValue<T>(key);
+    }
+
+    /// <summary>
+    /// Get the connection setting value for the specified key.
+    /// Or return an empty string if there is no key or value.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static string GetConfigurationValue(this API.Areas.Services.Models.DataLocation.ConnectionModel model, string key)
+    {
+        return GetConfigurationValue<string>(model, key) ?? "";
+    }
+
+    /// <summary>
+    /// Get the connection setting value for the specified key.
+    /// Or return an empty string if there is no key or value.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static T? GetConfigurationValue<T>(this API.Areas.Services.Models.DataLocation.ConnectionModel model, string key)
+    {
+        return model.Configuration.GetConfigurationValue<T>(key);
+    }
+
+    /// <summary>
+    /// Get the connection setting value for the specified key.
+    /// Or return an empty string if there is no key or value.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="configuration"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
+    public static T? GetConfigurationValue<T>(this Dictionary<string, object> configuration, string key)
+    {
+        if (!configuration.TryGetValue(key, out object? value)) return default;
 
         if (value is JsonElement element)
         {

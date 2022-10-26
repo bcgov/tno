@@ -9,6 +9,8 @@ import {
   ConnectionForm,
   ConnectionList,
   ContentReferenceList,
+  DataLocationForm,
+  DataLocationList,
   IngestDetails,
   IngestForm,
   IngestList,
@@ -68,6 +70,9 @@ export const AdminRouter: React.FC = () => {
 
       <Route path="connections" element={<ConnectionList />} />
       <Route path="connections/:id" element={<ConnectionForm />} />
+
+      <Route path="data/locations" element={<DataLocationList />} />
+      <Route path="data/locations/:id" element={<DataLocationForm />} />
 
       <Route path="ingest/types" element={<IngestTypeList />} />
       <Route path="ingest/types/:id" element={<IngestTypeForm />} />

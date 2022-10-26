@@ -11,6 +11,7 @@ services:
       - subscriber
       - ingest
       - service
+      - main
     restart: "no"
     container_name: tno-nginx
     build:
@@ -45,6 +46,7 @@ services:
       - init
       - service
       - keycloak
+      - main
     restart: "no"
     container_name: tno-database
     build:
@@ -69,6 +71,7 @@ services:
       - init
       - service
       - keycloak
+      - main
     restart: "no"
     container_name: tno-keycloak
     build:
@@ -103,6 +106,7 @@ services:
       - data
       - init
       - service
+      - main
     restart: "no"
     container_name: tno-elastic
     build:
@@ -179,6 +183,7 @@ services:
       - editor
       - subscriber
       - service
+      - main
     restart: "no"
     container_name: tno-api
     build:
@@ -212,6 +217,7 @@ services:
       - all
       - editor
       - service
+      - main
     stdin_open: true
     tty: true
     restart: "no"

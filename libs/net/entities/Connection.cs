@@ -30,21 +30,49 @@ public class Connection : BaseType<int>
     public bool IsReadOnly { get; set; }
 
     /// <summary>
-    /// get - List of ingest linked to connection
+    /// get - List of ingest linked to connection.
     /// </summary>
     public virtual List<Ingest> SourceIngests { get; } = new List<Ingest>();
 
     /// <summary>
-    /// get - List of ingest linked to connection
+    /// get - List of ingest linked to connection.
     /// </summary>
     public virtual List<Ingest> DestinationIngests { get; } = new List<Ingest>();
+
+    /// <summary>
+    /// get - List of ingest linked to data locations.
+    /// </summary>
+    public virtual List<DataLocation> DataLocations { get; } = new List<DataLocation>();
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a Connection object.
+    /// </summary>
     protected Connection() { }
 
-    public Connection(string name) : base(name)
+    /// <summary>
+    /// Creates a new instance of a Connection object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="connectionType"></param>
+    public Connection(string name, ConnectionType connectionType = ConnectionType.LocalVolume) : base(name)
     {
+        this.ConnectionType = connectionType;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a Connection object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="connectionType"></param>
+    /// <param name="configuration"></param>
+    /// <param name="isReadOnly"></param>
+    public Connection(string name, ConnectionType connectionType, string configuration, bool isReadOnly) : base(name)
+    {
+        this.ConnectionType = connectionType;
+        this.Configuration = configuration;
+        this.IsReadOnly = isReadOnly;
     }
     #endregion
 }

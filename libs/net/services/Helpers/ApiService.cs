@@ -8,11 +8,14 @@ using MimeTypes;
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.Ingest;
+using DataLocationModels = TNO.API.Areas.Services.Models.DataLocation;
+using IngestModels = TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.Core.Exceptions;
 using TNO.Core.Http;
+using TNO.Kafka.Models;
 using TNO.Services.Config;
+using TNO.API.Areas.Kafka.Models;
 
 namespace TNO.Services;
 
@@ -42,20 +45,40 @@ public class ApiService : IApiService
     }
     #endregion
 
+    #region data location Methods
+    /// <summary>
+    /// Make an AJAX request to the api to get the data location for the specified 'name'.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public async Task<DataLocationModels.DataLocationModel?> GetDataLocationAsync(string name)
+    {
+        var url = new Uri(_options.ApiUrl, $"services/data/locations/{name}");
+        var response = await _client.GetAsync(url);
+
+        return response.StatusCode switch
+        {
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<DataLocationModels.DataLocationModel>(_serializerOptions),
+            HttpStatusCode.NoContent => null,
+            _ => throw new HttpClientRequestException(response),
+        };
+    }
+    #endregion
+
     #region Connection Methods
     /// <summary>
     /// Make an AJAX request to the api to get the connection.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<ConnectionModel?> GetConnectionAsync(int id)
+    public async Task<IngestModels.ConnectionModel?> GetConnectionAsync(int id)
     {
         var url = new Uri(_options.ApiUrl, $"services/connections/{id}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
         {
-            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<ConnectionModel>(_serializerOptions),
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<IngestModels.ConnectionModel>(_serializerOptions),
             HttpStatusCode.NoContent => null,
             _ => throw new HttpClientRequestException(response),
         };
@@ -67,11 +90,11 @@ public class ApiService : IApiService
     /// Make an AJAX request to the api to fetch all sources.
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<SourceModel>> GetSourcesAsync()
+    public async Task<IEnumerable<IngestModels.SourceModel>> GetSourcesAsync()
     {
         var url = new Uri(_options.ApiUrl, $"services/sources");
-        var result = await _client.GetAsync<SourceModel[]>(url);
-        return result ?? Array.Empty<SourceModel>();
+        var result = await _client.GetAsync<IngestModels.SourceModel[]>(url);
+        return result ?? Array.Empty<IngestModels.SourceModel>();
     }
 
     /// <summary>
@@ -79,14 +102,14 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    public async Task<SourceModel?> GetSourceForCodeAsync(string code)
+    public async Task<IngestModels.SourceModel?> GetSourceForCodeAsync(string code)
     {
         var url = new Uri(_options.ApiUrl, $"services/sources/{code}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
         {
-            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<SourceModel>(_serializerOptions),
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<IngestModels.SourceModel>(_serializerOptions),
             HttpStatusCode.NoContent => null,
             _ => throw new HttpClientRequestException(response),
         };
@@ -99,14 +122,14 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<IngestModel?> GetIngestAsync(int id)
+    public async Task<IngestModels.IngestModel?> GetIngestAsync(int id)
     {
         var url = new Uri(_options.ApiUrl, $"services/ingests/{id}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
         {
-            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<IngestModel>(_serializerOptions),
+            HttpStatusCode.OK => await response.Content.ReadFromJsonAsync<IngestModels.IngestModel>(_serializerOptions),
             HttpStatusCode.NoContent => null,
             _ => throw new HttpClientRequestException(response),
         };
@@ -116,11 +139,11 @@ public class ApiService : IApiService
     /// Make an AJAX request to the api to fetch all ingests.
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<IngestModel>> GetIngestsAsync()
+    public async Task<IEnumerable<IngestModels.IngestModel>> GetIngestsAsync()
     {
         var url = new Uri(_options.ApiUrl, $"services/ingests");
-        var result = await _client.GetAsync<IngestModel[]>(url);
-        return result ?? Array.Empty<IngestModel>();
+        var result = await _client.GetAsync<IngestModels.IngestModel[]>(url);
+        return result ?? Array.Empty<IngestModels.IngestModel>();
     }
 
     /// <summary>
@@ -128,11 +151,11 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="ingestType"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<IngestModel>> GetIngestsForIngestTypeAsync(string ingestType)
+    public async Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForIngestTypeAsync(string ingestType)
     {
         var url = new Uri(_options.ApiUrl, $"services/ingests/for/ingest/type/{ingestType}");
-        var result = await _client.GetAsync<IngestModel[]>(url);
-        return result ?? Array.Empty<IngestModel>();
+        var result = await _client.GetAsync<IngestModels.IngestModel[]>(url);
+        return result ?? Array.Empty<IngestModels.IngestModel>();
     }
 
     /// <summary>
@@ -140,11 +163,11 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<IngestModel>> GetIngestsForTopicAsync(string topic)
+    public async Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForTopicAsync(string topic)
     {
         var url = new Uri(_options.ApiUrl, $"services/ingests/for/topic/{topic}");
-        var result = await _client.GetAsync<IngestModel[]>(url);
-        return result ?? Array.Empty<IngestModel>();
+        var result = await _client.GetAsync<IngestModels.IngestModel[]>(url);
+        return result ?? Array.Empty<IngestModels.IngestModel>();
     }
 
     /// <summary>
@@ -152,10 +175,10 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    public async Task<IngestModel?> UpdateIngestAsync(IngestModel ingest)
+    public async Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest)
     {
         var url = new Uri(_options.ApiUrl, $"services/ingests/{ingest.Id}");
-        return await _client.PutAsync<IngestModel>(url, JsonContent.Create(ingest));
+        return await _client.PutAsync<IngestModels.IngestModel>(url, JsonContent.Create(ingest));
     }
     #endregion
 
@@ -303,6 +326,20 @@ public class ApiService : IApiService
     {
         var url = new Uri(_options.ApiUrl, $"services/work/orders/{workOrder.Id}");
         return await _client.PutAsync<WorkOrderModel>(url, JsonContent.Create(workOrder));
+    }
+    #endregion
+
+    #region Kafka
+    /// <summary>
+    /// Publish content to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResultModel<SourceContent>?> SendMessageAsync(string topic, SourceContent content)
+    {
+        var url = new Uri(_options.ApiUrl, $"kafka/producers/content/{topic}");
+        return await _client.PostAsync<DeliveryResultModel<SourceContent>>(url, JsonContent.Create(content));
     }
     #endregion
 }

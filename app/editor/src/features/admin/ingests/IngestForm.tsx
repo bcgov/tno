@@ -5,7 +5,7 @@ import { useModal } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import { IngestSchema } from 'hooks/api-editor/validation';
 import React from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaSpinner } from 'react-icons/fa';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useIngests } from 'store/hooks/admin';
@@ -50,6 +50,13 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
     } catch {}
   };
 
+  const reload = async () => {
+    try {
+      const data = await api.getIngest(ingestId);
+      setIngest({ ...data });
+    } catch {}
+  };
+
   const hasErrors = (errors: any, props: string[]) => {
     return props.some((p) => !!errors[p]);
   };
@@ -66,11 +73,12 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
         <Col flex="1" className="info">
           <p>This provides a way to configure ingestion services.</p>
         </Col>
-        <Col>
-          <Button onClick={() => setShowStatus(!showStatus)} tooltip={'Toggle status information'}>
-            {showStatus ? <FaEyeSlash /> : <FaEye />}
-          </Button>
-        </Col>
+        <Button onClick={() => setShowStatus(!showStatus)} tooltip={'Toggle status information'}>
+          {showStatus ? <FaEyeSlash /> : <FaEye />}
+        </Button>
+        <Button variant={ButtonVariant.secondary} tooltip="Reload" onClick={() => reload()}>
+          <FaSpinner />
+        </Button>
       </Row>
       <FormikForm
         initialValues={ingest}

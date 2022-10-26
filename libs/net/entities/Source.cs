@@ -46,6 +46,17 @@ public class Source : BaseType<int>
     public virtual User? Owner { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to product that content will be defaulted to.
+    /// </summary>
+    [Column("product_id")]
+    public int? ProductId { get; set; }
+
+    /// <summary>
+    /// get/set - The default product designation.
+    /// </summary>
+    public virtual Product? Product { get; set; }
+
+    /// <summary>
     /// get/set - Whether content with this series should automatically be transcribed.
     /// </summary>
     [Column("auto_transcribe")]

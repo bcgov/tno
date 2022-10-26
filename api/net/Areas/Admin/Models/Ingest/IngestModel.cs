@@ -5,7 +5,7 @@ using TNO.Entities;
 namespace TNO.API.Areas.Admin.Models.Ingest;
 
 /// <summary>
-/// IngestModel class, provides a model that represents an source.
+/// IngestModel class, provides a model that represents an ingest.
 /// </summary>
 public class IngestModel : AuditColumnsModel
 {
@@ -114,6 +114,11 @@ public class IngestModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public IEnumerable<IngestScheduleModel> Schedules { get; set; } = Array.Empty<IngestScheduleModel>();
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public IEnumerable<DataLocationModel> DataLocations { get; set; } = Array.Empty<DataLocationModel>();
     #endregion
 
     #region Constructors
@@ -153,6 +158,7 @@ public class IngestModel : AuditColumnsModel
         this.FailedAttempts = entity.State?.FailedAttempts ?? 0;
 
         this.Schedules = entity.SchedulesManyToMany.Select(s => new IngestScheduleModel(s));
+        this.DataLocations = entity.DataLocationsManyToMany.Where(d => d.DataLocation != null).Select(s => new DataLocationModel(s.DataLocation!, options));
     }
     #endregion
 
@@ -192,6 +198,7 @@ public class IngestModel : AuditColumnsModel
         };
 
         entity.SchedulesManyToMany.AddRange(model.Schedules.Select(s => s.ToEntity(entity.Id)));
+        entity.DataLocationsManyToMany.AddRange(model.DataLocations.Select(s => new Entities.IngestDataLocation(model.Id, s.Id)));
 
         return entity;
     }

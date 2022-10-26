@@ -22,12 +22,6 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The default value.
     /// </summary>
     public string DefaultValue { get; set; } = "";
-
-    /// <summary>
-    /// get/set - Whether this model is enabled.
-    /// </summary>
-    public bool IsEnabled { get; set; }
-
     #endregion
 
     #region Constructors

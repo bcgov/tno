@@ -3,7 +3,6 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: services
-  namespace: default
   annotations:
     description: Service configuration settings
     created-by: jeremy.foster
@@ -23,3 +22,5 @@ data:
   KEYCLOAK_CLIENT_SECRET:
 
   KAFKA_BOOTSTRAP_SERVERS: kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092
+
+  DATA_LOCATION: Openshift

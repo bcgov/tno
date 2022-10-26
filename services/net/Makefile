@@ -49,6 +49,10 @@ build: ## Build solution.
 	$(info Build solution)
 	@dotnet build
 
+b-capture-arm: ## Build Capture Service for Linux ARM.
+	$(info Build Capture Service for Linux ARM)
+	@cd capture; dotnet publish --runtime linux-arm64 --self-contained
+
 ##############################################################################
 # Dotnet Tools
 ##############################################################################

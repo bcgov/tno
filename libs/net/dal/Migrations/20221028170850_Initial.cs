@@ -390,6 +390,36 @@ namespace TNO.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "data_location",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    connection_id = table.Column<int>(type: "integer", nullable: true),
+                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0"),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false, defaultValueSql: "''"),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    sort_order = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_data_location", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_data_location_connection_connection_id",
+                        column: x => x.connection_id,
+                        principalTable: "connection",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "source",
                 columns: table => new
                 {
@@ -399,6 +429,7 @@ namespace TNO.DAL.Migrations
                     short_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, defaultValueSql: "''"),
                     license_id = table.Column<int>(type: "integer", nullable: false),
                     owner_id = table.Column<int>(type: "integer", nullable: true),
+                    product_id = table.Column<int>(type: "integer", nullable: true),
                     auto_transcribe = table.Column<bool>(type: "boolean", nullable: false),
                     disable_transcribe = table.Column<bool>(type: "boolean", nullable: false),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -420,6 +451,12 @@ namespace TNO.DAL.Migrations
                         name: "FK_source_license_license_id",
                         column: x => x.license_id,
                         principalTable: "license",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_source_product_product_id",
+                        column: x => x.product_id,
+                        principalTable: "product",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -1012,6 +1049,37 @@ namespace TNO.DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ingest_data_location",
+                columns: table => new
+                {
+                    ingest_id = table.Column<int>(type: "integer", nullable: false),
+                    data_location_id = table.Column<int>(type: "integer", nullable: false),
+                    created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_by_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    version = table.Column<long>(type: "bigint", nullable: false, defaultValueSql: "0")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ingest_data_location", x => new { x.ingest_id, x.data_location_id });
+                    table.ForeignKey(
+                        name: "FK_ingest_data_location_data_location_data_location_id",
+                        column: x => x.data_location_id,
+                        principalTable: "data_location",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ingest_data_location_ingest_ingest_id",
+                        column: x => x.ingest_id,
+                        principalTable: "ingest",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ingest_schedule",
                 columns: table => new
                 {
@@ -1170,6 +1238,17 @@ namespace TNO.DAL.Migrations
                 column: "action_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_data_location_connection_id",
+                table: "data_location",
+                column: "connection_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_data_location_name",
+                table: "data_location",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_file_reference_content_id",
                 table: "file_reference",
                 column: "content_id");
@@ -1204,6 +1283,11 @@ namespace TNO.DAL.Migrations
                 name: "IX_ingest_source_id",
                 table: "ingest",
                 column: "source_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ingest_data_location_data_location_id",
+                table: "ingest_data_location",
+                column: "data_location_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ingest_schedule_schedule_id",
@@ -1266,6 +1350,11 @@ namespace TNO.DAL.Migrations
                 name: "IX_source_owner_id",
                 table: "source",
                 column: "owner_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_source_product_id",
+                table: "source",
+                column: "product_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_source_action_name",
@@ -1386,6 +1475,9 @@ namespace TNO.DAL.Migrations
                 name: "file_reference");
 
             migrationBuilder.DropTable(
+                name: "ingest_data_location");
+
+            migrationBuilder.DropTable(
                 name: "ingest_schedule");
 
             migrationBuilder.DropTable(
@@ -1419,6 +1511,9 @@ namespace TNO.DAL.Migrations
                 name: "action");
 
             migrationBuilder.DropTable(
+                name: "data_location");
+
+            migrationBuilder.DropTable(
                 name: "schedule");
 
             migrationBuilder.DropTable(
@@ -1440,9 +1535,6 @@ namespace TNO.DAL.Migrations
                 name: "ingest_type");
 
             migrationBuilder.DropTable(
-                name: "product");
-
-            migrationBuilder.DropTable(
                 name: "series");
 
             migrationBuilder.DropTable(
@@ -1450,6 +1542,9 @@ namespace TNO.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "license");
+
+            migrationBuilder.DropTable(
+                name: "product");
 
             migrationBuilder.DropTable(
                 name: "user");

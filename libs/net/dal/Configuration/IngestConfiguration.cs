@@ -28,6 +28,7 @@ public class IngestConfiguration : AuditColumnsConfiguration<Ingest>
         builder.HasOne(m => m.SourceConnection).WithMany(m => m.SourceIngests).HasForeignKey(m => m.SourceConnectionId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.DestinationConnection).WithMany(m => m.DestinationIngests).HasForeignKey(m => m.DestinationConnectionId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(m => m.Schedules).WithMany(m => m.Ingests).UsingEntity<IngestSchedule>();
+        builder.HasMany(m => m.DataLocations).WithMany(m => m.Ingests).UsingEntity<IngestDataLocation>();
 
         builder.HasIndex(m => m.Name).IsUnique();
 

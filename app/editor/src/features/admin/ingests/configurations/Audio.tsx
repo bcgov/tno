@@ -5,12 +5,13 @@ import React from 'react';
 import { Show } from 'tno-core';
 
 import { AudioClip, AudioStream, AudioTuner } from '.';
-import { ServiceTypes } from './constants';
+import { serviceTypes } from './constants';
 import * as styled from './styled';
 
 export const Audio: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
 
+  const ServiceTypes = serviceTypes(values.ingestType?.name);
   const serviceType = ServiceTypes.find((t) => t.value === values.configuration.serviceType);
 
   return (

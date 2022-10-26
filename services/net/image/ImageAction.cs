@@ -12,6 +12,7 @@ using TNO.Services.Image.Config;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using TNO.Core.Exceptions;
+using TNO.API.Areas.Kafka.Models;
 
 namespace TNO.Services.Image;
 
@@ -25,15 +26,7 @@ namespace TNO.Services.Image;
 /// </summary>
 public class ImageAction : IngestAction<ImageOptions>
 {
-    #region Variables
-    #endregion
-
     #region Properties
-    /// <summary>
-    /// get - The kafka messenger service.
-    /// </summary>
-    protected IKafkaMessenger Producer { get; private set; }
-
     /// <summary>
     /// get - The logger.
     /// </summary>
@@ -44,13 +37,11 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <summary>
     /// Creates a new instance of a ImageAction, initializes with specified parameters.
     /// </summary>
-    /// <param name="producer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ImageAction(IKafkaMessenger producer, IApiService api, IOptions<ImageOptions> options, ILogger<ImageAction> logger) : base(api, options)
+    public ImageAction(IApiService api, IOptions<ImageOptions> options, ILogger<ImageAction> logger) : base(api, options)
     {
-        this.Producer = producer;
         this.Logger = logger;
     }
     #endregion
@@ -238,17 +229,26 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(IngestModel ingest, ContentReferenceModel reference)
+    private async Task<DeliveryResultModel<SourceContent>> SendMessageAsync(IngestModel ingest, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, reference.Uid, $"{ingest.Name} Frontpage", "", "", publishedOn.ToUniversalTime())
+        var content = new SourceContent(
+            this.Options.DataLocation,
+            reference.Source,
+            contentType,
+            ingest.ProductId,
+            reference.Uid,
+            $"{ingest.Name} Frontpage",
+            "",
+            "",
+            publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}", reference.Uid),
             Language = ingest.GetConfigurationValue("language")
         };
-        var result = await this.Producer.SendMessageAsync(reference.Topic, content);
+        var result = await this.Api.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
     }

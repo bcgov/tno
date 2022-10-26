@@ -19,4 +19,7 @@ export const IngestSchema = object().shape({
   sourceConnectionId: number().integer().min(1, 'Source connection required').required(),
   destinationConnectionId: number().integer().min(1, 'Destination connection required').required(),
   schedules: array().of(ScheduleSchema),
+  dataLocations: array()
+    .min(1, 'Select at least one location to run this ingest in')
+    .required('Location required'),
 });

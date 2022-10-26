@@ -98,6 +98,11 @@ export const NavBar: React.FC = () => {
               label="Connections"
               claim={Claim.administrator}
             />
+            <NavBarItem
+              navigateTo="/admin/data/locations"
+              label="Data Locations"
+              claim={Claim.administrator}
+            />
             <NavBarItem navigateTo="/admin/ingests" label="Ingest" claim={Claim.administrator} />
             <NavBarItem
               navigateTo="/admin/ingest/types"

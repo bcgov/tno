@@ -5,6 +5,7 @@ import {
   IActionModel,
   ICategoryModel,
   IConnectionModel,
+  IDataLocationModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -22,6 +23,7 @@ import { IAdminState } from './interfaces';
 export const initialAdminState: IAdminState = {
   sources: [],
   connections: [],
+  dataLocations: [],
   products: [],
   ingests: [],
   ingestTypes: [],
@@ -56,6 +58,9 @@ export const adminSlice = createSlice({
     },
     storeConnections(state: IAdminState, action: PayloadAction<IConnectionModel[]>) {
       state.connections = action.payload;
+    },
+    storeDataLocations(state: IAdminState, action: PayloadAction<IDataLocationModel[]>) {
+      state.dataLocations = action.payload;
     },
     storeProducts(state: IAdminState, action: PayloadAction<IProductModel[]>) {
       state.products = action.payload;
@@ -96,6 +101,7 @@ export const adminSlice = createSlice({
 export const {
   storeSources: storeAdminSources,
   storeConnections: storeAdminConnections,
+  storeDataLocations: storeAdminDataLocations,
   storeProducts: storeAdminProducts,
   storeLicenses: storeAdminLicenses,
   storeIngests: storeAdminIngests,

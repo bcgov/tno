@@ -2,6 +2,7 @@ import { ScheduleTypeName } from '../constants';
 import {
   IAuditColumnsModel,
   IConnectionModel,
+  IDataLocationModel,
   IIngestTypeModel,
   IProductModel,
   IScheduleModel,
@@ -29,6 +30,7 @@ export interface IIngestModel extends IAuditColumnsModel {
   destinationConnectionId: number;
   destinationConnection?: IConnectionModel;
   schedules: IScheduleModel[];
+  dataLocations: IDataLocationModel[];
 
   // State properties
   lastRanOn?: Date;

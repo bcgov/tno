@@ -16,6 +16,7 @@ export * from './IContentReferenceFilter';
 export * from './IContentReferenceModel';
 export * from './IContentTagModel';
 export * from './IContentTonePoolModel';
+export * from './IDataLocationModel';
 export * from './IFileReferenceModel';
 export * from './IFolderModel';
 export * from './IIngestModel';

@@ -15,6 +15,7 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.Property(m => m.ShortName).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
         builder.Property(m => m.OwnerId);
+        builder.Property(m => m.ProductId);
         builder.Property(m => m.LicenseId).IsRequired();
         builder.Property(m => m.AutoTranscribe).IsRequired();
         builder.Property(m => m.DisableTranscribe).IsRequired();
@@ -23,6 +24,7 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.HasOne(m => m.License).WithMany(m => m.Sources).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(m => m.Actions).WithMany(m => m.Sources).UsingEntity<SourceSourceAction>();
         builder.HasMany(m => m.Metrics).WithMany(m => m.Sources).UsingEntity<SourceMetric>();
+        builder.HasOne(m => m.Product).WithMany(m => m.Sources).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(m => m.Name).IsUnique();
         builder.HasIndex(m => m.Code).IsUnique();

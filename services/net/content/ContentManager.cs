@@ -10,6 +10,8 @@ using TNO.Services.Content.Config;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
+using TNO.API.Areas.Services.Models.DataLocation;
+using Renci.SshNet;
 
 namespace TNO.Services.Content;
 
@@ -78,7 +80,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <returns></returns>
     public override async Task RunAsync()
     {
-        var delay = _options.DefaultDelayMS;
+        var delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)
@@ -101,10 +103,10 @@ public class ContentManager : ServiceManager<ContentOptions>
                 try
                 {
                     // TODO: Handle e-tag.
-                    var ingest = (await _api.GetIngestsAsync()).ToArray();
+                    var ingest = (await this.Api.GetIngestsAsync()).ToArray();
 
                     // Listen to every enabled data source with a topic that is configured to produce content.
-                    var topics = _options.GetContentTopics(ingest
+                    var topics = this.Options.GetContentTopics(ingest
                         .Where(i => i.IsEnabled &&
                             !String.IsNullOrWhiteSpace(i.Topic) &&
                             i.ImportContent())
@@ -214,6 +216,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns>Whether to continue with the next message.</returns>
+    /// <exception cref="ConfigurationException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
@@ -223,16 +226,16 @@ public class ContentManager : ServiceManager<ContentOptions>
             var model = result.Message.Value;
 
             // Only add if doesn't already exist.
-            var exists = await _api.FindContentByUidAsync(model.Uid, model.Source);
+            var exists = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
             if (exists == null)
             {
                 // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
                 // TODO: Handle e-tag.
-                var source = await _api.GetSourceForCodeAsync(model.Source);
+                var source = await this.Api.GetSourceForCodeAsync(model.Source);
                 if (model.ProductId == 0)
                 {
                     // Messages in Kafka are missing information, replace with best guess.
-                    var ingests = await _api.GetIngestsForTopicAsync(result.Topic);
+                    var ingests = await this.Api.GetIngestsForTopicAsync(result.Topic);
                     model.ProductId = ingests.FirstOrDefault()?.ProductId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
                 }
 
@@ -255,42 +258,47 @@ public class ContentManager : ServiceManager<ContentOptions>
                     SourceUrl = model.Link,
                     PublishedOn = model.PublishedOn,
                 };
-                content = await _api.AddContentAsync(content);
+                content = await this.Api.AddContentAsync(content);
                 this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content?.Id, content?.PublishedOn);
 
                 // Upload the file to the API.
                 if (content != null && !String.IsNullOrWhiteSpace(model.FilePath))
                 {
-                    // TODO: Handle different storage locations.
-                    // If the source content references a connection then fetch it to get the storage location of the file.
-                    var fullPath = Path.Combine(_options.VolumePath, model.FilePath.MakeRelativePath());
-                    if (File.Exists(fullPath))
-                    {
-                        var file = File.OpenRead(fullPath);
-                        var fileName = Path.GetFileName(fullPath);
-                        content = await _api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName);
+                    // A service needs to know it's context so that it can import files.
+                    // Default to the service data location if the source model does not specify.
+                    var dataLocation = await this.Api.GetDataLocationAsync(!String.IsNullOrWhiteSpace(model.DataLocation) ? model.DataLocation : this.Options.DataLocation)
+                        ?? throw new ConfigurationException("Service data location is not configured correctly");
 
-                        // Send a Kafka message to the transcription topic
-                        if (!String.IsNullOrWhiteSpace(_options.TranscriptionTopic))
-                        {
-                            await SendMessageAsync(content!);
-                        }
-                    }
-                    else
+                    // TODO: It isn't ideal to copy files via the API as large files will block this service.  Need to figure out a more performant process at some point.
+                    content = (dataLocation.Connection?.ConnectionType) switch
                     {
-                        // TODO: Not sure if this should be considered a failure or not.
-                        this.Logger.LogWarning("File not found.  Content ID: {id}, File: {path}", content.Id, fullPath);
-                    }
+                        ConnectionType.NAS => throw new NotImplementedException(),
+                        ConnectionType.HTTP => throw new NotImplementedException(),
+                        ConnectionType.FTP => throw new NotImplementedException(),
+                        ConnectionType.SFTP => throw new NotImplementedException(),
+                        ConnectionType.Azure => throw new NotImplementedException(),
+                        ConnectionType.AWS => throw new NotImplementedException(),
+                        ConnectionType.SSH => await CopyFileWithSSHAsync(dataLocation, model, content),
+                        ConnectionType.LocalVolume => await CopyFileFromLocalVolumeAsync(model, content),
+                        _ => throw new NotImplementedException("The data location is missing connection information")
+                    };
+
+                    // Send a Kafka message to the transcription topic
+                    // TODO: Automate transcripts when configured by rules (ingest, source, type).
+                    // if (!String.IsNullOrWhiteSpace(this.Options.TranscriptionTopic))
+                    // {
+                    //     await SendMessageAsync(content!);
+                    // }
                 }
 
                 if (content != null)
                 {
                     // Update the status of the content reference.
-                    var reference = await _api.FindContentReferenceAsync(content.OtherSource, content.Uid);
+                    var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
                     if (reference != null)
                     {
                         reference.Status = (int)WorkflowStatus.Imported;
-                        await _api.UpdateContentReferenceAsync(reference);
+                        await this.Api.UpdateContentReferenceAsync(reference);
                     }
                 }
             }
@@ -312,6 +320,116 @@ public class ContentManager : ServiceManager<ContentOptions>
     }
 
     /// <summary>
+    /// Copy the files from the local volume storage to the API.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private async Task<ContentModel> CopyFileFromLocalVolumeAsync(SourceContent model, ContentModel content)
+    {
+        var fullPath = Path.Combine(this.Options.VolumePath, model.FilePath.MakeRelativePath());
+        if (File.Exists(fullPath))
+        {
+            var file = File.OpenRead(fullPath);
+            var fileName = Path.GetFileName(fullPath);
+            return await this.Api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName) ?? content;
+        }
+        else
+        {
+            // TODO: Not sure if this should be considered a failure or not.
+            this.Logger.LogWarning("File not found.  Content ID: {id}, File: {path}", content.Id, fullPath);
+        }
+        return content;
+    }
+
+    /// <summary>
+    /// Connect to remote location via SSH and copy files to the API.
+    /// </summary>
+    /// <param name="dataLocation"></param>
+    /// <param name="model"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
+    private async Task<ContentModel> CopyFileWithSSHAsync(DataLocationModel dataLocation, SourceContent model, ContentModel content)
+    {
+        var connection = dataLocation.Connection ?? throw new ConfigurationException("The data location is missing connection information");
+        var hostname = connection.GetConfigurationValue("hostname");
+        var username = connection.GetConfigurationValue("username");
+        var password = connection.GetConfigurationValue("password");
+        var keyFileName = connection.GetConfigurationValue("keyFileName");
+        var path = connection.GetConfigurationValue("path");
+
+        AuthenticationMethod authMethod;
+        if (!String.IsNullOrWhiteSpace(password))
+        {
+            authMethod = new PasswordAuthenticationMethod(username, password);
+        }
+        else if (!String.IsNullOrWhiteSpace(keyFileName))
+        {
+            var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+            if (File.Exists(sshKeyFile))
+            {
+                var keyFile = new PrivateKeyFile(sshKeyFile);
+                var keyFiles = new[] { keyFile };
+                authMethod = new PrivateKeyAuthenticationMethod(username, keyFiles);
+            }
+            else
+            {
+                throw new ConfigurationException($"SSH Private key file does not exist: {sshKeyFile}");
+            }
+        }
+        else throw new ConfigurationException("Data location connection settings are missing");
+
+        using var client = new SftpClient(new ConnectionInfo(hostname, username, authMethod));
+        client.Connect();
+        Stream? file = null;
+        try
+        {
+            var fullPath = Path.Combine(path, model.FilePath.MakeRelativePath()).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (client.Exists(fullPath))
+            {
+                var fileName = Path.GetFileName(fullPath);
+                file = client.OpenRead(fullPath);
+                content = await this.Api.UploadFileAsync(content.Id, content.Version ?? 0, file, fileName) ?? content;
+            }
+            else
+            {
+                this.Logger.LogWarning("File does not exist in data location '{location}', '{path}'", dataLocation.Name, fullPath);
+            }
+            return content;
+        }
+        catch
+        {
+            this.Logger.LogError("Failed to copy file from remote data location");
+            throw;
+        }
+        finally
+        {
+            client.Disconnect();
+            if (file != null)
+                file.Close();
+        }
+    }
+
+    /// <summary>
+    /// Download the file from the remote 'sourcePath' and copy it to the local 'destinationPath'.
+    /// Ensures the 'destinationPath' exists.  If it doesn't it will create the folders.
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="source"></param>
+    /// <param name="destination"></param>
+    /// <returns></returns>
+    private static async Task<FileStream> DownloadFileAsync(SftpClient client, string sourcePath, string destinationPath)
+    {
+        var path = Path.GetDirectoryName(destinationPath);
+        if (!String.IsNullOrWhiteSpace(path))
+            Directory.CreateDirectory(path);
+        using var saveFile = File.OpenWrite(destinationPath);
+        await Task.Factory.FromAsync(client.BeginDownloadFile(sourcePath, saveFile), client.EndDownloadFile);
+        return saveFile;
+    }
+
+    /// <summary>
     /// Send message to kafka with updated transcription.
     /// </summary>
     /// <param name="content"></param>
@@ -319,7 +437,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task<DeliveryResult<string, TranscriptRequest>> SendMessageAsync(ContentModel content)
     {
-        var result = await this.Producer.SendMessageAsync(_options.TranscriptionTopic, new TranscriptRequest(content, "ContentService"));
+        var result = await this.Producer.SendMessageAsync(this.Options.TranscriptionTopic, new TranscriptRequest(content, "ContentService"));
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.OtherSource}:{content.Uid}");
         return result;
     }

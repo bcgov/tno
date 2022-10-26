@@ -47,4 +47,37 @@ public class ConnectionModel : BaseTypeWithAuditColumnsModel<int>
         }
     }
     #endregion
+
+    #region Methods
+    /// <summary>
+    /// Creates a new instance of a Connection object.
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public Entities.Connection ToEntity(JsonSerializerOptions options)
+    {
+        var entity = (Entities.Connection)this;
+        entity.Configuration = JsonSerializer.Serialize(this.Configuration, options);
+        return entity;
+    }
+
+    /// <summary>
+    /// Explicit conversion to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.Connection(ConnectionModel model)
+    {
+        var entity = new Entities.Connection(model.Name)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            IsEnabled = model.IsEnabled,
+            ConnectionType = model.ConnectionType,
+            Configuration = JsonSerializer.Serialize(model.Configuration),
+            Version = model.Version ?? 0
+        };
+
+        return entity;
+    }
+    #endregion
 }

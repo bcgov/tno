@@ -2,6 +2,7 @@ export * from './useApiAdminActions';
 export * from './useApiAdminCategories';
 export * from './useApiAdminConnections';
 export * from './useApiAdminContentReferences';
+export * from './useApiAdminDataLocations';
 export * from './useApiAdminIngests';
 export * from './useApiAdminIngestTypes';
 export * from './useApiAdminLicenses';

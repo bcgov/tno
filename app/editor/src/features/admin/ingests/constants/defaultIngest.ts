@@ -20,4 +20,5 @@ export const defaultIngest: IIngestModel = {
   failedAttempts: 0,
   lastRanOn: undefined,
   schedules: [],
+  dataLocations: [],
 };

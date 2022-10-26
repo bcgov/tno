@@ -13,11 +13,6 @@ export const SelectDate = styled.div<ISelectDateProps>`
     font-weight: 700;
   }
 
-  p[role='alert'] {
-    font-weight: 0.85em;
-    color: ${(props) => props.theme.css.dangerColor};
-  }
-
   .react-datepicker-wrapper {
     input {
       padding: 0.375rem 0.75rem;
