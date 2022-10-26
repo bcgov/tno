@@ -276,6 +276,7 @@ public static class StringExtensions
     /// </summary>
     /// <param name="articleContent">HTML encoded news article</param>
     /// <param name="tagName">html tag that needs to be removed, for example, <p>|</p> for paragraph tags</param>
+    /// <param name="tagName">html tag that needs to be removed, for example, <p>|</p> for paragraph tags</param>
     /// <returns>Article text only with specified tags removed</returns>
     public static string SanitizeContent(string articleContent, string tagName, string replaceString = "")
     {
