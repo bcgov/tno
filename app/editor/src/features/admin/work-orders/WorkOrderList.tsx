@@ -1,4 +1,3 @@
-import { FormPage } from 'components/form';
 import { IWorkOrderModel } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -74,23 +73,21 @@ export const WorkOrderList = () => {
 
   return (
     <styled.WorkOrderList>
-      <FormPage>
-        <Row className="add-media" justifyContent="flex-end">
-          <Col flex="1 1 0">
-            A work order is a request submitted to the system (i.e. transcription, NLP).
-          </Col>
-        </Row>
-        <PagedTable
-          columns={columns}
-          header={WorkOrderListFilter}
-          sorting={{ sortBy: workOrderFilter.sort }}
-          isLoading={!!requests.length}
-          page={page}
-          onRowClick={(row) => navigate(`${row.original.id}`)}
-          onChangeSort={handleChangeSort}
-          onChangePage={handleChangePage}
-        ></PagedTable>
-      </FormPage>
+      <Row className="add-media" justifyContent="flex-end">
+        <Col flex="1 1 0">
+          A work order is a request submitted to the system (i.e. transcription, NLP).
+        </Col>
+      </Row>
+      <PagedTable
+        columns={columns}
+        header={WorkOrderListFilter}
+        sorting={{ sortBy: workOrderFilter.sort }}
+        isLoading={!!requests.length}
+        page={page}
+        onRowClick={(row) => navigate(`${row.original.id}`)}
+        onChangeSort={handleChangeSort}
+        onChangePage={handleChangePage}
+      ></PagedTable>
     </styled.WorkOrderList>
   );
 };

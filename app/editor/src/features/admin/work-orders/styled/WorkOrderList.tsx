@@ -1,6 +1,7 @@
+import { FormPage } from 'components/form';
 import styled from 'styled-components';
 
-export const WorkOrderList = styled.div`
+export const WorkOrderList = styled(FormPage)`
   .h-createdOn {
     text-align: center;
     align-items: center;
