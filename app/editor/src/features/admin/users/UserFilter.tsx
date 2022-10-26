@@ -1,6 +1,7 @@
-import { IconButton, Select } from 'components/form';
+import { IconButton, OptionItem, Select } from 'components/form';
 import { UserStatusName } from 'hooks';
 import React, { useState } from 'react';
+import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
 import { FieldSize, Text } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
@@ -13,8 +14,16 @@ interface IUserFilterProps {}
 
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
-  const [filter, setFilter] = useState<IUserListFilter>(userFilter);
+  const [filter, setFilter] = useState<IUserListFilter>({ ...userFilter, keyword: '' });
   const statusOptions = getEnumStringOptions(UserStatusName);
+  const [lookups] = useLookup();
+  const [roleOptions, setRoleOptions] = React.useState(
+    lookups.roles.map((r) => new OptionItem(r.name, r.id)),
+  );
+
+  React.useEffect(() => {
+    setRoleOptions(lookups.roles.map((r) => new OptionItem(r.name, r.id)));
+  }, [lookups.roles]);
 
   /** Handle enter key pressed for user filter */
   React.useEffect(() => {
@@ -53,13 +62,15 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           placeholder="Search by status"
           value={statusOptions.find((s) => s.value === filter.status) || ''}
         />
-        <Text
-          onChange={(e) => {
-            setFilter({ ...filter, roleName: e.target.value });
+        <Select
+          onChange={(e: any) => {
+            setFilter({ ...filter, roleName: e.value });
           }}
+          width={FieldSize.Medium}
+          options={roleOptions}
           name="role"
           placeholder="Search by role"
-          value={filter.roleName}
+          value={roleOptions.find((s) => s.value === filter.roleName) || ''}
         />
         <IconButton
           iconType="search"
@@ -72,7 +83,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
           onClick={() => {
             setFilter({
               sort: [],
-              roleName: '',
+              roleName: undefined,
               keyword: '',
               status: undefined,
               pageIndex: 0,
