@@ -270,4 +270,16 @@ public static class StringExtensions
             .Replace(pEndingTagReplacer, "\n\n")
             .Trim();
     }
+
+    /// <summary>
+    /// remove specified tags. 
+    /// </summary>
+    /// <param name="articleContent">HTML encoded news article</param>
+    /// <param name="tagName">html tag that needs to be removed, for example, <p>|</p> for paragraph tags</param>
+    /// <returns>Article text only with specified tags removed</returns>
+    public static string SanitizeContent(string articleContent, string tagName, string replaceString = "")
+    {
+        Regex rgx = new Regex(tagName);
+        return rgx.Replace(articleContent, replaceString);
+    }
 }
