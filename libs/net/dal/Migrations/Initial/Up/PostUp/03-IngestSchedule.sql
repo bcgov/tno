@@ -137,6 +137,177 @@ INSERT INTO public.ingest_schedule (
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC Kam')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Kam')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC Kel')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Kel')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC PG')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC PG')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC Van')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Van')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC Vic')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Vic')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CHKG')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CHKG')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CHMB')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CHMB')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CHNL')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CHNL')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CJCN Connect FM')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CJCN')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CJVB')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CJVB')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CKFU')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CKFU')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CKSP')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CKSP')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CKWX')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CKWX')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CKYE')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CKYE')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CKNW')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CKNW')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CFAX')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CFAX')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'KNKX')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'KNKX')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CKFR')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CKFR')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+), (
+  (SELECT id FROM public.ingest WHERE name = 'CBC R2')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC R2')  -- schedule_id
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
+  , DEFAULT_USER_ID
+  , ''
+  , CURRENT_TIMESTAMP
 );
 
 END $$;

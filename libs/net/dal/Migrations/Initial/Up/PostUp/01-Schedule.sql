@@ -318,6 +318,386 @@ INSERT INTO public.schedule (
   , '' -- updated_on
   , CURRENT_TIMESTAMP -- version
   , '0'
+), (
+  'CBC Kam' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CBC Kel' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CBC PG' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CBC Van' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CBC Vic' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CHKG' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CHMB' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CHNL' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CJCN' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CJVB' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CKFU' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CKSP' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CKWX' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CKYE' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CKNW' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CFAX' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'KNKX' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CKFR' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
+), (
+  'CBC R2' -- name
+  , '' -- description
+  , true -- is_enabled
+  , 2 -- schedule_type
+  , 30000 -- delay_ms
+  , NULL -- run_on
+  , '06:00:00' -- start_at
+  , '16:00:00' -- stop_at
+  , 0 -- repeat
+  , 127 -- run_on_week_days
+  , 0 -- run_on_months
+  , 0 -- day_of_month
+  , DEFAULT_USER_ID -- created_by_id
+  , ''  -- created_by
+  , CURRENT_TIMESTAMP -- created_on
+  , DEFAULT_USER_ID  -- updated_by
+  , '' -- updated_on
+  , CURRENT_TIMESTAMP -- version
+  , '0'
 );
 
 END $$;
