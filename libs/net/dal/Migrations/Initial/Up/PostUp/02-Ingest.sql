@@ -587,7 +587,7 @@ INSERT INTO public.ingest (
 -- Audio
 -- ******************************************************
 (
-  'CBC Victoria - Stream'
+  'CBC Victoria - Stream' -- name
   , '' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
@@ -604,10 +604,428 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CBC Kam' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_kam",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CBC Kel' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_kel",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CBC PG' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_prg",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CBC Van' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_vcr",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CBC Vic' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r1_vic",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CHKG' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CHKG') -- source_id
+  , 'CHKG' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://icecast01.eseenet.com:8000/fm961",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CHMB' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CHMB') -- source_id
+  , 'CHMB' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://stream.radiojar.com/nugqupcv8qzuv",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CHNL' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CHNL') -- source_id
+  , 'CHNL' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://newcap.leanstream.co/CHNLAM-MP3?args=3rdparty_01",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CJCN Connect FM' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CJCN') -- source_id
+  , 'CJCN' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://n12.rcs.revma.com/ygxn9vgennruv",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CJVB' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CJVB') -- source_id
+  , 'CJVB' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://icecast01.eseenet.com:8000/am1470",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CKFU' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CKFU') -- source_id
+  , 'CKFU' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://18223.live.streamtheworld.com/MOOSEFM_SC",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CKSP' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CKSP') -- source_id
+  , 'CKSP' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://ais-sa1.streamon.fm/7676_48k.aac",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CKWX' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CKWX') -- source_id
+  , 'CKWX' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://rogers.leanstream.co/rogers/van1130.stream/icy",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CKYE' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CKYE') -- source_id
+  , 'CKYE' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://ice10.securenetsystems.net/CKYE",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CKNW' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CKNW') -- source_id
+  , 'CKNW' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://live.leanstream.co/CKNWAM-MP3?reciva",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CFAX' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CFAX') -- source_id
+  , 'CFAX' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://playerservices.streamtheworld.com/pls/CFAXAM.pls",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'KNKX' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'KNKX') -- source_id
+  , 'KNKX' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://34.83.21.216/ppm-knkxfmaac-ibc1?session-id=f40c97fb0b50d0bb74b7f0131f220aed",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CKFR' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CKFR') -- source_id
+  , 'CKFR' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://playerservices.streamtheworld.com/pls/CKFRAM.pls",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
+), (
+  'CBC R2' -- name
+  , '' -- description
+  , true -- is_enabled
+  , ingestAudioId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , talkRadioId -- product_id
+  , '{ "serviceType":"stream",
+      "url": "http://cbcmp3.ic.llnwd.net/stream/cbcmp3_cbc_r2_vcr",
+      "timeZone":"Pacific Standard Time",
+      "language": "en-CA",
+      "post": false,
+      "import": false }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID -- created_by_id
+  , '' -- created_by
+  , DEFAULT_USER_ID -- updated_by_id
+  , '' -- updated_by
 ), (
   'CBC Victoria - Clips'
   , '' -- description

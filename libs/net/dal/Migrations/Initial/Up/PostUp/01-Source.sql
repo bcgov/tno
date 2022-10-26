@@ -3252,6 +3252,19 @@ INSERT INTO public.source (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+    'KNKX' -- name
+  , 'KNKX' -- code
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 END $$;
