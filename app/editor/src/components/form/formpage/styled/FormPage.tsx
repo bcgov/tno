@@ -13,7 +13,7 @@ export const FormPage = styled.div<IFormPageProps>`
 
   div[role='rowgroup'] {
     min-height: 100px;
-    max-height: calc(100vh - 600px);
+    max-height: calc(100vh - 400px);
     overflow-y: scroll;
     overflow-x: hidden;
   }
