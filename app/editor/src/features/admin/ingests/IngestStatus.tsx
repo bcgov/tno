@@ -33,14 +33,14 @@ export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
 
   return (
     <styled.IngestStatus {...props}>
-      <Text label="Status" name="lastRanOn" disabled value={getStatus()} />
-      <FormikText
-        label="Last Run On"
-        name="lastRanOn"
-        disabled
-        formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
-      />
-      <Row alignItems="flex-end">
+      <Row justifyContent="center">
+        <Text label="Status" name="status" disabled value={getStatus()} />
+        <FormikText
+          label="Last Run On"
+          name="lastRanOn"
+          disabled
+          formatter={(value) => formatDate(value, 'YYYY-MM-DD h:mm:ss a')}
+        />
         <FormikText
           label="Failure Limit"
           name="retryLimit"
