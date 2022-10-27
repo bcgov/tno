@@ -276,11 +276,14 @@ public static class StringExtensions
     /// </summary>
     /// <param name="articleContent">HTML encoded news article</param>
     /// <param name="tagName">html tag that needs to be removed, for example, <p>|</p> for paragraph tags</param>
-    /// <param name="tagName">html tag that needs to be removed, for example, <p>|</p> for paragraph tags</param>
+    /// <param name="replaceString">replacement</param>
     /// <returns>Article text only with specified tags removed</returns>
     public static string SanitizeContent(string articleContent, string tagName, string replaceString = "")
     {
         Regex rgx = new Regex(tagName);
-        return rgx.Replace(articleContent, replaceString);
+        var res = rgx.Replace(articleContent, replaceString).Trim();
+        // remove extra news lines
+        res = Regex.Replace(res, @"["+ Environment.NewLine +"]+", Environment.NewLine, System.Text.RegularExpressions.RegexOptions.Multiline);
+        return res;
     }
 }
