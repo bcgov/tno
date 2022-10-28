@@ -17,7 +17,6 @@ export const IngestForm = styled(FormPage)`
     padding: 0.5em;
   }
   .status {
-    max-width: 14em;
     padding: 0 1em 0 1em;
   }
 `;

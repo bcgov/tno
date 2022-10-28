@@ -9,7 +9,7 @@ export const FormPage = styled.div<IFormPageProps>`
   ${(props) => (props.maxWidth !== '' ? `max-width: ${props.maxWidth ?? '1200px'}` : '')};
   padding: 0.5em 2em 0 2em;
   margin: 0px auto;
-  overflow: hidden;
+  overflow: auto;
 
   div[role='rowgroup'] {
     min-height: 100px;
