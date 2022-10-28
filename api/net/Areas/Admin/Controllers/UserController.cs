@@ -60,8 +60,7 @@ public class UserController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _userService.Find(new UserFilter(query));
-        var items = result.Items.Where(u => !u.IsSystemAccount).Select(ds => new UserModel(ds));
-        var page = new Paged<UserModel>(items, result.Page, result.Quantity, items.Count());
+        var page = new Paged<UserModel>(result.Items.Select(ds => new UserModel(ds)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 
