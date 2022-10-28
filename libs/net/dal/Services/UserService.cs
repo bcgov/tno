@@ -57,7 +57,11 @@ public class UserService : BaseService<User, int>, IUserService
         if (filter.IsEnabled != null)
             query = query.Where(c => c.IsEnabled == filter.IsEnabled);
         if (filter.IsSystemAccount != null)
+        {
             query = query.Where(c => c.IsSystemAccount == filter.IsSystemAccount);
+        } else {
+            query = query.Where(c => !c.IsSystemAccount);
+        }
 
         var total = query.Count();
 
