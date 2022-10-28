@@ -88,6 +88,15 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           }
         />
         <Route
+          path="images/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentTypeName.Image} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
           path="storage"
           element={
             <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>

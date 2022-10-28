@@ -16,3 +16,7 @@ export const isSnippetForm = (contentType: ContentTypeName) => {
       return true;
   }
 };
+
+export const isImageForm = (contentType: ContentTypeName) => {
+  return contentType === ContentTypeName.Image;
+};

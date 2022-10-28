@@ -67,6 +67,9 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           // Default PrintContent to not alert.
           found.value = 'false';
         }
+        if (found.name === ActionName.FrontPage && contentType === ContentTypeName.Image) {
+          found.value = 'true';
+        }
       });
       setFieldValue(name, defaultActions);
     }

@@ -65,7 +65,7 @@ import {
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { isSnippetForm, switchStatus, toForm, toModel } from './utils';
+import { isImageForm, isSnippetForm, switchStatus, toForm, toModel } from './utils';
 
 export interface IContentFormProps {
   /** Control what form elements are visible. */
@@ -135,6 +135,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       case ContentTypeName.PrintContent:
         return (a: IActionModel) =>
           a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
+      case ContentTypeName.Image:
+        return (a: IActionModel) => a.name === ActionName.FrontPage;
       case ContentTypeName.Snippet:
       // TODO: Determine actions for remaining content types
       // eslint-disable-next-line no-fallthrough
@@ -201,9 +203,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
       if (!originalId)
         navigate(
-          `${isSnippetForm(contentResult?.contentType) ? '/snippets/' : '/papers/'}${
-            combined ? '/contents/combined/' : ''
-          }${contentResult.id}`,
+          `${
+            isImageForm(contentResult?.contentType)
+              ? '/images/'
+              : isSnippetForm(contentResult?.contentType)
+              ? '/snippets/'
+              : '/papers/'
+          }${combined ? '/contents/combined/' : ''}${contentResult.id}`,
         );
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
@@ -279,7 +285,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 variant={ButtonVariant.secondary}
                 tooltip="Full Page View"
                 onClick={() => {
-                  if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
+                  if (isImageForm(contentType)) navigate(`/images/${id}`);
+                  else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
                   else navigate(`/papers/${id}`);
                 }}
               >
@@ -294,6 +301,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   const id = page?.items[indexPosition - 1]?.id;
                   if (!!id) {
                     if (!!combined) navigate(`/contents/combined/${id}`);
+                    else if (isImageForm(contentType)) navigate(`/images/${id}`);
                     else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
                     else navigate(`/papers/${id}`);
                   }
@@ -308,6 +316,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 onClick={() => {
                   const id = page?.items[indexPosition + 1]?.id;
                   if (combined) navigate(`/contents/combined/${id}`);
+                  else if (isImageForm(contentType)) navigate(`/images/${id}`);
                   else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
                   else navigate(`/papers/${id}`);
                 }}
@@ -401,24 +410,34 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               props.setFieldValue('licenseId', source.licenseId);
                             }
                           }}
-                          options={sourceOptions}
+                          options={sourceOptions.filter(
+                            (x) =>
+                              !isImageForm(contentType) ||
+                              x.label.includes('(TC)') ||
+                              x.label.includes('(PROVINCE)') ||
+                              x.label.includes('(GLOBE)') ||
+                              x.label.includes('(POST)') ||
+                              x.label.includes('(SUN)'),
+                          )}
                           required={!props.values.otherSource}
                           isDisabled={!!props.values.tempSource}
                         />
                         <FormikHidden name="otherSource" />
-                        <FormikText
-                          name="tempSource"
-                          label="Other Source"
-                          onChange={(e) => {
-                            const value = e.currentTarget.value;
-                            props.setFieldValue('tempSource', value);
-                            props.setFieldValue('otherSource', value);
-                            if (!!value) {
-                              props.setFieldValue('sourceId', undefined);
-                            }
-                          }}
-                          required={!!props.values.tempSource}
-                        />
+                        <Show visible={!isImageForm(contentType)}>
+                          <FormikText
+                            name="tempSource"
+                            label="Other Source"
+                            onChange={(e) => {
+                              const value = e.currentTarget.value;
+                              props.setFieldValue('tempSource', value);
+                              props.setFieldValue('otherSource', value);
+                              if (!!value) {
+                                props.setFieldValue('sourceId', undefined);
+                              }
+                            }}
+                            required={!!props.values.tempSource}
+                          />
+                        </Show>
                       </Row>
                       <Row>
                         <Col grow={1}>
@@ -444,7 +463,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           <FormikText name="page" label="Page" />
                         </Row>
                       </Show>
-                      <Show visible={isSnippetForm(contentType)}>
+                      <Show visible={!isImageForm(contentType) && isSnippetForm(contentType)}>
                         <FormikText
                           name="sourceUrl"
                           label="Source URL"
@@ -474,9 +493,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           filter={determineActions()}
                         />
                       </Col>
-                      <Row className="commentary">
-                        <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
-                      </Row>
+                      <Show visible={!isImageForm(contentType)}>
+                        <Row className="commentary">
+                          <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
+                        </Row>
+                      </Show>
                     </Col>
                   </Show>
                 </Row>
@@ -520,18 +541,20 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               showErrorOnSave={{ value: true, savePressed: savePressed }}
                             />
                           </Show>
-                          <Tab
-                            label="Labels"
-                            onClick={() => setActive('labels')}
-                            active={active === 'labels'}
-                          >
-                            <Show visible={isNLPing}>
-                              <Spinner variant={SpinnerVariant.light} size="0.5em" />
-                            </Show>
-                            <Show visible={isNLPed && !isNLPing}>
-                              <FaCheckCircle className="spinner" />
-                            </Show>
-                          </Tab>
+                          <Show visible={props.values.contentType !== ContentTypeName.Image}>
+                            <Tab
+                              label="Labels"
+                              onClick={() => setActive('labels')}
+                              active={active === 'labels'}
+                            >
+                              <Show visible={isNLPing}>
+                                <Spinner variant={SpinnerVariant.light} size="0.5em" />
+                              </Show>
+                              <Show visible={isNLPed && !isNLPing}>
+                                <FaCheckCircle className="spinner" />
+                              </Show>
+                            </Tab>
+                          </Show>
                         </>
                       }
                     >
