@@ -5,7 +5,7 @@ import { useModal } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import { IngestSchema } from 'hooks/api-editor/validation';
 import React from 'react';
-import { FaEye, FaEyeSlash, FaWrench } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useIngests } from 'store/hooks/admin';
