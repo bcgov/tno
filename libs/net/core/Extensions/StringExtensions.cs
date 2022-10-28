@@ -283,7 +283,7 @@ public static class StringExtensions
         Regex rgx = new Regex(tagName);
         var res = rgx.Replace(articleContent, replaceString).Trim();
         // remove extra news lines
-        res = Regex.Replace(res, @"["+ Environment.NewLine +"]+", Environment.NewLine, System.Text.RegularExpressions.RegexOptions.Multiline);
+        res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine +"]*", string.Empty, System.Text.RegularExpressions.RegexOptions.Multiline);
         return res;
     }
 }
