@@ -250,8 +250,8 @@ public class ContentManager : ServiceManager<ContentOptions>
                     Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
                     Uid = model.Uid,
                     Page = "", // TODO: Provide default page from Data Source config settings.
-                    Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : model.Summary,
-                    Body = !String.IsNullOrWhiteSpace(model.Body) ? model.Body : model.ContentType == ContentType.Snippet ? "" : model.Summary,
+                    Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                    Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body,  "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                     SourceUrl = model.Link,
                     PublishedOn = model.PublishedOn,
                 };
