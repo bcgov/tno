@@ -379,7 +379,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             label="Headline"
                             value={props.values.headline}
                           />
-                          <Show visible={!isSnippetForm(contentType)}>
+                          <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                             <FormikText name="byline" label="Byline" required />
                           </Show>
                         </Col>
@@ -451,19 +451,19 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             required
                           />
                         </Col>
-                        <Show visible={!isSnippetForm(contentType)}>
+                        <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                           <Col grow={1}>
                             <FormikText name="edition" label="Edition" />
                           </Col>
                         </Show>
                       </Row>
-                      <Show visible={!isSnippetForm(contentType)}>
+                      <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                         <Row>
                           <FormikText name="section" label="Section" required />
                           <FormikText name="page" label="Page" />
                         </Row>
                       </Show>
-                      <Show visible={!isImageForm(contentType) && isSnippetForm(contentType)}>
+                      <Show visible={isSnippetForm(contentType)}>
                         <FormikText
                           name="sourceUrl"
                           label="Source URL"
@@ -502,7 +502,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                 </Row>
                 <Row>
-                  <Show visible={isSnippetForm(contentType)}>
+                  <Show visible={isSnippetForm(contentType) || isImageForm(contentType)}>
                     <Tabs
                       className={`${combined ? 'fit' : 'expand'} ${size === 1 ? 'small' : 'large'}`}
                       tabs={
@@ -581,7 +581,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                     </Tabs>
                   </Show>
-                  <Show visible={!isSnippetForm(contentType)}>
+                  <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                     <ContentSummaryForm
                       content={content}
                       setContent={setContent}
