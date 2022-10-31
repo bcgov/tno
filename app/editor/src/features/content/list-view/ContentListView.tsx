@@ -154,6 +154,13 @@ export const ContentListView: React.FC = () => {
             >
               Create Print Content
             </Button>
+            <Button
+              name="create"
+              onClick={() => navigate('/images/0')}
+              variant={ButtonVariant.secondary}
+            >
+              Create Image
+            </Button>
           </Row>
         </Col>
         <Show visible={combined}>

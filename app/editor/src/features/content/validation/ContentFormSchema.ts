@@ -14,11 +14,15 @@ export const ContentFormSchema = object().shape({
     then: string().trim().required('Summary is a required field.'),
   }),
   body: string().when('contentType', {
-    is: (value: ContentTypeName) => value !== ContentTypeName.Snippet,
+    is: (value: ContentTypeName) =>
+      value !== ContentTypeName.Snippet && value !== ContentTypeName.Image,
     then: string().trim().required('Summary is a required field.'),
   }),
   // TODO: Headline should not be empty.
   headline: string().required('Headline is a required field.'),
-  tone: number().required('Tone is a required field.'),
+  tone: number().when('contentType', {
+    is: (value: ContentTypeName) => value !== ContentTypeName.Image,
+    then: number().required('Tone is a required field.'),
+  }),
   // TODO: validation for print content.
 });

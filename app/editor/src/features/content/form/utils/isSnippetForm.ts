@@ -8,8 +8,8 @@ import { ContentTypeName } from 'hooks';
 export const isSnippetForm = (contentType: ContentTypeName) => {
   switch (contentType) {
     case ContentTypeName.PrintContent:
-      return false;
     case ContentTypeName.Image:
+      return false;
     case ContentTypeName.Story:
     case ContentTypeName.Snippet:
     default:
