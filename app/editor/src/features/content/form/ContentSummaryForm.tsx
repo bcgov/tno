@@ -228,9 +228,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Col>
         </Show>
       </Row>
-      <Show
-        visible={contentType === ContentTypeName.Snippet || contentType !== ContentTypeName.Image}
-      >
+      <Show visible={contentType !== ContentTypeName.Image}>
         <Row className="textarea">
           <Col flex="1 1 0">
             <Show visible={contentType === ContentTypeName.Snippet}>
