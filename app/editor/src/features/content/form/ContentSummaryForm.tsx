@@ -19,7 +19,7 @@ import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
 import { getTotalTime } from './utils';
 
-const tagMatch = /(?!\[).+?(?=\])/g;
+const tagMatch = /\[.*\](?![\S\s])$/g;
 export interface IContentSummaryFormProps {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
@@ -239,7 +239,9 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 onBlur={(e) => {
                   const value = e.currentTarget.value;
                   if (!!value) {
-                    const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
+                    const stringValue = value.match(tagMatch)?.toString();
+                    const values =
+                      stringValue?.substring(1, stringValue.length - 1).split(', ') ?? [];
                     const tags = extractTags(values);
                     setFieldValue('tags', tags);
                   }
