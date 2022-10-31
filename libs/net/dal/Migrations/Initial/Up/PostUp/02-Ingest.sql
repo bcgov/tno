@@ -327,7 +327,6 @@ INSERT INTO public.ingest (
       "dateFmt": "yyyyMMdd",
       "selfPublished": true,
       "filePattern":"^<date>(.+).xml$",
-      "passwordAuth":true,
       "dateOffset": 0 }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit

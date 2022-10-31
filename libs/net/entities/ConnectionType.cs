@@ -11,37 +11,37 @@ public enum ConnectionType
     LocalVolume = 0,
 
     /// <summary>
-    /// Files are stored on a remote volume.
-    /// </summary>
-    RemoteVolume = 1,
-
-    /// <summary>
     /// Files are stored on a NAS.
     /// </summary>
-    NAS = 2,
+    NAS = 1,
 
     /// <summary>
     /// Files are stored on the internet via URL.
     /// </summary>
-    HTTP = 3,
+    HTTP = 2,
 
     /// <summary>
     /// Files are stored on an FTP.
     /// </summary>
-    FTP = 4,
+    FTP = 3,
 
     /// <summary>
     /// Files are stored on an SFTP.
     /// </summary>
-    SFTP = 5,
+    SFTP = 4,
 
     /// <summary>
     /// Files are stored on Azure.
     /// </summary>
-    Azure = 6,
+    Azure = 5,
 
     /// <summary>
-    /// Files are stored on SSH.
+    /// Files are stored on AWS.
+    /// </summary>
+    AWS = 6,
+
+    /// <summary>
+    /// Files are accessible via SSH.
     /// </summary>
     SSH = 7,
 }

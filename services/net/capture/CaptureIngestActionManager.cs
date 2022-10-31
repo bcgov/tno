@@ -33,7 +33,14 @@ public class CaptureIngestActionManager : CommandIngestActionManager<CaptureOpti
     public override bool VerifyIngest()
     {
         var url = this.Ingest.GetConfigurationValue("url");
-        return !String.IsNullOrWhiteSpace(url) && this.Ingest.IsEnabled;
+        var input = this.Ingest.GetConfigurationValue("input");
+        var audioInput = this.Ingest.GetConfigurationValue("audioInput");
+        var videoInput = this.Ingest.GetConfigurationValue("videoInput");
+        return this.Ingest.IsEnabled &&
+            (!String.IsNullOrWhiteSpace(url) ||
+            !String.IsNullOrWhiteSpace(input) ||
+            !String.IsNullOrWhiteSpace(audioInput) ||
+            !String.IsNullOrWhiteSpace(videoInput));
     }
     #endregion
 }

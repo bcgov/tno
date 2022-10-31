@@ -114,6 +114,11 @@ public class IngestModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public IEnumerable<IngestScheduleModel> IngestSchedules { get; set; } = Array.Empty<IngestScheduleModel>();
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public IEnumerable<DataLocationModel> DataLocations { get; set; } = Array.Empty<DataLocationModel>();
     #endregion
 
     #region Constructors
@@ -151,6 +156,7 @@ public class IngestModel : AuditColumnsModel
         this.FailedAttempts = entity.State?.FailedAttempts ?? 0;
 
         this.IngestSchedules = entity.SchedulesManyToMany.Select(s => new IngestScheduleModel(s));
+        this.DataLocations = entity.DataLocationsManyToMany.Where(d => d.DataLocation != null).Select(d => new DataLocationModel(d.DataLocation!, options));
     }
     #endregion
 

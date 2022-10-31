@@ -5,7 +5,11 @@ export interface IErrorProps {
   error?: string;
 }
 
-/** Simple component to conditionally display an error message */
+/**
+ * Simple component to conditionally display an error message
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const Error: React.FC<IErrorProps> = ({ error }) => {
   return (
     <Show visible={!!error}>

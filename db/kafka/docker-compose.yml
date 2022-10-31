@@ -9,6 +9,7 @@ services:
       - kafka
       - kowl
       - service
+      - main
     restart: "no"
     hostname: zookeeper
     container_name: tno-zookeeper
@@ -33,6 +34,7 @@ services:
       - kafka
       - kowl
       - service
+      - main
     restart: "no"
     hostname: broker
     container_name: tno-broker
@@ -81,6 +83,7 @@ services:
       - all
       - kafka
       - service
+      - main
     restart: "no"
     hostname: rest-proxy
     container_name: tno-rest-proxy

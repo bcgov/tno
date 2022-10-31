@@ -44,12 +44,12 @@ spec:
             - containerPort: 8080
               protocol: TCP
           resources:
+            limits:
+              cpu: 75m
+              memory: 250Mi
             requests:
               cpu: 20m
-              memory: 250Mi
-            limits:
-              cpu: 100m
-              memory: 500Mi
+              memory: 180Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT

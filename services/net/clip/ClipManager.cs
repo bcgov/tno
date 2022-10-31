@@ -37,19 +37,12 @@ public class ClipManager : IngestManager<ClipIngestActionManager, ClipOptions>
     public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
         var ingests = await base.GetIngestsAsync();
-
-        return ingests.Where(ds => IsClip(ds));
-    }
-
-    /// <summary>
-    /// Determine if the data source is a clip service type
-    /// and it has a parent.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    private static bool IsClip(IngestModel ingest)
-    {
-        return ingest.GetConfigurationValue("serviceType") == "clip";
+        var serviceType = !String.IsNullOrWhiteSpace(this.Options.ServiceType) ? this.Options.ServiceType : "clip";
+        var hostname = System.Environment.GetEnvironmentVariable("HOSTNAME");
+        return ingests.Where(i =>
+            i.GetConfigurationValue("serviceType") == serviceType &&
+            (String.IsNullOrWhiteSpace(i.GetConfigurationValue("hostname")) ||
+                i.GetConfigurationValue("hostname") == hostname));
     }
     #endregion
 }

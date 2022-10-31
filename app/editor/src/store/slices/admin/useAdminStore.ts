@@ -4,6 +4,7 @@ import {
   IActionModel,
   ICategoryModel,
   IConnectionModel,
+  IDataLocationModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -22,6 +23,7 @@ import {
   storeAdminActions,
   storeAdminCategories,
   storeAdminConnections,
+  storeAdminDataLocations,
   storeAdminIngests,
   storeAdminIngestTypes,
   storeAdminLicenses,
@@ -40,9 +42,10 @@ export interface IAdminProps {}
 
 export interface IAdminStore {
   storeSources: (sources: ISourceModel[]) => void;
-  storeConnections: (products: IConnectionModel[]) => void;
+  storeConnections: (connections: IConnectionModel[]) => void;
+  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
   storeProducts: (products: IProductModel[]) => void;
-  storeLicenses: (products: ILicenseModel[]) => void;
+  storeLicenses: (licenses: ILicenseModel[]) => void;
   storeIngests: (ingests: IIngestModel[]) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
   storeCategories: (categories: ICategoryModel[]) => void;
@@ -66,6 +69,9 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeConnections: (connections: IConnectionModel[]) => {
         dispatch(storeAdminConnections(connections));
+      },
+      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
+        dispatch(storeAdminDataLocations(dataLocations));
       },
       storeProducts: (products: IProductModel[]) => {
         dispatch(storeAdminProducts(products));

@@ -6,12 +6,12 @@ using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.Kafka;
 using TNO.Models.Extensions;
 using TNO.Kafka.Models;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
+using TNO.API.Areas.Kafka.Models;
 
 namespace TNO.Services.Clip;
 
@@ -29,23 +29,17 @@ public class ClipAction : CommandAction<ClipOptions>
     #endregion
 
     #region Properties
-    /// <summary>
-    /// get - The kafka messenger service.
-    /// </summary>
-    protected IKafkaMessenger Producer { get; private set; }
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a ClipAction, initializes with specified parameters.
     /// </summary>
-    /// <param name="producer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ClipAction(IKafkaMessenger producer, IApiService api, IOptions<ClipOptions> options, ILogger<ClipAction> logger) : base(api, options, logger)
+    public ClipAction(IApiService api, IOptions<ClipOptions> options, ILogger<ClipAction> logger) : base(api, options, logger)
     {
-        this.Producer = producer;
     }
     #endregion
 
@@ -185,19 +179,28 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
+    private async Task<DeliveryResultModel<SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
         var path = file.Replace(this.Options.VolumePath, "");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
+        var content = new SourceContent(
+            this.Options.DataLocation,
+            reference.Source,
+            contentType,
+            ingest.ProductId,
+            reference.Uid,
+            $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}",
+            "",
+            "",
+            publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url") ?? "",
             FilePath = path?.MakeRelativePath() ?? "",
             Language = ingest.GetConfigurationValue("language") ?? ""
         };
-        var result = await this.Producer.SendMessageAsync(reference.Topic, content);
+        var result = await this.Api.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
     }
@@ -263,6 +266,7 @@ public class ClipAction : CommandAction<ClipOptions>
     {
         if (schedule == null) throw new InvalidOperationException($"Ingest schedule '{manager.Ingest.Name}' is required");
 
+        var logLevel = manager.Ingest.GetConfigurationValue<string>("logLevel", "warning");
         var input = await GetInputFileAsync(manager.Ingest, schedule);
         var start = GetStart(manager.Ingest, schedule, input);
         var duration = GetDuration(schedule);
@@ -274,7 +278,7 @@ public class ClipAction : CommandAction<ClipOptions>
         var output = GetOutput(manager.Ingest, schedule);
         process.Data.Add("filename", output);
 
-        return $"-i \"{input}\"{start}{duration}{volume}{format}{otherArgs}{copy} -y \"{output}\"";
+        return $"-loglevel {logLevel} -i \"{input}\"{start}{duration}{volume}{format}{otherArgs}{copy} -y \"{output}\"";
     }
 
     /// <summary>

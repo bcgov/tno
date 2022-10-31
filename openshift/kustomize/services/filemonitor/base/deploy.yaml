@@ -78,6 +78,11 @@ spec:
                 configMapKeyRef:
                   name: services
                   key: API_HOST_URL
+            - name: Service__DataLocation
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: DATA_LOCATION
 
             - name: Auth__Keycloak__Authority
               valueFrom:

@@ -64,7 +64,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <returns></returns>
     public override async Task RunAsync()
     {
-        var delay = _options.DefaultDelayMS;
+        var delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)
@@ -86,7 +86,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             {
                 try
                 {
-                    var topics = _options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    var topics = this.Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     if (topics.Length != 0)
                     {
@@ -197,7 +197,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             }
             else
             {
-                request.Content = await _api.FindContentByIdAsync(request.ContentId);
+                request.Content = await this.Api.FindContentByIdAsync(request.ContentId);
                 if (request.Content != null)
                 {
                     // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
@@ -245,7 +245,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
         var path = request.Content.FileReferences.FirstOrDefault()?.Path;
-        var safePath = Path.Join(_options.VolumePath, path.MakeRelativePath());
+        var safePath = Path.Join(this.Options.VolumePath, path.MakeRelativePath());
 
         if (File.Exists(safePath))
         {
@@ -269,14 +269,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
                     // Fetch content again because it may have been updated by an external source.
                     // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-                    var content = await _api.FindContentByIdAsync(request.Content.Id);
+                    var content = await this.Api.FindContentByIdAsync(request.Content.Id);
                     if (content != null && !String.IsNullOrWhiteSpace(transcript))
                     {
                         // The transcription may have been edited during this process and now those changes will be lost.
                         if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.Content.Id);
 
                         content.Body = transcript;
-                        await _api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
+                        await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
                         this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.Content.Id);
 
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
@@ -316,15 +316,15 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     {
         if (request.WorkOrderId > 0)
         {
-            request.WorkOrder = await _api.FindWorkOrderAsync(request.WorkOrderId);
+            request.WorkOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
             if (request.WorkOrder != null && !_ignoreWorkOrders.Contains(request.WorkOrder.Status))
             {
                 request.WorkOrder.Status = status;
-                request.WorkOrder = await _api.UpdateWorkOrderAsync(request.WorkOrder);
+                request.WorkOrder = await this.Api.UpdateWorkOrderAsync(request.WorkOrder);
                 return true;
             }
         }
-        return !_options.AcceptOnlyWorkOrders;
+        return !this.Options.AcceptOnlyWorkOrders;
     }
 
     /// <summary>
@@ -337,7 +337,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     {
         var sem = new Semaphore(0, 1);
         var sb = new StringBuilder();
-        var config = SpeechTranslationConfig.FromSubscription(_options.AzureCognitiveServicesKey, _options.AzureRegion);
+        var config = SpeechTranslationConfig.FromSubscription(this.Options.AzureCognitiveServicesKey, this.Options.AzureRegion);
         config.SpeechRecognitionLanguage = language;
 
         // TODO: media format should be based on configuration

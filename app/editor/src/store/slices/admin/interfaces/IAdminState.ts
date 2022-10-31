@@ -4,6 +4,7 @@ import {
   IActionModel,
   ICategoryModel,
   IConnectionModel,
+  IDataLocationModel,
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -19,6 +20,7 @@ import {
 export interface IAdminState {
   sources: ISourceModel[];
   connections: IConnectionModel[];
+  dataLocations: IDataLocationModel[];
   products: IProductModel[];
   ingests: IIngestModel[];
   ingestTypes: IIngestTypeModel[];

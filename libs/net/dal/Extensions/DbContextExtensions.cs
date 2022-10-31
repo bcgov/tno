@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TNO.Core.Extensions;
 using TNO.Entities;
 
@@ -29,16 +30,15 @@ public static class DbContextExtensions
     /// When updating an entity make sure the created values are not changed.
     /// If required fetch the entity from the database to get the original values.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="context"></param>
-    /// <param name="entity"></param>
+    /// <param name="entry"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public static TNOContext OnUpdate<T>(this TNOContext context, T entity, ClaimsPrincipal? user)
-        where T : AuditColumns
+    /// <exception cref="ArgumentException"></exception>
+    public static TNOContext OnUpdate(this TNOContext context, EntityEntry entry, ClaimsPrincipal? user)
     {
-        var current = entity;
-        var entry = context.Entry(current);
+        var entity = entry.Entity as AuditColumns ?? throw new ArgumentException("Must be an entity that extends AuditColumns");
+        var type = entry.Entity.GetType();
 
         string createdBy;
         Guid createdById;
@@ -46,18 +46,19 @@ public static class DbContextExtensions
         if (entry.State == EntityState.Detached)
         {
             // Make a request to the database for the original.
-            string[] keys = context.Model?.FindEntityType(typeof(T))?.FindPrimaryKey()?.Properties.Select(x => x.Name).ToArray() ?? Array.Empty<string>();
-            object?[] values = keys.Select(k => typeof(T).GetProperty(k)!.GetValue(entity, null)).Where(v => v != null).ToArray();
-            var original = (T?)context.Find(typeof(T), values);
-            createdBy = original?.CreatedBy ?? entry.GetOriginalValue(nameof(entity.CreatedBy), "");
-            createdById = original?.CreatedById ?? entry.GetOriginalValue(nameof(entity.CreatedById), Guid.Empty);
-            createdOn = original?.CreatedOn ?? entry.GetOriginalValue(nameof(entity.CreatedOn), DateTime.UtcNow);
+            string[] keys = context.Model?.FindEntityType(type)?.FindPrimaryKey()?.Properties.Select(x => x.Name).ToArray() ?? Array.Empty<string>();
+            object?[] values = keys.Select(k => type.GetProperty(k)!.GetValue(entity, null)).Where(v => v != null).ToArray();
+            var original = (AuditColumns?)context.Find(type, values);
+            createdBy = original?.CreatedBy ?? entity.CreatedBy;
+            createdById = original?.CreatedById ?? entity.CreatedById;
+            createdOn = original?.CreatedOn ?? entity.CreatedOn;
         }
         else
         {
-            createdBy = entry.GetOriginalValue(nameof(entity.CreatedBy), "");
-            createdById = entry.GetOriginalValue(nameof(entity.CreatedById), Guid.Empty);
-            createdOn = entry.GetOriginalValue(nameof(entity.CreatedOn), DateTime.UtcNow);
+            // These values will never be correct unless you first load the entity before updating it.
+            createdBy = entry.GetOriginalValue(nameof(AuditColumns.CreatedBy), "");
+            createdById = entry.GetOriginalValue(nameof(AuditColumns.CreatedById), Guid.Empty);
+            createdOn = entry.GetOriginalValue(nameof(AuditColumns.CreatedOn), DateTime.UtcNow);
         }
 
         entity.CreatedBy = createdBy;

@@ -1,8 +1,11 @@
 using TNO.API.Areas.Editor.Models.Lookup;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.Ingest;
+using DataLocationModels = TNO.API.Areas.Services.Models.DataLocation;
+using IngestModels = TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Areas.Services.Models.WorkOrder;
+using TNO.Kafka.Models;
+using TNO.API.Areas.Kafka.Models;
 
 namespace TNO.Services;
 
@@ -24,23 +27,32 @@ public interface IApiService
     /// Make an AJAX request to the api to fetch all sources.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<SourceModel>> GetSourcesAsync();
+    public Task<IEnumerable<IngestModels.SourceModel>> GetSourcesAsync();
 
     /// <summary>
     /// Make an AJAX request to the api to fetch the sources for the specified 'code'.
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    public Task<SourceModel?> GetSourceForCodeAsync(string code);
+    public Task<IngestModels.SourceModel?> GetSourceForCodeAsync(string code);
     #endregion
 
     #region Connections
     /// <summary>
-    /// Make an AJAX request to the api to get the connection.
+    /// Make an AJAX request to the api to get the connection for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<ConnectionModel?> GetConnectionAsync(int id);
+    public Task<IngestModels.ConnectionModel?> GetConnectionAsync(int id);
+    #endregion
+
+    #region Data Locations
+    /// <summary>
+    /// Make an AJAX request to the api to get the data location for the specified 'name'.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public Task<DataLocationModels.DataLocationModel?> GetDataLocationAsync(string name);
     #endregion
 
     #region Ingests
@@ -49,27 +61,27 @@ public interface IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<IngestModel?> GetIngestAsync(int id);
+    public Task<IngestModels.IngestModel?> GetIngestAsync(int id);
 
     /// <summary>
     /// Make an AJAX request to the api to fetch all ingests.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModel>> GetIngestsAsync();
+    public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsAsync();
 
     /// <summary>
     /// Make an AJAX request to the api to fetch ingests for the specified ingest type.
     /// </summary>
     /// <param name="ingestType"></param>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModel>> GetIngestsForIngestTypeAsync(string ingestType);
+    public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForIngestTypeAsync(string ingestType);
 
     /// <summary>
     /// Make an AJAX request to the api to fetch the ingest for the specified 'topic'.
     /// </summary>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModel>> GetIngestsForTopicAsync(string topic);
+    public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForTopicAsync(string topic);
     #endregion
 
     #region Contents
@@ -85,7 +97,7 @@ public interface IApiService
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    public Task<IngestModel?> UpdateIngestAsync(IngestModel ingest);
+    public Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest);
 
     /// <summary>
     /// Make an AJAX request to the api to find the content reference for the specified key.
@@ -156,5 +168,15 @@ public interface IApiService
     /// <param name="workOrder"></param>
     /// <returns></returns>
     Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder);
+    #endregion
+
+    #region Kafka
+    /// <summary>
+    /// Publish content to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    Task<DeliveryResultModel<SourceContent>?> SendMessageAsync(string topic, SourceContent content);
     #endregion
 }

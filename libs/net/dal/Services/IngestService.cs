@@ -127,22 +127,23 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var result = this.Context.Ingests
             .AsNoTracking()
-            .Include(ds => ds.Product)
-            .Include(ds => ds.IngestType)
-            .Include(ds => ds.Source)
-            .Include(ds => ds.State)
-            .Include(ds => ds.SourceConnection)
-            .Include(ds => ds.DestinationConnection)
-            .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
-            .Where(ds => ds.IngestType!.Name.ToLower() == ingestTypeName.ToLower())
+            .Include(i => i.Product)
+            .Include(i => i.IngestType)
+            .Include(i => i.Source)
+            .Include(i => i.State)
+            .Include(i => i.SourceConnection)
+            .Include(i => i.DestinationConnection)
+            .Include(i => i.SchedulesManyToMany).ThenInclude(i => i.Schedule)
+            .Include(i => i.DataLocationsManyToMany).ThenInclude(i => i.DataLocation)
+            .Where(i => i.IngestType!.Name.ToLower() == ingestTypeName.ToLower())
             .ToArray();
 
         /// TODO: Only allow admin to include connection information.
         return includeConnection ? result : result
-            .Select(ds =>
+            .Select(i =>
             {
-                ds.Configuration = "{}";
-                return ds;
+                i.Configuration = "{}";
+                return i;
             });
     }
 
@@ -164,6 +165,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
             .Include(ds => ds.SourceConnection)
             .Include(ds => ds.DestinationConnection)
             .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .Include(i => i.DataLocationsManyToMany).ThenInclude(i => i.DataLocation)
             .Where(ds => ds.Topic.ToLower() == topic.ToLower())
             .ToArray();
 
@@ -192,6 +194,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
             .Include(ds => ds.SourceConnection)
             .Include(ds => ds.DestinationConnection)
             .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .Include(i => i.DataLocationsManyToMany).ThenInclude(i => i.DataLocation)
             .FirstOrDefault(c => c.Id == id);
     }
 

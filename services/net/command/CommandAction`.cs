@@ -2,7 +2,6 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Core.Extensions;
 using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Command.Config;

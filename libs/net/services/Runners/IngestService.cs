@@ -7,7 +7,7 @@ namespace TNO.Services.Runners;
 /// BaseService abstract class, provides a console application that runs a service, and an api.
 /// The main purpose of the IngestService is to configure ingest dependency injection.
 /// </summary>
-public abstract class IngestService : KafkaProducerService
+public abstract class IngestService : BaseService
 {
     #region Variables
     #endregion

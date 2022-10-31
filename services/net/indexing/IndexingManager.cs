@@ -74,7 +74,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
         // TODO: Change to dependency injection.
         var connect = new ElasticsearchClientSettings(new Uri(options.Value.ElasticsearchUri))
-            .Authentication(new BasicAuthentication(_options.ElasticsearchUsername, _options.ElasticsearchPassword));
+            .Authentication(new BasicAuthentication(this.Options.ElasticsearchUsername, this.Options.ElasticsearchPassword));
         this.Client = new ElasticsearchClient(connect);
     }
     #endregion
@@ -87,7 +87,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     public override async Task RunAsync()
     {
-        var delay = _options.DefaultDelayMS;
+        var delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)
@@ -110,7 +110,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 try
                 {
                     // Only include topics that exist.
-                    var topics = _options.GetTopics();
+                    var topics = this.Options.GetTopics();
                     var kafkaTopics = this.KafkaAdmin.ListTopics();
                     topics = topics.Except(topics.Except(kafkaTopics)).ToArray();
 
@@ -222,7 +222,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
 
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
 
-            var content = await _api.FindContentByIdAsync(result.Message.Value.ContentId);
+            var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
             if (content != null)
             {
                 switch (result.Message.Value.Action)
@@ -264,16 +264,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task IndexContentAsync(ContentModel content)
     {
-        var document = new IndexRequest<ContentModel>(content, _options.UnpublishedIndex, content.Uid);
+        var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Uid);
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content indexed.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, _options.PublishedIndex);
+            this.Logger.LogInformation("Content indexed.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to index.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, _options.PublishedIndex);
+            this.Logger.LogError(response.OriginalException, "Content failed to index.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -286,7 +286,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task PublishContentAsync(ContentModel content)
     {
-        var document = new IndexRequest<ContentModel>(content, _options.PublishedIndex, content.Uid);
+        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
@@ -294,16 +294,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (content.Status != ContentStatus.Published)
             {
                 content.Status = ContentStatus.Published;
-                await _api.UpdateContentAsync(content);
+                await this.Api.UpdateContentAsync(content);
             }
-            this.Logger.LogInformation("Content published.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, _options.PublishedIndex);
+            this.Logger.LogInformation("Content published.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
 
             await SendNotifications(content!);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, _options.PublishedIndex);
+            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -316,7 +316,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task UnpublishContentAsync(ContentModel content)
     {
-        var document = new DeleteRequest<ContentModel>(content, _options.PublishedIndex, content.Uid);
+        var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
         var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
@@ -324,16 +324,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (content.Status != ContentStatus.Unpublished)
             {
                 content.Status = ContentStatus.Unpublished;
-                await _api.UpdateContentAsync(content);
+                await this.Api.UpdateContentAsync(content);
             }
-            this.Logger.LogInformation("Content unpublished.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, _options.PublishedIndex);
+            this.Logger.LogInformation("Content unpublished.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
 
             await SendNotifications(content!);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, _options.PublishedIndex);
+            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -346,9 +346,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         if (content.Status == ContentStatus.Published)
         {
-            await DeleteContentAsync(content, _options.PublishedIndex);
+            await DeleteContentAsync(content, this.Options.PublishedIndex);
         }
-        await DeleteContentAsync(content, _options.UnpublishedIndex);
+        await DeleteContentAsync(content, this.Options.UnpublishedIndex);
     }
 
     /// <summary>
@@ -381,12 +381,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task SendNotifications(ContentModel content)
     {
-        if (!String.IsNullOrWhiteSpace(_options.NotificationTopic))
+        if (!String.IsNullOrWhiteSpace(this.Options.NotificationTopic))
         {
             // TODO: Make request to API to determine what natifications should be sent.
             // TODO: Generate appropriate notification request.
             var notification = new NotificationRequest(0, content.Id, 0, 0);
-            var result = await this.Producer.SendMessageAsync(_options.NotificationTopic, content.Uid, notification);
+            var result = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, content.Uid, notification);
             if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting a notification request.  ContentId: {content.Id}");
         }
     }

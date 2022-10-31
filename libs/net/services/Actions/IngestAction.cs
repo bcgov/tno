@@ -1,6 +1,7 @@
 using System.Net;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
+using TNO.API.Areas.Kafka.Models;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
@@ -66,7 +67,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <param name="reference"></param>
     /// <param name="result"></param>
     /// <returns></returns>
-    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, DeliveryResult<string, SourceContent>? result)
+    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, DeliveryResultModel<SourceContent>? result)
     {
         if (result != null)
         {

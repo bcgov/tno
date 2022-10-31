@@ -134,6 +134,16 @@ public class Ingest : AuditColumns
     /// get - List of schedule (many-to-many) linked to this ingest.
     /// </summary>
     public virtual List<IngestSchedule> SchedulesManyToMany { get; } = new List<IngestSchedule>();
+
+    /// <summary>
+    /// get - Collection of data locations associated with this ingest.
+    /// </summary>
+    public virtual List<DataLocation> DataLocations { get; } = new List<DataLocation>();
+
+    /// <summary>
+    /// get - Collection of data locations, the many-to-many relationship.
+    /// </summary>
+    public virtual List<IngestDataLocation> DataLocationsManyToMany { get; } = new List<IngestDataLocation>();
     #endregion
 
     #region Constructors

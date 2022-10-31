@@ -4,6 +4,7 @@ using TNO.Services.Managers;
 using TNO.Services.Capture.Config;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Models.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace TNO.Services.Capture;
 
@@ -37,18 +38,14 @@ public class CaptureManager : IngestManager<CaptureIngestActionManager, CaptureO
     public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
         var ingests = await base.GetIngestsAsync();
+        var serviceType = !String.IsNullOrWhiteSpace(this.Options.ServiceType) ? this.Options.ServiceType : "stream";
+        var hostname = System.Environment.GetEnvironmentVariable("HOSTNAME");
 
-        return ingests.Where(ds => IsStream(ds));
-    }
-
-    /// <summary>
-    /// Determine if the data source is a stream service type.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    private static bool IsStream(IngestModel ingest)
-    {
-        return ingest.GetConfigurationValue("serviceType") == "stream";
+        var results = ingests.Where(i =>
+            i.GetConfigurationValue("serviceType") == serviceType &&
+            (String.IsNullOrWhiteSpace(i.GetConfigurationValue("hostname")) ||
+                i.GetConfigurationValue("hostname") == hostname));
+        return results;
     }
     #endregion
 }

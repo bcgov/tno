@@ -126,7 +126,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     // Update content reference with Kafka response.
                     if (result != null)
                     {
-                        await UpdateContentReferenceAsync(reference, result);
+                        await UpdateContentReferenceAsync(reference, item);
                     }
                 }
             }
@@ -226,7 +226,16 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var (title, summary, body) = HandleInvalidEncoding(item);
         var source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        return new SourceContent(source, contentType, ingest.ProductId, item.Id, title, summary, body, item.PublishDate.UtcDateTime)
+        return new SourceContent(
+            this.Options.DataLocation,
+            source,
+            contentType,
+            ingest.ProductId,
+            item.Id,
+            title,
+            summary,
+            body,
+            item.PublishDate.UtcDateTime)
         {
             Link = item.Links.FirstOrDefault(l => l.RelationshipType == "alternate")?.Uri.ToString() ?? "",
             Copyright = item.Copyright?.Text ?? "",

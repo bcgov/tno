@@ -1096,6 +1096,92 @@ namespace TNO.DAL.Migrations
                     b.ToTable("content_type_action");
                 });
 
+            modelBuilder.Entity("TNO.Entities.DataLocation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ConnectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("connection_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_id");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConnectionId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("data_location");
+                });
+
             modelBuilder.Entity("TNO.Entities.FileReference", b =>
                 {
                     b.Property<long>("Id")
@@ -1310,6 +1396,62 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("SourceId");
 
                     b.ToTable("ingest");
+                });
+
+            modelBuilder.Entity("TNO.Entities.IngestDataLocation", b =>
+                {
+                    b.Property<int>("IngestId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ingest_id");
+
+                    b.Property<int>("DataLocationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("data_location_id");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by_id");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("IngestId", "DataLocationId");
+
+                    b.HasIndex("DataLocationId");
+
+                    b.ToTable("ingest_data_location");
                 });
 
             modelBuilder.Entity("TNO.Entities.IngestSchedule", b =>
@@ -2049,6 +2191,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("owner_id");
 
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -2097,6 +2243,8 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("source");
                 });
@@ -2977,6 +3125,16 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Action");
                 });
 
+            modelBuilder.Entity("TNO.Entities.DataLocation", b =>
+                {
+                    b.HasOne("TNO.Entities.Connection", "Connection")
+                        .WithMany("DataLocations")
+                        .HasForeignKey("ConnectionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Connection");
+                });
+
             modelBuilder.Entity("TNO.Entities.FileReference", b =>
                 {
                     b.HasOne("TNO.Entities.Content", "Content")
@@ -3029,6 +3187,25 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Source");
 
                     b.Navigation("SourceConnection");
+                });
+
+            modelBuilder.Entity("TNO.Entities.IngestDataLocation", b =>
+                {
+                    b.HasOne("TNO.Entities.DataLocation", "DataLocation")
+                        .WithMany("IngestsManyToMany")
+                        .HasForeignKey("DataLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TNO.Entities.Ingest", "Ingest")
+                        .WithMany("DataLocationsManyToMany")
+                        .HasForeignKey("IngestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DataLocation");
+
+                    b.Navigation("Ingest");
                 });
 
             modelBuilder.Entity("TNO.Entities.IngestSchedule", b =>
@@ -3085,9 +3262,16 @@ namespace TNO.DAL.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("TNO.Entities.Product", "Product")
+                        .WithMany("Sources")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("License");
 
                     b.Navigation("Owner");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("TNO.Entities.SourceMetric", b =>
@@ -3196,6 +3380,8 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Connection", b =>
                 {
+                    b.Navigation("DataLocations");
+
                     b.Navigation("DestinationIngests");
 
                     b.Navigation("SourceIngests");
@@ -3226,8 +3412,15 @@ namespace TNO.DAL.Migrations
                     b.Navigation("WorkOrders");
                 });
 
+            modelBuilder.Entity("TNO.Entities.DataLocation", b =>
+                {
+                    b.Navigation("IngestsManyToMany");
+                });
+
             modelBuilder.Entity("TNO.Entities.Ingest", b =>
                 {
+                    b.Navigation("DataLocationsManyToMany");
+
                     b.Navigation("SchedulesManyToMany");
 
                     b.Navigation("State");
@@ -3257,6 +3450,8 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Contents");
 
                     b.Navigation("Ingests");
+
+                    b.Navigation("Sources");
                 });
 
             modelBuilder.Entity("TNO.Entities.Schedule", b =>

@@ -72,7 +72,7 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <returns></returns>
     public async override Task RunAsync()
     {
-        var delay = _options.DefaultDelayMS;
+        var delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
         while (true)
@@ -94,7 +94,7 @@ public class NLPManager : ServiceManager<NLPOptions>
             {
                 try
                 {
-                    var topics = _options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    var topics = this.Options.Topics.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                     if (topics.Length != 0)
                     {
@@ -205,7 +205,7 @@ public class NLPManager : ServiceManager<NLPOptions>
             }
             else
             {
-                request.Content = await _api.FindContentByIdAsync(request.ContentId);
+                request.Content = await this.Api.FindContentByIdAsync(request.ContentId);
                 if (request.Content != null)
                 {
                     await UpdateContentAsync(request);
@@ -261,7 +261,7 @@ public class NLPManager : ServiceManager<NLPOptions>
 
             // Fetch content again because it may have been updated by an external source.
             // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-            var result = await _api.FindContentByIdAsync(request.Content.Id);
+            var result = await this.Api.FindContentByIdAsync(request.Content.Id);
             if (result != null && labels.Any())
             {
                 // Only add new labels.
@@ -273,7 +273,7 @@ public class NLPManager : ServiceManager<NLPOptions>
                 }
                 result.Labels = originalLabels.ToArray();
 
-                await _api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
+                await this.Api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
                 this.Logger.LogInformation("Labels updated.  Content ID: {Id}", request.Content.Id);
 
                 await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
@@ -306,15 +306,15 @@ public class NLPManager : ServiceManager<NLPOptions>
     {
         if (request.WorkOrderId > 0)
         {
-            request.WorkOrder = await _api.FindWorkOrderAsync(request.WorkOrderId);
+            request.WorkOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
             if (request.WorkOrder != null && !_ignoreWorkOrders.Contains(request.WorkOrder.Status))
             {
                 request.WorkOrder.Status = status;
-                request.WorkOrder = await _api.UpdateWorkOrderAsync(request.WorkOrder);
+                request.WorkOrder = await this.Api.UpdateWorkOrderAsync(request.WorkOrder);
                 return true;
             }
         }
-        return !_options.AcceptOnlyWorkOrders;
+        return !this.Options.AcceptOnlyWorkOrders;
     }
 
     /// <summary>
@@ -371,14 +371,14 @@ public class NLPManager : ServiceManager<NLPOptions>
     {
         if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
 
-        if (!String.IsNullOrWhiteSpace(_options.IndexingTopic))
+        if (!String.IsNullOrWhiteSpace(this.Options.IndexingTopic))
         {
-            var result = await this.Producer.SendMessageAsync(_options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Index));
+            var result = await this.Producer.SendMessageAsync(this.Options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Index));
             if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {request.Content.Id}");
 
             if (request.Content.Status == ContentStatus.Published)
             {
-                result = await this.Producer.SendMessageAsync(_options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Publish));
+                result = await this.Producer.SendMessageAsync(this.Options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Publish));
                 if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {request.Content.Id}");
             }
         }

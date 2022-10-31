@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
+using TNO.Entities;
 
 namespace TNO.DAL.Services;
 
@@ -46,10 +47,26 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
     {
         if (entity == null) throw new ArgumentNullException(nameof(entity));
 
-        this.Context.Entry(entity).State = EntityState.Modified;
+        var entry = this.Context.Entry(entity);
+        if (entry.State == EntityState.Detached && entity is AuditColumns audit)
+        {
+            // Fetch the original from the database to ensure the created audit trail is not changed.
+            string[] keys = this.Context.Model?.FindEntityType(typeof(TEntity))?.FindPrimaryKey()?.Properties.Select(x => x.Name).ToArray() ?? Array.Empty<string>();
+            object?[] values = keys.Select(k => typeof(TEntity).GetProperty(k)!.GetValue(entity, null)).Where(v => v != null).ToArray();
+            var original = (AuditColumns?)this.Context.Find(typeof(TEntity), values);
+            if (original != null)
+            {
+                this.Context.Entry(original).CurrentValues.SetValues(entity);
+                this.Context.Update(original);
+                this.Context.UpdateCache<TEntity>();
+                this.Context.CommitTransaction();
+                return (original as TEntity)!;
+            }
+        }
+
+        entry.State = EntityState.Modified;
         this.Context.Update(entity);
         this.Context.UpdateCache<TEntity>();
-
         this.Context.CommitTransaction();
         return entity;
     }

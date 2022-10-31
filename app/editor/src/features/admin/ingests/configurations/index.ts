@@ -10,5 +10,6 @@ export * from './Newspaper';
 export * from './Syndication';
 export * from './Video';
 export * from './VideoClip';
+export * from './VideoRPi';
 export * from './VideoStream';
 export * from './VideoTuner';

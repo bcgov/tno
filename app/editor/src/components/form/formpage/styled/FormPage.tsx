@@ -17,4 +17,9 @@ export const FormPage = styled.div<IFormPageProps>`
     overflow-y: scroll;
     overflow-x: hidden;
   }
+
+  p[role='alert'] {
+    font-size: 0.85em;
+    color: ${(props) => props.theme.css.dangerColor};
+  }
 `;

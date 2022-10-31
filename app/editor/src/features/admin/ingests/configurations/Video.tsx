@@ -3,13 +3,14 @@ import { useFormikContext } from 'formik';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 
-import { VideoClip, VideoStream, VideoTuner } from '.';
-import { ServiceTypes } from './constants';
+import { VideoClip, VideoRPi, VideoStream, VideoTuner } from '.';
+import { serviceTypes } from './constants';
 import * as styled from './styled';
 
 export const Video: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
 
+  let ServiceTypes = serviceTypes(values.ingestType?.name);
   const ConnectionSettings = () => {
     switch (values.configuration.serviceType) {
       case 'stream':
@@ -18,6 +19,8 @@ export const Video: React.FC = (props) => {
         return <VideoClip />;
       case 'tuner':
         return <VideoTuner />;
+      case 'RPi':
+        return <VideoRPi />;
       default:
         return null;
     }

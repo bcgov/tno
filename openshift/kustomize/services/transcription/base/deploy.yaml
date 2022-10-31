@@ -53,10 +53,10 @@ spec:
           resources:
             requests:
               cpu: 20m
-              memory: 250Mi
+              memory: 80Mi
             limits:
-              cpu: 100m
-              memory: 500Mi
+              cpu: 75m
+              memory: 150Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT

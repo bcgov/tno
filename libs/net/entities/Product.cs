@@ -20,6 +20,11 @@ public class Product : BaseType<int>
     /// get - List of content linked to this product.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();
+
+    /// <summary>
+    /// get - List of sources linked to this product.
+    /// </summary>
+    public virtual List<Source> Sources { get; } = new List<Source>();
     #endregion
 
     #region Constructors

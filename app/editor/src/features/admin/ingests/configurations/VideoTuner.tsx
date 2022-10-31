@@ -3,15 +3,30 @@ import { useFormikContext } from 'formik';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 
-import { TimeZones } from './constants';
+import { Languages, TimeZones } from './constants';
 import * as styled from './styled';
 
 export const VideoTuner: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
 
+  const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
+  const language = Languages.find((t) => t.value === values.configuration.language);
+
   return (
     <styled.IngestType>
-      <FormikSelect label="Timezone" name="configuration.timeZone" options={TimeZones} required />
+      <FormikSelect
+        label="Timezone"
+        name="configuration.timeZone"
+        options={TimeZones}
+        value={timeZone}
+        required
+      />
+      <FormikSelect
+        label="Language"
+        name="configuration.language"
+        options={Languages}
+        value={language}
+      />
       <FormikText
         label="Volume"
         name="configuration.volume"

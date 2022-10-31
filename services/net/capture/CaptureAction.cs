@@ -4,12 +4,13 @@ using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.Kafka;
 using TNO.Models.Extensions;
 using TNO.Kafka.Models;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
+using TNO.API.Areas.Kafka.Models;
+using TNO.Core.Exceptions;
 
 namespace TNO.Services.Capture;
 
@@ -23,23 +24,17 @@ public class CaptureAction : CommandAction<CaptureOptions>
     #endregion
 
     #region Properties
-    /// <summary>
-    /// get - The kafka messenger service.
-    /// </summary>
-    protected IKafkaMessenger Producer { get; private set; }
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a CaptureAction, initializes with specified parameters.
     /// </summary>
-    /// <param name="producer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public CaptureAction(IKafkaMessenger producer, IApiService api, IOptions<CaptureOptions> options, ILogger<CaptureAction> logger) : base(api, options, logger)
+    public CaptureAction(IApiService api, IOptions<CaptureOptions> options, ILogger<CaptureAction> logger) : base(api, options, logger)
     {
-        this.Producer = producer;
     }
     #endregion
 
@@ -140,19 +135,28 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<Confluent.Kafka.DeliveryResult<string, SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
+    private async Task<DeliveryResultModel<SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
         var path = file.Replace(this.Options.VolumePath, "");
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
-        var content = new SourceContent(reference.Source, contentType, ingest.ProductId, reference.Uid, $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}", "", "", publishedOn.ToUniversalTime())
+        var content = new SourceContent(
+            this.Options.DataLocation,
+            reference.Source,
+            contentType,
+            ingest.ProductId,
+            reference.Uid,
+            $"{schedule.Name} {schedule.StartAt:c}-{schedule.StopAt:c}",
+            "",
+            "",
+            publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url") ?? "",
             FilePath = path?.MakeRelativePath() ?? "",
             Language = ingest.GetConfigurationValue("language") ?? ""
         };
-        var result = await this.Producer.SendMessageAsync(reference.Topic, content);
+        var result = await this.Api.SendMessageAsync(reference.Topic, content);
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
         return result;
     }
@@ -211,6 +215,8 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <returns></returns>
     protected override string GenerateCommandArguments(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
     {
+        var logLevel = GetLogLevel(manager.Ingest);
+        var threadQueueSize = GetThreadQueueSize(manager.Ingest);
         var input = GetInput(manager.Ingest);
         var format = GetFormat(manager.Ingest);
         var volume = GetVolume(manager.Ingest);
@@ -218,7 +224,70 @@ public class CaptureAction : CommandAction<CaptureOptions>
         var output = GetOutput(manager.Ingest, schedule);
         process.Data.Add("filename", output);
 
-        return $"{input}{volume}{format}{otherArgs} \"{output}\"";
+        return $"{logLevel}{threadQueueSize}{input}{volume}{format}{otherArgs} \"{output}\"";
+    }
+
+    private static string GetArgumentValue(IngestModel ingest, string key, string arg, string defaultValue = "")
+    {
+        var value = ingest.GetConfigurationValue<string>(key, defaultValue);
+        return !String.IsNullOrWhiteSpace(value) ? $" {arg} {value}" : "";
+    }
+
+    private static string GetLogLevel(IngestModel ingest)
+    {
+        var value = ingest.GetConfigurationValue<string>("logLevel", "warning");
+        return $"-loglevel {value}";
+    }
+
+    private static string GetThreadQueueSize(IngestModel ingest)
+    {
+        var value = ingest.GetConfigurationValue<string>("threadQueueSize");
+        return !String.IsNullOrWhiteSpace(value) ? $" -thread_queue_size {value}" : "";
+    }
+
+    /// <summary>
+    /// Get the input arguments.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    /// <exception cref="ConfigurationException"></exception>
+    private static string GetInput(IngestModel ingest)
+    {
+        var url = ingest.GetConfigurationValue("url");
+        if (!String.IsNullOrWhiteSpace(url))
+        {
+            var options = new UriCreationOptions();
+            if (!Uri.TryCreate(url, options, out Uri? uri)) throw new ConfigurationException("Ingest connection 'url' is not a valid format.");
+            return $" -i {uri.ToString().Replace(" ", "+")}";
+        }
+
+        var input = ingest.GetConfigurationValue("input");
+        if (!String.IsNullOrWhiteSpace(input))
+        {
+            return $" -i {input}";
+        }
+
+        var videoInputFormat = GetArgumentValue(ingest, "videoInputFormat", "-f", "v4l2");
+        var videoFramerate = GetArgumentValue(ingest, "inputFramerate", "-r");
+        var video = GetArgumentValue(ingest, "videoInput", "-i");
+
+        var audioInputFormat = GetArgumentValue(ingest, "audioInputFormat", "-f", "alsa");
+        var audioChannels = GetArgumentValue(ingest, "audioChannels", "-ac", "2");
+        var audio = GetArgumentValue(ingest, "audioInput", "-i");
+        if (!String.IsNullOrWhiteSpace(video) && !String.IsNullOrWhiteSpace(audio))
+        {
+            return $"{videoInputFormat}{videoFramerate}{video}{audioInputFormat}{audioChannels}{audio}";
+        }
+        else if (!String.IsNullOrWhiteSpace(video))
+        {
+            return $"{videoInputFormat}{videoFramerate}{video}";
+        }
+        else if (!String.IsNullOrWhiteSpace(audio))
+        {
+            return $"{audioInputFormat}{audioChannels}{audio}";
+        }
+
+        throw new ConfigurationException("An input must be configured");
     }
 
     /// <summary>
@@ -229,20 +298,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
     protected string GetOutputPath(IngestModel ingest)
     {
         return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
-    }
-
-    /// <summary>
-    /// Get the URL from the connection settings.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    private static string GetInput(IngestModel ingest)
-    {
-        var value = ingest.GetConfigurationValue("url");
-        var options = new UriCreationOptions();
-        if (!Uri.TryCreate(value, options, out Uri? uri)) throw new InvalidOperationException("Ingest connection 'url' is not a valid format.");
-        return $"-i {uri.ToString().Replace(" ", "+")}";
     }
 
     /// <summary>
