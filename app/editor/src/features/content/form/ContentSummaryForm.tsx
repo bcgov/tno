@@ -7,6 +7,7 @@ import { getIn, useFormikContext } from 'formik';
 import { useCombinedView } from 'hooks';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
+import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
@@ -66,6 +67,14 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
   }, [values.timeTrackings]);
+
+  // Ensure tag order does not change
+  React.useEffect(() => {
+    const sortedTags = _.orderBy(values.tags, [(tag) => tag.id.toLowerCase()], ['asc']);
+    if (!_.isEqual(sortedTags, values.tags)) {
+      setFieldValue('tags', sortedTags);
+    }
+  }, [setFieldValue, values.tags]);
 
   React.useEffect(() => {
     setFieldValue(
@@ -240,10 +249,10 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                   const value = e.currentTarget.value;
                   if (!!value) {
                     const stringValue = value.match(tagMatch)?.toString();
-                    const values =
+                    const tagValues =
                       stringValue?.substring(1, stringValue.length - 1).split(', ') ?? [];
-                    const tags = extractTags(values);
-                    setFieldValue('tags', tags);
+                    const tags = extractTags(tagValues);
+                    if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
                   }
                 }}
               />
@@ -260,9 +269,11 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 onBlur={(e) => {
                   const value = e.currentTarget.value;
                   if (!!value) {
-                    const values = value.match(tagMatch)?.toString()?.split(', ') ?? [];
-                    const tags = extractTags(values);
-                    setFieldValue('tags', tags);
+                    const stringValue = value.match(tagMatch)?.toString();
+                    const tagValues =
+                      stringValue?.substring(1, stringValue.length - 1).split(', ') ?? [];
+                    const tags = extractTags(tagValues);
+                    if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
                   }
                 }}
               />
@@ -283,8 +294,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             variant={ButtonVariant.danger}
             className="top-spacer"
             onClick={() => {
-              const regex = /\[.*\]/; // TODO: This is far too eager and could remove valuable content.
-              setFieldValue('summary', values.summary.replace(regex, ''));
+              setFieldValue('summary', values.summary.replace(tagMatch, ''));
               setFieldValue('tags', []);
             }}
           >
