@@ -74,6 +74,11 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
     );
   }, [setFieldValue, values.publishedOn]);
 
+  /** set default value to todays date */
+  React.useEffect(() => {
+    if (!values.publishedOn) setFieldValue('publishedOn', moment().format('MMM D, yyyy'));
+  }, [setFieldValue, values.publishedOn]);
+
   React.useEffect(() => {
     setCategoryOptions(getSortableOptions(categories));
   }, [categories]);
