@@ -40,7 +40,7 @@ export const UserForm: React.FC = () => {
     lookups.roles.map((r) => new OptionItem(r.name, r.id)),
   );
 
-  const isLinkedToKeycloak = user.key !== '00000000-0000-0000-0000-000000000000';
+  // const isLinkedToKeycloak = user.key !== '00000000-0000-0000-0000-000000000000';
   const statusOptions = getEnumStringOptions(UserStatusName);
 
   React.useEffect(() => {
@@ -84,12 +84,7 @@ export const UserForm: React.FC = () => {
           <div className="form-container">
             <Row>
               <Col className="form-inputs">
-                <FormikText
-                  name="username"
-                  label="Username"
-                  disabled={isLinkedToKeycloak}
-                  required={!values.id}
-                />
+                <FormikText name="username" label="Username" required={!values.id} />
               </Col>
               <Col
                 className="form-inputs"
@@ -105,13 +100,7 @@ export const UserForm: React.FC = () => {
                 </Show>
               </Col>
             </Row>
-            <FormikText
-              name="email"
-              label="Email"
-              type="email"
-              disabled={isLinkedToKeycloak}
-              required={!values.id}
-            />
+            <FormikText name="email" label="Email" type="email" required={!values.id} />
             <Row>
               <Col className="form-inputs">
                 <FormikText
@@ -123,8 +112,8 @@ export const UserForm: React.FC = () => {
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
               </Col>
               <Col className="form-inputs">
-                <FormikText name="firstName" label="First Name" disabled={isLinkedToKeycloak} />
-                <FormikText name="lastName" label="Last Name" disabled={isLinkedToKeycloak} />
+                <FormikText name="firstName" label="First Name" />
+                <FormikText name="lastName" label="Last Name" />
               </Col>
             </Row>
             {!!user.id && (
