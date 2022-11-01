@@ -10,6 +10,10 @@ import { ConnectionListFilter } from './ConnectionListFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
+/**
+ * Admin list view for connections.
+ * @returns Component.
+ */
 export const ConnectionList: React.FC = () => {
   const navigate = useNavigate();
   const [{ requests }] = useApp();

@@ -2,14 +2,11 @@ export enum ConnectionTypeName {
   /** Files are stored on a local volume. */
   LocalVolume = 'LocalVolume',
 
-  /** Files are stored on a remote volume. */
-  RemoteVolume = 'RemoteVolume',
-
   /** Files are stored on a NAS. */
   NAS = 'NAS',
 
   /** Files are stored on the internet via URL. */
-  Internet = 'Internet',
+  HTTP = 'HTTP',
 
   /** Files are stored on an FTP. */
   FTP = 'FTP',
@@ -19,6 +16,9 @@ export enum ConnectionTypeName {
 
   /** Files are stored on Azure. */
   Azure = 'Azure',
+
+  /** Files are stored on AWS. */
+  AWS = 'AWS',
 
   /** Files are stored on an SSH. */
   SSH = 'SSH',

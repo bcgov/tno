@@ -1,0 +1,119 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-api
+  annotations:
+    tekton.dev/displayName: Buildah API ipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    name: buildah-api
+    part-of: tno
+    version: 1.0.0
+    component: pipeline
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_REF
+      description: >-
+        The git revision reference to build.
+      type: string
+      default: dev
+
+    - name: CONTEXT
+      description: >-
+        The root path to the git repo.
+      type: string
+      default: tno
+
+    - name: IMAGE_TAG
+      description: >-
+        The tag given to the built images.
+        Use this to create versioned images.
+      type: string
+      default: latest
+
+    - name: PROJECT_SHORTNAME
+      description: >-
+        The project namespace shortname.
+        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      type: string
+      default: 9b301c
+
+    - name: DEPLOY_TO
+      description: >-
+        Identify the environment to deploy the solution to [dev,test,prod,tools].
+      type: string
+      default: dev
+
+  workspaces:
+    - name: source
+      description: |
+        Git repo source code.
+    - name: conditions
+      description: |
+        Pipeline configuration file.
+    - name: owasp-settings
+      description: |
+        mounts /zap/wrk to store generated configs and results.
+
+  tasks:
+    - name: wait
+      taskRef:
+        name: pipeline-wait
+        kind: Task
+      params:
+        - name: PIPELINE_NAME
+          value: $(context.pipelineRun.name)
+
+    - name: git
+      taskRef:
+        name: git-conditions
+        kind: Task
+      runAfter:
+        - wait
+      params:
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+
+    - name: build-api
+      taskRef:
+        name: buildah
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+        - name: DOCKERFILE
+          value: $(params.CONTEXT)/api/net/Dockerfile
+        - name: IMAGE
+          value: api
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+
+    - name: deploy-api
+      runAfter:
+        - build-api
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: api
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)

@@ -1,4 +1,4 @@
-import { IconButton, LabelPosition } from 'components/form';
+import { castEnumToOptions, IconButton, LabelPosition } from 'components/form';
 import {
   FormikCheckbox,
   FormikForm,
@@ -8,7 +8,7 @@ import {
 } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { IConnectionModel, useModal, useTooltips } from 'hooks';
+import { ConnectionTypeName, IConnectionModel, useModal, useTooltips } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -17,10 +17,14 @@ import { toast } from 'react-toastify';
 import { useConnections } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
 
-import { connectionTypeOptions, defaultConnection } from './constants';
+import { ConnectionConfiguration } from './configurations';
+import { defaultConnection } from './constants';
 import * as styled from './styled';
 
-/** The page used to view and edit tags in the administrative section. */
+/**
+ * Admin form for connection configuration.
+ * @returns Component.
+ */
 export const ConnectionForm: React.FC = () => {
   const [, api] = useConnections();
   const { state } = useLocation();
@@ -33,13 +37,12 @@ export const ConnectionForm: React.FC = () => {
   const [connection, setConnection] = React.useState<IConnectionModel>(
     (state as any)?.connection ?? defaultConnection,
   );
-  const [settings, setSettings] = React.useState('{}');
+  const connectionTypeOptions = castEnumToOptions(ConnectionTypeName);
 
   React.useEffect(() => {
     if (!!connectionId && connection?.id !== connectionId) {
       api.getConnection(connectionId).then((data) => {
         setConnection(data);
-        setSettings(JSON.stringify(data.configuration));
       });
     }
   }, [api, connection?.id, connectionId]);
@@ -51,7 +54,6 @@ export const ConnectionForm: React.FC = () => {
         ? await api.addConnection(values)
         : await api.updateConnection(values);
       setConnection(result);
-      setSettings(JSON.stringify(result.configuration));
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/connections/${result.id}`);
     } catch {}
@@ -88,19 +90,7 @@ export const ConnectionForm: React.FC = () => {
                 options={connectionTypeOptions}
                 required
               />
-              {/* TODO: Configuration settings form based on the connection type */}
-              <FormikTextArea
-                name="settings"
-                label="Configuration"
-                tooltip="Must be valid JSON"
-                value={settings}
-                onChange={(e) => {
-                  setSettings(e.currentTarget.value);
-                }}
-                onBlur={(e) => {
-                  setFieldValue('configuration', JSON.parse(e.currentTarget.value));
-                }}
-              />
+              <ConnectionConfiguration />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"

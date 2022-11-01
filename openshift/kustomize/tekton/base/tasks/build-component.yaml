@@ -72,6 +72,9 @@ spec:
       script: |
         #!/usr/bin/env bash
 
+        export TMPDIR="/data/tmp/buildah"
+        mkdir -p "${TMPDIR}"
+
         # Place config into environment variables.
         if test -f $(workspaces.conditions.path)/build.env; then
           export $(grep -v '^#' $(workspaces.conditions.path)/build.env | xargs)
