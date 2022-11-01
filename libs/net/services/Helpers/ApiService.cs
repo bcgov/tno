@@ -16,6 +16,7 @@ using TNO.Core.Http;
 using TNO.Kafka.Models;
 using TNO.Services.Config;
 using TNO.API.Areas.Kafka.Models;
+using TNO.Core.Extensions;
 
 namespace TNO.Services;
 
@@ -53,7 +54,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<DataLocationModels.DataLocationModel?> GetDataLocationAsync(string name)
     {
-        var url = new Uri(_options.ApiUrl, $"services/data/locations/{name}");
+        var url = _options.ApiUrl.Append($"services/data/locations/{name}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
@@ -73,7 +74,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IngestModels.ConnectionModel?> GetConnectionAsync(int id)
     {
-        var url = new Uri(_options.ApiUrl, $"services/connections/{id}");
+        var url = _options.ApiUrl.Append($"services/connections/{id}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
@@ -92,7 +93,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IEnumerable<IngestModels.SourceModel>> GetSourcesAsync()
     {
-        var url = new Uri(_options.ApiUrl, $"services/sources");
+        var url = _options.ApiUrl.Append($"services/sources");
         var result = await _client.GetAsync<IngestModels.SourceModel[]>(url);
         return result ?? Array.Empty<IngestModels.SourceModel>();
     }
@@ -104,7 +105,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IngestModels.SourceModel?> GetSourceForCodeAsync(string code)
     {
-        var url = new Uri(_options.ApiUrl, $"services/sources/{code}");
+        var url = _options.ApiUrl.Append($"services/sources/{code}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
@@ -124,7 +125,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IngestModels.IngestModel?> GetIngestAsync(int id)
     {
-        var url = new Uri(_options.ApiUrl, $"services/ingests/{id}");
+        var url = _options.ApiUrl.Append($"services/ingests/{id}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
@@ -141,7 +142,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IEnumerable<IngestModels.IngestModel>> GetIngestsAsync()
     {
-        var url = new Uri(_options.ApiUrl, $"services/ingests");
+        var url = _options.ApiUrl.Append($"services/ingests");
         var result = await _client.GetAsync<IngestModels.IngestModel[]>(url);
         return result ?? Array.Empty<IngestModels.IngestModel>();
     }
@@ -153,7 +154,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForIngestTypeAsync(string ingestType)
     {
-        var url = new Uri(_options.ApiUrl, $"services/ingests/for/ingest/type/{ingestType}");
+        var url = _options.ApiUrl.Append($"services/ingests/for/ingest/type/{ingestType}");
         var result = await _client.GetAsync<IngestModels.IngestModel[]>(url);
         return result ?? Array.Empty<IngestModels.IngestModel>();
     }
@@ -165,7 +166,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForTopicAsync(string topic)
     {
-        var url = new Uri(_options.ApiUrl, $"services/ingests/for/topic/{topic}");
+        var url = _options.ApiUrl.Append($"services/ingests/for/topic/{topic}");
         var result = await _client.GetAsync<IngestModels.IngestModel[]>(url);
         return result ?? Array.Empty<IngestModels.IngestModel>();
     }
@@ -177,7 +178,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest)
     {
-        var url = new Uri(_options.ApiUrl, $"services/ingests/{ingest.Id}");
+        var url = _options.ApiUrl.Append($"services/ingests/{ingest.Id}");
         return await _client.PutAsync<IngestModels.IngestModel>(url, JsonContent.Create(ingest));
     }
     #endregion
@@ -191,7 +192,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentReferenceModel?> FindContentReferenceAsync(string source, string uid)
     {
-        var url = new Uri(_options.ApiUrl, $"services/content/references/{source}?uid={uid}");
+        var url = _options.ApiUrl.Append($"services/content/references/{source}?uid={uid}");
         var response = await _client.GetAsync(url);
 
         return response.StatusCode switch
@@ -209,7 +210,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentReferenceModel?> AddContentReferenceAsync(ContentReferenceModel contentReference)
     {
-        var url = new Uri(_options.ApiUrl, $"services/content/references");
+        var url = _options.ApiUrl.Append($"services/content/references");
         return await _client.PostAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference));
     }
 
@@ -220,7 +221,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference)
     {
-        var url = new Uri(_options.ApiUrl, $"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
+        var url = _options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         return await _client.PutAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference));
     }
     #endregion
@@ -234,7 +235,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> FindContentByUidAsync(string uid, string? source)
     {
-        var url = new Uri(_options.ApiUrl, $"services/contents/find?uid={uid}&source={source}");
+        var url = _options.ApiUrl.Append($"services/contents/find?uid={uid}&source={source}");
         return await _client.GetAsync<ContentModel?>(url);
     }
 
@@ -245,7 +246,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> FindContentByIdAsync(long id)
     {
-        var url = new Uri(_options.ApiUrl, $"services/contents/{id}");
+        var url = _options.ApiUrl.Append($"services/contents/{id}");
         return await _client.GetAsync<ContentModel?>(url);
     }
 
@@ -256,7 +257,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> AddContentAsync(ContentModel content)
     {
-        var url = new Uri(_options.ApiUrl, $"services/contents");
+        var url = _options.ApiUrl.Append($"services/contents");
         return await _client.PostAsync<ContentModel>(url, JsonContent.Create(content));
     }
 
@@ -270,7 +271,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName)
     {
-        var url = new Uri(_options.ApiUrl, $"services/contents/{contentId}/upload?version={version}");
+        var url = _options.ApiUrl.Append($"services/contents/{contentId}/upload?version={version}");
         var fileContent = new StreamContent(file);
         var ext = Path.GetExtension(fileName).Replace(".", "");
         fileContent.Headers.ContentType = new MediaTypeHeaderValue(MimeTypeMap.GetMimeType(ext));
@@ -288,7 +289,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> UpdateContentAsync(ContentModel content)
     {
-        var url = new Uri(_options.ApiUrl, $"editor/contents/{content.Id}");
+        var url = _options.ApiUrl.Append($"editor/contents/{content.Id}");
         return await _client.PutAsync<ContentModel>(url, JsonContent.Create(content));
     }
     #endregion
@@ -300,7 +301,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<LookupModel?> GetLookupsAsync()
     {
-        var url = new Uri(_options.ApiUrl, $"editor/lookups");
+        var url = _options.ApiUrl.Append($"editor/lookups");
         return await _client.GetAsync<LookupModel>(url);
     }
     #endregion
@@ -313,7 +314,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<WorkOrderModel?> FindWorkOrderAsync(long id)
     {
-        var url = new Uri(_options.ApiUrl, $"services/work/orders/{id}");
+        var url = _options.ApiUrl.Append($"services/work/orders/{id}");
         return await _client.GetAsync<WorkOrderModel>(url);
     }
 
@@ -324,7 +325,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder)
     {
-        var url = new Uri(_options.ApiUrl, $"services/work/orders/{workOrder.Id}");
+        var url = _options.ApiUrl.Append($"services/work/orders/{workOrder.Id}");
         return await _client.PutAsync<WorkOrderModel>(url, JsonContent.Create(workOrder));
     }
     #endregion
@@ -338,7 +339,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<DeliveryResultModel<SourceContent>?> SendMessageAsync(string topic, SourceContent content)
     {
-        var url = new Uri(_options.ApiUrl, $"kafka/producers/content/{topic}");
+        var url = _options.ApiUrl.Append($"kafka/producers/content/{topic}");
         return await _client.PostAsync<DeliveryResultModel<SourceContent>>(url, JsonContent.Create(content));
     }
     #endregion

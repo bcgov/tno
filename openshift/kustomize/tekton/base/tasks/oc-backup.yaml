@@ -38,5 +38,6 @@ spec:
       image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
       resources: {}
       script: |
+        set -xe
         echo "Running Database Backup"
         oc rsh -n $(params.PROJECT) dc/$(params.DEPLOYMENT_CONFIG) bash -c './backup.sh $(params.ARGS)'

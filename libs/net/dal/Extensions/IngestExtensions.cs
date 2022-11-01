@@ -14,9 +14,13 @@ public static class IngestExtensions
     /// </summary>
     /// <param name="updated"></param>
     /// <returns></returns>
-    public static Ingest AddToContext(this Ingest updated)
+    public static Ingest AddToContext(this TNOContext context, Ingest updated)
     {
         updated.Schedules.AddRange(updated.SchedulesManyToMany.Select(s => s.Schedule!).Where(s => s != null).ToArray());
+        updated.DataLocationsManyToMany.ForEach(a =>
+        {
+            context.Add(a);
+        });
         return updated;
     }
 

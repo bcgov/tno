@@ -32,6 +32,7 @@ spec:
       image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
       resources: {}
       script: |
+        set -xe
         echo "Pointing route '$(params.ROUTE)' to '$(params.SERVICE)' in $(params.PROJECT)"
 
         oc patch route/$(params.ROUTE) -n $(params.PROJECT) -p '{"spec":{"to":{"name":"$(params.SERVICE)"}}}'

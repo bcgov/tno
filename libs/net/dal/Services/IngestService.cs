@@ -206,7 +206,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     /// <returns></returns>
     public override Ingest Add(Ingest entity)
     {
-        entity.AddToContext();
+        this.Context.AddToContext(entity);
         ValidateScheduleNames(entity);
         base.Add(entity);
         return entity;

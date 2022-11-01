@@ -2,8 +2,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Managers;
 using TNO.Services.Image.Config;
-using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Models.Extensions;
 
 namespace TNO.Services.Image;
 

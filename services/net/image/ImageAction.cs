@@ -79,7 +79,7 @@ public class ImageAction : IngestAction<ImageOptions>
         if (String.IsNullOrWhiteSpace(keyFileName)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'keyFileName'.");
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
-        var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+        var sshKeyFile = this.Options.PrivateKeysPath.CombineWith(keyFileName);
 
         if (File.Exists(sshKeyFile))
         {
@@ -115,7 +115,7 @@ public class ImageAction : IngestAction<ImageOptions>
 
                 if (reference != null)
                 {
-                    await CopyImageAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+                    await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
 
                     var messageResult = sendMessage ? await SendMessageAsync(manager.Ingest, reference) : null;
                     await UpdateContentReferenceAsync(reference, messageResult);
@@ -138,7 +138,7 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetOutputPath(IngestModel ingest)
     {
         // TODO: Handle different destination connections.
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
+        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
     }
 
     /// <summary>
@@ -149,7 +149,7 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetInputPath(IngestModel ingest)
     {
         var currentDate = GetDateTimeForTimeZone(ingest);
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
+        return (ingest.SourceConnection?.GetConfigurationValue("path") ?? "").CombineWith(ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ public class ImageAction : IngestAction<ImageOptions>
         // TODO: Eventually handle different destination data locations based on config.
         var outputPath = GetOutputPath(ingest);
         var fileName = Path.GetFileName(pathToFile);
-        var outputFile = Path.Combine(outputPath, fileName);
+        var outputFile = outputPath.CombineWith(fileName);
 
         if (!System.IO.File.Exists(outputFile))
         {
@@ -245,7 +245,8 @@ public class ImageAction : IngestAction<ImageOptions>
             publishedOn.ToUniversalTime())
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
-            FilePath = Path.Combine(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}", reference.Uid),
+            FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
+                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}", reference.Uid),
             Language = ingest.GetConfigurationValue("language")
         };
         var result = await this.Api.SendMessageAsync(reference.Topic, content);

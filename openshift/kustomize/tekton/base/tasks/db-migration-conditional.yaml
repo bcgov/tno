@@ -53,6 +53,7 @@ spec:
       resources: {}
       script: |
         #!/usr/bin/env bash
+        set -xe
 
         # Place config into environment variables.
         if test -f $(workspaces.conditions.path)/build.env; then
