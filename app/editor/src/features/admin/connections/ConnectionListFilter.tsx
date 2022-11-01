@@ -6,6 +6,11 @@ interface IAdminFilterProps {
   setGlobalFilter: (filterValue: any) => void;
 }
 
+/**
+ * Filter for connections.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
 export const ConnectionListFilter: React.FC<IAdminFilterProps> = ({ setGlobalFilter }) => {
   const [filter, setFilter] = React.useState<string>('');
   return (

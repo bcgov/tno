@@ -64,6 +64,9 @@ spec:
       script: |
         #!/usr/bin/env bash
 
+        export TMPDIR="/data/tmp/buildah"
+        mkdir -p "${TMPDIR}"
+
         if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
           buildah login \
             -u $IMAGE_REGISTRY_USER \

@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: buildah-$(params.CONTEXT)/services
+  name: buildah-services
   annotations:
     tekton.dev/displayName: Buildah Pipeline
     tekton.dev/pipelines.minVersion: 0.17.0
     tekton.dev/tags: build deploy
   labels:
-    name: buildah-$(params.CONTEXT)/services
+    name: buildah-services
     part-of: tno
     version: 1.0.0
     component: pipeline
