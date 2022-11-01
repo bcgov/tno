@@ -21,6 +21,7 @@ import { getEnumStringOptions } from 'utils';
 
 import { defaultUser } from './constants';
 import * as styled from './styled';
+import { isAdmin } from './utils/isAdmin';
 
 /**
  * Provides a User Form to manage, create, update and delete a user.
@@ -40,7 +41,7 @@ export const UserForm: React.FC = () => {
     lookups.roles.map((r) => new OptionItem(r.name, r.id)),
   );
 
-  const isLinkedToKeycloak = user.key !== '00000000-0000-0000-0000-000000000000';
+  const isAdminUser = isAdmin(user);
   const statusOptions = getEnumStringOptions(UserStatusName);
 
   React.useEffect(() => {
@@ -87,7 +88,7 @@ export const UserForm: React.FC = () => {
                 <FormikText
                   name="username"
                   label="Username"
-                  disabled={isLinkedToKeycloak}
+                  disabled={!isAdminUser}
                   required={!values.id}
                 />
               </Col>
@@ -109,7 +110,7 @@ export const UserForm: React.FC = () => {
               name="email"
               label="Email"
               type="email"
-              disabled={isLinkedToKeycloak}
+              disabled={!isAdminUser}
               required={!values.id}
             />
             <Row>
@@ -123,8 +124,8 @@ export const UserForm: React.FC = () => {
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
               </Col>
               <Col className="form-inputs">
-                <FormikText name="firstName" label="First Name" disabled={isLinkedToKeycloak} />
-                <FormikText name="lastName" label="Last Name" disabled={isLinkedToKeycloak} />
+                <FormikText name="firstName" label="First Name" disabled={!isAdminUser} />
+                <FormikText name="lastName" label="Last Name" disabled={!isAdminUser} />
               </Col>
             </Row>
             {!!user.id && (
