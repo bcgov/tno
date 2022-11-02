@@ -100,17 +100,6 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: Kafka__Producer__ClientId
-              valueFrom:
-                configMapKeyRef:
-                  name: filemonitor-service
-                  key: KAKFA_CLIENT_ID
-            - name: Kafka__Producer__BootstrapServers
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KAFKA_BOOTSTRAP_SERVERS
-
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:

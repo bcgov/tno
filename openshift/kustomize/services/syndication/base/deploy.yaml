@@ -101,18 +101,7 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: Kafka__Producer__BootstrapServers
-              valueFrom:
-                configMapKeyRef:
-                  name: services
-                  key: KAFKA_BOOTSTRAP_SERVERS
-
             # Syndication Service Configuration
-            - name: Kafka__Producer__ClientId
-              valueFrom:
-                configMapKeyRef:
-                  name: syndication-service
-                  key: KAFKA_CLIENT_ID
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:

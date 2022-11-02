@@ -16,7 +16,6 @@ metadata:
     managed-by: kustomize
 type: Opaque
 data:
-  KAKFA_CLIENT_ID: Image
   MAX_FAIL_LIMIT: "5"
   VOLUME_PATH: /data
   KEY_PATH: ../keys
