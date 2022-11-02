@@ -53,6 +53,10 @@ b-capture-arm: ## Build Capture Service for Linux ARM.
 	$(info Build Capture Service for Linux ARM)
 	@cd capture; dotnet publish --runtime linux-arm64 --self-contained
 
+b-capture-linux: ## Build Capture Service for Linux x64.
+	$(info Build Capture Service for Linux x64)
+	@cd capture; dotnet publish --runtime linux-x64 --self-contained
+
 ##############################################################################
 # Dotnet Tools
 ##############################################################################

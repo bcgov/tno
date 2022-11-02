@@ -324,6 +324,42 @@
         "${workspaceFolder}/services/net/nlp/TNO.Services.NLP.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-image",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-image",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-image",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

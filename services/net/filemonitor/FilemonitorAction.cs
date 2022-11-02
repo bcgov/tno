@@ -102,7 +102,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         if (String.IsNullOrWhiteSpace(remotePath)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' source connection is missing a 'path'.");
 
         // The ingest configuration may have a different path than the root connection path.
-        remotePath = Path.Combine(remotePath, manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
+        remotePath = remotePath.CombineWith(manager.Ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "");
         AuthenticationMethod? authMethod;
         if (!String.IsNullOrWhiteSpace(password))
         {
@@ -110,7 +110,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
         else if (!String.IsNullOrWhiteSpace(keyFileName))
         {
-            var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+            var sshKeyFile = this.Options.PrivateKeysPath.CombineWith(keyFileName);
             if (File.Exists(sshKeyFile))
             {
                 var keyFile = new PrivateKeyFile(sshKeyFile);
@@ -152,7 +152,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
         foreach (var file in files)
         {
-            await CopyFileAsync(client, manager.Ingest, Path.Combine(remotePath, file.Name));
+            await CopyFileAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
         }
 
         client.Disconnect();
@@ -182,7 +182,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         var outputPath = GetOutputPath(ingest);
         var fileName = Path.GetFileName(pathToFile);
-        var outputFile = Path.Combine(outputPath, fileName);
+        var outputFile = outputPath.CombineWith(fileName);
 
         if (!File.Exists(outputFile))
         {
@@ -208,7 +208,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
+        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     protected string GetInputPath(IngestModel ingest)
     {
-        return Path.Combine(ingest.SourceConnection?.GetConfigurationValue("path") ?? "", ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{GetDateTimeForTimeZone(ingest):yyyy/MM/dd/}");
+        return (ingest.SourceConnection?.GetConfigurationValue("path") ?? "").CombineWith(ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{GetDateTimeForTimeZone(ingest):yyyy/MM/dd/}");
     }
 
     /// <summary>

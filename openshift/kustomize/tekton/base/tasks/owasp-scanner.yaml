@@ -37,6 +37,7 @@ spec:
       workingDir: $(workspaces.owasp-settings.path)
       script: |
         #!/bin/bash
+        set -xe
         if [ $(params.SCAN_TYPE) = "quick" ]
         then
           echo "performing quick scan"

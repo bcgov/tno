@@ -71,6 +71,7 @@ spec:
           cpu: 500m
       script: |
         #!/usr/bin/env bash
+        set -xe
 
         export TMPDIR="/data/tmp/buildah"
         mkdir -p "${TMPDIR}"
@@ -103,7 +104,6 @@ spec:
 
           # Push the image to the registry.
           buildah --storage-driver=$(params.STORAGE_DRIVER) push $(params.IMAGE_REGISTRY)/$(params.IMAGE):$(params.IMAGE_TAG)
-          set -x
         else
           echo 'Do not build $(params.IMAGE)'
         fi

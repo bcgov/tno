@@ -36,6 +36,7 @@ spec:
       resources: {}
       script: |
         #!/usr/bin/env bash
+        set -xe
         [[ "$(workspaces.manifest-dir.bound)" == "true" ]] && \
         cd $(workspaces.manifest-dir.path)
 

@@ -41,6 +41,7 @@ spec:
       image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
       resources: {}
       script: |
+        set -xe
         echo "Tagging image to trigger deployment to $(params.ENV)"
         oc tag $(params.IMAGE):$(params.IMAGE_TAG) $(params.IMAGE):$(params.ENV)
 
