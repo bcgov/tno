@@ -16,6 +16,5 @@ metadata:
     managed-by: kustomize
 type: Opaque
 data:
-  KAFKA_CLIENT_ID: Capture
   MAX_FAIL_LIMIT: "5"
   VOLUME_PATH: /data

@@ -74,7 +74,7 @@ namespace TNO.Core.Http
             catch (Exception ex)
             {
                 var body = Encoding.Default.GetString(data);
-                _logger.LogError(ex, $"Failed to deserialize response: {body}");
+                _logger.LogError(ex, "Failed to deserialize response: {body}", body);
                 throw;
             }
 
@@ -155,7 +155,7 @@ namespace TNO.Core.Http
                 }
             }
 
-            _logger.LogInformation("HTTP request made: {method}:{uri}", message.Method, message.RequestUri);
+            _logger.LogDebug("HTTP request made: {method}:{uri}", message.Method, message.RequestUri);
             return await this.Client.SendAsync(message);
         }
 

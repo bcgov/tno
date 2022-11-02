@@ -35,7 +35,13 @@ namespace TNO.API.Middleware
         /// <returns></returns>
         public async Task Invoke(HttpContext context)
         {
-            _logger.LogInformation($"Received HTTP Request {context.Request.Method} user:{context.User.GetDisplayName()} {context.Request.Scheme}://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}");
+            _logger.LogDebug("Received HTTP Request {method} user:{user} {scheme}://{host}{path}{query}",
+                context.Request.Method,
+                context.User.GetUsername(),
+                context.Request.Scheme,
+                context.Request.Host,
+                context.Request.Path,
+                context.Request.QueryString);
 
             await _next(context);
         }
