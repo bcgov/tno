@@ -73,8 +73,8 @@ spec:
         #!/usr/bin/env bash
         set -xe
 
-        export TMPDIR="/data/tmp/buildah"
-        mkdir -p "${TMPDIR}"
+        # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
+        # mkdir -p "${TMPDIR}"
 
         # Place config into environment variables.
         if test -f $(workspaces.conditions.path)/build.env; then

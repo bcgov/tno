@@ -138,7 +138,7 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetOutputPath(IngestModel ingest)
     {
         // TODO: Handle different destination connections.
-        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
+        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/");
     }
 
     /// <summary>
@@ -149,7 +149,11 @@ public class ImageAction : IngestAction<ImageOptions>
     protected string GetInputPath(IngestModel ingest)
     {
         var currentDate = GetDateTimeForTimeZone(ingest);
-        return (ingest.SourceConnection?.GetConfigurationValue("path") ?? "").CombineWith(ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", currentDate.Year.ToString(), currentDate.Month.ToString("00"), currentDate.Day.ToString("00"));
+        return (ingest.SourceConnection?.GetConfigurationValue("path") ?? "").CombineWith(
+                ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "",
+                currentDate.Year.ToString(),
+                currentDate.Month.ToString("00"),
+                currentDate.Day.ToString("00"));
     }
 
     /// <summary>
@@ -246,7 +250,7 @@ public class ImageAction : IngestAction<ImageOptions>
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")
-                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}", reference.Uid),
+                .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
             Language = ingest.GetConfigurationValue("language")
         };
         var result = await this.Api.SendMessageAsync(reference.Topic, content);
