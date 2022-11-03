@@ -462,6 +462,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "binaryroot",
       "fileName": "sv-GLB",
+      "publishedOnExpression": "^sv-GLB-[A-Za-z]{3}-(?<day>[0-9]{2})(?<month>[0-9]{2})(?<year>[0-9]{4})",
       "post": true,
       "import": true }' -- configuration
   , 1 -- schedule_type
@@ -482,6 +483,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "binaryroot",
       "fileName": "NTNP",
+      "publishedOnExpression": "^NTNP(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
   , 1 -- schedule_type
@@ -502,6 +504,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "binaryroot",
       "fileName": "VAPR",
+      "publishedOnExpression": "^VAPR(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
   , 1 -- schedule_type
@@ -522,6 +525,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "binaryroot",
       "fileName": "VITC",
+      "publishedOnExpression": "^VITC(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
   , 1 -- schedule_type
@@ -542,6 +546,7 @@ INSERT INTO public.ingest (
   , frontPageId -- product_id
   , '{ "path": "binaryroot",
       "fileName": "VASN",
+      "publishedOnExpression": "^VASN(?<year>[0-9]{4})(?<month>[0-9]{2})(?<day>[0-9]{2})(?<hour>[0-9]{2})(?<minute>[0-9]{2})(?<second>[0-9]{2})",
       "post": true,
       "import": true }' -- configuration
   , 1 -- schedule_type
