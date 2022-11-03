@@ -12,6 +12,7 @@ using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using TNO.Core.Exceptions;
 using TNO.API.Areas.Kafka.Models;
+using System.Text.RegularExpressions;
 
 namespace TNO.Services.Image;
 
@@ -213,8 +214,35 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <returns></returns>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, string filename)
     {
+        var publishedOnExpression = ingest.GetConfigurationValue("publishedOnExpression");
+
         var today = GetDateTimeForTimeZone(ingest);
-        var publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
+        DateTime publishedOn;
+        if (!String.IsNullOrWhiteSpace(publishedOnExpression))
+        {
+            try
+            {
+                var match = Regex.Match(filename, publishedOnExpression, RegexOptions.Singleline);
+                var year = String.IsNullOrWhiteSpace(match.Groups["year"].Value) ? today.Year : int.Parse(match.Groups["year"].Value);
+                var month = String.IsNullOrWhiteSpace(match.Groups["month"].Value) ? today.Month : int.Parse(match.Groups["month"].Value);
+                var day = String.IsNullOrWhiteSpace(match.Groups["day"].Value) ? today.Day : int.Parse(match.Groups["day"].Value);
+                var hour = String.IsNullOrWhiteSpace(match.Groups["hour"].Value) ? today.Hour : int.Parse(match.Groups["hour"].Value);
+                var minute = String.IsNullOrWhiteSpace(match.Groups["minute"].Value) ? today.Minute : int.Parse(match.Groups["minute"].Value);
+                var second = String.IsNullOrWhiteSpace(match.Groups["second"].Value) ? today.Second : int.Parse(match.Groups["second"].Value);
+                publishedOn = new DateTime(year, month, day, hour, minute, second, today.Kind);
+
+                // If the published on date is greater than today we will assume it's in the morning.
+                if (today < publishedOn) publishedOn = publishedOn.Add(new TimeSpan(0));
+            }
+            catch (Exception ex)
+            {
+                // Essentially ignore the error and set the published on date to today.
+                this.Logger.LogError(ex, "Regex failed for 'publishedOnExpression': {regex}", publishedOnExpression);
+                publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
+            }
+        }
+        else
+            publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
