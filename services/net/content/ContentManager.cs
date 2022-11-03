@@ -254,7 +254,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                     Uid = model.Uid,
                     Page = "", // TODO: Provide default page from Data Source config settings.
                     Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
-                    Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body,  "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                    Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                     SourceUrl = model.Link,
                     PublishedOn = model.PublishedOn,
                 };
@@ -280,7 +280,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                         ConnectionType.AWS => throw new NotImplementedException(),
                         ConnectionType.SSH => await CopyFileWithSSHAsync(dataLocation, model, content),
                         ConnectionType.LocalVolume => await CopyFileFromLocalVolumeAsync(model, content),
-                        _ => throw new NotImplementedException("The data location is missing connection information")
+                        _ => await CopyFileFromLocalVolumeAsync(model, content),
                     };
 
                     // Send a Kafka message to the transcription topic
@@ -327,7 +327,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <returns></returns>
     private async Task<ContentModel> CopyFileFromLocalVolumeAsync(SourceContent model, ContentModel content)
     {
-        var fullPath = Path.Combine(this.Options.VolumePath, model.FilePath.MakeRelativePath());
+        var fullPath = this.Options.VolumePath.CombineWith(model.FilePath.MakeRelativePath());
         if (File.Exists(fullPath))
         {
             var file = File.OpenRead(fullPath);
@@ -366,7 +366,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         }
         else if (!String.IsNullOrWhiteSpace(keyFileName))
         {
-            var sshKeyFile = Path.Combine(this.Options.PrivateKeysPath, keyFileName);
+            var sshKeyFile = this.Options.PrivateKeysPath.CombineWith(keyFileName);
             if (File.Exists(sshKeyFile))
             {
                 var keyFile = new PrivateKeyFile(sshKeyFile);
@@ -385,7 +385,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         Stream? file = null;
         try
         {
-            var fullPath = Path.Combine(path, model.FilePath.MakeRelativePath()).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var fullPath = path.CombineWith(model.FilePath.MakeRelativePath());
             if (client.Exists(fullPath))
             {
                 var fileName = Path.GetFileName(fullPath);

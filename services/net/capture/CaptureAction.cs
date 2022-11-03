@@ -297,7 +297,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <returns></returns>
     protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
+        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
     }
 
     /// <summary>
@@ -332,7 +332,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
         // This ensures we don't overwrite a prior recording.
         // If multiple services are sharing the same pvc it will result in multiple versions of the same capture.
         var versions = Directory.GetFiles(path, $"{name}*{ext}").Length;
-        return Path.Combine(path, $"{name}{(versions == 0 ? "" : $"-{versions}")}{ext}");
+        return path.CombineWith($"{name}{(versions == 0 ? "" : $"-{versions}")}{ext}");
     }
 
     /// <summary>

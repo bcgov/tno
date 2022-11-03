@@ -309,7 +309,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private async Task<string> GetInputFileAsync(IngestModel ingest, ScheduleModel schedule)
     {
         // TODO: Handle issue where capture failed and has multiple files.
-        var path = Path.Combine(this.Options.VolumePath, ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
+        var path = this.Options.VolumePath.CombineWith(ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
         var clipStart = schedule.StartAt;
 
         // Review each file that was captured to determine which one is valid for this clip schedule.
@@ -422,7 +422,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <returns></returns>
     protected string GetOutputPath(IngestModel ingest)
     {
-        return Path.Combine(this.Options.VolumePath, ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
+        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
     }
 
     /// <summary>
@@ -443,7 +443,7 @@ public class ClipAction : CommandAction<ClipOptions>
         var name = Path.GetFileNameWithoutExtension(filename);
         var ext = Path.GetExtension(filename);
 
-        return Path.Combine(path, $"{name}{ext}");
+        return path.CombineWith($"{name}{ext}");
     }
 
     /// <summary>
