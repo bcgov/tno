@@ -4,7 +4,6 @@ using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
 using TNO.Entities;
-using TNO.Kafka;
 using TNO.Models.Extensions;
 using TNO.Kafka.Models;
 using TNO.Services.Actions;

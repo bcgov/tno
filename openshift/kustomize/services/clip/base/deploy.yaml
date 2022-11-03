@@ -114,16 +114,11 @@ spec:
                 configMapKeyRef:
                   name: clip-service
                   key: MAX_FAIL_LIMIT
-            - name: Service__OutputPath
+            - name: Service__VolumePath
               valueFrom:
                 configMapKeyRef:
-                  name: clip-service
-                  key: OUTPUT_PATH
-            - name: Service__CapturePath
-              valueFrom:
-                configMapKeyRef:
-                  name: clip-service
-                  key: CAPTURE_PATH
+                  name: capture-service
+                  key: VOLUME_PATH
           livenessProbe:
             httpGet:
               path: "/health"
