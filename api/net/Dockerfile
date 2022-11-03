@@ -1,5 +1,5 @@
 ARG BUILD_CONFIGURATION=Release
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/aspnet:6.0 AS base
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
@@ -19,10 +19,6 @@ RUN dotnet publish "TNO.API.csproj" -c "$BUILD_CONFIGURATION" -o /app/publish
 
 # Runtime image
 FROM base AS final
-
-RUN apt-get update && apt-get -y upgrade
-RUN apt -y install curl libc6-dev libgdiplus ffmpeg
-RUN apt-get clean
 
 WORKDIR /app
 COPY --from=publish /app/publish .
