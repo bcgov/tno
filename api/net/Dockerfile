@@ -22,6 +22,7 @@ FROM base AS final
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt -y install curl libc6-dev libgdiplus ffmpeg
+RUN apt-get clean
 
 WORKDIR /app
 COPY --from=publish /app/publish .

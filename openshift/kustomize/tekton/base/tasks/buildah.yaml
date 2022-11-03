@@ -65,8 +65,8 @@ spec:
         #!/usr/bin/env bash
         set -xe
 
-        export TMPDIR="/data/tmp/buildah"
-        mkdir -p "${TMPDIR}"
+        # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
+        # mkdir -p "${TMPDIR}"
 
         if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
           buildah login \

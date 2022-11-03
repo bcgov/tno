@@ -208,7 +208,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     protected string GetOutputPath(IngestModel ingest)
     {
-        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd/}");
+        return this.Options.VolumePath.CombineWith(ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/");
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     protected string GetInputPath(IngestModel ingest)
     {
-        return (ingest.SourceConnection?.GetConfigurationValue("path") ?? "").CombineWith(ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{GetDateTimeForTimeZone(ingest):yyyy/MM/dd/}");
+        return (ingest.SourceConnection?.GetConfigurationValue("path") ?? "").CombineWith(ingest.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{GetDateTimeForTimeZone(ingest):yyyy/MM/dd}/");
     }
 
     /// <summary>
