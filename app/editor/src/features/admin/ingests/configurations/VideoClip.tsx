@@ -28,15 +28,10 @@ export const VideoClip: React.FC = (props) => {
         options={TimeZones}
         value={timeZone}
       />
-      <FormikText
-        label="Format"
-        name="configuration.format"
-        tooltip="Format of the clip"
-        placeholder="mp4"
-      />
+      <FormikText label="Format" name="configuration.format" tooltip="Format of the clip" />
       <p>Use "{'{schedule.Name}'}.mp4" to name the file with the schedule name.</p>
       <FormikText
-        label="File Name"
+        label="Output File Name"
         name="configuration.fileName"
         tooltip="File name and output format"
         placeholder="{schedule.Name}.mp4"

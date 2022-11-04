@@ -146,6 +146,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         using var client = new SftpClient(connectionInfo);
         client.Connect();
 
+        remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
         var files = await FetchFileListingAsync(client, remotePath);
         files = files.Where(f => match.Match(f.Name).Success);
         this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);

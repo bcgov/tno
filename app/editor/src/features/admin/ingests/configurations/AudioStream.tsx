@@ -35,15 +35,10 @@ export const AudioStream: React.FC = (props) => {
         options={Languages}
         value={language}
       />
-      <FormikText
-        label="Format"
-        name="configuration.format"
-        tooltip="Format of the stream"
-        placeholder="mp3"
-      />
+      <FormikText label="Format" name="configuration.format" tooltip="Format of the stream" />
       <p>Use "{'{schedule.Name}'}.mp3" to name the file with the schedule name.</p>
       <FormikText
-        label="File Name"
+        label="Output File Name"
         name="configuration.fileName"
         tooltip="File name and output format"
         placeholder="{schedule.Name}.mp3"

@@ -385,7 +385,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         Stream? file = null;
         try
         {
-            var fullPath = path.CombineWith(model.FilePath.MakeRelativePath());
+            var fullPath = path.CombineWith(model.FilePath.MakeRelativePath()).Replace("~/", $"{client.WorkingDirectory}/");
             if (client.Exists(fullPath))
             {
                 var fileName = Path.GetFileName(fullPath);
@@ -409,24 +409,6 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (file != null)
                 file.Close();
         }
-    }
-
-    /// <summary>
-    /// Download the file from the remote 'sourcePath' and copy it to the local 'destinationPath'.
-    /// Ensures the 'destinationPath' exists.  If it doesn't it will create the folders.
-    /// </summary>
-    /// <param name="client"></param>
-    /// <param name="source"></param>
-    /// <param name="destination"></param>
-    /// <returns></returns>
-    private static async Task<FileStream> DownloadFileAsync(SftpClient client, string sourcePath, string destinationPath)
-    {
-        var path = Path.GetDirectoryName(destinationPath);
-        if (!String.IsNullOrWhiteSpace(path))
-            Directory.CreateDirectory(path);
-        using var saveFile = File.OpenWrite(destinationPath);
-        await Task.Factory.FromAsync(client.BeginDownloadFile(sourcePath, saveFile), client.EndDownloadFile);
-        return saveFile;
     }
 
     /// <summary>
