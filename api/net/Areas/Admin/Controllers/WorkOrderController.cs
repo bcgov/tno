@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
 using TNO.API.Keycloak;
@@ -31,6 +32,7 @@ public class WorkOrderController : ControllerBase
     #region Variables
     private readonly IWorkOrderService _workOrderService;
     private readonly IKeycloakHelper _keycloakHelper;
+    private readonly IHubContext<WorkOrderHub> _hub;
     #endregion
 
     #region Constructors
@@ -39,10 +41,12 @@ public class WorkOrderController : ControllerBase
     /// </summary>
     /// <param name="workOrderService"></param>
     /// <param name="keycloakHelper"></param>
-    public WorkOrderController(IWorkOrderService workOrderService, IKeycloakHelper keycloakHelper)
+    /// <param name="hub"></param>
+    public WorkOrderController(IWorkOrderService workOrderService, IKeycloakHelper keycloakHelper, IHubContext<WorkOrderHub> hub)
     {
         _workOrderService = workOrderService;
         _keycloakHelper = keycloakHelper;
+        _hub = hub;
     }
     #endregion
 
@@ -110,11 +114,12 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public IActionResult Update(WorkOrderModel model)
+    public async Task<IActionResult> Update(WorkOrderModel model)
     {
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");
         var result = _workOrderService.Update(model.CopyTo(entity));
+        await _hub.Clients.All.SendAsync("Update", model.ContentId);
         return new JsonResult(new WorkOrderModel(result));
     }
 

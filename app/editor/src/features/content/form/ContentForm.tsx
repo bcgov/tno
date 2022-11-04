@@ -1,6 +1,7 @@
 import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { Area, IconButton } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
@@ -33,8 +34,10 @@ import {
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
+  FaExclamationCircle,
   FaGripLines,
   FaSpinner,
+  FaTimesCircle,
 } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -119,6 +122,15 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     (i) =>
       i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Completed,
   );
+  const isTranscribeFailed = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Failed,
+  );
+  const isTranscribeCancelled = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Cancelled,
+  );
+
   const isNLPing = content.workOrders.some(
     (i) =>
       i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
@@ -128,6 +140,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     (i) =>
       i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
       i.status === WorkOrderStatusName.Completed,
+  );
+  const isNLPFailed = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
+      i.status === WorkOrderStatusName.Failed,
+  );
+  const isNLPCancelled = content.workOrders.some(
+    (i) =>
+      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
+      i.status === WorkOrderStatusName.Cancelled,
   );
 
   const determineActions = () => {
@@ -156,10 +178,40 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     [getContent],
   );
 
+  const cleanUpSignalRConnection = (connection: HubConnection) => {
+    connection?.off('Update');
+    connection?.stop();
+  };
+
   React.useEffect(() => {
+    const setUpSignalRConnection = async (id: number) => {
+      const connection = new HubConnectionBuilder()
+        .withUrl(process.env.REACT_APP_API_URL + '/api/work-order-hub', { withCredentials: false })
+        .withAutomaticReconnect()
+        .build();
+
+      connection.on('Update', (contentId) => {
+        if (contentId === id) fetchContent(id);
+      });
+
+      connection.start().catch((err) => console.error(err));
+
+      return connection;
+    };
+
+    let connection: HubConnection;
     if (!!id && +id > 0) {
       fetchContent(+id);
+      setUpSignalRConnection(+id).then((result) => {
+        connection = result;
+      });
     }
+
+    return function cleanUp() {
+      if (!!id && +id > 0) {
+        cleanUpSignalRConnection(connection);
+      }
+    };
   }, [id, fetchContent]);
 
   const { setShowValidationToast } = useTabValidationToasts();
@@ -532,6 +584,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               <Show visible={isTranscribed && !isTranscribing}>
                                 <FaCheckCircle className="spinner" />
                               </Show>
+                              <Show visible={isTranscribeFailed}>
+                                <FaExclamationCircle className="spinner" />
+                              </Show>
+                              <Show visible={isTranscribeCancelled}>
+                                <FaTimesCircle className="spinner" />
+                              </Show>
                             </Tab>
                             <Tab
                               label="Clips"
@@ -552,6 +610,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               </Show>
                               <Show visible={isNLPed && !isNLPing}>
                                 <FaCheckCircle className="spinner" />
+                              </Show>
+                              <Show visible={isNLPFailed}>
+                                <FaExclamationCircle className="spinner" />
+                              </Show>
+                              <Show visible={isNLPCancelled}>
+                                <FaTimesCircle className="spinner" />
                               </Show>
                             </Tab>
                           </Show>

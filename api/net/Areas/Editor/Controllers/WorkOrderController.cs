@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.WorkOrder;
@@ -39,6 +40,7 @@ public class WorkOrderController : ControllerBase
     private readonly IUserService _userService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly IHubContext<WorkOrderHub> _hub;
 
     // The following work order status ensure only a single request can be completed for content.
     private readonly IEnumerable<WorkOrderStatus> _workLimiterStatus = new[] { WorkOrderStatus.Submitted, WorkOrderStatus.InProgress };
@@ -52,18 +54,21 @@ public class WorkOrderController : ControllerBase
     /// <param name="contentService"></param>
     /// <param name="userService"></param>
     /// <param name="kafkaMessenger"></param>
+    /// <param name="hub"></param>
     /// <param name="kafkaOptions"></param>
     public WorkOrderController(
-            IWorkOrderService workOrderService,
+        IWorkOrderService workOrderService,
         IContentService contentService,
         IUserService userService,
         IKafkaMessenger kafkaMessenger,
+        IHubContext<WorkOrderHub> hub,
         IOptions<KafkaOptions> kafkaOptions)
     {
         _workOrderService = workOrderService;
         _contentService = contentService;
         _userService = userService;
         _kafkaMessenger = kafkaMessenger;
+        _hub = hub;
         _kafkaOptions = kafkaOptions.Value;
     }
     #endregion
@@ -122,6 +127,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
             _workOrderService.Update(workOrder);
+            await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
             throw new BadRequestException("Transcription request failed");
         }
         return new JsonResult(new WorkOrderModel(workOrder));
@@ -163,6 +169,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
             _workOrderService.Update(workOrder);
+            await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
             throw new BadRequestException("Natural Language Processing request failed");
         }
         return new JsonResult(new WorkOrderModel(workOrder));

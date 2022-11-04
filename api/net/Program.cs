@@ -27,6 +27,8 @@ using TNO.Keycloak;
 using TNO.Kafka;
 using TNO.API.Config;
 using Microsoft.AspNetCore.Authorization;
+using TNO.API;
+using Microsoft.AspNetCore.SignalR;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -212,6 +214,15 @@ builder.Services.AddVersionedApiExplorer(options =>
 });
 builder.Services.AddMemoryCache();
 
+builder.Services.AddCors(options =>
+    options.AddPolicy(name: "CorsPolicy",
+        cfg => {
+            cfg.AllowAnyHeader();
+            cfg.AllowAnyMethod();
+            cfg.WithOrigins(builder.Configuration["AllowedCORS"]);
+        }));
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -241,7 +252,7 @@ app.UseMiddleware(typeof(ResponseTimeMiddleware));
 
 // app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCors();
+app.UseCors("CorsPolicy");
 
 app.UseMiddleware(typeof(LogRequestMiddleware));
 
@@ -257,5 +268,7 @@ app.UseEndpoints(endpoints =>
 });
 
 app.MapControllers();
+
+app.MapHub<WorkOrderHub>("/api/work-order-hub");
 
 app.Run();
