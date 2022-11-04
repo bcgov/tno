@@ -113,7 +113,7 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                     value={values.sourceConnection?.configuration.password}
                     type="password"
                     disabled
-                    autoComplete="off"
+                    autoComplete="new-password"
                   />
                 </Col>
               </Row>

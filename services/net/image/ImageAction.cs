@@ -84,13 +84,13 @@ public class ImageAction : IngestAction<ImageOptions>
         if (File.Exists(sshKeyFile))
         {
             var keyFile = new PrivateKeyFile(sshKeyFile);
-
             var keyFiles = new[] { keyFile };
             var connectionInfo = new ConnectionInfo(hostname,
                                                 username,
                                                 new PrivateKeyAuthenticationMethod(username, keyFiles));
             using var client = new SftpClient(connectionInfo);
             client.Connect();
+            remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
             var files = await FetchImagesAsync(client, remotePath);
             files = files.Where(f => f.Name.Contains(inputFileName));
             this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);

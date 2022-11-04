@@ -375,20 +375,37 @@ public class ClipAction : CommandAction<ClipOptions>
 
     /// <summary>
     /// Get the duration of the file in seconds.
+    /// Handles different types of A/V files (i.e. mkv, mp4, mp3).
     /// </summary>
     /// <param name="inputFile"></param>
     /// <returns></returns>
-    private async Task<long> GetDurationAsync(string inputFile)
+    private static async Task<long> GetDurationAsync(string inputFile)
+    {
+        var ext = Path.GetExtension(inputFile);
+
+        switch (ext)
+        {
+            case ".mkv":
+                var tempFile = await RepackageFileAsync(inputFile);
+                var duration = await ParseDurationAsync(tempFile);
+                File.Delete(tempFile);
+                return duration;
+            default:
+                return await ParseDurationAsync(inputFile);
+        }
+    }
+
+    /// <summary>
+    /// Parse the duration of the A/V file from its meta-data.
+    /// </summary>
+    /// <param name="inputFile"></param>
+    /// <returns></returns>
+    private static async Task<long> ParseDurationAsync(string inputFile)
     {
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
-        // Initial
         process.StartInfo.Arguments = $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"";
-        // Format (container) duration
-        // process.StartInfo.Arguments = $"-c \"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
-        // Video stream duration
-        // process.StartInfo.Arguments = $"-c \"ffprobe -v error -select_streams v:0 -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 \"{inputFile}\"";
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardOutput = true;
@@ -398,9 +415,34 @@ public class ClipAction : CommandAction<ClipOptions>
         var output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
 
-        var value = String.IsNullOrWhiteSpace(output) ? 0 : float.Parse(output);
+        if (String.IsNullOrWhiteSpace(output)) return 0;
+        return float.TryParse(output, out float value) ? (long)Math.Floor(value) : 0;
+    }
 
-        return (long)Math.Floor(value);
+    /// <summary>
+    /// Repackage the file into a different type.
+    /// </summary>
+    /// <param name="inputFile"></param>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    private static async Task<string> RepackageFileAsync(string inputFile, string format = "mp4")
+    {
+        var ext = Path.GetExtension(inputFile);
+        var outputFile = inputFile.Replace(ext, $".{format}");
+        var process = new System.Diagnostics.Process();
+        process.StartInfo.Verb = $"Repackage";
+        process.StartInfo.FileName = "/bin/sh";
+        process.StartInfo.Arguments = $"-c \"ffmpeg -i '{inputFile}' -vcodec copy -acodec copy '{outputFile}'";
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.EnableRaisingEvents = true;
+        process.Start();
+
+        await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        return outputFile;
     }
 
     /// <summary>
