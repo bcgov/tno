@@ -335,12 +335,9 @@ public static class StringExtensions
     /// <param name="directorySeparatorChar"></param>
     /// <param name="paths"></param>
     /// <returns></returns>
-    public static string CombineWith(this string path, char directorySeparatorChar, params string[] paths)
+    public static string CombineWith(this string path, params string[] paths)
     {
-        var values = new string[paths.Length + 1];
-        values[0] = path;
-        paths.CopyTo(values, 1);
-        return Path.Combine(values).Replace(Path.DirectorySeparatorChar, directorySeparatorChar);
+        return path.CombineWith(Path.AltDirectorySeparatorChar, paths);
     }
 
     /// <summary>
@@ -351,9 +348,8 @@ public static class StringExtensions
     /// <param name="directorySeparatorChar"></param>
     /// <param name="paths"></param>
     /// <returns></returns>
-    public static string CombineWith(this string path, params string[] paths)
+    public static string CombineWith(this string path, char directorySeparatorChar, params string[] paths)
     {
-        var directorySeparatorChar = Path.AltDirectorySeparatorChar;
         var values = new string[paths.Length + 1];
         values[0] = path;
         paths.CopyTo(values, 1);

@@ -26,6 +26,7 @@ export const NASConfiguration = () => {
             label="Username"
             name="configuration.username"
             value={values.configuration?.username}
+            autoComplete="off"
           />
         </Col>
         <Col flex="1 1 0">
@@ -34,7 +35,7 @@ export const NASConfiguration = () => {
             name="configuration.password"
             value={values.configuration?.password}
             type="password"
-            autoComplete="off"
+            autoComplete="new-password"
           />
         </Col>
       </Row>

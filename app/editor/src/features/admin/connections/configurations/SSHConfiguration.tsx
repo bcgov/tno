@@ -35,6 +35,7 @@ export const SSHConfiguration = () => {
             label="Username"
             name="configuration.username"
             value={values.configuration?.username}
+            autoComplete="off"
           />
         </Col>
         <Col flex="1 1 0">
@@ -43,7 +44,7 @@ export const SSHConfiguration = () => {
             name="configuration.password"
             value={values.configuration?.password}
             type="password"
-            autoComplete="off"
+            autoComplete="new-password"
           />
         </Col>
         <Col flex="1 1 0">
