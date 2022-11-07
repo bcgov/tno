@@ -1,4 +1,5 @@
 import { Upload, useUpload } from 'components/upload';
+import { useTooltips } from 'hooks';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import {
@@ -12,6 +13,7 @@ import {
 import { toast } from 'react-toastify';
 import { useStorage } from 'store/hooks';
 import { Button, Col, Row, Show, Text } from 'tno-core';
+import { isImage } from 'utils';
 
 import { defaultFolder } from './constants';
 import * as styled from './styled';
@@ -27,6 +29,8 @@ export const StorageListView: React.FC = (props) => {
   const [file, setFile] = React.useState<File>();
 
   const { upload } = useUpload();
+
+  useTooltips();
 
   React.useEffect(() => {
     storage.getFolder(path).then((data) => {
@@ -78,13 +82,13 @@ export const StorageListView: React.FC = (props) => {
       <li key={i.name}>
         <Row nowrap>
           <Row flex="2 1 0">
-            {!i.name.endsWith('.jpg') ? <FaPhotoVideo /> : <FaRegImage />}
+            {!isImage(i.name) ? <FaPhotoVideo /> : <FaRegImage />}
             <span className="file" onClick={() => setItem(i)}>
               {i.name}
             </span>
           </Row>
           <Row flex="1 1 0">
-            {!i.name.endsWith('.jpg') && (
+            {!isImage(i.name) && (
               <FaPlay
                 className="stream"
                 data-for="main-tooltip"
@@ -94,10 +98,16 @@ export const StorageListView: React.FC = (props) => {
             )}
             <FaCloudDownloadAlt
               className="download"
-              title="download"
+              data-for="main-tooltip"
+              data-tip="download"
               onClick={() => storage.download(`${folder.path}/${i.name}`)}
             />
-            <FaTrash className="delete" title="delete" onClick={() => deleteItem(i)} />
+            <FaTrash
+              className="delete"
+              data-for="main-tooltip"
+              data-tip="delete"
+              onClick={() => deleteItem(i)}
+            />
           </Row>
         </Row>
       </li>

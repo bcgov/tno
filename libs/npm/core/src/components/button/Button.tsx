@@ -1,7 +1,7 @@
 import React, { ButtonHTMLAttributes } from 'react';
 import ReactTooltip from 'react-tooltip';
-import { hideTooltipOnClick } from 'utils';
 
+import { hideTooltipOnClick } from '../../utils';
 import { BouncingSpinner } from '../spinners';
 import { ButtonVariant } from '.';
 import * as styled from './styled';
