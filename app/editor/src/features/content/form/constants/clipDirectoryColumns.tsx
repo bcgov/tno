@@ -69,7 +69,8 @@ export const clipDirectoryColumns = (
       <Row className={`file-actions ${row.original.isDirectory && 'directory'}`} wrap="nowrap">
         <Col>
           <FaPlay
-            title="watch/listen/edit"
+            data-for="main-tooltip"
+            data-tip="watch/listen/edit"
             onClick={() => onSelect(row.original)}
             className={`${row.original.isDirectory && 'hidden'}`}
           />
@@ -77,7 +78,8 @@ export const clipDirectoryColumns = (
         <Col>
           <FaCloudDownloadAlt
             className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
-            title="download"
+            data-for="main-tooltip"
+            data-tip="download"
             onClick={() => {
               onDownload(row.original);
             }}
@@ -86,7 +88,8 @@ export const clipDirectoryColumns = (
         <Col>
           <FaPaperclip
             className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
-            title="Attach to snippet"
+            data-for="main-tooltip"
+            data-tip="Attach to snippet"
             onClick={() => {
               onAttach(row.original);
             }}
@@ -95,7 +98,8 @@ export const clipDirectoryColumns = (
         <Col>
           <FaTrash
             className="delete fa-lg"
-            title="Delete"
+            data-for="main-tooltip"
+            data-tip="Delete"
             onClick={() => {
               onDelete(row.original);
             }}

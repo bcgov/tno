@@ -12,7 +12,11 @@ export const columns = () => {
       Header: 'Headline',
       accessor: 'headline',
       width: 5,
-      Cell: ({ value }) => <Ellipsis title={value}>{value}</Ellipsis>,
+      Cell: ({ value }) => (
+        <Ellipsis data-for="main-tooltip" data-tip={value}>
+          {value}
+        </Ellipsis>
+      ),
     },
     {
       id: 'otherSource',
