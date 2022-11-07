@@ -1,4 +1,5 @@
 import { Upload, useUpload } from 'components/upload';
+import { useTooltips } from 'hooks';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import { FaCloudDownloadAlt, FaPhotoVideo, FaPlay, FaRegFolder, FaTrash } from 'react-icons/fa';
@@ -20,6 +21,8 @@ export const StorageListView: React.FC = (props) => {
   const [file, setFile] = React.useState<File>();
 
   const { upload } = useUpload();
+
+  useTooltips();
 
   React.useEffect(() => {
     storage.getFolder(path).then((data) => {
@@ -77,13 +80,24 @@ export const StorageListView: React.FC = (props) => {
             </span>
           </Row>
           <Row flex="1 1 0">
-            <FaPlay className="stream" title="watch/listen" onClick={() => selectItem(i)} />
+            <FaPlay
+              className="stream"
+              data-for="main-tooltip"
+              data-tip="watch/listen"
+              onClick={() => selectItem(i)}
+            />
             <FaCloudDownloadAlt
               className="download"
-              title="download"
+              data-for="main-tooltip"
+              data-tip="download"
               onClick={() => storage.download(`${folder.path}/${i.name}`)}
             />
-            <FaTrash className="delete" title="delete" onClick={() => deleteItem(i)} />
+            <FaTrash
+              className="delete"
+              data-for="main-tooltip"
+              data-tip="delete"
+              onClick={() => deleteItem(i)}
+            />
           </Row>
         </Row>
       </li>
