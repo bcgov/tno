@@ -1,7 +1,14 @@
 import { Upload, useUpload } from 'components/upload';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import React from 'react';
-import { FaCloudDownloadAlt, FaPhotoVideo, FaPlay, FaRegFolder, FaTrash } from 'react-icons/fa';
+import {
+  FaCloudDownloadAlt,
+  FaPhotoVideo,
+  FaPlay,
+  FaRegFolder,
+  FaRegImage,
+  FaTrash,
+} from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useStorage } from 'store/hooks';
 import { Button, Col, Row, Show, Text } from 'tno-core';
@@ -71,13 +78,20 @@ export const StorageListView: React.FC = (props) => {
       <li key={i.name}>
         <Row nowrap>
           <Row flex="2 1 0">
-            <FaPhotoVideo />
+            {!i.name.endsWith('.jpg') ? <FaPhotoVideo /> : <FaRegImage />}
             <span className="file" onClick={() => setItem(i)}>
               {i.name}
             </span>
           </Row>
           <Row flex="1 1 0">
-            <FaPlay className="stream" title="watch/listen" onClick={() => selectItem(i)} />
+            {!i.name.endsWith('.jpg') && (
+              <FaPlay
+                className="stream"
+                data-for="main-tooltip"
+                data-tip="watch/listen"
+                onClick={() => selectItem(i)}
+              />
+            )}
             <FaCloudDownloadAlt
               className="download"
               title="download"
