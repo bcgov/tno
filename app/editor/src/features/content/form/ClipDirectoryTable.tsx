@@ -1,4 +1,5 @@
 import { useFormikContext } from 'formik';
+import { useTooltips } from 'hooks';
 import { IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import { GridTable } from 'tno-core';
@@ -38,6 +39,8 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
   const { values } = useFormikContext<IItemModel>();
 
   const [activeId, setActiveId] = React.useState<string>();
+
+  useTooltips();
 
   return (
     <styled.ClipDirectoryTable>
