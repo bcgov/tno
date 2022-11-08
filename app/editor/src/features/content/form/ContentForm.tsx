@@ -1,7 +1,7 @@
 import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Area, IconButton } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
@@ -178,38 +178,28 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     [getContent],
   );
 
-  const cleanUpSignalRConnection = (connection: HubConnection) => {
-    connection?.off('Update');
-    connection?.stop();
-  };
-
   React.useEffect(() => {
-    const setUpSignalRConnection = async (id: number) => {
-      const connection = new HubConnectionBuilder()
-        .withUrl(process.env.REACT_APP_API_URL + '/api/work-order-hub', { withCredentials: false })
-        .withAutomaticReconnect()
-        .build();
+    const connection = new HubConnectionBuilder()
+      .withUrl(process.env.REACT_APP_API_URL + '/workOrderHub', { withCredentials: false })
+      .withAutomaticReconnect()
+      .build();
 
-      connection.on('Update', (contentId) => {
-        if (contentId === id) fetchContent(id);
-      });
-
-      connection.start().catch((err) => console.error(err));
-
-      return connection;
-    };
-
-    let connection: HubConnection;
     if (!!id && +id > 0) {
       fetchContent(+id);
-      setUpSignalRConnection(+id).then((result) => {
-        connection = result;
-      });
+      connection
+        .start()
+        .then(() => {
+          connection.on('Update', (contentId) => {
+            if (contentId === +id) fetchContent(+id);
+          });
+        })
+        .catch((error) => console.error(error));
     }
 
     return function cleanUp() {
       if (!!id && +id > 0) {
-        cleanUpSignalRConnection(connection);
+        connection.off('Update');
+        connection.stop();
       }
     };
   }, [id, fetchContent]);

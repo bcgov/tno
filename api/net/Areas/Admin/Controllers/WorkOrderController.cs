@@ -114,7 +114,7 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public async Task<IActionResult> Update(WorkOrderModel model)
+    public async Task<IActionResult> UpdateAsync(WorkOrderModel model)
     {
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");

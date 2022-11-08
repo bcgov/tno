@@ -269,6 +269,6 @@ app.UseEndpoints(endpoints =>
 
 app.MapControllers();
 
-app.MapHub<WorkOrderHub>("/api/work-order-hub");
+app.MapHub<WorkOrderHub>(config.GetValue<string>("HubPath"));
 
 app.Run();
