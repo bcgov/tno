@@ -30,6 +30,7 @@ import { useModal } from 'hooks/modal';
 import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
 import {
+  FaArrowRight,
   FaBars,
   FaCheckCircle,
   FaChevronLeft,
@@ -105,6 +106,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
   const [clipErrors, setClipErrors] = React.useState<string>('');
+  const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
+  const [cursorStyle, setCursorStyle] = React.useState('text');
   const [content, setContent] = React.useState<IContentForm>({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
@@ -507,10 +510,36 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show visible={isSnippetForm(contentType)}>
                         <FormikText
+                          style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
                           name="sourceUrl"
                           label="Source URL"
                           tooltip="The URL to the original source story"
-                        />
+                          onKeyDown={(e) => {
+                            if (e.ctrlKey && props.values.sourceUrl) {
+                              setTextDecorationStyle('underline');
+                              setCursorStyle('pointer');
+                            }
+                          }}
+                          onKeyUp={() => {
+                            if (textDecorationStyle !== 'none') setTextDecorationStyle('none');
+                            if (cursorStyle !== 'text') setCursorStyle('text');
+                          }}
+                          onClick={(e) => {
+                            if (e.ctrlKey && props.values.sourceUrl) {
+                              window.open(props.values.sourceUrl, '_blank', 'noreferrer');
+                            }
+                          }}
+                        >
+                          <Button
+                            disabled={!props.values.sourceUrl}
+                            variant={ButtonVariant.secondary}
+                            onClick={() =>
+                              window.open(props.values.sourceUrl, '_blank', 'noreferrer')
+                            }
+                          >
+                            <FaArrowRight />
+                          </Button>
+                        </FormikText>
                       </Show>
                     </Col>
                     <Col className="checkbox-column" flex="0.5 1 0%">
