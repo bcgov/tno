@@ -11,17 +11,36 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
   onClickRemoveFormat,
 }) => (
   <div id="toolbar" className="toolbar">
-    <select className="ql-header" />
-    <button className="ql-bold"></button>
-    <button className="ql-italic"></button>
-    <select className="ql-color" />
-    <button className="ql-link"></button>
-    <button className="ql-underline"></button>
-    <button type="button" onClick={onClickRaw}>
-      <FaCode className="custom-icon" />
-    </button>
-    <button type="button" onClick={onClickRemoveFormat}>
-      <FaRemoveFormat className="custom-icon" />
-    </button>
+    <span className="ql-formats">
+      <select className="ql-header" />
+      <button className="ql-bold" />
+      <button className="ql-italic" />
+      <button className="ql-underline" />
+      <button className="ql-strike" />
+    </span>
+    <span className="ql-formats">
+      <select className="ql-align" />
+      <select className="ql-color" />
+      <select className="ql-background" />
+    </span>
+    <span className="ql-formats">
+      <button className="ql-blockquote" />
+      <button className="ql-direction" />
+    </span>
+    <span className="ql-formats">
+      <button className="ql-list" value="ordered" />
+      <button className="ql-list" value="bullet" />
+      <button className="ql-indent" value="-1" />
+      <button className="ql-indent" value="+1" />
+    </span>
+    <span className="ql-formats">
+      <button type="button" onClick={onClickRaw}>
+        <FaCode className="custom-icon" />
+      </button>
+      <button type="button" onClick={onClickRemoveFormat}>
+        <FaRemoveFormat className="custom-icon" />
+      </button>
+      <button className="ql-link"></button>
+    </span>
   </div>
 );
