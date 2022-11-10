@@ -91,7 +91,7 @@ INSERT INTO public.connection (
   , 'Meltwater and Blacks News Group upload files to this location.' -- description
   , true -- is_enabled
   , 7 -- connection_type - SSH
-  , '{"path":"/dsk98","username":"ckayfish","hostname":"scharnhorst.tno.gov.bc.ca","keyFileName":"id_rsa"}' -- configuration
+  , '{"path":"/dsk98","username":"","hostname":"scharnhorst.tno.gov.bc.ca","keyFileName":"id_rsa"}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID
@@ -103,7 +103,7 @@ INSERT INTO public.connection (
   , 'Globe and Mail upload files to this location.' -- description
   , true -- is_enabled
   , 7 -- connection_type - SSH
-  , '{"path":"/","username":"nc0002","hostname":"gamdelivery.globeandmail.ca","password": ""}' -- configuration
+  , '{"path":"/","username":"","hostname":"gamdelivery.globeandmail.ca","password": ""}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID
