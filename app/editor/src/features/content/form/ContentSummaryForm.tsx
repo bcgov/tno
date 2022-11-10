@@ -1,4 +1,6 @@
-import { IOptionItem, OptionItem, RadioGroup, TimeInput } from 'components/form';
+import 'react-quill/dist/quill.snow.css';
+
+import { IOptionItem, OptionItem, RadioGroup, TimeInput, Wysiwyg } from 'components/form';
 import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
@@ -246,7 +248,8 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         <Row className="textarea">
           <Col flex="1 1 0">
             <Show visible={contentType === ContentTypeName.Snippet}>
-              <FormikTextArea
+              <Wysiwyg />
+              {/* <FormikTextArea
                 name="summary"
                 label="Summary"
                 required
@@ -260,7 +263,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                     if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
                   }
                 }}
-              />
+              /> */}
             </Show>
             <Show
               visible={
