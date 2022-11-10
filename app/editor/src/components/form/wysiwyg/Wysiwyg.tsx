@@ -14,7 +14,7 @@ export interface IWysiwygProps {}
  * A WYSIWYG editor for the content summary form
  * @returns A WYSIWYG editor for the content summary form
  */
-export const Wysiwyg: React.FC<IWysiwygProps> = ({}) => {
+export const Wysiwyg: React.FC<IWysiwygProps> = () => {
   const { values, setFieldValue } = useFormikContext<IContentModel>();
   const [{ tags }] = useLookup();
 
