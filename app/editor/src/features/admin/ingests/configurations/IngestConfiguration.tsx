@@ -52,6 +52,9 @@ export const IngestConfiguration: React.FC = (props) => {
       <Show visible={values.ingestType?.name === 'Social Media'}>
         <p>Under Construction</p>
       </Show>
+      <Show visible={values.ingestType?.name === 'Corporate Calendar'}>
+        <p>Under Construction</p>
+      </Show>
     </styled.Connection>
   );
 };

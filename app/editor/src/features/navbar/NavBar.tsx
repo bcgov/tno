@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Claim, NavBarGroup, NavBarItem, Show } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex/row';
 
@@ -6,12 +6,12 @@ import { Row } from 'tno-core/dist/components/flex/row';
  * The navigation bar that is used throughout the TNO editor application. Add or remove navigation bar items here.
  */
 export const NavBar: React.FC = () => {
-  const [activeHover, setActiveHover] = useState<string>('');
+  const [activeHover, setActiveHover] = React.useState<string>('');
 
-  const hideRef = useRef(false);
-  const ref = useRef<any>();
+  const hideRef = React.useRef(false);
+  const ref = React.useRef<any>();
 
-  useEffect(() => {
+  React.useEffect(() => {
     document.addEventListener('click', handleClickOutside, false);
     return () => {
       document.removeEventListener('click', handleClickOutside, false);
@@ -34,6 +34,10 @@ export const NavBar: React.FC = () => {
       hideRef.current = true;
       setActiveHover('');
     }
+  };
+
+  const handleClick = () => {
+    setActiveHover('');
   };
 
   return (
@@ -66,7 +70,7 @@ export const NavBar: React.FC = () => {
           </div>
         </Row>
       </NavBarGroup>
-      <NavBarGroup hover className="navbar">
+      <NavBarGroup hover className="navbar" onClick={handleClick}>
         <Row hidden={!activeHover}>
           {/* Editor */}
           <Show visible={activeHover === 'editor'}>

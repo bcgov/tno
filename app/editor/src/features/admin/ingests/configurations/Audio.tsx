@@ -23,9 +23,15 @@ export const Audio: React.FC = (props) => {
         value={serviceType}
         onChange={(newValue: any) => {
           // If an audio ingest, set the configuration other args.
-          if (values.id === 0 && !values.configuration.otherArgs && newValue.value === 'stream') {
-            setFieldValue('configuration.otherArgs', '-acodec mp3 -ab 257k');
-          }
+          setFieldValue('configuration', {
+            serviceType: newValue.value,
+            import: values.configuration.import,
+            post: values.configuration.post,
+            otherArgs:
+              values.id === 0 && !values.configuration.otherArgs && newValue.value === 'stream'
+                ? '-acodec mp3 -ab 257k'
+                : undefined,
+          });
         }}
       />
       <Show visible={values.configuration.serviceType === 'stream'}>

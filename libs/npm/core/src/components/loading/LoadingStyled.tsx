@@ -6,7 +6,7 @@ export const Loading = styled.div`
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(${(props) => props.theme.css.primaryRgb}, 0.25);
+  background-color: rgba(${(props) => props.theme.css?.primaryRgb}, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;

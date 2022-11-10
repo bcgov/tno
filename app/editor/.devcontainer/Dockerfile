@@ -1,7 +1,7 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/typescript-node/.devcontainer/base.Dockerfile
 
 # [Choice] Node.js version: 16, 14, 12
-ARG VARIANT="16-buster"
+ARG VARIANT="18-buster"
 FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
@@ -16,3 +16,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # [Optional] Uncomment if you want to install more global node packages
 RUN su node -c "npm install -g create-react-app"
+RUN yarn set version 3.2.0

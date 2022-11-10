@@ -131,14 +131,8 @@ remove: ## Remove all containers
 
 renew: ## Refresh all relevant services that were impacted by prior Pull Request.
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
-	@make db-refresh
 	@make refresh n=api
 	@make refresh n=editor
-	@make build n=capture
-	@make build n=clip
-	@make build n=filemonitor
-	@make build n=image
-	@make build n=content
 
 ##############################################################################
 # Database Commands

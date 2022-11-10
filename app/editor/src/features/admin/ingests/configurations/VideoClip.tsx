@@ -21,6 +21,12 @@ export const VideoClip: React.FC = (props) => {
 
   return (
     <styled.IngestType>
+      <FormikText
+        label="Device Hostname"
+        name="configuration.hostname"
+        value={values.configuration.hostname}
+        tooltip="Only devices specifically with this hostname will run this ingest"
+      />
       <FormikSelect
         label="Timezone"
         name="configuration.timeZone"

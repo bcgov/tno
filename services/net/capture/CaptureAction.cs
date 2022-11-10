@@ -207,6 +207,24 @@ public class CaptureAction : CommandAction<CaptureOptions>
     }
 
     /// <summary>
+    /// Extract the configuration value from the ingest for the specified 'key'.
+    /// If the 'arg' contains {0} then it will be replaced with the value.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <param name="key">The ingest configuration key.</param>
+    /// <param name="arg">The FFmpeg argument.</param>
+    /// <param name="defaultValue">The default value if none is provided.</param>
+    /// <returns>The 'arg' and value or default value.</returns>
+    private static string GetArgumentValue(IngestModel ingest, string key, string arg, string defaultValue = "")
+    {
+        var value = ingest.GetConfigurationValue<string>(key, defaultValue);
+        if (String.IsNullOrWhiteSpace(value)) return defaultValue;
+        if (arg == "") return $" {value}";
+        if (arg.Contains("{0}")) return $" {String.Format(arg, value)}";
+        return $" {arg} {value}";
+    }
+
+    /// <summary>
     /// Generate the command arguments for the service action.
     /// </summary>
     /// <param name="process"></param>
@@ -215,34 +233,13 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <returns></returns>
     protected override string GenerateCommandArguments(ICommandProcess process, IIngestServiceActionManager manager, ScheduleModel schedule)
     {
-        var logLevel = GetLogLevel(manager.Ingest);
-        var threadQueueSize = GetThreadQueueSize(manager.Ingest);
+        var logLevel = GetArgumentValue(manager.Ingest, "logLevel", "-loglevel", "warning");
         var input = GetInput(manager.Ingest);
-        var format = GetFormat(manager.Ingest);
-        var volume = GetVolume(manager.Ingest);
-        var otherArgs = GetOtherArgs(manager.Ingest);
+        var format = GetOutputArguments(manager.Ingest);
         var output = GetOutput(manager.Ingest, schedule);
         process.Data.Add("filename", output);
 
-        return $"{logLevel}{threadQueueSize}{input}{volume}{format}{otherArgs} \"{output}\"";
-    }
-
-    private static string GetArgumentValue(IngestModel ingest, string key, string arg, string defaultValue = "")
-    {
-        var value = ingest.GetConfigurationValue<string>(key, defaultValue);
-        return !String.IsNullOrWhiteSpace(value) ? $" {arg} {value}" : "";
-    }
-
-    private static string GetLogLevel(IngestModel ingest)
-    {
-        var value = ingest.GetConfigurationValue<string>("logLevel", "warning");
-        return $"-loglevel {value}";
-    }
-
-    private static string GetThreadQueueSize(IngestModel ingest)
-    {
-        var value = ingest.GetConfigurationValue<string>("threadQueueSize");
-        return !String.IsNullOrWhiteSpace(value) ? $" -thread_queue_size {value}" : "";
+        return $"{logLevel}{input}{format} \"{output}\"";
     }
 
     /// <summary>
@@ -267,27 +264,64 @@ public class CaptureAction : CommandAction<CaptureOptions>
             return $" -i {input}";
         }
 
+        var videoThreadQueueSize = GetArgumentValue(ingest, "videoThreadQueueSize", "-thread_queue_size");
         var videoInputFormat = GetArgumentValue(ingest, "videoInputFormat", "-f", "v4l2");
-        var videoFramerate = GetArgumentValue(ingest, "inputFramerate", "-r");
+        var videoFramerate = GetArgumentValue(ingest, "videoFramerate", "-r");
+        var videoArgs = GetArgumentValue(ingest, "videoArgs", "");
         var video = GetArgumentValue(ingest, "videoInput", "-i");
 
+        var audioThreadQueueSize = GetArgumentValue(ingest, "audioThreadQueueSize", "-thread_queue_size");
         var audioInputFormat = GetArgumentValue(ingest, "audioInputFormat", "-f", "alsa");
         var audioChannels = GetArgumentValue(ingest, "audioChannels", "-ac", "2");
+        var audioChannelLayout = GetArgumentValue(ingest, "audioChannelLayout", "-channel_layout");
+        var audioArgs = GetArgumentValue(ingest, "audioArgs", "");
         var audio = GetArgumentValue(ingest, "audioInput", "-i");
+
         if (!String.IsNullOrWhiteSpace(video) && !String.IsNullOrWhiteSpace(audio))
         {
-            return $"{videoInputFormat}{videoFramerate}{video}{audioInputFormat}{audioChannels}{audio}";
+            return $"{videoThreadQueueSize}{videoInputFormat}{videoFramerate}{videoArgs}{video}{audioThreadQueueSize}{audioInputFormat}{audioChannels}{audioChannelLayout}{audioArgs}{audio}";
         }
         else if (!String.IsNullOrWhiteSpace(video))
         {
-            return $"{videoInputFormat}{videoFramerate}{video}";
+            return $"{videoThreadQueueSize}{videoInputFormat}{videoFramerate}{videoArgs}{video}";
         }
         else if (!String.IsNullOrWhiteSpace(audio))
         {
-            return $"{audioInputFormat}{audioChannels}{audio}";
+            return $"{audioThreadQueueSize}{audioInputFormat}{audioChannels}{audioChannelLayout}{audioArgs}{audio}";
         }
 
         throw new ConfigurationException("An input must be configured");
+    }
+
+    /// <summary>
+    /// Extract the configuration values and generate an output formatting string.
+    /// </summary>
+    /// <param name="ingest"></param>
+    /// <returns></returns>
+    private static string GetOutputArguments(IngestModel ingest)
+    {
+        var outputThreadQueueSize = GetArgumentValue(ingest, "outputThreadQueueSize", "-thread_queue_size");
+        var bufSize = GetArgumentValue(ingest, "bufSize", "-bufSize");
+        var bufMinRate = GetArgumentValue(ingest, "minRate", "-minRate");
+        var bufMaxRate = GetArgumentValue(ingest, "maxRate", "-maxRate");
+
+        var audioEncoder = GetArgumentValue(ingest, "audioEncoder", "-c:a");
+        var audioBufSize = GetArgumentValue(ingest, "audioBufferSize", "-b:a");
+        var volume = GetArgumentValue(ingest, "volume", "-filter:a 'volume={0}'");
+
+        var videoEncoder = GetArgumentValue(ingest, "videoEncoder", "-c:v");
+        var videoBufSize = GetArgumentValue(ingest, "videoBufferSize", "-b:v");
+        var scale = GetArgumentValue(ingest, "scale", "-s");
+        var pixelFormat = GetArgumentValue(ingest, "pixelFormat", "-pix_fmts");
+        var frameRate = GetArgumentValue(ingest, "frameRate", "-r");
+        var keyframe = GetArgumentValue(ingest, "keyframe", "-g");
+        var preset = GetArgumentValue(ingest, "preset", "-preset");
+        var crf = GetArgumentValue(ingest, "crf", "-crf");
+
+        var format = GetArgumentValue(ingest, "outputFormat", "-f");
+        var other = GetArgumentValue(ingest, "otherArgs", "");
+
+        return $"{outputThreadQueueSize}{bufSize}{bufMinRate}{bufMaxRate}{audioEncoder}{audioBufSize}{volume}{videoEncoder}{videoBufSize}{scale}{pixelFormat}{frameRate}{keyframe}{preset}{crf}{format}{other}";
     }
 
     /// <summary>
@@ -333,39 +367,6 @@ public class CaptureAction : CommandAction<CaptureOptions>
         // If multiple services are sharing the same pvc it will result in multiple versions of the same capture.
         var versions = Directory.GetFiles(path, $"{name}*{ext}").Length;
         return path.CombineWith($"{name}{(versions == 0 ? "" : $"-{versions}")}{ext}");
-    }
-
-    /// <summary>
-    /// Get the format from the connection settings.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    private static string GetFormat(IngestModel ingest)
-    {
-        var value = ingest.GetConfigurationValue("format");
-        return String.IsNullOrWhiteSpace(value) ? "" : $" -f {value}";
-    }
-
-    /// <summary>
-    /// Get the volume from the connection settings.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    private static string GetVolume(IngestModel ingest)
-    {
-        var value = ingest.GetConfigurationValue("volume");
-        return String.IsNullOrWhiteSpace(value) ? "" : $" -filter:a 'volume={value}'";
-    }
-
-    /// <summary>
-    /// Get the other arguments from the connection settings.
-    /// </summary>
-    /// <param name="ingest"></param>
-    /// <returns></returns>
-    private static string GetOtherArgs(IngestModel ingest)
-    {
-        var value = ingest.GetConfigurationValue("otherArgs");
-        return String.IsNullOrWhiteSpace(value) ? "" : $" {value}";
     }
     #endregion
 }

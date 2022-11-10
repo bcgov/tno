@@ -8,7 +8,7 @@ import { serviceTypes } from './constants';
 import * as styled from './styled';
 
 export const Video: React.FC = (props) => {
-  const { values } = useFormikContext<IIngestModel>();
+  const { values, setFieldValue } = useFormikContext<IIngestModel>();
 
   let ServiceTypes = serviceTypes(values.ingestType?.name);
   const ConnectionSettings = () => {
@@ -35,6 +35,13 @@ export const Video: React.FC = (props) => {
         name="configuration.serviceType"
         options={ServiceTypes}
         value={serviceType}
+        onChange={(newValue: any) => {
+          setFieldValue('configuration', {
+            serviceType: newValue.value,
+            import: values.configuration.import,
+            post: values.configuration.post,
+          });
+        }}
       />
       {ConnectionSettings()}
     </styled.IngestType>

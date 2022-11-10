@@ -2,7 +2,7 @@
 yarn run build
 package_name=$(node -p "require('./package.json').name")
 package_version=$(node -p "require('./package.json').version")
-package=${package_name}-v${package_version}
+package=${package_name}-${package_version}
 latest_version=$(npm show $package_name version)
 
 echo "Pack ${package}"
@@ -12,6 +12,7 @@ cd dist
 yarn pack --out ../%s-%v.tgz
 
 # Place the local tgz package in the editor app location.
+echo "Move package ${package} to project"
 mv -f ../${package}.tgz /workspaces/tno/app/editor/
 
 cd /workspaces/tno/app/editor
