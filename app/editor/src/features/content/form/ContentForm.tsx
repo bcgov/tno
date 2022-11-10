@@ -1,7 +1,6 @@
 import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { HubConnectionBuilder } from '@microsoft/signalr';
 import { Area, IconButton } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
@@ -25,7 +24,7 @@ import {
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'hooks';
-import { ContentStatusName, IContentModel, ValueType } from 'hooks/api-editor';
+import { ContentStatusName, IContentModel, useApiHubConnection, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
@@ -100,6 +99,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const productOptions = useProductOptions();
   const { combined, formType } = useCombinedView(initContentType);
   useTooltips();
+  const { getConnection } = useApiHubConnection();
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1);
@@ -182,13 +182,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   );
 
   React.useEffect(() => {
-    const connection = new HubConnectionBuilder()
-      .withUrl(process.env.REACT_APP_API_URL + '/workOrderHub', { withCredentials: false })
-      .withAutomaticReconnect()
-      .build();
-
     if (!!id && +id > 0) {
       fetchContent(+id);
+      const connection = getConnection();
+
       connection
         .start()
         .then(() => {
@@ -197,15 +194,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           });
         })
         .catch((error) => console.error(error));
-    }
 
-    return function cleanUp() {
-      if (!!id && +id > 0) {
+      return function cleanUp() {
         connection.off('Update');
         connection.stop();
-      }
-    };
-  }, [id, fetchContent]);
+      };
+    }
+  }, [id, fetchContent, getConnection]);
 
   const { setShowValidationToast } = useTabValidationToasts();
 
