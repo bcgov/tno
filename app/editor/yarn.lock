@@ -2153,6 +2153,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@microsoft/signalr@npm:6.0.10":
+  version: 6.0.10
+  resolution: "@microsoft/signalr@npm:6.0.10"
+  dependencies:
+    abort-controller: ^3.0.0
+    eventsource: ^1.0.7
+    fetch-cookie: ^0.11.0
+    node-fetch: ^2.6.7
+    ws: ^7.4.5
+  checksum: dc25a2afee9bf12c9b22205cad21089e190e6a3c02d05490426d0a5413577c4f552cf32a59c75e5fa6d2874782d8d9d4f763c0ddce1d7d69d72f8d276bc89c50
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -3722,6 +3735,15 @@ __metadata:
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
   checksum: a4a97ec07d7ea112c517036882b2ac22f3109b7b19077dc656316d07d308438aac28e4d9746dc4d84bf6b1e75b4a7b0a5f3cb30592419f128ca9a8cee3bcfa17
+  languageName: node
+  linkType: hard
+
+"abort-controller@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "abort-controller@npm:3.0.0"
+  dependencies:
+    event-target-shim: ^5.0.0
+  checksum: 170bdba9b47b7e65906a28c8ce4f38a7a369d78e2271706f020849c1bfe0ee2067d4261df8bbb66eb84f79208fd5b710df759d64191db58cfba7ce8ef9c54b75
   languageName: node
   linkType: hard
 
@@ -6599,6 +6621,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"event-target-shim@npm:^5.0.0":
+  version: 5.0.1
+  resolution: "event-target-shim@npm:5.0.1"
+  checksum: 1ffe3bb22a6d51bdeb6bf6f7cf97d2ff4a74b017ad12284cc9e6a279e727dc30a5de6bb613e5596ff4dc3e517841339ad09a7eec44266eccb1aa201a30448166
+  languageName: node
+  linkType: hard
+
 "eventemitter3@npm:^4.0.0":
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
@@ -6610,6 +6639,13 @@ __metadata:
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
+  languageName: node
+  linkType: hard
+
+"eventsource@npm:^1.0.7":
+  version: 1.1.2
+  resolution: "eventsource@npm:1.1.2"
+  checksum: fe8f2ac3c70b1b63ee3cef5c0a28680cb00b5747bfda1d9835695fab3ed602be41c5c799b1fc997b34b02633573fead25b12b036bdf5212f23a6aa9f59212e9b
   languageName: node
   linkType: hard
 
@@ -6798,6 +6834,15 @@ __metadata:
   dependencies:
     bser: 2.1.1
   checksum: 8510230778ab3a51c27dffb1b76ef2c24fab672a42742d3c0a45c2e9d1e5f20210b1fbca33486088da4a9a3958bde96b5aec0a63aac9894b4e9df65c88b2cbd6
+  languageName: node
+  linkType: hard
+
+"fetch-cookie@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "fetch-cookie@npm:0.11.0"
+  dependencies:
+    tough-cookie: ^2.3.3 || ^3.0.1 || ^4.0.0
+  checksum: 0d2082cb7de34c1e566a7c22ab844c6e9e6a8f8c9c1bc7a62382931b4bb99f0ff6c00324ec00874728c57cfd0c655c6fde62badcae019f2e5bb220c5726fdd17
   languageName: node
   linkType: hard
 
@@ -9582,6 +9627,7 @@ __metadata:
     "@fortawesome/free-solid-svg-icons": 6.2.0
     "@fortawesome/react-fontawesome": 0.2.0
     "@headlessui/react": 1.7.2
+    "@microsoft/signalr": 6.0.10
     "@react-keycloak/web": 3.4.0
     "@reduxjs/toolkit": 1.8.5
     "@testing-library/jest-dom": 5.16.5
@@ -9782,6 +9828,20 @@ __metadata:
     lower-case: ^2.0.2
     tslib: ^2.0.3
   checksum: 0b2ebc113dfcf737d48dde49cfebf3ad2d82a8c3188e7100c6f375e30eafbef9e9124aadc3becef237b042fd5eb0aad2fd78669c20972d045bbe7fea8ba0be5c
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^2.6.7":
+  version: 2.6.7
+  resolution: "node-fetch@npm:2.6.7"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
   languageName: node
   linkType: hard
 
@@ -11394,6 +11454,13 @@ __metadata:
   dependencies:
     invariant: 2.2.4
   checksum: fed7983738d690437e24d113e74c39e51a33da893c58e46286007f26dc283c8dd5b25a854ec91864ae60e8398b0bac8667c2588b532b8b20503cc05fc25d10ed
+  languageName: node
+  linkType: hard
+
+"querystringify@npm:^2.1.1":
+  version: 2.2.0
+  resolution: "querystringify@npm:2.2.0"
+  checksum: 5641ea231bad7ef6d64d9998faca95611ed4b11c2591a8cae741e178a974f6a8e0ebde008475259abe1621cb15e692404e6b6626e927f7b849d5c09392604b15
   languageName: node
   linkType: hard
 
@@ -13408,6 +13475,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tough-cookie@npm:^2.3.3 || ^3.0.1 || ^4.0.0":
+  version: 4.1.2
+  resolution: "tough-cookie@npm:4.1.2"
+  dependencies:
+    psl: ^1.1.33
+    punycode: ^2.1.1
+    universalify: ^0.2.0
+    url-parse: ^1.5.3
+  checksum: a7359e9a3e875121a84d6ba40cc184dec5784af84f67f3a56d1d2ae39b87c0e004e6ba7c7331f9622a7d2c88609032473488b28fe9f59a1fec115674589de39a
+  languageName: node
+  linkType: hard
+
 "tough-cookie@npm:^4.0.0":
   version: 4.0.0
   resolution: "tough-cookie@npm:4.0.0"
@@ -13434,6 +13513,13 @@ __metadata:
   dependencies:
     punycode: ^2.1.1
   checksum: ffe6049b9dca3ae329b059aada7f515b0f0064c611b39b51ff6b53897e954650f6f63d9319c6c008d36ead477c7b55e5f64c9dc60588ddc91ff720d64eb710b3
+  languageName: node
+  linkType: hard
+
+"tr46@npm:~0.0.3":
+  version: 0.0.3
+  resolution: "tr46@npm:0.0.3"
+  checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
   languageName: node
   linkType: hard
 
@@ -13643,6 +13729,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"universalify@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "universalify@npm:0.2.0"
+  checksum: e86134cb12919d177c2353196a4cc09981524ee87abf621f7bc8d249dbbbebaec5e7d1314b96061497981350df786e4c5128dbf442eba104d6e765bc260678b5
+  languageName: node
+  linkType: hard
+
 "universalify@npm:^2.0.0":
   version: 2.0.0
   resolution: "universalify@npm:2.0.0"
@@ -13684,6 +13777,16 @@ __metadata:
   dependencies:
     punycode: ^2.1.0
   checksum: 7167432de6817fe8e9e0c9684f1d2de2bb688c94388f7569f7dbdb1587c9f4ca2a77962f134ec90be0cc4d004c939ff0d05acc9f34a0db39a3c797dada262633
+  languageName: node
+  linkType: hard
+
+"url-parse@npm:^1.5.3":
+  version: 1.5.10
+  resolution: "url-parse@npm:1.5.10"
+  dependencies:
+    querystringify: ^2.1.1
+    requires-port: ^1.0.0
+  checksum: fbdba6b1d83336aca2216bbdc38ba658d9cfb8fc7f665eb8b17852de638ff7d1a162c198a8e4ed66001ddbf6c9888d41e4798912c62b4fd777a31657989f7bdf
   languageName: node
   linkType: hard
 
@@ -13824,6 +13927,13 @@ __metadata:
   dependencies:
     minimalistic-assert: ^1.0.0
   checksum: 2abc306c96930b757972a1c4650eb6b25b5d99f24088714957f88629e137db569368c5de0e57986c89ea70db2f1df9bba11a87cb6d0c8694b6f53a0159fab3bf
+  languageName: node
+  linkType: hard
+
+"webidl-conversions@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "webidl-conversions@npm:3.0.1"
+  checksum: c92a0a6ab95314bde9c32e1d0a6dfac83b578f8fa5f21e675bc2706ed6981bc26b7eb7e6a1fab158e5ce4adf9caa4a0aee49a52505d4d13c7be545f15021b17c
   languageName: node
   linkType: hard
 
@@ -14021,6 +14131,16 @@ __metadata:
   version: 2.3.0
   resolution: "whatwg-mimetype@npm:2.3.0"
   checksum: 23eb885940bcbcca4ff841c40a78e9cbb893ec42743993a42bf7aed16085b048b44b06f3402018931687153550f9a32d259dfa524e4f03577ab898b6965e5383
+  languageName: node
+  linkType: hard
+
+"whatwg-url@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "whatwg-url@npm:5.0.0"
+  dependencies:
+    tr46: ~0.0.3
+    webidl-conversions: ^3.0.0
+  checksum: b8daed4ad3356cc4899048a15b2c143a9aed0dfae1f611ebd55073310c7b910f522ad75d727346ad64203d7e6c79ef25eafd465f4d12775ca44b90fa82ed9e2c
   languageName: node
   linkType: hard
 
@@ -14329,6 +14449,21 @@ __metadata:
     signal-exit: ^3.0.2
     typedarray-to-buffer: ^3.1.5
   checksum: c55b24617cc61c3a4379f425fc62a386cc51916a9b9d993f39734d005a09d5a4bb748bc251f1304e7abd71d0a26d339996c275955f527a131b1dcded67878280
+  languageName: node
+  linkType: hard
+
+"ws@npm:^7.4.5":
+  version: 7.5.9
+  resolution: "ws@npm:7.5.9"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ^5.0.2
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: c3c100a181b731f40b7f2fddf004aa023f79d64f489706a28bc23ff88e87f6a64b3c6651fbec3a84a53960b75159574d7a7385709847a62ddb7ad6af76f49138
   languageName: node
   linkType: hard
 

@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.API.Models;
@@ -25,6 +26,7 @@ public class WorkOrderController : ControllerBase
 {
     #region Variables
     private readonly IWorkOrderService _service;
+    private readonly IHubContext<WorkOrderHub> _hub;
     #endregion
 
     #region Constructors
@@ -32,9 +34,11 @@ public class WorkOrderController : ControllerBase
     /// Creates a new instance of a WorkOrderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public WorkOrderController(IWorkOrderService service)
+    /// <param name="hub"></param>
+    public WorkOrderController(IWorkOrderService service, IHubContext<WorkOrderHub> hub)
     {
         _service = service;
+        _hub = hub;
     }
     #endregion
 
@@ -68,12 +72,13 @@ public class WorkOrderController : ControllerBase
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
-    public IActionResult Update(WorkOrderModel workOrder)
+    public async Task<IActionResult> Update(WorkOrderModel workOrder)
     {
         var entity = _service.FindById(workOrder.Id);
         if (entity == null) throw new InvalidOperationException("Work order does not exist");
 
         _service.Update(workOrder.UpdateEntity(entity));
+        await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
         return new JsonResult(new WorkOrderModel(entity));
     }
     #endregion
