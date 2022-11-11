@@ -1,5 +1,6 @@
 import { useFormikContext } from 'formik';
 import { IContentModel } from 'hooks';
+import { html_beautify } from 'js-beautify';
 import _ from 'lodash';
 import React from 'react';
 import ReactQuill from 'react-quill';
@@ -110,7 +111,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
         <textarea
           className="raw-editor"
           onChange={(e) => setState({ ...state, rawHtml: e.target.value })}
-          value={state.rawHtml}
+          value={html_beautify(state.rawHtml)}
         />
       </Show>
     </styled.Wysiwyg>

@@ -13,7 +13,6 @@ export const Wysiwyg = styled.div`
     min-height: 250px;
   }
   .raw-editor {
-    // max-width: 70rem;
     width: 99.5%;
     min-height: 250px;
     border: 1px solid #ccc;
