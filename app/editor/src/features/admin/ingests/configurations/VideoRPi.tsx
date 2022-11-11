@@ -1,6 +1,7 @@
 import { FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IIngestModel } from 'hooks/api-editor';
+import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
 import { Col, Row, Section } from 'tno-core';
 
@@ -9,6 +10,7 @@ import * as styled from './styled';
 
 export const VideoRPi: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
+  const { applyPlaceholder } = useFormikHelpers();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);
@@ -63,6 +65,7 @@ export const VideoRPi: React.FC = (props) => {
             value={values.configuration.videoInput}
             tooltip="The input device for video"
             placeholder="/dev/video0"
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Thread Queue Size"
@@ -71,12 +74,14 @@ export const VideoRPi: React.FC = (props) => {
             type="number"
             placeholder="1024"
             tooltip="Sets the maximum number of queued packets when reading from the file or device. With low latency / high rate live streams, packets may be discarded if they are not read in a timely manner; setting this value can force ffmpeg to use a separate input thread and read packets as soon as they arrive. By default ffmpeg only does this if multiple inputs are specified."
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Format"
             name="configuration.videoInputFormat"
             value={values.configuration.videoInputFormat}
             placeholder="v4l2"
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Framerate"
@@ -85,6 +90,7 @@ export const VideoRPi: React.FC = (props) => {
             type="number"
             placeholder="30"
             size={5}
+            onClick={applyPlaceholder}
           />
         </Row>
         <FormikText
@@ -102,6 +108,7 @@ export const VideoRPi: React.FC = (props) => {
             tooltip="The input device for audio"
             placeholder="hw:CARD=HDMI,DEV=0"
             value={values.configuration.audioInput}
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Thread Queue Size"
@@ -110,12 +117,14 @@ export const VideoRPi: React.FC = (props) => {
             type="number"
             placeholder="1024"
             tooltip="Sets the maximum number of queued packets when reading from the file or device. With low latency / high rate live streams, packets may be discarded if they are not read in a timely manner; setting this value can force ffmpeg to use a separate input thread and read packets as soon as they arrive. By default ffmpeg only does this if multiple inputs are specified."
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Format"
             name="configuration.audioInputFormat"
             value={values.configuration.audioInputFormat}
             placeholder="alsa"
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Channels"
@@ -124,12 +133,14 @@ export const VideoRPi: React.FC = (props) => {
             type="number"
             placeholder="2"
             size={5}
+            onClick={applyPlaceholder}
           />
           <FormikText
             label="Channel Layout"
             name="configuration.audioChannelLayout"
             value={values.configuration.audioChannelLayout}
             placeholder="stereo"
+            onClick={applyPlaceholder}
           />
         </Row>
         <FormikText
@@ -157,6 +168,7 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.volume}
               tooltip="Volume in percent or dB (1 = 100%)"
               placeholder="1"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -176,6 +188,7 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.bufferSize}
               tooltip=""
               placeholder="64k"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -201,6 +214,7 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.audioEncoder}
               tooltip="Select an encoder codec or a special value 'copy' to indicate that the stream is not to be re-encoded"
               placeholder="aac"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -209,6 +223,7 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.audioBufferSize"
               value={values.configuration.audioBufferSize}
               placeholder="128k"
+              onClick={applyPlaceholder}
             />
           </Col>
         </Row>
@@ -220,6 +235,7 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.videoEncoder}
               tooltip="Select an encoder codec or a special value 'copy' to indicate that the stream is not to be re-encoded"
               placeholder="libx264"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -228,6 +244,7 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.videoBufferSize"
               value={values.configuration.videoBufferSize}
               placeholder="1600k"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -246,6 +263,7 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.pixelFormat"
               value={values.configuration.pixelFormat}
               placeholder="yuv420p"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -265,6 +283,7 @@ export const VideoRPi: React.FC = (props) => {
               type="number"
               tooltip="Keyframe interval. A keyframe is inserted at least every -g frames, sometimes sooner."
               placeholder="25"
+              onClick={applyPlaceholder}
             />
           </Col>
         </Row>
@@ -276,6 +295,7 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.preset}
               tooltip="Use the preset parameter to control the speed of the compression process."
               placeholder="ultrafast"
+              onClick={applyPlaceholder}
             />
           </Col>
           <Col flex="1 1 0">
@@ -286,6 +306,7 @@ export const VideoRPi: React.FC = (props) => {
               type="number"
               tooltip="Use the CRF (Constant Rate Factor) parameter to control the output quality. The lower crf, the higher the quality (range: 0-51). The default value is 23, and visually lossless compression corresponds to -crf 18."
               placeholder="23"
+              onClick={applyPlaceholder}
             />
           </Col>
         </Row>
@@ -295,6 +316,7 @@ export const VideoRPi: React.FC = (props) => {
           value={values.configuration.otherArgs}
           tooltip="Any other arguments to pass to the command"
           placeholder="-x264opts keyint=50"
+          onClick={applyPlaceholder}
         />
         <p>Use "{'{schedule.Name}.mp4'}" to name the file with the schedule name.</p>
         <FormikText
@@ -302,6 +324,7 @@ export const VideoRPi: React.FC = (props) => {
           name="configuration.fileName"
           value={values.configuration.fileName}
           placeholder="{schedule.Name}.mp4"
+          onClick={applyPlaceholder}
         />
       </Section>
     </styled.IngestType>

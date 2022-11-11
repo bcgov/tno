@@ -2,6 +2,7 @@ import { FormikCheckbox, FormikSelect, FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
+import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
 
 import { TimeZones } from './constants';
@@ -9,6 +10,7 @@ import * as styled from './styled';
 
 export const AudioClip: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
+  const { applyPlaceholder } = useFormikHelpers();
   useTooltips();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
@@ -35,18 +37,21 @@ export const AudioClip: React.FC = (props) => {
         name="configuration.fileName"
         tooltip="File name and output format"
         placeholder="{schedule.Name}.mp3"
+        onClick={applyPlaceholder}
       />
       <FormikText
         label="Copy Arguments"
         name="configuration.copy"
         tooltip="Copy command arguments"
         placeholder="-c:v copy -c:a copy"
+        onClick={applyPlaceholder}
       />
       <FormikText
         label="Volume"
         name="configuration.volume"
         tooltip="Volume in percent or dB (1 = 100%)"
         placeholder="1"
+        onClick={applyPlaceholder}
       />
       <FormikText
         label="Other Arguments"
