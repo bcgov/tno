@@ -4,11 +4,18 @@ import { Claim, useKeycloakWrapper } from '../../hooks/keycloak';
 import * as styled from './styled';
 import { isActive } from './utils';
 
-export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement> {
+export interface INavBarItem {
   /**
    * choose the tab label
    */
   label?: string;
+  /**
+   * the path the item will navigate you to
+   */
+  navigateTo?: string;
+}
+
+export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement>, INavBarItem {
   /**
    * prop used to determine whether the tab is active
    */
@@ -31,18 +38,26 @@ export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement> {
   activeHoverTab?: string;
 }
 
+export interface INavBarItemPropsAndEvents extends Omit<INavBarItemProps, 'onClick'> {
+  /**
+   * When this navbar item is selected.
+   */
+  onClick?: (item: INavBarItem) => boolean;
+}
+
 /**
  * The individual item that will appear in the navigation bar, on click it will navigate to desired path and will use the applications
  * current path to determine whether it is active or not.
  * @param props1 Component properties
  * @returns styled navigation bar item
  */
-export const NavBarItem: React.FC<INavBarItemProps> = ({
+export const NavBarItem: React.FC<INavBarItemPropsAndEvents> = ({
   label,
   navigateTo,
   claim,
   exact = false,
   activeHoverTab,
+  onClick = () => true,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,7 +66,10 @@ export const NavBarItem: React.FC<INavBarItemProps> = ({
 
   return hasClaim ? (
     <styled.NavBarItem
-      onClick={() => navigate(navigateTo!!)}
+      onClick={() => {
+        const nav = onClick?.({ label, navigateTo });
+        if (nav) navigate(navigateTo!!);
+      }}
       active={isActive(location.pathname, navigateTo, exact, activeHoverTab, label)}
     >
       {label}

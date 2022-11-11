@@ -28,7 +28,7 @@ export const Header = styled.header`
     .title {
       flex-grow: 1;
       font-size: 1.25rem;
-      font-family: ${(props) => props.theme.css.bcSans};
+      font-family: ${(props) => props.theme.css?.bcSans};
       justify-content: flex-start;
       margin-top: auto;
       margin-bottom: auto;

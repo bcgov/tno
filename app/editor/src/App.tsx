@@ -4,7 +4,7 @@ import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { LayoutAnonymous } from 'components/layout';
 import { UploadContextWrapper } from 'components/upload';
 import { AppRouter } from 'features/router';
-import { KeycloakInstance } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -16,7 +16,7 @@ const appName = 'Media Monitoring Insights & Analysis';
 function App() {
   const keycloakEventHandler = useKeycloakEventHandler();
 
-  const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();
+  const [keycloak, setKeycloak] = React.useState<Keycloak>();
 
   React.useEffect(() => {
     createKeycloakInstance().then((result) => {

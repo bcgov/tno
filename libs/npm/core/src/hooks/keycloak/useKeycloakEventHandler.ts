@@ -1,5 +1,5 @@
 import { AuthClientError, AuthClientEvent } from '@react-keycloak/core/lib/index';
-import { KeycloakInstance } from 'keycloak-js';
+import Keycloak from 'keycloak-js';
 import React from 'react';
 
 import { SummonContext } from '..';
@@ -12,7 +12,7 @@ import { SummonContext } from '..';
 export const useKeycloakEventHandler = () => {
   const state = React.useContext(SummonContext);
 
-  return (keycloak: KeycloakInstance) =>
+  return (keycloak: Keycloak) =>
     (eventType: AuthClientEvent, error?: AuthClientError | undefined) => {
       if (eventType === 'onAuthSuccess') {
         state.setToken(keycloak.token);

@@ -39,7 +39,7 @@ help:
 
 publish: ## Build and publish a new package to NPM.
 	$(info Build and publish a new package to NPM)
-	@yarn publish
+	@./scripts/publish.sh
 
 pack: ## Build and pack library so that it can be tested locally.
 	$(info Build and pack library so that it can be tested locally.)

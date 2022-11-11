@@ -41,6 +41,14 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
     setFieldValue('ingestType', ingestType);
   }, [lookups.ingestTypes, setFieldValue, values.ingestTypeId, values.ingestType]);
 
+  const handleChange = () => {
+    setFieldValue('configuration', {
+      serviceType: undefined,
+      import: values.configuration.import,
+      post: values.configuration.post,
+    });
+  };
+
   return (
     <styled.IngestSettings className="schedule">
       <h2>{values.name}</h2>
@@ -65,7 +73,13 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
           <h3>Connection</h3>
           <Section>
             <p>Select the appropriate ingest type that this service will ingest.</p>
-            <FormikSelect label="Ingest Type" name="ingestTypeId" options={ingestTypes} required />
+            <FormikSelect
+              label="Ingest Type"
+              name="ingestTypeId"
+              options={ingestTypes}
+              required
+              onChange={handleChange}
+            />
             <p>
               If the ingest service will connect to a remote source of data select the connection,
               otherwise select 'None'.
@@ -162,11 +176,8 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                 disabled
               />
             </Show>
-            <p>
-              Select if content should be posted to Kafka. If the service doesn't generate content
-              it doesn't need to capture.
-            </p>
-            <FormikCheckbox label="Capture Content" name="configuration.post" />
+            <p>Ingest services that do not generate content may not need to post to Kafka.</p>
+            <FormikCheckbox label="Post to Kafka" name="configuration.post" />
             <p>
               Select if content will be imported by the content service. This provides a way to
               continue ingesting content to Kafka without indexing it.
