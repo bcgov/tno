@@ -6,9 +6,6 @@ export const Wysiwyg = styled.div`
   .custom-icon {
     color: #444;
   }
-  .toolbar {
-    width: 100%;
-  }
   .ql-editor {
     min-height: 250px;
   }
@@ -17,5 +14,9 @@ export const Wysiwyg = styled.div`
     min-height: 250px;
     border: 1px solid #ccc;
     display: block;
+  }
+
+  svg: hover {
+    color: #3498db;
   }
 `;

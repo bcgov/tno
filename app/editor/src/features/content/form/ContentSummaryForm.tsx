@@ -1,7 +1,7 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { IOptionItem, OptionItem, RadioGroup, TimeInput, Wysiwyg } from 'components/form';
-import { FormikRadioGroup, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
+import { FormikRadioGroup, FormikSelect, FormikText } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
@@ -111,12 +111,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
       videoRef.current.src = streamUrl;
     }
   }, [streamUrl, videoRef]);
-
-  const extractTags = (values: string[]) => {
-    return tags
-      .filter((tag) => values.some((value: string) => value.toLowerCase() === tag.id.toLowerCase()))
-      .map((tag) => tag);
-  };
 
   const setMedia = () => {
     setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/upload/stream?path=${path}`);
@@ -245,20 +239,18 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         </Show>
       </Row>
       <Show visible={contentType !== ContentTypeName.Image}>
-        <Row className="textarea">
-          <Col flex="1 1 0">
-            <Show visible={contentType === ContentTypeName.Snippet}>
-              <Wysiwyg fieldName="summary" />
-            </Show>
-            <Show
-              visible={
-                contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
-              }
-            >
-              <Wysiwyg fieldName="body" />
-            </Show>
-          </Col>
-        </Row>
+        <Col flex="1 1 0">
+          <Show visible={contentType === ContentTypeName.Snippet}>
+            <Wysiwyg fieldName="summary" />
+          </Show>
+          <Show
+            visible={
+              contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
+            }
+          >
+            <Wysiwyg fieldName="body" />
+          </Show>
+        </Col>
       </Show>
       <Show visible={contentType !== ContentTypeName.Image}>
         <Row>
