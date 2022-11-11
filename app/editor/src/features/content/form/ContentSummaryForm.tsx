@@ -248,43 +248,14 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         <Row className="textarea">
           <Col flex="1 1 0">
             <Show visible={contentType === ContentTypeName.Snippet}>
-              <Wysiwyg />
-              {/* <FormikTextArea
-                name="summary"
-                label="Summary"
-                required
-                onBlur={(e) => {
-                  const value = e.currentTarget.value;
-                  if (!!value) {
-                    const stringValue = value.match(tagMatch)?.toString();
-                    const tagValues =
-                      stringValue?.substring(1, stringValue.length - 1).split(', ') ?? [];
-                    const tags = extractTags(tagValues);
-                    if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
-                  }
-                }}
-              /> */}
+              <Wysiwyg fieldName="summary" />
             </Show>
             <Show
               visible={
                 contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
               }
             >
-              <FormikTextArea
-                name="body"
-                label="Story"
-                required
-                onBlur={(e) => {
-                  const value = e.currentTarget.value;
-                  if (!!value) {
-                    const stringValue = value.match(tagMatch)?.toString();
-                    const tagValues =
-                      stringValue?.substring(1, stringValue.length - 1).split(', ') ?? [];
-                    const tags = extractTags(tagValues);
-                    if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
-                  }
-                }}
-              />
+              <Wysiwyg fieldName="body" />
             </Show>
           </Col>
         </Row>
