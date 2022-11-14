@@ -33,6 +33,11 @@ public class SourceModel : BaseTypeModel<int>
     /// <summary>
     /// get/set -
     /// </summary>
+    public int? ProductId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
@@ -62,6 +67,7 @@ public class SourceModel : BaseTypeModel<int>
         this.SortOrder = entity.SortOrder;
         this.LicenseId = entity.LicenseId;
         this.OwnerId = entity.OwnerId;
+        this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
     }
@@ -82,6 +88,7 @@ public class SourceModel : BaseTypeModel<int>
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             OwnerId = model.OwnerId,
+            ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe
         };
