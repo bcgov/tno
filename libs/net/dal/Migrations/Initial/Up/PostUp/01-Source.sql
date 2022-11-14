@@ -367,19 +367,6 @@ INSERT INTO public.source (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'The Province'
-  , 'PROVINCE'
-  , '' -- short_name
-  , '' -- description
-  , true -- is_enabled
-  , false
-  , false
-  , 6 -- license_id
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
   'Creston Valley Advance'
   , 'CVA'
   , '' -- short_name
@@ -1108,32 +1095,6 @@ INSERT INTO public.source (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Vancouver Sun'
-  , 'SUN'
-  , '' -- short_name
-  , '' -- description
-  , true -- is_enabled
-  , false
-  , false
-  , 6 -- license_id
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'Times Colonist (Victoria)'
-  , 'TC'
-  , '' -- short_name
-  , '' -- description
-  , true -- is_enabled
-  , false
-  , false
-  , 6 -- license_id
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
   'CFAX'
   , 'CFAX'
   , '' -- short_name
@@ -1311,19 +1272,6 @@ INSERT INTO public.source (
   , false
   , false
   , 3 -- license_id
-  , DEFAULT_USER_ID
-  , ''
-  , DEFAULT_USER_ID
-  , ''
-), (
-  'National Post'
-  , 'POST'
-  , '' -- short_name
-  , '' -- description
-  , true -- is_enabled
-  , false
-  , false
-  , 6 -- license_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -3258,6 +3206,78 @@ INSERT INTO public.source (
   , '' -- short_name
   , '' -- description
   , true -- is_enabled
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+);
+
+INSERT INTO public.source (
+  "name"
+  , "code"
+  , "short_name"
+  , "description"
+  , "is_enabled"
+  , "product_id"
+  , "auto_transcribe"
+  , "disable_transcribe"
+  , "license_id"
+  , "created_by_id"
+  , "created_by"
+  , "updated_by_id"
+  , "updated_by"
+) VALUES (
+  'Times Colonist (Victoria)'
+  , 'TC'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , 1 -- product_id
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Vancouver Sun'
+  , 'SUN'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , 1 -- product_id
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'National Post'
+  , 'POST'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , 1 -- product_id
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Province'
+  , 'PROVINCE'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , 1 -- product_id
   , false
   , false
   , 3 -- license_id

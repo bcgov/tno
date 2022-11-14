@@ -61,6 +61,11 @@ public class SourceModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public int? ProductId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
@@ -97,6 +102,7 @@ public class SourceModel
         this.LicenseId = entity.LicenseId;
         this.License = entity.License?.Name ?? "";
         this.OwnerId = entity.OwnerId;
+        this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
 

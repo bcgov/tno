@@ -1,3 +1,4 @@
+import { OptionItem } from 'components/form';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
@@ -19,6 +20,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
 
   const users = getUserOptions(lookups.users);
   const licenses = getSortableOptions(lookups.licenses);
+  const products = getSortableOptions(lookups.products, [new OptionItem('None', undefined)]);
 
   React.useEffect(() => {
     // Ensures the connection settings can display the correct form on initial load.
@@ -63,6 +65,12 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           name="ownerId"
           tooltip="The user that manages this content"
           options={users}
+        />
+        <FormikSelect
+          label="Product Designation Override"
+          name="productId"
+          tooltip="The product designation the source content will be assigned (overrides the value in the ingest)"
+          options={products}
         />
       </Col>
       <Col>
