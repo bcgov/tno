@@ -15,7 +15,7 @@ export const VideoStream: React.FC = (props) => {
 
   React.useEffect(() => {
     if (!values.configuration.fileName) {
-      setFieldValue('configuration.fileName', '{schedule.Name}.mp4');
+      setFieldValue('configuration.fileName', '{schedule.Name}.mpg');
     }
   });
 
@@ -44,12 +44,12 @@ export const VideoStream: React.FC = (props) => {
         value={language}
       />
       <FormikText label="Format" name="configuration.format" tooltip="Format of the stream" />
-      <p>Use "{'{schedule.Name}'}.mp4" to name the file with the schedule name.</p>
+      <p>Use "{'{schedule.Name}'}.mpg" to name the file with the schedule name.</p>
       <FormikText
         label="Output File Name"
         name="configuration.fileName"
         tooltip="File name and output format"
-        placeholder="{schedule.Name}.mp4"
+        placeholder="{schedule.Name}.mpg"
         onClick={applyPlaceholder}
       />
       <FormikText

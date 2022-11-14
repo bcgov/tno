@@ -301,9 +301,9 @@ public class CaptureAction : CommandAction<CaptureOptions>
     private static string GetOutputArguments(IngestModel ingest)
     {
         var outputThreadQueueSize = GetArgumentValue(ingest, "outputThreadQueueSize", "-thread_queue_size");
-        var bufSize = GetArgumentValue(ingest, "bufSize", "-bufSize");
-        var bufMinRate = GetArgumentValue(ingest, "minRate", "-minRate");
-        var bufMaxRate = GetArgumentValue(ingest, "maxRate", "-maxRate");
+        var bufSize = GetArgumentValue(ingest, "bufSize", "-bufsize");
+        var bufMinRate = GetArgumentValue(ingest, "minRate", "-minrate");
+        var bufMaxRate = GetArgumentValue(ingest, "maxRate", "-maxrate");
 
         var audioEncoder = GetArgumentValue(ingest, "audioEncoder", "-c:a");
         var audioBufSize = GetArgumentValue(ingest, "audioBufferSize", "-b:a");

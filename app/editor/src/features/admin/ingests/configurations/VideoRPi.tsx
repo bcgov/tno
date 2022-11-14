@@ -187,7 +187,6 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.bufferSize"
               value={values.configuration.bufferSize}
               tooltip=""
-              placeholder="64k"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -213,7 +212,6 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.audioEncoder"
               value={values.configuration.audioEncoder}
               tooltip="Select an encoder codec or a special value 'copy' to indicate that the stream is not to be re-encoded"
-              placeholder="aac"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -222,7 +220,6 @@ export const VideoRPi: React.FC = (props) => {
               label="Audio Buffer Size"
               name="configuration.audioBufferSize"
               value={values.configuration.audioBufferSize}
-              placeholder="128k"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -234,7 +231,6 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.videoEncoder"
               value={values.configuration.videoEncoder}
               tooltip="Select an encoder codec or a special value 'copy' to indicate that the stream is not to be re-encoded"
-              placeholder="libx264"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -243,7 +239,6 @@ export const VideoRPi: React.FC = (props) => {
               label="Video Buffer Size"
               name="configuration.videoBufferSize"
               value={values.configuration.videoBufferSize}
-              placeholder="1600k"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -262,7 +257,6 @@ export const VideoRPi: React.FC = (props) => {
               label="Pixel Format"
               name="configuration.pixelFormat"
               value={values.configuration.pixelFormat}
-              placeholder="yuv420p"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -282,7 +276,6 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.keyframe}
               type="number"
               tooltip="Keyframe interval. A keyframe is inserted at least every -g frames, sometimes sooner."
-              placeholder="25"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -294,7 +287,6 @@ export const VideoRPi: React.FC = (props) => {
               name="configuration.preset"
               value={values.configuration.preset}
               tooltip="Use the preset parameter to control the speed of the compression process."
-              placeholder="ultrafast"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -305,7 +297,6 @@ export const VideoRPi: React.FC = (props) => {
               value={values.configuration.crf}
               type="number"
               tooltip="Use the CRF (Constant Rate Factor) parameter to control the output quality. The lower crf, the higher the quality (range: 0-51). The default value is 23, and visually lossless compression corresponds to -crf 18."
-              placeholder="23"
               onClick={applyPlaceholder}
             />
           </Col>
@@ -315,15 +306,14 @@ export const VideoRPi: React.FC = (props) => {
           name="configuration.otherArgs"
           value={values.configuration.otherArgs}
           tooltip="Any other arguments to pass to the command"
-          placeholder="-x264opts keyint=50"
           onClick={applyPlaceholder}
         />
-        <p>Use "{'{schedule.Name}.mp4'}" to name the file with the schedule name.</p>
+        <p>Use "{'{schedule.Name}.mpg'}" to name the file with the schedule name.</p>
         <FormikText
           label="File Name"
           name="configuration.fileName"
           value={values.configuration.fileName}
-          placeholder="{schedule.Name}.mp4"
+          placeholder="{schedule.Name}.mpg"
           onClick={applyPlaceholder}
         />
       </Section>
