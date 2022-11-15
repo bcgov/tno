@@ -48,6 +48,7 @@ public class ProductModel : BaseTypeWithAuditColumnsModel<int>
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
 
