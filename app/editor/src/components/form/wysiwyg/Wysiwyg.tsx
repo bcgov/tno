@@ -39,9 +39,14 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
 
   // toggle raw html view
   const onClickRaw = () => {
+    onClickFormatRaw();
     const fromRawHtml = showRaw;
     setShowRaw(!showRaw);
     syncViews(fromRawHtml);
+  };
+
+  const onClickFormatRaw = () => {
+    setState({ ...state, rawHtml: html_beautify(state.rawHtml) });
   };
 
   const extractTags = (values: string[]) => {
@@ -87,7 +92,11 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
   ];
   return (
     <styled.Wysiwyg>
-      <CustomToolbar onClickRaw={onClickRaw} onClickRemoveFormat={stripHtml} />
+      <CustomToolbar
+        onClickRaw={onClickRaw}
+        onClickRemoveFormat={stripHtml}
+        onClickFormatRaw={onClickFormatRaw}
+      />
       <Show visible={!showRaw}>
         <ReactQuill
           className="editor"
@@ -111,7 +120,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
         <textarea
           className="raw-editor"
           onChange={(e) => setState({ ...state, rawHtml: e.target.value })}
-          value={html_beautify(state.rawHtml)}
+          value={state.rawHtml}
         />
       </Show>
     </styled.Wysiwyg>

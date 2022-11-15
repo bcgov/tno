@@ -1,14 +1,16 @@
-import { FaCode, FaRemoveFormat } from 'react-icons/fa';
+import { FaCode, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
 
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
+  onClickFormatRaw: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 /** Custom toolbar for the content WYSIWYG including ability to view HTML source and clear formatting */
 export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
   onClickRaw,
   onClickRemoveFormat,
+  onClickFormatRaw,
 }) => (
   <div id="toolbar" className="toolbar">
     <span className="ql-formats">
@@ -37,6 +39,9 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
       </button>
       <button type="button" onClick={onClickRemoveFormat}>
         <FaRemoveFormat className="custom-icon" />
+      </button>
+      <button type="button" onClick={onClickFormatRaw}>
+        <FaPaintBrush className="custom-icon" />
       </button>
       <button className="ql-link"></button>
     </span>
