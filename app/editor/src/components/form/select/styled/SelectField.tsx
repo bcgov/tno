@@ -30,8 +30,8 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
     border-radius: 0.25rem;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
       border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    overflow: visible;
-    text-transform: none;
+      overflow: visible;
+      text-transform: none;
     color: ${(props) => {
       switch (props.variant) {
         case SelectVariant.warning:
@@ -68,7 +68,7 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
     border-color: ${(props) => {
       switch (props.variant) {
         case SelectVariant.primary:
-          return props.required ? props.theme.css.inputRequiredBorderColor : '#38598a';
+          return props.required ? props.theme.css.inputRequiredBorderColor : '#606060';
         case SelectVariant.secondary:
           return props.required ? props.theme.css.inputRequiredBorderColor : '#6c757d';
         case SelectVariant.success:
@@ -98,26 +98,7 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
             return props.theme.css.primaryColor;
         }
       }};
-      border-color: ${(props) => {
-        switch (props.variant) {
-          case SelectVariant.primary:
-            return '#294266';
-          case SelectVariant.secondary:
-            return '#545b62';
-          case SelectVariant.success:
-            return '#32662e';
-          case SelectVariant.info:
-            return '#6da7dc';
-          case SelectVariant.warning:
-            return '#f7bb23';
-          case SelectVariant.danger:
-            return '#be262c';
-          case SelectVariant.link:
-            return 'transparent';
-          default:
-            return '#fff';
-        }
-      }};
+
     }
 
     &:focus {
@@ -142,16 +123,13 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
             return 'none';
         }
       }};
-      color: ${(props) => {
-        switch (props.variant) {
-          case SelectVariant.link:
-            return '#0631f3';
-        }
-      }};
-    }
   }
 
   .rs__menu {
     width: ${(props) => props.width};
+  }
+
+  .clear {
+    color: ${(props) => props.theme.css.primaryColor};
   }
 `;

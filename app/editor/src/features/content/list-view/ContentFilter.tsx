@@ -90,9 +90,10 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           label="Product Designation"
           options={productOptions}
           value={productOptions.find((mt) => mt.value === filter.productId)}
+          width={FieldSize.Big}
           defaultValue={productOptions[0]}
           onChange={(newValue) => {
-            var productId = (newValue as IOptionItem).value ?? 0;
+            var productId = !!newValue ? (newValue as IOptionItem).value : 0;
             storeFilter({
               ...filter,
               pageIndex: 0,
@@ -103,6 +104,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
         <Select
           name="user"
           label="User"
+          width={FieldSize.Big}
           options={userOptions}
           value={userOptions.find((u) => u.value === filter.userId)}
           onChange={(newValue) => {
