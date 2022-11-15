@@ -221,7 +221,7 @@ builder.Services.AddCors(options =>
             cfg.AllowAnyMethod();
             cfg.WithOrigins(builder.Configuration["AllowedCORS"]);
         }));
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(o => o.EnableDetailedErrors = true);
 
 var app = builder.Build();
 

@@ -4,10 +4,10 @@ import React from 'react';
 export const useApiHubConnection = () => {
   const controller = React.useRef({
     getConnection: () => {
-      // TODO: here just for testing only for dev environment, and will be updated later on
-      const url = 'https://tno-dev.apps.silver.devops.gov.bc.ca/api/workOrderHub';
+      const url = process.env.REACT_APP_API_URL + '/api/workOrderHub';
+      console.log(`REACT_APP_API_URL: ${process.env.REACT_APP_API_URL}`);
       const connection = new HubConnectionBuilder()
-        .withUrl(url, { withCredentials: false }) // process.env.REACT_APP_API_URL + '/workOrderHub'
+        .withUrl(url, { withCredentials: false })
         .withAutomaticReconnect()
         .build();
       return connection;
