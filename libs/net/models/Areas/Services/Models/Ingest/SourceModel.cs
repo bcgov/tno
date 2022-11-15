@@ -56,6 +56,11 @@ public class SourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public int? ProductId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
@@ -85,6 +90,7 @@ public class SourceModel : AuditColumnsModel
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
+        this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
     }
@@ -114,6 +120,7 @@ public class SourceModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
+            ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
             Version = model.Version ?? 0

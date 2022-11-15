@@ -11,6 +11,7 @@ DECLARE frontPageId INT := (SELECT id FROM public.product WHERE Name = 'Front Pa
 DECLARE talkRadioId INT := (SELECT id FROM public.product WHERE Name = 'Talk Radio'); -- product_id
 DECLARE videoNewsId INT := (SELECT id FROM public.product WHERE Name = 'Video News'); -- product_id
 DECLARE weeklyPrintId INT := (SELECT id FROM public.product WHERE Name = 'Weekly Print'); -- product_id
+DECLARE dailyPrintId INT := (SELECT id FROM public.product WHERE Name = 'Daily Print'); -- product_id
 
 DECLARE conNoneId INT := (SELECT id FROM public.connection WHERE Name = 'None'); -- connection_id
 DECLARE conLocalStreamsId INT := (SELECT id FROM public.connection WHERE Name = 'Local Volume - Streams'); -- connection_id
@@ -308,7 +309,7 @@ INSERT INTO public.ingest (
   , ingestPaperId -- media_type_id
   , (SELECT id FROM public.source WHERE code = 'GLOBE') -- source_id
   , 'GLOBE' -- topic
-  , weeklyPrintId -- product_id
+  , dailyPrintId -- product_id
   , '{ "timeZone": "Pacific Standard Time",
       "language": "en-CA",
       "post": true,

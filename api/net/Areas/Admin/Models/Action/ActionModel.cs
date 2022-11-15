@@ -65,6 +65,8 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
             Id = model.Id,
             DefaultValue = model.DefaultValue,
             IsEnabled = model.IsEnabled,
+            Description = model.Description,
+            SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
 
