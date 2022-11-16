@@ -1,10 +1,10 @@
 import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select, SelectDate } from 'components/form';
-import { useTooltips } from 'hooks';
+import { useSourceOptions, useTooltips } from 'hooks';
 import { ContentTypeName, IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import { initialContentState } from 'store/slices';
-import { Button, ButtonVariant, FieldSize, Loader, Text } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, Loader, Show, Text } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 import { Page } from 'tno-core/dist/components/grid-table';
 import { getSortableOptions, getUserOptions } from 'utils';
@@ -29,6 +29,8 @@ export interface IContentFilterProps {
 export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
   const [{ products, ingestTypes, users }] = useLookup();
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
+  const sourceOptions = useSourceOptions();
+
   const [advancedHover, setAdvancedHover] = React.useState(false);
   useTooltips();
 
@@ -219,18 +221,35 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
-              storeFilterAdvanced({ ...filterAdvanced, fieldType: value });
+              storeFilterAdvanced({ ...filterAdvanced, fieldType: value, searchTerm: '' });
             }}
           />
-          <Text
-            className="test"
-            name="searchTerm"
-            label="Search Terms"
-            value={filterAdvanced.searchTerm}
-            onChange={(e) => {
-              storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
-            }}
-          ></Text>
+          <Show visible={filterAdvanced.fieldType?.label === 'Source'}>
+            <Select
+              name="searchTerm"
+              label="Search Terms"
+              width={FieldSize.Big}
+              onChange={(newValue: any) => {
+                const optionItem = sourceOptions.find((ds) => ds.value === newValue.value);
+                const newSearchTerm =
+                  optionItem?.label.substring(optionItem.label.indexOf('(') + 1).replace(')', '') ??
+                  '';
+                storeFilterAdvanced({ ...filterAdvanced, searchTerm: newSearchTerm });
+              }}
+              options={[new OptionItem('', 0) as IOptionItem].concat([...sourceOptions])}
+            />
+          </Show>
+          <Show visible={filterAdvanced.fieldType?.label !== 'Source'}>
+            <Text
+              className="test"
+              name="searchTerm"
+              label="Search Terms"
+              value={filterAdvanced.searchTerm}
+              onChange={(e) => {
+                storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
+              }}
+            ></Text>
+          </Show>
         </div>
         <Col className="frm-in dateRange" alignItems="flex-start">
           <label data-for="main-tooltip" data-tip="Date created">
