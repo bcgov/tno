@@ -9192,7 +9192,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-beautify@npm:^1.14.7, js-beautify@npm:^1.6.12":
+"js-beautify@npm:1.14.7, js-beautify@npm:^1.6.12":
   version: 1.14.7
   resolution: "js-beautify@npm:1.14.7"
   dependencies:
@@ -10033,7 +10033,7 @@ __metadata:
     eslint-plugin-simple-import-sort: 8.0.0
     formik: 2.2.9
     history: 5.3.0
-    js-beautify: ^1.14.7
+    js-beautify: 1.14.7
     keycloak-js: 20.0.1
     lodash: 4.17.21
     lodash.throttle: 4.1.1

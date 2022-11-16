@@ -42,7 +42,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   savePressed,
 }) => {
   const keycloak = useKeycloakWrapper();
-  const [{ series, categories, licenses, tags, users }] = useLookup();
+  const [{ series, categories, licenses, users }] = useLookup();
   const { values, setFieldValue, errors } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
