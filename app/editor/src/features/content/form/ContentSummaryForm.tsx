@@ -241,14 +241,14 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
       <Show visible={contentType !== ContentTypeName.Image}>
         <Col flex="1 1 0">
           <Show visible={contentType === ContentTypeName.Snippet}>
-            <Wysiwyg fieldName="summary" />
+            <Wysiwyg label="Summary" required fieldName="summary" />
           </Show>
           <Show
             visible={
               contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
             }
           >
-            <Wysiwyg fieldName="body" />
+            <Wysiwyg label="Story" fieldName="body" />
           </Show>
         </Col>
       </Show>

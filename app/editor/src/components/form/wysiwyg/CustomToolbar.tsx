@@ -44,6 +44,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
         <FaPaintBrush className="custom-icon" />
       </button>
       <button className="ql-link"></button>
+      <button className="ql-image"></button>
     </span>
   </div>
 );

@@ -1,11 +1,29 @@
 import styled from 'styled-components';
 
-export const Wysiwyg = styled.div`
+interface IWysiwygProps {
+  viewRaw: boolean;
+}
+
+export const Wysiwyg = styled.div<IWysiwygProps>`
   margin-bottom: 1rem;
   margin-top: 1rem;
+  label {
+    font-weight: bold;
+  }
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+    font-weight: 700;
+  }
+
   .custom-icon {
     color: #444;
   }
+
+  .editor {
+    display: ${(props) => props.viewRaw && 'none'};
+  }
+
   .ql-editor {
     min-height: 250px;
   }
@@ -14,6 +32,8 @@ export const Wysiwyg = styled.div`
     min-height: 250px;
     border: 1px solid #ccc;
     display: block;
+    outline: none;
+    display: ${(props) => (props.viewRaw ? 'block' : 'none')};
   }
 
   svg: hover {

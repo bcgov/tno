@@ -4,29 +4,47 @@ import { html_beautify } from 'js-beautify';
 import _ from 'lodash';
 import React from 'react';
 import ReactQuill from 'react-quill';
+import { useParams } from 'react-router-dom';
 import { useLookup } from 'store/hooks';
-import { Show } from 'tno-core';
 
+import { Error } from '../error';
 import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';
 
 export interface IWysiwygProps {
+  /** the formik field that is being used within the WYSIWYG */
   fieldName: keyof IContentModel;
+  /** optional label to appear above the WYSIWYG */
+  label?: string;
+  /** whether or not it is a required field */
+  required?: boolean;
 }
 /**
  * A WYSIWYG editor for the content summary form
  * @param fieldName The name of the field to edit, MUST BE of type string.
+ * @param label The label to display above the editor
+ * @param required Whether or not the field is required
  * @returns A WYSIWYG editor for the content summary form
  */
-export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
-  const { values, setFieldValue } = useFormikContext<IContentModel>();
+export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required }) => {
+  const { values, setFieldValue, errors, touched } = useFormikContext<IContentModel>();
   const [{ tags }] = useLookup();
 
+  const { id } = useParams();
+
   const [state, setState] = React.useState({
-    html: (values[fieldName] as string) ?? '',
-    rawHtml: (values[fieldName] as string) ?? '',
+    html: '',
+    rawHtml: '',
   });
   const [showRaw, setShowRaw] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!!id) {
+      setState({ ...state, html: values[fieldName] as string });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, values]);
+
   // pattern match content between but not including [ and ]</p>
   // TODO: IOS compatible?
   const tagMatch = /(?<=\[)(.*?)(?=\]<\/p>)/g;
@@ -39,7 +57,6 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
 
   // toggle raw html view
   const onClickRaw = () => {
-    onClickFormatRaw();
     const fromRawHtml = showRaw;
     setShowRaw(!showRaw);
     syncViews(fromRawHtml);
@@ -90,39 +107,38 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName }) => {
     'image',
     'color',
   ];
+
   return (
-    <styled.Wysiwyg>
+    <styled.Wysiwyg viewRaw={showRaw}>
+      {label && <label className={required ? 'required' : ''}>{label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
         onClickRemoveFormat={stripHtml}
         onClickFormatRaw={onClickFormatRaw}
       />
-      <Show visible={!showRaw}>
-        <ReactQuill
-          className="editor"
-          value={!!state.html ? state.html : (values[fieldName] as string)}
-          onChange={handleChange}
-          theme="snow"
-          modules={modules}
-          formats={formats}
-          onBlur={(e) => {
-            const value = values[fieldName];
-            if (!!value && typeof value === 'string') {
-              const stringValue = value.match(tagMatch)?.toString();
-              const tagValues = stringValue?.split(', ') ?? [];
-              const tags = extractTags(tagValues);
-              if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
-            }
-          }}
-        />
-      </Show>
-      <Show visible={showRaw}>
-        <textarea
-          className="raw-editor"
-          onChange={(e) => setState({ ...state, rawHtml: e.target.value })}
-          value={state.rawHtml}
-        />
-      </Show>
+      <ReactQuill
+        className="editor"
+        value={state.html}
+        onChange={handleChange}
+        theme="snow"
+        modules={modules}
+        formats={formats}
+        onBlur={() => {
+          const value = values[fieldName];
+          if (!!value && typeof value === 'string') {
+            const stringValue = value.match(tagMatch)?.toString();
+            const tagValues = stringValue?.split(', ') ?? [];
+            const tags = extractTags(tagValues);
+            if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+          }
+        }}
+      />
+      <textarea
+        className="raw-editor"
+        onChange={(e) => setState({ ...state, rawHtml: e.target.value })}
+        value={state.rawHtml}
+      />
+      <Error error={touched[fieldName] ? (errors[fieldName] as string) : ''} />
     </styled.Wysiwyg>
   );
 };
