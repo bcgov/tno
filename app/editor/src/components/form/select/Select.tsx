@@ -82,6 +82,16 @@ export const Select = <OptionType extends IOptionItem>({
 }: ISelectProps<OptionType>) => {
   const selectRef = React.useRef(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  //  function that is called when the user clicks the "x" on the drop down */
+  const manualClear = () => {
+    if (selectRef.current) {
+      /** also run inherited on clear if present */
+      onClear?.();
+      (selectRef.current as any).clearValue();
+    }
+  };
+
   return (
     <styled.Select className="frm-in">
       {label && (
@@ -94,36 +104,42 @@ export const Select = <OptionType extends IOptionItem>({
           {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
         </label>
       )}
-      <Row
-        onKeyUp={(e) => {
-          if (e.code === 'Delete') {
-            onClear?.();
-          }
-        }}
-        data-for="select-tooltip"
-      >
-        <styled.SelectField
-          ref={selectRef}
-          id={id ?? `sel-${name}`}
-          name={name}
-          className={`${className ?? ''}${!!error ? ' alert' : ''}`}
-          classNamePrefix={classNamePrefix ?? 'rs'}
-          variant={variant}
-          required={required}
-          width={width}
-          value={value}
-          options={options}
-          onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
-            onChange?.(newValue, actionMeta);
-            inputRef?.current?.setCustomValidity('');
+      <Row className="select-container">
+        <Row
+          onKeyUp={(e) => {
+            if (e.code === 'Delete') {
+              onClear?.();
+            }
           }}
-          onFocus={(e: any) => {
-            const input = e.target as HTMLSelectElement;
-            input?.setCustomValidity('');
-          }}
-          {...rest}
-        />
-        {children}
+          data-for="select-tooltip"
+          className="input-container"
+        >
+          <styled.SelectField
+            ref={selectRef}
+            id={id ?? `sel-${name}`}
+            name={name}
+            className={`${className ?? ''}${!!error ? ' alert' : ''}`}
+            classNamePrefix={classNamePrefix ?? 'rs'}
+            variant={variant}
+            required={required}
+            width={width}
+            value={value}
+            options={options}
+            onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
+              onChange?.(newValue, actionMeta);
+              inputRef?.current?.setCustomValidity('');
+            }}
+            onFocus={(e: any) => {
+              const input = e.target as HTMLSelectElement;
+              input?.setCustomValidity('');
+            }}
+            {...rest}
+          />
+          <span className="clear" onClick={() => manualClear()}>
+            X
+          </span>
+        </Row>
+        <div className="children">{children}</div>
       </Row>
       {!rest.isDisabled && (
         <input

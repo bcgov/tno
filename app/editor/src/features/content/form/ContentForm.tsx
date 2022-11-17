@@ -443,11 +443,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             sourceOptions.find((mt) => mt.value === props.values.sourceId) ?? ''
                           }
                           onChange={(newValue: any) => {
-                            const source = sources.find((ds) => ds.id === newValue.value);
-                            props.setFieldValue('sourceId', newValue.value);
-                            props.setFieldValue('otherSource', source?.code ?? '');
-                            if (!!source) {
-                              props.setFieldValue('licenseId', source.licenseId);
+                            if (!!newValue) {
+                              const source = sources.find((ds) => ds.id === newValue.value);
+                              props.setFieldValue('sourceId', newValue.value);
+                              props.setFieldValue('otherSource', source?.code ?? '');
+                              if (!!source) {
+                                props.setFieldValue('licenseId', source.licenseId);
+                              }
                             }
                           }}
                           options={sourceOptions.filter(
@@ -487,6 +489,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               productOptions.find((mt) => mt.value === props.values.productId) ?? ''
                             }
                             label="Designation"
+                            width={FieldSize.Big}
                             options={productOptions}
                             required
                           />

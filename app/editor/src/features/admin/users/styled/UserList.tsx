@@ -3,14 +3,15 @@ import styled from 'styled-components';
 
 export const UserList = styled(FormPage)`
   .filter-bar {
-    display: flex;
+    padding: 1.5%;
+    .txt {
+      margin-right: 0.5em;
+    }
+    .frm-in {
+      padding: 0;
+    }
     align-items: center;
-    .rs__control {
-      margin-top: 3.5%;
-    }
-    input {
-      margin-top: 3.5%;
-    }
+    display: flex;
     button {
       background-color: white;
     }
