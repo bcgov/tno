@@ -362,7 +362,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         </Row>
         <Show visible={contentType === ContentTypeName.Image && !!streamUrl}>
           <Col>
-            <img alt="" src={streamUrl}></img>
+            <img alt="" className="object-fit" src={streamUrl}></img>
           </Col>
         </Show>
         <Show visible={contentType !== ContentTypeName.Image}>
