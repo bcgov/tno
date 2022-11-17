@@ -1,13 +1,16 @@
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import signalR, { HubConnectionBuilder } from '@microsoft/signalr';
 import React from 'react';
+
+import { Settings } from '../constants';
 
 export const useApiHubConnection = () => {
   const controller = React.useRef({
     getConnection: () => {
-      const url = process.env.REACT_APP_API_URL + '/api/workOrderHub';
-      console.log(`REACT_APP_API_URL: ${process.env.REACT_APP_API_URL}`);
+      const url = Settings.ApiPath + '/workOrderHub';
+      console.log(`Settings.ApiPath: ${Settings.ApiPath}`);
       const connection = new HubConnectionBuilder()
         .withUrl(url, { withCredentials: false })
+        .configureLogging(signalR.LogLevel.Debug)
         .withAutomaticReconnect()
         .build();
       return connection;
