@@ -12,6 +12,7 @@ using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.API.Areas.Services.Models.DataLocation;
 using Renci.SshNet;
+using Renci.SshNet.Common;
 
 namespace TNO.Services.Content;
 
@@ -385,6 +386,10 @@ public class ContentManager : ServiceManager<ContentOptions>
         else throw new ConfigurationException("Data location connection settings are missing");
 
         using var client = new SftpClient(new ConnectionInfo(hostname, username, authMethod));
+        client.HostKeyReceived += (object? sender, HostKeyEventArgs e) =>
+        {
+            e.CanTrust = true;
+        };
         client.Connect();
         Stream? file = null;
         try

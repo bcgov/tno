@@ -311,9 +311,12 @@ public class ClipAction : CommandAction<ClipOptions>
         // TODO: Handle issue where capture failed and has multiple files.
         var path = this.Options.VolumePath.CombineWith(ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
         var clipStart = schedule.StartAt;
+        var filter = ingest.GetConfigurationValue("sourceFile");
 
         // Review each file that was captured to determine which one is valid for this clip schedule.
-        foreach (var file in Directory.GetFiles(path).Where(f => ParseTimeFromFileName(Path.GetFileName(f)) <= clipStart))
+        foreach (var file in Directory.GetFiles(path)
+            .Where(f => String.IsNullOrWhiteSpace(filter) || f.EndsWith(filter))
+            .Where(f => ParseTimeFromFileName(Path.GetFileName(f)) <= clipStart))
         {
             // The offset is before the source file, so we can't use it.
             var offset = CalcStartOffset(ingest, schedule, file);

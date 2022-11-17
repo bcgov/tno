@@ -41,11 +41,13 @@ public class CaptureManager : IngestManager<CaptureIngestActionManager, CaptureO
         var serviceType = !String.IsNullOrWhiteSpace(this.Options.ServiceType) ? this.Options.ServiceType : "stream";
         var hostname = System.Environment.GetEnvironmentVariable("HOSTNAME");
 
-        var results = ingests.Where(i =>
+        return ingests.Where(i =>
             i.GetConfigurationValue("serviceType") == serviceType &&
             (String.IsNullOrWhiteSpace(i.GetConfigurationValue("hostname")) ||
-                i.GetConfigurationValue("hostname") == hostname));
-        return results;
+                i.GetConfigurationValue("hostname") == hostname) &&
+            (String.IsNullOrWhiteSpace(this.Options.DataLocation) ||
+                i.DataLocations.Any(dl => dl.Name == this.Options.DataLocation))
+            );
     }
     #endregion
 }
