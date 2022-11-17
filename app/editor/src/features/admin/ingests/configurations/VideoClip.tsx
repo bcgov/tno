@@ -4,6 +4,7 @@ import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
+import { Row } from 'tno-core';
 
 import { TimeZones } from './constants';
 import * as styled from './styled';
@@ -36,7 +37,12 @@ export const VideoClip: React.FC = (props) => {
         options={TimeZones}
         value={timeZone}
       />
-      <FormikText label="Format" name="configuration.format" tooltip="Format of the clip" />
+      <FormikText
+        label="Capture Filename Filter"
+        name="configuration.sourceFile"
+        value={values.configuration.sourceFile}
+        tooltip="If more than one ingest is capturing files for a source, then filter by the filename.  Generally the schedule name and file extension (i.e. Morning.mpg)."
+      />
       <p>Use "{'{schedule.Name}'}.mp4" to name the file with the schedule name.</p>
       <FormikText
         label="Output File Name"
@@ -52,18 +58,21 @@ export const VideoClip: React.FC = (props) => {
         placeholder="-c:v copy -c:a copy"
         onClick={applyPlaceholder}
       />
-      <FormikText
-        label="Frame Rate"
-        name="configuration.frameRate"
-        value={values.configuration.frameRate}
-      />
-      <FormikText
-        label="Volume"
-        name="configuration.volume"
-        tooltip="Volume in percent or dB (1 = 100%)"
-        placeholder="1"
-        onClick={applyPlaceholder}
-      />
+      <Row>
+        <FormikText label="Format" name="configuration.format" tooltip="Format of the clip" />
+        <FormikText
+          label="Frame Rate"
+          name="configuration.frameRate"
+          value={values.configuration.frameRate}
+        />
+        <FormikText
+          label="Volume"
+          name="configuration.volume"
+          tooltip="Volume in percent or dB (1 = 100%)"
+          placeholder="1"
+          onClick={applyPlaceholder}
+        />
+      </Row>
       <FormikText
         label="Other Arguments"
         name="configuration.otherArgs"

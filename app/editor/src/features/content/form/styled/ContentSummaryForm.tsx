@@ -34,4 +34,8 @@ export const ContentSummaryForm = styled.div`
   textarea[name='body'] {
     height: 80%;
   }
+
+  .object-fit {
+    object-fit: contain;
+  }
 `;

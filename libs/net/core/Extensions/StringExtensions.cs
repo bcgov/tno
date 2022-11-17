@@ -355,4 +355,14 @@ public static class StringExtensions
         paths.CopyTo(values, 1);
         return Path.Combine(values).Replace(Path.DirectorySeparatorChar, directorySeparatorChar);
     }
+
+    /// <summary>
+    /// Escape all characters in the specified 'value'.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string Escape(this string value)
+    {
+        return Regex.Replace(value, @"[^a-zA-Z\d\s:]", "\\$0");
+    }
 }

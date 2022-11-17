@@ -31,6 +31,12 @@ export const VideoRPi: React.FC = (props) => {
         value={timeZone}
         required
       />
+      <FormikText
+        label="Capture Filename Filter"
+        name="configuration.sourceFile"
+        value={values.configuration.sourceFile}
+        tooltip="If more than one ingest is capturing files for a source, then filter by the filename.  Generally the schedule name and file extension (i.e. Morning.mpg)."
+      />
       <p>
         FFmpeg is used to capture audio and video content. For more advanced configuration review{' '}
         <a href="https://www.ffmpeg.org/ffmpeg.html" target="_blank" rel="noreferrer">

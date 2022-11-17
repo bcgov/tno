@@ -12,6 +12,7 @@ using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.API.Areas.Services.Models.DataLocation;
 using Renci.SshNet;
+using Renci.SshNet.Common;
 
 namespace TNO.Services.Content;
 
@@ -220,55 +221,56 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
-        try
+        this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
+        var model = result.Message.Value;
+
+        // Only add if doesn't already exist.
+        var exists = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
+        if (exists == null)
         {
-            this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
-            var model = result.Message.Value;
-
-            // Only add if doesn't already exist.
-            var exists = await this.Api.FindContentByUidAsync(model.Uid, model.Source);
-            if (exists == null)
+            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
+            // TODO: Handle e-tag.
+            var source = await this.Api.GetSourceForCodeAsync(model.Source);
+            if (model.ProductId == 0)
             {
-                // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-                // TODO: Handle e-tag.
-                var source = await this.Api.GetSourceForCodeAsync(model.Source);
-                if (model.ProductId == 0)
-                {
-                    // Messages in Kafka are missing information, replace with best guess.
-                    var ingests = await this.Api.GetIngestsForTopicAsync(result.Topic);
-                    model.ProductId = ingests.FirstOrDefault()?.ProductId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
-                }
+                // Messages in Kafka are missing information, replace with best guess.
+                var ingests = await this.Api.GetIngestsForTopicAsync(result.Topic);
+                model.ProductId = ingests.FirstOrDefault()?.ProductId ?? throw new InvalidOperationException($"Unable to find an ingest for the topic '{result.Topic}'");
+            }
 
-                var content = new ContentModel()
-                {
-                    Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
-                    SourceId = source?.Id,
-                    OtherSource = model.Source,
-                    ContentType = model.ContentType,
-                    ProductId = model.ProductId,
-                    LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
-                    SeriesId = null, // TODO: Provide default series from Data Source config settings.
-                    OtherSeries = null, // TODO: Provide default series from Data Source config settings.
-                    OwnerId = source?.OwnerId,
-                    Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
-                    Uid = model.Uid,
-                    Page = "", // TODO: Provide default page from Data Source config settings.
-                    Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
-                    Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
-                    SourceUrl = model.Link,
-                    PublishedOn = model.PublishedOn,
-                };
-                content = await this.Api.AddContentAsync(content);
-                this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content?.Id, content?.PublishedOn);
+            var content = new ContentModel()
+            {
+                Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
+                SourceId = source?.Id,
+                OtherSource = model.Source,
+                ContentType = model.ContentType,
+                ProductId = model.ProductId,
+                LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
+                SeriesId = null, // TODO: Provide default series from Data Source config settings.
+                OtherSeries = null, // TODO: Provide default series from Data Source config settings.
+                OwnerId = source?.OwnerId,
+                Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
+                Uid = model.Uid,
+                Page = "", // TODO: Provide default page from Data Source config settings.
+                Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
+                SourceUrl = model.Link,
+                PublishedOn = model.PublishedOn,
+            };
+            content = await this.Api.AddContentAsync(content);
+            this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content?.Id, content?.PublishedOn);
 
-                // Upload the file to the API.
-                if (content != null && !String.IsNullOrWhiteSpace(model.FilePath))
+            var isUploadSuccess = true;
+            
+            // Upload the file to the API.
+            if (content != null && !String.IsNullOrWhiteSpace(model.FilePath))
+            {
+                // A service needs to know it's context so that it can import files.
+                // Default to the service data location if the source model does not specify.
+                var dataLocation = await this.Api.GetDataLocationAsync(!String.IsNullOrWhiteSpace(model.DataLocation) ? model.DataLocation : this.Options.DataLocation)
+                    ?? throw new ConfigurationException("Service data location is not configured correctly");
+                try
                 {
-                    // A service needs to know it's context so that it can import files.
-                    // Default to the service data location if the source model does not specify.
-                    var dataLocation = await this.Api.GetDataLocationAsync(!String.IsNullOrWhiteSpace(model.DataLocation) ? model.DataLocation : this.Options.DataLocation)
-                        ?? throw new ConfigurationException("Service data location is not configured correctly");
-
                     // TODO: It isn't ideal to copy files via the API as large files will block this service.  Need to figure out a more performant process at some point.
                     content = (dataLocation.Connection?.ConnectionType) switch
                     {
@@ -290,33 +292,36 @@ public class ContentManager : ServiceManager<ContentOptions>
                     //     await SendMessageAsync(content!);
                     // }
                 }
-
-                if (content != null)
+                catch (Exception ex)
                 {
-                    // Update the status of the content reference.
-                    var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
-                    if (reference != null)
-                    {
-                        reference.Status = (int)WorkflowStatus.Imported;
-                        await this.Api.UpdateContentReferenceAsync(reference);
-                    }
+                    this.Logger.LogError(ex, $"Exception while uploading the file [{model.FilePath}] to the API.");
+                    isUploadSuccess = false;
                 }
             }
-            else
+
+            if (content != null)
             {
-                // TODO: Not sure if this should be considered a failure or not.
-                // Content shouldn't exist already, it indicates unexpected scenario.
-                this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", model.Source, model.Uid);
+                // Update the status of the content reference.
+                var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
+                if (reference != null)
+                {
+                    reference.Status = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
+                    await this.Api.UpdateContentReferenceAsync(reference);
+                }
             }
 
-            // Successful run clears any errors.
-            this.State.ResetFailures();
-            _retries = 0;
+            if (!isUploadSuccess) return;
         }
-        catch (HttpClientRequestException ex)
+        else
         {
-            this.Logger.LogError(ex, "HTTP exception while consuming. {response}", ex.Data["body"] ?? "");
+            // TODO: Not sure if this should be considered a failure or not.
+            // Content shouldn't exist already, it indicates unexpected scenario.
+            this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", model.Source, model.Uid);
         }
+
+        // Successful run clears any errors.
+        this.State.ResetFailures();
+        _retries = 0;
     }
 
     /// <summary>
@@ -381,6 +386,10 @@ public class ContentManager : ServiceManager<ContentOptions>
         else throw new ConfigurationException("Data location connection settings are missing");
 
         using var client = new SftpClient(new ConnectionInfo(hostname, username, authMethod));
+        client.HostKeyReceived += (object? sender, HostKeyEventArgs e) =>
+        {
+            e.CanTrust = true;
+        };
         client.Connect();
         Stream? file = null;
         try

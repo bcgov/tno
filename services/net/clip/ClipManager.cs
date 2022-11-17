@@ -39,10 +39,14 @@ public class ClipManager : IngestManager<ClipIngestActionManager, ClipOptions>
         var ingests = await base.GetIngestsAsync();
         var serviceType = !String.IsNullOrWhiteSpace(this.Options.ServiceType) ? this.Options.ServiceType : "clip";
         var hostname = System.Environment.GetEnvironmentVariable("HOSTNAME");
+
         return ingests.Where(i =>
             i.GetConfigurationValue("serviceType") == serviceType &&
             (String.IsNullOrWhiteSpace(i.GetConfigurationValue("hostname")) ||
-                i.GetConfigurationValue("hostname") == hostname));
+                i.GetConfigurationValue("hostname") == hostname) &&
+            (String.IsNullOrWhiteSpace(this.Options.DataLocation) ||
+                i.DataLocations.Any(dl => dl.Name == this.Options.DataLocation))
+            );
     }
     #endregion
 }
