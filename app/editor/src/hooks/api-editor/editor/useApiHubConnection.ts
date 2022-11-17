@@ -1,4 +1,4 @@
-import signalR, { HubConnectionBuilder } from '@microsoft/signalr';
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import React from 'react';
 
 import { Settings } from '../constants';
@@ -10,7 +10,7 @@ export const useApiHubConnection = () => {
       console.log(`Settings.ApiPath: ${Settings.ApiPath}`);
       const connection = new HubConnectionBuilder()
         .withUrl(url, { withCredentials: false })
-        .configureLogging(signalR.LogLevel.Debug)
+        .configureLogging(LogLevel.Debug)
         .withAutomaticReconnect()
         .build();
       return connection;
