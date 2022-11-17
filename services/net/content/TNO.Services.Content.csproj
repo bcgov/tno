@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\net\services\TNO.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
   </ItemGroup>
 
