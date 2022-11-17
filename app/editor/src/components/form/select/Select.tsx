@@ -93,7 +93,7 @@ export const Select = <OptionType extends IOptionItem>({
   };
 
   return (
-    <styled.Select className="frm-in" width={width}>
+    <styled.Select className="frm-in">
       {label && (
         <label
           data-for="main-tooltip"
