@@ -1,4 +1,4 @@
-import { FaCode, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
+import { FaCode, FaExpandAlt, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
 
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
@@ -45,6 +45,9 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
       </button>
       <button className="ql-link"></button>
       <button className="ql-image"></button>
+    </span>
+    <span className="ql-formats">
+      <FaExpandAlt className="custom-icon" />
     </span>
   </div>
 );
