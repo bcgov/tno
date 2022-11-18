@@ -134,7 +134,7 @@ export const GridTable = <T extends object>({
     showPaging = true,
     manualPagination = false,
     pageIndex: initialPageIndex = 0,
-    pageSize: initialPageSize = 10,
+    pageSize: initialPageSize = 20,
     pageCount: initialPageCount = -1,
   } = paging || {};
   const { manualFilters = false } = filters || {};
