@@ -7,10 +7,9 @@ export const useApiHubConnection = () => {
   const controller = React.useRef({
     getConnection: () => {
       const url = Settings.ApiPath + '/workOrderHub';
-      console.log(`Settings.ApiPath: ${Settings.ApiPath}`);
       const connection = new HubConnectionBuilder()
         .withUrl(url, { withCredentials: false })
-        .configureLogging(LogLevel.Debug)
+        .configureLogging(LogLevel.Error)
         .withAutomaticReconnect()
         .build();
       return connection;
