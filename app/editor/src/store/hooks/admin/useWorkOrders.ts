@@ -1,5 +1,12 @@
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
-import { IPaged, IWorkOrderFilter, IWorkOrderModel, useApiAdminWorkOrders } from 'hooks/api-editor';
+import { useAdmin } from 'hooks';
+import {
+  IPaged,
+  IWorkOrderFilter,
+  IWorkOrderModel,
+  useApiAdminWorkOrders,
+  useApiWorkOrders,
+} from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
@@ -14,22 +21,24 @@ interface IWorkOrderController {
 }
 
 export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
-  const api = useApiAdminWorkOrders();
+  const adminApi = useApiAdminWorkOrders();
+  const api = useApiWorkOrders();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const isAdmin = useAdmin();
 
   const controller = React.useMemo(
     () => ({
       findWorkOrders: async (filter: IWorkOrderFilter) => {
         const response = await dispatch<IPaged<IWorkOrderModel>>('find-work-orders', () =>
-          api.findWorkOrders(filter),
+          isAdmin ? adminApi.findWorkOrders(filter) : api.findWorkOrders(filter),
         );
         store.storeWorkOrders(response.data);
         return response.data;
       },
       getWorkOrder: async (id: number) => {
         const response = await dispatch<IWorkOrderModel>('get-work-order', () =>
-          api.getWorkOrder(id),
+          adminApi.getWorkOrder(id),
         );
         store.storeWorkOrders({
           ...state.workOrders,
@@ -42,7 +51,7 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
       },
       addWorkOrder: async (model: IWorkOrderModel) => {
         const response = await dispatch<IWorkOrderModel>('add-work-order', () =>
-          api.addWorkOrder(model),
+          adminApi.addWorkOrder(model),
         );
         store.storeWorkOrders({
           ...state.workOrders,
@@ -52,7 +61,7 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
       },
       updateWorkOrder: async (model: IWorkOrderModel) => {
         const response = await dispatch<IWorkOrderModel>('update-work-order', () =>
-          api.updateWorkOrder(model),
+          adminApi.updateWorkOrder(model),
         );
         store.storeWorkOrders({
           ...state.workOrders,
@@ -65,7 +74,7 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
       },
       deleteWorkOrder: async (model: IWorkOrderModel) => {
         const response = await dispatch<IWorkOrderModel>('delete-work-order', () =>
-          api.deleteWorkOrder(model),
+          adminApi.deleteWorkOrder(model),
         );
         store.storeWorkOrders({
           ...state.workOrders,
@@ -77,7 +86,7 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
     }),
     // The state.workOrders will cause it to fire twice!
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api, dispatch, store],
+    [adminApi, dispatch, store],
   );
 
   return [state, controller];

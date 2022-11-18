@@ -81,6 +81,11 @@ export const NavBar: React.FC = () => {
               label="Linked Snippet Log"
               claim={Claim.administrator}
             />
+            <NavBarItem
+              navigateTo="/work/orders"
+              label="Work Orders"
+              claim={[Claim.editor, Claim.administrator]}
+            />
           </Show>
 
           {/* Admin */}
@@ -111,11 +116,6 @@ export const NavBar: React.FC = () => {
             <NavBarItem
               navigateTo="/admin/ingest/types"
               label="Ingest Types"
-              claim={Claim.administrator}
-            />
-            <NavBarItem
-              navigateTo="/admin/work/orders"
-              label="Work Orders"
               claim={Claim.administrator}
             />
           </Show>

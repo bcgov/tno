@@ -2,7 +2,7 @@ import { IconButton, OptionItem } from 'components/form';
 import { FormikForm, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { useModal, useTooltips } from 'hooks';
+import { useAdmin, useModal, useTooltips } from 'hooks';
 import { IWorkOrderModel, WorkOrderStatusName } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
@@ -30,6 +30,7 @@ export const WorkOrderForm: React.FC = () => {
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
   useTooltips();
+  const isAdmin = useAdmin();
 
   const [workOrder, setWorkOrder] = React.useState<IWorkOrderModel>(defaultWorkOrder);
   const statusOptions = getEnumStringOptions(WorkOrderStatusName);
@@ -51,7 +52,7 @@ export const WorkOrderForm: React.FC = () => {
         : await api.updateWorkOrder(values);
       setWorkOrder(result);
       toast.success(`Work order has successfully been saved.`);
-      if (!originalId) navigate(`/admin/work/orders/${result.id}`);
+      if (!originalId) navigate(`/work/orders/${result.id}`);
     } catch {}
   };
 
@@ -65,7 +66,7 @@ export const WorkOrderForm: React.FC = () => {
         iconType="back"
         label="Back to WorkOrders"
         className="back-button"
-        onClick={() => navigate('/admin/work/orders')}
+        onClick={() => navigate('/work/orders')}
       />
       <FormikForm
         initialValues={workOrder}
@@ -83,24 +84,27 @@ export const WorkOrderForm: React.FC = () => {
                   options={userOptions}
                   name="requestorId"
                   label="Requestor"
+                  isDisabled={!isAdmin}
                   value={userOptions.find((s) => s.value === values.requestorId) || ''}
                 />
-                <FormikTextArea name="description" label="Description" />
+                <FormikTextArea name="description" label="Description" disabled={!isAdmin} />
               </Col>
               <Col flex="1 1 0">
                 <FormikSelect
                   options={statusOptions}
                   name="status"
                   label="Status"
+                  isDisabled={!isAdmin}
                   value={statusOptions.find((s) => s.value === values.status) || ''}
                 />
                 <FormikSelect
                   options={userOptions}
                   name="assignedId"
                   label="Assigned"
+                  isDisabled={!isAdmin}
                   value={userOptions.find((s) => s.value === values.assignedId) || ''}
                 />
-                <FormikTextArea name="note" label="Note" />
+                <FormikTextArea name="note" label="Note" disabled={!isAdmin} />
               </Col>
             </Row>
             <Show visible={!!values.contentId}>
@@ -152,10 +156,14 @@ export const WorkOrderForm: React.FC = () => {
               </Row>
             </Show>
             <Row justifyContent="center" className="form-inputs">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !isAdmin}>
                 Save
               </Button>
-              <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+              <Button
+                onClick={toggle}
+                variant={ButtonVariant.danger}
+                disabled={isSubmitting || !isAdmin}
+              >
                 Delete
               </Button>
             </Row>
@@ -170,7 +178,7 @@ export const WorkOrderForm: React.FC = () => {
                 try {
                   await api.deleteWorkOrder(workOrder);
                   toast.success(`Work order has successfully been deleted.`);
-                  navigate('/admin/work/orders');
+                  navigate('/work/orders');
                 } finally {
                   toggle();
                 }

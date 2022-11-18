@@ -85,9 +85,6 @@ export const AdminRouter: React.FC = () => {
         <Route path="settings" element={<IngestSettings />} />
         <Route path="ingesting" element={<ContentReferenceList />} />
       </Route>
-
-      <Route path="work/orders" element={<WorkOrderList />} />
-      <Route path="work/orders/:id" element={<WorkOrderForm />} />
     </Routes>
   );
 };
