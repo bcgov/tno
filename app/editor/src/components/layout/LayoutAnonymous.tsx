@@ -1,5 +1,5 @@
 import React from 'react';
-import { Footer, Header, Loading } from 'tno-core';
+import { Header, Loading } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -27,7 +27,6 @@ export const LayoutAnonymous: React.FC<ILayoutAnonymousProps> = ({ name, childre
           {isLoading && <Loading />}
         </main>
       </div>
-      <Footer />
     </styled.Layout>
   );
 };
