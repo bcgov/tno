@@ -15,7 +15,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
-import { Button, ButtonVariant, Show } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, Show } from 'tno-core';
 import { Col, Row } from 'tno-core';
 import { getEnumStringOptions } from 'utils';
 
@@ -127,6 +127,7 @@ export const UserForm: React.FC = () => {
                     label="Roles"
                     name="role"
                     options={roleOptions}
+                    width={FieldSize.Big}
                     placeholder="Select Role"
                     tooltip="Add a role to the user"
                   >
