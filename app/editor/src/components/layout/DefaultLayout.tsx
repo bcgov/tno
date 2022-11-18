@@ -4,7 +4,7 @@ import { NavBar } from 'features/navbar';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { useToastError } from 'store/hooks';
-import { Button, Footer, Header, SummonContext, useKeycloakWrapper } from 'tno-core';
+import { Button, Header, SummonContext, useKeycloakWrapper } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
 import * as styled from './styled';
@@ -57,7 +57,6 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
               </LayoutErrorBoundary>
             </main>
           </div>
-          <Footer />
         </>
       ) : (
         <div className="main-window">

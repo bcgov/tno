@@ -670,7 +670,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     />
                   </Show>
                 </Row>
-                <Row>
+                <Row className="submit-buttons">
                   <Button
                     type="submit"
                     disabled={props.isSubmitting}
