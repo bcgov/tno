@@ -32,8 +32,6 @@ import {
   TagsForm,
   UserForm,
   UserList,
-  WorkOrderForm,
-  WorkOrderList,
 } from '.';
 
 export const AdminRouter: React.FC = () => {
