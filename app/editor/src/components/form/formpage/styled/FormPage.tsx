@@ -10,6 +10,7 @@ export const FormPage = styled.div<IFormPageProps>`
   padding: 0.5em 2em 0 2em;
   margin: 0px auto;
   overflow: auto;
+  overflow-x: hidden;
 
   div[role='rowgroup'] {
     min-height: 100px;

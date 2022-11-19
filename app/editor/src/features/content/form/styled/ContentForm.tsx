@@ -65,4 +65,8 @@ export const ContentForm = styled.div`
   .tab .spinner {
     margin-left: 0.5em;
   }
+
+  .submit-buttons {
+    padding-top: 0.5em;
+  }
 `;
