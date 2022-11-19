@@ -229,7 +229,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           <Col className="licenses">
             <RadioGroup
               name="expireOptions"
-              label="License"
+              label="Licence"
               spaceUnderRadio
               options={licenseOptions}
               value={licenseOptions.find((e) => e.value === values?.licenseId)}

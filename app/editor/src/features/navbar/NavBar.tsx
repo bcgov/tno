@@ -95,7 +95,7 @@ export const NavBar: React.FC = () => {
             <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
             <NavBarItem navigateTo="/admin/sources" label="Sources" claim={Claim.administrator} />
             <NavBarItem navigateTo="/admin/products" label="Products" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/licenses" label="Licenses" claim={Claim.administrator} />
+            <NavBarItem navigateTo="/admin/licenses" label="Licences" claim={Claim.administrator} />
             <NavBarItem navigateTo="/admin/actions" label="Actions" claim={Claim.administrator} />
             <NavBarItem
               navigateTo="/admin/connections"
