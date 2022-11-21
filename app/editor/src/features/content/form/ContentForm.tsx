@@ -193,7 +193,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             if (contentId === +id) fetchContent(+id);
           });
         })
-        .catch((error) => console.error(error));
+        .catch((error) => {
+          console.error('signalr', error);
+        });
 
       return function cleanUp() {
         connection.off('Update');
