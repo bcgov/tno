@@ -51,7 +51,7 @@ export const LicenseForm: React.FC = () => {
     <styled.LicenseForm>
       <IconButton
         iconType="back"
-        label="Back to Licenses"
+        label="Back to Licences"
         className="back-button"
         onClick={() => navigate('/admin/licenses')}
       />
@@ -136,7 +136,7 @@ export const LicenseForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this License?"
+              body="Are you sure you wish to remove this Licence?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"

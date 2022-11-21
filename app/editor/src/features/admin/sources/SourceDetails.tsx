@@ -54,7 +54,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
       </Col>
       <Col>
         <FormikSelect
-          label="License"
+          label="Licence"
           name="licenseId"
           tooltip="Manage the length of time content will be stored"
           options={licenses}

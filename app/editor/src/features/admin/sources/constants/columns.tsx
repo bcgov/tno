@@ -20,7 +20,7 @@ export const columns: (Column<ISourceModel> &
     width: 1,
   },
   {
-    Header: 'License',
+    Header: 'Licence',
     width: 1,
     accessor: (row) => row.license?.name,
     Cell: ({ value }: any) => <Ellipsis>{value}</Ellipsis>,

@@ -32,11 +32,11 @@ export const LicenseList: React.FC = () => {
       <FormPage>
         <Row className="add-media" justifyContent="flex-end">
           <Col flex="1 1 0">
-            Licenses provide a way to group related content and identify content for reports.
+            Licences provide a way to group related content and identify content for reports.
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new license`}
+            label={`Add new licence`}
             onClick={() => navigate(`/admin/licenses/0`)}
           />
         </Row>
