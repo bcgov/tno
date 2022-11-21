@@ -20,23 +20,26 @@ export const useWorkOrders = (): [any, IWorkOrderController] => {
   const dispatch = useAjaxWrapper();
   const api = useApiWorkOrders();
 
-  const controller = React.useRef({
-    findWorkOrders: async (filter: IWorkOrderFilter) => {
-      const response = await dispatch<IPaged<IWorkOrderModel>>(
-        'find-work-orders',
-        () => api.findWorkOrders(filter),
-        undefined,
-        true,
-      );
-      return response;
-    },
-    transcribe: async (content: IContentModel) => {
-      return await dispatch('transcribe-content', () => api.transcribe(content));
-    },
-    nlp: async (content: IContentModel) => {
-      return await dispatch('nlp-content', () => api.nlp(content));
-    },
-  }).current;
+  const controller = React.useMemo(
+    () => ({
+      findWorkOrders: async (filter: IWorkOrderFilter) => {
+        const response = await dispatch<IPaged<IWorkOrderModel>>(
+          'find-work-orders',
+          () => api.findWorkOrders(filter),
+          undefined,
+          true,
+        );
+        return response;
+      },
+      transcribe: async (content: IContentModel) => {
+        return await dispatch('transcribe-content', () => api.transcribe(content));
+      },
+      nlp: async (content: IContentModel) => {
+        return await dispatch('nlp-content', () => api.nlp(content));
+      },
+    }),
+    [api, dispatch],
+  );
 
   return [{}, controller];
 };
