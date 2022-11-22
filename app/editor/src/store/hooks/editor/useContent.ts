@@ -2,6 +2,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
+import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
 import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
 import { useApiContents } from 'hooks/api-editor';
 import React from 'react';
@@ -23,6 +24,7 @@ interface IContentController {
   attach: (id: number, path: string) => Promise<IContentModel>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
+  storeMorningReportFilter: (filter: IMorningReportFilter) => void;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {
@@ -42,9 +44,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');
-        if (state.content) {
-          actions.storeContent({ ...state.content, items: [...state.content.items, content] });
-        }
+        actions.addContent([response.data]);
         return response.data;
       },
       updateContent: async (content: IContentModel) => {
@@ -53,15 +53,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           () => api.updateContent(content),
           'content',
         );
-        if (state.content) {
-          actions.storeContent({
-            ...state.content,
-            items: state.content.items.map((i: IContentModel) => {
-              if (i.id === content.id) return content;
-              return i;
-            }),
-          });
-        }
+        actions.updateContent([response.data]);
         return response.data;
       },
       deleteContent: async (content: IContentModel) => {
@@ -70,12 +62,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           () => api.deleteContent(content),
           'content',
         );
-        if (state.content) {
-          actions.storeContent({
-            ...state.content,
-            items: state.content.items.filter((i: IContentModel) => i.id !== content.id),
-          });
-        }
+        actions.removeContent([response.data]);
         return response.data;
       },
       publishContent: async (content: IContentModel) => {
@@ -100,8 +87,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,
+      storeMorningReportFilter: actions.storeMorningReportFilter,
     }),
-    [actions, api, dispatch, state],
+    [actions, api, dispatch],
   );
 
   return [state, controller];

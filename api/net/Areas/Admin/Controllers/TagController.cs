@@ -103,7 +103,7 @@ public class TagController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Tag" })]
     public IActionResult Add(TagModel model)
     {
-        var result = _service.Add((Tag)model);
+        var result = _service.AddAndSave((Tag)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new TagModel(result));
     }
 
@@ -119,7 +119,7 @@ public class TagController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Tag" })]
     public IActionResult Update(TagModel model)
     {
-        var result = _service.Update((Tag)model);
+        var result = _service.UpdateAndSave((Tag)model);
         return new JsonResult(new TagModel(result));
     }
 
@@ -135,7 +135,7 @@ public class TagController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Tag" })]
     public IActionResult Delete(TagModel model)
     {
-        _service.Delete((Tag)model);
+        _service.DeleteAndSave((Tag)model);
         return new JsonResult(model);
     }
     #endregion

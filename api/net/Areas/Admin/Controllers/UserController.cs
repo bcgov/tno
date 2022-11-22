@@ -96,7 +96,7 @@ public class UserController : ControllerBase
     {
         var user = (User)model;
         if (user.Key == Guid.Empty) user.Key = Guid.NewGuid();
-        var result = _userService.Add(user);
+        var result = _userService.AddAndSave(user);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new UserModel(result));
     }
 

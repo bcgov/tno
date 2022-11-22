@@ -1,3 +1,4 @@
+$background-color: white;
 $primary-color: #003366;
 $primary-color-rgb: 0, 51, 102;
 $primary-light-color: #38598a;
@@ -9,8 +10,6 @@ $dark-variant-color: #121212;
 $text-color: #494949;
 $accent-color: #fcba19;
 $light-accent-color: #fcd573;
-$table-color: #dee2e6;
-$table-header-color: #e9ecef;
 $sres-icon-color: #172b4d;
 $danger-color: #d8292f;
 $light-danger-color: #fae1e7;
@@ -20,6 +19,13 @@ $completed-color: #2e8540;
 $filter-background-color: #f2f2f2;
 $slide-out-blue: #1a5a96;
 $selected-color: #dff0d8;
+$border-color: #efefef;
+
+// Table
+$table-color: #dee2e6;
+$table-header-color: #e9ecef;
+$table-even-row-color: #e9ecef;
+$table-odd-row-color: white;
 
 // Form
 $form-background-color: white;

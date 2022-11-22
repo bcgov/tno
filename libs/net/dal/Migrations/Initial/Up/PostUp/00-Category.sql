@@ -4,6 +4,7 @@ BEGIN
 
 INSERT INTO public.category (
   "name"
+  , "description"
   , "is_enabled"
   , "category_type"
   , "auto_transcribe"
@@ -12,7 +13,8 @@ INSERT INTO public.category (
   , "updated_by_id"
   , "updated_by"
 ) VALUES (
-  'Malcolmson - suicide prevention (ProActive Comms)'
+  'Malcolmson - suicide prevention'
+  , '(ProActive Comms)' -- description
   , true -- is_enabled
   , 1 -- category_type
   , false -- auto_transcribe
@@ -21,7 +23,8 @@ INSERT INTO public.category (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Repeat offender recommendations (ProActive Comms)'
+  'Repeat offender recommendations'
+  , '(ProActive Comms)' -- description
   , true -- is_enabled
   , 1 -- category_type
   , false -- auto_transcribe
@@ -31,6 +34,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Alberta Is Calling'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -40,6 +44,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Ambulance waits'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -49,6 +54,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'ArriveCan app'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -58,6 +64,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'BC NDP leadership'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -67,6 +74,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'BC crime'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -76,6 +84,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'BC housing costs'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -84,7 +93,8 @@ INSERT INTO public.category (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'COVID-19 update'
+  'COVID-19'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -94,6 +104,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Climate change'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -103,6 +114,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Dam release lawsuit'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -112,6 +124,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Daycare death sentencing'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -121,6 +134,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'ER closure'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -130,6 +144,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Gang violence'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -139,6 +154,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Health care decline'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -148,6 +164,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'IIO investigation'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -157,6 +174,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Inflation concerns'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -166,6 +184,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Mackenzie - seniors report'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -174,7 +193,8 @@ INSERT INTO public.category (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Municipal election'
+  'Municipal elections'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -184,6 +204,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Old-growth protesters'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -193,6 +214,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Overdose crisis'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -202,6 +224,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Port strike'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -211,6 +234,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Street lawlessness'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -220,6 +244,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Surrey South by-election'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -229,6 +254,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Truth and Reconciliation Day'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -238,6 +264,7 @@ INSERT INTO public.category (
   , ''
 ), (
   'Ukraine invasion'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
@@ -247,8 +274,19 @@ INSERT INTO public.category (
   , ''
 ), (
   'Wildfire season'
+  , '' -- description
   , true -- is_enabled
   , 0 -- category_type
+  , false -- auto_transcribe
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Premier Eby / Government Transition'
+  , '' -- description
+  , true -- is_enabled
+  , 1 -- category_type
   , false -- auto_transcribe
   , DEFAULT_USER_ID
   , ''

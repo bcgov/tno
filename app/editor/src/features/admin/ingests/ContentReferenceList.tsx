@@ -6,7 +6,7 @@ import React from 'react';
 import { SortingRule } from 'react-table';
 import { useApp } from 'store/hooks';
 import { useContentReferences } from 'store/hooks/admin';
-import { FieldSize, Page, PagedTable, Row, Text } from 'tno-core';
+import { FieldSize, IPage, Page, PagedTable, Row, Text } from 'tno-core';
 
 import {
   contentReferenceColumns,
@@ -27,7 +27,9 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
     ...defaultContentReferenceFilter,
     source: values.source?.code,
   });
-  const [page, setPage] = React.useState<Page<IContentReferenceModel>>(defaultContentReferencePage);
+  const [page, setPage] = React.useState<IPage<IContentReferenceModel>>(
+    defaultContentReferencePage,
+  );
 
   const fetch = React.useCallback(
     async (filter: IContentReferenceListFilter) => {

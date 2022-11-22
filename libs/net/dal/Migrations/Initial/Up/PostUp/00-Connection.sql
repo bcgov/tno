@@ -115,7 +115,7 @@ INSERT INTO public.connection (
   , 'Server room NAS access point' -- description
   , true -- is_enabled
   , 7 -- connection_type - SSH
-  , '{"path":"/home/admin/data","username":"","hostname":"tno-capture-01.local","password": ""}' -- configuration
+  , '{"path":"/mnt/NAS/tno2.0","username":"","hostname":"142.36.15.76","password": ""}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
   , DEFAULT_USER_ID

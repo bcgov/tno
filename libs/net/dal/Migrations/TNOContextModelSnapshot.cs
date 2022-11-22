@@ -415,6 +415,10 @@ namespace TNO.DAL.Migrations
                     b.Property<int?>("IngestTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_hidden");
+
                     b.Property<int>("LicenseId")
                         .HasColumnType("integer")
                         .HasColumnName("license_id");

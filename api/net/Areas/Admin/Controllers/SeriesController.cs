@@ -103,7 +103,7 @@ public class SeriesController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Series" })]
     public IActionResult Add(SeriesModel model)
     {
-        var result = _service.Add((Series)model);
+        var result = _service.AddAndSave((Series)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SeriesModel(result));
     }
 
@@ -119,7 +119,7 @@ public class SeriesController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Series" })]
     public IActionResult Update(SeriesModel model)
     {
-        var result = _service.Update((Series)model);
+        var result = _service.UpdateAndSave((Series)model);
         return new JsonResult(new SeriesModel(result));
     }
 
@@ -135,7 +135,7 @@ public class SeriesController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Series" })]
     public IActionResult Delete(SeriesModel model)
     {
-        _service.Delete((Series)model);
+        _service.DeleteAndSave((Series)model);
         return new JsonResult(model);
     }
     #endregion

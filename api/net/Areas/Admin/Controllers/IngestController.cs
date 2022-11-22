@@ -107,7 +107,7 @@ public class IngestController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult Add(IngestModel model)
     {
-        var result = _service.Add(model.ToEntity(_serializerOptions));
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         result = _service.FindById(result.Id)!;
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new IngestModel(result, _serializerOptions));
     }
@@ -124,7 +124,7 @@ public class IngestController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult Update(IngestModel model)
     {
-        var result = _service.Update(model.ToEntity(_serializerOptions), true);
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions), true);
         result = _service.FindById(result.Id)!;
         return new JsonResult(new IngestModel(result, _serializerOptions));
     }
@@ -141,7 +141,7 @@ public class IngestController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult Delete(IngestModel model)
     {
-        _service.Delete(model.ToEntity(_serializerOptions));
+        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion

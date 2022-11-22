@@ -5,10 +5,10 @@ import { Claim, Role } from '..';
  */
 export interface IKeycloak {
   instance: any;
+  initialized: boolean;
   authenticated?: boolean;
   getDisplayName: () => string;
   getUsername: () => string;
-  isApproved: () => boolean;
   hasRole(role?: Role | Array<Role>): boolean;
   hasClaim(claim?: Claim | Array<Claim>): boolean;
 }

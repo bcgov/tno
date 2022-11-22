@@ -44,7 +44,7 @@ export const PrivateRoute = ({
 
   if (!keycloak.authenticated) {
     return <Navigate to={redirectTo} />;
-  } else if (!keycloak.isApproved()) {
+  } else if (!keycloak.hasClaim()) {
     return <Navigate to="/welcome" />;
   } else if ((!!claims && !keycloak.hasClaim(claims)) || (!!roles && !keycloak.hasRole(roles))) {
     return (

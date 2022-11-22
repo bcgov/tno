@@ -7,7 +7,7 @@
   "packageManager": "yarn@3.2.0",
   "engines": {
     "npm": ">=8.19.2 <9.0.0",
-    "node": ">=16.18.0 <17.0.0",
+    "node": ">=18.11.0 <19.0.0",
     "yarn": ">=3.2.0 <4.0.0"
   },
   "dependencies": {
@@ -48,7 +48,7 @@
     "react-tooltip": "4.5.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.6",
-    "tno-core": "0.0.187",
+    "tno-core": "0.0.193",
     "yup": "0.32.11"
   },
   "devDependencies": {
@@ -118,11 +118,21 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "/node_modules/(?!tno-core/)"
+      "/node_modules/(?!tno-core|axios/)"
     ],
     "moduleNameMapper": {
       "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.ts"
     }
+  },
+  "babel": {
+    "presets": [
+      "@babel/react",
+      "@babel/env"
+    ],
+    "plugins": [
+      "@babel/proposal-class-properties",
+      "@babel/plugin-transform-runtime"
+    ]
   },
   "browserslist": {
     "production": [

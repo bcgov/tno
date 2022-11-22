@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - "16.10.0"
+          - "18.11.0"
 
     steps:
       - uses: actions/checkout@v2
@@ -42,6 +42,9 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn
 
+      - name: Set Yarn Version
+        run: npm set version 3.2.0
+
       - name: Install Dependencies
         run: yarn
         working-directory: ${{ env.working-directory }}
@@ -49,6 +52,10 @@ jobs:
       - name: Linting
         run: yarn lint
         working-directory: ${{ env.working-directory }}
+
+      # - name: Unit Tests
+      #   run: yarn test
+      #   working-directory: ${{ env.working-directory }}
 
       - name: Building
         run: yarn build --if-present

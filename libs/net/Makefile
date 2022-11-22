@@ -92,7 +92,7 @@ db-clean: ## Drop the database and refresh.
 
 db-refresh: ## Rollback to a blank database and rerun the database migrations.
 	$(info Rollback to a blank database and rerun the database migrations.)
-	@make db-rollback n=0
+	@make db-drop
 	@make db-update
 
 db-drop: ## Drop the database.

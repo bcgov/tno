@@ -1,4 +1,5 @@
 export * from './calcPages';
+export * from './convertTo';
 export * from './enums';
 export * from './extractResponseData';
 export * from './fromQueryString';
@@ -7,4 +8,5 @@ export * from './hideTooltipOnClick';
 export * from './interfaces';
 export * from './isIE';
 export * from './isInViewPort';
+export * from './replaceQueryParams';
 export * from './toQueryString';

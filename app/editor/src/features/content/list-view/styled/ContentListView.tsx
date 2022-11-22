@@ -23,15 +23,6 @@ export const ContentListView = styled(FormPage)`
     }
   }
 
-  .box {
-    margin-top: 0.6em;
-    margin-left: 1em;
-    border: solid 1px grey;
-    border-radius: 0.25em;
-    max-width: 50em;
-    padding: 1em;
-  }
-
   .left-pane {
     display: flex;
     flex-direction: column;

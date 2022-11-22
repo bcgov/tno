@@ -3,6 +3,9 @@ using Microsoft.Extensions.Logging;
 
 namespace TNO.DAL.Services;
 
+/// <summary>
+/// BaseService abstract class, provides the shared properties and methods for services.
+/// </summary>
 public abstract class BaseService : IBaseService
 {
     #region Properties
@@ -12,8 +15,14 @@ public abstract class BaseService : IBaseService
     /// </summary>
     protected TNOContext Context { get; }
 
+    /// <summary>
+    /// get - The user principal claim.
+    /// </summary>
     public ClaimsPrincipal Principal { get; }
 
+    /// <summary>
+    /// get - The service provider.
+    /// </summary>
     public IServiceProvider Services { get; }
 
     /// <summary>
@@ -33,5 +42,13 @@ public abstract class BaseService : IBaseService
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Commit the transaction.
+    /// </summary>
+    /// <returns></returns>
+    public int CommitTransaction()
+    {
+        return this.Context.CommitTransaction();
+    }
     #endregion
 }

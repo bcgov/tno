@@ -2,15 +2,19 @@ import styled from 'styled-components';
 import { Col } from 'tno-core/dist/components/flex';
 
 export const Select = styled(Col)`
+  margin-right: 0.5em;
+
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};
   }
-  margin-right: 0.5em;
+
   .select-container {
     width: 100%;
   }
+
   .input-container {
+    width: 100%;
     position: relative;
     .clear {
       :hover {

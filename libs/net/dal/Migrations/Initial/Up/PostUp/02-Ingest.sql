@@ -1,26 +1,28 @@
 DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
-DECLARE ingestSyndicationId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Syndication'); -- ingest_type_id
-DECLARE ingestVideoId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Video'); -- ingest_type_id
-DECLARE ingestAudioId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Audio'); -- ingest_type_id
-DECLARE ingestPaperId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Paper'); -- ingest_type_id
-DECLARE ingestFrontPageId INT := (SELECT id FROM public.ingest_type WHERE Name = 'Front Page'); -- ingest_type_id
+DECLARE ingestSyndicationId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Syndication'); -- ingest_type_id
+DECLARE ingestVideoId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Video'); -- ingest_type_id
+DECLARE ingestAudioId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Audio'); -- ingest_type_id
+DECLARE ingestPaperId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Paper'); -- ingest_type_id
+DECLARE ingestFrontPageId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Front Page'); -- ingest_type_id
 
-DECLARE wireId INT := (SELECT id FROM public.product WHERE Name = 'Wire'); -- product_id
-DECLARE frontPageId INT := (SELECT id FROM public.product WHERE Name = 'Front Page'); -- product_id
-DECLARE talkRadioId INT := (SELECT id FROM public.product WHERE Name = 'Talk Radio'); -- product_id
-DECLARE videoNewsId INT := (SELECT id FROM public.product WHERE Name = 'Video News'); -- product_id
-DECLARE weeklyPrintId INT := (SELECT id FROM public.product WHERE Name = 'Weekly Print'); -- product_id
-DECLARE dailyPrintId INT := (SELECT id FROM public.product WHERE Name = 'Daily Print'); -- product_id
+DECLARE wireId INT := (SELECT id FROM public.product WHERE "name" = 'CP Wire'); -- product_id
+DECLARE frontPageId INT := (SELECT id FROM public.product WHERE "name" = 'Front Page'); -- product_id
+DECLARE talkRadioId INT := (SELECT id FROM public.product WHERE "name" = 'Talk Radio'); -- product_id
+DECLARE videoNewsId INT := (SELECT id FROM public.product WHERE "name" = 'TV / Video News'); -- product_id
+DECLARE weeklyPrintId INT := (SELECT id FROM public.product WHERE "name" = 'Weekly Print'); -- product_id
+DECLARE dailyPrintId INT := (SELECT id FROM public.product WHERE "name" = 'Daily Print'); -- product_id
+DECLARE haShilthSaId INT := (SELECT id FROM public.product WHERE "name" = 'Ha-Shilth-Sa'); -- product_id
+DECLARE onlinePrintId INT := (SELECT id FROM public.product WHERE "name" = 'Online Print'); -- product_id
 
-DECLARE conNoneId INT := (SELECT id FROM public.connection WHERE Name = 'None'); -- connection_id
-DECLARE conLocalStreamsId INT := (SELECT id FROM public.connection WHERE Name = 'Local Volume - Streams'); -- connection_id
-DECLARE conLocalClipsId INT := (SELECT id FROM public.connection WHERE Name = 'Local Volume - Clips'); -- connection_id
-DECLARE conLocalImagesId INT := (SELECT id FROM public.connection WHERE Name = 'Local Volume - Images'); -- connection_id
-DECLARE conLocalPapersId INT := (SELECT id FROM public.connection WHERE Name = 'Local Volume - Papers'); -- connection_id
-DECLARE conPublicInternetId INT := (SELECT id FROM public.connection WHERE Name = 'Public Internet'); -- connection_id
-DECLARE conSSHId INT := (SELECT id FROM public.connection WHERE Name = 'SSH - Newspaper Upload'); -- connection_id
-DECLARE conGlobeSSHId INT := (SELECT id FROM public.connection WHERE Name = 'SSH - Globe Newspaper Upload'); -- connection_id
+DECLARE conNoneId INT := (SELECT id FROM public.connection WHERE "name" = 'None'); -- connection_id
+DECLARE conLocalStreamsId INT := (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Streams'); -- connection_id
+DECLARE conLocalClipsId INT := (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Clips'); -- connection_id
+DECLARE conLocalImagesId INT := (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Images'); -- connection_id
+DECLARE conLocalPapersId INT := (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Papers'); -- connection_id
+DECLARE conPublicInternetId INT := (SELECT id FROM public.connection WHERE "name" = 'Public Internet'); -- connection_id
+DECLARE conSSHId INT := (SELECT id FROM public.connection WHERE "name" = 'SSH - Newspaper Upload'); -- connection_id
+DECLARE conGlobeSSHId INT := (SELECT id FROM public.connection WHERE "name" = 'SSH - Globe Newspaper Upload'); -- connection_id
 BEGIN
 
 INSERT INTO public.ingest (
@@ -277,7 +279,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Infotel'
+  'iNFOnews'
   , '' -- description
   , true -- is_enabled
   , ingestSyndicationId -- ingest_type_id
@@ -289,6 +291,46 @@ INSERT INTO public.ingest (
       "language": "en-CA",
       "post": true,
       "import": true }' -- configuration
+  , 1 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conNoneId--destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ha-Shilth-Sa'
+  , '' -- description
+  , true -- is_enabled
+  , ingestSyndicationId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'HaShilthSa') -- source_id
+  , 'Ha-Shilth-Sa' -- topic
+  , haShilthSaId -- product_id
+  , '{ "import": true,
+      "post": true,
+      "timeZone": "Pacific Standard Time",
+      "url": "https://hashilthsa.com/news/" }' -- configuration
+  , 1 -- schedule_type
+  , 3 -- retry_limit
+  , conPublicInternetId --destination_connection_id
+  , conNoneId--destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'The Tyee'
+  , '' -- description
+  , true -- is_enabled
+  , ingestSyndicationId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'TYEE') -- source_id
+  , 'TYEE' -- topic
+  , onlinePrintId -- product_id
+  , '{ "import": true,
+      "post": true,
+      "url": "https://thetyee.ca/News/",
+      "timeZone": "Pacific Standard Time" }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
@@ -391,7 +433,8 @@ INSERT INTO public.ingest (
       "summary": "summary",
       "story": "story",
       "author": "author",
-      "date": "date","id":"id",
+      "date": "date",
+      "id":"id",
       "item": "bcng",
       "page": "page",
       "section": "category",
@@ -454,7 +497,7 @@ INSERT INTO public.ingest (
 -- Front Page
 -- ******************************************************
 (
-  'Globe & Mail - Front Pages'
+  'Globe & Mail - Page 1'
   , 'Globe and Mail newspaper frontpage images' -- description
   , true -- is_enabled
   , ingestFrontPageId -- ingest_type_id
@@ -475,7 +518,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'National Post - Front Pages'
+  'National Post - Page 1'
   , 'National Post newspaper frontpage images' -- description
   , true -- is_enabled
   , ingestFrontPageId -- ingest_type_id
@@ -496,7 +539,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'The Province - Front Pages'
+  'The Province - Page 1'
   , 'The Province newspaper frontpage images' -- description
   , true -- is_enabled
   , ingestFrontPageId -- ingest_type_id
@@ -517,7 +560,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Times Colonist Victoria - Front Pages'
+  'Times Colonist Victoria - Page 1'
   , 'Times Colonist Victoria newspaper frontpage images' -- description
   , true -- is_enabled
   , ingestFrontPageId -- ingest_type_id
@@ -538,7 +581,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID
   , ''
 ), (
-  'Vancouver Sun - Front Pages'
+  'Vancouver Sun - Page 1'
   , 'Vancouver Sun newspaper frontpage images' -- description
   , true -- is_enabled
   , ingestFrontPageId -- ingest_type_id
@@ -564,7 +607,7 @@ INSERT INTO public.ingest (
 -- Video
 -- ******************************************************
 (
-  'CBC News'
+  'CBC Newsworld'
   , 'Stay on top of British Columbia with the latest in news, weather, sports and interviews.' -- description
   , true -- is_enabled
   , ingestVideoId -- ingest_type_id
@@ -575,13 +618,92 @@ INSERT INTO public.ingest (
       "url": "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master4.m3u8",
       "timeZone": "Pacific Standard Time",
       "language": "en-CA",
-      "fileName": "{schedule.Name}.mp4",
+      "fileName": "{schedule.Name}.mpg",
       "post": true,
       "import": true }' -- configuration
   , 3 -- schedule_type
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalClipsId -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Raspberry Pi4'
+  , '' -- description
+  , true -- is_enabled
+  , ingestVideoId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , videoNewsId -- product_id
+  , '{ "serviceType": "RPi",
+      "import": false,
+      "post": false,
+      "hostname": "TNOMediaPi4",
+      "timeZone": "Pacific Standard Time",
+      "language": "en-CA",
+      "logLevel": "verbose",
+      "videoInput": "/dev/video0",
+      "videoThreadQueueSize": "1024",
+      "videoInputFormat": "v4l2",
+      "videoFramerate": "30",
+      "audioInput": "hw:CARD=HDMI",
+      "audioThreadQueueSize": "1024",
+      "audioInputFormat": "alsa",
+      "audioChannels": "2",
+      "audioChannelLayout": "stereo",
+      "bufferSize": "640k",
+      "audioEncoder": "",
+      "audioBufferSize": "",
+      "videoEncoder": "",
+      "videoBufferSize": "",
+      "pixelFormat": "",
+      "keyframe": "",
+      "preset": "",
+      "crf": "",
+      "otherArgs": "",
+      "fileName": "{schedule.Name}.mpg",
+      "maxRate": "64000k" }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conNoneId -- source_connection_id
+  , conLocalStreamsId -- destination_connection_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Raspberry Pi5'
+  , '' -- description
+  , true -- is_enabled
+  , ingestVideoId -- ingest_type_id
+  , (SELECT id FROM public.source WHERE code = 'CBC') -- source_id
+  , 'CBC' -- topic
+  , videoNewsId -- product_id
+  , '{ "serviceType": "RPi",
+      "import": false,
+      "post": false,
+      "hostname": "TNOMediaPi5",
+      "timeZone": "Pacific Standard Time",
+      "language": "en-CA",
+      "logLevel": "verbose",
+      "videoInput": "/dev/video0",
+      "videoThreadQueueSize": 1024,
+      "videoInputFormat": "v4l2",
+      "videoFramerate": "30",
+      "audioInput": "hw:CARD=HDMI",
+      "audioThreadQueueSize": "1024",
+      "audioInputFormat": "alsa",
+      "audioChannels": "2",
+      "audioChannelLayout": "stereo",
+      "bufferSize": "640k",
+      "maxRate": "64000k",
+      "fileName": "{schedule.Name}.mpg" }' -- configuration
+  , 2 -- schedule_type
+  , 3 -- retry_limit
+  , conNoneId -- source_connection_id
+  , conLocalStreamsId -- destination_connection_id
   , DEFAULT_USER_ID
   , ''
   , DEFAULT_USER_ID
@@ -614,7 +736,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
-  'CBC Kam' -- name
+  'CBC Kamloops' -- name
   , '' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
@@ -636,7 +758,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
-  'CBC Kel' -- name
+  'CBC Kelowna' -- name
   , '' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
@@ -658,7 +780,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
-  'CBC PG' -- name
+  'CBC Prince George' -- name
   , '' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
@@ -680,7 +802,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
-  'CBC Van' -- name
+  'CBC Vancouver' -- name
   , '' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
@@ -702,7 +824,7 @@ INSERT INTO public.ingest (
   , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
-  'CBC Vic' -- name
+  'CBC Victoria' -- name
   , '' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
@@ -1039,9 +1161,9 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'CBCV') -- source_id
   , 'CBCV' -- topic
   , talkRadioId -- product_id
-  , '{ "serviceType":"clip",
-      "keepChecking":true,
-      "timeZone":"Pacific Standard Time",
+  , '{ "serviceType": "clip",
+      "keepChecking": true,
+      "timeZone": "Pacific Standard Time",
       "language": "en-CA",
       "post": true,
       "import": true }' -- configuration

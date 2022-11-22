@@ -11,7 +11,16 @@ export const LoginPanel: React.FC = () => {
     const instance = keycloak.instance;
     const authority = instance.authServerUrl.replace(/\/$/, '');
     const authUrl = `${authority}/realms/${instance.realm}`;
-    const redirect = encodeURI(window.location.href);
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get('redirectTo');
+    params.delete('redirectTo');
+    const redirect = !redirectTo
+      ? encodeURI(window.location.href)
+      : encodeURI(
+          window.location.href.split('?')[0].replace(window.location.pathname, redirectTo) +
+            '?' +
+            params.toString(),
+        );
     window.location.href = `${authUrl}/protocol/openid-connect/auth?client_id=${instance.clientId}&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&kc_idp_hint=${hint}`;
     // Use if the default login page is okay.
     // keycloak.instance.login();

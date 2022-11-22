@@ -19,15 +19,13 @@ let userInfo: IUserInfoModel = {
   roles: [],
 };
 
+let initialized = false;
+
 interface IAppController {
   /**
    * Make an request to the API for user information.
    */
   getUserInfo: (refresh?: boolean) => Promise<IUserInfoModel>;
-  /**
-   * Check if the user is ready.
-   */
-  isUserReady: () => boolean;
   /**
    * Remove specified error from state.
    */
@@ -37,9 +35,13 @@ interface IAppController {
    */
   clearErrors: () => void;
   /**
-   * Initialize application lookups and settings.
+   * Whether the application has been initialized.
    */
-  init: () => Promise<void>;
+  initialized: boolean;
+  /**
+   * Whether the application has been initialized.
+   */
+  authenticated: boolean;
 }
 
 /**
@@ -53,6 +55,14 @@ export const useApp = (): [IAppState, IAppController] => {
   const dispatch = useAjaxWrapper();
   const api = useApiAuth();
 
+  React.useEffect(() => {
+    // Initialize lookup values the first time the app loads.
+    if (!initialized && keycloak.authenticated) {
+      initialized = true;
+      init();
+    }
+  }, [init, keycloak.authenticated]);
+
   const controller = React.useMemo(
     () => ({
       getUserInfo: async (refresh: boolean = false) => {
@@ -61,20 +71,18 @@ export const useApp = (): [IAppState, IAppController] => {
         userInfo = response.data;
         store.storeUserInfo(userInfo);
         if (
-          (!keycloak.isApproved() || refresh) &&
+          (!keycloak.hasClaim() || refresh) &&
           (!!response.data.groups.length || !!response.data.roles.length)
         )
           await keycloak.instance.updateToken(86400);
         return userInfo;
       },
-      isUserReady: () => userInfo.id !== 0,
       removeError: store.removeError,
       clearErrors: store.clearErrors,
-      init: async () => {
-        await init();
-      },
+      initialized,
+      authenticated: keycloak.authenticated ?? false,
     }),
-    [api, dispatch, store, init, keycloak],
+    [api, dispatch, store, keycloak],
   );
 
   return [state, controller];

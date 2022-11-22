@@ -10,5 +10,5 @@ public interface ISourceService : IBaseService<Source, int>
     IEnumerable<Source> FindAll();
     IPaged<Source> Find(SourceFilter filter);
     Source? FindByCode(string code);
-    Source Update(Source entity, bool updateChildren = false);
+    Source UpdateAndSave(Source entity, bool updateChildren = false);
 }

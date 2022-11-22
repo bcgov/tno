@@ -88,7 +88,7 @@ public class DataLocationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult Add(DataLocationModel model)
     {
-        var result = _service.Add(model.ToEntity(_serializerOptions));
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new DataLocationModel(result, _serializerOptions));
     }
 
@@ -104,7 +104,7 @@ public class DataLocationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult Update(DataLocationModel model)
     {
-        var result = _service.Update(model.ToEntity(_serializerOptions));
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new DataLocationModel(result, _serializerOptions));
     }
 
@@ -120,7 +120,7 @@ public class DataLocationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "DataLocation" })]
     public IActionResult Delete(DataLocationModel model)
     {
-        _service.Delete(model.ToEntity(_serializerOptions));
+        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using TNO.API.Models;
+using TNO.Core.Extensions;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.Content;
@@ -117,6 +118,11 @@ public class ContentModel : AuditColumnsModel
     public string SourceUrl { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether this content has been hidden.
+    /// </summary>
+    public bool IsHidden { get; set; }
+
+    /// <summary>
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -211,6 +217,7 @@ public class ContentModel : AuditColumnsModel
         this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
         this.PublishedOn = entity.PublishedOn;
+        this.IsHidden = entity.IsHidden;
 
         this.PrintContent = entity.PrintContent != null ? new PrintContentModel(entity.PrintContent) : null;
 
@@ -243,6 +250,7 @@ public class ContentModel : AuditColumnsModel
             Summary = model.Summary,
             Body = model.Body,
             SourceUrl = model.SourceUrl,
+            IsHidden = model.IsHidden,
             Version = model.Version ?? 0,
         };
 

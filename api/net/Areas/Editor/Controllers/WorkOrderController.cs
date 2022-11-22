@@ -119,14 +119,14 @@ public class WorkOrderController : ControllerBase
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var workOrder = _workOrderService.Add(new WorkOrder(WorkOrderType.Transcription, content, user, ""));
+        var workOrder = _workOrderService.AddAndSave(new WorkOrder(WorkOrderType.Transcription, content, user, ""));
 
         var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.TranscriptionTopic, new TranscriptRequest(workOrder, username));
         if (result == null)
         {
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
-            _workOrderService.Update(workOrder);
+            _workOrderService.UpdateAndSave(workOrder);
             await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
             throw new BadRequestException("Transcription request failed");
         }
@@ -161,14 +161,14 @@ public class WorkOrderController : ControllerBase
 
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-        var workOrder = _workOrderService.Add(new WorkOrder(WorkOrderType.NaturalLanguageProcess, content, user, ""));
+        var workOrder = _workOrderService.AddAndSave(new WorkOrder(WorkOrderType.NaturalLanguageProcess, content, user, ""));
 
         var result = await _kafkaMessenger.SendMessageAsync(_kafkaOptions.NLPTopic, new NLPRequest(workOrder));
         if (result == null)
         {
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
-            _workOrderService.Update(workOrder);
+            _workOrderService.UpdateAndSave(workOrder);
             await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
             throw new BadRequestException("Natural Language Processing request failed");
         }

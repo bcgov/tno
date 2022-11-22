@@ -117,10 +117,10 @@ public class SourceService : BaseService<Source, int>, ISourceService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public override Source Add(Source entity)
+    public override Source AddAndSave(Source entity)
     {
         entity.AddToContext(this.Context);
-        base.Add(entity);
+        base.AddAndSave(entity);
         return entity;
     }
 
@@ -129,9 +129,9 @@ public class SourceService : BaseService<Source, int>, ISourceService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public override Source Update(Source entity)
+    public override Source UpdateAndSave(Source entity)
     {
-        return this.Update(entity);
+        return this.UpdateAndSave(entity);
     }
 
     /// <summary>
@@ -141,11 +141,11 @@ public class SourceService : BaseService<Source, int>, ISourceService
     /// <param name="updateChildren"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public Source Update(Source entity, bool updateChildren = false)
+    public Source UpdateAndSave(Source entity, bool updateChildren = false)
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
-        base.Update(original);
+        base.UpdateAndSave(original);
         return original;
     }
     #endregion

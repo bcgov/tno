@@ -20,6 +20,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.SeriesId);
         builder.Property(m => m.OwnerId);
         builder.Property(m => m.PublishedOn);
+        builder.Property(m => m.IsHidden).IsRequired();
         builder.Property(m => m.SourceUrl).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Headline).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Page).IsRequired().HasMaxLength(10);

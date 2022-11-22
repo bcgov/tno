@@ -7,4 +7,6 @@ public interface IBaseService
     ClaimsPrincipal Principal { get; }
 
     IServiceProvider Services { get; }
+
+    int CommitTransaction();
 }

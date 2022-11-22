@@ -1,5 +1,7 @@
 DO $$
 DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
+DECLARE dailyPrintId INT := (SELECT "id" FROM public.product WHERE Name = 'Daily Print'); -- product_id
+DECLARE haShilthSaId INT := (SELECT "id" FROM public.product WHERE Name = 'Ha-Shilth-Sa'); -- product_id
 BEGIN
 
 INSERT INTO public.source (
@@ -3235,7 +3237,7 @@ INSERT INTO public.source (
   , '' -- short_name
   , '' -- description
   , true -- is_enabled
-  , 1 -- product_id
+  , dailyPrintId -- product_id
   , false
   , false
   , 3 -- license_id
@@ -3249,7 +3251,7 @@ INSERT INTO public.source (
   , '' -- short_name
   , '' -- description
   , true -- is_enabled
-  , 1 -- product_id
+  , dailyPrintId -- product_id
   , false
   , false
   , 3 -- license_id
@@ -3263,7 +3265,7 @@ INSERT INTO public.source (
   , '' -- short_name
   , '' -- description
   , true -- is_enabled
-  , 1 -- product_id
+  , dailyPrintId -- product_id
   , false
   , false
   , 3 -- license_id
@@ -3277,7 +3279,21 @@ INSERT INTO public.source (
   , '' -- short_name
   , '' -- description
   , true -- is_enabled
-  , 1 -- product_id
+  , dailyPrintId -- product_id
+  , false
+  , false
+  , 3 -- license_id
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'Ha-Shilth-Sa'
+  , 'HaShilthSa'
+  , '' -- short_name
+  , '' -- description
+  , true -- is_enabled
+  , haShilthSaId -- product_id
   , false
   , false
   , 3 -- license_id

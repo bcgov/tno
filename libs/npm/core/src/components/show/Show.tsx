@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface IShowProps {
   /** Whether the children will be visible. */
-  visible: boolean;
+  visible?: boolean;
   /** Children nodes to display. */
   children: React.ReactNode;
 }
@@ -14,5 +14,5 @@ export interface IShowProps {
  * @returns A new instance of a Show component.
  */
 export const Show: React.FC<IShowProps> = ({ visible, children }) => {
-  return visible ? <>{children}</> : null;
+  return !!visible ? <>{children}</> : null;
 };

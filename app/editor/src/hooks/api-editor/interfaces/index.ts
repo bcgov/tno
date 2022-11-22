@@ -11,6 +11,7 @@ export * from './IContentCategoryModel';
 export * from './IContentFilter';
 export * from './IContentLabelModel';
 export * from './IContentLinkModel';
+export * from './IContentListModel';
 export * from './IContentModel';
 export * from './IContentReferenceFilter';
 export * from './IContentReferenceModel';

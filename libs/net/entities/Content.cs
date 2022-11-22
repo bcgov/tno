@@ -133,6 +133,12 @@ public class Content : AuditColumns
     public string SourceUrl { get; set; } = "";
 
     /// <summary>
+    /// get/set - Whether content is hidden from search results.
+    /// </summary>
+    [Column("is_hidden")]
+    public bool IsHidden { get; set; }
+
+    /// <summary>
     /// get/set - The one-to-one relationship to print content (if this content is print content).
     /// </summary>
     public virtual PrintContent? PrintContent { get; set; }

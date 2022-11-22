@@ -5,6 +5,7 @@ export const defaultFilter: IContentListFilter = {
   pageIndex: defaultPage.pageIndex,
   pageSize: defaultPage.pageSize,
   includedInCategory: false,
+  includeHidden: false,
   sourceId: 0,
   otherSource: '',
   productId: 0,

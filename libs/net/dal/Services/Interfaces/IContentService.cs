@@ -7,6 +7,6 @@ namespace TNO.DAL.Services;
 
 public interface IContentService : IBaseService<Content, long>
 {
-    IPaged<Content> Find(ContentFilter filter);
+    IPaged<Content> Find(ContentFilter filter, bool asNoTracking = true);
     Content? FindByUid(string uid, string? source);
 }

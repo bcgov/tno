@@ -1,8 +1,7 @@
-import { IOptionItem } from 'components/form';
 import { LogicalOperator } from 'hooks/api-editor';
 
 export interface IContentListAdvancedFilter {
-  fieldType: IOptionItem;
+  fieldType: string;
   logicalOperator: LogicalOperator | '';
   searchTerm: string;
   startDate?: string | null;

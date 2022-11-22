@@ -103,7 +103,7 @@ public class CategoryController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Category" })]
     public IActionResult Add(CategoryModel model)
     {
-        var result = _service.Add((Category)model);
+        var result = _service.AddAndSave((Category)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new CategoryModel(result));
     }
 
@@ -119,7 +119,7 @@ public class CategoryController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Category" })]
     public IActionResult Update(CategoryModel model)
     {
-        var result = _service.Update((Category)model);
+        var result = _service.UpdateAndSave((Category)model);
         return new JsonResult(new CategoryModel(result));
     }
 
@@ -135,7 +135,7 @@ public class CategoryController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Category" })]
     public IActionResult Delete(CategoryModel model)
     {
-        _service.Delete((Category)model);
+        _service.DeleteAndSave((Category)model);
         return new JsonResult(model);
     }
     #endregion

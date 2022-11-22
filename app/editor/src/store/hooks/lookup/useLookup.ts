@@ -38,7 +38,7 @@ import { getFromLocalStorage } from 'utils';
 import { useAjaxWrapper } from '..';
 import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
 
-interface ILookupController {
+export interface ILookupController {
   getCache: () => Promise<ICacheModel[]>;
   getLookups: () => Promise<ILookupModel>;
   getActions: (refresh?: boolean) => Promise<IActionModel[]>;
