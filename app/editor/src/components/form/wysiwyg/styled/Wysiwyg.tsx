@@ -25,13 +25,23 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
   }
 
   .ql-editor {
-    min-height: 250px;
+    min-height: 20rem;
+    p {
+      font-family: ${(props) => props.theme.css?.bcSans};
+      font-size: 1rem;
+    }
   }
   .raw-editor {
-    width: 99.5%;
-    min-height: 250px;
+    margin: 0;
+    padding: 12px 15px;
+    min-height: 20rem;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    min-width: 100%;
+    box-sizing: border-box;
+    resize: none;
+
     border: 1px solid #ccc;
-    display: block;
     outline: none;
     display: ${(props) => (props.viewRaw ? 'block' : 'none')};
   }
