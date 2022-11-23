@@ -2,16 +2,16 @@ import { IconButton, OptionItem } from 'components/form';
 import { FormikForm, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal';
-import { useAdmin, useModal, useTooltips } from 'hooks';
-import { IWorkOrderModel, WorkOrderStatusName } from 'hooks/api-editor';
+import { useModal, useTooltips } from 'hooks';
+import { WorkOrderStatusName } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
-import { useWorkOrders } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, Show } from 'tno-core';
+import { useLookup, useWorkOrders } from 'store/hooks';
+import { IWorkOrderModel } from 'store/slices/workorder/interfaces';
+import { Button, ButtonVariant, Claim, Col, Show, useKeycloakWrapper } from 'tno-core';
 import { Row } from 'tno-core';
 import { getEnumStringOptions, getUserOptions } from 'utils';
 
@@ -30,7 +30,7 @@ export const WorkOrderForm: React.FC = () => {
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
   useTooltips();
-  const isAdmin = useAdmin();
+  const isAdmin = useKeycloakWrapper().hasClaim(Claim.administrator);
 
   const [workOrder, setWorkOrder] = React.useState<IWorkOrderModel>(defaultWorkOrder);
   const statusOptions = getEnumStringOptions(WorkOrderStatusName);

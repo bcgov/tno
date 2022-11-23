@@ -48,5 +48,3 @@ export * from './IUserFilter';
 export * from './IUserInfoModel';
 export * from './IUserModel';
 export * from './IValidationErrorModel';
-export * from './IWorkOrderFilter';
-export * from './IWorkOrderModel';

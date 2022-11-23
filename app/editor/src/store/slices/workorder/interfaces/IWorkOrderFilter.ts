@@ -1,4 +1,4 @@
-import { WorkOrderStatusName, WorkOrderTypeName } from '../constants';
+import { WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
 
 export interface IWorkOrderFilter {
   status?: WorkOrderStatusName;

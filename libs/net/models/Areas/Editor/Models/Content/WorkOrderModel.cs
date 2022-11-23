@@ -6,7 +6,7 @@ namespace TNO.API.Areas.Editor.Models.Content;
 /// <summary>
 /// WorkOrderModel class, provides a model that represents a work order.
 /// </summary>
-public class WorkOrderModel
+public class WorkOrderModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
@@ -29,15 +29,31 @@ public class WorkOrderModel
     /// </summary>
     public long? ContentId { get; set; }
 
+
+    // <summary>
+    // get/set - The content linked to the work.
+    // </summary>
+    public ContentModel? Content { get; set; }
+
     /// <summary>
     /// get/set - Foreign key to the user requested this work order.
     /// </summary>
     public int? RequestorId { get; set; }
 
     /// <summary>
+    /// get/set - The user who requested the work.
+    /// </summary>
+    public UserModel? Requestor { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the user assigned to this work order.
     /// </summary>
     public int? AssignedId { get; set; }
+
+    /// <summary>
+    /// get/set - The user assigned the work.
+    /// </summary>
+    public UserModel? Assigned { get; set; }
 
     /// <summary>
     /// get/set - Description of the work order.
@@ -60,7 +76,7 @@ public class WorkOrderModel
     /// Creates a new instance of an WorkOrderModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public WorkOrderModel(Entities.WorkOrder entity)
+    public WorkOrderModel(Entities.WorkOrder entity) : base(entity)
     {
         this.Id = entity.Id;
         this.WorkType = entity.WorkType;
@@ -70,6 +86,50 @@ public class WorkOrderModel
         this.AssignedId = entity.AssignedId;
         this.Description = entity.Description;
         this.Note = entity.Note;
+        if (entity.Requestor != null)
+            this.Requestor = new UserModel(entity.Requestor);
+        if (entity.Assigned != null)
+            this.Assigned = new UserModel(entity.Assigned);
+        if (entity.Content != null)
+            this.Content = new ContentModel(entity.Content);
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Copy values from model to entity.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public Entities.WorkOrder CopyTo(Entities.WorkOrder entity)
+    {
+        entity.Status = this.Status;
+        entity.RequestorId = this.RequestorId;
+        entity.AssignedId = this.AssignedId;
+        entity.ContentId = this.ContentId;
+        entity.Description = this.Description;
+        entity.Note = this.Note;
+        entity.Version = this.Version ?? 0;
+
+        return entity;
+    }
+
+    /// <summary>
+    /// Explicit cast to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.WorkOrder(WorkOrderModel model)
+    {
+        return new Entities.WorkOrder(model.WorkType, model.Description)
+        {
+            Id = model.Id,
+            Status = model.Status,
+            ContentId = model.ContentId,
+            AssignedId = model.AssignedId,
+            RequestorId = model.RequestorId,
+            Note = model.Note,
+            Version = model.Version ?? 0,
+        };
     }
     #endregion
 }

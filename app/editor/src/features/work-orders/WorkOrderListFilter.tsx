@@ -1,7 +1,7 @@
 import { IconButton, Select } from 'components/form';
 import { WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
 import React, { useState } from 'react';
-import { useWorkOrders } from 'store/hooks/admin';
+import { useWorkOrders } from 'store/hooks';
 import { FieldSize, Text } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
 import { getEnumStringOptions } from 'utils';

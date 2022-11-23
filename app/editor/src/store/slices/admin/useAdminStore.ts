@@ -1,5 +1,5 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import { IWorkOrderListFilter } from 'features/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -14,7 +14,6 @@ import {
   ISourceModel,
   ITagModel,
   IUserModel,
-  IWorkOrderModel,
 } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
@@ -33,8 +32,6 @@ import {
   storeAdminTags,
   storeAdminUserFilter,
   storeAdminUsers,
-  storeAdminWorkOrderFilter,
-  storeAdminWorkOrders,
 } from '.';
 import { IAdminState } from './interfaces';
 
@@ -54,8 +51,6 @@ export interface IAdminStore {
   storeTags: (tags: ITagModel[]) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
-  storeWorkOrderFilter: (filter: IWorkOrderListFilter) => void;
-  storeWorkOrders: (users: IPaged<IWorkOrderModel>) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -102,12 +97,6 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeSeries: (series: ISeriesModel[]) => {
         dispatch(storeAdminSeries(series));
-      },
-      storeWorkOrderFilter: (filter: IWorkOrderListFilter) => {
-        dispatch(storeAdminWorkOrderFilter(filter));
-      },
-      storeWorkOrders: (workOrders: IPaged<IWorkOrderModel>) => {
-        dispatch(storeAdminWorkOrders(workOrders));
       },
     }),
     [dispatch],

@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -15,7 +14,6 @@ import {
   ISourceModel,
   ITagModel,
   IUserModel,
-  IWorkOrderModel,
 } from 'hooks/api-editor';
 
 import { IAdminState } from './interfaces';
@@ -38,12 +36,6 @@ export const initialAdminState: IAdminState = {
   actions: [],
   series: [],
   licenses: [],
-  workOrderFilter: {
-    pageIndex: 0,
-    pageSize: 10,
-    sort: [],
-  },
-  workOrders: { page: 1, quantity: 10, items: [], total: 0 },
 };
 
 export const adminSlice = createSlice({
@@ -89,12 +81,6 @@ export const adminSlice = createSlice({
     storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
     },
-    storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
-      state.workOrderFilter = action.payload;
-    },
-    storeWorkOrders(state: IAdminState, action: PayloadAction<IPaged<IWorkOrderModel>>) {
-      state.workOrders = action.payload;
-    },
   },
 });
 
@@ -112,6 +98,4 @@ export const {
   storeTags: storeAdminTags,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
-  storeWorkOrderFilter: storeAdminWorkOrderFilter,
-  storeWorkOrders: storeAdminWorkOrders,
 } = adminSlice.actions;

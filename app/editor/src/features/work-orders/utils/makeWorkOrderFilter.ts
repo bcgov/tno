@@ -1,6 +1,6 @@
-import { IWorkOrderFilter } from 'hooks';
+import { IWorkOrderFilter } from 'store/slices/workorder/interfaces';
 
-import { ISortBy } from '../../../content/list-view/interfaces';
+import { ISortBy } from '../../content/list-view/interfaces';
 import { IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 
 export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFilter => {

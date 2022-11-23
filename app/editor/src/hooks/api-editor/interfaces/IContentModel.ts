@@ -1,3 +1,5 @@
+import { IWorkOrderModel } from 'store/slices/workorder/interfaces';
+
 import {
   ContentStatusName,
   ContentTypeName,
@@ -17,7 +19,6 @@ import {
   IFileReferenceModel,
   IPrintContentModel,
   ITimeTrackingModel,
-  IWorkOrderModel,
 } from '.';
 
 export interface IContentModel extends IAuditColumnsModel {

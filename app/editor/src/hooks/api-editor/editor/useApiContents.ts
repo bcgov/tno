@@ -1,8 +1,9 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
+import { IWorkOrderModel } from 'store/slices/workorder/interfaces';
 import { defaultEnvelope, ILifecycleToasts, toQueryString } from 'tno-core';
 
-import { IContentFilter, IContentModel, IPaged, IWorkOrderModel, useApi } from '..';
+import { IContentFilter, IContentModel, IPaged, useApi } from '..';
 
 /**
  * Common hook to make requests to the API.

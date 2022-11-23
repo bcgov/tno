@@ -4,7 +4,7 @@ import {
   IUserModel,
   WorkOrderStatusName,
   WorkOrderTypeName,
-} from '..';
+} from 'hooks';
 
 export interface IWorkOrderModel extends IAuditColumnsModel {
   id: number;

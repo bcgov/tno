@@ -1,9 +1,8 @@
-import { IWorkOrderModel } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
-import { useApp } from 'store/hooks';
-import { useWorkOrders } from 'store/hooks/admin/useWorkOrders';
+import { useApp, useWorkOrders } from 'store/hooks';
+import { IWorkOrderModel } from 'store/slices/workorder/interfaces';
 import { Col, Page, PagedTable, Row } from 'tno-core';
 
 import { columns } from './constants';
@@ -19,8 +18,9 @@ import { WorkOrderListFilter } from './WorkOrderListFilter';
 export const WorkOrderList = () => {
   const navigate = useNavigate();
   const [{ workOrders, workOrderFilter }, { findWorkOrders, storeFilter }] = useWorkOrders();
+  console.log(workOrders);
   const [{ requests }] = useApp();
-  const [page, setPage] = React.useState(
+  const [page, setPage] = React.useState<Page<IWorkOrderModel>>(
     new Page(workOrders.page - 1, workOrders.quantity, workOrders.items, workOrders.total),
   );
 
@@ -54,6 +54,7 @@ export const WorkOrderList = () => {
   const fetch = React.useCallback(
     async (filter: IWorkOrderListFilter) => {
       try {
+        console.log('here');
         const data = await findWorkOrders(makeWorkOrderFilter(filter));
         const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
 
@@ -83,7 +84,7 @@ export const WorkOrderList = () => {
         header={WorkOrderListFilter}
         sorting={{ sortBy: workOrderFilter.sort }}
         isLoading={!!requests.length}
-        page={page}
+        page={page ?? new Page(0, 0, [], 0)}
         onRowClick={(row) => navigate(`${row.original.id}`)}
         onChangeSort={handleChangeSort}
         onChangePage={handleChangePage}

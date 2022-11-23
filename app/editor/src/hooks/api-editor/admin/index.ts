@@ -11,4 +11,3 @@ export * from './useApiAdminSeries';
 export * from './useApiAdminSources';
 export * from './useApiAdminTags';
 export * from './useApiAdminUsers';
-export * from './useApiAdminWorkOrders';

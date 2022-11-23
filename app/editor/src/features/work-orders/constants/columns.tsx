@@ -1,6 +1,6 @@
-import { IWorkOrderModel } from 'hooks/api-editor';
 import moment from 'moment';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
+import { IWorkOrderModel } from 'store/slices/workorder/interfaces';
 import { Ellipsis } from 'tno-core/dist/components/cell';
 
 export const columns: (Column<IWorkOrderModel> &

@@ -1,5 +1,4 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
   ICategoryModel,
@@ -14,7 +13,6 @@ import {
   ISourceModel,
   ITagModel,
   IUserModel,
-  IWorkOrderModel,
 } from 'hooks/api-editor';
 
 export interface IAdminState {
@@ -31,6 +29,4 @@ export interface IAdminState {
   actions: IActionModel[];
   series: ISeriesModel[];
   licenses: ILicenseModel[];
-  workOrderFilter: IWorkOrderListFilter;
-  workOrders: IPaged<IWorkOrderModel>;
 }

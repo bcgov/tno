@@ -1,3 +1,4 @@
+export * from '../work-orders';
 export * from './actions';
 export * from './AdminRouter';
 export * from './categories';
@@ -11,4 +12,3 @@ export * from './series';
 export * from './sources';
 export * from './tags';
 export * from './users';
-export * from './work-orders';

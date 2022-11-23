@@ -10,8 +10,8 @@ import {
   IContentTonePoolModel,
   IFileReferenceModel,
   ITimeTrackingModel,
-  IWorkOrderModel,
 } from 'hooks/api-editor';
+import { IWorkOrderModel } from 'store/slices/workorder/interfaces';
 
 export interface IContentForm {
   id: number;

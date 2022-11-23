@@ -1,6 +1,13 @@
 import { loadingBarReducer } from 'react-redux-loading-bar';
 
-import { adminSlice, appSlice, contentSlice, lookupSlice, navSlice } from './slices';
+import {
+  adminSlice,
+  appSlice,
+  contentSlice,
+  lookupSlice,
+  navSlice,
+  workOrderSlice,
+} from './slices';
 
 export const reducer = {
   loadingBar: loadingBarReducer,
@@ -9,4 +16,5 @@ export const reducer = {
   [adminSlice.name]: adminSlice.reducer,
   [contentSlice.name]: contentSlice.reducer,
   [lookupSlice.name]: lookupSlice.reducer,
+  [workOrderSlice.name]: workOrderSlice.reducer,
 };
