@@ -45,9 +45,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values]);
 
-  // pattern match content between but not including [ and ]</p>
-  // TODO: IOS compatible?
-  const tagMatch = /(?<=\[)(.*?)(?=\]<\/p>)/g;
+  const tagMatch = /\[.*?\]/g;
+  // match anything in between < and >
+  const htmlMatch = /<.*?>/g;
 
   // carry over editor value to raw html or v.v when toggling
   const syncViews = (htmlFromRaw: boolean) => {
@@ -82,6 +82,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
   const handleChange = (html: string) => {
     setState({ ...state, html: html });
     setFieldValue(fieldName, html);
+    if (html === '<p><br></p>') {
+      setFieldValue(fieldName, '');
+    }
   };
 
   const modules = {
@@ -115,6 +118,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
         onClickRaw={onClickRaw}
         onClickRemoveFormat={stripHtml}
         onClickFormatRaw={onClickFormatRaw}
+        onClickClear={() => setState({ ...state, html: '', rawHtml: '' })}
       />
       <ReactQuill
         className="editor"
@@ -126,7 +130,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
         onBlur={() => {
           const value = values[fieldName];
           if (!!value && typeof value === 'string') {
-            const stringValue = value.match(tagMatch)?.toString();
+            const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
             const tagValues = stringValue?.split(', ') ?? [];
             const tags = extractTags(tagValues);
             if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
