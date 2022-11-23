@@ -1,5 +1,4 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { IWorkOrderListFilter } from 'features/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
   ICategoryModel,

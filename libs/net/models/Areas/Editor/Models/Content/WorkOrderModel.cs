@@ -90,8 +90,8 @@ public class WorkOrderModel : AuditColumnsModel
             this.Requestor = new UserModel(entity.Requestor);
         if (entity.Assigned != null)
             this.Assigned = new UserModel(entity.Assigned);
-        if (entity.Content != null)
-            this.Content = new ContentModel(entity.Content);
+        // if (entity.Content != null)
+        //     this.Content = new ContentModel(entity.Content);
     }
     #endregion
 
