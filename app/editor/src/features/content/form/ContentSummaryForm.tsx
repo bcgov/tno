@@ -87,7 +87,9 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 
   /** set default value to todays date */
   React.useEffect(() => {
-    if (!values.publishedOn) setFieldValue('publishedOn', moment().format('MMM D, yyyy'));
+    if (!values.publishedOn) {
+      setFieldValue('publishedOn', moment().format('MMM D, yyyy HH:mm:ss'));
+    }
   }, [setFieldValue, values.publishedOn]);
 
   React.useEffect(() => {
@@ -195,8 +197,8 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
               }
               value={!!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
-              onChange={(date: any) => {
-                setFieldValue('publishedOn', date);
+              onChange={(date) => {
+                setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
               }}
             />
             <Show visible={contentType !== ContentTypeName.Image}>
@@ -205,20 +207,17 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 label="Time"
                 disabled={!values.publishedOn}
                 width="7em"
-                value={!!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : ''}
-                placeholder={
-                  !!values.publishedOn ? moment(values.publishedOn).format('HH:mm:ss') : 'HH:MM:SS'
-                }
+                value={!!values.publishedOn ? values.publishedOnTime : ''}
+                placeholder={!!values.publishedOn ? values.publishedOnTime : 'HH:MM:SS'}
                 onChange={(e) => {
                   const date = new Date(values.publishedOn);
                   const hours = e.target.value?.split(':');
-                  if (
-                    !!hours &&
-                    !values.publishedOnTime?.includes('_') &&
-                    values.publishedOnTime !== ''
-                  ) {
+                  if (!!hours && !!e.target.value && !e.target.value.includes('_')) {
                     date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                    setFieldValue('publishedOn', date.toISOString());
+                    setFieldValue(
+                      'publishedOn',
+                      moment(date.toISOString()).format('MMM D, yyyy HH:mm:ss'),
+                    );
                   }
                 }}
               />
