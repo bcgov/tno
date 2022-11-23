@@ -27,6 +27,7 @@ export const Button = styled.button<IButtonProps>`
   & > div {
     display: flex;
     flex-direction: row;
+    white-space: nowrap;
   }
 
   &[disabled] {
