@@ -9,6 +9,16 @@ export const Header = styled.header`
 
   border-bottom: 2px solid #fcba19;
 
+  div.vl {
+    margin-left: 30px;
+    margin-right: 30px;
+    border-left: 1px solid white;
+  }
+
+  img.app-logo {
+    height: 52px;
+  }
+
   & > div:first-child {
     margin-left: 5em;
     align-self: flex-end;
