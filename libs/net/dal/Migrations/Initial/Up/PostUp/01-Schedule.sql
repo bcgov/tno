@@ -319,7 +319,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'CBC Kam' -- name
+  'CBC Kamloops' -- name
   , '' -- description
   , true -- is_enabled
   , 2 -- schedule_type
@@ -339,7 +339,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'CBC Kel' -- name
+  'CBC Kelowna' -- name
   , '' -- description
   , true -- is_enabled
   , 2 -- schedule_type
@@ -359,7 +359,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'CBC PG' -- name
+  'CBC Prince George' -- name
   , '' -- description
   , true -- is_enabled
   , 2 -- schedule_type
@@ -379,7 +379,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'CBC Van' -- name
+  'CBC Vancouver' -- name
   , '' -- description
   , true -- is_enabled
   , 2 -- schedule_type
@@ -399,7 +399,7 @@ INSERT INTO public.schedule (
   , CURRENT_TIMESTAMP -- version
   , '0'
 ), (
-  'CBC Vic' -- name
+  'CBC Victoria' -- name
   , '' -- description
   , true -- is_enabled
   , 2 -- schedule_type

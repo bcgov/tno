@@ -86,7 +86,7 @@ public class ActionController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Action" })]
     public IActionResult Add(ActionModel model)
     {
-        var result = _service.Add(model.ToEntity());
+        var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ActionModel(result));
     }
 
@@ -102,7 +102,7 @@ public class ActionController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Action" })]
     public IActionResult Update(ActionModel model)
     {
-        var result = _service.Update(model.ToEntity());
+        var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new ActionModel(result));
     }
 
@@ -118,7 +118,7 @@ public class ActionController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Action" })]
     public IActionResult Delete(ActionModel model)
     {
-        _service.Delete(model.ToEntity());
+        _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
     }
     #endregion

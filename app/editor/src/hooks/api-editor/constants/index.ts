@@ -3,6 +3,8 @@ export * from './CategoryType';
 export * from './CategoryTypeName';
 export * from './ConnectionType';
 export * from './ConnectionTypeName';
+export * from './ContentListAction';
+export * from './ContentListActionName';
 export * from './ContentStatus';
 export * from './ContentStatusName';
 export * from './ContentType';

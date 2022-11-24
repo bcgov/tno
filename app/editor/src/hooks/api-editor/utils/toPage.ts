@@ -8,5 +8,6 @@ export const toPage = <ItemType>(page: IPaged<ItemType>): IPage<ItemType> => {
     pageSize,
     pageCount: Math.ceil(page.total / pageSize),
     items: page.items,
+    total: page.total,
   };
 };

@@ -32,6 +32,7 @@ export const Button = styled.button<IButtonProps>`
 
   &[disabled] {
     background-color: #f0f0f0;
+    color: rgb(109, 109, 109);
     cursor: not-allowed;
   }
 
@@ -39,7 +40,6 @@ export const Button = styled.button<IButtonProps>`
     switch (props.variant) {
       case ButtonVariant.secondary:
         return '#003366';
-      case ButtonVariant.warning:
       case ButtonVariant.link:
         return '#1a5a96';
       case ButtonVariant.action:
@@ -47,7 +47,7 @@ export const Button = styled.button<IButtonProps>`
       case ButtonVariant.danger:
         return '#d93e45';
       default:
-        return '#ffffff';
+        return '#fff';
     }
   }};
   background-color: ${(props) => {
@@ -59,7 +59,7 @@ export const Button = styled.button<IButtonProps>`
       case ButtonVariant.info:
         return '#96c0e6';
       case ButtonVariant.warning:
-        return '#f9ca54';
+        return '#f8bf2f';
       case ButtonVariant.secondary:
       case ButtonVariant.danger:
       case ButtonVariant.action:
@@ -96,13 +96,14 @@ export const Button = styled.button<IButtonProps>`
       switch (props.variant) {
         case ButtonVariant.secondary:
           return '#003366';
-        case ButtonVariant.warning:
         case ButtonVariant.danger:
           return '#d93e45';
         case ButtonVariant.link:
           return '#0631f3';
         case ButtonVariant.action:
           return '#003366';
+        case ButtonVariant.warning:
+          return '#ffbb0e';
         default:
           return '#fff';
       }
@@ -111,15 +112,16 @@ export const Button = styled.button<IButtonProps>`
       switch (props.variant) {
         case ButtonVariant.primary:
           return '#2d476f';
+        case ButtonVariant.secondary:
+          return '#2d476f3b';
         case ButtonVariant.success:
           return '#366f32';
         case ButtonVariant.info:
           return '#77addf';
         case ButtonVariant.warning:
-          return '#f8bf2f';
+          return '#f9ca5478';
         case ButtonVariant.link:
           return 'transparent';
-        case ButtonVariant.secondary:
         case ButtonVariant.action:
         case ButtonVariant.danger:
           return '#ebe8e8';

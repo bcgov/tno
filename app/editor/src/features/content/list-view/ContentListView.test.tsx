@@ -18,6 +18,19 @@ const mockUseLookups = [
   },
 ];
 
+const mockUseLookupOptions = [
+  {
+    products: [{ name: 'Product 1', id: 1 }],
+    licenses: [{ name: 'License 1', id: 1 }],
+    ingestTypes: [{ name: 'Ingest 1', id: 1 }],
+    users: [{ name: 'user', id: 1, displayName: 'displayName', username: 'test' }],
+    ingestTypeOptions: [],
+    productOptions: [],
+    sourceOptions: [],
+    userOptions: [],
+  },
+];
+
 const mockUseContent = [
   {
     filter: {},
@@ -53,8 +66,12 @@ const mockUseApp = [
     userInfo: '',
     requests: [],
   },
-  { isUserReady: () => true },
+  {},
 ];
+
+jest.mock('hooks', () => ({
+  useLookupOptions: () => mockUseLookupOptions,
+}));
 
 jest.mock('store/hooks', () => ({
   useApp: () => mockUseApp,

@@ -1,21 +1,31 @@
-import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select, SelectDate } from 'components/form';
-import { useSourceOptions, useTooltips } from 'hooks';
-import { ContentTypeName, IContentModel } from 'hooks/api-editor';
+import {
+  Checkbox,
+  instanceOfIOption,
+  IOptionItem,
+  OptionItem,
+  RadioGroup,
+  Select,
+  SelectDate,
+} from 'components/form';
+import { useLookupOptions, useTooltips } from 'hooks';
+import { ContentTypeName } from 'hooks/api-editor';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent } from 'store/hooks';
 import { initialContentState } from 'store/slices';
-import { Button, ButtonVariant, FieldSize, Loader, Show, Text } from 'tno-core';
+import { Button, ButtonVariant, FieldSize, Loader, replaceQueryParams, Show, Text } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
-import { Page } from 'tno-core/dist/components/grid-table';
-import { getSortableOptions, getUserOptions } from 'utils';
+import { getUserOptions } from 'utils';
 
 import { fieldTypes, timeFrames } from './constants';
-import { IContentListFilter } from './interfaces';
+import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
+import { queryToFilter, queryToFilterAdvanced } from './utils';
 
 export interface IContentFilterProps {
-  /** Function to call when the filter changes. */
-  search: (filter: IContentListFilter) => Promise<Page<IContentModel>>;
+  /**
+   * Inform the parent of the request to search.
+   */
+  onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
 }
 
 /**
@@ -26,23 +36,28 @@ export interface IContentFilterProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
-  const [{ products, ingestTypes, users }] = useLookup();
+export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
-  const sourceOptions = useSourceOptions();
-
-  const [advancedHover, setAdvancedHover] = React.useState(false);
+  const [{ products, ingestTypes, users, sourceOptions, productOptions: pOptions }] =
+    useLookupOptions();
   useTooltips();
 
-  const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
-  const [timeFrame, setTimeFrame] = React.useState<IOptionItem>(
-    timeFrames[Number(filter.timeFrame)],
-  );
+  const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
+
+  const timeFrame = timeFrames[Number(filter.timeFrame)];
 
   React.useEffect(() => {
-    setProductOptions(getSortableOptions(products, [new OptionItem<number>('Any', 0)]));
-  }, [products]);
+    // Extract query string values and place them into redux store.
+    storeFilter(queryToFilter(filter, window.location.search));
+    storeFilterAdvanced(queryToFilterAdvanced(filterAdvanced, window.location.search));
+    // Only want this to run on the first load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
+  }, [pOptions]);
 
   React.useEffect(() => {
     setUserOptions(
@@ -53,21 +68,10 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
     );
   }, [users]);
 
-  /** Handle enter key pressed for advanced filter */
-  React.useEffect(() => {
-    const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && advancedHover) {
-        event.preventDefault();
-        search({ ...filter, pageIndex: 0, ...filterAdvanced });
-      }
-    };
-
-    document.addEventListener('keydown', keyDownHandler);
-
-    return () => {
-      document.removeEventListener('keydown', keyDownHandler);
-    };
-  }, [filter, filterAdvanced, search, advancedHover]);
+  const onFilterChange = (filter: IContentListFilter) => {
+    storeFilter(filter);
+    replaceQueryParams(filter, { includeEmpty: false });
+  };
 
   // Convert the selected option into the value.
   const handleTimeChange: React.ChangeEventHandler<HTMLInputElement> = (
@@ -75,11 +79,21 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
     values?: IOptionItem,
   ) => {
     const value = values ?? timeFrame;
-    setTimeFrame(value);
-    storeFilter({
+    onFilterChange({
       ...filter,
       pageIndex: 0,
       timeFrame: +`${value.value ?? 0}`,
+    });
+  };
+
+  const onAdvancedFilterChange = (filter: IContentListAdvancedFilter) => {
+    storeFilterAdvanced(filter);
+    replaceQueryParams(filter, {
+      includeEmpty: false,
+      convertObject: (value) => {
+        if (instanceOfIOption(value)) return value.value;
+        return value.toString();
+      },
     });
   };
 
@@ -96,7 +110,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           defaultValue={productOptions[0]}
           onChange={(newValue) => {
             var productId = !!newValue ? (newValue as IOptionItem).value : 0;
-            storeFilter({
+            onFilterChange({
               ...filter,
               pageIndex: 0,
               productId: productId as number,
@@ -111,7 +125,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           value={userOptions.find((u) => u.value === filter.userId)}
           onChange={(newValue) => {
             var userId = (newValue as IOptionItem).value ?? '';
-            storeFilter({
+            onFilterChange({
               ...filter,
               pageIndex: 0,
               userId: typeof userId === 'string' ? '' : userId,
@@ -138,7 +152,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                 tooltip="Newspaper content without audio/video"
                 checked={filter.contentType === ContentTypeName.PrintContent}
                 onChange={(e) => {
-                  storeFilter({
+                  onFilterChange({
                     ...filter,
                     pageIndex: 0,
                     contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
@@ -152,7 +166,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                 value={filter.includedInCategory}
                 checked={filter.includedInCategory}
                 onChange={(e) => {
-                  storeFilter({
+                  onFilterChange({
                     ...filter,
                     pageIndex: 0,
                     includedInCategory: e.target.checked,
@@ -166,7 +180,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                 tooltip="Content identified as on ticker"
                 checked={filter.onTicker !== ''}
                 onChange={(e) => {
-                  storeFilter({
+                  onFilterChange({
                     ...filter,
                     pageIndex: 0,
                     onTicker: e.target.checked ? e.target.value : '',
@@ -182,7 +196,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                 tooltip="Content identified as commentary"
                 checked={filter.commentary !== ''}
                 onChange={(e) => {
-                  storeFilter({
+                  onFilterChange({
                     ...filter,
                     pageIndex: 0,
                     commentary: e.target.checked ? e.target.value : '',
@@ -196,10 +210,24 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
                 tooltip="Content identified as a top story"
                 checked={filter.topStory !== ''}
                 onChange={(e) => {
-                  storeFilter({
+                  onFilterChange({
                     ...filter,
                     pageIndex: 0,
                     topStory: e.target.checked ? e.target.value : '',
+                  });
+                }}
+              />
+              <Checkbox
+                name="includeHidden"
+                label="Removed"
+                tooltip="Content removed from the list"
+                value={filter.includeHidden}
+                checked={filter.includeHidden}
+                onChange={(e) => {
+                  onFilterChange({
+                    ...filter,
+                    pageIndex: 0,
+                    includeHidden: e.target.checked,
                   });
                 }}
               />
@@ -207,48 +235,50 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           </div>
         </div>
       </div>
-      <div
-        className="box"
-        onMouseOver={() => setAdvancedHover(true)}
-        onMouseLeave={() => setAdvancedHover(false)}
-      >
+      <div className="box">
         <h2 className="caps">Advanced Search</h2>
         <div className="box-content">
           <Select
             name="fieldType"
             label="Field Type"
             options={fieldTypes}
-            value={filterAdvanced.fieldType}
+            value={fieldTypes.find((ft) => ft.value === filterAdvanced.fieldType)}
             width={FieldSize.Small}
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
-              storeFilterAdvanced({ ...filterAdvanced, fieldType: value, searchTerm: '' });
+              onAdvancedFilterChange({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
-          <Show visible={filterAdvanced.fieldType?.label === 'Source'}>
+          <Show visible={filterAdvanced.fieldType === 'otherSource'}>
             <Select
               name="searchTerm"
               label="Search Terms"
               width={FieldSize.Big}
+              onKeyUpCapture={(e) => {
+                if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
+              }}
               onChange={(newValue: any) => {
                 const optionItem = sourceOptions.find((ds) => ds.value === newValue.value);
                 const newSearchTerm =
                   optionItem?.label.substring(optionItem.label.indexOf('(') + 1).replace(')', '') ??
                   '';
-                storeFilterAdvanced({ ...filterAdvanced, searchTerm: newSearchTerm });
+                onAdvancedFilterChange({ ...filterAdvanced, searchTerm: newSearchTerm });
               }}
               options={[new OptionItem('', 0) as IOptionItem].concat([...sourceOptions])}
+              value={sourceOptions.find((s) => s.label === filterAdvanced.searchTerm)}
             />
           </Show>
-          <Show visible={filterAdvanced.fieldType?.label !== 'Source'}>
+          <Show visible={filterAdvanced.fieldType !== 'otherSource'}>
             <Text
-              className="test"
               name="searchTerm"
               label="Search Terms"
               value={filterAdvanced.searchTerm}
+              onKeyUpCapture={(e) => {
+                if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
+              }}
               onChange={(e) => {
-                storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
+                onAdvancedFilterChange({ ...filterAdvanced, searchTerm: e.target.value });
               }}
             ></Text>
           </Show>
@@ -264,7 +294,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
               selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
               width="8em"
               onChange={(date) =>
-                storeFilterAdvanced({
+                onAdvancedFilterChange({
                   ...filterAdvanced,
                   startDate: !!date ? date.toString() : undefined,
                 })
@@ -277,7 +307,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
               width="8em"
               onChange={(date) => {
                 date?.setHours(23, 59, 59);
-                storeFilterAdvanced({
+                onAdvancedFilterChange({
                   ...filterAdvanced,
                   endDate: !!date ? date.toString() : undefined,
                 });
@@ -287,7 +317,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
         </Col>
         <Button
           name="search"
-          onClick={() => search({ ...filter, pageIndex: 0, ...filterAdvanced })}
+          onClick={() => onSearch({ ...filter, pageIndex: 0, ...filterAdvanced })}
         >
           Search
         </Button>
@@ -295,10 +325,10 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ search }) => {
           name="clear"
           variant={ButtonVariant.secondary}
           onClick={() => {
-            storeFilterAdvanced({
+            onAdvancedFilterChange({
               ...initialContentState.filterAdvanced,
             });
-            storeFilter({ ...filter, pageIndex: 0 });
+            onFilterChange({ ...filter, pageIndex: 0 });
           }}
         >
           Clear

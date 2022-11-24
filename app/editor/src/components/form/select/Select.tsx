@@ -23,7 +23,7 @@ export interface ISelectBaseProps {
   /**
    * The styled variant.
    */
-  variant?: SelectVariant;
+  variant?: SelectVariant | string;
   /**
    * The tooltip to show on hover.
    */
@@ -35,7 +35,7 @@ export interface ISelectBaseProps {
   /**
    * Size of field.
    */
-  width?: FieldSize;
+  width?: FieldSize | string;
   /**
    * Error message to display if validation fails.
    */
@@ -44,11 +44,26 @@ export interface ISelectBaseProps {
    * When the user pressed the delete button.
    */
   onClear?: () => void;
+  /**
+   * Key down capture event.  The react-select component doesn't natively support, so this is a workaround.
+   */
+  onKeyDownCapture?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  /**
+   * Key up press event.  The react-select component doesn't natively support, so this is a workaround.
+   */
+  onKeyUp?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  /**
+   * Key up capture event.  The react-select component doesn't natively support, so this is a workaround.
+   */
+  onKeyUpCapture?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }
 
 export type SelectProps = ISelectBaseProps &
   Props &
-  Omit<React.HTMLAttributes<HTMLSelectElement>, 'defaultValue' | 'onChange'>;
+  Omit<
+    React.HTMLAttributes<HTMLSelectElement>,
+    'defaultValue' | 'onChange' | 'onKeyDownCapture' | 'onKeyUp' | 'onKeyUpCapture'
+  >;
 
 export interface ISelectProps<OptionType> extends SelectProps {
   ref?: Ref<ReactSelect<OptionType, boolean, GroupBase<OptionType>>>;
@@ -78,6 +93,10 @@ export const Select = <OptionType extends IOptionItem>({
   onInvalid,
   onChange,
   onClear,
+  onKeyDown,
+  onKeyDownCapture,
+  onKeyUp,
+  onKeyUpCapture,
   ...rest
 }: ISelectProps<OptionType>) => {
   const selectRef = React.useRef(null);
@@ -104,7 +123,13 @@ export const Select = <OptionType extends IOptionItem>({
           {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
         </label>
       )}
-      <Row className="select-container">
+      <Row
+        className="select-container"
+        onKeyDown={onKeyDown}
+        onKeyDownCapture={onKeyDownCapture}
+        onKeyUp={onKeyUp}
+        onKeyUpCapture={onKeyUpCapture}
+      >
         <Row
           onKeyUp={(e) => {
             if (e.code === 'Delete') {

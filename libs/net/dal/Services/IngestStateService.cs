@@ -20,11 +20,11 @@ public class IngestStateService : BaseService<IngestState, int>, IIngestStateSer
     public IngestState AddOrUpdate(IngestState entity)
     {
         var existing = this.Context.IngestStates.Find(entity.IngestId);
-        if (existing == null) return base.Add(entity);
+        if (existing == null) return base.AddAndSave(entity);
         else
         {
             this.Context.Entry(existing).CurrentValues.SetValues(entity);
-            return base.Update(existing);
+            return base.UpdateAndSave(existing);
         }
     }
     #endregion

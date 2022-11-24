@@ -102,7 +102,7 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult Add(SourceModel model)
     {
-        var result = _service.Add(model.ToEntity());
+        var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SourceModel(result));
     }
 
@@ -118,7 +118,7 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult Update(SourceModel model)
     {
-        var result = _service.Update(model.ToEntity(), true);
+        var result = _service.UpdateAndSave(model.ToEntity(), true);
         return new JsonResult(new SourceModel(result));
     }
 
@@ -134,7 +134,7 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult Delete(SourceModel model)
     {
-        _service.Delete(model.ToEntity());
+        _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
     }
     #endregion

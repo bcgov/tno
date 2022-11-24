@@ -126,6 +126,16 @@ public class ContentFilter : PageFilter
     public bool? IncludedInCategory { get; set; }
 
     /// <summary>
+    /// get/set - Whether to include hidden content.
+    /// </summary>
+    public bool? IncludeHidden { get; set; }
+
+    /// <summary>
+    /// get/set - An array of content IDs.
+    /// </summary>
+    public long[] ContentIds { get; set; } = Array.Empty<long>();
+
+    /// <summary>
     /// get/set - Only include content with the specified actions.
     /// </summary>
     public string[] Actions { get; set; } = Array.Empty<string>();
@@ -155,6 +165,7 @@ public class ContentFilter : PageFilter
         this.ContentType = filter.GetEnumNullValue<ContentType>(nameof(this.ContentType));
 
         this.IncludedInCategory = filter.GetBoolNullValue(nameof(this.IncludedInCategory));
+        this.IncludeHidden = filter.GetBoolNullValue(nameof(this.IncludeHidden));
 
         this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
@@ -171,6 +182,7 @@ public class ContentFilter : PageFilter
         this.PublishedStartOn = filter.GetDateTimeNullValue(nameof(this.PublishedStartOn));
         this.PublishedEndOn = filter.GetDateTimeNullValue(nameof(this.PublishedEndOn));
 
+        this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }

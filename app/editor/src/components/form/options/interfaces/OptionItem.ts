@@ -24,11 +24,10 @@ export class OptionItem<T extends string | number | undefined = string | number 
   }
 
   toInterface(): IOptionItem<T> {
-    return {
-      discriminator: this.discriminator,
-      label: this.label,
-      value: this.value,
-      isEnabled: this.isEnabled,
-    };
+    return this as IOptionItem<T>;
   }
 }
+
+OptionItem.prototype.toString = function () {
+  return `${this.value}`;
+};

@@ -1,8 +1,8 @@
 import { IContentFilter } from 'hooks/api-editor';
 import moment from 'moment';
 
-import { IContentListAdvancedFilter, IContentListFilter, ISortBy } from '../interfaces';
-import { setTimeFrame } from '.';
+import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
+import { applySortBy, setTimeFrame } from '.';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.
@@ -11,10 +11,9 @@ import { setTimeFrame } from '.';
  * @returns new IContentFilter object.
  */
 export const makeFilter = (
-  filter: IContentListFilter & IContentListAdvancedFilter,
+  filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
 ): IContentFilter => {
-  const advanced = filter as IContentListAdvancedFilter;
-  return {
+  const result: IContentFilter = {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
     sourceId: filter.sourceId !== 0 ? filter.sourceId : undefined,
@@ -23,19 +22,24 @@ export const makeFilter = (
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
     includedInCategory: filter.includedInCategory ? true : undefined,
-    publishedStartOn: advanced.startDate
-      ? moment(advanced.startDate).toISOString()
+    includeHidden: filter.includeHidden ? true : undefined,
+    publishedStartOn: filter.startDate
+      ? moment(filter.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
-    publishedEndOn: advanced.endDate ? moment(advanced.endDate).toISOString() : undefined,
-    [(advanced?.fieldType?.value as string) ?? 'fake']:
-      advanced.searchTerm !== '' ? advanced.searchTerm.trim() : undefined,
+    publishedEndOn: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
     logicalOperator:
-      advanced.searchTerm !== '' && advanced.logicalOperator !== ''
-        ? advanced.logicalOperator
+      filter.searchTerm !== '' && filter.logicalOperator !== ''
+        ? filter.logicalOperator
         : undefined,
     actions: applyActions(filter),
     sort: applySortBy(filter.sort),
   };
+
+  if (!!filter.fieldType)
+    (result as any)[(filter?.fieldType as string) ?? 'fake'] =
+      filter.searchTerm !== '' ? filter.searchTerm?.trim() : undefined;
+
+  return result;
 };
 
 /**
@@ -50,26 +54,4 @@ const applyActions = (filter: IContentListFilter) => {
   if (filter.commentary) actions.push('Commentary');
   if (filter.topStory) actions.push('Top Story');
   return actions;
-};
-
-/**
- * Creates an array of sort parameters from the provided sorting information.
- * Cleans up the data to ensure it matches what is expected by the API.
- * @param sortBy An array of sort objects.
- * @returns An array of sort parameters.
- */
-const applySortBy = (sortBy?: ISortBy[]) => {
-  if (sortBy === undefined || sortBy.length === 0) return undefined;
-
-  var sort: string[] = [];
-  for (let i = 0; i < sortBy.length; i++) {
-    let column = sortBy[i].id;
-    if (column === 'section') {
-      sort.push(`PrintContent.${column}${sortBy[i].desc ? ' desc' : ''}`);
-      sort.push(`page${sortBy[i].desc ? ' desc' : ''}`);
-    } else {
-      sort.push(`${column}${sortBy[i].desc ? ' desc' : ''}`);
-    }
-  }
-  return sort;
 };

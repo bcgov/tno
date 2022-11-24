@@ -101,9 +101,9 @@ public class KeycloakHelper : IKeycloakHelper
         user.Roles = String.Join(",", roles.Select(r => $"[{r.Name?.ToLower()}]"));
 
         if (user.Id == 0)
-            _userService.Add(user);
+            _userService.AddAndSave(user);
         else
-            _userService.Update(user);
+            _userService.UpdateAndSave(user);
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public class KeycloakHelper : IKeycloakHelper
                 if (kUser == null) throw new InvalidOperationException("The user does not exist in keycloak");
 
                 // Add the user to the database.
-                user = _userService.Add(new Entities.User(username, email, key)
+                user = _userService.AddAndSave(new Entities.User(username, email, key)
                 {
                     DisplayName = kUser.Attributes?["displayName"].FirstOrDefault() ?? principal.GetDisplayName() ?? "",
                     FirstName = kUser.FirstName ?? principal.GetFirstName() ?? "",
@@ -175,7 +175,7 @@ public class KeycloakHelper : IKeycloakHelper
         else
         {
             user.LastLoginOn = DateTime.UtcNow;
-            _userService.Update(user);
+            _userService.UpdateAndSave(user);
         }
 
         return user;
@@ -189,7 +189,7 @@ public class KeycloakHelper : IKeycloakHelper
     /// <returns></returns>
     public async Task<UserModel> UpdateUserAsync(UserModel model)
     {
-        var user = _userService.Update((Entities.User)model);
+        var user = _userService.UpdateAndSave((Entities.User)model);
         var result = new UserModel(user);
         if (user.Key != Guid.Empty)
         {
@@ -243,7 +243,7 @@ public class KeycloakHelper : IKeycloakHelper
     /// <returns></returns>
     public async Task DeleteUserAsync(Entities.User entity)
     {
-        _userService.Delete(entity);
+        _userService.DeleteAndSave(entity);
         if (entity.Key != Guid.Empty) await _keycloakService.DeleteUserAsync(entity.Key);
     }
     #endregion

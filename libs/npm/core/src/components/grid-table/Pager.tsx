@@ -142,7 +142,7 @@ export const Pager: React.FC<IPagerProps> = ({
           <Text
             className="page-size"
             tooltip="Choose page size"
-            defaultValue={10}
+            defaultValue={20}
             type="number"
             name="pageSize"
             onChange={(e) => {

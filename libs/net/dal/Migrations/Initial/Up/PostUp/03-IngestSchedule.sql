@@ -12,7 +12,7 @@ INSERT INTO public.ingest_schedule (
   , "updated_by"
   , "updated_on"
 ) VALUES (
-  (SELECT id FROM public.ingest WHERE name = 'CBC News')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Newsworld')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'CBC News - 01') -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -21,7 +21,7 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'CBC News')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Newsworld')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'CBC News - 02') -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -84,7 +84,7 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'Globe & Mail - Front Pages')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'Globe & Mail - Page 1')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'GLOBE')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -102,7 +102,7 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'The Province - Front Pages')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'The Province - Page 1')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'PROVINCE')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -111,7 +111,7 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'Times Colonist Victoria - Front Pages')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'Times Colonist Victoria - Page 1')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'TC')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -120,7 +120,7 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'Vancouver Sun - Front Pages')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'Vancouver Sun - Page 1')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'SUN')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -129,7 +129,7 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'National Post - Front Pages')  -- ingest_id
+  (SELECT id FROM public.ingest WHERE name = 'National Post - Page 1')  -- ingest_id
   , (SELECT id FROM public.schedule WHERE name = 'POST')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
@@ -138,8 +138,8 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'CBC Kam')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC Kam')  -- schedule_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Kamloops')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Kamloops')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
@@ -147,8 +147,8 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'CBC Kel')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC Kel')  -- schedule_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Kelowna')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Kelowna')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
@@ -156,8 +156,8 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'CBC PG')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC PG')  -- schedule_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Prince George')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Prince George')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
@@ -165,8 +165,8 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'CBC Van')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC Van')  -- schedule_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Vancouver')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Vancouver')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
@@ -174,8 +174,8 @@ INSERT INTO public.ingest_schedule (
   , ''
   , CURRENT_TIMESTAMP
 ), (
-  (SELECT id FROM public.ingest WHERE name = 'CBC Vic')  -- ingest_id
-  , (SELECT id FROM public.schedule WHERE name = 'CBC Vic')  -- schedule_id
+  (SELECT id FROM public.ingest WHERE name = 'CBC Victoria')  -- ingest_id
+  , (SELECT id FROM public.schedule WHERE name = 'CBC Victoria')  -- schedule_id
   , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP

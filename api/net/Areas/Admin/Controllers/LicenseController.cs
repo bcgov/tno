@@ -83,7 +83,7 @@ public class LicenseController : ControllerBase
     [SwaggerOperation(Tags = new[] { "License" })]
     public IActionResult Add(LicenseModel model)
     {
-        var result = _service.Add(model.ToEntity());
+        var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new LicenseModel(result));
     }
 
@@ -99,7 +99,7 @@ public class LicenseController : ControllerBase
     [SwaggerOperation(Tags = new[] { "License" })]
     public IActionResult Update(LicenseModel model)
     {
-        var result = _service.Update(model.ToEntity());
+        var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new LicenseModel(result));
     }
 
@@ -115,7 +115,7 @@ public class LicenseController : ControllerBase
     [SwaggerOperation(Tags = new[] { "License" })]
     public IActionResult Delete(LicenseModel model)
     {
-        _service.Delete(model.ToEntity());
+        _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
     }
     #endregion

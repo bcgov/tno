@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.187",
+  "version": "0.0.193",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -15,7 +15,7 @@
   "types": "dist/index.d.ts",
   "engines": {
     "npm": ">=8.19.2 <9.0.0",
-    "node": ">=16.18.0 <17.0.0",
+    "node": ">=18.11.0 <19.0.0",
     "yarn": ">=3.2.0 <4.0.0"
   },
   "dependencies": {

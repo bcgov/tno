@@ -44,29 +44,14 @@ export const NavBar: React.FC = () => {
     <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
       <NavBarGroup className="navbar">
         <Row>
-          <div className="editor" onMouseOver={() => setActiveHover('editor')}>
-            <NavBarItem
-              activeHoverTab={activeHover}
-              navigateTo="/contents"
-              label="Editor"
-              claim={Claim.editor}
-            />
+          <div className="editor" onClick={() => setActiveHover('editor')}>
+            <NavBarItem activeHoverTab={activeHover} label="Editor" claim={Claim.editor} />
           </div>
-          <div className="admin" onMouseOver={() => setActiveHover('admin')}>
-            <NavBarItem
-              activeHoverTab={activeHover}
-              navigateTo="/admin"
-              label="Admin"
-              claim={Claim.administrator}
-            />
+          <div className="admin" onClick={() => setActiveHover('admin')}>
+            <NavBarItem activeHoverTab={activeHover} label="Admin" claim={Claim.administrator} />
           </div>
-          <div className="report" onMouseOver={() => setActiveHover('report')}>
-            <NavBarItem
-              activeHoverTab={activeHover}
-              navigateTo="/reports"
-              label="Reports"
-              claim={Claim.administrator}
-            />
+          <div className="report" onClick={() => setActiveHover('report')}>
+            <NavBarItem activeHoverTab={activeHover} label="Reports" claim={Claim.administrator} />
           </div>
         </Row>
       </NavBarGroup>
@@ -75,6 +60,7 @@ export const NavBar: React.FC = () => {
           {/* Editor */}
           <Show visible={activeHover === 'editor'}>
             <NavBarItem navigateTo="/contents" label="Content" claim={Claim.editor} />
+            <NavBarItem navigateTo="/morning/reports" label="Morning Report" claim={Claim.editor} />
             <NavBarItem navigateTo="/storage" label="Storage" claim={Claim.editor} />
             <NavBarItem
               navigateTo="/contents/log"

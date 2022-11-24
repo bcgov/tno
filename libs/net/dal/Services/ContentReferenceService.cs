@@ -80,18 +80,18 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         return new Paged<ContentReference>(items, filter.Page, filter.Quantity, total);
     }
 
-    public override ContentReference Add(ContentReference entity)
+    public override ContentReference AddAndSave(ContentReference entity)
     {
-        base.Add(entity);
+        base.AddAndSave(entity);
         return entity;
     }
 
-    public override ContentReference Update(ContentReference entity)
+    public override ContentReference UpdateAndSave(ContentReference entity)
     {
         var original = FindByKey(entity.Source, entity.Uid) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.Entry(original).CurrentValues.SetValues(entity);
         this.Context.ResetVersion(original);
-        base.Update(original);
+        base.UpdateAndSave(original);
         return original;
     }
     #endregion

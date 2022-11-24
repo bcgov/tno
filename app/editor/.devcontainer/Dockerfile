@@ -9,9 +9,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get -y install --no-install-recommends git libstdc++6
 
 # [Optional] Uncomment if you want to install an additional version of node using nvm
-# ARG EXTRA_NODE_VERSION=v16.10.0
-# RUN su node -c "npm config delete prefix"
-# RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"
+ARG EXTRA_NODE_VERSION=v18.11.0
+RUN su node -c "npm config delete prefix"
+RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION} && nvm use ${EXTRA_NODE_VERSION}"
 # RUN su node -c "npm config set prefix $NVM_DIR/versions/node/${EXTRA_NODE_VERSION}"
 
 # [Optional] Uncomment if you want to install more global node packages

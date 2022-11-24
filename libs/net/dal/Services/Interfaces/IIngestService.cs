@@ -11,5 +11,5 @@ public interface IIngestService : IBaseService<Ingest, int>
     IPaged<Ingest> Find(IngestFilter filter);
     IEnumerable<Ingest> FindByTopic(string topic, bool includeConnection = false);
     IEnumerable<Ingest> FindByIngestType(string ingestTypeName, bool includeConnection = false);
-    Ingest Update(Ingest entity, bool updateChildren = false);
+    Ingest UpdateAndSave(Ingest entity, bool updateChildren = false);
 }

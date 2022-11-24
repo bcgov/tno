@@ -128,7 +128,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync(ContentModel model)
     {
-        var content = _contentService.Add((Content)model);
+        var content = _contentService.AddAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -157,7 +157,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UpdateAsync(ContentModel model)
     {
-        var content = _contentService.Update((Content)model);
+        var content = _contentService.UpdateAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -191,7 +191,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> DeleteAsync(ContentModel model)
     {
-        _contentService.Delete((Content)model);
+        _contentService.DeleteAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -217,7 +217,7 @@ public class ContentController : ControllerBase
     public async Task<IActionResult> PublishAsync(ContentModel model)
     {
         if (model.Status != ContentStatus.Published) model.Status = ContentStatus.Publish;
-        var content = _contentService.Update((Content)model);
+        var content = _contentService.UpdateAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
@@ -242,7 +242,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UnpublishAsync(ContentModel model)
     {
-        var content = _contentService.Update((Content)model);
+        var content = _contentService.UpdateAndSave((Content)model);
         if (!new[] { ContentStatus.Published }.Contains(content.Status)) throw new InvalidOperationException("Content is an invalid status, and cannot be unpublished.");
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
@@ -254,6 +254,8 @@ public class ContentController : ControllerBase
 
         return new JsonResult(new ContentModel(content));
     }
+
+    #region Files
 
     /// <summary>
     /// Upload a file and link it to the specified content.
@@ -351,5 +353,6 @@ public class ContentController : ControllerBase
         var stream = System.IO.File.OpenRead(safePath);
         return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
     }
+    #endregion
     #endregion
 }

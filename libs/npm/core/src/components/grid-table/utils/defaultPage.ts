@@ -5,4 +5,5 @@ export const defaultPage = <ItemType>(items: ItemType[] = []): IPage<ItemType> =
   pageSize: !!items && !!items.length ? items.length : 10,
   pageCount: !!items && !!items.length ? 1 : 0,
   items,
+  total: items.length,
 });

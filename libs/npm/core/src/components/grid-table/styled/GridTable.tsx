@@ -26,24 +26,28 @@ export const GridTable = styled.div`
   }
 
   div[role='row'] {
+    position: relative;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    border-bottom: solid 1px #efefef;
+    border-bottom: solid 1px ${(props) => props.theme.css.borderColor};
+    &.selected {
+      background-color: ${(props) => props.theme.css.secondaryVariantColor};
+      color: ${(props) => props.theme.css.backgroundColor};
+    }
     &.active {
-      background-color: #38598a;
-      color: white;
-    }
-    &:not(.rh):hover {
-      background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15));
+      background-color: ${(props) => props.theme.css.primaryLightColor};
+      color: ${(props) => props.theme.css.backgroundColor};
     }
 
-    &:nth-child(even):not(.active) {
-      background-color: ${(props) => props.theme.css.tableEvenRowColor ?? '#fff'};
+    &:nth-child(even):not(.active):not(.selected) {
+      background-color: ${(props) =>
+        props.theme.css.tableEvenRowColor ?? props.theme.css.backgroundColor};
     }
 
-    &:nth-child(odd):not(.active) {
-      background-color: ${(props) => props.theme.css.tableOddRowColor ?? '#fff'};
+    &:nth-child(odd):not(.active):not(.selected) {
+      background-color: ${(props) =>
+        props.theme.css.tableOddRowColor ?? props.theme.css.backgroundColor};
     }
   }
 
@@ -54,6 +58,7 @@ export const GridTable = styled.div`
   }
 
   div[role='rowgroup'] {
+    position: relative;
     display: grid;
     grid-auto-rows: 1fr;
 
@@ -62,7 +67,8 @@ export const GridTable = styled.div`
         background-color: ${(props) => props.theme.css.tableRowNColor};
       }
       &:hover {
-        background-color: ${(props) => props.theme.css.tableRowHoverColor};
+        /* background-color: ${(props) => props.theme.css.tableRowHoverColor}; */
+        filter: brightness(50%);
         cursor: pointer;
       }
       &:last-child {

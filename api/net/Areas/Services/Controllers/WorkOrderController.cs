@@ -77,7 +77,7 @@ public class WorkOrderController : ControllerBase
         var entity = _service.FindById(workOrder.Id);
         if (entity == null) throw new InvalidOperationException("Work order does not exist");
 
-        _service.Update(workOrder.UpdateEntity(entity));
+        _service.UpdateAndSave(workOrder.UpdateEntity(entity));
         await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
         return new JsonResult(new WorkOrderModel(entity));
     }

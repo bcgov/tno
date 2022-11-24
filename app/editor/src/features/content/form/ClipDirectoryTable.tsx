@@ -38,23 +38,19 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
 }) => {
   const { values } = useFormikContext<IItemModel>();
 
-  const [activeId, setActiveId] = React.useState<string>();
-
   useTooltips();
 
   return (
     <styled.ClipDirectoryTable>
       <GridTable
-        activeId={activeId}
-        activeAssessor="name"
+        data={data}
+        className="file-table"
         paging={{ showPaging: false }}
         columns={clipDirectoryColumns(onDelete, onSelect, onDownload, onAttach, values)}
         header={ClipDirectoryFilter}
-        data={data}
         sorting={{ sortBy: [{ id: 'name', desc: true }] }}
-        className="file-table"
+        getRowId={(content) => content.name.toString()}
         onRowClick={(row) => {
-          setActiveId(row.original.name);
           navigate(row.original);
         }}
       ></GridTable>

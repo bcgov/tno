@@ -36,11 +36,11 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// Find content that matches the specified 'filter'.
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
+    /// <param name="asNoTracking">Whether to load into context or not</param>
     /// <returns>A page of content items that match the filter.</returns>
-    public IPaged<Content> Find(ContentFilter filter)
+    public IPaged<Content> Find(ContentFilter filter, bool asNoTracking = true)
     {
         var query = this.Context.Contents
-            .AsNoTracking()
             .Include(c => c.Product)
             .Include(c => c.Source)
             .Include(c => c.Series)
@@ -48,6 +48,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Owner)
             .Include(c => c.PrintContent)
             .AsQueryable();
+
+        if (asNoTracking)
+            query = query.AsNoTracking();
 
         if (!String.IsNullOrWhiteSpace(filter.OtherSource))
             query = query.Where(c => c.OtherSource.ToLower() == filter.OtherSource.ToLower());
@@ -72,6 +75,10 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.IncludedInCategory.HasValue)
             query = query.Where(c => c.CategoriesManyToMany.Any());
+        if (!filter.IncludeHidden.HasValue)
+            query = query.Where(c => !c.IsHidden);
+        else
+            query = query.Where(c => c.IsHidden == filter.IncludeHidden);
 
         if (filter.ProductId.HasValue)
             query = query.Where(c => c.ProductId == filter.ProductId);
@@ -112,6 +119,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => c.PublishedOn >= filter.PublishedStartOn.Value.ToUniversalTime());
         else if (filter.PublishedEndOn.HasValue)
             query = query.Where(c => c.PublishedOn <= filter.PublishedEndOn.Value.ToUniversalTime());
+
+        if (filter.ContentIds.Any())
+            query = query.Where(c => filter.ContentIds.Contains(c.Id));
 
         if (filter.Actions.Any() == true)
             query = query.Where(c => c.ActionsManyToMany.Any(ca => filter.Actions.Contains(ca.Action!.Name)
@@ -189,14 +199,14 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public override Content Add(Content entity)
+    public override Content AddAndSave(Content entity)
     {
         entity.AddToContext(this.Context);
-        base.Add(entity);
+        base.AddAndSave(entity);
 
         // Ensure all content has a UID.
         if (entity.GuaranteeUid())
-            base.Update(entity);
+            base.UpdateAndSave(entity);
 
         return entity;
     }
@@ -208,12 +218,12 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
     /// TODO: Switch to not found exception throughout services.
-    public override Content Update(Content entity)
+    public override Content UpdateAndSave(Content entity)
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
         entity.GuaranteeUid();
-        base.Update(original);
+        base.UpdateAndSave(original);
         return original;
     }
     #endregion

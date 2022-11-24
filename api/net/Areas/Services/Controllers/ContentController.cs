@@ -91,7 +91,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public IActionResult Add(ContentModel model)
     {
-        var result = _contentService.Add((Content)model);
+        var result = _contentService.AddAndSave((Content)model);
         return new JsonResult(new ContentModel(result));
 
         // TODO: Figure out how to return a 201 for a route in a different controller.

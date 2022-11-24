@@ -117,7 +117,7 @@ public class UserController : ControllerBase
             user.Status = UserStatus.Approved;
             user.Roles = preapproved.Roles;
             await _keycloakHelper.UpdateUserAsync(new Admin.Models.User.UserModel(user));
-            _userService.Delete(preapproved);
+            _userService.DeleteAndSave(preapproved);
             return new JsonResult(new RegisterModel(model.Email, user.Status, $"An email has been sent to {model.Email}"));
         }
         else
@@ -125,7 +125,7 @@ public class UserController : ControllerBase
             // TODO: Send email.
             var rnd = new Random();
             user.Code = $"{rnd.Next()}";
-            _userService.Update(user);
+            _userService.UpdateAndSave(user);
 
             return new JsonResult(new RegisterModel(model.Email, UserStatus.Approved, "Your account has been approved"));
         }
@@ -150,7 +150,7 @@ public class UserController : ControllerBase
 
         original.Note = model.Note;
         original.Status = Entities.UserStatus.Requested;
-        var result = _userService.Update(original);
+        var result = _userService.UpdateAndSave(original);
         return new JsonResult(new Admin.Models.User.UserModel(result));
     }
     #endregion

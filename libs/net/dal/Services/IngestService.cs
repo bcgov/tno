@@ -204,11 +204,11 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public override Ingest Add(Ingest entity)
+    public override Ingest AddAndSave(Ingest entity)
     {
         this.Context.AddToContext(entity);
         ValidateScheduleNames(entity);
-        base.Add(entity);
+        base.AddAndSave(entity);
         return entity;
     }
 
@@ -218,9 +218,9 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public override Ingest Update(Ingest entity)
+    public override Ingest UpdateAndSave(Ingest entity)
     {
-        return this.Update(entity);
+        return this.UpdateAndSave(entity);
     }
 
     /// <summary>
@@ -231,12 +231,12 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     /// <param name="updateChildren"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public Ingest Update(Ingest entity, bool updateChildren = false)
+    public Ingest UpdateAndSave(Ingest entity, bool updateChildren = false)
     {
         ValidateScheduleNames(entity);
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
-        base.Update(original);
+        base.UpdateAndSave(original);
         return original;
     }
 

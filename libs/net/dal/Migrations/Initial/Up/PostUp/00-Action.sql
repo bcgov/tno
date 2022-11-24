@@ -15,7 +15,7 @@ INSERT INTO public.action (
   , "updated_by"
 ) VALUES (
   'Alert' -- name - 1
-  , true
+  , true -- is_enabled
   , '' -- value_label
   , 0 -- value_type
   , 'true' -- default_value
@@ -26,7 +26,7 @@ INSERT INTO public.action (
   , ''
 ), (
   'Just In' -- name - 2
-  , true
+  , true -- is_enabled
   , '' -- value_label
   , 0 -- value_type
   , '' -- default_value
@@ -37,7 +37,7 @@ INSERT INTO public.action (
   , ''
 ), (
   'Front Page' -- name - 3
-  , true
+  , true -- is_enabled
   , '' -- value_label
   , 0 -- value_type
   , '' -- default_value
@@ -48,7 +48,7 @@ INSERT INTO public.action (
   , ''
 ), (
   'Top Story' -- name - 4
-  , true
+  , true -- is_enabled
   , '' -- value_label
   , 0 -- value_type
   , '' -- default_value
@@ -59,7 +59,7 @@ INSERT INTO public.action (
   , ''
 ), (
   'On Ticker' -- name - 5
-  , true
+  , false -- is_enabled
   , '' -- value_label
   , 0 -- value_type
   , '' -- default_value
@@ -70,7 +70,7 @@ INSERT INTO public.action (
   , ''
 ), (
   'Non Qualified Subject' -- name - 6
-  , true
+  , true -- is_enabled
   , '' -- value_label
   , 0 -- value_type
   , '' -- default_value
@@ -81,7 +81,7 @@ INSERT INTO public.action (
   , ''
 ), (
   'Commentary' -- name - 7
-  , true
+  , true -- is_enabled
   , 'Commentary Timeout' -- value_label
   , 1 -- value_type
   , '' -- default_value

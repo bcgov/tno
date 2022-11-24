@@ -53,4 +53,7 @@ export interface IContentModel extends IAuditColumnsModel {
   fileReferences?: IFileReferenceModel[];
   links?: IContentLinkModel[];
   workOrders?: IWorkOrderModel[];
+
+  // React-Table Properties
+  isSelected?: boolean;
 }

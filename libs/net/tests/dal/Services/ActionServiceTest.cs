@@ -43,7 +43,7 @@ public class ActionServiceTest : IDisposable
         var originalCache = context.Cache.Where(c => keys.Contains(c.Key)).ToArray();
 
         // Act
-        service.Add(action);
+        service.AddAndSave(action);
         var cache = context.Cache.Where(c => keys.Contains(c.Key)).ToArray();
 
         // Assert

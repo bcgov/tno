@@ -69,7 +69,7 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult Add(ContentReferenceModel model)
     {
-        var result = _service.Add(model.ToEntity());
+        var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindByKey), new { source = result.Source, uid = result.Uid }, new ContentReferenceModel(result));
     }
 
@@ -85,7 +85,7 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult Update(ContentReferenceModel model)
     {
-        var result = _service.Update(model.ToEntity());
+        var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new ContentReferenceModel(result));
     }
     #endregion

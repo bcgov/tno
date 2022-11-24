@@ -14,6 +14,15 @@ export const ContentFilter = styled.div`
     font-size: 1em;
   }
 
+  .box {
+    margin-top: 0.6em;
+    margin-left: 1em;
+    border: solid 1px grey;
+    border-radius: 0.25em;
+    max-width: 50em;
+    padding: 1em;
+  }
+
   & > div:first-child {
     max-width: 20em;
     margin-right: 1em;

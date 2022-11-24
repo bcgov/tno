@@ -7,6 +7,7 @@ export * from './useApiIngestTypes';
 export * from './useApiLicenses';
 export * from './useApiLookups';
 export * from './useApiMetrics';
+export * from './useApiMorningReports';
 export * from './useApiProducts';
 export * from './useApiRoles';
 export * from './useApiSeries';

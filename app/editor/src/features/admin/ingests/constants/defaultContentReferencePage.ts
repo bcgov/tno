@@ -1,9 +1,10 @@
 import { IContentReferenceModel } from 'hooks/api-editor';
-import { Page } from 'tno-core';
+import { IPage } from 'tno-core';
 
-export const defaultContentReferencePage: Page<IContentReferenceModel> = {
+export const defaultContentReferencePage: IPage<IContentReferenceModel> = {
   pageIndex: 0,
   pageSize: 100,
   pageCount: -1,
   items: [],
+  total: 0,
 };

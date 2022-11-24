@@ -24,7 +24,7 @@ export const AccessRequest: React.FC = (props) => {
 
   React.useEffect(() => {
     // The user has been approved, redirect back to home page.
-    if (keycloak.isApproved() && location.pathname === '/welcome') navigate('/');
+    if (keycloak.hasClaim() && location.pathname === '/welcome') navigate('/');
   });
 
   React.useEffect(() => {

@@ -103,7 +103,7 @@ public class IngestTypeController : ControllerBase
     [SwaggerOperation(Tags = new[] { "IngestType" })]
     public IActionResult Add(IngestTypeModel model)
     {
-        var result = _service.Add((IngestType)model);
+        var result = _service.AddAndSave((IngestType)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new IngestTypeModel(result));
     }
 
@@ -119,7 +119,7 @@ public class IngestTypeController : ControllerBase
     [SwaggerOperation(Tags = new[] { "IngestType" })]
     public IActionResult Update(IngestTypeModel model)
     {
-        var result = _service.Update((IngestType)model);
+        var result = _service.UpdateAndSave((IngestType)model);
         return new JsonResult(new IngestTypeModel(result));
     }
 
@@ -135,7 +135,7 @@ public class IngestTypeController : ControllerBase
     [SwaggerOperation(Tags = new[] { "IngestType" })]
     public IActionResult Delete(IngestTypeModel model)
     {
-        _service.Delete((IngestType)model);
+        _service.DeleteAndSave((IngestType)model);
         return new JsonResult(model);
     }
     #endregion

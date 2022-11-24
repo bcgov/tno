@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Http.Internal;
 
 namespace TNO.Core.Extensions;
 
@@ -69,6 +70,17 @@ public static class DictionaryExtensions
     public static long? GetLongNullValue(this IDictionary<string, Microsoft.Extensions.Primitives.StringValues> dict, string key, long? defaultValue = null)
     {
         return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues dValue) && long.TryParse(dValue, out long value) ? value : defaultValue;
+    }
+
+    /// <summary>
+    /// Get the value from the dictionary for the specified 'key' and return it as an array of long.
+    /// </summary>
+    /// <param name="dict"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
+    public static long[] GetLongArrayValue(this IDictionary<string, Microsoft.Extensions.Primitives.StringValues> dict, string key)
+    {
+        return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues value) ? value.ToArray().Select(v => long.Parse(v)).ToArray() : Array.Empty<long>();
     }
 
     /// <summary>

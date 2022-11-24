@@ -38,9 +38,14 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
         this.Context.Entry(entity).State = EntityState.Added;
         this.Context.Add(entity);
         this.Context.UpdateCache<TEntity>();
-
-        this.Context.CommitTransaction();
         return entity;
+    }
+
+    public virtual TEntity AddAndSave(TEntity entity)
+    {
+        var result = Add(entity);
+        this.Context.CommitTransaction();
+        return result;
     }
 
     public virtual TEntity Update(TEntity entity)
@@ -59,7 +64,6 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
                 this.Context.Entry(original).CurrentValues.SetValues(entity);
                 this.Context.Update(original);
                 this.Context.UpdateCache<TEntity>();
-                this.Context.CommitTransaction();
                 return (original as TEntity)!;
             }
         }
@@ -67,8 +71,14 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
         entry.State = EntityState.Modified;
         this.Context.Update(entity);
         this.Context.UpdateCache<TEntity>();
-        this.Context.CommitTransaction();
         return entity;
+    }
+
+    public virtual TEntity UpdateAndSave(TEntity entity)
+    {
+        var result = Update(entity);
+        this.Context.CommitTransaction();
+        return result;
     }
 
     public virtual void Delete(TEntity entity)
@@ -78,7 +88,11 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
         this.Context.Entry(entity).State = EntityState.Deleted;
         this.Context.Remove(entity);
         this.Context.UpdateCache<TEntity>();
+    }
 
+    public virtual void DeleteAndSave(TEntity entity)
+    {
+        Delete(entity);
         this.Context.CommitTransaction();
     }
     #endregion

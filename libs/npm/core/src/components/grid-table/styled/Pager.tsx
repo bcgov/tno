@@ -19,8 +19,4 @@ export const Pager = styled.div`
     color: black;
     border-color: black;
   }
-  .active {
-    background-color: ${(props) => props.theme.css.primaryLightColor ?? '#fff'};
-    color: white;
-  }
 `;

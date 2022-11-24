@@ -159,7 +159,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// Delete the specified file reference and the file from the configured data location.
     /// </summary>
     /// <param name="entity"></param>
-    public override void Delete(FileReference entity)
+    public override void DeleteAndSave(FileReference entity)
     {
         // TODO: Handle different data locations.
         var path = entity.GetFilePath(this.Context, _options);
@@ -168,7 +168,7 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
             File.Delete(path);
         }
 
-        base.Delete(entity);
+        base.DeleteAndSave(entity);
     }
     #endregion
 }

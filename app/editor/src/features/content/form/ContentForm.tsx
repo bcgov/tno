@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Area, IconButton } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
-  FormikCheckbox,
   FormikForm,
   FormikHidden,
   FormikSelect,
@@ -17,10 +16,8 @@ import {
   ContentTypeName,
   IActionModel,
   useCombinedView,
-  useProductOptions,
-  useSourceOptions,
+  useLookupOptions,
   useTooltips,
-  useUserLookups,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'hooks';
@@ -41,7 +38,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useWorkOrders } from 'store/hooks';
+import { useApp, useContent, useWorkOrders } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
   Button,
@@ -57,6 +54,7 @@ import {
 } from 'tno-core';
 import { hasErrors } from 'utils';
 
+import { getStatusText } from '../list-view/utils';
 import { ContentFormSchema } from '../validation';
 import {
   ContentActions,
@@ -68,7 +66,16 @@ import {
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { isImageForm, isSnippetForm, switchStatus, toForm, toModel } from './utils';
+import {
+  isImageForm,
+  isSnippetForm,
+  isWorkOrderActive,
+  isWorkOrderCancelled,
+  isWorkOrderComplete,
+  isWorkOrderFailed,
+  toForm,
+  toModel,
+} from './utils';
 
 export interface IContentFormProps {
   /** Control what form elements are visible. */
@@ -84,8 +91,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.Snippet,
 }) => {
   const navigate = useNavigate();
+  const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [{ sources, tonePools, series }, { getSeries }] = useLookup();
   const [
     { content: page },
     { getContent, addContent, updateContent, deleteContent, upload, attach },
@@ -94,12 +101,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
-  const { userId } = useUserLookups();
-  const sourceOptions = useSourceOptions();
-  const productOptions = useProductOptions();
+  const [{ sources, tonePools, series, sourceOptions, productOptions }, { getSeries }] =
+    useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
-  useTooltips();
   const { getConnection } = useApiHubConnection();
+  useTooltips();
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1);
@@ -113,47 +119,18 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     id: parseInt(id ?? '0'),
   });
 
+  const userId = userInfo?.id ?? '';
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
-  const isTranscribing = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.Transcription &&
-      [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(i.status),
-  );
-  const isTranscribed = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Completed,
-  );
-  const isTranscribeFailed = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Failed,
-  );
-  const isTranscribeCancelled = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.Transcription && i.status === WorkOrderStatusName.Cancelled,
-  );
-
-  const isNLPing = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
-      [WorkOrderStatusName.Submitted, WorkOrderStatusName.InProgress].includes(i.status),
-  );
-  const isNLPed = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
-      i.status === WorkOrderStatusName.Completed,
-  );
-  const isNLPFailed = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
-      i.status === WorkOrderStatusName.Failed,
-  );
-  const isNLPCancelled = content.workOrders.some(
-    (i) =>
-      i.workType === WorkOrderTypeName.NaturalLanguageProcess &&
-      i.status === WorkOrderStatusName.Cancelled,
-  );
+  const isTranscribing = isWorkOrderActive(content, WorkOrderTypeName.Transcription);
+  const isTranscribed = isWorkOrderComplete(content, WorkOrderTypeName.Transcription);
+  const isTranscribeFailed = isWorkOrderFailed(content, WorkOrderTypeName.Transcription);
+  const isTranscribeCancelled = isWorkOrderCancelled(content, WorkOrderTypeName.Transcription);
+  const isNLPing = isWorkOrderActive(content, WorkOrderTypeName.NaturalLanguageProcess);
+  const isNLPed = isWorkOrderComplete(content, WorkOrderTypeName.NaturalLanguageProcess);
+  const isNLPFailed = isWorkOrderFailed(content, WorkOrderTypeName.NaturalLanguageProcess);
+  const isNLPCancelled = isWorkOrderCancelled(content, WorkOrderTypeName.NaturalLanguageProcess);
 
   const determineActions = () => {
     switch (contentType) {
@@ -206,7 +183,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   const { setShowValidationToast } = useTabValidationToasts();
 
-  const handleSubmit = async (values: IContentForm) => {
+  const handleSave = async (values: IContentForm) => {
     let contentResult: IContentModel | null = null;
     const originalId = values.id;
     try {
@@ -267,11 +244,24 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     }
   };
 
+  const handlePublish = async (values: IContentForm) => {
+    // Change the status to publish if required.
+    if (
+      [
+        ContentStatusName.Draft,
+        ContentStatusName.Unpublish,
+        ContentStatusName.Unpublished,
+      ].includes(values.status)
+    )
+      values.status = ContentStatusName.Publish;
+    await handleSave(values);
+  };
+
   const handleTranscribe = async (values: IContentForm) => {
     try {
       // TODO: Only save when required.
       // Save before submitting request.
-      await handleSubmit(values);
+      await handleSave(values);
       const response = await transcribe(toModel(values));
       setContent({ ...content, workOrders: [response.data, ...content.workOrders] });
 
@@ -290,7 +280,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     try {
       // TODO: Only save when required.
       // Save before submitting request.
-      await handleSubmit(values);
+      await handleSave(values);
       const response = await nlp(toModel(values));
       setContent({ ...content, workOrders: [response.data, ...content.workOrders] });
 
@@ -376,9 +366,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 <FaSpinner />
               </Button>
             </Show>
+            <Row className="frm-in content-status">
+              <label>Status:</label>
+              <span>{getStatusText(content.status)}</span>
+            </Row>
           </Row>
           <FormikForm
-            onSubmit={handleSubmit}
+            onSubmit={handleSave}
             validationSchema={ContentFormSchema}
             initialValues={content}
             loading={(request: IAjaxRequest) =>
@@ -544,20 +538,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                     <Col className="checkbox-column" flex="0.5 1 0%">
                       <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
-                        <FormikCheckbox
-                          name="publish"
-                          label="Publish"
-                          checked={
-                            props.values.status === ContentStatusName.Publish ||
-                            props.values.status === ContentStatusName.Published
-                          }
-                          onChange={(e: any) => {
-                            props.setFieldValue(
-                              'status',
-                              switchStatus(e.target.checked, props.values.status),
-                            );
-                          }}
-                        />
                         <ContentActions
                           init
                           contentType={contentType}
@@ -679,6 +659,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     onClick={() => setSavePressed(true)}
                   >
                     Save
+                  </Button>
+                  <Button
+                    variant={ButtonVariant.success}
+                    disabled={props.isSubmitting}
+                    onClick={() => {
+                      setSavePressed(true);
+                      handlePublish(props.values);
+                    }}
+                  >
+                    Publish
                   </Button>
                   <Show visible={!!props.values.id}>
                     <Show

@@ -88,7 +88,7 @@ public class ConnectionController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Connection" })]
     public IActionResult Add(ConnectionModel model)
     {
-        var result = _service.Add(model.ToEntity(_serializerOptions));
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ConnectionModel(result, _serializerOptions));
     }
 
@@ -104,7 +104,7 @@ public class ConnectionController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Connection" })]
     public IActionResult Update(ConnectionModel model)
     {
-        var result = _service.Update(model.ToEntity(_serializerOptions));
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new ConnectionModel(result, _serializerOptions));
     }
 
@@ -120,7 +120,7 @@ public class ConnectionController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Connection" })]
     public IActionResult Delete(ConnectionModel model)
     {
-        _service.Delete(model.ToEntity(_serializerOptions));
+        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion

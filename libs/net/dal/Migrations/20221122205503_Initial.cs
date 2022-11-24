@@ -519,6 +519,7 @@ namespace TNO.DAL.Migrations
                     summary = table.Column<string>(type: "text", nullable: false),
                     body = table.Column<string>(type: "text", nullable: false),
                     source_url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    is_hidden = table.Column<bool>(type: "boolean", nullable: false),
                     IngestTypeId = table.Column<int>(type: "integer", nullable: true),
                     created_by_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_by = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),

@@ -12,7 +12,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20221028170850_Initial")]
+    [Migration("20221122205503_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -416,6 +416,10 @@ namespace TNO.DAL.Migrations
 
                     b.Property<int?>("IngestTypeId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_hidden");
 
                     b.Property<int>("LicenseId")
                         .HasColumnType("integer")

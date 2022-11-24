@@ -99,7 +99,7 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Add(WorkOrderModel model)
     {
-        var result = _workOrderService.Add((WorkOrder)model);
+        var result = _workOrderService.AddAndSave((WorkOrder)model);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new WorkOrderModel(result));
     }
 
@@ -118,7 +118,7 @@ public class WorkOrderController : ControllerBase
     {
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");
-        var result = _workOrderService.Update(model.CopyTo(entity));
+        var result = _workOrderService.UpdateAndSave(model.CopyTo(entity));
         await _hub.Clients.All.SendAsync("Update", model.ContentId);
         return new JsonResult(new WorkOrderModel(result));
     }
@@ -136,7 +136,7 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Delete(WorkOrderModel model)
     {
-        _workOrderService.Delete((WorkOrder)model);
+        _workOrderService.DeleteAndSave((WorkOrder)model);
         return new JsonResult(model);
     }
     #endregion

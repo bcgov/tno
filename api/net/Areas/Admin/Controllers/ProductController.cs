@@ -83,7 +83,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult Add(ProductModel model)
     {
-        var result = _service.Add(model.ToEntity());
+        var result = _service.AddAndSave(model.ToEntity());
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ProductModel(result));
     }
 
@@ -99,7 +99,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult Update(ProductModel model)
     {
-        var result = _service.Update(model.ToEntity());
+        var result = _service.UpdateAndSave(model.ToEntity());
         return new JsonResult(new ProductModel(result));
     }
 
@@ -115,7 +115,7 @@ public class ProductController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Product" })]
     public IActionResult Delete(ProductModel model)
     {
-        _service.Delete(model.ToEntity());
+        _service.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
     }
     #endregion

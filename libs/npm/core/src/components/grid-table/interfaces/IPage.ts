@@ -1,4 +1,4 @@
-export interface IPage<IT> {
+export interface IPage<T> {
   /**
    * Page index (zero-based).
    */
@@ -14,5 +14,9 @@ export interface IPage<IT> {
   /**
    * Array of items on page.
    */
-  items: IT[];
+  items: T[];
+  /**
+   * Total number of items in source.
+   */
+  total: number;
 }

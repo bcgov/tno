@@ -258,6 +258,38 @@ INSERT INTO public.tag (
   , ''
   , DEFAULT_USER_ID
   , ''
+), (
+  'BCF'
+  , 'BC Ferries'
+  , true
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'HSG'
+  , 'Housing'
+  , true
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'ICBC'
+  , 'ICBC'
+  , true
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
+), (
+  'PDPE'
+  , 'Premier Designate David Eby'
+  , true
+  , DEFAULT_USER_ID
+  , ''
+  , DEFAULT_USER_ID
+  , ''
 );
 
 END $$;
