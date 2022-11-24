@@ -46,8 +46,6 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
   }, [id, values]);
 
   const tagMatch = /\[.*?\]/g;
-  // match anything in between < and >
-  const htmlMatch = /<.*?>/g;
 
   // carry over editor value to raw html or v.v when toggling
   const syncViews = (htmlFromRaw: boolean) => {
