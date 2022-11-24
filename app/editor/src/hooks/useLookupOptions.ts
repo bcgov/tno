@@ -43,7 +43,7 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
 
   React.useEffect(() => {
     // If for some reason the current user does not exist in the local list, go fetch a new list from the api.
-    if (!userId) {
+    if (!userId && !!state.users.length) {
       controller.getUsers(true);
     }
     setUserOptions(state.users.map((u) => new OptionItem(u.displayName, u.id)));

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -48,7 +49,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("all")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<CategoryModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Category" })]
     public IActionResult FindAll()
@@ -61,7 +62,7 @@ public class CategoryController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<CategoryModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Category" })]
     public IActionResult Find()
@@ -79,7 +80,7 @@ public class CategoryController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Category" })]
@@ -97,7 +98,7 @@ public class CategoryController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Category" })]
@@ -113,7 +114,7 @@ public class CategoryController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Category" })]
@@ -129,7 +130,7 @@ public class CategoryController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(CategoryModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Category" })]

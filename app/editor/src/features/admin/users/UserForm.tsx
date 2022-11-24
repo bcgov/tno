@@ -84,7 +84,12 @@ export const UserForm: React.FC = () => {
           <div className="form-container">
             <Row>
               <Col className="form-inputs">
-                <FormikText name="username" label="Username" required={!values.id} />
+                <FormikText
+                  name="username"
+                  label="Username"
+                  required={!values.id}
+                  disabled={!!user.id}
+                />
               </Col>
               <Col
                 className="form-inputs"
@@ -100,20 +105,27 @@ export const UserForm: React.FC = () => {
                 </Show>
               </Col>
             </Row>
-            <FormikText name="email" label="Email" type="email" required={!values.id} />
+            <FormikText
+              name="email"
+              label="Email"
+              type="email"
+              required={!values.id}
+              disabled={!!user.id}
+            />
             <Row>
               <Col className="form-inputs">
                 <FormikText
                   name="displayName"
                   label="Display Name"
                   tooltip="Friendly name to use instead of username"
+                  disabled={!!user.id}
                 />
                 <FormikCheckbox label="Email Verified" name="emailVerified" />
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
               </Col>
               <Col className="form-inputs">
-                <FormikText name="firstName" label="First Name" />
-                <FormikText name="lastName" label="Last Name" />
+                <FormikText name="firstName" label="First Name" disabled={!!user.id} />
+                <FormikText name="lastName" label="Last Name" disabled={!!user.id} />
               </Col>
             </Row>
             {!!user.id && (

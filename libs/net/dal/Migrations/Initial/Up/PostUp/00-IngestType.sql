@@ -1,5 +1,4 @@
 DO $$
-DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 BEGIN
 
 INSERT INTO public.ingest_type (
@@ -9,9 +8,7 @@ INSERT INTO public.ingest_type (
   , "content_type"
   , "auto_transcribe"
   , "disable_transcribe"
-  , "created_by_id"
   , "created_by"
-  , "updated_by_id"
   , "updated_by"
 ) VALUES (
   'Syndication' -- 1
@@ -20,9 +17,7 @@ INSERT INTO public.ingest_type (
   , 3 -- content_type - Story
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Audio' -- 2
@@ -31,9 +26,7 @@ INSERT INTO public.ingest_type (
   , 0 -- content_type - Snippet
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Video' -- 3
@@ -42,9 +35,7 @@ INSERT INTO public.ingest_type (
   , 0 -- content_type - Snippet
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Image' -- 4
@@ -53,9 +44,7 @@ INSERT INTO public.ingest_type (
   , 2 -- content_type - Image
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Front Page' -- 5
@@ -64,9 +53,7 @@ INSERT INTO public.ingest_type (
   , 2 -- content_type - Image
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Corporate Calendar' -- 6
@@ -75,9 +62,7 @@ INSERT INTO public.ingest_type (
   , 2 -- content_type - Image
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Paper' -- 7
@@ -86,9 +71,7 @@ INSERT INTO public.ingest_type (
   , 1 -- content_type - Print Content
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'HTML' -- 8
@@ -97,9 +80,7 @@ INSERT INTO public.ingest_type (
   , 3 -- content_type - Story
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Social Media' -- 9
@@ -108,9 +89,7 @@ INSERT INTO public.ingest_type (
   , 3 -- content_type - Story
   , false -- auto_transcribe
   , false -- disable_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 );
 

@@ -1,16 +1,14 @@
-import { Button, Col, useKeycloakWrapper } from 'tno-core';
+import { Button, Col, Show, useKeycloakWrapper } from 'tno-core';
 
 export const LoginPanel: React.FC = () => {
   const keycloak = useKeycloakWrapper();
+  const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
 
   const isLocal =
-    window.location.host.startsWith('localhost') ||
-    window.location.host.startsWith('host.docker.internal');
+    new URL(authority).host.startsWith('localhost') ||
+    new URL(authority).host.startsWith('host.docker.internal');
 
-  const login = (hint: string = '') => {
-    const instance = keycloak.instance;
-    const authority = instance.authServerUrl.replace(/\/$/, '');
-    const authUrl = `${authority}/realms/${instance.realm}`;
+  const login = (hint?: string) => {
     const params = new URLSearchParams(window.location.search);
     const redirectTo = params.get('redirectTo');
     params.delete('redirectTo');
@@ -21,11 +19,7 @@ export const LoginPanel: React.FC = () => {
             '?' +
             params.toString(),
         );
-    window.location.href = `${authUrl}/protocol/openid-connect/auth?client_id=${instance.clientId}&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&kc_idp_hint=${hint}`;
-    // Use if the default login page is okay.
-    // keycloak.instance.login();
-    // Use if you want to redirect to correct form.
-    // window.location.href = `${authUrl}/protocol/openid-connect/auth?client_id=media-monitoring-mmia-3671&redirect_uri=${redirect}&response_mode=fragment&response_type=code&scope=openid&prompt=none&&code_challenge_method=S256&kc_idp_hint=${hint}`;
+    keycloak.instance.login({ idpHint: hint, redirectUri: redirect, scope: 'openid' });
   };
 
   return (
@@ -36,17 +30,19 @@ export const LoginPanel: React.FC = () => {
         </p>
         <Col alignItems="center" gap="1em">
           <p>Sign In</p>
-          <Button className="signIn" onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}>
-            IDIR
-          </Button>
-          <Button className="signIn" onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}>
-            BCeID
-          </Button>
-          {isLocal && (
+          <Show visible={!isLocal}>
+            <Button className="signIn" onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}>
+              IDIR
+            </Button>
+            <Button className="signIn" onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}>
+              BCeID
+            </Button>
+          </Show>
+          <Show visible={isLocal}>
             <Button className="signIn" onClick={() => login()}>
               Local
             </Button>
-          )}
+          </Show>
         </Col>
       </div>
       <p className="copyright" style={{ color: '#AAAAAA' }}>

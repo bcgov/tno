@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net;
+using System.Net.Mime;
 
 namespace TNO.Core.Http
 {
@@ -123,7 +124,7 @@ namespace TNO.Core.Http
             if (data != null)
             {
                 var json = JsonSerializer.Serialize(data, _serializeOptions);
-                content = new StringContent(json, Encoding.UTF8, "application/json");
+                content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             }
 
             return await SendAsync(url, method, headers, content);
@@ -418,7 +419,7 @@ namespace TNO.Core.Http
             if (data != null)
             {
                 var json = JsonSerializer.Serialize(data, _serializeOptions);
-                content = new StringContent(json, Encoding.UTF8, "application/json");
+                content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             }
 
             return await SendAsync<TModel>(url, method, headers, content, onError);

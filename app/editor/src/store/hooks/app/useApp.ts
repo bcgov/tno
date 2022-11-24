@@ -1,4 +1,10 @@
-import { IUserInfoModel, useApiAuth } from 'hooks/api-editor';
+import {
+  IRegisterModel,
+  IUserInfoModel,
+  IUserModel,
+  useApiAuth,
+  UserStatusName,
+} from 'hooks/api-editor';
 import React from 'react';
 import { IAppState, IErrorModel, useAppStore } from 'store/slices';
 import { useKeycloakWrapper } from 'tno-core';
@@ -14,8 +20,9 @@ let userInfo: IUserInfoModel = {
   key: '',
   username: '',
   email: '',
+  status: UserStatusName.Requested,
   displayName: '',
-  groups: [],
+  isEnabled: false,
   roles: [],
 };
 
@@ -26,6 +33,8 @@ interface IAppController {
    * Make an request to the API for user information.
    */
   getUserInfo: (refresh?: boolean) => Promise<IUserInfoModel>;
+  requestCode: (model: IRegisterModel) => Promise<IRegisterModel>;
+  requestApproval: (model: IUserModel) => Promise<IUserModel>;
   /**
    * Remove specified error from state.
    */
@@ -55,13 +64,15 @@ export const useApp = (): [IAppState, IAppController] => {
   const dispatch = useAjaxWrapper();
   const api = useApiAuth();
 
+  const hasClaim = keycloak.hasClaim();
+
   React.useEffect(() => {
     // Initialize lookup values the first time the app loads.
-    if (!initialized && keycloak.authenticated) {
+    if (!initialized && keycloak.authenticated && hasClaim) {
       initialized = true;
       init();
     }
-  }, [init, keycloak.authenticated]);
+  }, [init, keycloak.authenticated, hasClaim]);
 
   const controller = React.useMemo(
     () => ({
@@ -70,12 +81,16 @@ export const useApp = (): [IAppState, IAppController] => {
         const response = await dispatch('get-user-info', () => api.getUserInfo());
         userInfo = response.data;
         store.storeUserInfo(userInfo);
-        if (
-          (!keycloak.hasClaim() || refresh) &&
-          (!!response.data.groups.length || !!response.data.roles.length)
-        )
+        if ((!keycloak.hasClaim() || refresh) && !!response.data.roles.length)
           await keycloak.instance.updateToken(86400);
         return userInfo;
+      },
+      requestCode: async (model: IRegisterModel) => {
+        return (await dispatch<IRegisterModel>('request-code', () => api.requestCode(model))).data;
+      },
+      requestApproval: async (model: IUserModel) => {
+        return (await dispatch<IUserModel>('request-approval', () => api.requestApproval(model)))
+          .data;
       },
       removeError: store.removeError,
       clearErrors: store.clearErrors,

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using TNO.Services.Models;
 
@@ -32,7 +33,7 @@ public class HealthController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ServiceStateModel), (int)HttpStatusCode.OK)]
     public IActionResult Health()
     {

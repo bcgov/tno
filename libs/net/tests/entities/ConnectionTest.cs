@@ -26,10 +26,8 @@ public class ConnectionTest
         Assert.Equal("{}", item.Configuration);
 
         Assert.Equal("", item.CreatedBy);
-        Assert.Equal(Guid.Empty, item.CreatedById);
         Assert.Equal(DateTime.MinValue, item.CreatedOn);
         Assert.Equal("", item.UpdatedBy);
-        Assert.Equal(Guid.Empty, item.UpdatedById);
         Assert.Equal(DateTime.MinValue, item.UpdatedOn);
         Assert.Equal(0, item.Version);
 

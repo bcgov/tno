@@ -45,7 +45,6 @@ public class ContentFileReferenceTest
         Assert.Equal(0, item.RunningTime);
 
         Assert.Equal(content.CreatedBy, item.CreatedBy);
-        Assert.Equal(content.CreatedById, item.CreatedById);
         Assert.True(item.CreatedOn >= now);
         Assert.Equal(content.UpdatedBy, item.UpdatedBy);
         Assert.True(item.UpdatedOn >= now);

@@ -11,6 +11,7 @@ import {
   FormikTextArea,
 } from 'components/formik';
 import { Modal } from 'components/modal';
+import { FormikProps } from 'formik';
 import {
   ActionName,
   ContentTypeName,
@@ -75,6 +76,7 @@ import {
   isWorkOrderFailed,
   toForm,
   toModel,
+  triggerFormikValidate,
 } from './utils';
 
 export interface IContentFormProps {
@@ -244,17 +246,21 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     }
   };
 
-  const handlePublish = async (values: IContentForm) => {
+  const handlePublish = async (props: FormikProps<IContentForm>) => {
     // Change the status to publish if required.
     if (
       [
         ContentStatusName.Draft,
         ContentStatusName.Unpublish,
         ContentStatusName.Unpublished,
-      ].includes(values.status)
+      ].includes(props.values.status)
     )
-      values.status = ContentStatusName.Publish;
-    await handleSave(values);
+      props.values.status = ContentStatusName.Publish;
+
+    triggerFormikValidate(props);
+    if (props.isValid) {
+      await handleSave(props.values);
+    }
   };
 
   const handleTranscribe = async (values: IContentForm) => {
@@ -664,7 +670,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     disabled={props.isSubmitting}
                     onClick={() => {
                       setSavePressed(true);
-                      handlePublish(props.values);
+                      handlePublish(props);
                     }}
                   >
                     Publish

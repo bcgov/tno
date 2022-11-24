@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -48,7 +49,7 @@ public class IngestTypeController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("all")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<IngestTypeModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
     public IActionResult FindAll()
@@ -61,7 +62,7 @@ public class IngestTypeController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<IngestTypeModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
     public IActionResult Find()
@@ -79,7 +80,7 @@ public class IngestTypeController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
@@ -97,7 +98,7 @@ public class IngestTypeController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
@@ -113,7 +114,7 @@ public class IngestTypeController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]
@@ -129,7 +130,7 @@ public class IngestTypeController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestTypeModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "IngestType" })]

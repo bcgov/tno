@@ -1,5 +1,4 @@
 DO $$
-DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 BEGIN
 
 INSERT INTO public.connection (
@@ -10,9 +9,7 @@ INSERT INTO public.connection (
   , "configuration"
   , "is_read_only"
   , "sort_order"
-  , "created_by_id"
   , "created_by"
-  , "updated_by_id"
   , "updated_by"
 ) VALUES (
   'None' -- 1
@@ -22,9 +19,7 @@ INSERT INTO public.connection (
   , '{}' -- configuration
   , false -- is_read_only
   , -1 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Local Volume - Streams' -- 2
@@ -34,9 +29,7 @@ INSERT INTO public.connection (
   , '{ "path": "capture" }' -- configuration
   , false -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Local Volume - Clips' -- 3
@@ -46,9 +39,7 @@ INSERT INTO public.connection (
   , '{ "path": "clips" }' -- configuration
   , false -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Local Volume - Images' -- 3
@@ -58,9 +49,7 @@ INSERT INTO public.connection (
   , '{ "path": "images" }' -- configuration
   , false -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ),  (
   'Local Volume - Papers' -- 4
@@ -70,9 +59,7 @@ INSERT INTO public.connection (
   , '{"path": "papers"}' -- configuration
   , false -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Public Internet' -- 5
@@ -82,9 +69,7 @@ INSERT INTO public.connection (
   , '{}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'SSH - Newspaper Upload' -- 6
@@ -94,9 +79,7 @@ INSERT INTO public.connection (
   , '{"path":"/dsk98","username":"","hostname":"scharnhorst.tno.gov.bc.ca","keyFileName":"id_rsa"}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'SSH - Globe Newspaper Upload' -- 6
@@ -106,9 +89,7 @@ INSERT INTO public.connection (
   , '{"path":"/","username":"","hostname":"gamdelivery.globeandmail.ca","password": ""}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'NAS - Server Room' -- 6
@@ -118,9 +99,7 @@ INSERT INTO public.connection (
   , '{"path":"/mnt/NAS/tno2.0","username":"","hostname":"142.36.15.76","password": ""}' -- configuration
   , true -- is_read_only
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 );
 

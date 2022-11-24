@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.193",
+  "version": "0.0.196",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -38,7 +38,8 @@
     "react-table": "^7.8.0",
     "react-toastify": "^9.1.1",
     "react-tooltip": "^4.5.0",
-    "styled-components": "^5.3.6"
+    "styled-components": "^5.3.6",
+    "tno-core": "0.0.193"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",

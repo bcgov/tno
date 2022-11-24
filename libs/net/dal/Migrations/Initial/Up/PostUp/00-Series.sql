@@ -1,1139 +1,886 @@
 DO $$
-DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 BEGIN
 
 INSERT INTO public.series (
   "name"
   , "is_enabled"
   , "auto_transcribe"
-  , "created_by_id"
   , "created_by"
-  , "updated_by_id"
   , "updated_by"
   , "created_on"
 ) VALUES (
   'Jeremy Nuttall'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Bill Tieleman'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Christy Clark'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Editorial'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CJCN Vijay Saini'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV Morning Live'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CJCN Vasu Kumar'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CJVB News Hotline'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'TVS Straits Today'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHKG'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Noon Show'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'HEU'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Mornings with Al Ferraby'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'BCGEU'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKSP Sameer Kaushal'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'BC Teachers'' Federation'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CJVB Online'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'BC Info Privacy'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Vaughn Palmer'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Global BC Noon News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKPG at 5:00'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHEK News at Five'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Cindy E. Harnett'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHBC News at 6:30'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Michael Smyth'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC BC Today'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Early Edition'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'APTN National News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW Simi Sara'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Les Leyne'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW Weekend Show'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Online'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW Mike Smyth'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Newsworld'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Radio West'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC On the Coast'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHEK Political Capital with Rob Shaw'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC On the Island'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKFR'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Ian Jessop'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKWX Online'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC As It Happens'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC The House'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW View From Victoria'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW Online'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHNL Jeff Andreas'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Global BC Morning News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFJC Evening News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC The Current'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV Canada AM'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV News Channel'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKFR Phil Johnson'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Keith Baldrey'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHBC News at 5:00'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Daybreak North'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV News Live @ 5'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Daybreak South'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV News Live @ 6'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHNL'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Paul Willcocks'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Wendy Stueck'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Stephen Hume'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Press Theatre'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV News at Five'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV News at Six'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC All Points West'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Global BC Early News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Global BC News Hour'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CityNews1130'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBCV'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBTK'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBU'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBYG'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC News Vancouver'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Bill Carroll'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Adam Stirling'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Ryan Price'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CBC Daybreak Kamloops'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHNL Brett Mineer'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHNL Paul James'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKYE Harjinder Thind'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Lindsay Kines'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Cassidy Olivier'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Rob Shaw'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Norm Spector'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFAX Evan Solomon'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CUPE BC'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW Jas Johal'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFJC Noon News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKPG at Noon'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Global News: BC 1'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHNM Omni Cantonese'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CFTV Fairchild Evening News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CJVB'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CHMB'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Bob Mackin'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKNW Jill Bennett'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'The BC Conservative Party'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CP News'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Dan Burritt'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKFU'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CKYE'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Peter McKnight'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Dirk Meissner'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Don Cayo'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Frances Bula'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Gary Mason'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Ian Austin'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Gordon McIntyre'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Andrew MacLeod'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Jeff Lee'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Tom Fletcher'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Ian Mulgrew'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Ian Bailey'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Justine Hunter'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Kim Bolan'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Richard Zussman'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Pete McMartin'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Tracy Sherlock'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Daphne Bramham'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'CTV News at Noon'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 ), (
   'Castanet'
   , true
   , false
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
   , CURRENT_TIMESTAMP
 );

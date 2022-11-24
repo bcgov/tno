@@ -1,5 +1,4 @@
 DO $$
-DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 BEGIN
 
 INSERT INTO public.category (
@@ -8,9 +7,7 @@ INSERT INTO public.category (
   , "is_enabled"
   , "category_type"
   , "auto_transcribe"
-  , "created_by_id"
   , "created_by"
-  , "updated_by_id"
   , "updated_by"
 ) VALUES (
   'Malcolmson - suicide prevention'
@@ -18,9 +15,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 1 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Repeat offender recommendations'
@@ -28,9 +23,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 1 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Alberta Is Calling'
@@ -38,9 +31,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Ambulance waits'
@@ -48,9 +39,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'ArriveCan app'
@@ -58,9 +47,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'BC NDP leadership'
@@ -68,9 +55,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'BC crime'
@@ -78,9 +63,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'BC housing costs'
@@ -88,9 +71,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'COVID-19'
@@ -98,9 +79,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Climate change'
@@ -108,9 +87,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Dam release lawsuit'
@@ -118,9 +95,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Daycare death sentencing'
@@ -128,9 +103,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'ER closure'
@@ -138,9 +111,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Gang violence'
@@ -148,9 +119,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Health care decline'
@@ -158,9 +127,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'IIO investigation'
@@ -168,9 +135,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Inflation concerns'
@@ -178,9 +143,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Mackenzie - seniors report'
@@ -188,9 +151,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Municipal elections'
@@ -198,9 +159,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Old-growth protesters'
@@ -208,9 +167,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Overdose crisis'
@@ -218,9 +175,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Port strike'
@@ -228,9 +183,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Street lawlessness'
@@ -238,9 +191,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Surrey South by-election'
@@ -248,9 +199,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Truth and Reconciliation Day'
@@ -258,9 +207,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Ukraine invasion'
@@ -268,9 +215,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Wildfire season'
@@ -278,9 +223,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 0 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Premier Eby / Government Transition'
@@ -288,9 +231,7 @@ INSERT INTO public.category (
   , true -- is_enabled
   , 1 -- category_type
   , false -- auto_transcribe
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 );
 

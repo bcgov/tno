@@ -35,7 +35,7 @@ public class User : AuditColumns
     /// get/set - A unique key to identify the user.  Primarily used for keycloak.
     /// </summary>
     [Column("key")]
-    public Guid Key { get; set; }
+    public string Key { get; set; } = "";
 
     /// <summary>
     /// get/set - The user's display name.
@@ -146,9 +146,19 @@ public class User : AuditColumns
     /// </summary>
     /// <param name="username"></param>
     /// <param name="email"></param>
+    /// <exception cref="ArgumentException"></exception>
+    public User(string username, string email) : this(username, email, Guid.NewGuid().ToString())
+    {
+    }
+
+    /// <summary>
+    /// Creates a new instance of a User object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="username"></param>
+    /// <param name="email"></param>
     /// <param name="key"></param>
     /// <exception cref="ArgumentException"></exception>
-    public User(string username, string email, Guid key)
+    public User(string username, string email, string key)
     {
         if (String.IsNullOrWhiteSpace(username)) throw new ArgumentException("Parameter is required, not null, empty or whitespace", nameof(username));
 

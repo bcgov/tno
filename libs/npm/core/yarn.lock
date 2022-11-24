@@ -7700,7 +7700,7 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"tno-core@workspace:.":
+"tno-core@0.0.193, tno-core@workspace:.":
   version: 0.0.0-use.local
   resolution: "tno-core@workspace:."
   dependencies:
@@ -7758,6 +7758,7 @@ resolve@^2.0.0-next.3:
     sass-extract-js: ^0.4.0
     sass-extract-loader: ^1.1.0
     styled-components: ^5.3.6
+    tno-core: 0.0.193
     ts-loader: ^9.4.1
     typescript: ^4.8.4
   languageName: unknown

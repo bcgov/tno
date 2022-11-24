@@ -1,12 +1,11 @@
-import { IUserModel, UserStatusName } from 'hooks/api-editor';
+import { UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useApp, useUsers } from 'store/hooks';
+import { useApp } from 'store/hooks';
 import { Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';
-import { defaultUser } from './constants';
 import { PreapprovedRequest } from './PreapprovedRequest';
 import { RegisterRequest } from './RegisterRequest';
 import * as styled from './styled';
@@ -16,35 +15,25 @@ export const AccessRequest: React.FC = (props) => {
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const users = useUsers();
-
-  const [user, setUser] = React.useState<IUserModel>(defaultUser);
-
-  const userId = userInfo?.id ?? 0;
 
   React.useEffect(() => {
     // The user has been approved, redirect back to home page.
     if (keycloak.hasClaim() && location.pathname === '/welcome') navigate('/');
   });
 
-  React.useEffect(() => {
-    if (!!userId && user?.id !== userId) {
-      users.getUser(userId).then((user) => {
-        setUser(user);
-      });
-    }
-  }, [user, users, userId]);
-
   return (
     <styled.AccessRequest>
-      <Show visible={user.status === UserStatusName.Requested}>
-        <ApprovalStatus user={user} setUser={setUser} />
+      <Show visible={userInfo?.status === UserStatusName.Requested}>
+        <ApprovalStatus />
       </Show>
-      <Show visible={user.status === UserStatusName.Denied}>
-        <ApprovalDenied user={user} setUser={setUser} />
+      <Show visible={userInfo?.status === UserStatusName.Denied}>
+        <ApprovalDenied />
       </Show>
       <Show
-        visible={user.status !== UserStatusName.Requested && user.status !== UserStatusName.Denied}
+        visible={
+          userInfo?.status !== UserStatusName.Requested &&
+          userInfo?.status !== UserStatusName.Denied
+        }
       >
         <Row className="welcome">
           <h1>Welcome</h1>
@@ -54,8 +43,8 @@ export const AccessRequest: React.FC = (props) => {
           </p>
         </Row>
         <Row gap="1em" justifyContent="space-evenly">
-          <PreapprovedRequest user={user} setUser={setUser} />
-          <RegisterRequest user={user} setUser={setUser} />
+          <PreapprovedRequest />
+          <RegisterRequest />
         </Row>
       </Show>
     </styled.AccessRequest>

@@ -23,7 +23,7 @@ namespace TNO.Keycloak.Configuration
         /// <summary>
         /// Validates the configuration for keycloak.
         /// </summary>
-        /// <exception type="ConfigurationException">If the configuration property is invald.</exception>
+        /// <exception type="ConfigurationException">If the configuration property is invalid.</exception>
         public override void Validate()
         {
             if (String.IsNullOrWhiteSpace(this.Realm))

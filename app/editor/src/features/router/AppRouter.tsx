@@ -9,7 +9,7 @@ import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Claim, InternalServerError, NotFound, Show } from 'tno-core';
+import { Claim, InternalServerError, NotFound } from 'tno-core';
 
 import { PrivateRoute } from '.';
 
@@ -23,7 +23,7 @@ export interface IAppRouter {
  * @returns AppRouter component.
  */
 export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
-  const [, { authenticated, initialized }] = useApp();
+  const [, { authenticated }] = useApp();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -34,88 +34,84 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
   }, [authenticated, navigate]);
 
   return (
-    <Show visible={initialized || !authenticated}>
-      <Routes>
-        <Route path="/" element={<DefaultLayout name={name} />}>
-          <Route path="/" element={<Navigate to="/contents" />} />
-          <Route path="login" element={<Login />} />
-          <Route path="welcome" element={<AccessRequest />} />
-          <Route path="access/request" element={<AccessRequest />} />
-          <Route
-            path="admin/*"
-            element={<PrivateRoute claims={Claim.administrator} element={<AdminRouter />} />}
-          />
-          <Route
-            path="contents"
-            element={
-              <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
-            }
-          />
-          <Route
-            path="contents/:id"
-            element={
-              <PrivateRoute claims={Claim.administrator} element={<ContentForm />}></PrivateRoute>
-            }
-          />
-          <Route
-            path="contents/log"
-            element={
-              <PrivateRoute claims={Claim.administrator} element={<ContentLogs />}></PrivateRoute>
-            }
-          />
-          <Route
-            path="/contents/combined/:id"
-            element={
-              <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
-            }
-          />
-          <Route
-            path="snippets/:id"
-            element={
-              <PrivateRoute
-                claims={Claim.editor}
-                element={<ContentForm contentType={ContentTypeName.Snippet} />}
-              ></PrivateRoute>
-            }
-          />
-          <Route
-            path="papers/:id"
-            element={
-              <PrivateRoute
-                claims={Claim.editor}
-                element={<ContentForm contentType={ContentTypeName.PrintContent} />}
-              ></PrivateRoute>
-            }
-          />
-          <Route
-            path="images/:id"
-            element={
-              <PrivateRoute
-                claims={Claim.editor}
-                element={<ContentForm contentType={ContentTypeName.Image} />}
-              ></PrivateRoute>
-            }
-          />
-          <Route
-            path="morning/reports"
-            element={
-              <PrivateRoute claims={Claim.editor} element={<MorningReport />}></PrivateRoute>
-            }
-          />
-          <Route
-            path="storage"
-            element={
-              <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
-            }
-          />
-          <Route
-            path="reports/*"
-            element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}
-          />
-          <Route path="error" element={<InternalServerError />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </Show>
+    <Routes>
+      <Route path="/" element={<DefaultLayout name={name} />}>
+        <Route path="/" element={<Navigate to="/contents" />} />
+        <Route path="login" element={<Login />} />
+        <Route path="welcome" element={<AccessRequest />} />
+        <Route path="access/request" element={<AccessRequest />} />
+        <Route
+          path="admin/*"
+          element={<PrivateRoute claims={Claim.administrator} element={<AdminRouter />} />}
+        />
+        <Route
+          path="contents"
+          element={
+            <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="contents/:id"
+          element={
+            <PrivateRoute claims={Claim.administrator} element={<ContentForm />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="contents/log"
+          element={
+            <PrivateRoute claims={Claim.administrator} element={<ContentLogs />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="/contents/combined/:id"
+          element={
+            <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="snippets/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentTypeName.Snippet} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="papers/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentTypeName.PrintContent} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="images/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentTypeName.Image} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="morning/reports"
+          element={<PrivateRoute claims={Claim.editor} element={<MorningReport />}></PrivateRoute>}
+        />
+        <Route
+          path="storage"
+          element={
+            <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
+          }
+        />
+        <Route
+          path="reports/*"
+          element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}
+        />
+        <Route path="error" element={<InternalServerError />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 };

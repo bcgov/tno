@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +52,7 @@ public class SourceController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet, HttpHead]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<SourceModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Source" })]

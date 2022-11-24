@@ -50,10 +50,8 @@ public class ActionServiceTest : IDisposable
         Assert.Equal(1, action.Id);
         Assert.Equal(0, action.Version);
         Assert.Equal("", action.CreatedBy);
-        Assert.Equal(Guid.Empty, action.CreatedById);
         Assert.True(now <= action.CreatedOn);
         Assert.Equal("", action.UpdatedBy);
-        Assert.Equal(Guid.Empty, action.UpdatedById);
         Assert.True(now <= action.UpdatedOn);
         Assert.True(originalCache.Length == 0);
         Assert.True(cache.Length == keys.Count());

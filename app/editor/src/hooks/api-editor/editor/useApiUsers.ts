@@ -3,7 +3,6 @@ import React from 'react';
 import { defaultEnvelope, ILifecycleToasts } from 'tno-core';
 
 import { IUserModel, useApi } from '..';
-import { IRegisterModel } from '../interfaces';
 
 /**
  * Common hook to make requests to the API.
@@ -26,18 +25,6 @@ export const useApiUsers = (
     },
     getUser: (id: number) => {
       return api.get<IUserModel, AxiosResponse<IUserModel>, any>(`/editor/users/${id}`);
-    },
-    requestCode: (model: IRegisterModel) => {
-      return api.put<IRegisterModel, AxiosResponse<IRegisterModel>, any>(
-        `/editor/users/request/code`,
-        model,
-      );
-    },
-    requestApproval: (model: IUserModel) => {
-      return api.put<IUserModel, AxiosResponse<IUserModel>, any>(
-        `/editor/users/request/approval`,
-        model,
-      );
     },
   }).current;
 };

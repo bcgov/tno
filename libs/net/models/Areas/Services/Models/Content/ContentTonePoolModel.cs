@@ -5,9 +5,19 @@ namespace TNO.API.Areas.Services.Models.Content;
 /// <summary>
 /// ContentTonePoolModel class, provides a model that represents an tone pool.
 /// </summary>
-public class ContentTonePoolModel : BaseTypeWithAuditColumnsModel<int>
+public class ContentTonePoolModel : AuditColumnsModel
 {
     #region Properties
+    /// <summary>
+    /// get/set - The primary key of the type model.
+    /// </summary>
+    public int Id { get; set; }
+
+    /// <summary>
+    /// get/set - The unique name of the model.
+    /// </summary>
+    public string Name { get; set; } = "";
+
     /// <summary>
     /// get/set - Foreign key to parent content.
     /// </summary>
@@ -34,20 +44,13 @@ public class ContentTonePoolModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ContentTonePoolModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ContentTonePoolModel(Entities.ContentTonePool entity)
+    public ContentTonePoolModel(Entities.ContentTonePool entity) : base(entity)
     {
         this.ContentId = entity.ContentId;
         this.Id = entity.TonePoolId;
         this.Name = entity.TonePool?.Name ?? "";
         this.OwnerId = entity.TonePool?.OwnerId ?? 0;
         this.Value = entity.Value;
-        this.CreatedBy = entity.CreatedBy;
-        this.CreatedById = entity.CreatedById;
-        this.CreatedOn = entity.CreatedOn;
-        this.UpdatedBy = entity.UpdatedBy;
-        this.UpdatedById = entity.UpdatedById;
-        this.UpdatedOn = entity.UpdatedOn;
-        this.Version = entity.Version;
     }
     #endregion
 

@@ -5,9 +5,19 @@ namespace TNO.API.Areas.Editor.Models.Content;
 /// <summary>
 /// ContentActionModel class, provides a model that represents an action.
 /// </summary>
-public class ContentActionModel : BaseTypeWithAuditColumnsModel<int>
+public class ContentActionModel : AuditColumnsModel
 {
     #region Properties
+    /// <summary>
+    /// get/set - The primary key of the type model.
+    /// </summary>
+    public int Id { get; set; }
+
+    /// <summary>
+    /// get/set - The unique name of the model.
+    /// </summary>
+    public string Name { get; set; } = "";
+
     /// <summary>
     /// get/set - Foreign key to parent content.
     /// </summary>
@@ -44,7 +54,7 @@ public class ContentActionModel : BaseTypeWithAuditColumnsModel<int>
     /// Creates a new instance of an ContentActionModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ContentActionModel(Entities.ContentAction entity)
+    public ContentActionModel(Entities.ContentAction entity) : base(entity)
     {
         this.ContentId = entity.ContentId;
         this.Id = entity.ActionId;
@@ -53,13 +63,6 @@ public class ContentActionModel : BaseTypeWithAuditColumnsModel<int>
         this.ValueType = entity.Action?.ValueType ?? Entities.ValueType.Boolean;
         this.Value = entity.Value;
         this.DefaultValue = entity.Action?.DefaultValue ?? "";
-        this.CreatedBy = entity.CreatedBy;
-        this.CreatedById = entity.CreatedById;
-        this.CreatedOn = entity.CreatedOn;
-        this.UpdatedBy = entity.UpdatedBy;
-        this.UpdatedById = entity.UpdatedById;
-        this.UpdatedOn = entity.UpdatedOn;
-        this.Version = entity.Version;
     }
     #endregion
 

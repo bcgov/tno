@@ -1,3 +1,5 @@
+import { UserStatusName } from '../constants';
+
 export interface IUserInfoModel {
   id: number;
   key: string;
@@ -7,6 +9,8 @@ export interface IUserInfoModel {
   firstName?: string;
   lastName?: string;
   lastLoginOn?: Date;
+  isEnabled: boolean;
+  status: UserStatusName;
+  note?: string;
   roles: string[];
-  groups: string[];
 }

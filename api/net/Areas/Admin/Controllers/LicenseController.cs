@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.License;
@@ -45,7 +46,7 @@ public class LicenseController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<LicenseModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "License" })]
     public IActionResult FindAll()
@@ -59,7 +60,7 @@ public class LicenseController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "License" })]
@@ -77,7 +78,7 @@ public class LicenseController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "License" })]
@@ -93,7 +94,7 @@ public class LicenseController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "License" })]
@@ -109,7 +110,7 @@ public class LicenseController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(LicenseModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "License" })]

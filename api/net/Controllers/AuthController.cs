@@ -1,8 +1,16 @@
+using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Keycloak;
+using TNO.API.Areas.Editor.Models.User;
+using TNO.API.CSS;
+using TNO.API.Models;
 using TNO.API.Models.Auth;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.DAL.Services;
+using TNO.Entities;
 
 namespace TNO.API.Controllers;
 
@@ -19,17 +27,20 @@ namespace TNO.API.Controllers;
 public class AuthController : ControllerBase
 {
     #region Variables
-    private readonly IKeycloakHelper _keycloakHelper;
+    private readonly ICssHelper _cssHelper;
+    private readonly IUserService _userService;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a AuthController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="keycloakHelper"></param>
-    public AuthController(IKeycloakHelper keycloakHelper)
+    /// <param name="cssHelper"></param>
+    /// <param name="userService"></param>
+    public AuthController(ICssHelper cssHelper, IUserService userService)
     {
-        _keycloakHelper = keycloakHelper;
+        _cssHelper = cssHelper;
+        _userService = userService;
     }
     #endregion
 
@@ -41,13 +52,86 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("userinfo")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(PrincipalModel), 200)]
     [SwaggerOperation(Tags = new[] { "health" })]
     public async Task<IActionResult> UserInfoAsync()
     {
-        var user = await _keycloakHelper.ActivateAsync(this.User);
+        var user = await _cssHelper.ActivateAsync(this.User);
         return new JsonResult(new PrincipalModel(this.User, user));
+    }
+
+    /// <summary>
+    /// Request a code to validate a preapproved email address.
+    /// If a code is provided it will validate the code.
+    /// If the code is valid it will apply the roles to the user's account and remove the duplicate preapproved account.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("request/code")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(RegisterModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public async Task<IActionResult> RequestCodeAsync(RegisterModel model)
+    {
+        // Get the account with the preapproved email address.
+        // If multiple accounts have the same email address we cannot preapprove.
+        var users = _userService.FindByEmail(model.Email);
+        if (users.Count() != 1) return new JsonResult(new RegisterModel(model.Email, "Your account is not preapproved."));
+
+        var preapproved = users.First();
+        if (preapproved.Status != UserStatus.Preapproved) return new JsonResult(new RegisterModel(model.Email, "Your account is not preapproved"));
+
+        // Get the current authenticated user account.
+        var username = this.User.GetUsername() ?? throw new NotAuthorizedException();
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException();
+
+        if (!String.IsNullOrWhiteSpace(model.Code))
+        {
+            var expires = user.CodeCreatedOn?.AddMinutes(30);
+            if (user.Code != model.Code && expires != null && expires < DateTime.UtcNow) throw new InvalidOperationException("Code has expired or is not valid");
+
+            user.Code = "";
+            user.Status = UserStatus.Approved;
+            user.Roles = preapproved.Roles;
+            await _cssHelper.UpdateUserRolesAsync(user.Key, preapproved.Roles.Split(",").Select(r => r[1..^1]).ToArray());
+            _userService.UpdateAndSave(user);
+            _userService.DeleteAndSave(preapproved);
+            return new JsonResult(new RegisterModel(model.Email, user.Status, $"An email has been sent to {model.Email}"));
+        }
+        else
+        {
+            // TODO: Send email.
+            var rnd = new Random();
+            user.Code = $"{rnd.Next()}";
+            _userService.UpdateAndSave(user);
+
+            return new JsonResult(new RegisterModel(model.Email, UserStatus.Approved, "Your account has been approved"));
+        }
+    }
+
+    /// <summary>
+    /// Update user for the specified 'id'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("request/approval")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "User" })]
+    public IActionResult RequestApproval(UserModel model)
+    {
+        // Only allow a user to update their own account.
+        var username = this.User.GetUsername() ?? throw new NotAuthorizedException("Cannot update user");
+        var original = _userService.FindByUsername(username);
+        if (original == null) throw new InvalidOperationException("Cannot update user");
+
+        original.Note = model.Note;
+        original.Status = Entities.UserStatus.Requested;
+        var result = _userService.UpdateAndSave(original);
+        return new JsonResult(new UserModel(result));
     }
     #endregion
 }

@@ -1,5 +1,4 @@
 DO $$
-DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 BEGIN
 
 INSERT INTO public.action (
@@ -9,9 +8,7 @@ INSERT INTO public.action (
   , "value_type"
   , "default_value"
   , "sort_order"
-  , "created_by_id"
   , "created_by"
-  , "updated_by_id"
   , "updated_by"
 ) VALUES (
   'Alert' -- name - 1
@@ -20,9 +17,7 @@ INSERT INTO public.action (
   , 0 -- value_type
   , 'true' -- default_value
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Just In' -- name - 2
@@ -31,9 +26,7 @@ INSERT INTO public.action (
   , 0 -- value_type
   , '' -- default_value
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Front Page' -- name - 3
@@ -42,9 +35,7 @@ INSERT INTO public.action (
   , 0 -- value_type
   , '' -- default_value
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Top Story' -- name - 4
@@ -53,9 +44,7 @@ INSERT INTO public.action (
   , 0 -- value_type
   , '' -- default_value
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'On Ticker' -- name - 5
@@ -64,9 +53,7 @@ INSERT INTO public.action (
   , 0 -- value_type
   , '' -- default_value
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Non Qualified Subject' -- name - 6
@@ -75,9 +62,7 @@ INSERT INTO public.action (
   , 0 -- value_type
   , '' -- default_value
   , 0 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Commentary' -- name - 7
@@ -86,9 +71,7 @@ INSERT INTO public.action (
   , 1 -- value_type
   , '' -- default_value
   , 1 -- sort_order
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 );
 

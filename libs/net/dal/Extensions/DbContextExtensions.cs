@@ -41,7 +41,6 @@ public static class DbContextExtensions
         var type = entry.Entity.GetType();
 
         string createdBy;
-        Guid createdById;
         DateTime createdOn;
         if (entry.State == EntityState.Detached)
         {
@@ -50,19 +49,16 @@ public static class DbContextExtensions
             object?[] values = keys.Select(k => type.GetProperty(k)!.GetValue(entity, null)).Where(v => v != null).ToArray();
             var original = (AuditColumns?)context.Find(type, values);
             createdBy = original?.CreatedBy ?? entity.CreatedBy;
-            createdById = original?.CreatedById ?? entity.CreatedById;
             createdOn = original?.CreatedOn ?? entity.CreatedOn;
         }
         else
         {
             // These values will never be correct unless you first load the entity before updating it.
             createdBy = entry.GetOriginalValue(nameof(AuditColumns.CreatedBy), "");
-            createdById = entry.GetOriginalValue(nameof(AuditColumns.CreatedById), Guid.Empty);
             createdOn = entry.GetOriginalValue(nameof(AuditColumns.CreatedOn), DateTime.UtcNow);
         }
 
         entity.CreatedBy = createdBy;
-        entity.CreatedById = createdById;
         entity.CreatedOn = createdOn;
         entity.OnModified(user);
         return context;

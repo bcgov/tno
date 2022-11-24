@@ -5,9 +5,14 @@ namespace TNO.API.Areas.Admin.Models.Source;
 /// <summary>
 /// SourceSourceActionModel class, provides a model that represents an sources source action.
 /// </summary>
-public class SourceSourceActionModel : BaseTypeWithAuditColumnsModel<int>
+public class SourceSourceActionModel : AuditColumnsModel
 {
     #region Properties
+    /// <summary>
+    /// get/set - The primary key of the type model.
+    /// </summary>
+    public int Id { get; set; }
+
     /// <summary>
     /// get/set - The foreign key to the parent data source.
     /// </summary>
@@ -34,13 +39,6 @@ public class SourceSourceActionModel : BaseTypeWithAuditColumnsModel<int>
         this.Id = entity.SourceActionId;
         this.SourceId = entity.SourceId;
         this.Value = entity.Value;
-        this.CreatedBy = entity.CreatedBy;
-        this.CreatedById = entity.CreatedById;
-        this.CreatedOn = entity.CreatedOn;
-        this.UpdatedBy = entity.UpdatedBy;
-        this.UpdatedById = entity.UpdatedById;
-        this.UpdatedOn = entity.UpdatedOn;
-        this.Version = entity.Version;
     }
     #endregion
 

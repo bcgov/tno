@@ -5,9 +5,14 @@ namespace TNO.API.Areas.Admin.Models.Source;
 /// <summary>
 /// SourceMetricModel class, provides a model that represents an source metric.
 /// </summary>
-public class SourceMetricModel : BaseTypeWithAuditColumnsModel<int>
+public class SourceMetricModel : AuditColumnsModel
 {
     #region Properties
+    /// <summary>
+    /// get/set - The primary key of the type model.
+    /// </summary>
+    public int Id { get; set; }
+
     /// <summary>
     /// get/set - The foreign key to the parent data source.
     /// </summary>
@@ -46,13 +51,6 @@ public class SourceMetricModel : BaseTypeWithAuditColumnsModel<int>
         this.Reach = entity.Reach;
         this.Earned = entity.Earned;
         this.Impression = entity.Impression;
-        this.CreatedBy = entity.CreatedBy;
-        this.CreatedById = entity.CreatedById;
-        this.CreatedOn = entity.CreatedOn;
-        this.UpdatedBy = entity.UpdatedBy;
-        this.UpdatedById = entity.UpdatedById;
-        this.UpdatedOn = entity.UpdatedOn;
-        this.Version = entity.Version;
     }
     #endregion
 

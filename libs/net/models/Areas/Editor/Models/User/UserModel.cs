@@ -11,12 +11,12 @@ public class UserModel
     /// <summary>
     /// get/set - Primary key to user.
     /// </summary>
-    public int Id { get; set; } = default!;
+    public int Id { get; set; }
 
     /// <summary>
     /// get/set - Unique key to identify the user.
     /// </summary>
-    public Guid Key { get; set; } = Guid.Empty;
+    public string Key { get; set; } = "";
 
     /// <summary>
     /// get/set - Unique username to identify user.
@@ -67,6 +67,11 @@ public class UserModel
     /// get/set - The last date and time when user logged in.
     /// </summary>
     public DateTime? LastLoginOn { get; set; }
+
+    /// <summary>
+    /// get/set - Note about user.
+    /// </summary>
+    public string Note { get; set; } = "";
     #endregion
 
     #region Constructors
@@ -93,6 +98,7 @@ public class UserModel
         this.IsSystemAccount = entity.IsSystemAccount;
         this.EmailVerified = entity.EmailVerified;
         this.LastLoginOn = entity.LastLoginOn;
+        this.Note = entity.Note;
     }
     #endregion
 }

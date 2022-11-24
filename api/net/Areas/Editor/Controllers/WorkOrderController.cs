@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -79,7 +80,7 @@ public class WorkOrderController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<WorkOrderModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Find()
@@ -98,7 +99,7 @@ public class WorkOrderController : ControllerBase
     /// <param name="contentId"></param>
     /// <returns></returns>
     [HttpPut("transcribe/{contentId}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
@@ -140,7 +141,7 @@ public class WorkOrderController : ControllerBase
     /// <param name="contentId"></param>
     /// <returns></returns>
     [HttpPut("nlp/{contentId}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]

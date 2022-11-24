@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -22,14 +21,16 @@ using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
 using TNO.Core.Http;
+using TNO.CSS;
 using TNO.DAL;
 using TNO.Keycloak;
 using TNO.Kafka;
 using TNO.API.Config;
 using Microsoft.AspNetCore.Authorization;
 using TNO.API;
-using Microsoft.AspNetCore.SignalR;
+using TNO.API.CSS;
 
+DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 var builder = WebApplication.CreateBuilder(args);
@@ -190,9 +191,8 @@ builder.Services
     .AddHttpClient()
     .AddTransient<JwtSecurityTokenHandler>()
     .AddTransient<IHttpRequestClient, HttpRequestClient>()
-    .AddTransient<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
-    .AddTransient<IKeycloakHelper, KeycloakHelper>()
-    .AddKeycloakService(config.GetSection("Keycloak:ServiceAccount"));
+    .AddTransient<ICssHelper, CssHelper>()
+    .AddCssEnvironmentService(config.GetSection("CSS"));
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -216,7 +216,8 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddCors(options =>
     options.AddPolicy(name: "CorsPolicy",
-        cfg => {
+        cfg =>
+        {
             cfg.AllowAnyHeader();
             cfg.AllowAnyMethod();
             cfg.WithOrigins(builder.Configuration["AllowedCORS"]);
