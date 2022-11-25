@@ -9,6 +9,7 @@ export const InfoPanel = styled.div<IInfoPanelProps>`
   flex-direction: column;
   justify-content: center;
   float: left;
+  flex: 1;
   border-radius: ${(props) => props.roundedEdges && '0px 20px 20px 0px'};
 
   .info {
@@ -21,14 +22,20 @@ export const InfoPanel = styled.div<IInfoPanelProps>`
   }
 
   .loginPanel {
-    margin-left: 60px;
+    margin-left: 40px;
+    @media only screen and (max-width: 1024px) {
+      margin-left: 30px;
+      margin-right: 30px;
+    }
     .copyright {
       margin-top: 100px;
       margin-bottom: 25px;
       font-size: 13px;
       line-height: 16px;
-      width: 280px;
-      height: 113px;
+      @media only screen and (min-width: 281px) {
+        width: 280px;
+        height: 113px;
+      }
     }
     .headerSection {
       margin-top: 100px;
