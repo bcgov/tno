@@ -485,7 +485,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               productOptions.find((mt) => mt.value === props.values.productId) ?? ''
                             }
                             label="Designation"
-                            width={FieldSize.Big}
                             options={productOptions}
                             required
                           />

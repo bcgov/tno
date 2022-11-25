@@ -165,7 +165,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 label="Event of Day Category"
                 width={FieldSize.Medium}
                 options={categoryOptions}
-                clearValue={[]}
                 value={
                   values.categories.length
                     ? categoryOptions.find((c) => c.value === values.categories[0].id) ?? []
@@ -173,7 +172,10 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 }
                 onChange={(e: any) => {
                   // only supports one at a time right now
-                  const value = categories.find((c) => c.id === e.value);
+                  let value;
+                  if (!!e?.value) {
+                    value = categories.find((c) => c.id === e.value) ?? [];
+                  }
                   setFieldValue('categories', !!value ? [value] : []);
                 }}
               />
