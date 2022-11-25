@@ -44,7 +44,6 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
 
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
-  console.log(userOptions);
 
   const timeFrame = timeFrames[Number(filter.timeFrame)];
 
