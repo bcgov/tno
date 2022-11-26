@@ -166,17 +166,17 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 width={FieldSize.Medium}
                 options={categoryOptions}
                 value={
-                  values.categories.length
-                    ? categoryOptions.find((c) => c.value === values.categories[0].id) ?? []
+                  !!values.categories?.length
+                    ? categoryOptions.find((c) => c.value === values.categories[0].id)
                     : []
                 }
                 onChange={(e: any) => {
                   // only supports one at a time right now
                   let value;
                   if (!!e?.value) {
-                    value = categories.find((c) => c.id === e.value) ?? [];
+                    value = categories.find((c) => c.id === e.value);
                   }
-                  setFieldValue('categories', !!value ? [value] : []);
+                  setFieldValue('categories', value);
                 }}
               />
               <FormikText
@@ -184,7 +184,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 label="Score"
                 type="number"
                 width={FieldSize.Medium}
-                disabled={!values.categories.length}
+                disabled={!values.categories?.length}
               />
             </Row>
           </Show>
