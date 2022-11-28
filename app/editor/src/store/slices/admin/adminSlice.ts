@@ -29,10 +29,10 @@ export const initialAdminState: IAdminState = {
   ingestTypes: [],
   userFilter: {
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 20,
     sort: [],
   },
-  users: { page: 1, quantity: 10, items: [], total: 0 },
+  users: { page: 1, quantity: 20, items: [], total: 0 },
   categories: [],
   tags: [],
   actions: [],

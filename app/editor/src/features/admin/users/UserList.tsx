@@ -77,6 +77,7 @@ export const UserList: React.FC = () => {
       </Row>
       <PagedTable
         columns={columns}
+        manualPageSize
         header={UserFilter}
         sorting={{ sortBy: userFilter.sort }}
         isLoading={!!requests.length}

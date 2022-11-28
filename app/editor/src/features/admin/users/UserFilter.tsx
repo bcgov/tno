@@ -87,9 +87,9 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
               keyword: '',
               status: undefined,
               pageIndex: 0,
-              pageSize: 10,
+              pageSize: 20,
             });
-            storeFilter({ sort: [], pageIndex: 0, pageSize: 10 });
+            storeFilter({ sort: [], pageIndex: 0, pageSize: 20 });
           }}
         />
       </Row>
