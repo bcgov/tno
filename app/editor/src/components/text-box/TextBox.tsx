@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import * as styled from './styled';
 
 export interface ITextBoxProps {
@@ -21,6 +23,8 @@ export interface ITextBoxProps {
    * className for the component
    */
   className?: string;
+
+  useMobileMode?: boolean;
 }
 
 /**
@@ -37,12 +41,26 @@ export const TextBox: React.FC<ITextBoxProps> = ({
   children,
   className,
 }) => {
+  const [mobileMode, setMobileMode] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.navigator.maxTouchPoints === 1;
+      setMobileMode(isMobile);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <styled.TextBox
       className={className}
       height={height}
       width={width}
       backgroundColor={backgroundColor}
+      useMobileMode={mobileMode}
     >
       {children}
     </styled.TextBox>
