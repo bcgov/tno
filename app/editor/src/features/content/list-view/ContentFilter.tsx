@@ -109,7 +109,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
           width={FieldSize.Big}
           defaultValue={productOptions[0]}
           onChange={(newValue) => {
-            var productId = !!newValue ? (newValue as IOptionItem).value : 0;
+            const productId = !!newValue ? (newValue as IOptionItem).value : 0;
             onFilterChange({
               ...filter,
               pageIndex: 0,
@@ -124,11 +124,11 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
           options={userOptions}
           value={userOptions.find((u) => u.value === filter.userId)}
           onChange={(newValue) => {
-            var userId = (newValue as IOptionItem).value ?? '';
+            const userId = !!newValue ? (newValue as IOptionItem).value : 0;
             onFilterChange({
               ...filter,
               pageIndex: 0,
-              userId: typeof userId === 'string' ? '' : userId,
+              userId: userId as number,
             });
           }}
         />
