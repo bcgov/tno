@@ -152,10 +152,6 @@ export const Pager: React.FC<IPagerProps> = ({
               if (!!Number(e.target.value)) {
                 setPageSize(Number(e.target.value));
               }
-              if (Number(e.target.value) <= 0) {
-                e.target.value = '1';
-                setPageSize(1);
-              }
             }}
           />
         </Show>
