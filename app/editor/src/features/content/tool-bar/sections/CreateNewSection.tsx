@@ -1,4 +1,4 @@
-import { FaFileAlt, FaFileAudio, FaFileImage, FaPlusCircle } from 'react-icons/fa';
+import { FaFileAlt, FaFileAudio, FaFileImage } from 'react-icons/fa';
 import { GiFairyWand } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
 
