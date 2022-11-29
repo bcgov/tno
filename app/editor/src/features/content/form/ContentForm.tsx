@@ -297,7 +297,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   return (
     <styled.ContentForm className="content-form">
-      <FormPage minWidth={combined ? '' : '1200px'}>
+      <FormPage minWidth={'1200px'} maxWidth="" noPadding={combined}>
         <Area>
           <Row>
             <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
@@ -554,7 +554,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 <Row>
                   <Show visible={isSnippetForm(contentType) || isImageForm(contentType)}>
                     <Tabs
-                      className={`${combined ? 'fit' : 'expand'} ${size === 1 ? 'small' : 'large'}`}
+                      className={`'expand'} ${size === 1 ? 'small' : 'large'}`}
                       tabs={
                         <>
                           <Tab

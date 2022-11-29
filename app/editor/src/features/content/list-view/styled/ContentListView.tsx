@@ -4,7 +4,16 @@ import styled from 'styled-components';
 export const ContentListView = styled(FormPage)`
   min-height: fit-content;
 
+  hr {
+    width: 100%;
+    height: 0.75em;
+    border: none;
+    background-color: #003366;
+  }
+
   .content-list {
+    border-radius: 4px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
     table {
       background: transparent;
     }
@@ -23,14 +32,13 @@ export const ContentListView = styled(FormPage)`
     }
   }
 
-  .left-pane {
+  .top-pane {
     display: flex;
     flex-direction: column;
     flex: 1 1 0%;
-    width: 50%;
   }
 
-  .right-pane {
+  .bottom-pane {
     display: flex;
     flex-direction: column;
     flex: 1 1 0%;

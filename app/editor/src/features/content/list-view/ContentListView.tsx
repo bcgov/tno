@@ -5,10 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { Row as TRow } from 'react-table';
 import { useApp, useContent } from 'store/hooks';
-import { Button, ButtonVariant, Col, Page, PagedTable, Row, Show } from 'tno-core';
+import { Col, Page, PagedTable, Row, Show } from 'tno-core';
 
 import { ContentForm } from '../form';
-import { ContentFilter } from '.';
+import { ContentToolBar } from '../tool-bar';
 import { columns, defaultPage } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
@@ -97,30 +97,16 @@ export const ContentListView: React.FC = () => {
     navigate(`/contents/combined/${row.original.id}`);
   };
 
-  const hideColumns = (combined: boolean, contentType?: ContentTypeName) => {
-    const hiddenColumns = [];
-
-    if (combined) {
-      hiddenColumns.push('ownerId');
-      hiddenColumns.push('status');
-    }
-
-    if (contentType !== ContentTypeName.PrintContent) {
-      hiddenColumns.push('page');
-    }
-
-    return hiddenColumns;
-  };
-
   return (
-    <styled.ContentListView maxWidth={combined ? 'fit-content' : ''}>
-      <Row wrap="nowrap">
-        <Col className="left-pane">
-          <ContentFilter onSearch={fetch} />
+    <styled.ContentListView maxWidth={''}>
+      <Col wrap="nowrap">
+        <ContentToolBar onSearch={fetch} />
+
+        <Row className="top-pane">
+          {/* <ContentFilter onSearch={fetch} /> */}
           <Row className="content-list">
             <PagedTable
               columns={columns}
-              hiddenColumns={hideColumns(combined, filter.contentType)}
               page={page}
               isLoading={loading}
               sorting={{ sortBy: filter.sort }}
@@ -131,36 +117,14 @@ export const ContentListView: React.FC = () => {
               onChangeSort={handleChangeSort}
             />
           </Row>
-          <Row className="content-actions">
-            <Button
-              name="create"
-              onClick={() => navigate('/snippets/0')}
-              variant={ButtonVariant.secondary}
-            >
-              Create Snippet
-            </Button>
-            <Button
-              name="create"
-              onClick={() => navigate('/papers/0')}
-              variant={ButtonVariant.secondary}
-            >
-              Create Print Content
-            </Button>
-            <Button
-              name="create"
-              onClick={() => navigate('/images/0')}
-              variant={ButtonVariant.secondary}
-            >
-              Create Image
-            </Button>
-          </Row>
-        </Col>
+        </Row>
         <Show visible={combined}>
-          <Col className="right-pane">
+          <hr />
+          <Row className="bottom-pane">
             <ContentForm contentType={contentType} />
-          </Col>
+          </Row>
         </Show>
-      </Row>
+      </Col>
     </styled.ContentListView>
   );
 };
