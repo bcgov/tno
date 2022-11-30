@@ -29,7 +29,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
   const [{ filterAdvanced, filter }] = useContent();
   return (
     <ToolBarSection
-      actions={
+      children={
         <Row>
           <Select
             name="fieldType"

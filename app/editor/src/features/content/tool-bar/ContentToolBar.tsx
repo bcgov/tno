@@ -21,8 +21,7 @@ export interface IContentToolBarProps {
  * @returns A content filter toolbar
  */
 export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => {
-  // eslint-disable-next-line no-empty-pattern
-  const [{}, { storeFilter, storeFilterAdvanced }] = useContent();
+  const [, { storeFilter, storeFilterAdvanced }] = useContent();
 
   const onFilterChange = (filter: IContentListFilter) => {
     storeFilter(filter);

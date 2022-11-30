@@ -67,7 +67,7 @@ export const ContentForm = styled.div`
   }
 
   .submit-buttons {
-    padding-top: 0.5em;
+    padding-top: 4.5em;
   }
 
   .content-status {

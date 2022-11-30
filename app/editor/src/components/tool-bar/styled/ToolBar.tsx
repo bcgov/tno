@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const ToolBar = styled(Row)`
-  background-color: white;
+  background-color: ${(props) => props.theme.css.backgroundColor};
   max-height: 8.5em;
   align-items: center;
   border-radius: 4px;
@@ -10,7 +10,6 @@ export const ToolBar = styled(Row)`
 
   .section {
     border-right: 1px solid #a8aab3;
-    padding-right: 0.5em;
   }
   .section:last-child {
     border-right: none;

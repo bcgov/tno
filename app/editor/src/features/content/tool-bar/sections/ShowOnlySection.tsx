@@ -20,7 +20,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
 
   return (
     <ToolBarSection
-      actions={
+      children={
         <Col>
           <Row>
             <Checkbox

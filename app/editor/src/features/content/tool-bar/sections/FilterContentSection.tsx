@@ -1,13 +1,12 @@
 import { IOptionItem, OptionItem, Select } from 'components/form';
 import { ToggleGroup } from 'components/toggle-group';
+import { ToolBarSection } from 'components/tool-bar';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaCalendarAlt, FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
 import { Col, FieldSize, Row } from 'tno-core';
-
-import * as styled from './styled';
 
 export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
@@ -30,13 +29,14 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
   const [{ userInfo }] = useApp();
 
   return (
-    <styled.FilterContentSection
-      actions={
+    <ToolBarSection
+      children={
         <Row>
           <Col>
             <Row>
               <FaClock className="icon-indicator" />
               <ToggleGroup
+                defaultSelected="today"
                 options={[
                   {
                     label: 'Today',
@@ -54,6 +54,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
             <Row>
               <FaUsers className="icon-indicator" />
               <ToggleGroup
+                defaultSelected="my content"
                 options={[
                   {
                     label: 'ALL CONTENT',

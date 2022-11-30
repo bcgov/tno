@@ -1,14 +1,11 @@
 import styled from 'styled-components';
-import { IRowProps, Row } from 'tno-core';
+import { Row } from 'tno-core';
 
-export interface IStyledToggleGroupProps extends IRowProps {
-  active?: boolean;
-}
-export const ToggleGroup = styled(Row)<IStyledToggleGroupProps>`
+export const ToggleGroup = styled(Row)`
   padding: 0.25em;
   .active {
-    background-color: #007af5;
-    color: #fff;
+    background-color: ${(props) => props.theme.css.actionButtonColor};
+    color: ${(props) => props.theme.css.backgroundColor};
   }
   .toggle-item {
     cursor: pointer;
@@ -21,7 +18,7 @@ export const ToggleGroup = styled(Row)<IStyledToggleGroupProps>`
   }
 
   .toggle-item:not(.active) {
-    background-color: #fff;
+    background-color: ${(props) => props.theme.css.backgroundColor};
   }
   .toggle-item:first-child {
     border-top-left-radius: 4px;

@@ -3,7 +3,7 @@ import { Row } from 'tno-core';
 import * as styled from './styled';
 
 export interface IToolBarSectionProps {
-  actions: React.ReactNode;
+  children: React.ReactNode;
   label: string;
   icon: React.ReactNode;
 }
@@ -14,10 +14,10 @@ export interface IToolBarSectionProps {
  * @param icon Provide an icon for the section
  * @returns A ToolBar section
  */
-export const ToolBarSection: React.FC<IToolBarSectionProps> = ({ actions, label, icon }) => {
+export const ToolBarSection: React.FC<IToolBarSectionProps> = ({ children, label, icon }) => {
   return (
     <styled.ToolBarSection className="section">
-      <Row className="children-container">{actions}</Row>
+      <Row className="children-container">{children}</Row>
       <Row className="label-container">
         {icon}
         {label}

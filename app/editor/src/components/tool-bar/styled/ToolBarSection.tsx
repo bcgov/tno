@@ -8,7 +8,7 @@ export const ToolBarSection = styled(Col)`
     padding: 0.5em;
     justify-content: center;
     .action-button {
-      color: #007af5;
+      color: ${(props) => props.theme.css.actionButtonColor};
       height: 1.75em;
       width: 2em;
       cursor: pointer;
@@ -29,12 +29,12 @@ export const ToolBarSection = styled(Col)`
       align-self: center;
       padding-left: 0.5em;
       padding-right: 0.25em;
-      color: #003366;
+      color: ${(props) => props.theme.css.primaryColor}
       height: 100%;
       width: 1.25em;
       cursor: pointer;
     }
-    background-color: #f2f2f2;
+    background-color: ${(props) => props.theme.css.filterBackgroundColor};
     border-radius: 4px;
     min-height: 4.35em;
     align-items: center;
@@ -43,7 +43,7 @@ export const ToolBarSection = styled(Col)`
     svg {
       padding-right: 0.25em;
     }
-    color: #9295a0;
+    color: ${(props) => props.theme.css.lightLabelColor};
     font-size: 0.75em;
     padding: 0.5em;
     justify-content: center;
