@@ -36,26 +36,27 @@ export const NavBar: React.FC = () => {
     }
   };
 
-  const handleClick = () => {
-    setActiveHover('');
+  const handleClick = (menu: string = '') => {
+    if (activeHover === menu) setActiveHover('');
+    else setActiveHover(menu);
   };
 
   return (
     <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>
       <NavBarGroup className="navbar">
         <Row>
-          <div className="editor" onClick={() => setActiveHover('editor')}>
+          <div className="editor" onClick={() => handleClick('editor')}>
             <NavBarItem activeHoverTab={activeHover} label="Editor" claim={Claim.editor} />
           </div>
-          <div className="admin" onClick={() => setActiveHover('admin')}>
+          <div className="admin" onClick={() => handleClick('admin')}>
             <NavBarItem activeHoverTab={activeHover} label="Admin" claim={Claim.administrator} />
           </div>
-          <div className="report" onClick={() => setActiveHover('report')}>
+          <div className="report" onClick={() => handleClick('report')}>
             <NavBarItem activeHoverTab={activeHover} label="Reports" claim={Claim.administrator} />
           </div>
         </Row>
       </NavBarGroup>
-      <NavBarGroup hover className="navbar" onClick={handleClick}>
+      <NavBarGroup hover className="navbar" onClick={() => handleClick()}>
         <Row hidden={!activeHover}>
           {/* Editor */}
           <Show visible={activeHover === 'editor'}>

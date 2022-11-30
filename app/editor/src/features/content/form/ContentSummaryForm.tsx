@@ -176,7 +176,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                   if (!!e?.value) {
                     value = categories.find((c) => c.id === e.value);
                   }
-                  setFieldValue('categories', value);
+                  setFieldValue('categories', !!value ? [value] : []);
                 }}
               />
               <FormikText
