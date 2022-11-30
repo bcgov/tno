@@ -2,31 +2,17 @@ import styled from 'styled-components';
 import { Col } from 'tno-core/dist/components/flex';
 
 export const Select = styled(Col)`
-  margin-right: 0.5em;
-
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};
   }
 
-  .select-container {
-    width: 100%;
+  .rs__clear-indicator {
+    cursor: pointer;
   }
 
-  .input-container {
-    width: 100%;
-    position: relative;
-    .clear {
-      :hover {
-        color: ${(props) => props.theme.css.dangerColor};
-        cursor: pointer;
-      }
-      position: absolute;
-      right: 55px;
-      align-self: center;
-      font-weight: 500;
-      color: #cccccc;
-    }
+  .rs__clear-indicator:hover {
+    color: ${(props) => props.theme.css.dangerColor};
   }
 
   & > input {

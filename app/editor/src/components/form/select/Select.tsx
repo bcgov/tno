@@ -102,15 +102,6 @@ export const Select = <OptionType extends IOptionItem>({
   const selectRef = React.useRef(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  //  function that is called when the user clicks the "x" on the drop down */
-  const manualClear = () => {
-    if (selectRef.current) {
-      /** also run inherited on clear if present */
-      onClear?.();
-      (selectRef.current as any).clearValue();
-    }
-  };
-
   return (
     <styled.Select className="frm-in">
       {label && (
@@ -123,8 +114,7 @@ export const Select = <OptionType extends IOptionItem>({
           {label} {tooltip && <FontAwesomeIcon icon={faInfoCircle} />}
         </label>
       )}
-      <Row
-        className="select-container"
+      <div
         onKeyDown={onKeyDown}
         onKeyDownCapture={onKeyDownCapture}
         onKeyUp={onKeyUp}
@@ -137,7 +127,6 @@ export const Select = <OptionType extends IOptionItem>({
             }
           }}
           data-for="select-tooltip"
-          className="input-container"
         >
           <styled.SelectField
             ref={selectRef}
@@ -149,6 +138,7 @@ export const Select = <OptionType extends IOptionItem>({
             required={required}
             width={width}
             value={value}
+            isClearable
             options={options}
             onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
               onChange?.(newValue, actionMeta);
@@ -160,12 +150,9 @@ export const Select = <OptionType extends IOptionItem>({
             }}
             {...rest}
           />
-          <span className="clear" onClick={() => manualClear()}>
-            X
-          </span>
         </Row>
         <div className="children">{children}</div>
-      </Row>
+      </div>
       {!rest.isDisabled && (
         <input
           ref={inputRef}
