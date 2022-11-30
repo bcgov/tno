@@ -115,35 +115,4 @@
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error"
     }
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-      "/node_modules/(?!tno-core|axios/)"
-    ],
-    "moduleNameMapper": {
-      "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.ts"
-    }
-  },
-  "babel": {
-    "presets": [
-      "@babel/react",
-      "@babel/env"
-    ],
-    "plugins": [
-      "@babel/proposal-class-properties",
-      "@babel/plugin-transform-runtime"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
 }
