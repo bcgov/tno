@@ -16,7 +16,7 @@ using TNO.Kafka.Models;
 using TNO.Services.Config;
 using TNO.API.Areas.Kafka.Models;
 using TNO.Core.Extensions;
-using TNO.CSS;
+using TNO.Core.Http;
 
 namespace TNO.Services;
 
@@ -26,7 +26,7 @@ namespace TNO.Services;
 public class ApiService : IApiService
 {
     #region Variables
-    private readonly ICssClient _client;
+    private readonly IOpenIdConnectRequestClient _client;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ServiceOptions _options;
     #endregion
@@ -38,7 +38,7 @@ public class ApiService : IApiService
     /// <param name="client"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="options"></param>
-    public ApiService(ICssClient client, IOptions<JsonSerializerOptions> serializerOptions, IOptions<ServiceOptions> options)
+    public ApiService(IOpenIdConnectRequestClient client, IOptions<JsonSerializerOptions> serializerOptions, IOptions<ServiceOptions> options)
     {
         _client = client;
         _serializerOptions = serializerOptions.Value;

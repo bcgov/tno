@@ -9,8 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TNO.Core.Http;
-using TNO.CSS;
-using TNO.CSS.Config;
+using TNO.Core.Http.Configuration;
 using TNO.Services.Config;
 using TNO.Services.Controllers;
 
@@ -110,9 +109,10 @@ public abstract class BaseService
                 options.AddConsole();
             })
             .AddTransient<JwtSecurityTokenHandler>()
-            .Configure<CssOptions>(this.Configuration.GetSection("CSS"))
+            .Configure<AuthClientOptions>(this.Configuration.GetSection("Auth:Keycloak"))
+            .Configure<OpenIdConnectOptions>(this.Configuration.GetSection("Auth:OIDC"))
             .AddTransient<IHttpRequestClient, HttpRequestClient>()
-            .AddTransient<ICssClient, CssClient>()
+            .AddTransient<IOpenIdConnectRequestClient, OpenIdConnectRequestClient>()
             .AddTransient<IApiService, ApiService>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.

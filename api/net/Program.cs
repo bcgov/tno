@@ -17,7 +17,6 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Prometheus;
-using TNO.API.Keycloak;
 using TNO.API.Middleware;
 using TNO.Core.Converters;
 using TNO.Core.Http;
@@ -112,9 +111,11 @@ builder.Services.AddAuthentication(options =>
         options.TokenValidationParameters = new TokenValidationParameters()
         {
             ValidateIssuerSigningKey = true,
-            ValidIssuer = section.GetValue<string>("Issuer"),
+            // ValidIssuer = section.GetValue<string>("Issuer"),
+            ValidIssuers = section.GetValue<string>("Issuer")?.Split(",") ?? Array.Empty<string>(),
             ValidateIssuer = section.GetValue<bool>("ValidateIssuer"),
-            ValidAudience = section.GetValue<string>("Audience"),
+            // ValidAudience = section.GetValue<string>("Audience"),
+            ValidAudiences = section.GetValue<string>("Audience")?.Split(",") ?? Array.Empty<string>(),
             ValidateAudience = section.GetValue<bool>("ValidateAudience"),
             ValidateLifetime = true
         };
