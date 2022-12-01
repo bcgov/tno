@@ -235,7 +235,7 @@ export const GridTable = <T extends object>({
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && canNextPage) setPageSize(currentPage.pageSize + 20);
+        if (entries[0].isIntersecting && canNextPage) nextPage();
       });
       if (node) observer.current.observe(node);
     },
@@ -356,7 +356,7 @@ export const GridTable = <T extends object>({
                 onClick={(e) => handleRowClick(e, row)}
                 className={onRowRenderClassName(row)}
               >
-                {row.cells.map((cell, index) => {
+                {row.cells.map((cell) => {
                   return (
                     <div {...cell.getCellProps()}>
                       {cell.render('Cell') as unknown as React.ReactNode}

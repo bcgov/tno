@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { GridTable, IGridTableProps, IPage } from '.';
 
 export interface IPagedTableProps<CT extends object = Record<string, unknown>>
@@ -16,11 +18,18 @@ export interface IPagedTableProps<CT extends object = Record<string, unknown>>
 export const PagedTable = <CT extends object = Record<string, unknown>>({
   page,
   sorting,
+  infiniteScroll,
   ...rest
 }: IPagedTableProps<CT>) => {
+  const [items, setItems] = React.useState<CT[]>(page.items);
+  React.useEffect(() => {
+    infiniteScroll && setItems(items.concat(page.items));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page.items]);
   return (
     <GridTable
-      data={page.items}
+      data={infiniteScroll ? items : page.items}
+      infiniteScroll={infiniteScroll}
       paging={{
         manualPagination: true,
         pageIndex: page.pageIndex,
