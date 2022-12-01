@@ -1,5 +1,4 @@
 DO $$
-DECLARE DEFAULT_USER_ID UUID := '00000000-0000-0000-0000-000000000000';
 DECLARE ingestSyndicationId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Syndication'); -- ingest_type_id
 DECLARE ingestVideoId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Video'); -- ingest_type_id
 DECLARE ingestAudioId INT := (SELECT id FROM public.ingest_type WHERE "name" = 'Audio'); -- ingest_type_id
@@ -38,9 +37,7 @@ INSERT INTO public.ingest (
   , "retry_limit"
   , "source_connection_id"
   , "destination_connection_id"
-  , "created_by_id"
   , "created_by"
-  , "updated_by_id"
   , "updated_by"
 ) VALUES
 -- ******************************************************
@@ -63,9 +60,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'The Georgia Straight'
@@ -84,9 +79,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Castanet'
@@ -105,9 +98,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'iPolitics'
@@ -126,9 +117,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Business in Vancouver'
@@ -147,9 +136,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Prince George Citizen'
@@ -168,9 +155,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'CBC Online'
@@ -189,9 +174,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Canadian Press Wire'
@@ -211,9 +194,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Victoria Buzz'
@@ -232,9 +213,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Orca'
@@ -253,9 +232,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Narwhal'
@@ -274,9 +251,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'iNFOnews'
@@ -295,9 +270,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Ha-Shilth-Sa'
@@ -315,9 +288,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'The Tyee'
@@ -335,9 +306,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conNoneId--destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ),
 
@@ -375,14 +344,12 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conGlobeSSHId -- source_connection_id
   , conLocalPapersId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'StarMetro'
   , '' -- description
-  , true -- is_enabled
+  , false -- is_enabled
   , ingestPaperId -- media_type_id
   , (SELECT id FROM public.source WHERE code = 'STARMETRO') -- source_id
   , 'STARMETRO' -- topic
@@ -411,9 +378,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId -- source_connection_id
   , conLocalPapersId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Blacks Newsgroup'
@@ -444,14 +409,12 @@ INSERT INTO public.ingest (
       "selfPublished": false,
       "filePattern":" ^bcng-<date>-(.+).xml$",
       "dateOffset": -1,
-      "sources": "Maple Ridge-Pitt Meadows News=MRN&100 Mile House Free Press=100MILE&Arrow Lakes News=ARROWLAKE&Ashcroft Cache Creek Journal=ASHJOUR&Barriere Star Journal=BARRSTARR&Boundary Creek Times=BCT&Burns Lake Lakes District News=BLLDN&Caledonia Courier=CC&Castlegar News=CN&Clearwater Times=CT&Coast Mountain News=CMN&Cranbrook Townsman=CDT&Creston Valley Advance=CVA&Sicamouse Eagle Valley News=SEVN&Fernie Free Press=TFP&Golden Star=GS&Grand Forks Gazette=GFG&Houston Today=HT&Invermere Valley Echo=IVE&Kamloops This Week=KTW&Kelowna Capital News=KCN&Keremeos Review=KR&Kimberley Bulletin=KDB&Kitimat Northern Sentinel=KS&Kootenay News Advertiser=KNA&Lake Country Calendar=LCC&Salmon Arm Lakeshore News=SALN&Merritt Herald=MH&Nelson Star=NS&North Delta Reporter=NDR&Prince Rupert Northern View=NV&Penticton Western News=PW&Prince George Free Press=PGFP&Quesnel Cariboo Observer=QCO&Revelstoke Review=RTR&Rossland News=RN&Salmon Arm Observer=SAO&Similkameen Spotlight=SIMSP&Smithers Interior News=SIN&Summerland Review=SR&Terrace Standard=TSTD&Trail Daily Times=TDT&Comox Valley Echo=CVE&Vanderhoof Omineca Express=VOE&Vernon Morning Star=VMS&Williams Lake Tribune=WLT&Abbotsford News=ABBNEWS&Agassiz-Harrison Observer=AGASSIZ&Aldergrove Star=ALDERSTAR&Bowen Island Undercurrent=BIU&Chilliwack Times=CTIMES&Cloverdale Reporter=CRR&Hope Standard=HS&Langley Times=LT&Langley Advance Times=LA&Mission City Record=MCR&North Shore Outlook=NSO&Peace Arch News=PAN&Richmond Review=RR&Surrey Now-Leader=SURN&Alberni Valley News=AVN&Campbell River Mirror=CRM&Comox Valley Record=CCVR&Cowichan News Leader Pictorial=CNLP&Cowichan Valley Citizen=CVC&Goldstream News Gazette=GG&Gulf Islands Driftwood=GID&Ladysmith Chronicle=LC&Lake Cowichan Gazette=LCG&Monday Magazine=MM&The Daily News (Nanaimo)=NANAIMO&Nanaimo News Bulletin=NNB&North Island Gazette=NIG&Oak Bay News=OBN&Parksville Qualicum Beach News=PQN&Peninsula News Review=PNR&Saanich News=SN&Sooke News Mirror=SNM&Tofino-Ucluelet Westerly News=TUWN&Victoria News=VN&Vancouver Island Free Daily=VIFD&The Free Press=TFP&Chemainus Valley Courier=CHVC&Agassiz Observer=AGASSIZ&Maple Ridge News=MRN&Chilliwack Progress=CP&The Northern View=NV&Haida Gwaii Observer=HGO" }' -- configuration
+      "sources": "Maple Ridge-Pitt Meadows News=MRN&100 Mile House Free Press=100MILE&Arrow Lakes News=ARROWLAKE&Ashcroft Cache Creek Journal=ASHJOUR&Barriere Star Journal=BARRSTARR&Boundary Creek Times=BCT&Burns Lake Lakes District News=BLLDN&Caledonia Courier=CC&Castlegar News=CN&Clearwater Times=CT&Coast Mountain News=CMN&Cranbrook Townsman=CDT&Creston Valley Advance=CVA&Sicamous Eagle Valley News=SEVN&Fernie Free Press=TFP&Golden Star=GS&Grand Forks Gazette=GFG&Houston Today=HT&Invermere Valley Echo=IVE&Kamloops This Week=KTW&Kelowna Capital News=KCN&Keremeos Review=KR&Kimberley Bulletin=KDB&Kitimat Northern Sentinel=KS&Kootenay News Advertiser=KNA&Lake Country Calendar=LCC&Salmon Arm Lakeshore News=SALN&Merritt Herald=MH&Nelson Star=NS&North Delta Reporter=NDR&Prince Rupert Northern View=NV&Penticton Western News=PW&Prince George Free Press=PGFP&Quesnel Cariboo Observer=QCO&Revelstoke Review=RTR&Rossland News=RN&Salmon Arm Observer=SAO&Similkameen Spotlight=SIMSP&Smithers Interior News=SIN&Summerland Review=SR&Terrace Standard=TSTD&Trail Daily Times=TDT&Comox Valley Echo=CVE&Vanderhoof Omineca Express=VOE&Vernon Morning Star=VMS&Williams Lake Tribune=WLT&Abbotsford News=ABBNEWS&Agassiz-Harrison Observer=AGASSIZ&Aldergrove Star=ALDERSTAR&Bowen Island Undercurrent=BIU&Chilliwack Times=CTIMES&Cloverdale Reporter=CRR&Hope Standard=HS&Langley Times=LT&Langley Advance Times=LA&Mission City Record=MCR&North Shore Outlook=NSO&Peace Arch News=PAN&Richmond Review=RR&Surrey Now-Leader=SURN&Alberni Valley News=AVN&Campbell River Mirror=CRM&Comox Valley Record=CCVR&Cowichan News Leader Pictorial=CNLP&Cowichan Valley Citizen=CVC&Goldstream News Gazette=GG&Gulf Islands Driftwood=GID&Ladysmith Chronicle=LC&Lake Cowichan Gazette=LCG&Monday Magazine=MM&The Daily News (Nanaimo)=NANAIMO&Nanaimo News Bulletin=NNB&North Island Gazette=NIG&Oak Bay News=OBN&Parksville Qualicum Beach News=PQN&Peninsula News Review=PNR&Saanich News=SN&Sooke News Mirror=SNM&Tofino-Ucluelet Westerly News=TUWN&Victoria News=VN&Vancouver Island Free Daily=VIFD&The Free Press=TFP&Chemainus Valley Courier=CHVC&Agassiz Observer=AGASSIZ&Maple Ridge News=MRN&Chilliwack Progress=CP&The Northern View=NV&Haida Gwaii Observer=HGO" }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit
   , conSSHId -- source_connection_id
   , conLocalPapersId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Meltwater'
@@ -487,9 +450,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId -- source_connection_id
   , conLocalPapersId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ),
 
@@ -513,9 +474,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId --destination_connection_id
   , conLocalImagesId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'National Post - Page 1'
@@ -534,9 +493,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId --destination_connection_id
   , conLocalImagesId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'The Province - Page 1'
@@ -555,9 +512,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId --destination_connection_id
   , conLocalImagesId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Times Colonist Victoria - Page 1'
@@ -576,9 +531,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId --destination_connection_id
   , conLocalImagesId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Vancouver Sun - Page 1'
@@ -597,9 +550,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conSSHId --destination_connection_id
   , conLocalImagesId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ),
 
@@ -625,9 +576,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalClipsId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Raspberry Pi4'
@@ -669,9 +618,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conNoneId -- source_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ), (
   'Raspberry Pi5'
@@ -704,9 +651,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conNoneId -- source_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 ),
 
@@ -731,9 +676,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC Kamloops' -- name
@@ -753,9 +696,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC Kelowna' -- name
@@ -775,9 +716,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC Prince George' -- name
@@ -797,9 +736,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC Vancouver' -- name
@@ -819,9 +756,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC Victoria' -- name
@@ -841,9 +776,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CHKG' -- name
@@ -863,9 +796,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CHMB' -- name
@@ -885,9 +816,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CHNL' -- name
@@ -907,9 +836,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CJCN Connect FM' -- name
@@ -929,9 +856,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CJVB' -- name
@@ -951,9 +876,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CKFU' -- name
@@ -973,9 +896,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CKSP' -- name
@@ -995,9 +916,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CKWX' -- name
@@ -1017,9 +936,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CKYE' -- name
@@ -1039,9 +956,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CKNW' -- name
@@ -1061,9 +976,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CFAX' -- name
@@ -1083,9 +996,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'KNKX' -- name
@@ -1105,9 +1016,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CKFR' -- name
@@ -1127,9 +1036,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC R2' -- name
@@ -1149,9 +1056,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conPublicInternetId --destination_connection_id
   , conLocalStreamsId -- destination_connection_id
-  , DEFAULT_USER_ID -- created_by_id
   , '' -- created_by
-  , DEFAULT_USER_ID -- updated_by_id
   , '' -- updated_by
 ), (
   'CBC Victoria - Clips'
@@ -1171,9 +1076,7 @@ INSERT INTO public.ingest (
   , 3 -- retry_limit
   , conLocalStreamsId -- source_connection_id
   , conLocalClipsId -- destination_connection_id
-  , DEFAULT_USER_ID
   , ''
-  , DEFAULT_USER_ID
   , ''
 );
 

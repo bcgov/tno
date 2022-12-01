@@ -44,8 +44,8 @@ public class KeycloakHelper : IKeycloakHelper
         var users = _userService.FindAll();
         foreach (var user in users)
         {
-            var kUser = (await _keycloakService.GetUsersAsync(0, 10, user.Username)).FirstOrDefault(u => u.Username == user.Username);
-            if (kUser != null && kUser.Id != user.Key)
+            var kUser = (await _keycloakService.GetUsersAsync(0, 10, new UserFilter() { Username = user.Username })).FirstOrDefault(u => u.Username == user.Username);
+            if (kUser != null && kUser.Id.ToString() != user.Key)
             {
                 await AddOrUpdateUserAsync(user, kUser);
             }
@@ -55,7 +55,7 @@ public class KeycloakHelper : IKeycloakHelper
         foreach (var kUser in kUsers)
         {
             // If the user has a matching key we assume that it has already been synced.
-            var user = users.FirstOrDefault(u => u.Key == kUser.Id);
+            var user = users.FirstOrDefault(u => u.Key == kUser.Id.ToString());
             if (user == null)
             {
                 user = users.FirstOrDefault(u => u.Username == kUser.Username);
@@ -69,7 +69,7 @@ public class KeycloakHelper : IKeycloakHelper
                     // The user does not exist in the database and will need to be added.
                     if (!String.IsNullOrWhiteSpace(kUser.Username))
                     {
-                        await AddOrUpdateUserAsync(new Entities.User(kUser.Username, kUser.Email ?? "", kUser.Id), kUser);
+                        await AddOrUpdateUserAsync(new Entities.User(kUser.Username, kUser.Email ?? "", kUser.Id.ToString()), kUser);
                     }
                 }
             }
@@ -87,7 +87,7 @@ public class KeycloakHelper : IKeycloakHelper
     {
         if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
 
-        user.Key = kUser.Id;
+        user.Key = kUser.Id.ToString();
         user.Email = kUser.Email ?? user.Email;
         user.FirstName = kUser.FirstName ?? user.FirstName;
         user.LastName = kUser.LastName ?? user.LastName;
@@ -117,7 +117,7 @@ public class KeycloakHelper : IKeycloakHelper
     {
         if (!_options.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
 
-        var key = principal.GetUid();
+        var key = new Guid(principal.GetKey() ?? Guid.Empty.ToString());
         var username = principal.GetUsername() ?? throw new InvalidOperationException("Username is required but missing from token");
         var user = _userService.FindByKey(key);
 
@@ -143,7 +143,7 @@ public class KeycloakHelper : IKeycloakHelper
                 if (kUser == null) throw new InvalidOperationException("The user does not exist in keycloak");
 
                 // Add the user to the database.
-                user = _userService.AddAndSave(new Entities.User(username, email, key)
+                user = _userService.AddAndSave(new Entities.User(username, email, key.ToString())
                 {
                     DisplayName = kUser.Attributes?["displayName"].FirstOrDefault() ?? principal.GetDisplayName() ?? "",
                     FirstName = kUser.FirstName ?? principal.GetFirstName() ?? "",
@@ -160,7 +160,7 @@ public class KeycloakHelper : IKeycloakHelper
             {
                 // Update the user in the database and reference the keycloak uid.
                 // The user was created in TNO initially, but now the user has logged in and activated their account.
-                user.Key = key;
+                user.Key = key.ToString();
                 user.Username = username;
                 user.Email = email;
                 user.FirstName = principal.GetFirstName() ?? "";
@@ -191,9 +191,9 @@ public class KeycloakHelper : IKeycloakHelper
     {
         var user = _userService.UpdateAndSave((Entities.User)model);
         var result = new UserModel(user);
-        if (user.Key != Guid.Empty)
+        if (Guid.TryParse(user.Key, out Guid key))
         {
-            var kUser = await _keycloakService.GetUserAsync(user.Key);
+            var kUser = await _keycloakService.GetUserAsync(key);
             if (kUser != null)
             {
                 // Update attributes.
@@ -203,7 +203,7 @@ public class KeycloakHelper : IKeycloakHelper
                 kUser.Enabled = user.IsEnabled;
                 await _keycloakService.UpdateUserAsync(kUser);
 
-                result.Roles = await UpdateUserRolesAsync(user.Key, model.Roles.ToArray());
+                result.Roles = await UpdateUserRolesAsync(key, model.Roles.ToArray());
             }
         }
 
@@ -244,7 +244,7 @@ public class KeycloakHelper : IKeycloakHelper
     public async Task DeleteUserAsync(Entities.User entity)
     {
         _userService.DeleteAndSave(entity);
-        if (entity.Key != Guid.Empty) await _keycloakService.DeleteUserAsync(entity.Key);
+        if (Guid.TryParse(entity.Key, out Guid key)) await _keycloakService.DeleteUserAsync(key);
     }
     #endregion
 }

@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom';
+import { useApp } from 'store/hooks';
 import { Claim, NotAuthorized, Role, useKeycloakWrapper } from 'tno-core';
 
 /**
@@ -41,12 +42,17 @@ export const PrivateRoute = ({
   children,
 }: IPrivateRouteProps) => {
   const keycloak = useKeycloakWrapper();
+  const [{ userInfo }] = useApp();
 
   if (!keycloak.authenticated) {
     return <Navigate to={redirectTo} />;
   } else if (!keycloak.hasClaim()) {
     return <Navigate to="/welcome" />;
-  } else if ((!!claims && !keycloak.hasClaim(claims)) || (!!roles && !keycloak.hasRole(roles))) {
+  } else if (
+    (!!userInfo?.id && !userInfo?.isEnabled) ||
+    (!!claims && !keycloak.hasClaim(claims)) ||
+    (!!roles && !keycloak.hasRole(roles))
+  ) {
     return (
       <div>
         <NotAuthorized />

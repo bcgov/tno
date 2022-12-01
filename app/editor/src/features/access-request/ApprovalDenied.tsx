@@ -2,21 +2,18 @@ import { FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { IUserModel } from 'hooks/api-editor';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useUsers } from 'store/hooks';
+import { useApp } from 'store/hooks';
 import { Button, Col, FieldSize, Row } from 'tno-core';
 
-export interface IApprovalDeniedProps {
-  user: IUserModel;
-  setUser: (user: IUserModel) => void;
-}
+import { toUserModel } from './utils';
 
-export const ApprovalDenied: React.FC<IApprovalDeniedProps> = ({ user, setUser }) => {
-  const users = useUsers();
+export const ApprovalDenied: React.FC = () => {
+  const [{ userInfo }, { getUserInfo, requestApproval }] = useApp();
 
   const handleSubmit = async (values: IUserModel) => {
     try {
-      const result = await users.requestApproval(values);
-      setUser(result);
+      await requestApproval(values);
+      await getUserInfo(true);
       toast.success(`Account request has been updated.`);
     } catch {}
   };
@@ -26,7 +23,7 @@ export const ApprovalDenied: React.FC<IApprovalDeniedProps> = ({ user, setUser }
       <h2>Approval Denied</h2>
       <p>Your request has been denied.</p>
       <FormikForm
-        initialValues={user}
+        initialValues={toUserModel(userInfo)}
         onSubmit={async (values, { setSubmitting }) => {
           await handleSubmit(values);
           setSubmitting(false);

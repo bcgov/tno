@@ -4,6 +4,8 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Mime;
+using TNO.Keycloak.Models;
 
 namespace TNO.Keycloak
 {
@@ -61,7 +63,7 @@ namespace TNO.Keycloak
         public async Task<Models.GroupModel?> CreateGroupAsync(Models.GroupModel group)
         {
             var json = group.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/groups", content);
 
             return await response.HandleResponseAsync<Models.GroupModel>();
@@ -76,7 +78,7 @@ namespace TNO.Keycloak
         public async Task<Models.GroupModel?> CreateSubGroupAsync(Guid parentId, Models.GroupModel group)
         {
             var json = group.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/groups/{parentId}/children", content);
 
             return await response.HandleResponseAsync<Models.GroupModel>();
@@ -90,7 +92,7 @@ namespace TNO.Keycloak
         public async Task<Models.GroupModel?> UpdateGroupAsync(Models.GroupModel group)
         {
             var json = group.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PutAsync($"{GetBaseUrl()}/groups/{group.Id}", content);
 
             return response.HandleResponse(group);
@@ -121,6 +123,54 @@ namespace TNO.Keycloak
             var response = await _client.GetAsync($"{GetBaseUrl()}/groups/{id}/members?first={first}&max={max}");
 
             return await response.HandleResponseAsync<Models.UserModel[]>() ?? Array.Empty<Models.UserModel>();
+        }
+
+        /// <summary>
+        /// Get an array of client roles for the specified 'groupId' and 'clientId'.
+        /// This method supports paging.
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="clientId"></param>
+        /// <returns></returns>
+        public async Task<Models.RoleModel[]> GetClientRolesForGroupAsync(Guid groupId, Guid clientId)
+        {
+            var response = await _client.GetAsync($"{GetBaseUrl()}/groups/{groupId}/role-mappings/clients/{clientId}");
+
+            return await response.HandleResponseAsync<Models.RoleModel[]>() ?? Array.Empty<Models.RoleModel>();
+        }
+
+        /// <summary>
+        /// Get an array of client roles that are members of the group specified by the 'groupId'.
+        /// This method supports paging.
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="clientId"></param>
+        /// <param name="roles"></param>
+        /// <returns></returns>
+        public async Task AddClientRolesForGroupAsync(Guid groupId, Guid clientId, RoleModel[] roles)
+        {
+            var json = roles.Serialize();
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var response = await _client.PostAsync($"{GetBaseUrl()}/groups/{groupId}/role-mappings/clients/{clientId}", content);
+
+            response.HandleResponse();
+        }
+
+        /// <summary>
+        /// Get an array of client roles that are members of the group specified by the 'groupId'.
+        /// This method supports paging.
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="clientId"></param>
+        /// <param name="roles"></param>
+        /// <returns></returns>
+        public async Task RemoveClientRolesForGroupAsync(Guid groupId, Guid clientId, RoleModel[] roles)
+        {
+            var json = roles.Serialize();
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var response = await _client.DeleteAsync($"{GetBaseUrl()}/groups/{groupId}/role-mappings/clients/{clientId}", content);
+
+            response.HandleResponse();
         }
         #endregion
     }

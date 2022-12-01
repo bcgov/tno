@@ -69,22 +69,12 @@ public class ContentFileReference : IReadonlyFileReference
     /// <summary>
     /// get -
     /// </summary>
-    public Guid CreatedById { get; }
-
-    /// <summary>
-    /// get -
-    /// </summary>
     public string CreatedBy { get; }
 
     /// <summary>
     /// get -
     /// </summary>
     public DateTime CreatedOn { get; }
-
-    /// <summary>
-    /// get -
-    /// </summary>
-    public Guid UpdatedById { get; }
 
     /// <summary>
     /// get -
@@ -136,10 +126,8 @@ public class ContentFileReference : IReadonlyFileReference
         this.Size = file.Length;
         this.RunningTime = 0; // TODO: Calculate this somehow.
         this.CreatedBy = content.CreatedBy;
-        this.CreatedById = content.CreatedById;
         this.CreatedOn = DateTime.UtcNow;
         this.UpdatedBy = content.UpdatedBy;
-        this.UpdatedById = content.UpdatedById;
         this.UpdatedOn = DateTime.UtcNow;
         this.SourceFile = "";
 
@@ -174,10 +162,8 @@ public class ContentFileReference : IReadonlyFileReference
         this.Size = file.Length;
         this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
         this.CreatedBy = fileReference.CreatedBy;
-        this.CreatedById = fileReference.CreatedById;
         this.CreatedOn = fileReference.CreatedOn;
         this.UpdatedBy = fileReference.UpdatedBy;
-        this.UpdatedById = fileReference.UpdatedById;
         this.UpdatedOn = fileReference.UpdatedOn;
         this.Version = fileReference.Version;
         this.SourceFile = "";
@@ -212,10 +198,8 @@ public class ContentFileReference : IReadonlyFileReference
         this.Size = file.Length;
         this.RunningTime = 0; // TODO: Calculate this somehow.
         this.CreatedBy = content.CreatedBy;
-        this.CreatedById = content.CreatedById;
         this.CreatedOn = DateTime.UtcNow;
         this.UpdatedBy = content.UpdatedBy;
-        this.UpdatedById = content.UpdatedById;
         this.UpdatedOn = DateTime.UtcNow;
 
         this.FileReference = new FileReference(this.Content, this.ContentType, this.FileName, this.Path)
@@ -249,10 +233,8 @@ public class ContentFileReference : IReadonlyFileReference
         this.Size = file.Length;
         this.RunningTime = fileReference.RunningTime; // TODO: Calculate this somehow.
         this.CreatedBy = fileReference.CreatedBy;
-        this.CreatedById = fileReference.CreatedById;
         this.CreatedOn = fileReference.CreatedOn;
         this.UpdatedBy = fileReference.UpdatedBy;
-        this.UpdatedById = fileReference.UpdatedById;
         this.UpdatedOn = fileReference.UpdatedOn;
         this.Version = fileReference.Version;
 

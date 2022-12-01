@@ -2,21 +2,18 @@ import { FormikForm, FormikText, FormikTextArea } from 'components/formik';
 import { IUserModel } from 'hooks/api-editor';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useUsers } from 'store/hooks';
+import { useApp } from 'store/hooks';
 import { Button, Col, FieldSize, Row } from 'tno-core';
 
-export interface IApprovalStatusProps {
-  user: IUserModel;
-  setUser: (user: IUserModel) => void;
-}
+import { toUserModel } from './utils';
 
-export const ApprovalStatus: React.FC<IApprovalStatusProps> = ({ user, setUser }) => {
-  const users = useUsers();
+export const ApprovalStatus: React.FC = () => {
+  const [{ userInfo }, { getUserInfo, requestApproval }] = useApp();
 
   const handleSubmit = async (values: IUserModel) => {
     try {
-      const result = await users.requestApproval(values);
-      setUser(result);
+      await requestApproval(values);
+      await getUserInfo(true);
       toast.success(`Account request has been updated.`);
     } catch {}
   };
@@ -29,7 +26,7 @@ export const ApprovalStatus: React.FC<IApprovalStatusProps> = ({ user, setUser }
         access.
       </p>
       <FormikForm
-        initialValues={user}
+        initialValues={toUserModel(userInfo)}
         onSubmit={async (values, { setSubmitting }) => {
           await handleSubmit(values);
           setSubmitting(false);

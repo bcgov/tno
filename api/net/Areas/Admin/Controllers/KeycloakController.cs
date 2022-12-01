@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -56,7 +57,7 @@ public class KeycloakController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost("sync")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Keycloak" })]
@@ -71,7 +72,7 @@ public class KeycloakController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("roles")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Keycloak" })]
@@ -87,7 +88,7 @@ public class KeycloakController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("users/{username}/roles")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Keycloak" })]
@@ -98,7 +99,7 @@ public class KeycloakController : ControllerBase
         var user = _userService.FindByUsername(username);
         if (user == null) return NoContent();
 
-        var roles = await _keycloakService.GetUserClientRolesAsync(user.Key, _options.ClientId.Value);
+        var roles = await _keycloakService.GetUserClientRolesAsync(new Guid(user.Key), _options.ClientId.Value);
         return new JsonResult(roles?.Select(r => r.Name) ?? Array.Empty<string>());
     }
 
@@ -107,7 +108,7 @@ public class KeycloakController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("users/{username}/roles")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
@@ -117,7 +118,7 @@ public class KeycloakController : ControllerBase
         var user = _userService.FindByUsername(username);
         if (user == null) throw new InvalidOperationException("User does not exist");
 
-        var result = await _keycloakHelper.UpdateUserRolesAsync(user.Key, roles);
+        var result = await _keycloakHelper.UpdateUserRolesAsync(new Guid(user.Key), roles);
         return new JsonResult(result ?? Array.Empty<string>());
     }
     #endregion

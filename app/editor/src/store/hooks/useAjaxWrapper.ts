@@ -31,8 +31,14 @@ export const useAjaxWrapper = () => {
 
           let message = 'An unexpected error has occurred.';
           const data = ae.response?.data as any;
-          if (typeof data === 'string') message = data;
-          else if (data?.error) message = data?.error;
+
+          if (ae.response?.status === 401) message = 'Authentication required.';
+          else if (ae.response?.status === 403)
+            message = 'Authorization required.  Your account does not have access.';
+          else if (typeof data === 'string' && !!data) message = data;
+          else if (!!data?.error) {
+            message = `${data?.error}\n${data.details}`;
+          }
           app.addError({
             status: ae.response?.status,
             statusText: ae.response?.statusText,

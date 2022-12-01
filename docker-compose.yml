@@ -267,6 +267,32 @@ services:
     networks:
       - tno
 
+  ####################### API #######################
+  css:
+    image: tno:css
+    profiles:
+      - all
+      - api
+      - editor
+      - subscriber
+      - service
+      - main
+    restart: "no"
+    container_name: tno-css
+    build:
+      context: ./
+      dockerfile: tools/css-api/Dockerfile
+    env_file: tools/css-api/.env
+    ports:
+      - ${CSS_HTTP_PORT:-40012}:8080
+      - ${CSS_HTTPS_PORT:-40013}:443
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - keycloak
+    networks:
+      - tno
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:

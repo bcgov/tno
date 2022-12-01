@@ -14,7 +14,7 @@ delete_folder () {
 
   if [ "$FOLDER_S" -le "$DELETE_S" ]; then
     echo "DELETE $1"
-    # rm -rf "$d"
+    rm -rf $d
   fi
 }
 export -f delete_folder
@@ -22,6 +22,7 @@ export -f delete_folder
 purge_folders () {
   echo "************************************"
   echo "Purging $1"
+  echo "Deleting folders older than $2 days"
 
   find $1/*/*/ -type d -exec bash -c 'delete_folder "$0" $1' {} $2 \;
 

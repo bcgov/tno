@@ -9,12 +9,12 @@ public class UserModel
     /// <summary>
     /// get/set - Primary key to user.
     /// </summary>
-    public int Id { get; set; } = default!;
+    public int Id { get; set; }
 
     /// <summary>
     /// get/set - Unique key to identify the user.
     /// </summary>
-    public Guid Key { get; set; } = Guid.Empty;
+    public string Key { get; set; } = "";
 
     /// <summary>
     /// get/set - Unique username to identify user.

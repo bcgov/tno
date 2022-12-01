@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Models.Health;
@@ -36,7 +37,7 @@ public class HealthController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(StatusModel), 200)]
     [SwaggerOperation(Tags = new[] { "health" })]
     public IActionResult Status()
@@ -49,7 +50,7 @@ public class HealthController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("env")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(EnvModel), 200)]
     [SwaggerOperation(Tags = new[] { "health" })]
     public IActionResult Environment()

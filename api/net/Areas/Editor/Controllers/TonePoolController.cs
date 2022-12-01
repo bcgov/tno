@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.TonePool;
@@ -45,7 +46,7 @@ public class TonePoolController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet, HttpHead]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<TonePoolModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "TonePool" })]

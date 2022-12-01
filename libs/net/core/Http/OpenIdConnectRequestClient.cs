@@ -24,6 +24,7 @@ namespace TNO.Core.Http
         /// get - The configuration options.
         /// </summary>
         public AuthClientOptions AuthClientOptions { get; }
+
         /// <summary>
         /// get - The configuration options.
         /// </summary>

@@ -93,7 +93,7 @@ public class UserService : BaseService<User, int>, IUserService
             .FirstOrDefault(c => c.Id == id);
     }
 
-    public User? FindByKey(Guid key)
+    public User? FindByUserKey(string key)
     {
         return this.Context.Users
             .Where(u => u.Key == key).FirstOrDefault();
@@ -102,13 +102,13 @@ public class UserService : BaseService<User, int>, IUserService
     public User? FindByUsername(string username)
     {
         return this.Context.Users
-            .Where(u => u.Username == username).FirstOrDefault();
+            .Where(u => u.Username.ToLower() == username.ToLower()).FirstOrDefault();
     }
 
     public IEnumerable<User> FindByEmail(string email)
     {
         return this.Context.Users
-            .Where(u => u.Email == email);
+            .Where(u => u.Email.ToLower() == email.ToLower());
     }
 
     public override User AddAndSave(User entity)

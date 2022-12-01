@@ -4,6 +4,9 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Mime;
+using System.Web;
+using TNO.Keycloak.Models;
 
 namespace TNO.Keycloak
 {
@@ -32,11 +35,22 @@ namespace TNO.Keycloak
         /// </summary>
         /// <param name="first"></param>
         /// <param name="max"></param>
-        /// <param name="search"></param>
+        /// <param name="filter"></param>
         /// <returns></returns>
-        public async Task<Models.UserModel[]> GetUsersAsync(int first = 0, int max = 10, string? search = null)
+        public async Task<Models.UserModel[]> GetUsersAsync(int first = 0, int max = 10, UserFilter? filter = null)
         {
-            var response = await _client.GetAsync($"{GetBaseUrl()}/users?first={first}&max={max}&search={search}");
+            var uri = new UriBuilder($"{GetBaseUrl()}/users?first={first}&max={max}");
+            var query = HttpUtility.ParseQueryString(uri.Query);
+            if (!String.IsNullOrWhiteSpace(filter?.Search)) query.Add("search", filter.Search);
+            if (!String.IsNullOrWhiteSpace(filter?.Username)) query.Add("username", filter.Username);
+            if (!String.IsNullOrWhiteSpace(filter?.Email)) query.Add("email", filter.Email);
+            if (!String.IsNullOrWhiteSpace(filter?.FirstName)) query.Add("firstName", filter.FirstName);
+            if (!String.IsNullOrWhiteSpace(filter?.LastName)) query.Add("lastName", filter.LastName);
+            if (filter?.Enabled.HasValue == true) query.Add("enabled", filter.Enabled?.ToString());
+            if (filter?.Exact.HasValue == true) query.Add("exact", filter.Exact?.ToString());
+            if (filter?.EmailVerified.HasValue == true) query.Add("emailVerified", filter.EmailVerified?.ToString());
+            uri.Query = query.ToString();
+            var response = await _client.GetAsync(uri.Uri);
 
             return await response.HandleResponseAsync<Models.UserModel[]>() ?? Array.Empty<Models.UserModel>();
         }
@@ -61,7 +75,7 @@ namespace TNO.Keycloak
         public async Task<Models.UserModel?> CreateUserAsync(Models.UserModel user)
         {
             var json = user.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/users", content);
 
             return await response.HandleResponseAsync<Models.UserModel>();
@@ -75,7 +89,7 @@ namespace TNO.Keycloak
         public async Task<Guid> UpdateUserAsync(Models.UserModel user)
         {
             var json = user.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PutAsync($"{GetBaseUrl()}/users/{user.Id}", content);
 
             return response.HandleResponse(user.Id);
@@ -167,7 +181,7 @@ namespace TNO.Keycloak
         public async Task<Guid> AddUserClientRolesAsync(Guid userId, Guid clientId, Models.RoleModel[] roles)
         {
             var json = roles.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/users/{userId}/role-mappings/clients/{clientId}", content);
 
             return response.HandleResponse(userId);
@@ -183,7 +197,7 @@ namespace TNO.Keycloak
         public async Task<Guid> RemoveUserClientRolesAsync(Guid userId, Guid clientId, Models.RoleModel[] roles)
         {
             var json = roles.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.DeleteAsync($"{GetBaseUrl()}/users/{userId}/role-mappings/clients/{clientId}", content);
 
             return response.HandleResponse(userId);

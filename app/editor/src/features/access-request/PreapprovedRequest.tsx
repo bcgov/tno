@@ -1,24 +1,18 @@
 import { FormikForm, FormikText } from 'components/formik';
-import { IRegisterModel, IUserModel, UserStatusName } from 'hooks/api-editor';
+import { IRegisterModel, UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useUsers } from 'store/hooks';
+import { useApp } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row } from 'tno-core';
 
-export interface IPreapprovedRequestProps {
-  user: IUserModel;
-  setUser: (user: IUserModel) => void;
-}
-
-export const PreapprovedRequest: React.FC<IPreapprovedRequestProps> = ({ user, setUser }) => {
-  const users = useUsers();
+export const PreapprovedRequest: React.FC = () => {
   const [, app] = useApp();
   const navigate = useNavigate();
 
   const handleRequestCode = async (values: IRegisterModel) => {
     try {
-      const result = await users.requestCode({ ...values, code: '' });
+      const result = await app.requestCode({ ...values, code: '' });
       if (result.status === UserStatusName.Approved)
         toast.success(`Account request has been submitted.`);
       else toast.error(result.message);
@@ -27,10 +21,10 @@ export const PreapprovedRequest: React.FC<IPreapprovedRequestProps> = ({ user, s
 
   const handleValidateCode = async (values: IRegisterModel) => {
     try {
-      const result = await users.requestCode(values);
+      const result = await app.requestCode(values);
       if (result.status === UserStatusName.Approved) {
         const userInfo = await app.getUserInfo(true);
-        if (!!userInfo.groups.length || !!userInfo.roles.length) navigate('/');
+        if (!!userInfo.roles.length) navigate('/');
       } else {
         toast.error(result.message);
       }

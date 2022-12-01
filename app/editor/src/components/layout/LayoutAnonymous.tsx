@@ -17,7 +17,6 @@ interface ILayoutAnonymousProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const LayoutAnonymous: React.FC<ILayoutAnonymousProps> = ({ name, children, ...rest }) => {
   const [isLoading] = React.useState(false);
-
   return (
     <styled.Layout {...rest}>
       <Header name={name} />

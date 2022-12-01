@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
+using TNO.Core.Http.Models;
 
 namespace TNO.Keycloak;
 
@@ -18,6 +20,7 @@ public partial class KeycloakService : IKeycloakService
     #endregion
 
     #region Properties
+
     /// <summary>
     /// get - The configuration options for keycloak.
     /// </summary>
@@ -59,6 +62,18 @@ public partial class KeycloakService : IKeycloakService
     private Uri GetBaseUrl()
     {
         return new Uri(this.Options.Authority).Append(ADMIN_URL, this.Options.Realm);
+    }
+
+    /// <summary>
+    /// Make a request for an access token.
+    /// </summary>
+    /// <returns></returns>
+    public async Task<TokenModel?> RequestTokenAsync()
+    {
+        var response = await _client.RequestToken();
+        using var responseStream = await response.Content.ReadAsStreamAsync();
+        var token = await responseStream.DeserializeAsync<TokenModel>();
+        return token;
     }
     #endregion
 }

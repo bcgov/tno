@@ -143,6 +143,8 @@ export portAzureTable=40008
 
 export portApi=40010
 export portApiHttps=40011
+export portCssApi=40012
+export portCssApiHttps=40013
 export portAppEditor=40082
 export portAppEditorHttps=40444
 export portAppSubscriber=40083

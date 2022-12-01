@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,7 +54,7 @@ public class StorageController : ControllerBase
     /// <returns></returns>
     [HttpGet("exists")]
     [HttpGet("exists/{location}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -73,7 +74,7 @@ public class StorageController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [HttpGet("{location}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(FolderModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
@@ -94,7 +95,7 @@ public class StorageController : ControllerBase
     /// <returns></returns>
     [HttpPost("upload")]
     [HttpPost("{location}/upload")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
@@ -176,7 +177,7 @@ public class StorageController : ControllerBase
     /// <returns></returns>
     [HttpPut("move")]
     [HttpPut("{location}/move")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
@@ -206,7 +207,7 @@ public class StorageController : ControllerBase
     /// <returns></returns>
     [HttpDelete]
     [HttpDelete("{location}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
@@ -231,7 +232,7 @@ public class StorageController : ControllerBase
     /// <param name="outputName"></param>
     /// <returns></returns>
     [HttpPost("clip")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
@@ -249,7 +250,7 @@ public class StorageController : ControllerBase
     /// <param name="prefix"></param>
     /// <returns></returns>
     [HttpPost("join")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ItemModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]

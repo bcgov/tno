@@ -5,14 +5,23 @@ namespace TNO.API.Areas.Editor.Models.Content;
 /// <summary>
 /// ContentTagModel class, provides a model that represents an tag.
 /// </summary>
-public class ContentTagModel : BaseTypeWithAuditColumnsModel<string>
+public class ContentTagModel : AuditColumnsModel
 {
     #region Properties
+    /// <summary>
+    /// get/set - The primary key of the type model.
+    /// </summary>
+    public string Id { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The unique name of the model.
+    /// </summary>
+    public string Name { get; set; } = "";
+
     /// <summary>
     /// get/set - Foreign key to parent content.
     /// </summary>
     public long ContentId { get; set; }
-
     #endregion
 
     #region Constructors
@@ -25,18 +34,11 @@ public class ContentTagModel : BaseTypeWithAuditColumnsModel<string>
     /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public ContentTagModel(Entities.ContentTag entity)
+    public ContentTagModel(Entities.ContentTag entity) : base(entity)
     {
         this.ContentId = entity.ContentId;
         this.Id = entity.TagId;
         this.Name = entity.Tag?.Name ?? "";
-        this.CreatedBy = entity.CreatedBy;
-        this.CreatedById = entity.CreatedById;
-        this.CreatedOn = entity.CreatedOn;
-        this.UpdatedBy = entity.UpdatedBy;
-        this.UpdatedById = entity.UpdatedById;
-        this.UpdatedOn = entity.UpdatedOn;
-        this.Version = entity.Version;
     }
     #endregion
 

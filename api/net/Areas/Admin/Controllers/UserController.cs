@@ -1,9 +1,10 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.User;
-using TNO.API.Keycloak;
+using TNO.API.CSS;
 using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -30,7 +31,7 @@ public class UserController : ControllerBase
 {
     #region Variables
     private readonly IUserService _userService;
-    private readonly IKeycloakHelper _keycloakHelper;
+    private readonly ICssHelper _cssHelper;
     #endregion
 
     #region Constructors
@@ -38,11 +39,11 @@ public class UserController : ControllerBase
     /// Creates a new instance of a UserController object, initializes with specified parameters.
     /// </summary>
     /// <param name="userService"></param>
-    /// <param name="keycloakHelper"></param>
-    public UserController(IUserService userService, IKeycloakHelper keycloakHelper)
+    /// <param name="cssHelper"></param>
+    public UserController(IUserService userService, ICssHelper cssHelper)
     {
         _userService = userService;
-        _keycloakHelper = keycloakHelper;
+        _cssHelper = cssHelper;
     }
     #endregion
 
@@ -52,14 +53,14 @@ public class UserController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<UserModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public IActionResult Find()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _userService.Find(new UserFilter(query));
+        var result = _userService.Find(new DAL.Models.UserFilter(query));
         var page = new Paged<UserModel>(result.Items.Select(ds => new UserModel(ds)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
@@ -70,7 +71,7 @@ public class UserController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "User" })]
@@ -88,14 +89,14 @@ public class UserController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPost]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.Created)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public IActionResult Add(UserModel model)
     {
         var user = (User)model;
-        if (user.Key == Guid.Empty) user.Key = Guid.NewGuid();
+        if (String.IsNullOrWhiteSpace(user.Key) || user.Key == Guid.Empty.ToString()) user.Key = Guid.NewGuid().ToString();
         var result = _userService.AddAndSave(user);
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new UserModel(result));
     }
@@ -107,15 +108,15 @@ public class UserController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync(UserModel model)
     {
-        var result = await _keycloakHelper.UpdateUserAsync(model);
-        if (result == null) throw new InvalidOperationException("Keycloak user failed to update");
-        return new JsonResult(result);
+        await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());
+        var user = _userService.UpdateAndSave((Entities.User)model);
+        return new JsonResult(new UserModel(user));
     }
 
     /// <summary>
@@ -125,13 +126,13 @@ public class UserController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> DeleteAsync(UserModel model)
     {
-        await _keycloakHelper.DeleteUserAsync((User)model);
+        await _cssHelper.DeleteUserAsync((User)model);
         return new JsonResult(model);
     }
     #endregion

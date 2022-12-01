@@ -2,13 +2,9 @@ namespace TNO.Entities;
 
 public interface IReadonlyAuditColumns
 {
-    Guid CreatedById { get; }
-
     string CreatedBy { get; }
 
     DateTime CreatedOn { get; }
-
-    Guid UpdatedById { get; }
 
     string UpdatedBy { get; }
 

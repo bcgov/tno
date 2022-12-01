@@ -12,6 +12,7 @@ using TNO.API.Config;
 using TNO.Kafka.Models;
 using TNO.Keycloak;
 using TNO.API.Areas.Editor.Models.MorningReport;
+using System.Net.Mime;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -73,7 +74,7 @@ public class MorningReportController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Morning-Report" })]

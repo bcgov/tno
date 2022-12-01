@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Cache;
@@ -44,7 +45,7 @@ public class CacheController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<CacheModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Cache" })]
     public IActionResult FindAll()

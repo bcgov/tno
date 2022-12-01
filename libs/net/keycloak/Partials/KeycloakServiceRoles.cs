@@ -4,6 +4,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Mime;
 
 namespace TNO.Keycloak
 {
@@ -35,7 +36,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> UpdateRoleAsync(Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PutAsync($"{GetBaseUrl()}/roles-by-id/{role.Id}", content);
 
             return response.HandleResponse(role);
@@ -62,7 +63,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel[]> CreateCompositeRolesAsync(Guid parentId, Models.RoleModel[] roles)
         {
             var json = roles.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/roles-by-id/{parentId}/composites", content);
 
             return await response.HandleResponseAsync<Models.RoleModel[]>() ?? Array.Empty<Models.RoleModel>();
@@ -89,7 +90,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel[]> DeleteCompositeRolesAsync(Guid parentId, Models.RoleModel[] roles)
         {
             var json = roles.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.DeleteAsync($"{GetBaseUrl()}/roles-by-id/{parentId}/composites", content);
 
             return response.HandleResponse(roles);
@@ -153,7 +154,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> CreateRoleAsync(Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/roles", content);
 
             return await response.HandleResponseAsync<Models.RoleModel>();
@@ -168,7 +169,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> UpdateRoleAsync(string name, Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PutAsync($"{GetBaseUrl()}/roles/{name}", content);
 
             return response.HandleResponse(role);
@@ -195,7 +196,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> CreateCompositeRoleAsync(string parentName, Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/roles/{parentName}/composites", content);
 
             return await response.HandleResponseAsync<Models.RoleModel>();
@@ -222,7 +223,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel[]> DeleteCompositeRolesAsync(string parentName, Models.RoleModel[] roles)
         {
             var json = roles.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.DeleteAsync($"{GetBaseUrl()}/roles/{parentName}/composites", content);
 
             return response.HandleResponse(roles);

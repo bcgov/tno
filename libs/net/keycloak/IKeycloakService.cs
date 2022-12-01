@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using TNO.Core.Http.Models;
 
 namespace TNO.Keycloak;
 
@@ -9,13 +10,17 @@ namespace TNO.Keycloak;
 /// </summary>
 public interface IKeycloakService
 {
+    #region Token
+    Task<TokenModel?> RequestTokenAsync();
+    #endregion
+
     #region Attack Detection
     Task DeleteAttackDetectionAsync();
     #endregion
 
     #region Users
     Task<int> GetUserCountAsync();
-    Task<Models.UserModel[]> GetUsersAsync(int first = 0, int max = 10, string? search = null);
+    Task<Models.UserModel[]> GetUsersAsync(int first = 0, int max = 10, UserFilter? filter = null);
     Task<Models.UserModel?> GetUserAsync(Guid id);
     Task<Models.UserModel?> CreateUserAsync(Models.UserModel user);
     Task<Guid> UpdateUserAsync(Models.UserModel user);
@@ -38,6 +43,9 @@ public interface IKeycloakService
     Task<Models.GroupModel?> UpdateGroupAsync(Models.GroupModel group);
     Task<Guid> DeleteGroupAsync(Guid id);
     Task<Models.UserModel[]> GetGroupMembersAsync(Guid id, int first = 0, int max = 10);
+    Task<Models.RoleModel[]> GetClientRolesForGroupAsync(Guid groupId, Guid clientId);
+    Task AddClientRolesForGroupAsync(Guid groupId, Guid clientId, Models.RoleModel[] roles);
+    Task RemoveClientRolesForGroupAsync(Guid groupId, Guid clientId, Models.RoleModel[] roles);
     #endregion
 
     #region Roles

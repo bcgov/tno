@@ -42,8 +42,8 @@ namespace TNO.Keycloak.Extensions
             {
                 if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    // Keycloak returns 404s when an item doesn't exist instead of the correct 204...
-                    // We will have to assume that all 404 are now item does not exist and should be returning a 204 instead.
+                    // Keycloak returns 404s when an item doesn't exist instead of 204...
+                    // We will have to assume that all 404 are an item that does not exist, rather than an endpoint that doesn't exist.
                     // We will then return 'null'.
                     return default;
                 }
@@ -53,7 +53,7 @@ namespace TNO.Keycloak.Extensions
 
 
         /// <summary>
-        /// Provides a generic way to return the specified restul, or to throw an exception if the request failed.
+        /// Provides a generic way to return the specified restful, or to throw an exception if the request failed.
         /// </summary>
         /// <param name="response"></param>
         /// <param name="result"></param>
@@ -67,6 +67,20 @@ namespace TNO.Keycloak.Extensions
                 return result;
             }
             else
+            {
+                throw new HttpClientRequestException(response);
+            }
+        }
+
+        /// <summary>
+        /// Provides a generic way to return the specified result, or to throw an exception if the request failed.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <exception type="HttpClientRequestException">The request failed.</exception>
+        /// <returns></returns>
+        public static void HandleResponse(this HttpResponseMessage response)
+        {
+            if (!response.IsSuccessStatusCode)
             {
                 throw new HttpClientRequestException(response);
             }

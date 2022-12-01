@@ -14,11 +14,6 @@ public abstract class AuditColumnsModel
     public DateTime? CreatedOn { get; set; }
 
     /// <summary>
-    /// get/set - The uid of the user who created the model.
-    /// </summary>
-    public Guid? CreatedById { get; set; }
-
-    /// <summary>
     /// get/set - The name of the user who created the model.
     /// </summary>
     public string? CreatedBy { get; set; }
@@ -27,11 +22,6 @@ public abstract class AuditColumnsModel
     /// get/set - When the model was last updated on.
     /// </summary>
     public DateTime? UpdatedOn { get; set; }
-
-    /// <summary>
-    /// get/set - The uid of the user who last updated the model.
-    /// </summary>
-    public Guid? UpdatedById { get; set; }
 
     /// <summary>
     /// get/set - The name of the user who last updated the model.
@@ -57,10 +47,8 @@ public abstract class AuditColumnsModel
     public AuditColumnsModel(AuditColumns? entity)
     {
         this.CreatedBy = entity?.CreatedBy;
-        this.CreatedById = entity?.CreatedById;
         this.CreatedOn = entity?.CreatedOn;
         this.UpdatedBy = entity?.UpdatedBy;
-        this.UpdatedById = entity?.UpdatedById;
         this.UpdatedOn = entity?.UpdatedOn;
         this.Version = entity?.Version;
     }

@@ -1,6 +1,6 @@
 using TNO.Entities;
 
-namespace TNO.API.Areas.Editor.Models.User;
+namespace TNO.API.Models;
 
 /// <summary>
 /// RegisterModel class, provides a model that represents an user's registration request.

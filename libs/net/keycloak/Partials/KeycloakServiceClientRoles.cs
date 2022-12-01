@@ -4,6 +4,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Mime;
 
 namespace TNO.Keycloak
 {
@@ -48,7 +49,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> CreateRoleAsync(Guid clientId, Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/clients/{clientId}/roles", content);
 
             return await response.HandleResponseAsync<Models.RoleModel>();
@@ -63,7 +64,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> UpdateRoleAsync(Guid clientId, Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PutAsync($"{GetBaseUrl()}/clients/{clientId}/roles/{role.Name}", content);
 
             return response.HandleResponse(role);
@@ -92,7 +93,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel?> CreateCompositeRoleAsync(Guid clientId, string parentName, Models.RoleModel role)
         {
             var json = role.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.PostAsync($"{GetBaseUrl()}/clients/{clientId}/roles/{parentName}/composites", content);
 
             return await response.HandleResponseAsync<Models.RoleModel>();
@@ -121,7 +122,7 @@ namespace TNO.Keycloak
         public async Task<Models.RoleModel[]> DeleteCompositeRoleAsync(Guid clientId, string parentName, Models.RoleModel[] roles)
         {
             var json = roles.Serialize();
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var response = await _client.DeleteAsync($"{GetBaseUrl()}/clients/{clientId}/roles/{parentName}/composites", content);
 
             return response.HandleResponse(roles);

@@ -1,9 +1,9 @@
 import { useKeycloak } from '@react-keycloak/web';
 import React from 'react';
 
-import { Claim, IKeycloak, IKeycloakUser, Role } from '.';
+import { Claim, IKeycloak, IKeycloakToken, Role } from '.';
 
-let token: IKeycloakUser = { roles: [], groups: [] };
+let token: IKeycloakToken = { client_roles: [], groups: [] };
 
 /**
  * Provides extension methods to interact with the `keycloak` object.
@@ -15,7 +15,7 @@ export function useKeycloakWrapper(): IKeycloak {
 
   React.useEffect(() => {
     // For some reason the keycloak value doesn't update state.
-    if (initialized) token = keycloak.tokenParsed as IKeycloakUser;
+    if (initialized) token = keycloak.tokenParsed as IKeycloakToken;
     setInitialized(initialized && !!keycloak.authenticated);
   }, [keycloak, initialized, keycloak.authenticated]);
 
@@ -26,13 +26,13 @@ export function useKeycloakWrapper(): IKeycloak {
        * @param claim - The name of the claim
        */
       hasClaim: (claim?: Claim | Array<Claim>): boolean => {
-        if (claim === undefined && !!token.roles.length) return true;
+        if (claim === undefined && !!token?.client_roles?.length) return true;
         return (
           claim !== undefined &&
           claim !== null &&
           (typeof claim === 'string'
-            ? token.roles?.includes(claim)
-            : claim.some((c) => token?.roles?.includes(c)))
+            ? token?.client_roles?.includes(claim) ?? false
+            : claim.some((c) => token?.client_roles?.includes(c)))
         );
       },
       /**
@@ -40,12 +40,12 @@ export function useKeycloakWrapper(): IKeycloak {
        * @param role - The role name or an array of role name
        */
       hasRole: (role?: Role | Array<Role>): boolean => {
-        if (role === undefined && !!token.groups.length) return true;
+        if (role === undefined && !!token?.groups?.length) return true;
         return (
           role !== undefined &&
           role !== null &&
           (typeof role === 'string'
-            ? token.groups?.includes(role)
+            ? token?.groups?.includes(role) ?? false
             : role.some((r) => token?.groups?.includes(r)))
         );
       },
@@ -54,14 +54,34 @@ export function useKeycloakWrapper(): IKeycloak {
        * @returns User's display name.
        */
       getDisplayName: () => {
-        return token.display_name ?? '';
+        return token?.display_name ?? '';
+      },
+      /**
+       * Extract the unique username of the user
+       * @returns User's unique username
+       */
+      getUserKey: () => {
+        return token?.preferred_username ?? '';
       },
       /**
        * Extract the unique username of the user
        * @returns User's unique username
        */
       getUsername: () => {
-        return token.username ?? '';
+        return (
+          token?.username ??
+          token?.idir_username ??
+          token?.github_username ??
+          token?.bceid_username ??
+          ''
+        );
+      },
+      /**
+       * Extract the unique UID of the user
+       * @returns User's unique username
+       */
+      getUserUid: () => {
+        return token?.idir_user_guid ?? token?.github_id ?? token?.bceid_user_guid ?? '';
       },
     }),
     [],

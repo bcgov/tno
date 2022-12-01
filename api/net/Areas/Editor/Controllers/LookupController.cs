@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,8 @@ using TNO.API.Filters;
 using TNO.API.Models;
 using TNO.Core.Exceptions;
 using TNO.DAL.Services;
+using TNO.CSS;
+using TNO.CSS.Config;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
@@ -42,8 +45,8 @@ public class LookupController : ControllerBase
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
     private readonly IUserService _userService;
-    private readonly IKeycloakService _keycloakService;
-    private readonly Config.KeycloakOptions _keycloakOptions;
+    private readonly ICssEnvironmentService _CssService;
+    private readonly CssEnvironmentOptions _CssOptions;
     #endregion
 
     #region Constructors
@@ -62,8 +65,8 @@ public class LookupController : ControllerBase
     /// <param name="tagService"></param>
     /// <param name="tonePoolService"></param>
     /// <param name="userService"></param>
-    /// <param name="keycloakService"></param>
-    /// <param name="keycloakOptions"></param>
+    /// <param name="cssService"></param>
+    /// <param name="cssOptions"></param>
     /// <param name="serializerOptions"></param>
     public LookupController(
         IActionService actionService,
@@ -78,8 +81,8 @@ public class LookupController : ControllerBase
         ITagService tagService,
         ITonePoolService tonePoolService,
         IUserService userService,
-        IKeycloakService keycloakService,
-        IOptions<Config.KeycloakOptions> keycloakOptions,
+        ICssEnvironmentService cssService,
+        IOptions<CssEnvironmentOptions> cssOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _actionService = actionService;
@@ -94,8 +97,8 @@ public class LookupController : ControllerBase
         _tagService = tagService;
         _tonePoolService = tonePoolService;
         _userService = userService;
-        _keycloakService = keycloakService;
-        _keycloakOptions = keycloakOptions.Value;
+        _CssService = cssService;
+        _CssOptions = cssOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -106,7 +109,7 @@ public class LookupController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet, HttpHead]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<LookupModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotModified)]
     [SwaggerOperation(Tags = new[] { "Lookup" })]
@@ -114,7 +117,8 @@ public class LookupController : ControllerBase
     [ResponseCache(Duration = 5 * 60)]
     public async Task<IActionResult> FindAllAsync()
     {
-        if (!_keycloakOptions.ClientId.HasValue) throw new ConfigurationException("Keycloak clientId has not been configured");
+        if (String.IsNullOrWhiteSpace(_CssOptions.ClientId)) throw new ConfigurationException("CSS clientId has not been configured");
+        if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");
 
         var actions = _actionService.FindAll();
         var categories = _categoryService.FindAll();
@@ -122,7 +126,7 @@ public class LookupController : ControllerBase
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var ingestTypes = _ingestTypeService.FindAll();
-        var roles = (await _keycloakService.GetRolesAsync(_keycloakOptions.ClientId.Value)).Select(r => r.Name!);
+        var roles = (await _CssService.GetRolesAsync()).Select(r => r.Name!);
         var series = _seriesService.FindAll();
         var sourceActions = _sourceActionService.FindAll();
         var metrics = _metricService.FindAll();

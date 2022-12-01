@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -52,7 +53,7 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("{id}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
@@ -68,7 +69,7 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("for/topic/{topic}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<IngestModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult FindByCode(string topic)
@@ -82,7 +83,7 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("for/ingest/type/{ingestTypeName}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<IngestModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult FindByIngestType(string ingestTypeName)
@@ -96,7 +97,7 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IEnumerable<IngestModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Ingest" })]
     public IActionResult GetIngests()
@@ -111,7 +112,7 @@ public class IngestController : ControllerBase
     /// <param name="model"></param>
     /// <returns></returns>
     [HttpPut("{id:int}")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IngestModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]

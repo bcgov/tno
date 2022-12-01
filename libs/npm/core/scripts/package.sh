@@ -13,9 +13,15 @@ yarn pack --out ../%s-%v.tgz
 
 # Place the local tgz package in the editor app location.
 echo "Move package ${package} to project"
-mv -f ../${package}.tgz /workspaces/tno/app/editor/
 
-cd /workspaces/tno/app/editor
+# Handle both in devcontainer or out.
+if [ -f "/workspaces/tno/app/editor/" ]; then
+  mv -f ../${package}.tgz /workspaces/tno/app/editor/
+  cd /workspaces/tno/app/editor
+else
+  mv -f ../${package}.tgz ../../../../app/editor/
+  cd ../../../../app/editor
+fi
 
 # Need to do this or it'll ignore additional changes to the same version.
 echo "Clear cache"

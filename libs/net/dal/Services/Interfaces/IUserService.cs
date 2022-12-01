@@ -11,7 +11,7 @@ public interface IUserService : IBaseService<User, int>
 
     IPaged<User> Find(UserFilter filter);
 
-    User? FindByKey(Guid key);
+    User? FindByUserKey(string key);
 
     User? FindByUsername(string username);
 

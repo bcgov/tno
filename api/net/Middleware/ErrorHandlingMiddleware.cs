@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
+using System.Net.Mime;
 using System.Security.Authentication;
 using System.Text.Json;
 using TNO.Core.Exceptions;
@@ -161,7 +162,7 @@ namespace TNO.API.Middleware
             if (!context.Response.HasStarted)
             {
                 var result = JsonSerializer.Serialize(new Models.ErrorResponseModel(ex, message, details, !_env.IsProduction()), _options.JsonSerializerOptions);
-                context.Response.ContentType = "application/json";
+                context.Response.ContentType = MediaTypeNames.Application.Json;
                 context.Response.StatusCode = (int)code;
                 await context.Response.WriteAsync(result);
             }

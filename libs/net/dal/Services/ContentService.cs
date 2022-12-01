@@ -90,7 +90,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         {
             var user = this.Context.Users.Find(filter.UserId);
             if (user != null)
-                query = query.Where(c => c.OwnerId == user.Id || c.CreatedById == user.Key || c.UpdatedById == user.Key || c.Logs.Any(l => l.CreatedById == user.Key));
+                query = query.Where(c => c.OwnerId == user.Id || c.CreatedBy == user.Username || c.UpdatedBy == user.Username || c.Logs.Any(l => l.CreatedBy == user.Username));
         }
 
         if (filter.CreatedOn.HasValue)

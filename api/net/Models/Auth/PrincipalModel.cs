@@ -18,7 +18,7 @@ public class PrincipalModel
     /// <summary>
     /// get/set - Unique key to link to Keycloak.
     /// </summary>
-    public Guid? Key { get; set; }
+    public string? Key { get; set; }
 
     /// <summary>
     /// get/set - Unique username to identify user.
@@ -51,6 +51,11 @@ public class PrincipalModel
     public DateTime? LastLoginOn { get; set; }
 
     /// <summary>
+    /// get/set - Whether the user is enabled.
+    /// </summary>
+    public bool IsEnabled { get; set; }
+
+    /// <summary>
     /// get/set - The user status.
     /// </summary>
     public UserStatus? Status { get; set; }
@@ -80,13 +85,14 @@ public class PrincipalModel
     public PrincipalModel(ClaimsPrincipal principal, User? user)
     {
         this.Id = user?.Id ?? 0;
-        this.Key = principal.GetUid();
+        this.Key = principal.GetKey();
         this.Username = principal.GetUsername();
         this.DisplayName = principal.GetDisplayName();
         this.Email = principal.GetEmail();
         this.FirstName = principal.GetFirstName();
         this.LastName = principal.GetLastName();
         this.Status = user?.Status;
+        this.IsEnabled = user?.IsEnabled ?? false;
         this.Note = user?.Note ?? "";
         this.Roles = user?.Roles.Split(",")
             .Where(s => !String.IsNullOrWhiteSpace(s))

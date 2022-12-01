@@ -413,7 +413,9 @@
     "lastName" : "TNO",
     "email" : "admin@local.com",
     "attributes" : {
-      "displayName" : [ "Administrator" ]
+      "idir_user_guid" : [ "fohe4m5pn8clhkxmlho33sn1r7vr7m67" ],
+      "idir_username" : [ "ADMIN" ],
+      "display_name" : [ "Administrator" ]
     },
     "credentials" : [ {
       "id" : "f840ce8c-5949-441d-af2c-0b38d91f2e3f",
@@ -426,7 +428,7 @@
     "requiredActions" : [ ],
     "realmRoles" : [ "default-roles-tno" ],
     "clientRoles" : {
-      "tno-app" : [ "subscriber", "editor", "administrator" ]
+      "tno-app" : [ "editor", "subscriber", "administrator" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
@@ -441,7 +443,7 @@
     "lastName" : "TNO",
     "email" : "editor@local.com",
     "attributes" : {
-      "displayName" : [ "Editor" ]
+      "display_name" : [ "Editor" ]
     },
     "credentials" : [ {
       "id" : "bb421652-38ed-4b71-a580-4b62d6134b0c",
@@ -472,7 +474,7 @@
     "realmRoles" : [ "default-roles-tno" ],
     "clientRoles" : {
       "realm-management" : [ "realm-admin" ],
-      "tno-app" : [ "administrator" ],
+      "tno-app" : [ "editor", "administrator" ],
       "tno-service-account" : [ "uma_protection" ]
     },
     "notBefore" : 0,
@@ -505,7 +507,8 @@
     "lastName" : "TNO",
     "email" : "subscriber@local.com",
     "attributes" : {
-      "displayName" : [ "Subscriber" ]
+      "display_name" : [ "Subscriber" ],
+      "idir_username" : [ "SUBSCRIBER" ]
     },
     "credentials" : [ {
       "id" : "67e2c6fc-d04a-4e47-b9b5-2dad0951bdae",
@@ -732,8 +735,8 @@
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
-    "redirectUris" : [ "http://localhost:40083/*", "http://localhost:40082/*", "http://host.docker.internal:40080/*", "http://localhost:40081/*", "http://localhost:40080/*" ],
-    "webOrigins" : [ "http://localhost:40080", "http://host.docker.internal:40080", "http://localhost:40083", "http://localhost:40081", "http://localhost:40082" ],
+    "redirectUris" : [ "http://localhost:40083/*", "http://desktop.internal.fosol.ca:40080/*", "http://localhost:40082/*", "http://host.docker.internal:40080/*", "http://localhost:40081/*", "http://localhost:40080/*" ],
+    "webOrigins" : [ "http://localhost:40080", "http://host.docker.internal:40080", "http://localhost:40083", "http://desktop.internal.fosol.ca:40080", "http://localhost:40081", "http://localhost:40082" ],
     "notBefore" : 0,
     "bearerOnly" : false,
     "consentRequired" : false,
@@ -802,6 +805,20 @@
         "jsonType.label" : "String"
       }
     }, {
+      "id" : "38ceb808-b5c2-47a5-876e-23941c861e64",
+      "name" : "idir_username",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usermodel-attribute-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "userinfo.token.claim" : "true",
+        "user.attribute" : "idir_username",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "idir_username",
+        "jsonType.label" : "String"
+      }
+    }, {
       "id" : "03ef24ef-acce-4bfc-ba8e-6505fc318ef0",
       "name" : "Client IP Address",
       "protocol" : "openid-connect",
@@ -817,6 +834,21 @@
         "access.tokenResponse.claim" : "false"
       }
     }, {
+      "id" : "e2745205-1a4e-4c20-a97b-cdd20d928080",
+      "name" : "display_name",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usermodel-attribute-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "userinfo.token.claim" : "true",
+        "multivalued" : "false",
+        "user.attribute" : "display_name",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "display_name",
+        "jsonType.label" : "String"
+      }
+    }, {
       "id" : "e631917c-64fa-4b05-9410-1f4471cc9f1e",
       "name" : "client-roles",
       "protocol" : "openid-connect",
@@ -827,23 +859,9 @@
         "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
-        "claim.name" : "roles",
+        "claim.name" : "client_roles",
         "jsonType.label" : "String",
         "usermodel.clientRoleMapping.clientId" : "tno-app"
-      }
-    }, {
-      "id" : "4f063f0b-907f-40fc-a582-a9e3b79490ae",
-      "name" : "displayName",
-      "protocol" : "openid-connect",
-      "protocolMapper" : "oidc-usermodel-attribute-mapper",
-      "consentRequired" : false,
-      "config" : {
-        "userinfo.token.claim" : "true",
-        "user.attribute" : "displayName",
-        "id.token.claim" : "true",
-        "access.token.claim" : "true",
-        "claim.name" : "display_name",
-        "jsonType.label" : "String"
       }
     }, {
       "id" : "508df59a-6405-4174-b3da-7d2e2b55ad8a",

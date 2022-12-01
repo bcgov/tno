@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using TNO.Services.Models;
 
@@ -32,7 +33,7 @@ public class StatusController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("pause")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ServiceStateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public IActionResult PauseService()
@@ -49,7 +50,7 @@ public class StatusController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPut("resume")]
-    [Produces("application/json")]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ServiceStateModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public IActionResult ResumeService()

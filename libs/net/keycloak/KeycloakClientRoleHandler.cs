@@ -12,6 +12,12 @@ namespace TNO.Keycloak;
 /// </summary>
 public class KeycloakClientRoleHandler : AuthorizationHandler<KeycloakClientRoleRequirement>
 {
+    #region Variables
+    private const string RESOURCE_ACCESS = "resource_access";
+    private const string CLIENT_ROLES = "client_roles";
+    #endregion
+
+    #region Methods
     /// <summary>
     /// Determine if the current user has the specified role.
     /// </summary>
@@ -20,24 +26,32 @@ public class KeycloakClientRoleHandler : AuthorizationHandler<KeycloakClientRole
     /// <returns></returns>
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, KeycloakClientRoleRequirement requirement)
     {
-        var claim = context.User.Claims.FirstOrDefault(c => c.Type == "resource_access");
-        if (claim == null)
+        var claims = context.User.Claims.Where(c => c.Type == RESOURCE_ACCESS || c.Type == CLIENT_ROLES);
+        if (!claims.Any())
         {
             context.Fail();
         }
         else
         {
-            var resourceAccess = JsonSerializer.Deserialize<ResourceAccessModel>(claim.Value);
-            if (resourceAccess?.App.Roles.Intersect(requirement.Role.Select(r => r.GetName())).Any() ?? false)
+            var standard = claims.FirstOrDefault(c => c.Type == RESOURCE_ACCESS);
+            if (standard != null)
             {
-                context.Succeed(requirement);
+                var resourceAccess = JsonSerializer.Deserialize<ResourceAccessModel>(standard.Value);
+                if (resourceAccess?.App.Roles.Intersect(requirement.Role.Select(r => r.GetName())).Any() ?? false)
+                    context.Succeed(requirement);
+                else
+                    context.Fail();
             }
             else
             {
-                context.Fail();
+                if (claims.Select(c => c.Value).Intersect(requirement.Role.Select(r => r.GetName())).Any())
+                    context.Succeed(requirement);
+                else
+                    context.Fail();
             }
         }
 
         return Task.CompletedTask;
     }
+    #endregion
 }

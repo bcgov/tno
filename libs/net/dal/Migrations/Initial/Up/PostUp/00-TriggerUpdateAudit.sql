@@ -5,7 +5,6 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF (TG_OP = 'UPDATE') THEN
         NEW."created_on" = OLD."created_on";
-        NEW."created_by_id" = OLD."created_by_id";
         NEW."created_by" = OLD."created_by";
     ELSIF (TG_OP = 'INSERT') THEN
         NEW."created_on" = now();
