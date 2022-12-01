@@ -9,6 +9,8 @@ import { useApp, useContent } from 'store/hooks';
 import { Col, FieldSize, Row } from 'tno-core';
 import { getUserOptions } from 'utils';
 
+import { InputOption } from './InputOption';
+
 export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
 }
@@ -92,10 +94,15 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
                 name="productIds"
                 placeholder="Designation"
                 isMulti
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
                 options={productOptions}
                 // value={productOptions.find((mt) => mt.value === filter.productId)}
                 width={FieldSize.Big}
                 defaultValue={productOptions[0]}
+                components={{
+                  Option: InputOption,
+                }}
                 onChange={(newValues) => {
                   const productIds = Array.isArray(newValues)
                     ? newValues.map((opt) => opt.value)
