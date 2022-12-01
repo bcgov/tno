@@ -14,13 +14,5 @@ generatorOptions:
 
 secretGenerator:
   - name: api
-    literals:
-      - AZURE_STORAGE_CONTAINER_NAME=
-      - AZURE_STORAGE_CONNECTION_STRING=true
-      - COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY=
-      - COGNITIVE_SERVICES_SPEECH_REGION=canadacentral
-      - AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=
-      - AZURE_VIDEO_ANALYZER_ACCOUNT_ID=
-      - AZURE_VIDEO_ANALYZER_LOCATION=
     envs:
       - .env
