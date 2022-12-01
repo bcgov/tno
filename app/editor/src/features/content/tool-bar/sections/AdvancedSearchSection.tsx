@@ -46,8 +46,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
           <Show visible={filterAdvanced.fieldType === 'otherSource'}>
             <Select
               name="searchTerm"
-              label="Search Terms"
-              width={FieldSize.Big}
+              width={FieldSize.Medium}
               onKeyUpCapture={(e) => {
                 if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
               }}

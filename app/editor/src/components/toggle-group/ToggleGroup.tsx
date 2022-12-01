@@ -27,6 +27,21 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
   const onDropDownClick = () => {
     setShowDropDown(!showDropDown);
   };
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside of it
+  React.useEffect(() => {
+    const handleClickOutside = (event: any) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        showDropDown && setShowDropDown(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true);
+    };
+  }, [showDropDown]);
+
   return (
     <styled.ToggleGroup>
       {options?.map((option) => (
@@ -34,16 +49,17 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
           className={`toggle-item ${activeToggle === option.label.toLowerCase() ? 'active' : ''}`}
           onClick={() => {
             setActiveToggle(option.label.toLowerCase());
+            !!option.dropDownOptions && onDropDownClick();
             option.onClick?.();
           }}
         >
           <Col>
-            <Row onClick={() => onDropDownClick()}>
+            <Row>
               {option.label}
               {option.dropDownOptions && <FaAngleDown />}
             </Row>
             <Show visible={!!option.dropDownOptions && showDropDown}>
-              <Row className="dd-menu">
+              <div ref={ref} className="dd-menu">
                 <Col>
                   {option.dropDownOptions?.map((x) => (
                     <div
@@ -57,7 +73,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
                     </div>
                   ))}
                 </Col>
-              </Row>
+              </div>
             </Show>
           </Col>
         </button>
