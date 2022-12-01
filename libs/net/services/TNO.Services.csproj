@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\TNO.Core.csproj" />
-    <ProjectReference Include="..\css\TNO.CSS.csproj" />
     <ProjectReference Include="..\kafka\TNO.Kafka.csproj" />
     <ProjectReference Include="..\models\TNO.Models.csproj" />
   </ItemGroup>

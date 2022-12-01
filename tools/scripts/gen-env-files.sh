@@ -224,8 +224,8 @@ KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 # Remote CSS
 ################################################
 # Keycloak__Authority=https://dev.loginproxy.gov.bc.ca/auth/realms/standard
-# Keycloak__Audience=media-monitoring-mmia-3671
-# Keycloak__Issuer=media-monitoring-mmia-3671
+# Keycloak__Audience=media-monitoring-mmia-3671,mmia-service-account-3994
+# Keycloak__Issuer=media-monitoring-mmia-3671,mmia-service-account-3994
 # CSS__IntegrationId=3671
 # CSS__ClientId=service-account-team-795-4127
 # CSS__Secret={https://bcgov.github.io/sso-requests}
@@ -449,11 +449,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
@@ -469,11 +467,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -490,11 +486,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -511,11 +505,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -532,11 +524,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
@@ -553,11 +543,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__TranscriptionTopic=transcription
@@ -574,11 +562,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
@@ -595,11 +581,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__ElasticsearchUri=http://host.docker.internal:$portElastic
@@ -618,11 +602,9 @@ echo \
 "ASPNETCORE_ENVIRONMENT=Development
 ASPNETCORE_URLS=http://+:8081
 
-CSS__ApiUrl=http://host.docker.internal:$portCssApi/api
-CSS__Authority=http://host.docker.internal:$portCssApi
-CSS__TokenPath=/api/v1/token
-CSS__ClientId=service-account-team-795-4127
-CSS__Secret={NOT REQUIRED PRESENTLY}
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth/realms/tno
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
