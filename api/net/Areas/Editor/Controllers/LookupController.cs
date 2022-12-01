@@ -11,7 +11,7 @@ using TNO.Core.Exceptions;
 using TNO.DAL.Services;
 using TNO.CSS;
 using TNO.CSS.Config;
-using TNO.Keycloak;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -19,7 +19,8 @@ namespace TNO.API.Areas.Editor.Controllers;
 /// LookupController class, provides Lookup endpoints for the api.
 /// The purpose is to reduce the number of AJAX requests to fetch separate lookup values.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Editor, ClientRole.Administrator)]
+// [ClientRoleAuthorize(ClientRole.Editor, ClientRole.Administrator)]
+[Authorize]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]
