@@ -75,6 +75,10 @@ spec:
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080
+            - name: Logging__LogLevel__TNO
+              value: Info
+            - name: HubPath
+              value: /workOrderHub
 
             - name: Storage__UploadPath
               value: /data
@@ -86,42 +90,47 @@ spec:
                 configMapKeyRef:
                   name: api
                   key: KEYCLOAK_AUTHORITY
-            - name: Keycloak__Realm
-              valueFrom:
-                configMapKeyRef:
-                  name: api
-                  key: KEYCLOAK_REALM
             - name: Keycloak__Audience
               valueFrom:
                 configMapKeyRef:
                   name: api
                   key: KEYCLOAK_AUDIENCE
-            - name: Keycloak__ClientId
+            - name: Keycloak__Issuer
               valueFrom:
                 configMapKeyRef:
                   name: api
-                  key: KEYCLOAK_CLIENTID
+                  key: KEYCLOAK_ISSUER
 
-            - name: Keycloak__ServiceAccount__Authority
+            - name: CSS__IntegrationId
               valueFrom:
                 configMapKeyRef:
                   name: api
-                  key: KEYCLOAK_CLIENT_AUTHORITY
-            - name: Keycloak__ServiceAccount__Realm
+                  key: CSS_INTEGRATION_ID
+            - name: CSS__Environment
               valueFrom:
                 configMapKeyRef:
                   name: api
-                  key: KEYCLOAK_REALM
-            - name: Keycloak__ServiceAccount__Audience
+                  key: CSS_ENVIRONMENT
+            - name: CSS__ApiUrl
               valueFrom:
                 configMapKeyRef:
                   name: api
-                  key: KEYCLOAK_CLIENT_AUDIENCE
-            - name: Keycloak__ServiceAccount__Secret
+                  key: CSS_API_URL
+            - name: CSS__Authority
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: CSS_AUTHORITY
+            - name: CSS__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: api
+                  key: CSS_CLIENT_ID
+            - name: CSS__Secret
               valueFrom:
                 secretKeyRef:
                   name: api
-                  key: KEYCLOAK_CLIENT_SECRET
+                  key: CSS_SECRET
 
             - name: KAFKA_BOOTSTRAP_SERVERS
               valueFrom:
@@ -161,43 +170,6 @@ spec:
                   name: elastic
                   key: PASSWORD
 
-            - name: AZURE_STORAGE_CONTAINER_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: AZURE_STORAGE_CONTAINER_NAME
-            - name: AZURE_STORAGE_CONNECTION_STRING
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: AZURE_STORAGE_CONNECTION_STRING
-
-            - name: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: COGNITIVE_SERVICES_SPEECH_SUBSCRIPTION_KEY
-            - name: COGNITIVE_SERVICES_SPEECH_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: COGNITIVE_SERVICES_SPEECH_REGION
-
-            - name: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY
-            - name: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: AZURE_VIDEO_ANALYZER_ACCOUNT_ID
-            - name: AZURE_VIDEO_ANALYZER_LOCATION
-              valueFrom:
-                secretKeyRef:
-                  name: api
-                  key: AZURE_VIDEO_ANALYZER_LOCATION
           livenessProbe:
             httpGet:
               path: "/health"

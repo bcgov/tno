@@ -13,13 +13,13 @@ patches:
     patch: |-
       - op: replace
         path: /data/KEYCLOAK_AUTHORITY
-        value: https://oidc.gov.bc.ca/auth/realms/gcpe
+        value: https://dev.loginproxy.gov.bc.ca/auth/realms/standard
       - op: replace
-        path: /data/KEYCLOAK_CLIENT_AUTHORITY
-        value: https://oidc.gov.bc.ca
+        path: /data/CSS_ENVIRONMENT
+        value: dev
       - op: replace
-        path: /data/KEYCLOAK_CLIENTID
-        value: 6698eeb8-85a3-4c2b-9a43-9c63e016bcea
+        path: /data/CSS_AUTHORITY
+        value: https://loginproxy.gov.bc.ca
   - target:
       kind: PersistentVolumeClaim
       name: file-storage

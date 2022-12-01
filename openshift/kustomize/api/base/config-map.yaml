@@ -16,12 +16,15 @@ metadata:
     created-by: jeremy.foster
 type: Opaque
 data:
-  KEYCLOAK_AUTHORITY: https://dev.oidc.gov.bc.ca/auth/realms/gcpe
-  KEYCLOAK_REALM: gcpe
-  KEYCLOAK_AUDIENCE: tno-app
-  KEYCLOAK_CLIENT_AUTHORITY: https://dev.oidc.gov.bc.ca
-  KEYCLOAK_CLIENT_AUDIENCE: tno-service-account
-  KEYCLOAK_CLIENTID: 6698eeb8-85a3-4c2b-9a43-9c63e016bcea
+  KEYCLOAK_AUTHORITY: https://loginproxy.gov.bc.ca/auth/realms/standard
+  KEYCLOAK_AUDIENCE: media-monitoring-mmia-3671
+  KEYCLOAK_ISSUER: media-monitoring-mmia-3671
+
+  CSS_INTEGRATION_ID: 3671
+  CSS_ENVIRONMENT: dev
+  CSS_API_URL: https://api.loginproxy.gov.bc.ca
+  CSS_AUTHORITY: https://loginproxy.gov.bc.ca
+  CSS_CLIENT_ID: service-account-team-795-4127
 
   CONNECTION_STRING: Host=crunchy-primary:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 

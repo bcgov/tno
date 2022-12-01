@@ -17,10 +17,10 @@ metadata:
 type: Opaque
 data:
   keycloak.json: '{
-    "realm": "gcpe",
-    "auth-server-url": "https://dev.oidc.gov.bc.ca/auth/",
+    "realm": "standard",
+    "auth-server-url": "https://dev.loginproxy.gov.bc.ca/auth",
     "ssl-required": "external",
-    "resource": "tno-app",
+    "resource": "media-monitoring-mmia-3671",
     "public-client": true,
     "confidential-port": 0
     }'
