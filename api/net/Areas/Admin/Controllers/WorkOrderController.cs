@@ -32,7 +32,6 @@ public class WorkOrderController : ControllerBase
 {
     #region Variables
     private readonly IWorkOrderService _workOrderService;
-    private readonly IKeycloakHelper _keycloakHelper;
     private readonly IHubContext<WorkOrderHub> _hub;
     #endregion
 
@@ -41,12 +40,10 @@ public class WorkOrderController : ControllerBase
     /// Creates a new instance of a WorkOrderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="workOrderService"></param>
-    /// <param name="keycloakHelper"></param>
     /// <param name="hub"></param>
-    public WorkOrderController(IWorkOrderService workOrderService, IKeycloakHelper keycloakHelper, IHubContext<WorkOrderHub> hub)
+    public WorkOrderController(IWorkOrderService workOrderService, IHubContext<WorkOrderHub> hub)
     {
         _workOrderService = workOrderService;
-        _keycloakHelper = keycloakHelper;
         _hub = hub;
     }
     #endregion
