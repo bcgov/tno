@@ -7,6 +7,8 @@ export interface IFormPageProps extends InputHTMLAttributes<HTMLDivElement> {
   minWidth?: string;
   /** bypass the default max width */
   maxWidth?: string;
+  /** remove padding from the FormPage */
+  noPadding?: boolean;
   /** include contents of form page */
   children: React.ReactNode;
 }

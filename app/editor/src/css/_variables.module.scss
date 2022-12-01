@@ -2,6 +2,7 @@
 @import './_fonts';
 
 :export {
+  actionButtonColor: $action-button-color;
   backgroundColor: $background-color;
   primaryColor: $primary-color;
   primaryColorRgb: $primary-color-rgb;
@@ -10,6 +11,7 @@
   secondaryVariantColor: $secondary-variant-color;
   secondaryVariantColorRgb: $secondary-variant-color-rgb;
   lightVariantColor: $light-variant-color;
+  lightLabelColor: $light-label-color;
   darkVariantColor: $dark-variant-color;
   textColor: $text-color;
   accentColor: $accent-color;
