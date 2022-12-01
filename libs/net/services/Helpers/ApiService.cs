@@ -12,11 +12,11 @@ using DataLocationModels = TNO.API.Areas.Services.Models.DataLocation;
 using IngestModels = TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.Core.Exceptions;
-using TNO.Core.Http;
 using TNO.Kafka.Models;
 using TNO.Services.Config;
 using TNO.API.Areas.Kafka.Models;
 using TNO.Core.Extensions;
+using TNO.CSS;
 
 namespace TNO.Services;
 
@@ -26,7 +26,7 @@ namespace TNO.Services;
 public class ApiService : IApiService
 {
     #region Variables
-    private readonly IOpenIdConnectRequestClient _client;
+    private readonly ICssClient _client;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ServiceOptions _options;
     #endregion
@@ -38,7 +38,7 @@ public class ApiService : IApiService
     /// <param name="client"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="options"></param>
-    public ApiService(IOpenIdConnectRequestClient client, IOptions<JsonSerializerOptions> serializerOptions, IOptions<ServiceOptions> options)
+    public ApiService(ICssClient client, IOptions<JsonSerializerOptions> serializerOptions, IOptions<ServiceOptions> options)
     {
         _client = client;
         _serializerOptions = serializerOptions.Value;
