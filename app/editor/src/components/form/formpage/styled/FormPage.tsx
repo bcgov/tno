@@ -7,7 +7,9 @@ export const FormPage = styled.div<IFormPageProps>`
   min-height: fit-content;
   ${(props) => (props.minWidth !== '' ? `min-width: ${props.minWidth ?? '1200px'}` : '')};
   ${(props) => (props.maxWidth !== '' ? `max-width: ${props.maxWidth ?? '1200px'}` : '')};
-  padding: ${(props) => (props.noPadding ? 0 : '0.5em 2em 0 2em')};
+  :not(.no-padding) {
+    padding: 0.5em 2em 0 2em;
+  }
   margin: 0px auto;
   overflow: auto;
   overflow-x: hidden;
