@@ -16,10 +16,10 @@ type: Opaque
 data:
   API_HOST_URL: http://api:8080
 
-  KEYCLOAK_AUTHORITY: https://dev.oidc.gov.bc.ca
-  KEYCLOAK_REALM: gcpe
-  KEYCLOAK_AUDIENCE: tno-service-account
-  KEYCLOAK_CLIENT_SECRET:
+  CSS_API_URL: https://api.loginproxy.gov.bc.ca
+  CSS_AUTHORITY: https://loginproxy.gov.bc.ca
+  CSS_CLIENT_ID: service-account-team-795-4127
+  CSS_SECRET:
 
   KAFKA_BOOTSTRAP_SERVERS: kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092
 

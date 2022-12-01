@@ -11,6 +11,20 @@ namespace TNO.CSS;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
+    /// Add the CssClient to the dependency injection service collection.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddCssClient(this IServiceCollection services, IConfiguration config)
+    {
+        return services
+            .Configure<CssOptions>(config)
+            .AddScoped<IHttpRequestClient, HttpRequestClient>()
+            .AddScoped<ICssClient, CssClient>();
+    }
+
+    /// <summary>
     /// Add the CssService to the dependency injection service collection.
     /// </summary>
     /// <param name="services"></param>
@@ -19,9 +33,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCssService(this IServiceCollection services, IConfiguration config)
     {
         return services
-            .Configure<CssOptions>(config)
-            .AddScoped<IHttpRequestClient, HttpRequestClient>()
-            .AddScoped<ICssClient, CssClient>()
+            .AddCssClient(config)
             .AddScoped<ICssService, CssService>();
     }
 

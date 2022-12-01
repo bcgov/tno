@@ -11,16 +11,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\core\TNO.Core.csproj" />
-    <ProjectReference Include="..\kafka\TNO.Kafka.csproj" />
-    <ProjectReference Include="..\models\TNO.Models.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
     <PackageReference Include="Confluent.Kafka" Version="1.8.2" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\core\TNO.Core.csproj" />
+    <ProjectReference Include="..\css\TNO.CSS.csproj" />
+    <ProjectReference Include="..\kafka\TNO.Kafka.csproj" />
+    <ProjectReference Include="..\models\TNO.Models.csproj" />
   </ItemGroup>
 </Project>
