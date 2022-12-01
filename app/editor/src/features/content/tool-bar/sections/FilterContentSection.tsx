@@ -7,6 +7,7 @@ import React from 'react';
 import { FaCalendarAlt, FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
 import { Col, FieldSize, Row } from 'tno-core';
+import { getUserOptions } from 'utils';
 
 export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
@@ -19,14 +20,24 @@ export interface IFilterContentSectionProps {
  */
 export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onChange }) => {
   const [{ filter }] = useContent();
-  const [{ productOptions: pOptions }] = useLookupOptions();
+  const [{ productOptions: pOptions, users }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
+  const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
+
+  React.useEffect(() => {
+    setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));
+  }, [users]);
 
   React.useEffect(() => {
     setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
   }, [pOptions]);
 
   const [{ userInfo }] = useApp();
+
+  // Change userId filter with value of dropdown
+  const onOtherClick = (value?: number) => {
+    value && onChange({ ...filter, userId: value });
+  };
 
   return (
     <ToolBarSection
@@ -39,7 +50,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
                 defaultSelected="today"
                 options={[
                   {
-                    label: 'Today',
+                    label: 'TODAY',
                     onClick: () => {
                       onChange({ ...filter, timeFrame: 0 });
                     },
@@ -64,7 +75,11 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
                     label: 'MY CONTENT',
                     onClick: () => onChange({ ...filter, userId: userInfo?.id ?? 0 }),
                   },
-                  { label: 'OTHER' },
+                  {
+                    label: 'OTHER',
+                    dropDownOptions: userOptions,
+                    onClick: onOtherClick,
+                  },
                 ]}
               />
             </Row>
@@ -81,7 +96,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
                 width={FieldSize.Big}
                 defaultValue={productOptions[0]}
                 onChange={(newValue) => {
-                  var productId = !!newValue ? (newValue as IOptionItem).value : 0;
+                  const productId = !!newValue ? (newValue as IOptionItem).value : 0;
                   onChange({
                     ...filter,
                     pageIndex: 0,
