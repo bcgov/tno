@@ -58,8 +58,8 @@ export const AdminRouter: React.FC = () => {
       <Route path="actions" element={<ActionList />} />
       <Route path="actions/:id" element={<ActionForm />} />
 
-      <Route path="licenses" element={<LicenseList />} />
-      <Route path="licenses/:id" element={<LicenseForm />} />
+      <Route path="licences" element={<LicenseList />} />
+      <Route path="licences/:id" element={<LicenseForm />} />
 
       <Route path="sources" element={<SourceList />} />
       <Route path="sources/:id" element={<SourceForm />}>
