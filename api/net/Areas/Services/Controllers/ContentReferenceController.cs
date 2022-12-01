@@ -1,18 +1,19 @@
 using System.Net;
 using System.Net.Mime;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Models;
 using TNO.DAL.Services;
-using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
 
 /// <summary>
 /// ContentReferenceController class, provides ContentReference endpoints for the api.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Administrator)]
+// [ClientRoleAuthorize(ClientRole.Administrator)]
+[Authorize]
 [ApiController]
 [Area("services")]
 [ApiVersion("1.0")]

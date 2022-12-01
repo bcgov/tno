@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
-using TNO.API.Keycloak;
 using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;

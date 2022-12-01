@@ -16,7 +16,6 @@ using TNO.Core.Extensions;
 using TNO.Kafka;
 using TNO.API.Config;
 using TNO.Kafka.Models;
-using TNO.Keycloak;
 using System.Net.Mime;
 
 namespace TNO.API.Areas.Editor.Controllers;
@@ -24,7 +23,8 @@ namespace TNO.API.Areas.Editor.Controllers;
 /// <summary>
 /// ContentController class, provides Content endpoints for the api.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Editor)]
+// [ClientRoleAuthorize(ClientRole.Editor)]
+[Authorize]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]
