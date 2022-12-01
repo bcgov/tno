@@ -89,18 +89,21 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select
                 className="select"
-                name="productId"
+                name="productIds"
                 placeholder="Designation"
+                isMulti
                 options={productOptions}
-                value={productOptions.find((mt) => mt.value === filter.productId)}
+                // value={productOptions.find((mt) => mt.value === filter.productId)}
                 width={FieldSize.Big}
                 defaultValue={productOptions[0]}
-                onChange={(newValue) => {
-                  const productId = !!newValue ? (newValue as IOptionItem).value : 0;
+                onChange={(newValues) => {
+                  const productIds = Array.isArray(newValues)
+                    ? newValues.map((opt) => opt.value)
+                    : [0];
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    productId: productId as number,
+                    productIds: productIds,
                   });
                 }}
               />

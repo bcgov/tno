@@ -23,6 +23,7 @@ export interface IContentFilter extends IPageFilter {
   publishedStartOn?: string;
   publishedEndOn?: string;
   actions?: string[];
+  productIds?: number[];
   logicalOperator?: LogicalOperator;
   sort?: string[];
 }

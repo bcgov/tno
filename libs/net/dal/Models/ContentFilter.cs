@@ -136,6 +136,11 @@ public class ContentFilter : PageFilter
     public long[] ContentIds { get; set; } = Array.Empty<long>();
 
     /// <summary>
+    /// get/set - An array of content IDs.
+    /// </summary>
+    public long[] ProductIds { get; set; } = Array.Empty<long>();
+
+    /// <summary>
     /// get/set - Only include content with the specified actions.
     /// </summary>
     public string[] Actions { get; set; } = Array.Empty<string>();
@@ -183,6 +188,7 @@ public class ContentFilter : PageFilter
         this.PublishedEndOn = filter.GetDateTimeNullValue(nameof(this.PublishedEndOn));
 
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
+        this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
