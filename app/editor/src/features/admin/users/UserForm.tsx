@@ -118,14 +118,13 @@ export const UserForm: React.FC = () => {
                   name="displayName"
                   label="Display Name"
                   tooltip="Friendly name to use instead of username"
-                  disabled={!!user.id}
                 />
                 <FormikCheckbox label="Email Verified" name="emailVerified" />
                 <FormikCheckbox label="Is Enabled" name="isEnabled" />
               </Col>
               <Col className="form-inputs">
-                <FormikText name="firstName" label="First Name" disabled={!!user.id} />
-                <FormikText name="lastName" label="Last Name" disabled={!!user.id} />
+                <FormikText name="firstName" label="First Name" />
+                <FormikText name="lastName" label="Last Name" />
               </Col>
             </Row>
             {!!user.id && (
