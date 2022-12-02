@@ -106,6 +106,7 @@ export const ContentListView: React.FC = () => {
           {/* <ContentFilter onSearch={fetch} /> */}
           <Row className="content-list">
             <PagedTable
+              infiniteScroll
               columns={columns}
               page={page}
               isLoading={loading}

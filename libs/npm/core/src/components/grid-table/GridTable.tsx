@@ -24,6 +24,8 @@ import * as styled from './styled';
 export interface IGridTableProps<T extends object = Record<string, unknown>> {
   /** Class name */
   className?: string;
+  /** Whether or not you wish to use the infinite scroll variant */
+  infiniteScroll?: boolean;
   /**
    * An array of column definitions.
    */
@@ -126,6 +128,10 @@ export interface IGridTableProps<T extends object = Record<string, unknown>> {
    * Event fires when selected rows changes.
    */
   onSelectedRowsChange?: (selectedRows: Row<T>[], instance: TableInstance<T>) => void;
+  /**
+   * Whether to add to infinite items - helps the system to determine whether to clear infinite list if filter is applied.
+   */
+  setAddToInfiniteItems?: (add: boolean) => void;
 }
 
 /**
@@ -154,9 +160,11 @@ export const GridTable = <T extends object>({
   selectedRowIds: initSelectedRowIds,
   onSelectedRowsChange,
   getRowId,
+  infiniteScroll,
+  setAddToInfiniteItems,
 }: IGridTableProps<T>) => {
   const {
-    showPaging = true,
+    showPaging = infiniteScroll ? false : true,
     manualPagination = false,
     pageIndex: initialPageIndex = 0,
     pageSize: initialPageSize = 20,
@@ -223,6 +231,24 @@ export const GridTable = <T extends object>({
   };
 
   const [activeRow, setActiveRow] = React.useState<Row<T>>();
+
+  // for infinite scrolling
+  const observer = React.useRef<IntersectionObserver>();
+  // ref is only used in element if infiniteScroll is true
+  const lastRowRef = React.useCallback(
+    (node: HTMLDivElement) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && canNextPage) {
+          setAddToInfiniteItems && setAddToInfiniteItems(true);
+          nextPage();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, canNextPage, setAddToInfiniteItems, nextPage],
+  );
 
   React.useEffect(() => {
     if (!maintainSelectedRows) instance.toggleAllRowsSelected(false);
@@ -312,23 +338,41 @@ export const GridTable = <T extends object>({
         ))}
       </div>
       <div {...getTableBodyProps()}>
-        {page.map((row) => {
+        {page.map((row, index) => {
           prepareRow(row);
-          return (
-            <div
-              {...row.getRowProps()}
-              onClick={(e) => handleRowClick(e, row)}
-              className={onRowRenderClassName(row)}
-            >
-              {row.cells.map((cell) => {
-                return (
-                  <div {...cell.getCellProps()}>
-                    {cell.render('Cell') as unknown as React.ReactNode}
-                  </div>
-                );
-              })}
-            </div>
-          );
+          if (page.length === index + 1 && infiniteScroll) {
+            return (
+              <div
+                {...row.getRowProps()}
+                onClick={(e) => handleRowClick(e, row)}
+                className={onRowRenderClassName(row)}
+                ref={lastRowRef}
+              >
+                {row.cells.map((cell) => {
+                  return (
+                    <div {...cell.getCellProps()}>
+                      {cell.render('Cell') as unknown as React.ReactNode}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          } else
+            return (
+              <div
+                {...row.getRowProps()}
+                onClick={(e) => handleRowClick(e, row)}
+                className={onRowRenderClassName(row)}
+              >
+                {row.cells.map((cell) => {
+                  return (
+                    <div {...cell.getCellProps()}>
+                      {cell.render('Cell') as unknown as React.ReactNode}
+                    </div>
+                  );
+                })}
+              </div>
+            );
         })}
         <Show visible={isLoading}>
           <Loading />

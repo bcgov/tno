@@ -10064,7 +10064,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.6
-    tno-core: 0.0.196
+    tno-core: 0.0.197
     typescript: 4.8.4
     yup: 0.32.11
   languageName: unknown
@@ -13967,6 +13967,35 @@ __metadata:
     styled-components: ^5.3.6
     tno-core: 0.0.193
   checksum: bcfa0790c56110f8de649386b25f41b831b0593ca1023e5c0167c6efea9f36bb569502a237abd5b8cbb00643ed14884b1d615dfd2f6ebba39e8323caeb18ef28
+  languageName: node
+  linkType: hard
+
+"tno-core@npm:0.0.197":
+  version: 0.0.197
+  resolution: "tno-core@npm:0.0.197"
+  dependencies:
+    "@headlessui/react": ^1.7.4
+    "@react-keycloak/web": ^3.4.0
+    axios: ^1.1.3
+    dequal: ^2.0.3
+    formik: ^2.2.9
+    keycloak-js: ^20.0.1
+    lodash: ^4.17.21
+    lodash.throttle: ^4.1.1
+    moment: ^2.29.4
+    moment-timezone: ^0.5.38
+    react: ^18.2.0
+    react-datepicker: ^4.8.0
+    react-dom: ^18.2.0
+    react-icons: ^4.6.0
+    react-inlinesvg: ^3.0.1
+    react-router-dom: ^6.4.3
+    react-table: ^7.8.0
+    react-toastify: ^9.1.1
+    react-tooltip: ^4.5.0
+    styled-components: ^5.3.6
+    tno-core: 0.0.196
+  checksum: b6bd688dde99f93384bbc70dc07be32c0729c8259fe71fff7f8f6c105a740f5bf0227d04084a07be0618324500511d09d8dcd0a3f651c19590254d5d6fb7fff8
   languageName: node
   linkType: hard
 
