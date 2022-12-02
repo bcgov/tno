@@ -141,11 +141,9 @@ public class CssHelper : ICssHelper
 
             // Fetch the roles for the user
             var userRoles = await _cssService.GetRolesForUserAsync(key);
+            if (userRoles.Users.Length > 1) throw new NotAuthorizedException($"Keycloak has multiple users with the same username '{key}'");
             if (user == null)
             {
-                var kUser = userRoles.Users.FirstOrDefault() ?? throw new NotAuthorizedException("The user does not exist in keycloak");
-                if (userRoles.Users.Count() > 1) throw new NotAuthorizedException($"Keycloak has multiple users with the same username '{key}'");
-
                 // Add the user to the database.
                 user = _userService.AddAndSave(new Entities.User(username, email, key)
                 {
@@ -200,7 +198,7 @@ public class CssHelper : ICssHelper
     public async Task<string[]> UpdateUserRolesAsync(string username, string[] roles)
     {
         var userRoles = await _cssService.GetRolesForUserAsync(username);
-        if (userRoles.Users.Length == 0) throw new InvalidOperationException($"User '{username}' does not exist");
+        if (userRoles.Users.Length == 0) return Array.Empty<string>();
         else if (userRoles.Users.Length > 1) throw new InvalidOperationException($"There is more than one user with this username '{username}'");
 
         // Only update roles that exist in keycloak.

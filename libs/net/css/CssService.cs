@@ -178,7 +178,7 @@ public class CssService : ICssService
     public async Task<UserRoleResponseModel> GetRolesForUserAsync(int integrationId, string environment, string username)
     {
         var response = await this.Client.GetAsync(new Uri(this.Client.ClientOptions.ApiUrl, $"{BASE_URL}/integrations/{integrationId}/{environment}/user-role-mappings?username={HttpUtility.UrlEncode(username)}"));
-        return await response.HandleResponseAsync<UserRoleResponseModel>();
+        return await response.HandleResponseAsync<UserRoleResponseModel?>() ?? new UserRoleResponseModel();
     }
 
     public async Task<UserRoleResponseModel> GetUsersForRoleAsync(int integrationId, string environment, string role)

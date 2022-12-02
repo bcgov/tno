@@ -46,6 +46,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
     <styled.ToggleGroup>
       {options?.map((option) => (
         <button
+          key={option.label}
           className={`toggle-item ${activeToggle === option.label.toLowerCase() ? 'active' : ''}`}
           onClick={() => {
             setActiveToggle(option.label.toLowerCase());
@@ -63,6 +64,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
                 <Col>
                   {option.dropDownOptions?.map((x) => (
                     <div
+                      key={x.value}
                       className="dd-item"
                       onClick={() => {
                         option.onClick && typeof x.value === 'number' && option.onClick(x.value);

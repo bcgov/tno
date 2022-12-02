@@ -31,7 +31,7 @@ namespace TNO.CSS.Extensions
                         using var responseStream = await response.Content.ReadAsStreamAsync();
                         var result = await responseStream.DeserializeAsync<T>();
                         if (result != null) return result;
-                        else if (Nullable.GetUnderlyingType(typeof(T)) != null)
+                        else if (typeof(T).IsNullable())
                         {
                             return default!;
                         }
@@ -43,7 +43,7 @@ namespace TNO.CSS.Extensions
                     }
                 }
 
-                if (Nullable.GetUnderlyingType(typeof(T)) != null)
+                if (typeof(T).IsNullable())
                 {
                     return default!;
                 }
@@ -56,7 +56,7 @@ namespace TNO.CSS.Extensions
                     // Keycloak returns 404s when an item doesn't exist instead of the correct 204...
                     // We will have to assume that all 404 are now item does not exist and should be returning a 204 instead.
                     // We will then return 'null'.
-                    if (Nullable.GetUnderlyingType(typeof(T)) != null)
+                    if (typeof(T).IsNullable())
                     {
                         return default!;
                     }
