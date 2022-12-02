@@ -13913,9 +13913,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.195":
-  version: 0.0.195
-  resolution: "tno-core@npm:0.0.195"
+"tno-core@npm:0.0.193":
+  version: 0.0.193
+  resolution: "tno-core@npm:0.0.193"
   dependencies:
     "@headlessui/react": ^1.7.4
     "@react-keycloak/web": ^3.4.0
@@ -13937,7 +13937,7 @@ __metadata:
     react-toastify: ^9.1.1
     react-tooltip: ^4.5.0
     styled-components: ^5.3.6
-  checksum: fad8d43bd2729a1c97f7798a808ad73826e633a285c4462c77b9e9f571afc71d3b0df10dcbfbce16ab71e6e32947e7ea4f26e2c8faeb9bde8206e68ebd89b096
+  checksum: 3431d46a9cde8642814633f0aa82a9f0d639ec84405e3168d9c655082f08b38da3a6d7391625cf75aef03430184fd240a7495572bc0b14ff89a816bb65a3bff2
   languageName: node
   linkType: hard
 
