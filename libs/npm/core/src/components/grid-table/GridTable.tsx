@@ -128,6 +128,10 @@ export interface IGridTableProps<T extends object = Record<string, unknown>> {
    * Event fires when selected rows changes.
    */
   onSelectedRowsChange?: (selectedRows: Row<T>[], instance: TableInstance<T>) => void;
+  /**
+   * Whether to add to infinite items - helps the system to determine whether to clear infinite list if filter is applied.
+   */
+  setAddToInfiniteItems?: (add: boolean) => void;
 }
 
 /**
@@ -157,6 +161,7 @@ export const GridTable = <T extends object>({
   onSelectedRowsChange,
   getRowId,
   infiniteScroll,
+  setAddToInfiniteItems,
 }: IGridTableProps<T>) => {
   const {
     showPaging = infiniteScroll ? false : true,
@@ -235,11 +240,14 @@ export const GridTable = <T extends object>({
       if (isLoading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && canNextPage) nextPage();
+        if (entries[0].isIntersecting && canNextPage) {
+          setAddToInfiniteItems && setAddToInfiniteItems(true);
+          nextPage();
+        }
       });
       if (node) observer.current.observe(node);
     },
-    [isLoading, canNextPage, setPageSize, currentPage.pageSize],
+    [isLoading, canNextPage, setAddToInfiniteItems, nextPage],
   );
 
   React.useEffect(() => {

@@ -22,8 +22,15 @@ export const PagedTable = <CT extends object = Record<string, unknown>>({
   ...rest
 }: IPagedTableProps<CT>) => {
   const [items, setItems] = React.useState<CT[]>(page.items);
+  const [addToInfiniteItems, setAddToInfiniteItems] = React.useState<boolean>(false);
   React.useEffect(() => {
-    infiniteScroll && setItems(items.concat(page.items));
+    if (addToInfiniteItems) {
+      setItems((prevItems) => prevItems.concat(page.items));
+      setAddToInfiniteItems(false);
+    } else {
+      // we don't want stale items when user changes sorting or filter from something other than scrolling
+      setItems(page.items);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page.items]);
   return (
