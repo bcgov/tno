@@ -37,7 +37,7 @@ export const LicenseList: React.FC = () => {
           <IconButton
             iconType="plus"
             label={`Add new licence`}
-            onClick={() => navigate(`/admin/licenses/0`)}
+            onClick={() => navigate(`/admin/licences/0`)}
           />
         </Row>
         <GridTable
