@@ -103,10 +103,8 @@ export const ContentListView: React.FC = () => {
         <ContentToolBar onSearch={fetch} />
 
         <Row className="top-pane">
-          {/* <ContentFilter onSearch={fetch} /> */}
           <Row className="content-list">
             <PagedTable
-              infiniteScroll
               columns={columns}
               page={page}
               isLoading={loading}
