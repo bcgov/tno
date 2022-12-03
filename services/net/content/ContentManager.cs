@@ -221,7 +221,7 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <exception cref="InvalidOperationException"></exception>
     private async Task HandleMessageAsync(ConsumeResult<string, SourceContent> result)
     {
-        this.Logger.LogInformation("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
+        this.Logger.LogDebug("Importing Content from Topic: {topic}, Uid: {key}", result.Topic, result.Message.Key);
         var model = result.Message.Value;
 
         // Only add if doesn't already exist.
@@ -257,13 +257,13 @@ public class ContentManager : ServiceManager<ContentOptions>
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
             };
-            content = await this.Api.AddContentAsync(content);
-            this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content?.Id, content?.PublishedOn);
+            content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
+            this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
 
             var isUploadSuccess = true;
-            
+
             // Upload the file to the API.
-            if (content != null && !String.IsNullOrWhiteSpace(model.FilePath))
+            if (!String.IsNullOrWhiteSpace(model.FilePath))
             {
                 // A service needs to know it's context so that it can import files.
                 // Default to the service data location if the source model does not specify.
@@ -294,29 +294,27 @@ public class ContentManager : ServiceManager<ContentOptions>
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.LogError(ex, $"Exception while uploading the file [{model.FilePath}] to the API.");
+                    this.Logger.LogError(ex, "Exception while uploading the file '{path}' to the API.", model.FilePath);
                     isUploadSuccess = false;
                 }
             }
 
-            if (content != null)
+            // Update the status of the content reference.
+            var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
+            if (reference != null)
             {
-                // Update the status of the content reference.
-                var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
-                if (reference != null)
-                {
-                    reference.Status = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
-                    await this.Api.UpdateContentReferenceAsync(reference);
-                }
+                reference.Status = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
+                await this.Api.UpdateContentReferenceAsync(reference);
             }
+            else
+                this.Logger.LogWarning("Content reference is missing {source}:{uid}", content.OtherSource, content.Uid);
 
             if (!isUploadSuccess) return;
         }
         else
         {
-            // TODO: Not sure if this should be considered a failure or not.
-            // Content shouldn't exist already, it indicates unexpected scenario.
-            this.Logger.LogWarning("Content already exists. Content Source: {Source}, UID: {Uid}", model.Source, model.Uid);
+            // TODO: Content could be updated by source, however this could overwrite local editor changes.  Need a way to handle this.
+            this.Logger.LogWarning("Content already exists. Content Source: {source}, UID: {uid}", model.Source, model.Uid);
         }
 
         // Successful run clears any errors.

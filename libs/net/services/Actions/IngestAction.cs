@@ -1,13 +1,13 @@
 using System.Net;
 using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.API.Areas.Kafka.Models;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
-using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Entities;
 using TNO.Kafka.Models;
+using TNO.Models.Extensions;
 using TNO.Services.Actions.Managers;
 using TNO.Services.Config;
 
@@ -32,7 +32,8 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// </summary>
     /// <param name="api"></param>
     /// <param name="options"></param>
-    public IngestAction(IApiService api, IOptions<TOptions> options) : base(api, options)
+    /// <param name="logger"></param>
+    public IngestAction(IApiService api, IOptions<TOptions> options, ILogger<IngestAction<TOptions>> logger) : base(api, options, logger)
     {
     }
     #endregion
@@ -59,62 +60,58 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     }
 
     /// <summary>
-    /// Update the content reference with the Kafka position information.
-    /// Send AJAX request to api to update content reference.
-    /// This content reference has been successfully received by Kafka.
-    /// Handles optimistic concurrency issue resulting from a race condition with the Content Service.
+    /// Find the content reference for the specified 'source' and 'uid'.
     /// </summary>
-    /// <param name="reference"></param>
-    /// <param name="result"></param>
+    /// <param name="source"></param>
+    /// <param name="uid"></param>
     /// <returns></returns>
-    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, DeliveryResultModel<SourceContent>? result)
+    /// <exception cref="ArgumentException"></exception>
+    protected virtual async Task<ContentReferenceModel?> FindContentReferenceAsync(string? source, string? uid)
     {
-        if (result != null)
-        {
-            reference.Offset = result.Offset;
-            reference.Partition = result.Partition;
-        }
-        if (reference.Status != (int)WorkflowStatus.Imported)
-            reference.Status = (int)WorkflowStatus.Received;
-        return await UpdateContentReferenceAsync(reference);
+        if (String.IsNullOrWhiteSpace(source)) throw new ArgumentException($"Ingest is missing source code.");
+        if (String.IsNullOrWhiteSpace(uid)) throw new ArgumentException($"Ingest '{source}' is missing uid.");
+
+        return await this.Api.FindContentReferenceAsync(source, uid);
     }
 
     /// <summary>
     /// Send AJAX request to api to update content reference.
-    /// This content reference has been successfully received by Kafka.
-    /// Handles optimistic concurrency issue resulting from a race condition with the Content Service.
     /// </summary>
     /// <param name="reference"></param>
+    /// <param name="status"></param>
     /// <returns></returns>
-    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference)
+    protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel? reference, WorkflowStatus status = WorkflowStatus.InProgress)
     {
-        try
+        if (reference != null)
         {
-            return await this.Api.UpdateContentReferenceAsync(reference);
+            reference.Status = (int)status;
+            reference = await this.Api.UpdateContentReferenceAsync(reference);
         }
-        catch (HttpClientRequestException ex)
-        {
-            if (ex.Response != null && ex.Response.Content != null)
-            {
-                // The content service will often already have imported this content before we can update the content reference.
-                // TODO: Not certain if the body of the error will always contain `DbUpdateConcurrencyException`.
-                var body = await ex.Response.Content.ReadAsStringAsync();
-                if (ex.StatusCode == HttpStatusCode.BadRequest && body?.Contains("DbUpdateConcurrencyException") == true)
-                {
-                    var current = await this.Api.FindContentReferenceAsync(reference.Source, reference.Uid);
-                    if (current != null)
-                    {
-                        // Do not change the status if it has been imported.
-                        if (current.Status == (int)WorkflowStatus.Imported)
-                            reference.Status = (int)WorkflowStatus.Imported;
-                        reference.Version = current.Version;
-                        return await this.Api.UpdateContentReferenceAsync(reference);
-                    }
-                }
-            }
+        return reference;
+    }
 
-            throw;
+    /// <summary>
+    /// Send AJAX request to api to update content reference.
+    /// Sends message to Kafka with received source content.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="reference"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SourceContent? content)
+    {
+        if (reference != null)
+        {
+            reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.Received);
+            if (reference != null && manager.Ingest.PostToKafka() && content != null)
+            {
+                var result = await this.Api.SendMessageAsync(manager.Ingest.Topic, content) ?? throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
+                reference.Offset = result.Offset;
+                reference.Partition = result.Partition;
+                reference = await this.Api.UpdateContentReferenceKafkaAsync(reference);
+            }
         }
+        return reference;
     }
 
     /// <summary>

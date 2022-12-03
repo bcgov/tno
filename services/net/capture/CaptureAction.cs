@@ -57,7 +57,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
             var process = await GetProcessAsync(manager, schedule);
 
             var content = CreateContentReference(manager.Ingest, schedule);
-            var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
+            var reference = await this.FindContentReferenceAsync(content.Source, content.Uid);
 
             // Override the original action name based on the schedule.
             name = manager.VerifySchedule(schedule) ? "start" : "stop";
@@ -71,8 +71,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
                 else if (reference.Status != (int)WorkflowStatus.InProgress)
                 {
                     // Change back to in progress.
-                    reference.Status = (int)WorkflowStatus.InProgress;
-                    await this.Api.UpdateContentReferenceAsync(reference);
+                    reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                 }
 
                 // Do not wait for process to exit.
@@ -83,12 +82,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
             {
                 await StopProcessAsync(process, cancellationToken);
                 RemoveProcess(manager, schedule);
-
-                if (reference != null)
-                {
-                    var messageResult = manager.Ingest.PostToKafka() ? await SendMessageAsync(process, manager.Ingest, schedule, reference) : null;
-                    await UpdateContentReferenceAsync(reference, messageResult);
-                }
+                await this.ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
             }
         }
     }
@@ -135,8 +129,10 @@ public class CaptureAction : CommandAction<CaptureOptions>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<DeliveryResultModel<SourceContent>> SendMessageAsync(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
+    private SourceContent? CreateSourceContent(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel? reference)
     {
+        if (reference == null) return null;
+
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var file = (string)process.Data["filename"];
         var path = file.Replace(this.Options.VolumePath, "");
@@ -156,9 +152,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
             FilePath = path?.MakeRelativePath() ?? "",
             Language = ingest.GetConfigurationValue("language") ?? ""
         };
-        var result = await this.Api.SendMessageAsync(reference.Topic, content);
-        if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
-        return result;
+        return content;
     }
 
     /// <summary>

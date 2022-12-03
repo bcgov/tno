@@ -11,7 +11,6 @@ using TNO.Services.Image.Config;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
 using TNO.Core.Exceptions;
-using TNO.API.Areas.Kafka.Models;
 using System.Text.RegularExpressions;
 
 namespace TNO.Services.Image;
@@ -27,10 +26,6 @@ namespace TNO.Services.Image;
 public class ImageAction : IngestAction<ImageOptions>
 {
     #region Properties
-    /// <summary>
-    /// get - The logger.
-    /// </summary>
-    protected ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -40,9 +35,8 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ImageAction(IApiService api, IOptions<ImageOptions> options, ILogger<ImageAction> logger) : base(api, options)
+    public ImageAction(IApiService api, IOptions<ImageOptions> options, ILogger<ImageAction> logger) : base(api, options, logger)
     {
-        this.Logger = logger;
     }
     #endregion
 
@@ -97,28 +91,23 @@ public class ImageAction : IngestAction<ImageOptions>
 
             foreach (var file in files)
             {
-                var content = CreateContentReference(manager.Ingest, file.Name);
-                var reference = await this.Api.FindContentReferenceAsync(content.Source, content.Uid);
-
-                var sendMessage = manager.Ingest.PostToKafka();
+                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, file.Name);
                 if (reference == null)
                 {
-                    reference = await this.Api.AddContentReferenceAsync(content);
+                    reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, file.Name));
                 }
-                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(2) < DateTime.UtcNow)
+                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
                 {
                     // If another process has it in progress only attempt to do an import if it's
-                    // more than an 2 minutes old. Assumption is that it is stuck.
-                    reference = await this.Api.UpdateContentReferenceAsync(reference);
+                    // more than an 5 minutes old. Assumption is that it is stuck.
+                    await this.UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                 }
-                else sendMessage = false;
+                else reference = null;
 
                 if (reference != null)
                 {
                     await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
-
-                    var messageResult = sendMessage ? await SendMessageAsync(manager.Ingest, reference) : null;
-                    await UpdateContentReferenceAsync(reference, messageResult);
+                    await this.ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
                 }
             }
 
@@ -243,6 +232,7 @@ public class ImageAction : IngestAction<ImageOptions>
         }
         else
             publishedOn = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, today.Second, today.Kind);
+
         return new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
@@ -260,7 +250,7 @@ public class ImageAction : IngestAction<ImageOptions>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<DeliveryResultModel<SourceContent>> SendMessageAsync(IngestModel ingest, ContentReferenceModel reference)
+    private SourceContent? CreateSourceContent(IngestModel ingest, ContentReferenceModel reference)
     {
         var publishedOn = reference.PublishedOn ?? DateTime.UtcNow;
         var contentType = ingest.IngestType?.ContentType ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing ingest content type.");
@@ -280,9 +270,7 @@ public class ImageAction : IngestAction<ImageOptions>
                 .CombineWith($"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}/", reference.Uid),
             Language = ingest.GetConfigurationValue("language")
         };
-        var result = await this.Api.SendMessageAsync(reference.Topic, content);
-        if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
-        return result;
+        return content;
     }
 
     /// <summary>

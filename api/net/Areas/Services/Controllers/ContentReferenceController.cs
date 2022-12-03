@@ -54,9 +54,9 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult FindByKey(string source, [FromQuery] string uid)
     {
-        var result = _service.FindByKey(source, uid);
-        if (result == null) return new NoContentResult();
-        return new JsonResult(new ContentReferenceModel(result));
+        var reference = _service.FindByKey(source, uid);
+        if (reference == null) return new NoContentResult();
+        return new JsonResult(new ContentReferenceModel(reference));
     }
 
     /// <summary>
@@ -88,6 +88,26 @@ public class ContentReferenceController : ControllerBase
     public IActionResult Update(ContentReferenceModel model)
     {
         var result = _service.UpdateAndSave(model.ToEntity());
+        return new JsonResult(new ContentReferenceModel(result));
+    }
+
+    /// <summary>
+    /// Update content reference in database with Kafka information.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{source}/kafka")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ContentReference" })]
+    public IActionResult UpdateKafka(ContentReferenceModel model)
+    {
+        var reference = _service.FindByKey(model.Source, model.Uid);
+        if (reference == null) return new NoContentResult();
+        reference.Offset = model.Offset;
+        reference.Partition = model.Partition;
+        var result = _service.UpdateAndSave(reference);
         return new JsonResult(new ContentReferenceModel(result));
     }
     #endregion

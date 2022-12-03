@@ -122,6 +122,13 @@ public interface IApiService
     public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference);
 
     /// <summary>
+    /// Make an AJAX request to the api to update the specified content reference with Kafka information.
+    /// </summary>
+    /// <param name="contentReference"></param>
+    /// <returns></returns>
+    public Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference);
+
+    /// <summary>
     /// Make an AJAX request to the api to add the specified content.
     /// </summary>
     /// <param name="content"></param>

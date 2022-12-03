@@ -30,7 +30,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 {
     #region Variables
     private readonly IHttpRequestClient _httpClient;
-    private readonly ILogger _logger;
     #endregion
 
     #region Properties
@@ -44,10 +43,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public SyndicationAction(IHttpRequestClient httpClient, IApiService api, IOptions<SyndicationOptions> options, ILogger<SyndicationAction> logger) : base(api, options)
+    public SyndicationAction(IHttpRequestClient httpClient, IApiService api, IOptions<SyndicationOptions> options, ILogger<SyndicationAction> logger) : base(api, options, logger)
     {
         _httpClient = httpClient;
-        _logger = logger;
     }
     #endregion
 
@@ -62,7 +60,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     public override async Task PerformActionAsync<T>(IIngestServiceActionManager manager, string? name = null, T? data = null, CancellationToken cancellationToken = default) where T : class
     {
-        _logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
+        this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
         var url = GetUrl(manager.Ingest);
 
         var feed = await GetFeedAsync(url, manager);
@@ -89,39 +87,30 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (String.IsNullOrWhiteSpace(item.Id)) item.Id = link?.ToString() ?? throw new InvalidOperationException("Feed item requires a valid 'Id' or 'Link'.");
 
                 // Fetch content reference.
-                var reference = await this.Api.FindContentReferenceAsync(manager.Ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{manager.Ingest.Name}' is missing source code."), item.Id);
-                var sendMessage = manager.Ingest.PostToKafka();
+                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, item.Id);
                 if (reference == null)
                 {
-                    await FetchContent(manager.Ingest, item, link);
                     reference = await AddContentReferenceAsync(manager.Ingest, item);
+                    await FetchContent(manager.Ingest, item, link);
                 }
                 else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (reference.Status != (int)WorkflowStatus.InProgress && item.PublishDate != DateTime.MinValue && reference.UpdatedOn != item.PublishDate.UtcDateTime))
+                        (reference.Status != (int)WorkflowStatus.InProgress
+                            && item.PublishDate != DateTime.MinValue
+                            && (reference.PublishedOn != item.PublishDate.UtcDateTime
+                                || reference.SourceUpdateOn != item.LastUpdatedTime.UtcDateTime)))
                 {
-                    _logger.LogDebug("Updating existing content '{name}':{id}", manager.Ingest.Name, item.Id);
                     // TODO: verify a hash of the content to ensure it has changed. This may be slow
                     // however, but would ensure the content was physically updated.
 
                     // If another process has it in progress only attempt to do an import if it's
                     // more than an hour old. Assumption is that it is stuck.
+                    this.Logger.LogWarning("Updating content {source}:{uid}", reference.Source, reference.Uid);
+                    reference = await this.UpdateContentReferenceAsync(reference, item);
                     await FetchContent(manager.Ingest, item, link);
-                    reference = await UpdateContentReferenceAsync(reference, item);
                 }
-                else sendMessage = false;
+                else reference = null;
 
-                // Only send a message to Kafka if this process added/updated the content reference.
-                if (reference != null && sendMessage)
-                {
-                    // Send item to Kafka.
-                    var result = await this.Api.SendMessageAsync(manager.Ingest.Topic, CreateSourceContent(manager.Ingest, item));
-
-                    // Update content reference with Kafka response.
-                    if (result != null)
-                    {
-                        await UpdateContentReferenceAsync(reference, item);
-                    }
-                }
+                await ContentReceivedAsync(manager, reference, item);
             }
             catch (Exception ex)
             {
@@ -129,7 +118,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
                     throw;
 
-                _logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
+                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
                 await manager.RecordFailureAsync();
             }
         }
@@ -298,7 +287,25 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     {
         reference.PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
         reference.SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
-        return await UpdateContentReferenceAsync(reference);
+        return await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+    }
+
+    /// <summary>
+    /// Send AJAX request to api to update content reference.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="reference"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    private async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SyndicationItem item)
+    {
+        if (reference != null)
+        {
+            reference.PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
+            reference.SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
+            return await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, item));
+        }
+        return reference;
     }
 
     /// <summary>
@@ -327,7 +334,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
+            this.Logger.LogInformation(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
 
             var settings = new XmlReaderSettings()
             {

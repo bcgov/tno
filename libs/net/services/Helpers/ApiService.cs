@@ -224,6 +224,17 @@ public class ApiService : IApiService
         var url = _options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         return await _client.PutAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference));
     }
+
+    /// <summary>
+    /// Make an AJAX request to the api to update the specified content reference with Kafka information.
+    /// </summary>
+    /// <param name="contentReference"></param>
+    /// <returns></returns>
+    public async Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference)
+    {
+        var url = _options.ApiUrl.Append($"services/content/references/{contentReference.Source}/kafka?uid={contentReference.Uid}");
+        return await _client.PutAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference));
+    }
     #endregion
 
     #region Content Methods
