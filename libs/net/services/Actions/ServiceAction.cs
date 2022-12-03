@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Config;
 
@@ -23,6 +24,11 @@ public abstract class ServiceAction<TOptions> : IServiceAction<TOptions>
     /// get - The ingest configuration options.
     /// </summary>
     public TOptions Options { get; private set; }
+
+    /// <summary>
+    /// get/set - Logger.
+    /// </summary>
+    protected ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -31,10 +37,12 @@ public abstract class ServiceAction<TOptions> : IServiceAction<TOptions>
     /// </summary>
     /// <param name="api"></param>
     /// <param name="options"></param>
-    public ServiceAction(IApiService api, IOptions<TOptions> options)
+    /// <param name="logger"></param>
+    public ServiceAction(IApiService api, IOptions<TOptions> options, ILogger<ServiceAction<TOptions>> logger)
     {
         this.Api = api;
         this.Options = options.Value;
+        this.Logger = logger;
     }
     #endregion
 

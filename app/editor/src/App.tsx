@@ -31,7 +31,7 @@ function App() {
           initOptions={{ pkceMethod: 'S256', checkLoginIframe: false }}
           authClient={keycloak!}
           LoadingComponent={
-            <LayoutAnonymous name={'KEYCLOAK LOADING'}>
+            <LayoutAnonymous name={appName}>
               <Loading />
             </LayoutAnonymous>
           }

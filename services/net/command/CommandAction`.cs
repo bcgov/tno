@@ -16,10 +16,6 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     where TOptions : CommandOptions
 {
     #region Properties
-    /// <summary>
-    /// get - The logger for the command action.
-    /// </summary>
-    public ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -29,9 +25,8 @@ public abstract class CommandAction<TOptions> : IngestAction<TOptions>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public CommandAction(IApiService api, IOptions<TOptions> options, ILogger<CommandAction<TOptions>> logger) : base(api, options)
+    public CommandAction(IApiService api, IOptions<TOptions> options, ILogger<CommandAction<TOptions>> logger) : base(api, options, logger)
     {
-        this.Logger = logger;
     }
     #endregion
 

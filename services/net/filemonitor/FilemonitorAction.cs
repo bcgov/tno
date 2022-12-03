@@ -25,10 +25,6 @@ namespace TNO.Services.FileMonitor;
 public class FileMonitorAction : IngestAction<FileMonitorOptions>
 {
     #region Properties
-    /// <summary>
-    /// get - The logger for the command action.
-    /// </summary>
-    public ILogger Logger { get; private set; }
     #endregion
 
     #region Constructors
@@ -38,9 +34,8 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public FileMonitorAction(IApiService api, IOptions<FileMonitorOptions> options, ILogger<FileMonitorAction> logger) : base(api, options)
+    public FileMonitorAction(IApiService api, IOptions<FileMonitorOptions> options, ILogger<FileMonitorAction> logger) : base(api, options, logger)
     {
-        this.Logger = logger;
     }
     #endregion
 
@@ -232,42 +227,28 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// Informs API of content reference status.
     /// </summary>
     /// <param name="manager"></param>
-    /// <param name="item"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
-    private async Task ImportArticleAsync(IIngestServiceActionManager manager, SourceContent item)
+    private async Task ImportArticleAsync(IIngestServiceActionManager manager, SourceContent content)
     {
         try
         {
             // Fetch content reference.
-            var reference = await this.Api.FindContentReferenceAsync(manager.Ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{manager.Ingest.Name}' is missing source code."), item.Uid);
-            var sendMessage = true;
-
+            var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, content.Uid);
             if (reference == null)
             {
-                reference = await AddContentReferenceAsync(manager.Ingest, item);
+                reference = await AddContentReferenceAsync(manager.Ingest, content);
             }
-            else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                    (reference.Status != (int)WorkflowStatus.InProgress && reference.UpdatedOn != item.PublishedOn))
+            else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow) ||
+                    (reference.Status != (int)WorkflowStatus.InProgress && reference.PublishedOn != content.PublishedOn))
             {
-                // TODO: verify a hash of the content to ensure it has changed. This may be slow
-                // however, but would ensure the content was physically updated.
-
                 // If another process has it in progress only attempt to do an import if it's
                 // more than an hour old. Assumption is that it is stuck.
-                reference = await UpdateContentReferenceAsync(reference, item);
-                sendMessage = false;
+                reference.PublishedOn = content.PublishedOn;
             }
-            else sendMessage = false;
+            else reference = null;
 
-            // Only send a message to Kafka if this process added/updated the content reference.
-            if (sendMessage && reference != null)
-            {
-                // Send item to Kafka.
-                var result = await this.Api.SendMessageAsync(manager.Ingest.Topic, item);
-
-                // Update content reference with Kafka response.
-                await UpdateContentReferenceAsync(reference, item);
-            }
+            await this.ContentReceivedAsync(manager, reference, content);
         }
         catch (Exception ex)
         {
@@ -284,35 +265,22 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// Send AJAX request to api to add content reference.
     /// </summary>
     /// <param name="ingest"></param>
-    /// <param name="item"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SourceContent item)
+    private async Task<ContentReferenceModel?> AddContentReferenceAsync(IngestModel ingest, SourceContent content)
     {
         // Add a content reference record.
         var model = new ContentReferenceModel()
         {
             Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
-            Uid = item.Uid,
+            Uid = content.Uid,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            PublishedOn = item.PublishedOn
+            PublishedOn = content.PublishedOn
         };
 
         return await this.Api.AddContentReferenceAsync(model);
-    }
-
-    /// <summary>
-    /// Send AJAX request to api to update content reference.
-    /// </summary>
-    /// <param name="reference"></param>
-    /// <param name="item"></param>
-    /// <returns></returns>
-    private async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, SourceContent item)
-    {
-        reference.PublishedOn = item.PublishedOn != DateTime.MinValue ? item.PublishedOn : null;
-        //reference.SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
-        return await this.Api.UpdateContentReferenceAsync(reference);
     }
 
     /// <summary>

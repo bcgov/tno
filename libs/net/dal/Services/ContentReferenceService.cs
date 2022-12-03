@@ -86,6 +86,12 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         return entity;
     }
 
+    /// <summary>
+    /// Update and save the content reference in the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
     public override ContentReference UpdateAndSave(ContentReference entity)
     {
         var original = FindByKey(entity.Source, entity.Uid) ?? throw new InvalidOperationException("Entity does not exist");
