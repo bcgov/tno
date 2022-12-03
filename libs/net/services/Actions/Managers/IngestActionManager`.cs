@@ -13,10 +13,6 @@ namespace TNO.Services.Actions.Managers;
 public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIngestServiceActionManager
     where TOptions : IngestServiceOptions
 {
-    #region Variables
-    private readonly IApiService _api;
-    #endregion
-
     #region Properties
     /// <summary>
     /// get - The ingest managed by this object.
@@ -27,6 +23,11 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     /// get - A dictionary of values that can be stored with this manager.
     /// </summary>
     public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// get - The API service.
+    /// </summary>
+    protected IApiService Api { get; private set; }
     #endregion
 
     #region Constructors
@@ -41,7 +42,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
         : base(action, options)
     {
         this.Ingest = ingest;
-        _api = api;
+        this.Api = api;
     }
     #endregion
 
@@ -54,7 +55,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     protected override async Task<bool> PreRunAsync()
     {
         // Always fetch the latest version of the ingest and update this manager with it.
-        var ingest = await _api.GetIngestAsync(this.Ingest.Id);
+        var ingest = await this.Api.HandleRequestFailure(async () => await this.Api.GetIngestAsync(this.Ingest.Id), this.Options.ReuseIngests, this.Ingest);
         if (ingest != null)
             this.Ingest = ingest;
 
@@ -98,7 +99,7 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
-        return await _api.UpdateIngestAsync(this.Ingest) ?? this.Ingest;
+        return await this.Api.UpdateIngestAsync(this.Ingest) ?? this.Ingest;
     }
 
     /// <summary>

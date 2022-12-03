@@ -21,6 +21,13 @@ public class IngestServiceOptions : ServiceOptions
     /// This provides context information for content that is stored on local volumes.
     /// </summary>
     public string DataLocation { get; set; } = "";
+
+    /// <summary>
+    /// get/set - If requests to the API fails to return new ingest, continue and reuse currently configured ingests.
+    /// This is helpful to keep the service running even when the API fails.
+    /// The goal is that the service will continue to perform part of its work even if it cannot communicate with the API.
+    /// </summary>
+    public bool ReuseIngests { get; set; } = false;
     #endregion
 
     #region Methods

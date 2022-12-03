@@ -22,7 +22,7 @@ public class ServiceState
     /// <summary>
     /// get - Maximum number of retries after a failure.
     /// </summary>
-    public int MaxRetryLimit { get; private set; } = 3;
+    public int MaxFailureLimit { get; private set; } = 3;
     #endregion
 
     #region Constructors
@@ -32,7 +32,7 @@ public class ServiceState
     /// <param name="options"></param>
     public ServiceState(ServiceOptions options)
     {
-        this.MaxRetryLimit = options.MaxRetryLimit;
+        this.MaxFailureLimit = options.MaxFailureLimit;
     }
     #endregion
 
@@ -45,7 +45,7 @@ public class ServiceState
     {
         this.Failures++;
 
-        if (this.Failures >= this.MaxRetryLimit) this.Status = ServiceStatus.RequestSleep;
+        if (this.Failures >= this.MaxFailureLimit) this.Status = ServiceStatus.RequestSleep;
         return this.Failures;
     }
 

@@ -10,14 +10,14 @@ public class ServiceStateTest
         // Arrange
         var options = new ServiceOptions()
         {
-            MaxRetryLimit = 10
+            MaxFailureLimit = 10
         };
 
         // Act
         var state = new ServiceState(options);
 
         // Assert
-        Assert.Equal(options.MaxRetryLimit, state.MaxRetryLimit);
+        Assert.Equal(options.MaxFailureLimit, state.MaxFailureLimit);
         Assert.Equal(0, state.Failures);
         Assert.Equal(ServiceStatus.Running, state.Status);
     }
@@ -37,17 +37,17 @@ public class ServiceStateTest
     }
 
     [Fact]
-    public void RecordFailure_ToMaxRetryLimit()
+    public void RecordFailure_ToMaxFailureLimit()
     {
         // Arrange
         var state = new ServiceState(new ServiceOptions());
 
         // Act
-        while (state.Failures < state.MaxRetryLimit)
+        while (state.Failures < state.MaxFailureLimit)
             state.RecordFailure();
 
         // Assert
-        Assert.Equal(state.MaxRetryLimit, state.Failures);
+        Assert.Equal(state.MaxFailureLimit, state.Failures);
         Assert.Equal(ServiceStatus.RequestSleep, state.Status);
     }
 

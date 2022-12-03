@@ -26,12 +26,6 @@ public class ContentOptions : ServiceOptions
     public string VolumePath { get; set; } = "";
 
     /// <summary>
-    /// get/set - The number of attempts to retry a failed import.
-    /// A retry that ultimately fails will still only count as a single failure for the service.
-    /// </summary>
-    public int RetryLimit { get; set; } = 3;
-
-    /// <summary>
     /// get/set - The data location this service is being run in.
     /// This provides context information for content that is stored on local volumes.
     /// </summary>
