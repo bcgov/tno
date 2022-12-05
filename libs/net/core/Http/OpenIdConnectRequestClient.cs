@@ -70,8 +70,8 @@ namespace TNO.Core.Http
 
             if (response.IsSuccessStatusCode)
             {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                return await responseStream.DeserializeAsync<Models.OpenIdConnectModel>();
+                var body = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Models.OpenIdConnectModel>(body, _serializeOptions);
             }
             else
             {
@@ -117,8 +117,8 @@ namespace TNO.Core.Http
             // Extract the JWT token to use when making the request.
             if (response.IsSuccessStatusCode)
             {
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                _accessToken = await responseStream.DeserializeAsync<Models.TokenModel>();
+                var body = await response.Content.ReadAsStringAsync();
+                _accessToken = JsonSerializer.Deserialize<Models.TokenModel>(body, _serializeOptions);
                 return $"Bearer {_accessToken?.AccessToken}";
             }
             else
