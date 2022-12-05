@@ -95,9 +95,10 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 }
                 else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
                         (reference.Status != (int)WorkflowStatus.InProgress
-                            && item.PublishDate != DateTime.MinValue
+                            && item.PublishDate.UtcDateTime != DateTime.MinValue
                             && (reference.PublishedOn != item.PublishDate.UtcDateTime
-                                || reference.SourceUpdateOn != item.LastUpdatedTime.UtcDateTime)))
+                                || (item.LastUpdatedTime.UtcDateTime != DateTime.MinValue
+                                    && reference.SourceUpdateOn != item.LastUpdatedTime.UtcDateTime))))
                 {
                     // TODO: verify a hash of the content to ensure it has changed. This may be slow
                     // however, but would ensure the content was physically updated.
@@ -272,8 +273,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             Uid = item.Id,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,
-            PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null,
-            SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
+            PublishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : null,
+            SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null,
         });
     }
 
@@ -285,8 +286,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     /// <returns></returns>
     private async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel reference, SyndicationItem item)
     {
-        reference.PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
-        reference.SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
+        reference.PublishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
+        reference.SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
         return await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
     }
 
@@ -301,8 +302,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     {
         if (reference != null)
         {
-            reference.PublishedOn = item.PublishDate != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
-            reference.SourceUpdateOn = item.LastUpdatedTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
+            reference.PublishedOn = item.PublishDate.UtcDateTime != DateTime.MinValue ? item.PublishDate.UtcDateTime : null;
+            reference.SourceUpdateOn = item.LastUpdatedTime.UtcDateTime != DateTime.MinValue ? item.LastUpdatedTime.UtcDateTime : null;
             return await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, item));
         }
         return reference;
