@@ -451,6 +451,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               props.setFieldValue('otherSource', source?.code ?? '');
                               if (!!source) {
                                 props.setFieldValue('licenseId', source.licenseId);
+                                props.setFieldValue('productId', source.productId);
                               }
                             }
                           }}
