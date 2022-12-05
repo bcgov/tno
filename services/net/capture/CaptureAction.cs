@@ -9,7 +9,6 @@ using TNO.Kafka.Models;
 using TNO.Services.Capture.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
-using TNO.API.Areas.Kafka.Models;
 using TNO.Core.Exceptions;
 
 namespace TNO.Services.Capture;

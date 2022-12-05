@@ -4,7 +4,6 @@ using TNO.Services.Managers;
 using TNO.Services.Capture.Config;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Models.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace TNO.Services.Capture;
 

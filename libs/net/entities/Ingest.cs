@@ -109,7 +109,7 @@ public class Ingest : AuditColumns
     public string Configuration { get; set; } = "{}";
 
     /// <summary>
-    /// get/set - Maximum number of attempts after a failure.
+    /// get/set - Maximum number of failures before stopping.
     /// </summary>
     [Column("retry_limit")]
     public int RetryLimit { get; set; }
@@ -147,8 +147,22 @@ public class Ingest : AuditColumns
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of an Ingest object.
+    /// </summary>
     protected Ingest() { }
 
+    /// <summary>
+    /// Creates a new instance of an Ingest object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="source"></param>
+    /// <param name="ingestType"></param>
+    /// <param name="product"></param>
+    /// <param name="sourceConnection"></param>
+    /// <param name="destinationConnection"></param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
     public Ingest(string name, Source source, IngestType ingestType, Product product, Connection sourceConnection, Connection destinationConnection)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
@@ -166,8 +180,20 @@ public class Ingest : AuditColumns
         this.DestinationConnectionId = destinationConnection?.Id ?? throw new ArgumentNullException(nameof(destinationConnection));
         this.DestinationConnection = destinationConnection;
         this.ScheduleType = ScheduleType.None;
+        this.RetryLimit = 3;
     }
 
+    /// <summary>
+    /// Creates a new instance of an Ingest object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="topic"></param>
+    /// <param name="sourceId"></param>
+    /// <param name="ingestTypeId"></param>
+    /// <param name="productId"></param>
+    /// <param name="sourceConnectionId"></param>
+    /// <param name="destinationConnectionId"></param>
+    /// <exception cref="ArgumentException"></exception>
     public Ingest(string name, string topic, int sourceId, int ingestTypeId, int productId, int sourceConnectionId, int destinationConnectionId)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
@@ -181,8 +207,20 @@ public class Ingest : AuditColumns
         this.SourceConnectionId = sourceConnectionId;
         this.DestinationConnectionId = destinationConnectionId;
         this.ScheduleType = ScheduleType.None;
+        this.RetryLimit = 3;
     }
 
+    /// <summary>
+    /// Creates a new instance of an Ingest object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="topic"></param>
+    /// <param name="sourceId"></param>
+    /// <param name="ingestTypeId"></param>
+    /// <param name="productId"></param>
+    /// <param name="sourceConnectionId"></param>
+    /// <param name="destinationConnectionId"></param>
+    /// <param name="scheduleType"></param>
     public Ingest(string name, string topic, int sourceId, int ingestTypeId, int productId, int sourceConnectionId, int destinationConnectionId, ScheduleType scheduleType)
         : this(name, topic, sourceId, ingestTypeId, productId, sourceConnectionId, destinationConnectionId)
     {

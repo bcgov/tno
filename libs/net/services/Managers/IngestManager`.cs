@@ -20,6 +20,10 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     #endregion
 
     #region Properties
+    /// <summary>
+    /// get - A collection of ingest configurations currently being run.
+    /// </summary>
+    protected List<IngestModel> Ingests { get; private set; } = new List<IngestModel>();
     #endregion
 
     #region Constructors
@@ -51,10 +55,10 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     /// <returns></returns>
     public override async Task RunAsync()
     {
-        var ingests = await GetIngestsAsync();
+        this.Ingests.AddRange(await GetIngestsAsync());
 
         // Run at the shortest interval of all schedules.
-        var delay = ingests.Min(ds => ds.IngestSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? this.Options.DefaultDelayMS;
+        var delay = this.Ingests.Min(ds => ds.IngestSchedules.Where(s => s.Schedule?.DelayMS != 0).Min(s => s.Schedule?.DelayMS)) ?? this.Options.DefaultDelayMS;
         if (delay == 0) delay = this.Options.DefaultDelayMS;
 
         // Always keep looping until an unexpected failure occurs.
@@ -65,14 +69,14 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             {
                 this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
             }
-            else if (!ingests.Any(ds => ds.IsEnabled))
+            else if (!this.Ingests.Any(ds => ds.IsEnabled))
             {
                 // If there are no ingests, then we need to keep the service alive.
                 this.Logger.LogWarning("There are no configured ingests for this data location");
             }
             else
             {
-                foreach (var ingest in ingests)
+                foreach (var ingest in this.Ingests)
                 {
                     // Update the delay if a schedule has changed and is less than the original value.
                     var delayMS = ingest.IngestSchedules.Where(s => s.Schedule?.DelayMS > 0).Min(s => s.Schedule?.DelayMS) ?? delay;
@@ -131,16 +135,17 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             // With a minimum delay for all ingest schedules, it could mean some ingests are pinged more often then required.
             // It could also result in a longer than planned delay if the action manager is awaited (currently it is).
             this.Logger.LogDebug("Service sleeping for {delay:n0} ms", delay);
-            // await Thread.Sleep(new TimeSpan(0, 0, 0, delay));
             await Task.Delay(delay);
 
             // Fetch all ingests again to determine if there are any changes to the list.
-            ingests = await GetIngestsAsync();
+            var ingests = await GetIngestsAsync();
+            this.Ingests.Clear();
+            this.Ingests.AddRange(ingests);
         }
     }
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch ingests for the configured ingest types.
+    /// Make an HTTP request to the api to fetch ingests for the configured ingest types.
     /// </summary>
     /// <returns></returns>
     public virtual async Task<IEnumerable<IngestModel>> GetIngestsAsync()
@@ -153,7 +158,10 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                 // If the service isn't running, don't make additional requests.
                 if (this.State.Status == ServiceStatus.Paused || this.State.Status == ServiceStatus.Sleeping) continue;
 
-                var results = await this.Api.GetIngestsForIngestTypeAsync(ingestType);
+                var results = await this.Api.HandleRequestFailure<IEnumerable<IngestModel>>(
+                    async () => await this.Api.GetIngestsForIngestTypeAsync(ingestType),
+                    this.Options.ReuseIngests,
+                    this.Ingests.Where(i => i.IngestType?.Name == ingestType).ToArray());
                 // Only add the ingest configured for this data location.
                 ingests.AddRange(results.Where(i => i.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())));
             }
@@ -165,6 +173,29 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         }
 
         return ingests;
+    }
+
+    /// <summary>
+    /// Make an HTTP request to the api to fetch ingests for the configured ingest type.
+    /// If the API fails it will configured to use the existing ingests if configured to do so.
+    /// </summary>
+    /// <param name="ingestType"></param>
+    /// <returns></returns>
+    protected virtual async Task<IEnumerable<IngestModel>> GetOrReuseIngestsAsync(string ingestType)
+    {
+        try
+        {
+            return await this.Api.GetIngestsForIngestTypeAsync(ingestType);
+        }
+        catch (Exception ex)
+        {
+            // If configured to reuse existing ingests it will ignore the error and continue running.
+            if (!this.Options.ReuseIngests)
+                throw;
+
+            this.Logger.LogError(ex, "Ignoring error and reusing existing ingests");
+            return this.Ingests.ToArray();
+        }
     }
     #endregion
 }

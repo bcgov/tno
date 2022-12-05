@@ -14,6 +14,10 @@ namespace TNO.Services;
 /// </summary>
 public interface IApiService
 {
+    #region Helper Methods
+    public Task<T> HandleRequestFailure<T>(Func<Task<T>> callbackDelegate, bool ignoreError, T defaultResponse);
+    #endregion
+
     #region Lookups
     /// <summary>
     /// Make an AJAX request to the api to get the lookups.
