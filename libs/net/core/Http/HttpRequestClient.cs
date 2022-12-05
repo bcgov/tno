@@ -16,7 +16,7 @@ namespace TNO.Core.Http
     public class HttpRequestClient : IHttpRequestClient
     {
         #region Variables
-        private readonly JsonSerializerOptions _serializeOptions;
+        protected readonly JsonSerializerOptions _serializeOptions;
         private readonly ILogger<HttpRequestClient> _logger;
         #endregion
 

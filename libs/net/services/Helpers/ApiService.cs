@@ -113,7 +113,7 @@ public class ApiService : IApiService
         }
         catch (Exception ex)
         {
-            if (this.Options.RetryLimit >= ++this.FailureCount)
+            if (this.Options.RetryLimit <= ++this.FailureCount)
             {
                 this.FailureCount = 0;
                 throw;
@@ -292,7 +292,8 @@ public class ApiService : IApiService
     public async Task<ContentReferenceModel?> AddContentReferenceAsync(ContentReferenceModel contentReference)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references");
-        return await RetryRequestAsync(async () => await this.Client.PostAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference)));
+        var content = JsonContent.Create(contentReference);
+        return await RetryRequestAsync(async () => await this.Client.PostAsync<ContentReferenceModel>(url, content));
     }
 
     /// <summary>
@@ -303,7 +304,8 @@ public class ApiService : IApiService
     public async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference)));
+        var content = JsonContent.Create(contentReference);
+        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentReferenceModel>(url, content));
     }
 
     /// <summary>
@@ -314,7 +316,8 @@ public class ApiService : IApiService
     public async Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}/kafka?uid={contentReference.Uid}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentReferenceModel>(url, JsonContent.Create(contentReference)));
+        var content = JsonContent.Create(contentReference);
+        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentReferenceModel>(url, content));
     }
     #endregion
 
