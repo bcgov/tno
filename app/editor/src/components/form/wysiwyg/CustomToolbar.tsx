@@ -1,11 +1,11 @@
 import { FaCode, FaExpandAlt, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
 import { TiDelete } from 'react-icons/ti';
-
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
   onClickFormatRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickClear: React.MouseEventHandler<HTMLButtonElement>;
+  innerRef: any;
 }
 
 /** Custom toolbar for the content WYSIWYG including ability to view HTML source and clear formatting */
@@ -14,8 +14,9 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
   onClickRemoveFormat,
   onClickFormatRaw,
   onClickClear,
+  innerRef,
 }) => (
-  <div id="toolbar" className="toolbar">
+  <div ref={innerRef} className="toolbar">
     <span className="ql-formats">
       <select className="ql-header" />
       <button className="ql-bold" />

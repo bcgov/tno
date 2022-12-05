@@ -1,3 +1,5 @@
+import 'react-quill/dist/quill.snow.css';
+
 import { useFormikContext } from 'formik';
 import { IContentModel } from 'hooks';
 import { html_beautify } from 'js-beautify';
@@ -28,6 +30,7 @@ export interface IWysiwygProps {
  */
 export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required }) => {
   const { values, setFieldValue, errors, touched } = useFormikContext<IContentModel>();
+  const [toolBarNode, setToolBarNode] = React.useState();
   const [{ tags }] = useLookup();
 
   const { id } = useParams();
@@ -85,12 +88,15 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
     }
   };
 
-  const modules = {
-    toolbar: {
-      container: '#toolbar',
-      handlers: {},
-    },
-  };
+  const modules = React.useMemo(() => {
+    const config = {
+      toolbar: {
+        container: toolBarNode,
+      },
+    };
+
+    return config;
+  }, [toolBarNode]);
 
   const formats = [
     'header',
@@ -117,29 +123,34 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
         onClickRemoveFormat={stripHtml}
         onClickFormatRaw={onClickFormatRaw}
         onClickClear={() => setState({ ...state, html: '', rawHtml: '' })}
+        innerRef={setToolBarNode}
       />
-      <ReactQuill
-        className="editor"
-        value={state.html}
-        onChange={handleChange}
-        theme="snow"
-        modules={modules}
-        formats={formats}
-        onBlur={() => {
-          const value = values[fieldName];
-          if (!!value && typeof value === 'string') {
-            const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
-            const tagValues = stringValue?.split(', ') ?? [];
-            const tags = extractTags(tagValues);
-            if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
-          }
-        }}
-      />
-      <textarea
-        className="raw-editor"
-        onChange={(e) => setState({ ...state, rawHtml: e.target.value })}
-        value={state.rawHtml}
-      />
+      {!!toolBarNode && (
+        <>
+          <ReactQuill
+            className="editor"
+            value={state.html}
+            onChange={handleChange}
+            theme="snow"
+            modules={modules}
+            formats={formats}
+            onBlur={() => {
+              const value = values[fieldName];
+              if (!!value && typeof value === 'string') {
+                const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
+                const tagValues = stringValue?.split(', ') ?? [];
+                const tags = extractTags(tagValues);
+                if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+              }
+            }}
+          />
+          <textarea
+            className="raw-editor"
+            onChange={(e) => setState({ ...state, rawHtml: e.target.value })}
+            value={state.rawHtml}
+          />
+        </>
+      )}
       <Error error={touched[fieldName] ? (errors[fieldName] as string) : ''} />
     </styled.Wysiwyg>
   );
