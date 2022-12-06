@@ -5,6 +5,7 @@ export interface ICustomToolbarProps {
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
   onClickFormatRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickClear: React.MouseEventHandler<HTMLButtonElement>;
+  onClickExpand: React.MouseEventHandler<HTMLButtonElement>;
   innerRef: any;
 }
 
@@ -14,6 +15,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
   onClickRemoveFormat,
   onClickFormatRaw,
   onClickClear,
+  onClickExpand,
   innerRef,
 }) => (
   <div ref={innerRef} className="toolbar">
@@ -48,7 +50,7 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
       <button className="ql-image"></button>
     </span>
     <span className="ql-formats">
-      <button>
+      <button type="button" onClick={onClickExpand}>
         <FaExpandAlt className="custom-icon" />
       </button>
       <button type="button" onClick={onClickClear}>

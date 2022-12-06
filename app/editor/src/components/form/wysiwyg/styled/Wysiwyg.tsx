@@ -7,6 +7,7 @@ interface IWysiwygProps {
 export const Wysiwyg = styled.div<IWysiwygProps>`
   margin-bottom: 1rem;
   margin-top: 1rem;
+  width: 100%;
   label {
     font-weight: bold;
   }
@@ -25,7 +26,7 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
   }
 
   .ql-editor {
-    min-height: 20rem;
+    min-height: 25rem;
     p {
       font-family: ${(props) => props.theme.css?.bcSans};
       font-size: 1rem;

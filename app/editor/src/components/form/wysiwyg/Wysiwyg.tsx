@@ -20,6 +20,7 @@ export interface IWysiwygProps {
   label?: string;
   /** whether or not it is a required field */
   required?: boolean;
+  expandModal?: (show: boolean) => void;
 }
 /**
  * A WYSIWYG editor for the content summary form
@@ -28,7 +29,7 @@ export interface IWysiwygProps {
  * @param required Whether or not the field is required
  * @returns A WYSIWYG editor for the content summary form
  */
-export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required }) => {
+export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, expandModal }) => {
   const { values, setFieldValue, errors, touched } = useFormikContext<IContentModel>();
   const [toolBarNode, setToolBarNode] = React.useState();
   const [{ tags }] = useLookup();
@@ -123,6 +124,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required })
         onClickRemoveFormat={stripHtml}
         onClickFormatRaw={onClickFormatRaw}
         onClickClear={() => setState({ ...state, html: '', rawHtml: '' })}
+        onClickExpand={() => {
+          if (expandModal) expandModal(true);
+        }}
         innerRef={setToolBarNode}
       />
       {!!toolBarNode && (
