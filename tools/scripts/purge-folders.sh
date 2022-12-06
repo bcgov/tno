@@ -14,7 +14,7 @@ delete_folder () {
 
   if [ "$FOLDER_S" -le "$DELETE_S" ]; then
     echo "DELETE $1"
-    rm -rf $d
+    rm -rf $1
   fi
 }
 export -f delete_folder

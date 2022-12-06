@@ -8,6 +8,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.WorkOrder;
 using TNO.API.Config;
 using TNO.API.Models;
+using TNO.API.SignalR;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.DAL.Models;
@@ -128,7 +129,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
             _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
+            await _hub.Clients.All.SendAsync("WorkOrder", workOrder);
             throw new BadRequestException("Transcription request failed");
         }
         return new JsonResult(new WorkOrderModel(workOrder));
@@ -170,7 +171,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
             _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
+            await _hub.Clients.All.SendAsync("WorkOrder", workOrder);
             throw new BadRequestException("Natural Language Processing request failed");
         }
         return new JsonResult(new WorkOrderModel(workOrder));
