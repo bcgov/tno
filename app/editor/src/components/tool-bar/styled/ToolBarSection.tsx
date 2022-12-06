@@ -48,4 +48,18 @@ export const ToolBarSection = styled(Col)`
     padding: 0.5em;
     justify-content: center;
   }
+  .title-container {
+    padding: 0.5em;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  .status-container {
+    background-color: #FFFFFF;
+    font-size: 0.75em;
+    margin: 0.5em;
+    padding: 0.5em;
+    justify-content: center;
+    width: fit-content;
+  }
 `;

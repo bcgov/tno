@@ -14,4 +14,7 @@ export const ToolBar = styled(Row)`
   .section:last-child {
     border-right: none;
   }
+  .details-section {
+    background-color: #faf9f7;
+  }
 `;
