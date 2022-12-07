@@ -125,19 +125,24 @@ public class CssHelper : ICssHelper
     {
         // CSS uses the preferred_username value as a username, but it's not the actual username...
         var key = principal.GetKey() ?? throw new NotAuthorizedException("The 'preferred_username' is required but missing from token");
-        var username = principal.GetUsername() ?? throw new NotAuthorizedException("The 'username' is required by missing from token");
         var user = _userService.FindByUserKey(key);
 
         // If user doesn't exist, add them to the database.
         if (user == null)
         {
+            var username = principal.GetUsername() ?? throw new NotAuthorizedException("The 'username' is required by missing from token");
             var email = principal.GetEmail() ?? throw new NotAuthorizedException("The 'email' is required but missing from token");
-            // Check if the user has been manually added by their email address.
-            var users = _userService.FindByEmail(email).Where(u => u.IsEnabled);
+            user = _userService.FindByUsername(username);
 
-            // If only one account has the email, we can assume it's a preapproved user.
-            if (users.Count() == 1) user = users.First();
-            else if (users.Count() > 1) throw new NotAuthorizedException($"There are multiple enabled users with the same email '{email}'");
+            if (user == null)
+            {
+                // Check if the user has been manually added by their email address.
+                var users = _userService.FindByEmail(email).Where(u => u.IsEnabled);
+
+                // If only one account has the email, we can assume it's a preapproved user.
+                if (users.Count() == 1) user = users.First();
+                else if (users.Count() > 1) throw new NotAuthorizedException($"There are multiple enabled users with the same email '{email}'");
+            }
 
             // Fetch the roles for the user
             var userRoles = await _cssService.GetRolesForUserAsync(key);
