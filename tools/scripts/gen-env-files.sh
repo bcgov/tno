@@ -553,10 +553,12 @@ Auth__Keycloak__Audience=tno-service-account
 Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
 Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
-Service__ApiUrl=http://host.docker.internal:$portApi/api
-Service__TranscriptionTopic=transcription
+Kafka__Admin__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+Kafka__Consumer__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/content/.env
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__TranscriptionTopic=transcription" >> ./services/net/content/.env
     echo "./services/net/content/.env created"
 fi
 
