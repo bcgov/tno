@@ -304,6 +304,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
         if (_open)
         {
             _logger.LogInformation("Consumer is stopping");
+            this.Topics = Array.Empty<string>();
             this.IsConsuming = false;
             this.IsPaused = false;
             this.Consumer?.Close();

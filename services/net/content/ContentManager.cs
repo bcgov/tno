@@ -122,7 +122,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                         this.Listener.Subscribe(topics);
                         ConsumeMessages();
                     }
-                    else if (topics.Length == 0)
+                    else
                     {
                         this.Listener.Stop();
                     }
