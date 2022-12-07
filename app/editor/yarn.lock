@@ -1506,6 +1506,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bcgov/bc-sans@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@bcgov/bc-sans@npm:1.0.1"
+  checksum: 88c820e9f1abf64a645f985eddc15776980e686ca94c766442fddb3b6b38a0abf628fe12d48afab794775826c21a89e139956026c792e7beb940ee6614f923ee
+  languageName: node
+  linkType: hard
+
 "@bcoe/v8-coverage@npm:^0.2.3":
   version: 0.2.3
   resolution: "@bcoe/v8-coverage@npm:0.2.3"
@@ -9990,6 +9997,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "mmia-editor-app@workspace:."
   dependencies:
+    "@bcgov/bc-sans": ^1.0.1
     "@fortawesome/fontawesome-svg-core": 6.2.0
     "@fortawesome/free-solid-svg-icons": 6.2.0
     "@fortawesome/react-fontawesome": 0.2.0
