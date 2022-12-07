@@ -54,7 +54,7 @@ public class AuthController : ControllerBase
     [HttpPost("userinfo")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(PrincipalModel), 200)]
-    [SwaggerOperation(Tags = new[] { "health" })]
+    [SwaggerOperation(Tags = new[] { "Auth" })]
     public async Task<IActionResult> UserInfoAsync()
     {
         var user = await _cssHelper.ActivateAsync(this.User);
@@ -72,7 +72,7 @@ public class AuthController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(RegisterModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
+    [SwaggerOperation(Tags = new[] { "Auth" })]
     public async Task<IActionResult> RequestCodeAsync(RegisterModel model)
     {
         // Get the account with the preapproved email address.
@@ -120,7 +120,7 @@ public class AuthController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
+    [SwaggerOperation(Tags = new[] { "Auth" })]
     public IActionResult RequestApproval(UserModel model)
     {
         // Only allow a user to update their own account.
