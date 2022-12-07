@@ -9,6 +9,7 @@ export * from './ContentStatus';
 export * from './ContentStatusName';
 export * from './ContentType';
 export * from './ContentTypeName';
+export * from './HubMethodName';
 export * from './LogicalOperator';
 export * from './ScheduleMonth';
 export * from './ScheduleMonthName';

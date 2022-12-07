@@ -1,10 +1,18 @@
-import { ContentTypeName, useCombinedView, useTooltips } from 'hooks';
+import {
+  ContentTypeName,
+  HubMethodName,
+  IWorkOrderModel,
+  useApiHub,
+  useCombinedView,
+  useTooltips,
+} from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { Row as TRow } from 'react-table';
 import { useApp, useContent } from 'store/hooks';
+import { useContentStore } from 'store/slices';
 import { Col, Page, PagedTable, Row, Show } from 'tno-core';
 
 import { ContentForm } from '../form';
@@ -22,10 +30,13 @@ import { makeFilter } from './utils';
 export const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
   const { id: contentId = '' } = useParams();
-  const [{ filter, filterAdvanced, content }, { findContent, storeFilter }] = useContent();
+  const [, { updateContent }] = useContentStore();
+  const [{ filter, filterAdvanced, content }, { findContent, getContent, storeFilter }] =
+    useContent();
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   useTooltips();
+  var hub = useApiHub();
 
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
@@ -39,6 +50,21 @@ export const ContentListView: React.FC = () => {
   );
   const userId = userInfo?.id ?? '';
   const isReady = !!userId && filter.userId !== '';
+
+  const onWorkOrder = React.useCallback(
+    (workOrder: IWorkOrderModel) => {
+      if (!!workOrder.contentId) {
+        getContent(workOrder.contentId ?? 0).then((content) => {
+          updateContent([content]);
+        });
+      }
+    },
+    [getContent, updateContent],
+  );
+
+  React.useEffect(() => {
+    return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
+  }, [onWorkOrder, hub]);
 
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {

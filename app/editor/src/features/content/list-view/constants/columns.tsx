@@ -1,6 +1,7 @@
-import { ContentStatusName, IContentModel } from 'hooks/api-editor';
+import { ContentStatusName, ContentTypeName, IContentModel } from 'hooks/api-editor';
+import { FaFeather } from 'react-icons/fa';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Date, Ellipsis } from 'tno-core';
+import { Checkbox, Date, Ellipsis, Show } from 'tno-core';
 import { formatIdirUsername } from 'utils/formatIdir';
 
 import { getStatusText } from '../utils';
@@ -11,9 +12,16 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Header: 'Headline',
     accessor: 'headline',
     width: 5,
-    Cell: ({ value }) => (
-      <Ellipsis data-for="main-tooltip" data-tip={value}>
-        {value}
+    Cell: (cell) => (
+      <Ellipsis data-for="main-tooltip" data-tip={cell.value} className="headline">
+        <Show
+          visible={
+            cell.row.original.contentType === ContentTypeName.Snippet && !!cell.row.original.body
+          }
+        >
+          <FaFeather />
+        </Show>
+        <span>{cell.value}</span>
       </Ellipsis>
     ),
   },

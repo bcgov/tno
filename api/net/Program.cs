@@ -28,6 +28,8 @@ using TNO.API.Config;
 using Microsoft.AspNetCore.Authorization;
 using TNO.API;
 using TNO.API.CSS;
+using NPOI.Util;
+using TNO.API.SignalR;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -85,6 +87,9 @@ builder.Services.AddControllers(options =>
 builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kestrel"));
 builder.Services.AddOptions<FormOptions>().Bind(config.GetSection("Form"));
 builder.Services.AddOptions<KafkaOptions>().Bind(config.GetSection("Kafka"));
+var o = builder.Services.AddOptions<SignalROptions>().Bind(config.GetSection("SignalR"));
+var signalROptions = new SignalROptions();
+config.GetSection("SignalR").Bind(signalROptions);
 
 // The following dependencies provide dynamic authorization based on keycloak client roles.
 builder.Services.AddOptions<TNO.API.Config.KeycloakOptions>().Bind(config.GetSection("Keycloak"));
@@ -127,6 +132,20 @@ builder.Services.AddAuthentication(options =>
         }
         options.Events = new JwtBearerEvents()
         {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                // If the request is for our hub...
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments(signalROptions.HubPath))
+                {
+                    // Read the token out of the query string
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            },
             OnTokenValidated = context =>
             {
                 return Task.CompletedTask;
@@ -185,10 +204,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services
-  .AddTNOServices(config, env)
-  .AddKafkaMessenger(config);
-
-builder.Services
+    .AddTNOServices(config, env)
+    .AddKafkaMessenger(config)
     .AddHttpClient()
     .AddTransient<JwtSecurityTokenHandler>()
     .AddTransient<IHttpRequestClient, HttpRequestClient>()
@@ -223,7 +240,19 @@ builder.Services.AddCors(options =>
             cfg.AllowAnyMethod();
             cfg.WithOrigins(builder.Configuration["AllowedCORS"]);
         }));
-builder.Services.AddSignalR(o => o.EnableDetailedErrors = true);
+builder.Services.AddSignalR(options =>
+    {
+        options.EnableDetailedErrors = signalROptions.EnableDetailedErrors;
+    })
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.DefaultIgnoreCondition = jsonSerializerOptions.DefaultIgnoreCondition;
+        options.PayloadSerializerOptions.PropertyNameCaseInsensitive = jsonSerializerOptions.PropertyNameCaseInsensitive;
+        options.PayloadSerializerOptions.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
+        options.PayloadSerializerOptions.WriteIndented = jsonSerializerOptions.WriteIndented;
+        options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
+    });
 
 var app = builder.Build();
 
@@ -271,6 +300,6 @@ app.UseEndpoints(endpoints =>
 
 app.MapControllers();
 
-app.MapHub<WorkOrderHub>(config.GetValue<string>("HubPath"));
+app.MapHub<WorkOrderHub>(signalROptions.HubPath);
 
 app.Run();

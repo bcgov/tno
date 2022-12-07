@@ -24,6 +24,12 @@ export const ContentListView = styled(FormPage)`
       overflow-y: scroll;
       overflow-x: hidden;
     }
+
+    .headline {
+      & > svg:first-child {
+        margin-right: 0.5em;
+      }
+    }
   }
 
   .content-actions {

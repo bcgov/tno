@@ -15,47 +15,36 @@ import { FormikProps } from 'formik';
 import {
   ActionName,
   ContentTypeName,
+  HubMethodName,
   IActionModel,
+  IWorkOrderModel,
   useCombinedView,
   useLookupOptions,
   useTooltips,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'hooks';
-import { ContentStatusName, IContentModel, useApiHubConnection, ValueType } from 'hooks/api-editor';
+import { ContentStatusName, IContentModel, useApiHub, ValueType } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
 import {
   FaArrowRight,
   FaBars,
-  FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
-  FaExclamationCircle,
   FaGripLines,
   FaSpinner,
-  FaTimesCircle,
 } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
-import {
-  Button,
-  ButtonVariant,
-  Col,
-  FieldSize,
-  Row,
-  Show,
-  Spinner,
-  SpinnerVariant,
-  Tab,
-  Tabs,
-} from 'tno-core';
+import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
 
 import { getStatusText } from '../list-view/utils';
+import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import {
   ContentActions,
@@ -67,17 +56,8 @@ import {
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import {
-  isImageForm,
-  isSnippetForm,
-  isWorkOrderActive,
-  isWorkOrderCancelled,
-  isWorkOrderComplete,
-  isWorkOrderFailed,
-  toForm,
-  toModel,
-  triggerFormikValidate,
-} from './utils';
+import { isImageForm, isSnippetForm, toForm, toModel, triggerFormikValidate } from './utils';
+import { WorkOrderStatus } from './WorkOrderStatus';
 
 export interface IContentFormProps {
   /** Control what form elements are visible. */
@@ -106,7 +86,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [{ sources, tonePools, series, sourceOptions, productOptions }, { getSeries }] =
     useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
-  const { getConnection } = useApiHubConnection();
+  const hub = useApiHub();
   useTooltips();
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
@@ -116,7 +96,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [clipErrors, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
-  const [content, setContent] = React.useState<IContentForm>({
+  const [form, setForm] = React.useState<IContentForm>({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
   });
@@ -125,14 +105,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
   const enablePrev = indexPosition > 0;
   const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
-  const isTranscribing = isWorkOrderActive(content, WorkOrderTypeName.Transcription);
-  const isTranscribed = isWorkOrderComplete(content, WorkOrderTypeName.Transcription);
-  const isTranscribeFailed = isWorkOrderFailed(content, WorkOrderTypeName.Transcription);
-  const isTranscribeCancelled = isWorkOrderCancelled(content, WorkOrderTypeName.Transcription);
-  const isNLPing = isWorkOrderActive(content, WorkOrderTypeName.NaturalLanguageProcess);
-  const isNLPed = isWorkOrderComplete(content, WorkOrderTypeName.NaturalLanguageProcess);
-  const isNLPFailed = isWorkOrderFailed(content, WorkOrderTypeName.NaturalLanguageProcess);
-  const isNLPCancelled = isWorkOrderCancelled(content, WorkOrderTypeName.NaturalLanguageProcess);
 
   const determineActions = () => {
     switch (contentType) {
@@ -152,7 +124,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const fetchContent = React.useCallback(
     (id: number) => {
       getContent(id).then((data) => {
-        setContent(toForm(data));
+        setForm(toForm(data));
         // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
         setContentType(data.contentType);
       });
@@ -160,34 +132,29 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     [getContent],
   );
 
+  const onWorkOrder = React.useCallback(
+    (workOrder: IWorkOrderModel) => {
+      if (!!id && +id === workOrder.contentId) fetchContent(workOrder.contentId);
+    },
+    [fetchContent, id],
+  );
+
+  React.useEffect(() => {
+    return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
+  }, [hub, onWorkOrder]);
+
   React.useEffect(() => {
     if (!!id && +id > 0) {
       fetchContent(+id);
-      const connection = getConnection();
-
-      connection
-        .start()
-        .then(() => {
-          connection.on('Update', (contentId) => {
-            if (contentId === +id) fetchContent(+id);
-          });
-        })
-        .catch((error) => {
-          console.error('signalr', error);
-        });
-
-      return function cleanUp() {
-        connection.off('Update');
-        connection.stop();
-      };
     }
-  }, [id, fetchContent, getConnection]);
+  }, [id, fetchContent]);
 
   const { setShowValidationToast } = useTabValidationToasts();
 
-  const handleSave = async (values: IContentForm) => {
+  const handleSave = async (values: IContentForm): Promise<IContentForm> => {
     let contentResult: IContentModel | null = null;
     const originalId = values.id;
+    let result = form;
     try {
       if (!values.id) {
         // Only new content is initialized.
@@ -199,13 +166,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
 
       const model = toModel(values);
-      contentResult = !content.id ? await addContent(model) : await updateContent(model);
+      contentResult = !form.id ? await addContent(model) : await updateContent(model);
 
       if (!!values.file) {
         // TODO: Make it possible to upload on the initial save instead of a separate request.
         // Upload the file if one has been added.
-        const result = await upload(contentResult, values.file);
-        setContent(toForm({ ...result, tonePools: values.tonePools }));
+        const content = await upload(contentResult, values.file);
+        result = toForm({ ...content, tonePools: values.tonePools });
       } else if (
         !originalId &&
         !!values.fileReferences.length &&
@@ -214,11 +181,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         // TODO: Make it possible to upload on the initial save instead of a separate request.
         // A file was attached but hasn't been uploaded to the API.
         const fileReference = values.fileReferences[0];
-        const result = await attach(contentResult.id, fileReference.path);
-        setContent(toForm({ ...result, tonePools: values.tonePools }));
+        const content = await attach(contentResult.id, fileReference.path);
+        result = toForm({ ...content, tonePools: values.tonePools });
       } else {
-        setContent(toForm({ ...contentResult, tonePools: values.tonePools }));
+        result = toForm({ ...contentResult, tonePools: values.tonePools });
       }
+      setForm(result);
 
       toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
@@ -240,10 +208,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     } catch {
       // If the upload fails, we still need to update the form from the original update.
       if (!!contentResult) {
-        setContent(toForm(contentResult));
+        result = toForm(contentResult);
+        setForm(result);
         if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
       }
     }
+    return result;
   };
 
   const handlePublish = async (props: FormikProps<IContentForm>) => {
@@ -267,9 +237,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     try {
       // TODO: Only save when required.
       // Save before submitting request.
-      await handleSave(values);
+      const content = await handleSave(values);
       const response = await transcribe(toModel(values));
-      setContent({ ...content, workOrders: [response.data, ...content.workOrders] });
+      setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
       if (response.status === 200) toast.success('A transcript has been requested');
       else if (response.status === 208) {
@@ -286,9 +256,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     try {
       // TODO: Only save when required.
       // Save before submitting request.
-      await handleSave(values);
+      const content = await handleSave(values);
       const response = await nlp(toModel(values));
-      setContent({ ...content, workOrders: [response.data, ...content.workOrders] });
+      setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
       if (response.status === 200) toast.success('An NLP has been requested');
       else if (response.status === 208) {
@@ -366,7 +336,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 variant={ButtonVariant.secondary}
                 tooltip="Reload"
                 onClick={() => {
-                  fetchContent(content.id);
+                  fetchContent(form.id);
                 }}
               >
                 <FaSpinner />
@@ -374,13 +344,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             </Show>
             <Row className="frm-in content-status">
               <label>Status:</label>
-              <span>{getStatusText(content.status)}</span>
+              <span>{getStatusText(form.status)}</span>
             </Row>
           </Row>
           <FormikForm
             onSubmit={handleSave}
             validationSchema={ContentFormSchema}
-            initialValues={content}
+            initialValues={form}
             loading={(request: IAjaxRequest) =>
               !request.isSilent && request.group.some((g) => g === 'content' || g === 'lookup')
             }
@@ -583,18 +553,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               onClick={() => setActive('transcript')}
                               active={active === 'transcript'}
                             >
-                              <Show visible={isTranscribing}>
-                                <Spinner variant={SpinnerVariant.light} size="0.5em" />
-                              </Show>
-                              <Show visible={isTranscribed && !isTranscribing}>
-                                <FaCheckCircle className="spinner" />
-                              </Show>
-                              <Show visible={isTranscribeFailed}>
-                                <FaExclamationCircle className="spinner" />
-                              </Show>
-                              <Show visible={isTranscribeCancelled}>
-                                <FaTimesCircle className="spinner" />
-                              </Show>
+                              <WorkOrderStatus
+                                workOrders={form.workOrders}
+                                type={WorkOrderTypeName.Transcription}
+                              />
                             </Tab>
                             <Tab
                               label="Clips"
@@ -610,18 +572,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               onClick={() => setActive('labels')}
                               active={active === 'labels'}
                             >
-                              <Show visible={isNLPing}>
-                                <Spinner variant={SpinnerVariant.light} size="0.5em" />
-                              </Show>
-                              <Show visible={isNLPed && !isNLPing}>
-                                <FaCheckCircle className="spinner" />
-                              </Show>
-                              <Show visible={isNLPFailed}>
-                                <FaExclamationCircle className="spinner" />
-                              </Show>
-                              <Show visible={isNLPCancelled}>
-                                <FaTimesCircle className="spinner" />
-                              </Show>
+                              <WorkOrderStatus
+                                workOrders={form.workOrders}
+                                type={WorkOrderTypeName.NaturalLanguageProcess}
+                              />
                             </Tab>
                           </Show>
                         </>
@@ -629,8 +583,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     >
                       <Show visible={active === 'properties'}>
                         <ContentSummaryForm
-                          content={content}
-                          setContent={setContent}
+                          content={form}
+                          setContent={setForm}
                           contentType={contentType}
                           savePressed={savePressed}
                         />
@@ -640,8 +594,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                       <Show visible={active === 'clips'}>
                         <ContentClipForm
-                          content={content}
-                          setContent={setContent}
+                          content={form}
+                          setContent={setForm}
                           setClipErrors={setClipErrors}
                         />
                       </Show>
@@ -652,8 +606,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                   <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                     <ContentSummaryForm
-                      content={content}
-                      setContent={setContent}
+                      content={form}
+                      setContent={setForm}
                       contentType={contentType}
                     />
                   </Show>
@@ -684,7 +638,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     >
                       <Button
                         onClick={() =>
-                          isTranscribed && !isTranscribing
+                          isWorkOrderStatus(form.workOrders, WorkOrderTypeName.Transcription, [
+                            WorkOrderStatusName.Completed,
+                          ])
                             ? toggleTranscribe()
                             : handleTranscribe(props.values)
                         }
@@ -703,7 +659,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     <Show visible={!!props.values.id && props.values.body.length > 0}>
                       <Button
                         onClick={() =>
-                          isNLPed && !isNLPing ? toggleNLP() : handleNLP(props.values)
+                          isWorkOrderStatus(
+                            form.workOrders,
+                            WorkOrderTypeName.NaturalLanguageProcess,
+                            [WorkOrderStatusName.Completed],
+                          )
+                            ? toggleNLP()
+                            : handleNLP(props.values)
                         }
                         variant={ButtonVariant.action}
                         disabled={props.isSubmitting}

@@ -36,8 +36,11 @@ export const useAjaxWrapper = () => {
           else if (ae.response?.status === 403)
             message = 'Authorization required.  Your account does not have access.';
           else if (typeof data === 'string' && !!data) message = data;
-          else if (!!data?.error) {
-            message = `${data?.error}\n${data.details}`;
+          else if (!!data?.error) message = `${data?.error}\n${data.details}`;
+          else if (!!data?.errors) {
+            message = Object.entries(data.errors)
+              .map((p) => p.toString())
+              .toString();
           }
           app.addError({
             status: ae.response?.status,

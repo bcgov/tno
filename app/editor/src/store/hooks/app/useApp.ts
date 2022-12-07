@@ -36,6 +36,10 @@ interface IAppController {
   requestCode: (model: IRegisterModel) => Promise<IRegisterModel>;
   requestApproval: (model: IUserModel) => Promise<IUserModel>;
   /**
+   * Add new error to state.
+   */
+  addError: (error: IErrorModel) => void;
+  /**
    * Remove specified error from state.
    */
   removeError: (error: IErrorModel) => void;
@@ -92,6 +96,7 @@ export const useApp = (): [IAppState, IAppController] => {
         return (await dispatch<IUserModel>('request-approval', () => api.requestApproval(model)))
           .data;
       },
+      addError: store.addError,
       removeError: store.removeError,
       clearErrors: store.clearErrors,
       initialized,

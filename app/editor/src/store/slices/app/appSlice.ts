@@ -18,9 +18,6 @@ export const appSlice = createSlice({
   name: 'app',
   initialState: defaultState,
   reducers: {
-    storeToken(state: IAppState, action: PayloadAction<any>) {
-      state.token = action.payload;
-    },
     storeUserInfo(state: IAppState, action: PayloadAction<IUserInfoModel | undefined>) {
       state.userInfo = action.payload;
     },
@@ -51,7 +48,6 @@ export const appSlice = createSlice({
 });
 
 export const {
-  storeToken,
   storeUserInfo,
   addRequest,
   removeRequest,

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.API.Models;
+using TNO.API.SignalR;
 using TNO.DAL.Services;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -80,7 +81,7 @@ public class WorkOrderController : ControllerBase
         if (entity == null) throw new InvalidOperationException("Work order does not exist");
 
         _service.UpdateAndSave(workOrder.UpdateEntity(entity));
-        await _hub.Clients.All.SendAsync("Update", workOrder.ContentId);
+        await _hub.Clients.All.SendAsync("WorkOrder", workOrder);
         return new JsonResult(new WorkOrderModel(entity));
     }
     #endregion

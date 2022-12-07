@@ -12,8 +12,8 @@ import { IContentProps, IContentState } from 'store/slices/content';
 import { useAjaxWrapper } from '..';
 
 interface IContentController {
-  getContent: (id: number) => Promise<IContentModel>;
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
+  getContent: (id: number) => Promise<IContentModel>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
@@ -34,13 +34,13 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
 
   const controller = React.useMemo(
     () => ({
-      getContent: async (id: number) => {
-        return (await dispatch('get-content', () => api.getContent(id), 'content')).data;
-      },
       findContent: async (filter: IContentFilter) => {
         const response = await dispatch('find-contents', () => api.findContent(filter));
         actions.storeContent(response.data);
         return response.data;
+      },
+      getContent: async (id: number) => {
+        return (await dispatch('get-content', () => api.getContent(id), 'content')).data;
       },
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');

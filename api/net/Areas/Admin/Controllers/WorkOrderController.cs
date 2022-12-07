@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
 using TNO.API.Models;
+using TNO.API.SignalR;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
@@ -116,7 +117,7 @@ public class WorkOrderController : ControllerBase
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");
         var result = _workOrderService.UpdateAndSave(model.CopyTo(entity));
-        await _hub.Clients.All.SendAsync("Update", model.ContentId);
+        await _hub.Clients.All.SendAsync("WorkOrder", model);
         return new JsonResult(new WorkOrderModel(result));
     }
 

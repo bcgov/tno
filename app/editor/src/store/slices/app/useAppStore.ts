@@ -9,13 +9,11 @@ import {
   clearRequests,
   removeError,
   removeRequest,
-  storeToken,
   storeUserInfo,
 } from '.';
 import { IAppState, IErrorModel } from './interfaces';
 
 export interface IAppStore {
-  storeToken: (token: any) => void;
   storeUserInfo: (user?: IUserInfoModel) => void;
   addRequest: (url: string, group?: string | string[], isSilent?: boolean) => void;
   removeRequest: (url: string) => void;
@@ -35,9 +33,6 @@ export const useAppStore = (): [IAppState, IAppStore] => {
 
   const controller = React.useMemo(
     () => ({
-      storeToken: (token: any) => {
-        dispatch(storeToken(token));
-      },
       storeUserInfo: (user?: IUserInfoModel) => {
         dispatch(storeUserInfo(user));
       },
