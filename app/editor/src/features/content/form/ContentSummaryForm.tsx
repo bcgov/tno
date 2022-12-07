@@ -48,6 +48,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [, { download }] = useContent();
   const combined = useCombinedView();
 
+  const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
@@ -242,7 +243,12 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
       <Show visible={contentType !== ContentTypeName.Image}>
         <Col flex="1 1 0">
           <Show visible={contentType === ContentTypeName.Snippet}>
-            <Wysiwyg label="Summary" required fieldName="summary" />
+            <Wysiwyg
+              label="Summary"
+              required
+              fieldName="summary"
+              expandModal={setShowExpandModal}
+            />
           </Show>
           <Show
             visible={
@@ -380,6 +386,21 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           >
             View Log
           </Button>
+
+          <Modal
+            body={<Wysiwyg label="Summary" required fieldName="summary" />}
+            isShowing={showExpandModal}
+            hide={() => setShowExpandModal(!showExpandModal)}
+            customButtons={
+              <Button
+                variant={ButtonVariant.secondary}
+                onClick={() => setShowExpandModal(!showExpandModal)}
+              >
+                Close
+              </Button>
+            }
+          />
+
           <Modal
             hide={toggle}
             isShowing={isShowing}

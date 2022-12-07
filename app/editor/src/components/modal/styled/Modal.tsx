@@ -25,7 +25,7 @@ export const Modal = styled(Col)`
   }
 
   .button-row {
-    margin-top: 10%;
+    margin-top: 5px;
     button {
       margin-right: 2%;
     }
@@ -38,7 +38,7 @@ export const Modal = styled(Col)`
     margin: 10% auto;
     border-radius: 3px;
     min-width: fit-content;
-    max-width: 750px;
+    max-width: 85%;
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
   }
