@@ -194,13 +194,10 @@ export const UserForm: React.FC = () => {
               type="delete"
               confirmText="Yes, Remove It"
               onConfirm={async () => {
-                try {
-                  await api.deleteUser(user);
-                  toast.success(`${user.username} has successfully been deleted.`);
-                  navigate('/admin/users');
-                } finally {
-                  toggle();
-                }
+                toggle();
+                await api.deleteUser(user);
+                toast.success(`${user.username} has successfully been deleted.`);
+                navigate('/admin/users');
               }}
             />
           </div>

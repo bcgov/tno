@@ -6,7 +6,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.User;
 using TNO.API.CSS;
 using TNO.API.Models;
-using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
