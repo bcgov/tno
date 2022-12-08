@@ -43,6 +43,15 @@ namespace TNO.Core.Http
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             };
+            if (options?.CurrentValue != null)
+            {
+                if (!_serializeOptions.PropertyNameCaseInsensitive)
+                    _serializeOptions.PropertyNameCaseInsensitive = true;
+                if (_serializeOptions.PropertyNamingPolicy != JsonNamingPolicy.CamelCase)
+                    _serializeOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                if (_serializeOptions.DefaultIgnoreCondition != JsonIgnoreCondition.WhenWritingNull)
+                    _serializeOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            }
             _logger = logger;
         }
         #endregion
