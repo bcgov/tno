@@ -10072,7 +10072,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.6
-    tno-core: 0.0.198
+    tno-core: 0.0.199
     typescript: 4.8.4
     yup: 0.32.11
   languageName: unknown
@@ -13949,9 +13949,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.198":
-  version: 0.0.198
-  resolution: "tno-core@npm:0.0.198"
+"tno-core@npm:0.0.199":
+  version: 0.0.199
+  resolution: "tno-core@npm:0.0.199"
   dependencies:
     "@headlessui/react": ^1.7.4
     "@react-keycloak/web": ^3.4.0
@@ -13974,7 +13974,7 @@ __metadata:
     react-tooltip: ^4.5.0
     styled-components: ^5.3.6
     tno-core: 0.0.193
-  checksum: 3388af2b30ed6880f4de348a407ff08330a628cf7528025cb392b7ddadfe2e3803afe3ad3cd812b4c0f0504ff456fd5fd50cbd700ebab9497dab8b12d8f31714
+  checksum: 467f6fcefd6d368c6fc9caf99ce0b70f26cbf01a7a8a439c6fec042efa4da6fdffeef7eafcf9be938e7142a5f764174973798807ed6768e46b1cac8924ba633f
   languageName: node
   linkType: hard
 
