@@ -165,7 +165,6 @@ public class CssHelper : ICssHelper
             }
             else if (user != null)
             {
-                // The user exists in the database by their email, but not their username.
                 // The user was created in TNO initially, but now the user has logged in and activated their account.
                 user.Username = username;
                 user.DisplayName = principal.GetDisplayName() ?? user.DisplayName;
@@ -180,6 +179,7 @@ public class CssHelper : ICssHelper
                 // Apply the preapproved roles to the user.
                 var roles = await UpdateUserRolesAsync(key, user.Roles.Split(",").Select(r => r[1..^1]).ToArray());
                 user.Roles = String.Join(",", roles.Select(r => $"[{r}]"));
+                _userService.UpdateAndSave(user);
                 return user;
             }
         }
@@ -203,7 +203,7 @@ public class CssHelper : ICssHelper
     public async Task<string[]> UpdateUserRolesAsync(string username, string[] roles)
     {
         var userRoles = await _cssService.GetRolesForUserAsync(username);
-        if (userRoles.Users.Length == 0) return Array.Empty<string>();
+        if (userRoles.Users.Length == 0) userRoles = new UserRoleResponseModel() { };
         else if (userRoles.Users.Length > 1) throw new InvalidOperationException($"There is more than one user with this username '{username}'");
 
         // Only update roles that exist in keycloak.

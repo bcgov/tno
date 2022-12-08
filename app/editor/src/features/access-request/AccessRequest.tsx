@@ -10,7 +10,11 @@ import { PreapprovedRequest } from './PreapprovedRequest';
 import { RegisterRequest } from './RegisterRequest';
 import * as styled from './styled';
 
-export const AccessRequest: React.FC = (props) => {
+/**
+ * Component to submit access requests.
+ * @returns Access request page.
+ */
+export const AccessRequest: React.FC = () => {
   const keycloak = useKeycloakWrapper();
   const [{ userInfo }] = useApp();
   const navigate = useNavigate();
@@ -19,7 +23,7 @@ export const AccessRequest: React.FC = (props) => {
   React.useEffect(() => {
     // The user has been approved, redirect back to home page.
     if (keycloak.hasClaim() && location.pathname === '/welcome') navigate('/');
-  });
+  }, [keycloak, location.pathname, navigate]);
 
   return (
     <styled.AccessRequest>

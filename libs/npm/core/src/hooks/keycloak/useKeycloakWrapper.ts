@@ -13,11 +13,12 @@ export function useKeycloakWrapper(): IKeycloak {
 
   const [initialized, setInitialized] = React.useState(ready);
 
+  if (ready) token = keycloak.tokenParsed as IKeycloakToken;
+
   React.useEffect(() => {
     // For some reason the keycloak value doesn't update state.
-    if (initialized) token = keycloak.tokenParsed as IKeycloakToken;
-    setInitialized(initialized && !!keycloak.authenticated);
-  }, [keycloak, initialized, keycloak.authenticated]);
+    setInitialized(ready && !!keycloak.authenticated);
+  }, [keycloak, ready, keycloak.authenticated]);
 
   const controller = React.useMemo(
     () => ({

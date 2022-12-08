@@ -123,6 +123,7 @@ public class UserService : BaseService<User, int>, IUserService
 
         if (original != null)
         {
+            original.Key = entity.Key;
             original.Username = entity.Username;
             original.Email = entity.Email;
             original.DisplayName = entity.DisplayName;
@@ -135,6 +136,7 @@ public class UserService : BaseService<User, int>, IUserService
             original.Note = entity.Note;
             original.Code = entity.Code;
             original.Roles = entity.Roles;
+            original.LastLoginOn = entity.LastLoginOn;
             if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
             else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
 
