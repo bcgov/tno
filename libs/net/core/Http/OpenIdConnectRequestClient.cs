@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.Core.Http.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
