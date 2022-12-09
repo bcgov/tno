@@ -131,10 +131,10 @@ public class CssHelper : ICssHelper
         if (user == null)
         {
             var username = principal.GetUsername() ?? throw new NotAuthorizedException("The 'username' is required by missing from token");
-            var email = principal.GetEmail() ?? throw new NotAuthorizedException("The 'email' is required but missing from token");
+            var email = principal.GetEmail() ?? "";
             user = _userService.FindByUsername(username);
 
-            if (user == null)
+            if (user == null && !String.IsNullOrWhiteSpace(email))
             {
                 // Check if the user has been manually added by their email address.
                 var users = _userService.FindByEmail(email).Where(u => u.IsEnabled);
@@ -169,7 +169,7 @@ public class CssHelper : ICssHelper
                 user.Username = username;
                 user.DisplayName = principal.GetDisplayName() ?? user.DisplayName;
                 user.Key = key;
-                user.Email = email;
+                user.Email = !String.IsNullOrWhiteSpace(email) ? email : user.Email;
                 user.FirstName = principal.GetFirstName() ?? user.FirstName;
                 user.LastName = principal.GetLastName() ?? user.LastName;
                 user.LastLoginOn = DateTime.UtcNow;
