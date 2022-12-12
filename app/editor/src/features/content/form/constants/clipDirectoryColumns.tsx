@@ -18,9 +18,8 @@ export const clipDirectoryColumns = (
   onDownload: Function,
   onAttach: Function,
   values: IItemModel,
-): Column<IItemModel>[] & UseSortByColumnOptions<IItemModel> => [
+): (Column<IItemModel> & UseSortByColumnOptions<IItemModel>)[] => [
   {
-    key: 'id',
     id: 'isDirectory',
     Header: () => <div className="list-icon"></div>,
     accessor: 'isDirectory',

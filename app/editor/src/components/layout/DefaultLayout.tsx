@@ -23,21 +23,27 @@ interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
+  const { setToken } = React.useContext(SummonContext);
   useToastError();
 
-  const state = React.useContext(SummonContext);
-  keycloak.instance.onTokenExpired = () => {
-    keycloak.instance
-      .updateToken(86400)
-      .then(function (refreshed: boolean) {
-        if (refreshed) {
-          state.setToken(keycloak.instance.token);
-        }
-      })
-      .catch(function () {
-        keycloak.instance.logout();
-      });
-  };
+  React.useEffect(() => {
+    keycloak.instance.onTokenExpired = () => {
+      keycloak.instance
+        .updateToken(240)
+        .then(function (refreshed: boolean) {
+          if (refreshed) {
+            setToken(keycloak.instance.token);
+          }
+        })
+        .catch(function () {
+          keycloak.instance.logout();
+        });
+    };
+
+    return () => {
+      keycloak.instance.onTokenExpired = undefined;
+    };
+  }, [keycloak, setToken]);
 
   return (
     <styled.Layout {...rest}>
