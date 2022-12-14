@@ -15,12 +15,13 @@ import * as styled from './styled';
 
 export interface IWysiwygProps {
   /** the formik field that is being used within the WYSIWYG */
-  fieldName: keyof IContentModel;
+  fieldName?: keyof IContentModel;
   /** optional label to appear above the WYSIWYG */
   label?: string;
   /** whether or not it is a required field */
   required?: boolean;
   expandModal?: (show: boolean) => void;
+  viewRaw?: boolean;
   hasHeight?: boolean;
 }
 /**
@@ -51,7 +52,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
 
   React.useEffect(() => {
     if (!!id) {
-      setState({ ...state, html: values[fieldName] as string });
+      setState({ ...state, html: values[fieldName!] as string });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values]);
@@ -83,16 +84,16 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
 
   const stripHtml = () => {
     // strip html from string
-    let doc = new DOMParser().parseFromString(values[fieldName] as string, 'text/html');
-    setFieldValue(fieldName, doc.body.textContent || '');
+    let doc = new DOMParser().parseFromString(values[fieldName!] as string, 'text/html');
+    setFieldValue(fieldName!, doc.body.textContent || '');
     setState({ ...state, html: doc.body.textContent || '' });
   };
 
   const handleChange = (html: string) => {
     setState({ ...state, html: html });
-    setFieldValue(fieldName, html);
+    setFieldValue(fieldName!, html);
     if (html === '<p><br></p>') {
-      setFieldValue(fieldName, '');
+      setFieldValue(fieldName!, '');
     }
   };
 
@@ -146,7 +147,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
             modules={modules}
             formats={formats}
             onBlur={() => {
-              const value = values[fieldName];
+              const value = values[fieldName!];
               if (!!value && typeof value === 'string') {
                 const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
                 const tagValues = stringValue?.split(', ') ?? [];
@@ -162,7 +163,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
           />
         </>
       )}
-      <Error error={touched[fieldName] ? (errors[fieldName] as string) : ''} />
+      <Error error={touched[fieldName!] ? (errors[fieldName!] as string) : ''} />
     </styled.Wysiwyg>
   );
 };
