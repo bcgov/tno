@@ -51,8 +51,8 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   const [showRaw, setShowRaw] = React.useState(false);
 
   React.useEffect(() => {
-    if (!!id) {
-      setState({ ...state, html: values[fieldName!] as string });
+    if (!!id && !!fieldName) {
+      setState({ ...state, html: values[fieldName] as string });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values, fieldName]);
