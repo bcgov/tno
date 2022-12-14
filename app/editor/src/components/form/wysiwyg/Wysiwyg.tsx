@@ -84,16 +84,20 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
 
   const stripHtml = () => {
     // strip html from string
-    let doc = new DOMParser().parseFromString(values[fieldName!] as string, 'text/html');
-    setFieldValue(fieldName!, doc.body.textContent || '');
-    setState({ ...state, html: doc.body.textContent || '' });
+    if (!!fieldName) {
+      let doc = new DOMParser().parseFromString(values[fieldName] as string, 'text/html');
+      setFieldValue(fieldName, doc.body.textContent || '');
+      setState({ ...state, html: doc.body.textContent || '' });
+    }
   };
 
   const handleChange = (html: string) => {
     setState({ ...state, html: html });
-    setFieldValue(fieldName!, html);
-    if (html === '<p><br></p>') {
-      setFieldValue(fieldName!, '');
+    if (!!fieldName) {
+      setFieldValue(fieldName, html);
+      if (html === '<p><br></p>') {
+        setFieldValue(fieldName, '');
+      }
     }
   };
 
@@ -147,12 +151,14 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
             modules={modules}
             formats={formats}
             onBlur={() => {
-              const value = values[fieldName!];
-              if (!!value && typeof value === 'string') {
-                const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
-                const tagValues = stringValue?.split(', ') ?? [];
-                const tags = extractTags(tagValues);
-                if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+              if (!!fieldName) {
+                const value = values[fieldName];
+                if (!!value && typeof value === 'string') {
+                  const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
+                  const tagValues = stringValue?.split(', ') ?? [];
+                  const tags = extractTags(tagValues);
+                  if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+                }
               }
             }}
           />
@@ -163,7 +169,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
           />
         </>
       )}
-      <Error error={touched[fieldName!] ? (errors[fieldName!] as string) : ''} />
+      <Error error={!!fieldName && touched[fieldName] ? (errors[fieldName] as string) : ''} />
     </styled.Wysiwyg>
   );
 };
