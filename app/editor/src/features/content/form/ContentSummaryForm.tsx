@@ -389,6 +389,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 
           <Modal
             body={<Wysiwyg label="Summary" required fieldName="summary" hasHeight />}
+            hasHeight
             isShowing={showExpandModal}
             hide={() => setShowExpandModal(!showExpandModal)}
             customButtons={

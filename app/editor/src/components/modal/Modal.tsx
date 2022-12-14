@@ -7,9 +7,9 @@ import * as styled from './styled';
 
 export interface IModalProps {
   /** function used to toggle the modal visibility */
-  hide: () => void;
+  hide?: () => void;
   /** boolean value used to determine whether to show the modal or not */
-  isShowing: boolean;
+  isShowing?: boolean;
   /** the text to show along with the cancel button to close the modal */
   cancelText?: string;
   /** the text to show along with the confirm button on the modal */
@@ -24,6 +24,7 @@ export interface IModalProps {
   customButtons?: React.ReactNode;
   /** preset stylings for the modal */
   type?: 'delete' | 'default' | 'custom';
+  hasHeight?: boolean;
 }
 
 /**
@@ -40,10 +41,11 @@ export const Modal: React.FC<IModalProps> = ({
   body,
   customButtons,
   type,
+  hasHeight,
 }) => {
   return isShowing
     ? ReactDOM.createPortal(
-        <styled.Modal>
+        <styled.Modal hasHeight={hasHeight}>
           <div className="modal-overlay">
             <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
               <div className="modal">

@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { Col } from 'tno-core/dist/components/flex';
 
-export const Modal = styled(Col)`
+import { IModalProps } from '../Modal';
+
+export const Modal = styled(Col)<IModalProps>`
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -35,13 +37,13 @@ export const Modal = styled(Col)`
     z-index: 100;
     background: white;
     position: relative;
-    margin: 2%;
+    margin: ${(props) => (props.hasHeight ? '2%' : '10%')};
     border-radius: 3px;
     min-width: fit-content;
     max-width: 93%;
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
-    height: -webkit-fill-available;
+    height: ${(props) => props.hasHeight && '-webkit-fill-available'};
   }
 
   .modal-header {
