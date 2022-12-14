@@ -35,12 +35,13 @@ export const Modal = styled(Col)`
     z-index: 100;
     background: white;
     position: relative;
-    margin: 10% auto;
+    margin: 2% auto;
     border-radius: 3px;
     min-width: fit-content;
-    max-width: 85%;
+    max-width: 93%;
     padding: 2rem;
     background-color: rgba(255, 255, 255, 1);
+    height: -webkit-fill-available;
   }
 
   .modal-header {

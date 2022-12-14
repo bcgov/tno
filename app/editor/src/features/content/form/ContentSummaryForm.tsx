@@ -255,7 +255,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
             }
           >
-            <Wysiwyg label="Story" fieldName="body" />
+            <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
           </Show>
         </Col>
       </Show>
@@ -388,7 +388,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Button>
 
           <Modal
-            body={<Wysiwyg label="Summary" required fieldName="summary" />}
+            body={<Wysiwyg label="Summary" required fieldName="summary" hasHeight />}
             isShowing={showExpandModal}
             hide={() => setShowExpandModal(!showExpandModal)}
             customButtons={

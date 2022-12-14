@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 interface IWysiwygProps {
   viewRaw: boolean;
+  hasHeight?: boolean;
 }
 
 export const Wysiwyg = styled.div<IWysiwygProps>`
@@ -27,6 +28,7 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
 
   .ql-editor {
     min-height: 25rem;
+    height: ${(props) => props.hasHeight && '42rem'};
     p {
       font-family: ${(props) => props.theme.css?.bcSans};
       font-size: 1rem;

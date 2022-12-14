@@ -47,9 +47,11 @@ export const Modal: React.FC<IModalProps> = ({
           <div className="modal-overlay">
             <div className="modal-wrapper" aria-modal aria-hidden tabIndex={-1} role="dialog">
               <div className="modal">
-                <Row className="modal-header">
-                  <h1>{headerText}</h1>
-                </Row>
+                {!!headerText && (
+                  <Row className="modal-header">
+                    <h1>{headerText}</h1>
+                  </Row>
+                )}
                 <Row>{body}</Row>
                 {!!!customButtons && (
                   <Row className="button-row">
