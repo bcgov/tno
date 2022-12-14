@@ -5,8 +5,25 @@ export const ToolBarSection = styled(Col)`
   padding: 0.5em;
 
   .children-container {
+    .white-bg {
+      background-color: ${(props) => props.theme.css.backgroundColor};
+      padding: 0.25em;
+      border-radius: 4px;
+    }
+    .txt {
+      background-color: ${(props) => props.theme.css.backgroundColor};
+    }
+    .small-txt {
+      max-height: 1.5em;
+    }
+    .frm-in {
+      padding-bottom: 0;
+    }
     padding: 0.5em;
     justify-content: center;
+    .chk {
+      align-self: center;
+    }
     .action-button {
       color: ${(props) => props.theme.css.actionButtonColor};
       height: 1.75em;

@@ -44,15 +44,10 @@ import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno
 import { hasErrors } from 'utils';
 
 import { getStatusText } from '../list-view/utils';
+import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
-import {
-  ContentActions,
-  ContentClipForm,
-  ContentLabelsForm,
-  ContentSummaryForm,
-  ContentTranscriptForm,
-} from '.';
+import { ContentClipForm, ContentLabelsForm, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -117,7 +112,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       // TODO: Determine actions for remaining content types
       // eslint-disable-next-line no-fallthrough
       default:
-        return (a: IActionModel) => a.valueType === ValueType.Boolean;
+        return (a: IActionModel) =>
+          a.valueType === ValueType.Boolean && a.name !== ActionName.Alert;
     }
   };
 
@@ -357,6 +353,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           >
             {(props) => (
               <Col>
+                <ContentFormToolBar
+                  contentType={contentType}
+                  determineActions={determineActions()}
+                />
+
                 <FormikHidden name="uid" />
                 <Row alignItems="flex-start" className="content-details">
                   <Show visible={size === 0}>
@@ -510,20 +511,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             <FaArrowRight />
                           </Button>
                         </FormikText>
-                      </Show>
-                    </Col>
-                    <Col className="checkbox-column" flex="0.5 1 0%">
-                      <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
-                        <ContentActions
-                          init
-                          contentType={contentType}
-                          filter={determineActions()}
-                        />
-                      </Col>
-                      <Show visible={!isImageForm(contentType)}>
-                        <Row className="commentary">
-                          <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
-                        </Row>
                       </Show>
                     </Col>
                   </Show>

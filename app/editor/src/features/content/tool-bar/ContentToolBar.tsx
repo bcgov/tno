@@ -9,7 +9,7 @@ import {
   CreateNewSection,
   FilterContentSection,
   ShowOnlySection,
-} from './sections';
+} from './sections/filter';
 
 export interface IContentToolBarProps {
   onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
