@@ -55,7 +55,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
       setState({ ...state, html: values[fieldName!] as string });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, values]);
+  }, [id, values, fieldName]);
 
   const tagMatch = /\[.*?\]/g;
 
