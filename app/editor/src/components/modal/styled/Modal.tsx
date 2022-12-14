@@ -35,7 +35,7 @@ export const Modal = styled(Col)`
     z-index: 100;
     background: white;
     position: relative;
-    margin: 2% auto;
+    margin: 2%;
     border-radius: 3px;
     min-width: fit-content;
     max-width: 93%;
