@@ -15,7 +15,7 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
   determineActions,
 }) => {
   return (
-    <ToolBar>
+    <ToolBar className="dark-bg">
       <ActionSection contentType={contentType} determineActions={determineActions} />
       <AlertSection />
     </ToolBar>

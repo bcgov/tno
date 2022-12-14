@@ -2,7 +2,10 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const ToolBar = styled(Row)`
-  background-color: ${(props) => props.theme.css.backgroundColor};
+  background-color: ${(props) =>
+    props.className === 'dark-bg'
+      ? props.theme.css.darkerBackgroundColor
+      : props.theme.css.backgroundColor};
   max-height: 8.5em;
   align-items: center;
   border-radius: 4px;
