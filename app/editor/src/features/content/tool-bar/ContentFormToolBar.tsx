@@ -22,8 +22,8 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
   const { setFieldValue, values } = useFormikContext<IContentForm>();
   return (
     <ToolBar variant="dark">
-      <ActionSection contentType={contentType} determineActions={determineActions} />
       <AlertSection />
+      <ActionSection contentType={contentType} determineActions={determineActions} />
       <ToolBarSection
         children={
           <ToggleGroup
@@ -37,7 +37,7 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
             }))}
           />
         }
-        label="LICENSE EXPIRY"
+        label="LICENCE EXPIRY"
         icon={<FaCalendarTimes />}
       />
     </ToolBar>
