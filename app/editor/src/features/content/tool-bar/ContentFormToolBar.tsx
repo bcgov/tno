@@ -3,8 +3,6 @@ import { ContentTypeName, IActionModel } from 'hooks';
 
 import { ActionSection, AlertSection } from './sections/form';
 
-// import { ActionSection } from './sections/form';
-
 export interface IContentFormToolBarProps {
   contentType: ContentTypeName;
   determineActions: (a: IActionModel) => boolean;
