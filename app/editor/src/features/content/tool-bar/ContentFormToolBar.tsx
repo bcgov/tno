@@ -20,9 +20,8 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
 }) => {
   const [{ licenses }] = useLookup();
   const { setFieldValue, values } = useFormikContext<IContentForm>();
-  console.log(licenses.find((l) => l.id === values.licenseId)?.name.replace(/expire/i, ''));
   return (
-    <ToolBar className="dark-bg">
+    <ToolBar variant="dark">
       <ActionSection contentType={contentType} determineActions={determineActions} />
       <AlertSection />
       <ToolBarSection

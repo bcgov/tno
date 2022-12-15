@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 import { Row } from 'tno-core';
 
-export const ToolBar = styled(Row)`
+import { IToolBarProps } from '../ToolBar';
+
+export const ToolBar = styled(Row)<IToolBarProps>`
   background-color: ${(props) =>
-    props.className === 'dark-bg'
+    props.variant === 'dark'
       ? props.theme.css.darkerBackgroundColor
       : props.theme.css.backgroundColor};
   max-height: 8.5em;
@@ -17,4 +19,5 @@ export const ToolBar = styled(Row)`
   .section:last-child {
     border-right: none;
   }
+  margin-bottom: 0.5em;
 `;

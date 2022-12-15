@@ -28,11 +28,13 @@ export const ContentForm = styled.div`
   }
 
   .disabled {
-    color: ${(props) => props.theme.css.lightVariantColor} !important;
+    color: ${(props) => props.theme.css.lightVariantColor};
   }
 
   .icon-button {
-    color: ${(props) => props.theme.css.actionIconColor};
+    :not(.disabled) {
+      color: ${(props) => props.theme.css.actionIconColor};
+    }
     align-self: center;
     height: 1.5em;
     width: 1.5em;
