@@ -1,6 +1,7 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { useFormikContext } from 'formik';
+import { stat } from 'fs';
 import { IContentModel } from 'hooks';
 import { html_beautify } from 'js-beautify';
 import _ from 'lodash';
@@ -44,7 +45,10 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, e
 
   React.useEffect(() => {
     if (!!id) {
-      setState({ ...state, html: values[fieldName] as string });
+      setState({
+        ...state,
+        html: (values[fieldName] as string).replace(/\n/g, '<br />'),
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values]);
