@@ -1,6 +1,6 @@
 import 'react-quill/dist/quill.snow.css';
 
-import { IOptionItem, OptionItem, RadioGroup, TimeInput, Wysiwyg } from 'components/form';
+import { IOptionItem, OptionItem, TimeInput, Wysiwyg } from 'components/form';
 import { FormikRadioGroup, FormikSelect, FormikText } from 'components/formik';
 import { FormikDatePicker } from 'components/formik/datepicker';
 import { Modal } from 'components/modal/Modal';
@@ -43,7 +43,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   savePressed,
 }) => {
   const keycloak = useKeycloakWrapper();
-  const [{ series, categories, licenses, users }] = useLookup();
+  const [{ series, categories, users }] = useLookup();
   const { values, setFieldValue, errors } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
@@ -52,7 +52,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
-  const [licenseOptions, setLicenseOptions] = React.useState<IOptionItem[]>([]);
   const [effort, setEffort] = React.useState(0);
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
@@ -101,10 +100,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   React.useEffect(() => {
     setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id)));
   }, [series]);
-
-  React.useEffect(() => {
-    setLicenseOptions(licenses.map((m: any) => new OptionItem(m.name, m.id)));
-  }, [licenses]);
 
   React.useEffect(() => {
     setStreamUrl(path ? `/api/editor/contents/upload/stream?path=${path}` : '');
