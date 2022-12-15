@@ -1,7 +1,6 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { useFormikContext } from 'formik';
-import { stat } from 'fs';
 import { IContentModel } from 'hooks';
 import { html_beautify } from 'js-beautify';
 import _ from 'lodash';
