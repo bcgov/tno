@@ -12,6 +12,7 @@ import { useModal } from 'hooks/modal';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
+import { TbLanguage } from 'react-icons/tb';
 import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, useKeycloakWrapper } from 'tno-core';
 import { getSortableOptions } from 'utils';
@@ -159,36 +160,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               />
             </Row>
           </Show>
-          <Show visible={contentType !== ContentTypeName.Image}>
-            <Row alignContent="flex-start" alignItems="flex-start">
-              <FormikSelect
-                name="categories"
-                label="Event of Day Category"
-                width={FieldSize.Medium}
-                options={categoryOptions}
-                value={
-                  !!values.categories?.length
-                    ? categoryOptions.find((c) => c.value === values.categories[0].id)
-                    : []
-                }
-                onChange={(e: any) => {
-                  // only supports one at a time right now
-                  let value;
-                  if (!!e?.value) {
-                    value = categories.find((c) => c.id === e.value);
-                  }
-                  setFieldValue('categories', !!value ? [value] : []);
-                }}
-              />
-              <FormikText
-                name="categories[0].score"
-                label="Score"
-                type="number"
-                width={FieldSize.Medium}
-                disabled={!values.categories?.length}
-              />
-            </Row>
-          </Show>
           <Row alignContent="flex-start" alignItems="flex-start">
             <FormikDatePicker
               name="publishedOn"
@@ -227,7 +198,36 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Show>
           </Row>
         </Col>
-        <Show visible={contentType !== ContentTypeName.Image}>
+        <div className="vl" />
+        <Col className="transcription-section">
+          <label className="label">Create Labels</label>
+          <Button>
+            <TbLanguage className="nlp-button" /> START NLP
+          </Button>
+        </Col>
+        <div className="vl" />
+        <Col>
+          <FormikSelect
+            name="categories"
+            label="Event of Day Category"
+            width={FieldSize.Medium}
+            options={categoryOptions}
+            value={
+              !!values.categories?.length
+                ? categoryOptions.find((c) => c.value === values.categories[0].id)
+                : []
+            }
+            onChange={(e: any) => {
+              // only supports one at a time right now
+              let value;
+              if (!!e?.value) {
+                value = categories.find((c) => c.id === e.value);
+              }
+              setFieldValue('categories', !!value ? [value] : []);
+            }}
+          />
+        </Col>
+        {/* <Show visible={contentType !== ContentTypeName.Image}>
           <Col className="licenses">
             <RadioGroup
               name="expireOptions"
@@ -238,7 +238,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
             />
           </Col>
-        </Show>
+        </Show> */}
       </Row>
       <Show visible={contentType !== ContentTypeName.Image}>
         <Col flex="1 1 0">
@@ -260,39 +260,122 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         </Col>
       </Show>
       <Show visible={contentType !== ContentTypeName.Image}>
-        <Row>
-          <FormikText
-            name="tags"
-            label="Tags"
-            disabled
-            width={combined ? FieldSize.Big : FieldSize.Large}
-            value={values.tags.map((t) => t.id).join(', ')}
-          />
-          <Button
-            variant={ButtonVariant.danger}
-            className="top-spacer"
-            onClick={() => {
-              setFieldValue('summary', values.summary.replace(tagMatch, ''));
-              setFieldValue('tags', []);
-            }}
-          >
-            Clear Tags
-          </Button>
+        <Row className="multi-section">
+          <Row className="multi-group">
+            <FormikText
+              name="tags"
+              label="Tags"
+              disabled
+              width={combined ? FieldSize.Big : FieldSize.Large}
+              value={values.tags.map((t) => t.id).join(', ')}
+            />
+            <Button
+              variant={ButtonVariant.danger}
+              className="top-spacer"
+              onClick={() => {
+                setFieldValue('summary', values.summary.replace(tagMatch, ''));
+                setFieldValue('tags', []);
+              }}
+            >
+              Clear Tags
+            </Button>
+          </Row>
+          <div className="multi-group">
+            <FormikRadioGroup
+              label="Toning"
+              direction="row"
+              className="toning"
+              error={savePressed && toningError}
+              name="tonePool"
+              required
+              options={toningOptions}
+              onChange={(e, value) => {
+                setFieldValue('tonePool', value);
+                setFieldValue('tone', value?.value);
+              }}
+            />
+          </div>
+          <Show visible={contentType !== ContentTypeName.Image}>
+            <Row className="multi-group">
+              <FormikText
+                width={FieldSize.Small}
+                name="prep"
+                label="Prep Time (minutes)"
+                type="number"
+              />
+              <Button
+                className="top-spacer add-time"
+                variant={ButtonVariant.secondary}
+                disabled={isNaN((values as any).prep)}
+                onClick={() => {
+                  setEffort(effort!! + Number((values as any).prep));
+                  setFieldValue('timeTrackings', [
+                    ...values.timeTrackings,
+                    {
+                      userId: userId,
+                      activity: !!values.id ? 'Updated' : 'Created',
+                      effort: (values as any).prep,
+                      createdOn: new Date(),
+                    },
+                  ]);
+                  setFieldValue('prep', '');
+                }}
+              >
+                Add
+              </Button>
+              <FormikText
+                disabled
+                width={FieldSize.Tiny}
+                name="total"
+                label="Total"
+                value={effort?.toString()}
+              />
+              <Button
+                onClick={() => {
+                  setContent({ ...content, timeTrackings: values.timeTrackings });
+                  toggle();
+                }}
+                className="top-spacer"
+                variant={ButtonVariant.secondary}
+              >
+                View Log
+              </Button>
+
+              <Modal
+                body={<Wysiwyg label="Summary" required fieldName="summary" />}
+                isShowing={showExpandModal}
+                hide={() => setShowExpandModal(!showExpandModal)}
+                customButtons={
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    onClick={() => setShowExpandModal(!showExpandModal)}
+                  >
+                    Close
+                  </Button>
+                }
+              />
+
+              <Modal
+                hide={toggle}
+                isShowing={isShowing}
+                headerText="Prep Time Log"
+                body={
+                  <TimeLogTable
+                    setTotalEffort={setEffort}
+                    totalEffort={effort}
+                    data={values.timeTrackings}
+                  />
+                }
+                customButtons={
+                  <Button variant={ButtonVariant.secondary} onClick={toggle}>
+                    Close
+                  </Button>
+                }
+              />
+            </Row>
+          </Show>
         </Row>
-        <Row className="row-margins">
-          <FormikRadioGroup
-            label="Toning"
-            direction="row"
-            error={savePressed && toningError}
-            name="tonePool"
-            required
-            options={toningOptions}
-            onChange={(e, value) => {
-              setFieldValue('tonePool', value);
-              setFieldValue('tone', value?.value);
-            }}
-          />
-        </Row>
+        <Row className="row-margins"></Row>
       </Show>
       <Show
         visible={contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image}
@@ -345,81 +428,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </video>
           </Col>
         </Show>
-      </Show>
-      <Show visible={contentType !== ContentTypeName.Image}>
-        <Row className="row-margins">
-          <FormikText className="sm" name="prep" label="Prep Time (minutes)" type="number" />
-          <Button
-            className="top-spacer add-time"
-            variant={ButtonVariant.secondary}
-            disabled={isNaN((values as any).prep)}
-            onClick={() => {
-              setEffort(effort!! + Number((values as any).prep));
-              setFieldValue('timeTrackings', [
-                ...values.timeTrackings,
-                {
-                  userId: userId,
-                  activity: !!values.id ? 'Updated' : 'Created',
-                  effort: (values as any).prep,
-                  createdOn: new Date(),
-                },
-              ]);
-              setFieldValue('prep', '');
-            }}
-          >
-            Add
-          </Button>
-          <FormikText
-            disabled
-            className="sm"
-            name="total"
-            label="Total"
-            value={effort?.toString()}
-          />
-          <Button
-            onClick={() => {
-              setContent({ ...content, timeTrackings: values.timeTrackings });
-              toggle();
-            }}
-            className="top-spacer"
-            variant={ButtonVariant.secondary}
-          >
-            View Log
-          </Button>
-
-          <Modal
-            body={<Wysiwyg label="Summary" required fieldName="summary" hasHeight />}
-            hasHeight
-            isShowing={showExpandModal}
-            hide={() => setShowExpandModal(!showExpandModal)}
-            customButtons={
-              <Button
-                variant={ButtonVariant.secondary}
-                onClick={() => setShowExpandModal(!showExpandModal)}
-              >
-                Close
-              </Button>
-            }
-          />
-
-          <Modal
-            hide={toggle}
-            isShowing={isShowing}
-            headerText="Prep Time Log"
-            body={
-              <TimeLogTable
-                setTotalEffort={setEffort}
-                totalEffort={effort}
-                data={values.timeTrackings}
-              />
-            }
-            customButtons={
-              <Button variant={ButtonVariant.secondary} onClick={toggle}>
-                Close
-              </Button>
-            }
-          />
-        </Row>
       </Show>
     </styled.ContentSummaryForm>
   );

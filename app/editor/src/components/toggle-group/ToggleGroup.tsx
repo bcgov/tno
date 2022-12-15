@@ -48,6 +48,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
         <button
           key={option.label}
           className={`toggle-item ${activeToggle === option.label.toLowerCase() ? 'active' : ''}`}
+          type="button"
           onClick={() => {
             setActiveToggle(option.label.toLowerCase());
             !!option.dropDownOptions && onDropDownClick();

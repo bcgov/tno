@@ -9,7 +9,7 @@ export interface IToolBarSectionProps {
 }
 /**
  * Creates a section for the parent ToolBar component
- * @param actions Provide buttons/ filter actions for given section
+ * @param children Provide buttons/ filter actions for given section
  * @param label Provide a label for the section
  * @param icon Provide an icon for the section
  * @returns A ToolBar section
