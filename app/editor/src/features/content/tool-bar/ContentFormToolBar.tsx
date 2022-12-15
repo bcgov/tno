@@ -33,7 +33,7 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
               .toLowerCase()}
             options={licenses.map((l) => ({
               label: l.name.toUpperCase().replace(/expire/i, ''),
-              onClick: () => setFieldValue('licenseId', l.id),
+              onClick: () => setFieldValue('licenseId', Number(l.id)),
             }))}
           />
         }

@@ -29,6 +29,11 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
   };
   const ref = React.useRef<HTMLDivElement>(null);
 
+  // ensure default selected gets reset when new content is loaded
+  React.useEffect(() => {
+    if (defaultSelected) setActiveToggle(defaultSelected);
+  }, [defaultSelected]);
+
   // Close dropdown when clicking outside of it
   React.useEffect(() => {
     const handleClickOutside = (event: any) => {
