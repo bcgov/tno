@@ -1,8 +1,8 @@
 {
-  "realm": "tno",
-  "auth-server-url": "http://localhost:40001/auth/",
-  "ssl-required": "external",
-  "resource": "tno-app",
-  "public-client": true,
-  "confidential-port": 0
+    "realm": "tno",
+    "auth-server-url": "http://localhost:40001/auth/",
+    "ssl-required": "external",
+    "resource": "tno-app",
+    "public-client": true,
+    "confidential-port": 0
 }

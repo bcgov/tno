@@ -20,6 +20,41 @@ export const ContentForm = styled.div`
     }
   }
 
+  .src-cpy {
+    border: solid 1px #606060;
+    border-left: none;
+    border-top-right-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+  }
+
+  .disabled {
+    color: ${(props) => props.theme.css.lightVariantColor};
+  }
+
+  .icon-button {
+    :not(.disabled) {
+      color: ${(props) => props.theme.css.actionIconColor};
+    }
+    align-self: center;
+    height: 1.5em;
+    width: 1.5em;
+    padding: 0.45em;
+    :not(.disabled): hover {
+      cursor: pointer;
+      color: ${(props) => props.theme.css.lightAccentColor};
+    }
+  }
+
+  .source-url {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .headline {
+    height: 2.5em;
+  }
+
   .checkbox-column {
     margin-left: 2em;
 

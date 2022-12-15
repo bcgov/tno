@@ -22,7 +22,6 @@ export const Area = styled.div`
   }
 
   .chk {
-    margin-right: 2%;
     .label {
       width: 110px;
     }
