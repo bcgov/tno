@@ -15,12 +15,14 @@ import * as styled from './styled';
 
 export interface IWysiwygProps {
   /** the formik field that is being used within the WYSIWYG */
-  fieldName: keyof IContentModel;
+  fieldName?: keyof IContentModel;
   /** optional label to appear above the WYSIWYG */
   label?: string;
   /** whether or not it is a required field */
   required?: boolean;
   expandModal?: (show: boolean) => void;
+  viewRaw?: boolean;
+  hasHeight?: boolean;
 }
 /**
  * A WYSIWYG editor for the content summary form
@@ -29,7 +31,13 @@ export interface IWysiwygProps {
  * @param required Whether or not the field is required
  * @returns A WYSIWYG editor for the content summary form
  */
-export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, expandModal }) => {
+export const Wysiwyg: React.FC<IWysiwygProps> = ({
+  fieldName,
+  label,
+  required,
+  expandModal,
+  hasHeight,
+}) => {
   const { values, setFieldValue, errors, touched } = useFormikContext<IContentModel>();
   const [toolBarNode, setToolBarNode] = React.useState();
   const [{ tags }] = useLookup();
@@ -43,14 +51,14 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, e
   const [showRaw, setShowRaw] = React.useState(false);
 
   React.useEffect(() => {
-    if (!!id) {
+    if (!!id && !!fieldName) {
       setState({
         ...state,
         html: (values[fieldName] as string).replace(/\n/g, '<br />'),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, values]);
+  }, [id, values, fieldName]);
 
   const tagMatch = /\[.*?\]/g;
 
@@ -79,16 +87,20 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, e
 
   const stripHtml = () => {
     // strip html from string
-    let doc = new DOMParser().parseFromString(values[fieldName] as string, 'text/html');
-    setFieldValue(fieldName, doc.body.textContent || '');
-    setState({ ...state, html: doc.body.textContent || '' });
+    if (!!fieldName) {
+      let doc = new DOMParser().parseFromString(values[fieldName] as string, 'text/html');
+      setFieldValue(fieldName, doc.body.textContent || '');
+      setState({ ...state, html: doc.body.textContent || '' });
+    }
   };
 
   const handleChange = (html: string) => {
     setState({ ...state, html: html });
-    setFieldValue(fieldName, html);
-    if (html === '<p><br></p>') {
-      setFieldValue(fieldName, '');
+    if (!!fieldName) {
+      setFieldValue(fieldName, html);
+      if (html === '<p><br></p>') {
+        setFieldValue(fieldName, '');
+      }
     }
   };
 
@@ -120,7 +132,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, e
   ];
 
   return (
-    <styled.Wysiwyg viewRaw={showRaw}>
+    <styled.Wysiwyg viewRaw={showRaw} hasHeight={hasHeight}>
       {label && <label className={required ? 'required' : ''}>{label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
@@ -142,12 +154,14 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, e
             modules={modules}
             formats={formats}
             onBlur={() => {
-              const value = values[fieldName];
-              if (!!value && typeof value === 'string') {
-                const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
-                const tagValues = stringValue?.split(', ') ?? [];
-                const tags = extractTags(tagValues);
-                if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+              if (!!fieldName) {
+                const value = values[fieldName];
+                if (!!value && typeof value === 'string') {
+                  const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
+                  const tagValues = stringValue?.split(', ') ?? [];
+                  const tags = extractTags(tagValues);
+                  if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+                }
               }
             }}
           />
@@ -158,7 +172,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({ fieldName, label, required, e
           />
         </>
       )}
-      <Error error={touched[fieldName] ? (errors[fieldName] as string) : ''} />
+      <Error error={!!fieldName && touched[fieldName] ? (errors[fieldName] as string) : ''} />
     </styled.Wysiwyg>
   );
 };
