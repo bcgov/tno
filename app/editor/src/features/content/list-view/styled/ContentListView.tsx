@@ -21,7 +21,7 @@ export const ContentListView = styled(FormPage)`
     div[role='rowgroup'] {
       min-height: 100px;
       max-height: calc(100vh - 600px);
-      overflow-y: scroll;
+      overflow-y: overlay;
       overflow-x: hidden;
     }
 

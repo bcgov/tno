@@ -52,7 +52,10 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
 
   React.useEffect(() => {
     if (!!id && !!fieldName) {
-      setState({ ...state, html: values[fieldName] as string });
+      setState({
+        ...state,
+        html: (values[fieldName] as string).replace(/\n/g, '<br />'),
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, values, fieldName]);
