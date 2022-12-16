@@ -4,7 +4,9 @@ import { getIn, useFormikContext } from 'formik';
 import { ActionName, ContentTypeName, useNamespace } from 'hooks';
 import { IActionModel, IContentActionModel, ValueType } from 'hooks/api-editor';
 import React from 'react';
+import { FaHourglassHalf } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
+import { FieldSize, Row } from 'tno-core';
 
 import { IContentForm } from './interfaces';
 
@@ -121,12 +123,16 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
           />
         )}
         {a.valueType === ValueType.String && (
-          <FormikText
-            name={field('value', index)}
-            label={a.valueLabel}
-            disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
-            required={!!hidden.find((h) => h.id === a.id)?.value}
-          />
+          <Row>
+            {a.name === 'Commentary' && <FaHourglassHalf className="icon-indicator" />}
+            <FormikText
+              name={field('value', index)}
+              disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+              required={!!hidden.find((h) => h.id === a.id)?.value}
+              width={FieldSize.Tiny}
+              className="small-txt"
+            />
+          </Row>
         )}
         {a.valueType === ValueType.Text && (
           <FormikTextArea

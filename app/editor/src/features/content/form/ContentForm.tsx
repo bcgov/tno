@@ -1,7 +1,4 @@
-import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Area, IconButton } from 'components/form';
+import { Area } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
   FormikForm,
@@ -28,14 +25,7 @@ import { ContentStatusName, IContentModel, useApiHub, ValueType } from 'hooks/ap
 import { useModal } from 'hooks/modal';
 import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
-import {
-  FaArrowRight,
-  FaBars,
-  FaChevronLeft,
-  FaChevronRight,
-  FaGripLines,
-  FaSpinner,
-} from 'react-icons/fa';
+import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
@@ -43,16 +33,10 @@ import { IAjaxRequest } from 'store/slices';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
 
-import { getStatusText } from '../list-view/utils';
+import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
-import {
-  ContentActions,
-  ContentClipForm,
-  ContentLabelsForm,
-  ContentSummaryForm,
-  ContentTranscriptForm,
-} from '.';
+import { ContentClipForm, ContentLabelsForm, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -75,10 +59,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [
-    { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, attach },
-  ] = useContent();
+  const [, { getContent, addContent, updateContent, deleteContent, upload, attach }] = useContent();
   const [, { transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
@@ -102,9 +83,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   });
 
   const userId = userInfo?.id ?? '';
-  const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
-  const enablePrev = indexPosition > 0;
-  const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
+  // const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
+  // const enablePrev = indexPosition > 0;
+  // const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
   const determineActions = () => {
     switch (contentType) {
@@ -117,7 +98,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       // TODO: Determine actions for remaining content types
       // eslint-disable-next-line no-fallthrough
       default:
-        return (a: IActionModel) => a.valueType === ValueType.Boolean;
+        return (a: IActionModel) =>
+          a.valueType === ValueType.Boolean && a.name !== ActionName.Alert;
     }
   };
 
@@ -275,7 +257,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     <styled.ContentForm className="content-form">
       <FormPage minWidth={'1200px'} maxWidth="" className={combined ? 'no-padding' : ''}>
         <Area>
-          <Row>
+          {/* <Row>
             <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
             <Show visible={!combined}>
               <Button
@@ -346,7 +328,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
               <label>Status:</label>
               <span>{getStatusText(form.status)}</span>
             </Row>
-          </Row>
+          </Row> */}
           <FormikForm
             onSubmit={handleSave}
             validationSchema={ContentFormSchema}
@@ -357,6 +339,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           >
             {(props) => (
               <Col>
+                <ContentFormToolBar
+                  contentType={contentType}
+                  determineActions={determineActions()}
+                />
+
                 <FormikHidden name="uid" />
                 <Row alignItems="flex-start" className="content-details">
                   <Show visible={size === 0}>
@@ -388,6 +375,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           <FormikTextArea
                             name="headline"
                             required
+                            className="headline"
                             label="Headline"
                             value={props.values.headline}
                           />
@@ -396,76 +384,69 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           </Show>
                         </Col>
                         <Col>
-                          <Button
-                            className="minimize-details"
-                            variant={ButtonVariant.link}
-                            tooltip="Minimize Details"
-                            onClick={() => setSize(0)}
-                          >
-                            <FaGripLines />
-                          </Button>
+                          <Row>
+                            <FormikSelect
+                              name="productId"
+                              value={
+                                productOptions.find((mt) => mt.value === props.values.productId) ??
+                                ''
+                              }
+                              label="Designation"
+                              options={productOptions}
+                              required
+                            />
+                            <FormikSelect
+                              name="sourceId"
+                              label="Source"
+                              width={FieldSize.Big}
+                              value={
+                                sourceOptions.find((mt) => mt.value === props.values.sourceId) ?? ''
+                              }
+                              onChange={(newValue: any) => {
+                                if (!!newValue) {
+                                  const source = sources.find((ds) => ds.id === newValue.value);
+                                  props.setFieldValue('sourceId', newValue.value);
+                                  props.setFieldValue('otherSource', source?.code ?? '');
+                                  if (!!source) {
+                                    props.setFieldValue('licenseId', source.licenseId);
+                                    props.setFieldValue('productId', source.productId);
+                                  }
+                                }
+                              }}
+                              options={sourceOptions.filter(
+                                (x) =>
+                                  !isImageForm(contentType) ||
+                                  x.label.includes('(TC)') ||
+                                  x.label.includes('(PROVINCE)') ||
+                                  x.label.includes('(GLOBE)') ||
+                                  x.label.includes('(POST)') ||
+                                  x.label.includes('(SUN)'),
+                              )}
+                              required={!props.values.otherSource}
+                              isDisabled={!!props.values.tempSource}
+                            />
+                            <FormikHidden name="otherSource" />
+                            <Show visible={!isImageForm(contentType)}>
+                              <FormikText
+                                name="tempSource"
+                                label="Other Source"
+                                onChange={(e) => {
+                                  const value = e.currentTarget.value;
+                                  props.setFieldValue('tempSource', value);
+                                  props.setFieldValue('otherSource', value);
+                                  if (!!value) {
+                                    props.setFieldValue('sourceId', undefined);
+                                  }
+                                }}
+                                required={!!props.values.tempSource}
+                              />
+                            </Show>
+                          </Row>
                         </Col>
                       </Row>
+                      <Row></Row>
                       <Row>
-                        <FormikSelect
-                          name="sourceId"
-                          label="Source"
-                          width={FieldSize.Big}
-                          value={
-                            sourceOptions.find((mt) => mt.value === props.values.sourceId) ?? ''
-                          }
-                          onChange={(newValue: any) => {
-                            if (!!newValue) {
-                              const source = sources.find((ds) => ds.id === newValue.value);
-                              props.setFieldValue('sourceId', newValue.value);
-                              props.setFieldValue('otherSource', source?.code ?? '');
-                              if (!!source) {
-                                props.setFieldValue('licenseId', source.licenseId);
-                                props.setFieldValue('productId', source.productId);
-                              }
-                            }
-                          }}
-                          options={sourceOptions.filter(
-                            (x) =>
-                              !isImageForm(contentType) ||
-                              x.label.includes('(TC)') ||
-                              x.label.includes('(PROVINCE)') ||
-                              x.label.includes('(GLOBE)') ||
-                              x.label.includes('(POST)') ||
-                              x.label.includes('(SUN)'),
-                          )}
-                          required={!props.values.otherSource}
-                          isDisabled={!!props.values.tempSource}
-                        />
-                        <FormikHidden name="otherSource" />
-                        <Show visible={!isImageForm(contentType)}>
-                          <FormikText
-                            name="tempSource"
-                            label="Other Source"
-                            onChange={(e) => {
-                              const value = e.currentTarget.value;
-                              props.setFieldValue('tempSource', value);
-                              props.setFieldValue('otherSource', value);
-                              if (!!value) {
-                                props.setFieldValue('sourceId', undefined);
-                              }
-                            }}
-                            required={!!props.values.tempSource}
-                          />
-                        </Show>
-                      </Row>
-                      <Row>
-                        <Col grow={1}>
-                          <FormikSelect
-                            name="productId"
-                            value={
-                              productOptions.find((mt) => mt.value === props.values.productId) ?? ''
-                            }
-                            label="Designation"
-                            options={productOptions}
-                            required
-                          />
-                        </Col>
+                        <Col grow={1}></Col>
                         <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                           <Col grow={1}>
                             <FormikText name="edition" label="Edition" />
@@ -481,9 +462,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       <Show visible={isSnippetForm(contentType)}>
                         <FormikText
                           style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
+                          className="source-url"
                           name="sourceUrl"
                           label="Source URL"
                           tooltip="The URL to the original source story"
+                          width={FieldSize.Large}
                           onKeyDown={(e) => {
                             if (e.ctrlKey && props.values.sourceUrl) {
                               setTextDecorationStyle('underline');
@@ -500,30 +483,21 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             }
                           }}
                         >
-                          <Button
-                            disabled={!props.values.sourceUrl}
-                            variant={ButtonVariant.secondary}
+                          <FaCopy
+                            className="icon-button src-cpy"
+                            onClick={() => {
+                              if (props.values.sourceUrl) {
+                                navigator.clipboard.writeText(props.values.sourceUrl);
+                              }
+                            }}
+                          />
+                          <FaExternalLinkAlt
+                            className={`icon-button ${!props.values.sourceUrl && 'disabled'}`}
                             onClick={() =>
                               window.open(props.values.sourceUrl, '_blank', 'noreferrer')
                             }
-                          >
-                            <FaArrowRight />
-                          </Button>
+                          />
                         </FormikText>
-                      </Show>
-                    </Col>
-                    <Col className="checkbox-column" flex="0.5 1 0%">
-                      <Col style={{ marginTop: '4.5%' }} alignItems="flex-start" wrap="wrap">
-                        <ContentActions
-                          init
-                          contentType={contentType}
-                          filter={determineActions()}
-                        />
-                      </Col>
-                      <Show visible={!isImageForm(contentType)}>
-                        <Row className="commentary">
-                          <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
-                        </Row>
                       </Show>
                     </Col>
                   </Show>

@@ -4,8 +4,6 @@ import { ICheckboxProps } from '..';
 import { LabelPosition } from '../constants';
 
 export const Checkbox = styled.div<ICheckboxProps>`
-  margin-bottom: 1%;
-
   & > div:first-child {
     display: flex;
     flex-direction: ${(props) => {
