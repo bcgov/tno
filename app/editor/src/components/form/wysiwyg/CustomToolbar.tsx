@@ -1,5 +1,4 @@
 import { FaCode, FaExpandAlt, FaPaintBrush, FaRemoveFormat } from 'react-icons/fa';
-import { TiDelete } from 'react-icons/ti';
 export interface ICustomToolbarProps {
   onClickRaw: React.MouseEventHandler<HTMLButtonElement>;
   onClickRemoveFormat: React.MouseEventHandler<HTMLButtonElement>;
@@ -52,9 +51,6 @@ export const CustomToolbar: React.FC<ICustomToolbarProps> = ({
     <span className="ql-formats">
       <button type="button" onClick={onClickExpand}>
         <FaExpandAlt className="custom-icon" />
-      </button>
-      <button type="button" onClick={onClickClear}>
-        <TiDelete className="custom-icon delete" />
       </button>
     </span>
   </div>
