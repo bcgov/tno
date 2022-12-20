@@ -271,7 +271,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       <FormPage minWidth={'1200px'} maxWidth="" className={combined ? 'no-padding' : ''}>
         <Area>
           <Row>
-            <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
+            <Show visible={!combined}>
+              <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
+            </Show>
             <Show visible={!combined}>
               <Button
                 variant={ButtonVariant.secondary}
