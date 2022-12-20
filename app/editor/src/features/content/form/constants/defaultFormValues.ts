@@ -7,8 +7,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     id: 0,
     uid: '',
     sourceUrl: '',
-    status:
-      contentType === ContentTypeName.Snippet ? ContentStatusName.Publish : ContentStatusName.Draft,
+    status: ContentStatusName.Draft,
     contentType: contentType,
     sourceId: undefined,
     otherSource: '',
