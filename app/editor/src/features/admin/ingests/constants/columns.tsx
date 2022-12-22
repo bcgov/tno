@@ -48,6 +48,7 @@ export const columns: (Column<IIngestModel> &
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,
+    sortType: 'basic',
     Cell: (cell) => <Checkbox checked={cell.value} />,
   },
 ];
