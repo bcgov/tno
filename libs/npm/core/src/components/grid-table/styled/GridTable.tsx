@@ -58,7 +58,6 @@ export const GridTable = styled.div`
   }
 
   div[role='rowgroup'] {
-    position: relative;
     display: grid;
     grid-auto-rows: 1fr;
 
