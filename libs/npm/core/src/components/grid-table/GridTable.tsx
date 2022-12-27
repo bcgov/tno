@@ -285,10 +285,9 @@ export const GridTable = <T extends object>({
 
   React.useEffect(() => {
     instance.toggleAllRowsSelected(false);
-    const row = instance.rows.filter(
-      (x) => x.id === Object.keys(initSelectedRowIds as object)[0],
-    )[0];
-    if (row) {
+    const rows = instance.rows.filter((x) => x.id === Object.keys(initSelectedRowIds as object)[0]);
+    if (rows && rows.length === 1) {
+      const row = rows[0];
       row.toggleRowSelected(true);
       setActiveRow(row);
     }
