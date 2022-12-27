@@ -1,4 +1,6 @@
-import { Area } from 'components/form';
+import { faTableColumns, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Area, IconButton } from 'components/form';
 import { FormPage } from 'components/form/formpage';
 import {
   FormikForm,
@@ -25,7 +27,14 @@ import { ContentStatusName, IContentModel, useApiHub, ValueType } from 'hooks/ap
 import { useModal } from 'hooks/modal';
 import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
-import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
+import {
+  FaBars,
+  FaChevronLeft,
+  FaChevronRight,
+  FaCopy,
+  FaExternalLinkAlt,
+  FaSpinner,
+} from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
@@ -33,6 +42,7 @@ import { IAjaxRequest } from 'store/slices';
 import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
 
+import { getStatusText } from '../list-view/utils';
 import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
@@ -59,7 +69,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [, { getContent, addContent, updateContent, deleteContent, upload, attach }] = useContent();
+  const [
+    { content: page },
+    { getContent, addContent, updateContent, deleteContent, upload, attach },
+  ] = useContent();
   const [, { transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
@@ -83,9 +96,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   });
 
   const userId = userInfo?.id ?? '';
-  // const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
-  // const enablePrev = indexPosition > 0;
-  // const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
+  const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
+  const enablePrev = indexPosition > 0;
+  const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
 
   const determineActions = () => {
     switch (contentType) {
@@ -257,8 +270,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     <styled.ContentForm className="content-form">
       <FormPage minWidth={'1200px'} maxWidth="" className={combined ? 'no-padding' : ''}>
         <Area>
-          {/* <Row>
-            <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
+          <Row>
+            <Show visible={!combined}>
+              <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
+            </Show>
             <Show visible={!combined}>
               <Button
                 variant={ButtonVariant.secondary}
@@ -328,7 +343,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
               <label>Status:</label>
               <span>{getStatusText(form.status)}</span>
             </Row>
-          </Row> */}
+          </Row>
           <FormikForm
             onSubmit={handleSave}
             validationSchema={ContentFormSchema}
