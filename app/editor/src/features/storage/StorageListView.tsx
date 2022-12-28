@@ -1,3 +1,4 @@
+import { FormikForm } from 'components/formik';
 import { ContentClipForm } from 'features/content';
 import { defaultFormValues } from 'features/content/form/constants';
 import { IContentForm } from 'features/content/form/interfaces';
@@ -123,7 +124,9 @@ export const StorageListView: React.FC = (props) => {
   return (
     <styled.StorageListView>
       <Show visible={!!items.length}>
-        <ContentClipForm content={form} setContent={setForm} setClipErrors={setClipErrors} />
+        <FormikForm onSubmit={() => {}} initialValues={form}>
+          <ContentClipForm content={form} setContent={setForm} setClipErrors={setClipErrors} />
+        </FormikForm>
       </Show>
     </styled.StorageListView>
   );

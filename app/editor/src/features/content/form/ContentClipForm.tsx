@@ -37,7 +37,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   path: initPath,
   setClipErrors,
 }) => {
-  const { values, setFieldValue } = useFormikContext<IContentForm>() ?? {};
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { toggle, isShowing } = useModal();
   const storageApi = useStorage();
   const [, contentApi] = useContent();

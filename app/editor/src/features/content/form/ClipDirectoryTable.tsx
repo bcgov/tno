@@ -36,7 +36,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
   onAttach,
   navigate,
 }) => {
-  const { values } = useFormikContext<IItemModel>() ?? {};
+  const { values } = useFormikContext<IItemModel>();
   const isStorage = window.location.href.includes('/storage');
   useTooltips();
 
