@@ -356,6 +356,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
               <Col>
                 <ContentFormToolBar
                   contentType={contentType}
+                  status={getStatusText(form.status)}
                   determineActions={determineActions()}
                 />
 

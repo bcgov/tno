@@ -1,11 +1,12 @@
-import { Row } from 'tno-core';
+import { Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
 export interface IToolBarSectionProps {
   children: React.ReactNode;
-  label: string;
-  icon: React.ReactNode;
+  label?: string;
+  icon?: React.ReactNode;
+  title?: string;
 }
 /**
  * Creates a section for the parent ToolBar component
@@ -14,10 +15,18 @@ export interface IToolBarSectionProps {
  * @param icon Provide an icon for the section
  * @returns A ToolBar section
  */
-export const ToolBarSection: React.FC<IToolBarSectionProps> = ({ children, label, icon }) => {
+export const ToolBarSection: React.FC<IToolBarSectionProps> = ({
+  children,
+  label,
+  icon,
+  title,
+}) => {
   return (
     <styled.ToolBarSection className="section">
-      <Row className="children-container">{children}</Row>
+      <Show visible={!!title}>
+        <Row className="title-container">{title}</Row>
+      </Show>
+      <Row className={!!label ? 'children-container' : 'title-children'}>{children}</Row>
       <Row className="label-container">
         {icon}
         {label}
