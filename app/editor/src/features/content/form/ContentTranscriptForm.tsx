@@ -1,3 +1,4 @@
+import { Wysiwyg } from 'components/form';
 import { FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 
@@ -13,7 +14,7 @@ export const ContentTranscriptForm: React.FC = () => {
 
   return (
     <styled.ContentTranscriptForm>
-      <FormikTextArea name="body" label="Transcript" value={values.body} />
+      <Wysiwyg fieldName="body" />
     </styled.ContentTranscriptForm>
   );
 };
