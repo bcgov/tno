@@ -6,7 +6,7 @@ import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaCalendarAlt, FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
-import { Col, FieldSize, Row } from 'tno-core';
+import { Col, FieldSize, fromQueryString, Row } from 'tno-core';
 import { getUserOptions } from 'utils';
 
 import { InputOption } from './InputOption';
@@ -41,6 +41,18 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
     value && onChange({ ...filter, userId: value });
   };
 
+  const search = fromQueryString(window.location.search);
+  const timeFrames = [
+    { label: 'TODAY', value: 0 },
+    { label: '24 HRS', value: 1 },
+    { label: '48 HRS', value: 2 },
+    { label: 'ALL', value: 3 },
+  ];
+  const usersSelections = [
+    { label: 'ALL CONTENT', value: 0 },
+    { label: 'MY CONTENT', value: userInfo?.id },
+  ];
+
   return (
     <ToolBarSection
       children={
@@ -49,7 +61,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
             <Row>
               <FaClock className="icon-indicator" />
               <ToggleGroup
-                defaultSelected="today"
+                defaultSelected={timeFrames[search.timeFrame].label.toLowerCase() ?? 'today'}
                 options={[
                   {
                     label: 'TODAY',
@@ -67,7 +79,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
             <Row>
               <FaUsers className="icon-indicator" />
               <ToggleGroup
-                defaultSelected="my content"
+                defaultSelected={usersSelections[search.userId].label.toLowerCase() ?? 'my content'}
                 options={[
                   {
                     label: 'ALL CONTENT',

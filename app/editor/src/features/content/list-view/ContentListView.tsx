@@ -20,7 +20,7 @@ import { ContentToolBar } from '../tool-bar';
 import { columns, defaultPage } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
-import { makeFilter } from './utils';
+import { makeFilter, queryToFilter } from './utils';
 
 /**
  * ContentListView provides a way to list, search and select content for viewing and editing.
@@ -40,6 +40,13 @@ export const ContentListView: React.FC = () => {
 
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    // Extract query string values and place them into redux store.
+    storeFilter(queryToFilter(filter, window.location.search));
+    // Only want this to run on the first load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const page = React.useMemo(
     () =>
