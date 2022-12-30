@@ -1,7 +1,10 @@
-import { IOptionItem, OptionItem, Select } from 'components/form';
+import { IOptionItem, OptionItem, Select, SelectDate } from 'components/form';
 import { ToggleGroup } from 'components/toggle-group';
 import { ToolBarSection } from 'components/tool-bar';
-import { IContentListFilter } from 'features/content/list-view/interfaces';
+import {
+  IContentListAdvancedFilter,
+  IContentListFilter,
+} from 'features/content/list-view/interfaces';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaCalendarAlt, FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
@@ -13,6 +16,7 @@ import { InputOption } from './InputOption';
 
 export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
+  onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
 }
 
 /**
@@ -20,8 +24,11 @@ export interface IFilterContentSectionProps {
  * @param onChange determine what happens when filter changes are applied
  * @returns The filter content section
  */
-export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onChange }) => {
-  const [{ filter }] = useContent();
+export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
+  onChange,
+  onAdvancedFilterChange,
+}) => {
+  const [{ filter, filterAdvanced }] = useContent();
   const [{ productOptions: pOptions, users }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
@@ -62,7 +69,6 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
                   { label: 'ALL', onClick: () => onChange({ ...filter, timeFrame: 3 }) },
                 ]}
               />
-              <FaCalendarAlt className="action-icon" />
             </Row>
             <Row>
               <FaUsers className="icon-indicator" />
@@ -87,6 +93,37 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({ onC
             </Row>
           </Col>
           <Col>
+            <Row className="date-range">
+              <FaCalendarAlt className="action-icon" />
+
+              <SelectDate
+                name="startDate"
+                placeholderText="mm/dd/yyyy"
+                selected={
+                  !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
+                }
+                width="8em"
+                onChange={(date) =>
+                  onAdvancedFilterChange({
+                    ...filterAdvanced,
+                    startDate: !!date ? date.toString() : undefined,
+                  })
+                }
+              />
+              <SelectDate
+                name="endDate"
+                placeholderText="mm/dd/yyyy"
+                selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
+                width="8em"
+                onChange={(date) => {
+                  date?.setHours(23, 59, 59);
+                  onAdvancedFilterChange({
+                    ...filterAdvanced,
+                    endDate: !!date ? date.toString() : undefined,
+                  });
+                }}
+              />
+            </Row>
             <Row>
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select

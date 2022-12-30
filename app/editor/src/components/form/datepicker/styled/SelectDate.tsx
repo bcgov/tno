@@ -5,6 +5,7 @@ import { ISelectDateProps, SelectDateVariant } from '..';
 export const SelectDate = styled.div<ISelectDateProps>`
   box-sizing: border-box;
   padding-right: 0.5em;
+  margin-bottom: 0.25em;
   width: ${(props) => props.width};
 
   .required:after {
