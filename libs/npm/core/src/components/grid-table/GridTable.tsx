@@ -284,6 +284,16 @@ export const GridTable = <T extends object>({
   }, [initialSortBy, instance, onChangeSort, sortBy]);
 
   React.useEffect(() => {
+    instance.toggleAllRowsSelected(false);
+    const rows = instance.rows.filter((x) => x.id === Object.keys(initSelectedRowIds as object)[0]);
+    if (rows && rows.length === 1) {
+      const row = rows[0];
+      row.toggleRowSelected(true);
+      setActiveRow(row);
+    }
+  }, [initSelectedRowIds, instance]);
+
+  React.useEffect(() => {
     if (!!selectedFlatRows) {
       onSelectedRowsChange?.(selectedFlatRows, instance);
       if (selectedFlatRows.length === 0) setActiveRow(undefined);
