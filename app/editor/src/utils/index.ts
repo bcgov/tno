@@ -8,4 +8,4 @@ export * from './getSortableOptions';
 export * from './getSourceOptions';
 export * from './getUserOptions';
 export * from './hasErrors';
-export * from './isImage';
+export * from './isNotVideoOrAudio';

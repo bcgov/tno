@@ -6,10 +6,12 @@ import {
   FaPhotoVideo,
   FaPlay,
   FaRegFolder,
+  FaRegImage,
   FaTrash,
 } from 'react-icons/fa';
 import { Column, UseSortByColumnOptions } from 'react-table';
 import { Col, Row } from 'tno-core';
+import { isNotVideoOrAudio } from 'utils';
 
 /** columns located within file for state manipulation */
 export const clipDirectoryColumns = (
@@ -18,6 +20,7 @@ export const clipDirectoryColumns = (
   onDownload: Function,
   onAttach: Function,
   values: IItemModel,
+  isStorage?: boolean,
 ): (Column<IItemModel> & UseSortByColumnOptions<IItemModel>)[] => [
   {
     id: 'isDirectory',
@@ -27,7 +30,11 @@ export const clipDirectoryColumns = (
     Cell: ({ row, value }) => (
       <div>
         <div className={row.values.isDirectory ? 'hidden' : 'center'}>
-          <FaPhotoVideo className="fa-lg" />
+          {!isNotVideoOrAudio(row.values.name) ? (
+            <FaPhotoVideo className="fa-lg" />
+          ) : (
+            <FaRegImage className="fa-lg" />
+          )}
         </div>
         <div className={row.values.isDirectory ? 'center' : 'hidden'}>
           <FaRegFolder className="fa-lg" />
@@ -67,12 +74,14 @@ export const clipDirectoryColumns = (
     Cell: ({ row }) => (
       <Row className={`file-actions ${row.original.isDirectory && 'directory'}`} wrap="nowrap">
         <Col>
-          <FaPlay
-            data-for="main-tooltip"
-            data-tip="watch/listen/edit"
-            onClick={() => onSelect(row.original)}
-            className={`${row.original.isDirectory && 'hidden'}`}
-          />
+          {!isNotVideoOrAudio(row.values.name) && (
+            <FaPlay
+              data-for="main-tooltip"
+              data-tip="watch/listen/edit"
+              onClick={() => onSelect(row.original)}
+              className={`${row.original.isDirectory && 'hidden'}`}
+            />
+          )}
         </Col>
         <Col>
           <FaCloudDownloadAlt
@@ -86,7 +95,7 @@ export const clipDirectoryColumns = (
         </Col>
         <Col>
           <FaPaperclip
-            className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
+            className={`fa-lg ${(row.original.isDirectory || isStorage) && 'hidden'}`}
             data-for="main-tooltip"
             data-tip="Attach to snippet"
             onClick={() => {

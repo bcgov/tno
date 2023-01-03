@@ -1,5 +1,8 @@
-import { Upload, useUpload } from 'components/upload';
-import { useTooltips } from 'hooks';
+import { FormikForm } from 'components/formik';
+import { ContentClipForm } from 'features/content';
+import { defaultFormValues } from 'features/content/form/constants';
+import { IContentForm } from 'features/content/form/interfaces';
+import { ContentTypeName, useCombinedView, useTooltips } from 'hooks';
 import { IFolderModel, IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import {
@@ -12,8 +15,8 @@ import {
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useStorage } from 'store/hooks';
-import { Button, Col, Row, Show, Text } from 'tno-core';
-import { isImage } from 'utils';
+import { Row, Show } from 'tno-core';
+import { isNotVideoOrAudio } from 'utils';
 
 import { defaultFolder } from './constants';
 import * as styled from './styled';
@@ -25,10 +28,14 @@ export const StorageListView: React.FC = (props) => {
   const [path, setPath] = React.useState('');
   const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
   const [streamUrl, setStreamUrl] = React.useState<string>();
-  const [item, setItem] = React.useState<IItemModel>();
-  const [file, setFile] = React.useState<File>();
+  const [, setItem] = React.useState<IItemModel>();
 
-  const { upload } = useUpload();
+  const [, setClipErrors] = React.useState<string>('');
+  const { formType } = useCombinedView(ContentTypeName.Snippet);
+  const [contentType] = React.useState(formType ?? ContentTypeName.Snippet);
+  const [form, setForm] = React.useState<IContentForm>({
+    ...defaultFormValues(contentType),
+  });
 
   useTooltips();
 
@@ -82,13 +89,13 @@ export const StorageListView: React.FC = (props) => {
       <li key={i.name}>
         <Row nowrap>
           <Row flex="2 1 0">
-            {!isImage(i.name) ? <FaPhotoVideo /> : <FaRegImage />}
+            {isNotVideoOrAudio(i.name) ? <FaRegImage /> : <FaPhotoVideo />}
             <span className="file" onClick={() => setItem(i)}>
               {i.name}
             </span>
           </Row>
           <Row flex="1 1 0">
-            {!isImage(i.name) && (
+            {!isNotVideoOrAudio(i.name) && (
               <FaPlay
                 className="stream"
                 data-for="main-tooltip"
@@ -114,87 +121,13 @@ export const StorageListView: React.FC = (props) => {
     );
   });
 
-  const navPath = !folder.path ? (
-    <div>/</div>
-  ) : (
-    <div>
-      <b
-        onClick={() => {
-          selectItem();
-          setPath(path.split('/').slice(0, -1).join('/'));
-        }}
-      >
-        ...
-      </b>
-      {folder.path}
-    </div>
-  );
-
   return (
     <styled.StorageListView>
-      <div>
-        <p>
-          Storage access provides a way to manage audio/video files being uploaded and streamed.
-        </p>
-      </div>
-      <Row alignContent="flex-start">
-        <Col flex="1 1 0">
-          <div className="path">{navPath}</div>
-          <ul className="folder">
-            <Show visible={!!items.length}>{items}</Show>
-            <Show visible={!items.length}>
-              <span>No items found</span>
-            </Show>
-          </ul>
-        </Col>
-        <Col flex="1 1 0">
-          <Row>
-            <Upload
-              id="upload"
-              name="file"
-              file={file}
-              verifyDelete={false}
-              onSelect={(e) => {
-                const file = !!e.target?.files?.length ? e.target.files[0] : undefined;
-                setFile(file);
-              }}
-            />
-            <Button onClick={() => upload(file!)} disabled={!file}>
-              Upload
-            </Button>
-          </Row>
-          <Show visible={!!item}>
-            <div className="file-info">
-              <Text name="name" label="Name" value={item?.name} disabled />
-              <Text
-                name="size"
-                label="Size"
-                value={!!item?.size ? `${item.size / 1000000} MB` : '0 MB'}
-                disabled
-              />
-            </div>
-          </Show>
-        </Col>
-      </Row>
-      <Col className="video" alignItems="stretch">
-        <video ref={videoRef} className={!streamUrl ? 'hidden' : ''} controls>
-          <source type="audio/m4a" />
-          <source type="audio/flac" />
-          <source type="audio/mp3" />
-          <source type="audio/mp4" />
-          <source type="audio/wav" />
-          <source type="audio/wma" />
-          <source type="audio/aac" />
-          <source type="video/wmv" />
-          <source type="video/mov" />
-          <source type="video/mpeg" />
-          <source type="video/mpg" />
-          <source type="video/avi" />
-          <source type="video/mp4" />
-          <source type="video/gif" />
-          HTML5 Video is required for this example
-        </video>
-      </Col>
+      <Show visible={!!items.length}>
+        <FormikForm onSubmit={() => {}} initialValues={form}>
+          <ContentClipForm content={form} setContent={setForm} setClipErrors={setClipErrors} />
+        </FormikForm>
+      </Show>
     </styled.StorageListView>
   );
 };

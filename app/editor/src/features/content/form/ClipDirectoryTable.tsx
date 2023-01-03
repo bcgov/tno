@@ -37,7 +37,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
   navigate,
 }) => {
   const { values } = useFormikContext<IItemModel>();
-
+  const isStorage = window.location.href.includes('/storage');
   useTooltips();
 
   return (
@@ -46,7 +46,7 @@ export const ClipDirectoryTable: React.FC<IClipDirectoryTableProps> = ({
         data={data}
         className="file-table"
         paging={{ showPaging: false }}
-        columns={clipDirectoryColumns(onDelete, onSelect, onDownload, onAttach, values)}
+        columns={clipDirectoryColumns(onDelete, onSelect, onDownload, onAttach, values, isStorage)}
         header={ClipDirectoryFilter}
         sorting={{ sortBy: [{ id: 'name', desc: true }] }}
         getRowId={(content) => content.name.toString()}

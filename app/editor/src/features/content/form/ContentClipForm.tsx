@@ -185,6 +185,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const navigate = (item?: IItemModel) => {
     if (item?.isDirectory) {
       setPath(`${folder.path}/${item?.name}`);
+    } else if (streamUrl) {
+      setStreamUrl(undefined);
     }
   };
 
