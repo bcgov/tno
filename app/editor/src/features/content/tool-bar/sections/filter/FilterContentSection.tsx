@@ -32,6 +32,26 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   const [{ productOptions: pOptions, users }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
+  const [{ userInfo }] = useApp();
+
+  const search = fromQueryString(window.location.search);
+
+  const timeFrames = [
+    { label: 'TODAY', value: 0 },
+    { label: '24 HRS', value: 1 },
+    { label: '48 HRS', value: 2 },
+    { label: 'ALL', value: 3 },
+  ];
+  const timeFrameSelected = timeFrames[search.timeFrame ?? 0].label.toLowerCase() ?? 'today';
+
+  const usersSelections = [
+    { label: 'ALL CONTENT', value: 0 },
+    { label: 'MY CONTENT', value: userInfo?.id ?? 0 },
+  ];
+  const usersSelected =
+    usersSelections
+      .find((i) => (i.value === search.userId ? +search.userId : 0))
+      ?.label.toLowerCase() ?? 'my content';
 
   React.useEffect(() => {
     setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));
@@ -41,24 +61,10 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
   }, [pOptions]);
 
-  const [{ userInfo }] = useApp();
-
   // Change userId filter with value of dropdown
   const onOtherClick = (value?: number) => {
     value && onChange({ ...filter, userId: value });
   };
-
-  const search = fromQueryString(window.location.search);
-  const timeFrames = [
-    { label: 'TODAY', value: 0 },
-    { label: '24 HRS', value: 1 },
-    { label: '48 HRS', value: 2 },
-    { label: 'ALL', value: 3 },
-  ];
-  const usersSelections = [
-    { label: 'ALL CONTENT', value: 0 },
-    { label: 'MY CONTENT', value: userInfo?.id },
-  ];
 
   return (
     <ToolBarSection
@@ -68,7 +74,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
             <Row>
               <FaClock className="icon-indicator" />
               <ToggleGroup
-                defaultSelected={timeFrames[search.timeFrame].label.toLowerCase() ?? 'today'}
+                defaultSelected={timeFrameSelected}
                 options={[
                   {
                     label: 'TODAY',
@@ -85,7 +91,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
             <Row>
               <FaUsers className="icon-indicator" />
               <ToggleGroup
-                defaultSelected={usersSelections[search.userId].label.toLowerCase() ?? 'my content'}
+                defaultSelected={usersSelected}
                 options={[
                   {
                     label: 'ALL CONTENT',
