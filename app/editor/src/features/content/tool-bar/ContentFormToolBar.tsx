@@ -7,21 +7,24 @@ import { FaCalendarTimes } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 
 import { IContentForm } from '../form/interfaces';
-import { ActionSection, AlertSection } from './sections/form';
+import { ActionSection, AlertSection, StatusSection } from './sections/form';
 
 export interface IContentFormToolBarProps {
   contentType: ContentTypeName;
   determineActions: (a: IActionModel) => boolean;
+  status: string;
 }
 
 export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
   contentType,
   determineActions,
+  status,
 }) => {
   const [{ licenses }] = useLookup();
   const { setFieldValue, values } = useFormikContext<IContentForm>();
   return (
     <ToolBar variant="dark">
+      <StatusSection status={status} />
       <AlertSection />
       <ActionSection contentType={contentType} determineActions={determineActions} />
       <ToolBarSection
