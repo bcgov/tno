@@ -43,7 +43,10 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
       {/* first section */}
       <CreateNewSection />
       {/* second section */}
-      <FilterContentSection onChange={onFilterChange} />
+      <FilterContentSection
+        onChange={onFilterChange}
+        onAdvancedFilterChange={onAdvancedFilterChange}
+      />
       {/* third section */}
       <ShowOnlySection onChange={onFilterChange} />
       {/* fourth section */}

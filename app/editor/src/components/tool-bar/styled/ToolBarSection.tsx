@@ -63,7 +63,7 @@ export const ToolBarSection = styled(Col)`
     }
     background-color: ${(props) => props.theme.css.filterBackgroundColor};
     border-radius: 4px;
-    min-height: 4.35em;
+    min-height: 5.25em;
     align-items: center;
   }
   .label-container {
