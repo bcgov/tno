@@ -21,7 +21,7 @@ interface IContentController {
   unpublishContent: (content: IContentModel) => Promise<IContentModel>;
   upload: (content: IContentModel, file: File) => Promise<IContentModel>;
   download: (id: number, fileName: string) => Promise<unknown>;
-  attach: (id: number, path: string) => Promise<IContentModel>;
+  attach: (contentId: number, locationId: number, path: string) => Promise<IContentModel>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
   storeMorningReportFilter: (filter: IMorningReportFilter) => void;
@@ -80,9 +80,13 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return (await dispatch('download-content', () => api.download(id, fileName), 'content'))
           .data;
       },
-      attach: async (id: number, path: string) => {
+      attach: async (contentId: number, locationId: number, path: string) => {
         return (
-          await dispatch<IContentModel>('attach-content', () => api.attach(id, path), 'content')
+          await dispatch<IContentModel>(
+            'attach-content',
+            () => api.attach(contentId, locationId, path),
+            'content',
+          )
         ).data;
       },
       storeFilter: actions.storeFilter,

@@ -293,6 +293,28 @@ services:
     networks:
       - tno
 
+  ####################### API #######################
+  ssh:
+    image: linuxserver/openssh-server
+    profiles:
+      - all
+    restart: "no"
+    container_name: tno-ssh
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - USER_NAME=user
+      - USER_PASSWORD=password
+      - PASSWORD_ACCESS=true
+    ports:
+      - 2222:2222
+    volumes:
+      - tno-av-data:/mnt/av
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - tno
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:

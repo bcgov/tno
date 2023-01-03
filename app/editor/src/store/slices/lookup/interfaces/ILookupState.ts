@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
+  IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -30,4 +31,5 @@ export interface ILookupState {
   tags: ITagModel[];
   tonePools: ITonePoolModel[];
   users: IUserModel[];
+  dataLocations: IDataLocationModel[];
 }

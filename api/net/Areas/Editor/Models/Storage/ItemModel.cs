@@ -1,5 +1,4 @@
 using MimeTypes;
-using System.Globalization;
 
 namespace TNO.API.Areas.Editor.Models.Storage;
 
@@ -68,6 +67,45 @@ public class ItemModel
         {
             var info = new System.IO.DirectoryInfo(path);
             this.Modified = info.LastWriteTime;
+        }
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ItemModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="file"></param>
+    public ItemModel(Renci.SshNet.Sftp.SftpFile file)
+    {
+        this.Name = file.Name;
+        var ext = System.IO.Path.GetExtension(file.Name).Replace(".", "");
+        if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
+        this.IsDirectory = file.IsDirectory;
+        this.Modified = file.Attributes.LastWriteTime;
+        if (!this.IsDirectory)
+        {
+            this.Size = file.Attributes.Size;
+            if (!String.IsNullOrWhiteSpace(this.Extension))
+                this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
+        }
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ItemModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="attributes"></param>
+    public ItemModel(string name, Renci.SshNet.Sftp.SftpFileAttributes attributes)
+    {
+        this.Name = name;
+        var ext = System.IO.Path.GetExtension(name).Replace(".", "");
+        if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
+        this.IsDirectory = attributes.IsDirectory;
+        this.Modified = attributes.LastWriteTime;
+        if (!this.IsDirectory)
+        {
+            this.Size = attributes.Size;
+            if (!String.IsNullOrWhiteSpace(this.Extension))
+                this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
         }
     }
     #endregion

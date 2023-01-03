@@ -176,7 +176,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         // TODO: Make it possible to upload on the initial save instead of a separate request.
         // A file was attached but hasn't been uploaded to the API.
         const fileReference = values.fileReferences[0];
-        const content = await attach(contentResult.id, fileReference.path);
+        const content = await attach(contentResult.id, 0, fileReference.path);
         result = toForm({ ...content, tonePools: values.tonePools });
       } else {
         result = toForm({ ...contentResult, tonePools: values.tonePools });

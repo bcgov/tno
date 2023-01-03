@@ -33,7 +33,7 @@ public class FolderModel
     public FolderModel(string rootPath, string path)
     {
         var safePath = System.IO.Path.Combine(rootPath, path.MakeRelativePath());
-        if (!safePath.DirectoryExists()) throw new InvalidOperationException("Folder does not exist");
+        if (!safePath.DirectoryExists()) throw new InvalidOperationException($"Folder does not exist '{safePath}'");
 
         this.Path = safePath.ReplaceFirst(rootPath, "")!;
         var result = new List<ItemModel>();
@@ -41,9 +41,37 @@ public class FolderModel
         Array.Sort(files, string.CompareOrdinal);
 
         // Don't include temporary folder.
-        foreach (var fullName in files.Where(n => new DirectoryInfo(n).Name != "_tmp"))
+        foreach (var fullName in files)
         {
             result.Add(new ItemModel(fullName));
+        }
+        this.Items = result.ToArray();
+    }
+
+    /// <summary>
+    /// Creates a new instance of an FolderModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="files"></param>
+    public FolderModel(IEnumerable<string> files)
+    {
+        var result = new List<ItemModel>();
+        foreach (var fullName in files)
+        {
+            result.Add(new ItemModel(fullName));
+        }
+        this.Items = result.ToArray();
+    }
+
+    /// <summary>
+    /// Creates a new instance of an FolderModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="files"></param>
+    public FolderModel(IEnumerable<Renci.SshNet.Sftp.SftpFile> files)
+    {
+        var result = new List<ItemModel>();
+        foreach (var file in files)
+        {
+            result.Add(new ItemModel(file));
         }
         this.Items = result.ToArray();
     }

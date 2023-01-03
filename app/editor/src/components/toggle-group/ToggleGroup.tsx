@@ -11,6 +11,7 @@ interface IToggleOption {
   onClick?: (value?: number) => void;
 }
 export interface IToggleGroupProps {
+  label?: string;
   options: IToggleOption[];
   defaultSelected?: string;
 }
@@ -21,8 +22,8 @@ export interface IToggleGroupProps {
  * @param defaultSelected The default selected option
  * @returns The ToggleGroup component
  */
-export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelected }) => {
-  const [activeToggle, setActiveToggle] = React.useState(defaultSelected ?? '');
+export const ToggleGroup: React.FC<IToggleGroupProps> = ({ label, options, defaultSelected }) => {
+  const [activeToggle, setActiveToggle] = React.useState(defaultSelected?.toLowerCase() ?? '');
   const [showDropDown, setShowDropDown] = React.useState(false);
   const onDropDownClick = () => {
     setShowDropDown(!showDropDown);
@@ -31,7 +32,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
 
   // ensure default selected gets reset when new content is loaded
   React.useEffect(() => {
-    if (defaultSelected) setActiveToggle(defaultSelected);
+    if (defaultSelected) setActiveToggle(defaultSelected?.toLowerCase());
   }, [defaultSelected]);
 
   // Close dropdown when clicking outside of it
@@ -49,7 +50,8 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ options, defaultSelec
 
   return (
     <styled.ToggleGroup>
-      {options?.map((option) => (
+      {label && <label>{label}</label>}
+      {options?.map((option, index) => (
         <button
           key={option.label}
           className={`toggle-item ${activeToggle === option.label.toLowerCase() ? 'active' : ''}`}

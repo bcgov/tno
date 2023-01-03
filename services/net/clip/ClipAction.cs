@@ -11,7 +11,6 @@ using TNO.Kafka.Models;
 using TNO.Services.Clip.Config;
 using TNO.Services.Command;
 using System.Diagnostics;
-using TNO.API.Areas.Kafka.Models;
 
 namespace TNO.Services.Clip;
 

@@ -51,7 +51,7 @@ public class StorageOptions
     /// <returns></returns>
     public string GetUploadPath(IWebHostEnvironment? environment = null)
     {
-        if (environment == null) environment = this.Environment;
+        environment ??= this.Environment;
         var path = Path.Combine(environment?.WebRootPath ?? "", this.UploadPath);
         return path.EndsWith('/') ? path : $"{path}/";
     }
@@ -63,24 +63,9 @@ public class StorageOptions
     /// <returns></returns>
     public string GetCapturePath(IWebHostEnvironment? environment = null)
     {
-        if (environment == null) environment = this.Environment;
+        environment ??= this.Environment;
         var path = Path.Combine(environment?.WebRootPath ?? "", this.CapturePath);
         return path.EndsWith('/') ? path : $"{path}/";
-    }
-
-    /// <summary>
-    /// Get the root path based on the storage location.
-    /// </summary>
-    /// <param name="location"></param>
-    /// <returns></returns>
-    public string GetRootPath(string? location)
-    {
-        return location?.ToLower() switch
-        {
-            "upload" => this.UploadPath,
-            "capture" => this.CapturePath,
-            _ => this.CapturePath
-        };
     }
     #endregion
 }

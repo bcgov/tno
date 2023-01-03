@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
+  IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
   ILookupModel,
@@ -17,6 +18,7 @@ import {
   useApiActions,
   useApiCache,
   useApiCategories,
+  useApiDataLocations,
   useApiIngestTypes,
   useApiLicenses,
   useApiLookups,
@@ -53,6 +55,7 @@ export interface ILookupController {
   getTags: (refresh?: boolean) => Promise<ITagModel[]>;
   getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
   getUsers: (refresh?: boolean) => Promise<IUserModel[]>;
+  getDataLocations: (refresh?: boolean) => Promise<IDataLocationModel[]>;
   init: (refresh?: boolean) => Promise<void>;
 }
 
@@ -74,6 +77,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const tags = useApiTags();
   const tonePools = useApiTonePools();
   const users = useApiUsers();
+  const dataLocations = useApiDataLocations();
 
   const controller = React.useMemo(
     () => ({
@@ -102,6 +106,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('tags', results.tags, store.storeTags);
               saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
               saveToLocalStorage('users', results.users, store.storeUsers);
+              saveToLocalStorage('dataLocations', results.dataLocations, store.storeDataLocations);
               return results;
             } else {
               const lookups = {
@@ -118,6 +123,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 tags: getFromLocalStorage<ITagModel[]>('tags', []),
                 tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
                 users: getFromLocalStorage<IUserModel[]>('users', []),
+                dataLocations: getFromLocalStorage<IDataLocationModel[]>('dataLocations', []),
               };
               store.storeActions(lookups.actions);
               store.storeCategories(lookups.categories);
@@ -132,6 +138,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeTags(lookups.tags);
               store.storeTonePools(lookups.tonePools);
               store.storeUsers(lookups.users);
+              store.storeDataLocations(lookups.dataLocations);
               return lookups;
             }
           },
@@ -321,6 +328,20 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
+      getDataLocations: async () => {
+        return await fetchIfNoneMatch<IDataLocationModel[]>(
+          'data_locations',
+          dispatch,
+          (etag) => dataLocations.getDataLocations(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeDataLocations(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
       init: async () => {
         // TODO: Handle failures
         await controller.getLookups();
@@ -344,6 +365,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       tags,
       tonePools,
       users,
+      dataLocations,
     ],
   );
 

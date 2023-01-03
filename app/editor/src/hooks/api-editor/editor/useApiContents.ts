@@ -102,12 +102,12 @@ export const useApiContents = (
       document.body.removeChild(link);
       return response;
     },
-    attach: (id: number, path: string) => {
+    attach: (contentId: number, locationId: number, path: string) => {
       const params = {
         path,
       };
       return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
-        `/editor/contents/${id}/attach?${toQueryString(params)}`,
+        `/editor/contents/${contentId}/${locationId}/attach?${toQueryString(params)}`,
       );
     },
   }).current;

@@ -72,6 +72,11 @@ public class LookupModel
     /// get/set - An array of all users.
     /// </summary>
     public IEnumerable<User.UserModel> Users { get; set; } = Array.Empty<User.UserModel>();
+
+    /// <summary>
+    /// get/set - An array of all data locations.
+    /// </summary>
+    public IEnumerable<DataLocation.DataLocationModel> DataLocations { get; set; } = Array.Empty<DataLocation.DataLocationModel>();
     #endregion
 
     #region Constructors
@@ -97,6 +102,7 @@ public class LookupModel
     /// <param name="tagServices"></param>
     /// <param name="tonePools"></param>
     /// <param name="users"></param>
+    /// <param name="dataLocations"></param>
     /// <param name="options"></param>
     public LookupModel(
         IEnumerable<Entities.Action> actions,
@@ -112,6 +118,7 @@ public class LookupModel
         IEnumerable<Entities.Tag> tagServices,
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.User> users,
+        IEnumerable<Entities.DataLocation> dataLocations,
         JsonSerializerOptions options)
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
@@ -127,6 +134,7 @@ public class LookupModel
         this.Tags = tagServices.Select(a => new Tag.TagModel(a));
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Users = users.Select(a => new User.UserModel(a));
+        this.DataLocations = dataLocations.Select(a => new DataLocation.DataLocationModel(a));
     }
     #endregion
 }

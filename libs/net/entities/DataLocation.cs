@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using TNO.Core.Data;
 
 namespace TNO.Entities;
 
@@ -6,6 +7,7 @@ namespace TNO.Entities;
 /// DataLocation class, provides an entity model for configuring data locations.
 /// </summary>
 [Table("data_location")]
+[Cache("data_locations", "lookups")]
 public class DataLocation : BaseType<int>
 {
     #region Properties

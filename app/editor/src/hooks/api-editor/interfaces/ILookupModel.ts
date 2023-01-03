@@ -1,6 +1,7 @@
 import {
   IActionModel,
   ICategoryModel,
+  IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -28,4 +29,5 @@ export interface ILookupModel {
   tags: ITagModel[];
   tonePools: ITonePoolModel[];
   users: IUserModel[];
+  dataLocations: IDataLocationModel[];
 }

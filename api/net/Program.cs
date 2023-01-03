@@ -30,6 +30,7 @@ using TNO.API;
 using TNO.API.CSS;
 using NPOI.Util;
 using TNO.API.SignalR;
+using TNO.API.Helpers;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -204,6 +205,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services
+    .AddScoped<IConnectionHelper, ConnectionHelper>()
     .AddTNOServices(config, env)
     .AddKafkaMessenger(config)
     .AddHttpClient()

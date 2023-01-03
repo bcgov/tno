@@ -20,27 +20,27 @@ export const useApiStorage = (
   const api = useApi(options);
 
   return React.useRef({
-    folderExists: (path?: string, location?: string) => {
+    folderExists: (locationId?: number, path?: string) => {
       const params = {
         path,
       };
       return api.get<string, AxiosResponse<string>, any>(
-        `/editor/storage/exists${location ? `/${location}` : ''}?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/exists?${toQueryString(params)}`,
       );
     },
-    getFolder: (path?: string, location?: string) => {
+    getFolder: (locationId?: number, path?: string) => {
       const params = {
         path,
       };
       return api.get<IFolderModel, AxiosResponse<IFolderModel>, any>(
-        `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}?${toQueryString(params)}`,
       );
     },
     upload: (
+      locationId: number,
       path: string,
       file: File,
       overwrite?: boolean,
-      location?: string,
       onUploadProgress?: (progressEvent: any) => void,
     ) => {
       const params = {
@@ -50,21 +50,21 @@ export const useApiStorage = (
       const formData = new FormData();
       formData.append('files', file, file.name);
       return api.post<IItemModel, AxiosResponse<IItemModel>, any>(
-        `/editor/storage${location ? `/${location}` : ''}/upload?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/upload?${toQueryString(params)}`,
         formData,
         { onUploadProgress },
       );
     },
     stream: async (
+      locationId: number,
       path: string,
-      location?: string,
       onUploadProgress?: (progressEvent: any) => void,
     ) => {
       const params = {
         path,
       };
       var response = await api.get<any, AxiosResponse<any>, any>(
-        `/editor/storage${location ? `/${location}` : ''}/stream?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/stream?${toQueryString(params)}`,
         {
           responseType: 'stream',
           headers: { accept: '*.*' },
@@ -81,12 +81,12 @@ export const useApiStorage = (
       document.body.removeChild(link);
       return response;
     },
-    download: async (path: string, fileName?: string, location?: string) => {
+    download: async (locationId: number, path: string, fileName?: string) => {
       const params = {
         path,
       };
       var response = await api.get<any, AxiosResponse<any>, any>(
-        `/editor/storage${location ? `/${location}` : ''}/download?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/download?${toQueryString(params)}`,
         {
           responseType: 'blob',
           headers: { accept: '*.*' },
@@ -105,24 +105,24 @@ export const useApiStorage = (
       document.body.removeChild(link);
       return response;
     },
-    move: (path: string, destination: string, location?: string) => {
+    move: (locationId: number, path: string, destination: string) => {
       const params = {
         path,
         destination,
       };
       return api.put<IItemModel, AxiosResponse<IItemModel>, any>(
-        `/editor/storage${location ? `/${location}` : ''}/move?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/move?${toQueryString(params)}`,
       );
     },
-    delete: (path: string, location?: string) => {
+    delete: (locationId: number, path: string) => {
       const params = {
         path,
       };
       return api.delete<IItemModel, AxiosResponse<IItemModel>, any>(
-        `/editor/storage${location ? `/${location}` : ''}?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}?${toQueryString(params)}`,
       );
     },
-    clip: (path: string, start: string, end: string, outputName: string) => {
+    clip: (locationId: number, path: string, start: string, end: string, outputName: string) => {
       const params = {
         path,
         start,
@@ -130,16 +130,16 @@ export const useApiStorage = (
         outputName,
       };
       return api.post<IItemModel, AxiosResponse<IItemModel>, any>(
-        `/editor/storage/clip?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/clip?${toQueryString(params)}`,
       );
     },
-    join: (path: string, prefix: string) => {
+    join: (locationId: number, path: string, prefix: string) => {
       const params = {
         path,
         prefix,
       };
       return api.post<IItemModel, AxiosResponse<IItemModel>, any>(
-        `/editor/storage/join?${toQueryString(params)}`,
+        `/editor/storage${locationId ? `/${locationId}` : ''}/join?${toQueryString(params)}`,
       );
     },
   }).current;

@@ -2,6 +2,7 @@ import {
   IActionModel,
   ICacheModel,
   ICategoryModel,
+  IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -21,6 +22,7 @@ import {
   storeActions,
   storeCache,
   storeCategories,
+  storeDataLocations,
   storeIngestTypes,
   storeLicenses,
   storeMetrics,
@@ -52,6 +54,7 @@ export interface ILookupStore {
   storeTags: (tags: ITagModel[]) => void;
   storeTonePools: (contentTypes: ITonePoolModel[]) => void;
   storeUsers: (users: IUserModel[]) => void;
+  storeDataLocations: (users: IDataLocationModel[]) => void;
 }
 
 export const useLookupStore = (): [ILookupState, ILookupStore] => {
@@ -104,6 +107,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeUsers: (users: IUserModel[]) => {
         dispatch(storeUsers(users));
+      },
+      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
+        dispatch(storeDataLocations(dataLocations));
       },
     }),
     [dispatch],
