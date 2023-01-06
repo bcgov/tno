@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const Breadcrumb = styled(Row)`
+  padding: 0.25em;
+
   & p:first-child {
     margin-right: 0.25em;
   }
@@ -21,5 +23,9 @@ export const Breadcrumb = styled(Row)`
 
   svg {
     margin-top: 1%;
+  }
+
+  label {
+    margin-right: 1em;
   }
 `;

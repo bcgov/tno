@@ -1,12 +1,13 @@
 import { Breadcrumb } from 'components/breadcrumb';
 import { Error } from 'components/form';
 import { Modal } from 'components/modal';
+import { ToggleGroup } from 'components/toggle-group';
 import { useFormikContext } from 'formik';
 import { IFileReferenceModel, IFolderModel, IItemModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import React from 'react';
 import { toast } from 'react-toastify';
-import { useContent, useStorage } from 'store/hooks';
+import { useContent, useLookup, useStorage } from 'store/hooks';
 import { Button, ButtonVariant, Col, FieldSize, Row, Text } from 'tno-core';
 
 import { defaultFolder } from '../../storage/constants';
@@ -41,12 +42,20 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const { toggle, isShowing } = useModal();
   const storageApi = useStorage();
   const [, contentApi] = useContent();
+  const [{ dataLocations }] = useLookup();
 
+  const locations = [{ id: 0, name: 'API' }, ...dataLocations].map((i) => ({
+    label: i.name,
+    data: i,
+    onClick: () => {
+      setPath('');
+      setLocationId(i.id);
+    },
+  }));
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   // TODO: Hardcoding the folder location isn't ideal as the API may be configured differently.
-  const defaultPath = `/clip/${content.otherSource}`;
-  const [path, setPath] = React.useState(initPath ?? defaultPath);
+  const [path, setPath] = React.useState(initPath ?? '');
   const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
   const [streamUrl, setStreamUrl] = React.useState<string>();
   const [item, setItem] = React.useState<IItemModel>();
@@ -55,18 +64,18 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const [currFile, setCurrFile] = React.useState<string>('');
   const [prefix, setPrefix] = React.useState<string>('');
   const [error, setError] = React.useState<string>('');
+  const [locationId, setLocationId] = React.useState(0);
 
   React.useEffect(() => {
     // Many data source locations will not have an existing clip folder.
     // Check if it exists before attempting to load it.
-    const response = defaultPath === path ? storageApi.folderExists(path) : Promise.resolve(true);
-    response.then((exists) => {
+    storageApi.folderExists(locationId, path).then((exists) => {
       var directory = exists ? path : '/';
-      storageApi.getFolder(directory).then((directory) => {
+      storageApi.getFolder(locationId, directory).then((directory) => {
         setFolder(directory);
       });
     });
-  }, [defaultPath, path, storageApi]);
+  }, [path, storageApi, locationId]);
 
   React.useEffect(() => {
     setClipErrors(error);
@@ -84,7 +93,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   };
 
   const onDownload = async (item: IItemModel) => {
-    await storageApi.download(`${folder.path}/${item.name}`);
+    await storageApi.download(locationId, `${path}/${item.name}`);
   };
 
   const onAttach = async (item: IItemModel) => {
@@ -94,13 +103,13 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         {
           contentType: item.mimeType,
           fileName: item.name,
-          path: `${folder.path}/${item.name}`,
+          path: `${path}/${item.name}`,
           size: item.size,
           isUploaded: false,
         } as IFileReferenceModel,
       ]);
     } else {
-      await contentApi.attach(content.id, `${folder.path}/${item.name}`).then((data) => {
+      await contentApi.attach(content.id, locationId, `${path}/${item.name}`).then((data) => {
         setContent(toForm(data));
         toast.success('Attachment added to this snippet.');
       });
@@ -111,7 +120,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
     setItem(item);
     setCurrFile(!!item ? item.name : '');
     setStreamUrl(
-      !!item ? `/api/editor/storage/stream?path=${folder.path}/${item.name}` : undefined,
+      !!item ? `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}` : undefined,
     );
   };
 
@@ -125,11 +134,13 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
     } else {
       setError('');
       try {
-        await storageApi.clip(`${folder.path}/${currFile}`, start, end, prefix).then((item) => {
-          setFolder({ ...folder, items: [...folder.items, item] });
-          setStart('');
-          setEnd('');
-        });
+        await storageApi
+          .clip(locationId, `${path}/${currFile}`, start, end, prefix)
+          .then((item) => {
+            setFolder({ ...folder, items: [...folder.items, item] });
+            setStart('');
+            setEnd('');
+          });
       } catch {
         // Ignore error it's already handled.
       }
@@ -138,14 +149,14 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
 
   const joinClips = async () => {
     try {
-      await storageApi.join(`${folder.path}/${currFile}`, prefix).then((item) => {
+      await storageApi.join(locationId, `${path}/${currFile}`, prefix).then((item) => {
         setItem(item);
         setFolder({ ...folder, items: [...folder.items, item] });
         setStart('');
         setEnd('');
         setCurrFile(!!item ? item.name : '');
         setStreamUrl(
-          !!item ? `/api/editor/storage/stream?path=${folder.path}/${item.name}` : undefined,
+          !!item ? `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}` : undefined,
         );
       });
     } catch {
@@ -184,7 +195,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
 
   const navigate = (item?: IItemModel) => {
     if (item?.isDirectory) {
-      setPath(`${folder.path}/${item?.name}`);
+      setPath(`${path}/${item?.name}`);
     } else if (streamUrl) {
       setStreamUrl(undefined);
     }
@@ -193,7 +204,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   return (
     <styled.ContentClipForm>
       <div>
-        <Breadcrumb path={folder.path} setPath={setPath} />
+        <ToggleGroup label="Location" defaultSelected={locations[0].label} options={locations} />
+      </div>
+      <div>
+        <Breadcrumb label="Path" path={path} setPath={setPath} />
       </div>
       <Row>
         <Col flex="1 1 100%">
@@ -303,7 +317,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
               try {
                 // TODO: Only certain users should be allowed to delete certain files/folders.
                 await storageApi.delete(
-                  item?.isDirectory ? folder.path : `${folder.path}/${item?.name}`,
+                  locationId,
+                  item?.isDirectory ? path : `${path}/${item?.name}`,
                 );
                 onSelect();
                 setFolder({

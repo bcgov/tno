@@ -30,5 +30,12 @@ public class DataLocationService : BaseService<DataLocation, int>, IDataLocation
             .Include(d => d.Connection)
             .FirstOrDefault(d => d.Name.ToLower() == name.ToLower());
     }
+
+    public override DataLocation? FindById(int id)
+    {
+        return this.Context.DataLocations
+            .Include(d => d.Connection)
+            .FirstOrDefault(d => d.Id == id);
+    }
     #endregion
 }

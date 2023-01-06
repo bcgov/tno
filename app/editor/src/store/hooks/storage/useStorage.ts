@@ -4,21 +4,27 @@ import React from 'react';
 import { useAjaxWrapper } from '..';
 
 interface IStorageController {
-  folderExists: (path?: string, location?: string) => Promise<boolean>;
-  getFolder: (path?: string, location?: string) => Promise<IFolderModel>;
+  folderExists: (locationId: number, path?: string) => Promise<boolean>;
+  getFolder: (locationId: number, path?: string) => Promise<IFolderModel>;
   upload: (
+    locationId: number,
     path: string,
     file: File,
     overwrite?: boolean,
-    location?: string,
     onUploadProgress?: (progressEvent: any) => void,
   ) => Promise<IItemModel>;
-  download: (path: string, location?: string) => Promise<unknown>;
-  stream: (path: string, location?: string) => Promise<unknown>;
-  move: (path: string, destination: string, location?: string) => Promise<IItemModel>;
-  delete: (path: string, location?: string) => Promise<IItemModel>;
-  clip: (path: string, start: string, end: string, outputName: string) => Promise<IItemModel>;
-  join: (path: string, prefix: string) => Promise<IItemModel>;
+  download: (locationId: number, path: string) => Promise<unknown>;
+  stream: (locationId: number, path: string) => Promise<unknown>;
+  move: (locationId: number, path: string, destination: string) => Promise<IItemModel>;
+  delete: (locationId: number, path: string) => Promise<IItemModel>;
+  clip: (
+    locationId: number,
+    path: string,
+    start: string,
+    end: string,
+    outputName: string,
+  ) => Promise<IItemModel>;
+  join: (locationId: number, path: string, prefix: string) => Promise<IItemModel>;
 }
 
 export const useStorage = (): IStorageController => {
@@ -27,54 +33,65 @@ export const useStorage = (): IStorageController => {
 
   const controller = React.useMemo(
     () => ({
-      folderExists: async (path?: string, location?: string) => {
+      folderExists: async (locationId?: number, path?: string) => {
         const response = await dispatch<string>('storage-folder-exists', () =>
-          api.folderExists(path, location),
+          api.folderExists(locationId, path),
         );
 
         return response.status === 200;
       },
-      getFolder: async (path?: string, location?: string) => {
-        return (await dispatch<IFolderModel>('get-storage', () => api.getFolder(path, location)))
+      getFolder: async (locationId: number, path?: string) => {
+        return (await dispatch<IFolderModel>('get-storage', () => api.getFolder(locationId, path)))
           .data;
       },
       upload: async (
+        locationId: number,
         path: string,
         file: File,
         overwrite?: boolean,
-        location?: string,
         onUploadProgress?: (progressEvent: any) => void,
       ) => {
         return (
           await dispatch<IItemModel>('storage-upload', () =>
-            api.upload(path, file, overwrite, location, onUploadProgress),
+            api.upload(locationId, path, file, overwrite, onUploadProgress),
           )
         ).data;
       },
-      download: async (path: string, location?: string) => {
-        return (await dispatch<IItemModel>('storage-download', () => api.download(path, location)))
-          .data;
-      },
-      stream: async (path: string, location?: string) => {
-        return (await dispatch<IItemModel>('storage-stream', () => api.stream(path, location)))
-          .data;
-      },
-      move: async (path: string, destination: string, location?: string) => {
+      download: async (locationId: number, path: string) => {
         return (
-          await dispatch<IItemModel>('storage-move', () => api.move(path, destination, location))
+          await dispatch<IItemModel>('storage-download', () => api.download(locationId, path))
         ).data;
       },
-      delete: async (path: string, location?: string) => {
-        return (await dispatch<IItemModel>('storage-delete', () => api.delete(path, location)))
+      stream: async (locationId: number, path: string) => {
+        return (await dispatch<IItemModel>('storage-stream', () => api.stream(locationId, path)))
           .data;
       },
-      clip: async (path: string, start: string, end: string, outputName: string) => {
+      move: async (locationId: number, path: string, destination: string) => {
         return (
-          await dispatch<IItemModel>('storage-clip', () => api.clip(path, start, end, outputName))
+          await dispatch<IItemModel>('storage-move', () => api.move(locationId, path, destination))
         ).data;
       },
-      join: async (path: string, prefix: string) => {
-        return (await dispatch<IItemModel>('storage-join', () => api.join(path, prefix))).data;
+      delete: async (locationId: number, path: string) => {
+        return (await dispatch<IItemModel>('storage-delete', () => api.delete(locationId, path)))
+          .data;
+      },
+      clip: async (
+        locationId: number,
+        path: string,
+        start: string,
+        end: string,
+        outputName: string,
+      ) => {
+        return (
+          await dispatch<IItemModel>('storage-clip', () =>
+            api.clip(locationId, path, start, end, outputName),
+          )
+        ).data;
+      },
+      join: async (locationId: number, path: string, prefix: string) => {
+        return (
+          await dispatch<IItemModel>('storage-join', () => api.join(locationId, path, prefix))
+        ).data;
       },
     }),
     [dispatch, api],

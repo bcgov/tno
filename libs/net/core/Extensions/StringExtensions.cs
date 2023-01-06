@@ -211,11 +211,11 @@ public static class StringExtensions
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    public static string? GetDirectoryPath(this string? path)
+    public static string GetDirectoryPath(this string? path)
     {
         path = path?.Replace('\\', Path.DirectorySeparatorChar).Replace(":", "") ?? "";
         if (path?.EndsWith(Path.DirectorySeparatorChar) == true) return path[..^1];
-        return Path.GetDirectoryName($"{path}{Path.DirectorySeparatorChar}");
+        return Path.GetDirectoryName($"{path}{Path.DirectorySeparatorChar}") ?? "";
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ public static class StringExtensions
         var parent = Directory.GetParent(path.GetDirectoryPath() ?? "")?.FullName ?? "";
         if (String.IsNullOrWhiteSpace(parent)) parent = $"{Path.DirectorySeparatorChar}";
         else if (!parent.StartsWith(Path.DirectorySeparatorChar) && path.StartsWith(Path.DirectorySeparatorChar)) parent = $"{Path.DirectorySeparatorChar}{parent}";
-        return Directory.Exists(path) && Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
+        return Directory.Exists(path) || Directory.GetFileSystemEntries(parent).Any(f => String.Compare(f, path, ignoreCase) == 0);
     }
 
     /// <summary>

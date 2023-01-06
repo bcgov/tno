@@ -52,4 +52,7 @@ export const ToggleGroup = styled(Row)`
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
   }
+  label {
+    margin-right: 1em;
+  }
 `;

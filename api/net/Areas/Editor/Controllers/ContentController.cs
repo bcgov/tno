@@ -17,6 +17,9 @@ using TNO.Kafka;
 using TNO.API.Config;
 using TNO.Kafka.Models;
 using System.Net.Mime;
+using TNO.API.Helpers;
+using TNO.Models.Extensions;
+using System.Web;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -42,6 +45,7 @@ public class ContentController : ControllerBase
     private readonly IWorkOrderService _workOrderService;
     private readonly IUserService _userService;
     private readonly StorageOptions _storageOptions;
+    private readonly IConnectionHelper _connection;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly ILogger _logger;
@@ -55,6 +59,7 @@ public class ContentController : ControllerBase
     /// <param name="fileReferenceService"></param>
     /// <param name="workOrderService"></param>
     /// <param name="userService"></param>
+    /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
@@ -64,6 +69,7 @@ public class ContentController : ControllerBase
         IFileReferenceService fileReferenceService,
         IWorkOrderService workOrderService,
         IUserService userService,
+        IConnectionHelper connection,
         IOptions<StorageOptions> storageOptions,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
@@ -74,6 +80,7 @@ public class ContentController : ControllerBase
         _workOrderService = workOrderService;
         _userService = userService;
         _storageOptions = storageOptions.Value;
+        _connection = connection;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _logger = logger;
@@ -279,37 +286,8 @@ public class ContentController : ControllerBase
 
         // If the content has a file reference, then update it.  Otherwise, add one.
         content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
-        if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First());
-        else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()));
-
-        return new JsonResult(new ContentModel(content));
-    }
-
-    /// <summary>
-    /// Attach an existing video/audio clip as the content of this snippet.
-    /// Only a single file can be linked to content, each new attachment will overwrite.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="version"></param>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    [HttpPut("{id}/attach")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult AttachFile([FromRoute] long id, [FromQuery] long version, [FromQuery] string path)
-    {
-        var content = _contentService.FindById(id) ?? throw new InvalidOperationException("Entity does not exist");
-
-        // If the content has a file reference, then update it.  Otherwise, add one.
-        content.Version = version;
-        var safePath = Path.Combine(_storageOptions.GetRootPath("storage"), path.MakeRelativePath());
-        if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
-
-        var file = new FileInfo(safePath);
-        if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file);
-        else _fileReferenceService.Attach(new ContentFileReference(content, file));
+        if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
+        else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
 
         return new JsonResult(new ContentModel(content));
     }
@@ -327,7 +305,7 @@ public class ContentController : ControllerBase
     public IActionResult DownloadFile(long id)
     {
         var fileReference = _fileReferenceService.FindByContentId(id).FirstOrDefault() ?? throw new InvalidOperationException("File does not exist");
-        var stream = _fileReferenceService.Download(fileReference);
+        var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
     }
 
@@ -335,24 +313,99 @@ public class ContentController : ControllerBase
     /// Stream the file for the specified path.
     /// </summary>
     /// <param name="path"></param>
-    /// <param name="location"></param>
     /// <returns></returns>
     [AllowAnonymous] // TODO: Temporary to test HTML 5 video
     [HttpGet("stream")]
-    [HttpGet("{location}/stream")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Stream(string path, [FromRoute] string? location = "capture")
+    public IActionResult Stream([FromQuery] string path)
     {
-        var safePath = System.IO.Path.Combine(_storageOptions.GetRootPath(location), path.MakeRelativePath());
+        path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var safePath = System.IO.Path.Combine(_storageOptions.GetUploadPath(), path);
         if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
 
         var info = new ItemModel(safePath);
         var stream = System.IO.File.OpenRead(safePath);
         return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
+    }
+
+    /// <summary>
+    /// Attach an existing video/audio clip as the content of this snippet.
+    /// Only a single file can be linked to content, each new attachment will overwrite.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="locationId"></param>
+    /// <param name="version"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    [HttpPut("{contentId}/{locationId}/attach")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult AttachFile([FromRoute] long contentId, [FromRoute] int locationId, [FromQuery] long version, [FromQuery] string path)
+    {
+        path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var content = _contentService.FindById(contentId) ?? throw new InvalidOperationException("Entity does not exist");
+        content.Version = version;
+
+        var connection = _connection.GetConnection(locationId);
+        if (connection?.ConnectionType == ConnectionType.SSH)
+        {
+            var configuration = _connection.GetConfiguration(connection);
+            var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
+            using var client = _connection.CreateSftpClient(configuration);
+            try
+            {
+                client.Connect();
+                var safePath = Path.Combine(locationPath, path);
+                if (!client.Exists(safePath)) throw new InvalidOperationException($"File does not exist: '{path}'");
+                var tmpPath = _connection.CopyFile(client, safePath, _storageOptions.GetCapturePath(), this.User);
+                var file = new FileInfo(tmpPath);
+                // If the content has a file reference, then update it.  Otherwise, add one.
+                if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file, _storageOptions.GetUploadPath());
+                else _fileReferenceService.Attach(new ContentFileReference(content, file), _storageOptions.GetUploadPath());
+
+                return new JsonResult(new ContentModel(content));
+            }
+            finally
+            {
+                if (client.IsConnected)
+                    client.Disconnect();
+            }
+        }
+        else if (connection?.ConnectionType == ConnectionType.LocalVolume)
+        {
+            var configuration = _connection.GetConfiguration(connection);
+            var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
+
+            var safePath = Path.Combine(locationPath, path);
+            if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
+
+            var file = new FileInfo(safePath);
+            // If the content has a file reference, then update it.  Otherwise, add one.
+            if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file, locationPath);
+            else _fileReferenceService.Attach(new ContentFileReference(content, file), locationPath);
+
+            return new JsonResult(new ContentModel(content));
+        }
+        else if (connection == null)
+        {
+            var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
+            if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
+
+            var file = new FileInfo(safePath);
+            // If the content has a file reference, then update it.  Otherwise, add one.
+            if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file, _storageOptions.GetUploadPath(), false);
+            else _fileReferenceService.Attach(new ContentFileReference(content, file), _storageOptions.GetUploadPath());
+
+            return new JsonResult(new ContentModel(content));
+        }
+
+        throw new NotImplementedException($"Data location type '{connection?.ConnectionType}' has not been configured");
     }
     #endregion
     #endregion

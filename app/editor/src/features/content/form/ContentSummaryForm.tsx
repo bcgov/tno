@@ -103,7 +103,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [series]);
 
   React.useEffect(() => {
-    setStreamUrl(path ? `/api/editor/contents/upload/stream?path=${path}` : '');
+    setStreamUrl(path ? `/api/editor/contents/stream?path=${path}` : '');
   }, [path]);
 
   React.useEffect(() => {
@@ -113,7 +113,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [streamUrl, videoRef]);
 
   const setMedia = () => {
-    setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/upload/stream?path=${path}`);
+    setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/stream?path=${path}`);
   };
 
   const toningError = getIn(errors, 'tone');

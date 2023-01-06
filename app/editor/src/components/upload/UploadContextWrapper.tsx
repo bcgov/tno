@@ -17,7 +17,7 @@ export const UploadContextWrapper: React.FC<IUploadContextWrapperProps> = ({ chi
   const toastId = React.useRef<any>(null);
 
   const upload = React.useCallback(
-    (file: File) => {
+    (file: File, locationId: number, path: string = '/') => {
       const data = new FormData();
       data.append('file', file);
 
@@ -28,7 +28,7 @@ export const UploadContextWrapper: React.FC<IUploadContextWrapperProps> = ({ chi
         total: file.size,
       });
       storage
-        .upload('/', file, false, undefined, (e: ProgressEvent) => {
+        .upload(locationId, path, file, false, (e: ProgressEvent) => {
           setFile((prev) => ({ ...prev!, loaded: e.loaded, total: e.total }));
           const progress = e.loaded / e.total;
           if (toastId.current === null) {

@@ -46,6 +46,7 @@ public class LookupController : ControllerBase
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
     private readonly IUserService _userService;
+    private readonly IDataLocationService _dataLocationService;
     private readonly ICssEnvironmentService _CssService;
     private readonly CssEnvironmentOptions _CssOptions;
     #endregion
@@ -66,6 +67,7 @@ public class LookupController : ControllerBase
     /// <param name="tagService"></param>
     /// <param name="tonePoolService"></param>
     /// <param name="userService"></param>
+    /// <param name="dataLocationService"></param>
     /// <param name="cssService"></param>
     /// <param name="cssOptions"></param>
     /// <param name="serializerOptions"></param>
@@ -82,6 +84,7 @@ public class LookupController : ControllerBase
         ITagService tagService,
         ITonePoolService tonePoolService,
         IUserService userService,
+        IDataLocationService dataLocationService,
         ICssEnvironmentService cssService,
         IOptions<CssEnvironmentOptions> cssOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
@@ -98,6 +101,7 @@ public class LookupController : ControllerBase
         _tagService = tagService;
         _tonePoolService = tonePoolService;
         _userService = userService;
+        _dataLocationService = dataLocationService;
         _CssService = cssService;
         _CssOptions = cssOptions.Value;
         _serializerOptions = serializerOptions.Value;
@@ -134,6 +138,7 @@ public class LookupController : ControllerBase
         var tagServices = _tagService.FindAll();
         var tonePools = _tonePoolService.FindAll();
         var users = _userService.FindAll();
+        var dataLocations = _dataLocationService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
             categories,
@@ -148,6 +153,7 @@ public class LookupController : ControllerBase
             tagServices,
             tonePools,
             users,
+            dataLocations,
             _serializerOptions
             ));
     }

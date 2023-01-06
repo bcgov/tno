@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
@@ -45,12 +46,11 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// Note - this does not close the stream.  You need to do this.
     /// </summary>
     /// <param name="entity"></param>
+    /// <param name="folderPath"></param>
     /// <returns></returns>
-    public FileStream Download(FileReference entity)
+    public FileStream Download(FileReference entity, string folderPath)
     {
-        // TODO: Handle different data locations.
-        var path = entity.GetFilePath(this.Context, _options);
-        return File.OpenRead(path);
+        return File.OpenRead(Path.Combine(folderPath, entity.Path.MakeRelativePath()));
     }
 
     /// <summary>
@@ -58,20 +58,21 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// </summary>
     /// <param name="content"></param>
     /// <param name="file"></param>
+    /// <param name="folderPath"></param>
     /// <returns></returns>
-    public async Task<FileReference> UploadAsync(Content content, IFormFile file)
+    public async Task<FileReference> UploadAsync(Content content, IFormFile file, string folderPath)
     {
         if (!content.FileReferences.Any()) throw new InvalidOperationException("Content does not have a file to replace");
 
         var original = content.FileReferences.First();
-        var originalPath = original.GetFilePath(this.Context, _options);
+        var path = Path.Combine(folderPath, original.Path.MakeRelativePath());
 
         // Delete the original file if it exists.
-        if (File.Exists(originalPath))
-            File.Delete(originalPath);
+        if (File.Exists(path))
+            File.Delete(path);
 
         var fileReference = new ContentFileReference(original, file);
-        var result = await UploadAsync(fileReference);
+        var result = await UploadAsync(fileReference, folderPath);
 
         return result;
     }
@@ -80,11 +81,12 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// Upload the file to the configured data location and add or update the specified file reference.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="folderPath"></param>
     /// <returns></returns>
-    public async Task<FileReference> UploadAsync(ContentFileReference model)
+    public async Task<FileReference> UploadAsync(ContentFileReference model, string folderPath)
     {
         // TODO: Handle different data locations.
-        var path = model.GetFilePath(this.Context, _options);
+        var path = Path.Combine(folderPath, model.Path.MakeRelativePath());
         var directory = Path.GetDirectoryName(path);
         if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
@@ -111,20 +113,22 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// </summary>
     /// <param name="content"></param>
     /// <param name="file"></param>
+    /// <param name="folderPath"></param>
+    /// <param name="deleteOriginal"></param>
     /// <returns></returns>
-    public FileReference Attach(Content content, FileInfo file)
+    public FileReference Attach(Content content, FileInfo file, string folderPath, bool deleteOriginal = true)
     {
         if (!content.FileReferences.Any()) throw new InvalidOperationException("Content does not have a file to replace");
 
         var original = content.FileReferences.First();
-        var originalPath = original.GetFilePath(this.Context, _options);
+        var path = Path.Combine(folderPath, original.Path.MakeRelativePath());
 
         // Delete the original file if it exists.
-        if (File.Exists(originalPath))
-            File.Delete(originalPath);
+        if (deleteOriginal && File.Exists(path))
+            File.Delete(path);
 
         var fileReference = new ContentFileReference(original, file);
-        var result = Attach(fileReference);
+        var result = Attach(fileReference, folderPath);
 
         return result;
     }
@@ -133,11 +137,12 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// Copy the file to the configured data location and add or update the specified file reference.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="folderPath"></param>
     /// <returns></returns>
-    public FileReference Attach(ContentFileReference model)
+    public FileReference Attach(ContentFileReference model, string folderPath)
     {
         // TODO: Handle different data locations.
-        var path = model.GetFilePath(this.Context, _options);
+        var path = Path.Combine(folderPath, model.Path.MakeRelativePath());
         var directory = Path.GetDirectoryName(path);
         if (!Directory.Exists(directory) && !String.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
@@ -161,12 +166,9 @@ public class FileReferenceService : BaseService<FileReference, long>, IFileRefer
     /// <param name="entity"></param>
     public override void DeleteAndSave(FileReference entity)
     {
-        // TODO: Handle different data locations.
-        var path = entity.GetFilePath(this.Context, _options);
+        var path = Path.Combine(_options.GetUploadPath(), entity.Path.MakeRelativePath());
         if (File.Exists(path))
-        {
             File.Delete(path);
-        }
 
         base.DeleteAndSave(entity);
     }
