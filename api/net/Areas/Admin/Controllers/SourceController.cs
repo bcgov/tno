@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Source;
 using TNO.API.Models;
@@ -29,6 +31,7 @@ public class SourceController : ControllerBase
 {
     #region Variables
     private readonly ISourceService _service;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -36,9 +39,11 @@ public class SourceController : ControllerBase
     /// Creates a new instance of a SourceController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
-    public SourceController(ISourceService service)
+    /// <param name="serializerOptions"></param>
+    public SourceController(ISourceService service, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -53,7 +58,7 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new SourceModel(ds)));
+        return new JsonResult(_service.FindAll().Select(ds => new SourceModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -69,7 +74,7 @@ public class SourceController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _service.Find(new SourceFilter(query));
-        var page = new Paged<SourceModel>(result.Items.Select(ds => new SourceModel(ds)), result.Page, result.Quantity, result.Total);
+        var page = new Paged<SourceModel>(result.Items.Select(ds => new SourceModel(ds, _serializerOptions)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 
@@ -88,7 +93,7 @@ public class SourceController : ControllerBase
         var result = _service.FindById(id);
 
         if (result == null) return new NoContentResult();
-        return new JsonResult(new SourceModel(result));
+        return new JsonResult(new SourceModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -103,8 +108,8 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult Add(SourceModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity());
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SourceModel(result));
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SourceModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -119,8 +124,8 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult Update(SourceModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity(), true);
-        return new JsonResult(new SourceModel(result));
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions), true);
+        return new JsonResult(new SourceModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -135,7 +140,7 @@ public class SourceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Source" })]
     public IActionResult Delete(SourceModel model)
     {
-        _service.DeleteAndSave(model.ToEntity());
+        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion

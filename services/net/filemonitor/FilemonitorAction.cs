@@ -431,7 +431,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                                 GetXmlData(story, Fields.Headline, ingest),
                                 GetXmlData(story, Fields.Summary, ingest),
                                 GetXmlData(story, Fields.Story, ingest),
-                                GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest))
+                                GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options))
                             {
                                 Page = GetXmlData(story, Fields.Page, ingest),
                                 Section = GetXmlData(story, Fields.Section, ingest),
@@ -504,7 +504,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                                 GetFmsData(filtered, Fields.Headline, ingest),
                                 GetFmsData(filtered, Fields.Summary, ingest),
                                 GetFmsData(preFiltered + "<break>", Fields.Story, ingest),
-                                GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest))
+                                GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest, this.Options))
                             {
                                 Page = GetFmsData(filtered, Fields.Page, ingest),
                                 Section = GetFmsData(filtered, Fields.Section, ingest),
@@ -755,19 +755,40 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// </summary>
     /// <param name="dateStr"></param>
     /// <param name="ingest"></param>
+    /// <param name="options"></param>
     /// <returns></returns>
-    private static DateTime GetPublishedOn(string dateStr, IngestModel ingest)
+    private static DateTime GetPublishedOn(string dateStr, IngestModel ingest, FileMonitorOptions options)
     {
         var dateFmt = ingest.GetConfigurationValue(Fields.DateFmt);
         if (!String.IsNullOrEmpty(dateFmt))
         {
             var dateTime = DateTime.ParseExact(dateStr, dateFmt, CultureInfo.InvariantCulture);
-            return dateTime.ToUniversalTime();
+            return LocalizeForIngestTimezone(dateTime, ingest, options);
         }
         else
         {
             return DateTime.Now;
         }
+    }
+
+    /// <summary>
+    /// Calculate the UTC time at midnight in the ingest's configured timezone. This is required to set
+    /// the correct date for publishedOn, with a time component of "00:00:00".
+    /// </summary>
+    /// <param name="date"></param>
+    /// <param name="ingest"></param>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    private static DateTime LocalizeForIngestTimezone(DateTime date, IngestModel ingest, FileMonitorOptions options)
+    {
+        var timeZone = ingest.Configuration.GetConfigurationValue<string>("timeZone") ?? options.TimeZone;
+        var tz = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+        var offset = tz.GetUtcOffset(date).Hours;
+
+        // Invert the sign of the offset to add ours if West of Greenwich and subtract if East.
+        offset = offset <= 0 ? Math.Abs(offset) : 0 - offset;
+        date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        return date.AddHours(offset);
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 
 using TNO.API.Models;
+using System.Text.Json;
 
 namespace TNO.API.Areas.Editor.Models.Content;
 
@@ -44,6 +45,11 @@ public class SourceModel : BaseTypeModel<int>
     /// get/set -
     /// </summary>
     public bool DisableTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -70,6 +76,7 @@ public class SourceModel : BaseTypeModel<int>
         this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration) ?? new Dictionary<string, object>();
     }
     #endregion
 
@@ -90,7 +97,8 @@ public class SourceModel : BaseTypeModel<int>
             OwnerId = model.OwnerId,
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
-            DisableTranscribe = model.DisableTranscribe
+            DisableTranscribe = model.DisableTranscribe,
+            Configuration = JsonSerializer.Serialize(model.Configuration)
         };
     }
     #endregion
