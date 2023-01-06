@@ -1,5 +1,5 @@
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+FROM mcr.microsoft.com/dotnet/sdk:7.0
 
 ENV DOTNET_CLI_HOME=/tmp
 ENV PATH="$PATH:/tmp/.dotnet/tools"

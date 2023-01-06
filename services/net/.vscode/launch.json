@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build-capture",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/capture/bin/Debug/net6.0/TNO.Services.Capture.dll",
+      "program": "${workspaceFolder}/capture/bin/Debug/net7.0/TNO.Services.Capture.dll",
       "args": [],
       "cwd": "${workspaceFolder}/capture",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -27,7 +27,7 @@
       "request": "launch",
       "preLaunchTask": "build-clip",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/clip/bin/Debug/net6.0/TNO.Services.Clip.dll",
+      "program": "${workspaceFolder}/clip/bin/Debug/net7.0/TNO.Services.Clip.dll",
       "args": [],
       "cwd": "${workspaceFolder}/clip",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -44,7 +44,7 @@
       "request": "launch",
       "preLaunchTask": "build-command",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/command/bin/Debug/net6.0/TNO.Services.Command.dll",
+      "program": "${workspaceFolder}/command/bin/Debug/net7.0/TNO.Services.Command.dll",
       "args": [],
       "cwd": "${workspaceFolder}/command",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -61,7 +61,7 @@
       "request": "launch",
       "preLaunchTask": "build-image",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/image/bin/Debug/net6.0/TNO.Services.Image.dll",
+      "program": "${workspaceFolder}/image/bin/Debug/net7.0/TNO.Services.Image.dll",
       "args": [],
       "cwd": "${workspaceFolder}/image",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -78,7 +78,7 @@
       "request": "launch",
       "preLaunchTask": "build-content",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/content/bin/Debug/net6.0/TNO.Services.Content.dll",
+      "program": "${workspaceFolder}/content/bin/Debug/net7.0/TNO.Services.Content.dll",
       "args": [],
       "cwd": "${workspaceFolder}/content",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -95,7 +95,7 @@
       "request": "launch",
       "preLaunchTask": "build-syndication",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/syndication/bin/Debug/net6.0/TNO.Services.Syndication.dll",
+      "program": "${workspaceFolder}/syndication/bin/Debug/net7.0/TNO.Services.Syndication.dll",
       "args": [],
       "cwd": "${workspaceFolder}/syndication",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -112,7 +112,7 @@
       "request": "launch",
       "preLaunchTask": "build-transcription",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/transcription/bin/Debug/net6.0/TNO.Services.Transcription.dll",
+      "program": "${workspaceFolder}/transcription/bin/Debug/net7.0/TNO.Services.Transcription.dll",
       "args": [],
       "cwd": "${workspaceFolder}/transcription",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -129,7 +129,7 @@
       "request": "launch",
       "preLaunchTask": "build-indexing",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/indexing/bin/Debug/net6.0/TNO.Services.Indexing.dll",
+      "program": "${workspaceFolder}/indexing/bin/Debug/net7.0/TNO.Services.Indexing.dll",
       "args": [],
       "cwd": "${workspaceFolder}/indexing",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -146,7 +146,7 @@
       "request": "launch",
       "preLaunchTask": "build-nlp",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/nlp/bin/Debug/net6.0/TNO.Services.NLP.dll",
+      "program": "${workspaceFolder}/nlp/bin/Debug/net7.0/TNO.Services.NLP.dll",
       "args": [],
       "cwd": "${workspaceFolder}/nlp",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
@@ -163,7 +163,7 @@
       "request": "launch",
       "preLaunchTask": "build-filemonitor",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/filemonitor/bin/Debug/net6.0/TNO.Services.FileMonitor.dll",
+      "program": "${workspaceFolder}/filemonitor/bin/Debug/net7.0/TNO.Services.FileMonitor.dll",
       "args": [],
       "cwd": "${workspaceFolder}/filemonitor",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

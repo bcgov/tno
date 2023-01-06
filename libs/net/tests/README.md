@@ -40,9 +40,9 @@ dotnet tool install -g coverlet.console
 Create a coverage file requires generating a file for each test project and merging them together.
 
 ```bash
-coverlet ./tests/dal/bin/Debug/net6.0/TNO.Test.DAL.dll --target "dotnet" --targetargs "test ./ --no-build" -o "./tests/TestResults/coverage.json" --exclude "[*.Test]*" --exclude "[*]*Model" --exclude-by-attribute "CompilerGenerated" -f json
+coverlet ./tests/dal/bin/Debug/net7.0/TNO.Test.DAL.dll --target "dotnet" --targetargs "test ./ --no-build" -o "./tests/TestResults/coverage.json" --exclude "[*.Test]*" --exclude "[*]*Model" --exclude-by-attribute "CompilerGenerated" -f json
 
-coverlet ./tests/entities/bin/Debug/net6.0/TNO.Test.Entities.dll --target "dotnet" --targetargs "test ./ --no-build" -o "./tests/TestResults/coverage.xml" --exclude "[*.Test]*" --exclude "[*]*Model" --exclude-by-attribute "CompilerGenerated" --merge-with "tests/TestResults/coverage.json" -f cobertura
+coverlet ./tests/entities/bin/Debug/net7.0/TNO.Test.Entities.dll --target "dotnet" --targetargs "test ./ --no-build" -o "./tests/TestResults/coverage.xml" --exclude "[*.Test]*" --exclude "[*]*Model" --exclude-by-attribute "CompilerGenerated" --merge-with "tests/TestResults/coverage.json" -f cobertura
 ```
 
 ### DotNet
