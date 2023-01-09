@@ -6,15 +6,20 @@
 		"dockerfile": "Dockerfile",
 		// Update 'VARIANT' to pick a Node version: 12, 14, 16
 		"args": {
-			"VARIANT": "16"
-		},
+			"VARIANT": "18"
+		}
 	},
-	// "runArgs": ["--env-file", ".devcontainer/.env"],
+	"runArgs": ["--env-file", ".env"],
   "postCreateCommand": [
 	],
   "postStartCommand": [
 		"yarn"
 	],
+	// "appPort": 3000,
+	"forwardPorts": [40082],
+  // "mounts": [
+  //   "source=D/SourceCode/quartech/tno/libs/npm/core,target=/workspaces/tno/app/editor/libs/core,type=bind,consistency=cached"
+  // ],
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {},
@@ -27,7 +32,17 @@
 		"formulahendry.auto-close-tag",
 		"cssho.vscode-svgviewer",
 		"jpoissonnier.vscode-styled-components",
-    "streetsidesoftware.code-spell-checker"
+    "streetsidesoftware.code-spell-checker",
+    "pflannery.vscode-versionlens",
+    "styled-components.vscode-styled-components",
+    "eamodio.gitlens",
+    "chrisbibby.hide-node-modules",
+    "kamikillerto.vscode-colorize",
+    "naumovs.color-highlight",
+    "syler.sass-indented",
+    "michelemelluso.code-beautifier",
+    "editorconfig.editorconfig",
+    "firsttris.vscode-jest-runner"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

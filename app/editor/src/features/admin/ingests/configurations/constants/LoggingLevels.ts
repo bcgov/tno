@@ -1,4 +1,4 @@
-import { OptionItem } from 'components/form';
+import { OptionItem } from 'tno-core';
 
 export const LoggingLevels = [
   new OptionItem('Quiet', 'quiet'),

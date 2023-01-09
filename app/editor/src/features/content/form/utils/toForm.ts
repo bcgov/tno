@@ -1,6 +1,6 @@
-import { OptionItem } from 'components/form';
 import { IContentModel } from 'hooks/api-editor';
 import moment from 'moment';
+import { OptionItem } from 'tno-core';
 
 import { IContentForm } from '../interfaces';
 

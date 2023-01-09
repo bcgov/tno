@@ -1,0 +1,8 @@
+{
+  "realm": "standard",
+  "auth-server-url": "https://dev.loginproxy.gov.bc.ca/auth",
+  "ssl-required": "external",
+  "resource": "media-monitoring-mmia-3671",
+  "public-client": true,
+  "confidential-port": 0
+}

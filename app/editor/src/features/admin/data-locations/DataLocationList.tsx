@@ -1,10 +1,9 @@
-import { IconButton } from 'components/form';
 import { IDataLocationModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataLocations } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, GridTable, Row } from 'tno-core';
+import { Col, GridTable, IconButton, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { DataLocationListFilter } from './DataLocationListFilter';

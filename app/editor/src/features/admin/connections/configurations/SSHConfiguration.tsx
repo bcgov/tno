@@ -1,7 +1,6 @@
-import { FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IConnectionModel } from 'hooks';
-import { Col, Row } from 'tno-core';
+import { Col, FormikText, Row } from 'tno-core';
 
 export const SSHConfiguration = () => {
   const { values } = useFormikContext<IConnectionModel>();

@@ -1,14 +1,6 @@
 import { faTableColumns, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Area, IconButton } from 'components/form';
-import { FormPage } from 'components/form/formpage';
-import {
-  FormikForm,
-  FormikHidden,
-  FormikSelect,
-  FormikText,
-  FormikTextArea,
-} from 'components/formik';
+import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { FormikProps } from 'formik';
 import {
@@ -39,7 +31,23 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
-import { Button, ButtonVariant, Col, FieldSize, Row, Show, Tab, Tabs } from 'tno-core';
+import {
+  Area,
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  FormikHidden,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+  FormPage,
+  IconButton,
+  Row,
+  Show,
+  Tab,
+  Tabs,
+} from 'tno-core';
 import { hasErrors } from 'utils';
 
 import { getStatusText } from '../list-view/utils';

@@ -1,15 +1,18 @@
+import { getIn, useFormikContext } from 'formik';
+import { useNamespace } from 'hooks';
+import { IIngestModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
+import React from 'react';
 import {
+  Col,
+  FieldSize,
   FormikCheckbox,
   FormikHidden,
   FormikStringEnumCheckbox,
   FormikText,
   FormikTextArea,
-} from 'components/formik';
-import { getIn, useFormikContext } from 'formik';
-import { useNamespace } from 'hooks';
-import { IIngestModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
-import React from 'react';
-import { Col, FieldSize, Row, Text } from 'tno-core';
+  Row,
+  Text,
+} from 'tno-core';
 
 import { defaultSchedule } from '../constants';
 import * as styled from './styled';

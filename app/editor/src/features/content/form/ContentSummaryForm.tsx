@@ -1,8 +1,6 @@
 import 'react-quill/dist/quill.snow.css';
 
-import { IOptionItem, OptionItem, TimeInput, Wysiwyg } from 'components/form';
-import { FormikRadioGroup, FormikSelect, FormikText } from 'components/formik';
-import { FormikDatePicker } from 'components/formik/datepicker';
+import { Wysiwyg } from 'components/form';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
 import { getIn, useFormikContext } from 'formik';
@@ -14,7 +12,22 @@ import moment from 'moment';
 import React from 'react';
 import { TbLanguage } from 'react-icons/tb';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonVariant, Col, FieldSize, Row, Show, useKeycloakWrapper } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  FormikDatePicker,
+  FormikRadioGroup,
+  FormikSelect,
+  FormikText,
+  IOptionItem,
+  OptionItem,
+  Row,
+  Show,
+  TimeInput,
+  useKeycloakWrapper,
+} from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import { toningOptions } from './constants';

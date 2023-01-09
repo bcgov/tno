@@ -1,4 +1,4 @@
-import { OptionItem } from 'components/form';
+import { OptionItem } from 'tno-core';
 
 export const TimeZones = [
   new OptionItem('(UTC-12:00) International Date Line West', 'Dateline Standard Time'),

@@ -3,6 +3,7 @@ export * from './cell';
 export * from './flex';
 export * from './footer';
 export * from './form';
+export * from './formik';
 export * from './grid-table';
 export * from './header';
 export * from './loading';

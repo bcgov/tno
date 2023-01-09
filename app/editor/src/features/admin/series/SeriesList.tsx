@@ -1,10 +1,9 @@
-import { FormPage, IconButton } from 'components/form';
 import { ISeriesModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSeries } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, GridTable, Row } from 'tno-core';
+import { Col, FormPage, GridTable, IconButton, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { SeriesListFilter } from './SeriesListFilter';

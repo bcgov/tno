@@ -1,7 +1,7 @@
 import { ContentStatusName, ContentTypeName, IContentModel } from 'hooks/api-editor';
 import { FaFeather } from 'react-icons/fa';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Date, Ellipsis, Show } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis, Show } from 'tno-core';
 import { formatIdirUsername } from 'utils/formatIdir';
 
 import { getStatusText } from '../utils';
@@ -13,7 +13,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: 'headline',
     width: 5,
     Cell: (cell) => (
-      <Ellipsis data-for="main-tooltip" data-tip={cell.value} className="headline">
+      <CellEllipsis data-for="main-tooltip" data-tip={cell.value} className="headline">
         <Show
           visible={
             cell.row.original.contentType === ContentTypeName.Snippet && !!cell.row.original.body
@@ -22,7 +22,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
           <FaFeather />
         </Show>
         <span>{cell.value}</span>
-      </Ellipsis>
+      </CellEllipsis>
     ),
   },
   {
@@ -30,14 +30,14 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Header: 'Source',
     width: 1,
     accessor: 'otherSource',
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'productId',
     Header: 'Designation',
     width: 2,
     accessor: (row) => row.product?.name,
-    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'page',
@@ -45,14 +45,16 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     width: 1,
     accessor: (row) =>
       row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
-    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'ownerId',
     Header: 'Username',
     width: 1,
     accessor: (row) => row.owner?.displayName,
-    Cell: ({ value }: { value: string }) => <Ellipsis>{formatIdirUsername(value)}</Ellipsis>,
+    Cell: ({ value }: { value: string }) => (
+      <CellEllipsis>{formatIdirUsername(value)}</CellEllipsis>
+    ),
   },
   {
     id: 'status',
@@ -67,7 +69,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: (row) => row.publishedOn ?? row.createdOn,
     Cell: ({ value }: any) => (
       <div className="center">
-        <Date value={value} />
+        <CellDate value={value} />
       </div>
     ),
   },
@@ -81,7 +83,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Cell: ({ value }: { value: boolean }) => {
       return (
         <div className="center">
-          <Checkbox checked={value} />
+          <CellCheckbox checked={value} />
         </div>
       );
     },

@@ -1,8 +1,17 @@
-import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select } from 'components/form';
 import { ContentTypeName, useLookupOptions } from 'hooks';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Col, FieldSize, replaceQueryParams, Row } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  FieldSize,
+  IOptionItem,
+  OptionItem,
+  RadioGroup,
+  replaceQueryParams,
+  Row,
+  Select,
+} from 'tno-core';
 
 import { timeFrames } from '../list-view/constants';
 import { queryToFilter } from '../list-view/utils';

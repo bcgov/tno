@@ -1,8 +1,11 @@
-FROM node:16.10
+FROM node:18-bullseye
 
 WORKDIR /usr/app
-COPY package*.json yarn.lock ./
+COPY .yarn ./.yarn
+COPY package*.json yarn.lock .yarnrc.yml ./
 
+RUN yarn set version berry
+RUN npx browserslist@latest --update-db
 RUN yarn
 COPY . .
 

@@ -22,7 +22,8 @@
     "jsx": "react-jsx",
     "typeRoots": [
       "src/@types",
-      "node_modules/@types"
+      "node_modules/@types",
+      "node_modules/yup"
     ]
   },
   "include": [
