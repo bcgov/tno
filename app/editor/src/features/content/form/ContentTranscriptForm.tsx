@@ -1,7 +1,5 @@
 import { Wysiwyg } from 'components/form';
-import { useFormikContext } from 'formik';
 
-import { IContentForm } from './interfaces';
 import * as styled from './styled';
 
 /**
