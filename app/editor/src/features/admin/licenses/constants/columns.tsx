@@ -1,6 +1,6 @@
 import { ILicenseModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Ellipsis } from 'tno-core/dist/components/cell';
+import { CellCheckbox, CellEllipsis } from 'tno-core';
 
 export const columns: (Column<ILicenseModel> &
   UseSortByColumnOptions<ILicenseModel> &
@@ -10,13 +10,13 @@ export const columns: (Column<ILicenseModel> &
     Header: 'Name',
     accessor: 'name',
     width: 3,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Description',
     accessor: 'description',
     width: 5,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'TTL',
@@ -27,6 +27,6 @@ export const columns: (Column<ILicenseModel> &
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,
-    Cell: (cell) => <Checkbox checked={cell.value} />,
+    Cell: (cell) => <CellCheckbox checked={cell.value} />,
   },
 ];

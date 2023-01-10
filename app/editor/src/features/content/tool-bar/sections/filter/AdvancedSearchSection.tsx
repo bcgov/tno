@@ -1,4 +1,3 @@
-import { IOptionItem, OptionItem, Select } from 'components/form';
 import { ToolBarSection } from 'components/tool-bar';
 import { fieldTypes } from 'features/content/list-view/constants';
 import {
@@ -8,7 +7,7 @@ import {
 import { useLookupOptions } from 'hooks';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
-import { FieldSize, Row, Show, Text } from 'tno-core';
+import { FieldSize, IOptionItem, OptionItem, Row, Select, Show, Text } from 'tno-core';
 
 export interface IAdvancedSearchSectionProps {
   onChange: (filter: IContentListAdvancedFilter) => void;

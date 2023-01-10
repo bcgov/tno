@@ -1,6 +1,4 @@
-import { IconButton, LabelPosition } from 'components/form';
-import { FormikCheckbox, FormikForm, FormikText, FormikTextArea } from 'components/formik';
-import { FormikDatePicker } from 'components/formik/datepicker';
+import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
 import { IActionModel } from 'hooks/api-editor';
@@ -10,7 +8,20 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useActions } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  FormikCheckbox,
+  FormikDatePicker,
+  FormikText,
+  FormikTextArea,
+  IconButton,
+  LabelPosition,
+  Row,
+  Show,
+} from 'tno-core';
 
 import { defaultAction } from './constants';
 import * as styled from './styled';

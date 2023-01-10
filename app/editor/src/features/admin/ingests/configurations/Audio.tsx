@@ -1,8 +1,7 @@
-import { FormikSelect } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
-import { Show } from 'tno-core';
+import { FormikSelect, Show } from 'tno-core';
 
 import { AudioClip, AudioStream, AudioTuner } from '.';
 import { serviceTypes } from './constants';

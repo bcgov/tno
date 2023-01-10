@@ -1,4 +1,4 @@
-import { IOptionItem, OptionItem } from 'components/form';
+import { IOptionItem, OptionItem } from 'tno-core';
 
 export const serviceTypes = (ingestType?: string) => {
   const values: IOptionItem<string>[] = [

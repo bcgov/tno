@@ -1,7 +1,7 @@
 import { IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Date, Ellipsis } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis } from 'tno-core';
 
 export const columns: (Column<IIngestModel> &
   UseSortByColumnOptions<IIngestModel> &
@@ -11,19 +11,19 @@ export const columns: (Column<IIngestModel> &
     Header: 'Ingest',
     accessor: 'name',
     width: 3,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Type',
     width: 1,
     accessor: (row) => row.ingestType?.name,
-    Cell: ({ value }: any) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Product',
     width: 1,
     accessor: (row) => row.product?.name,
-    Cell: ({ value }: any) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Status',
@@ -42,13 +42,13 @@ export const columns: (Column<IIngestModel> &
     Header: 'Last Run',
     accessor: 'lastRanOn',
     width: 2,
-    Cell: (cell) => <Date value={cell.value} format="MM/DD/YYYY HH:mm:SS A" />,
+    Cell: (cell) => <CellDate value={cell.value} format="MM/DD/YYYY HH:mm:SS A" />,
   },
   {
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,
     sortType: 'basic',
-    Cell: (cell) => <Checkbox checked={cell.value} />,
+    Cell: (cell) => <CellCheckbox checked={cell.value} />,
   },
 ];

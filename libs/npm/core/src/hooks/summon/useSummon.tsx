@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 import { isEmpty } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
@@ -50,13 +50,13 @@ export const useSummon = ({
       ...rest,
       baseURL,
       headers: {
-        ...rest.headers,
         'Access-Control-Allow-Origin': '*',
+        ...(rest.headers ?? ({} as any)),
       },
     });
 
     summon.interceptors.request.use((config) => {
-      config!.headers!.Authorization = `Bearer ${getToken()}`;
+      (config.headers! as RawAxiosRequestHeaders).Authorization = `Bearer ${getToken()}`;
       if (selector !== undefined) {
         const storedValue = selector(state);
 

@@ -1,4 +1,3 @@
-import { IconButton } from 'components/form';
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
@@ -9,7 +8,7 @@ import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, Row, Tab, Tabs } from 'tno-core';
+import { Button, ButtonVariant, Col, IconButton, Row, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
 
 import { defaultSource } from './constants';

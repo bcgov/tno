@@ -1,10 +1,18 @@
-import { FormikText } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
-import { Button, ButtonVariant, FieldSize, formatDate, IColProps, Row, Text } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  FieldSize,
+  formatDate,
+  FormikText,
+  IColProps,
+  Row,
+  Text,
+} from 'tno-core';
 
 import * as styled from './styled';
 

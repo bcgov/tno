@@ -1,11 +1,17 @@
-import { OptionItem } from 'components/form';
-import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import {
+  Col,
+  FormikCheckbox,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+  OptionItem,
+  Row,
+} from 'tno-core';
 
 import { FileTypes, Languages, TimeZones } from './constants';
 import * as styled from './styled';

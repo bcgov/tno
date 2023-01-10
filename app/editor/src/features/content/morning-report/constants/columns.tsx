@@ -1,6 +1,6 @@
 import { ContentStatusName, IContentModel } from 'hooks/api-editor';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Date, Ellipsis } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis } from 'tno-core';
 
 import { getStatusText } from '../../list-view/utils';
 
@@ -11,9 +11,9 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: 'headline',
     width: 5,
     Cell: ({ value }) => (
-      <Ellipsis data-for="main-tooltip" data-tip={value}>
+      <CellEllipsis data-for="main-tooltip" data-tip={value}>
         {value}
-      </Ellipsis>
+      </CellEllipsis>
     ),
   },
   {
@@ -21,14 +21,14 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Header: 'Source',
     width: 1,
     accessor: 'otherSource',
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'productId',
     Header: 'Designation',
     width: 2,
     accessor: (row) => row.product?.name,
-    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'page',
@@ -36,7 +36,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     width: 1,
     accessor: (row) =>
       row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
-    Cell: ({ value }: { value: string }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'status',
@@ -51,7 +51,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: (row) => row.publishedOn ?? row.createdOn,
     Cell: ({ value }: any) => (
       <div className="center">
-        <Date value={value} />
+        <CellDate value={value} />
       </div>
     ),
   },
@@ -65,7 +65,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     Cell: ({ value }: { value: boolean }) => {
       return (
         <div className="center">
-          <Checkbox checked={value} />
+          <CellCheckbox checked={value} />
         </div>
       );
     },

@@ -1,6 +1,5 @@
-import { IconButton } from 'components/form';
 import React from 'react';
-import { Row, Text } from 'tno-core';
+import { IconButton, Row, Text } from 'tno-core';
 
 interface IIngestFilterProps {
   setGlobalFilter: (filterValue: any) => void;

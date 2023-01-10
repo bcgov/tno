@@ -1,39 +1,7 @@
 version: '3.5'
 
 services:
-  ####################### Nginx #######################
-  nginx:
-    image: tno:nginx
-    profiles:
-      - all
-      - api
-      - editor
-      - subscriber
-      - ingest
-      - service
-      - main
-    restart: "no"
-    container_name: tno-nginx
-    build:
-      context: ./network/nginx
-    env_file:
-      - network/nginx/.env
-    ports:
-      - ${NGINX_HTTP_EDITOR_PORT:-40080}:80
-      - ${NGINX_HTTP_SUBSCRIBER_PORT:-40081}:81
-      - ${NGINX_HTTPS_PORT:-40443}:443
-    extra_hosts:
-      - host.docker.internal:host-gateway
-    depends_on:
-      - api
-      - editor
-      # - app-subscriber
-    networks:
-      - tno
-
   ####################### Database #######################
-
-  ## Redhat Image
   database:
     image: tno:database
     profiles:
@@ -246,6 +214,7 @@ services:
       - all
       - subscriber
       - service
+      - main
     stdin_open: true
     tty: true
     restart: "no"
@@ -264,6 +233,36 @@ services:
       - host.docker.internal:host-gateway
     depends_on:
       - api
+    networks:
+      - tno
+
+  ####################### Nginx #######################
+  nginx:
+    image: tno:nginx
+    profiles:
+      - all
+      - api
+      - editor
+      - subscriber
+      - ingest
+      - service
+      - main
+    restart: "no"
+    container_name: tno-nginx
+    build:
+      context: ./network/nginx
+    env_file:
+      - network/nginx/.env
+    ports:
+      - ${NGINX_HTTP_EDITOR_PORT:-40080}:80
+      - ${NGINX_HTTP_SUBSCRIBER_PORT:-40081}:81
+      - ${NGINX_HTTPS_PORT:-40443}:443
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      - api
+      - editor
+      - subscriber
     networks:
       - tno
 
@@ -309,7 +308,7 @@ services:
     ports:
       - 2222:2222
     volumes:
-      - tno-av-data:/mnt/av
+      - tno-ssh-data:/mnt/av
     extra_hosts:
       - host.docker.internal:host-gateway
     networks:
@@ -325,6 +324,8 @@ volumes:
     name: tno-api-data
   tno-av-data:
     name: tno-av-data
+  tno-ssh-data:
+    name: tno-ssh-data
 
   tno-azure-storage-data:
     name: tno-azure-storage-data

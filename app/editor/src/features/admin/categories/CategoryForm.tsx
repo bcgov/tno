@@ -1,12 +1,4 @@
-import { IconButton, LabelPosition } from 'components/form';
-import {
-  FormikCheckbox,
-  FormikForm,
-  FormikSelect,
-  FormikText,
-  FormikTextArea,
-} from 'components/formik';
-import { FormikDatePicker } from 'components/formik/datepicker';
+import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { CategoryTypeName, ICategoryModel, useModal } from 'hooks';
 import { noop } from 'lodash';
@@ -15,7 +7,21 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCategories } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, FieldSize, Row, Show } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  FormikCheckbox,
+  FormikDatePicker,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+  IconButton,
+  LabelPosition,
+  Row,
+  Show,
+} from 'tno-core';
 import { getEnumStringOptions } from 'utils';
 
 import { defaultCategory } from './constants';

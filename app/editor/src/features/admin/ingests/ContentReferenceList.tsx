@@ -1,4 +1,3 @@
-import { IconButton, SelectDate } from 'components/form';
 import { useFormikContext } from 'formik';
 import { IContentReferenceFilter, IContentReferenceModel, IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
@@ -6,7 +5,7 @@ import React from 'react';
 import { SortingRule } from 'react-table';
 import { useApp } from 'store/hooks';
 import { useContentReferences } from 'store/hooks/admin';
-import { FieldSize, IPage, Page, PagedTable, Row, Text } from 'tno-core';
+import { FieldSize, IconButton, IPage, Page, PagedTable, Row, SelectDate, Text } from 'tno-core';
 
 import {
   contentReferenceColumns,

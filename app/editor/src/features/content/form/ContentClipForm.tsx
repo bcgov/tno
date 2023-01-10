@@ -1,5 +1,4 @@
 import { Breadcrumb } from 'components/breadcrumb';
-import { Error } from 'components/form';
 import { Modal } from 'components/modal';
 import { ToggleGroup } from 'components/toggle-group';
 import { useFormikContext } from 'formik';
@@ -8,7 +7,7 @@ import { useModal } from 'hooks/modal';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useContent, useLookup, useStorage } from 'store/hooks';
-import { Button, ButtonVariant, Col, FieldSize, Row, Text } from 'tno-core';
+import { Button, ButtonVariant, Col, Error, FieldSize, Row, Text } from 'tno-core';
 
 import { defaultFolder } from '../../storage/constants';
 import { ClipDirectoryTable } from './ClipDirectoryTable';

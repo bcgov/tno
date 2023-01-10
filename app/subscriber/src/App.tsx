@@ -1,23 +1,21 @@
+import 'react-toastify/dist/ReactToastify.css';
+
 import { ReactKeycloakProvider } from '@react-keycloak/web';
-import { NavMenu } from 'components';
-import { AppRouter } from 'components/router';
-import { KeycloakInstance } from 'keycloak-js';
+import { LayoutAnonymous } from 'components/layout';
+import { AppRouter } from 'features/router';
+import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 import ReactTooltip from 'react-tooltip';
-import {
-  Layout,
-  LayoutAnonymous,
-  Loading,
-  SummonProvider,
-  useKeycloakEventHandler,
-} from 'tno-core';
-import { createKeycloakInstance } from 'utils';
+import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
+
+const appName = 'Media Monitoring Insights & Analysis';
 
 function App() {
-  const [keycloak, setKeycloak] = React.useState<KeycloakInstance>();
   const keycloakEventHandler = useKeycloakEventHandler();
-  const name = "Today's News Online";
+
+  const [keycloak, setKeycloak] = React.useState<Keycloak>();
 
   React.useEffect(() => {
     createKeycloakInstance().then((result) => {
@@ -25,29 +23,31 @@ function App() {
     });
   }, []);
 
-  return keycloak ? (
-    <SummonProvider>
-      <ReactKeycloakProvider
-        authClient={keycloak}
-        LoadingComponent={
-          <LayoutAnonymous name={name}>
-            <Loading />
-          </LayoutAnonymous>
-        }
-        onEvent={keycloakEventHandler(keycloak)}
-      >
-        <BrowserRouter basename={process.env.PUBLIC_URL}>
-          <Layout name={name}>{{ menu: <NavMenu />, router: <AppRouter /> }}</Layout>
-        </BrowserRouter>
-
-        <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
-        <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
-      </ReactKeycloakProvider>
-    </SummonProvider>
-  ) : (
-    <LayoutAnonymous name={name}>
-      <Loading />
-    </LayoutAnonymous>
+  return (
+    <BrowserRouter>
+      <Show visible={!!keycloak}>
+        <ReactKeycloakProvider
+          initOptions={{ pkceMethod: 'S256', checkLoginIframe: false }}
+          authClient={keycloak!}
+          LoadingComponent={
+            <LayoutAnonymous name={appName}>
+              <Loading />
+            </LayoutAnonymous>
+          }
+          onEvent={keycloakEventHandler(keycloak!)}
+        >
+          <AppRouter name={appName} />
+        </ReactKeycloakProvider>
+      </Show>
+      <Show visible={!keycloak}>
+        <LayoutAnonymous name={appName}>
+          <Loading />
+        </LayoutAnonymous>
+      </Show>
+      <ToastContainer />
+      <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
+      <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
+    </BrowserRouter>
   );
 }
 

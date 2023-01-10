@@ -1,10 +1,9 @@
-import { OptionItem } from 'components/form';
-import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
 import { ISourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea, OptionItem } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
 import { getSortableOptions, getUserOptions } from 'utils';
 
