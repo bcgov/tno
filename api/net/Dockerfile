@@ -1,5 +1,5 @@
 ARG BUILD_CONFIGURATION=Release
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 
 RUN apt-get update && apt-get -y upgrade
 RUN apt -y install curl libc6-dev libgdiplus ffmpeg
@@ -8,10 +8,10 @@ RUN apt-get clean
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 
 ENV PATH="$PATH:/root/.dotnet/tools"
-RUN dotnet tool install --global dotnet-ef --version 6.0.3
+RUN dotnet tool install --global dotnet-ef --version 7.0.1
 
 WORKDIR /src/api/net
 COPY api/net/ .

@@ -1,4 +1,4 @@
-name: Libraries (.NET 6.0)
+name: Libraries (.NET 7.0)
 
 on:
   push:
@@ -29,10 +29,10 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
 
-      - name: Setup .NET 6
+      - name: Setup .NET 7
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 6.0.301
+          dotnet-version: 7.0.101
 
       - name: Install dependencies
         run: dotnet restore
@@ -115,7 +115,7 @@ jobs:
           # Specify whether or not CI build should fail if Codecov runs into an error during upload
           fail_ci_if_error: true
 
-      - name: SonarScanner for .NET 6 with pull request decoration support
+      - name: SonarScanner for .NET 7 with pull request decoration support
         id: scan
         uses: highbyte/sonarscan-dotnet@2.0
         if: ${{ false }}
@@ -142,7 +142,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: "github-actions[bot]"
-          body-includes: QUALITY GATE STATUS FOR .NET 6
+          body-includes: QUALITY GATE STATUS FOR .NET 7
 
       - name: Check Quality Gate and Create Comment
         if: ${{ false }}
@@ -155,7 +155,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            QUALITY GATE STATUS FOR .NET 6: FAILED.
+            QUALITY GATE STATUS FOR .NET 7: FAILED.
 
             [View and resolve details on][1]
 
@@ -174,7 +174,7 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            QUALITY GATE STATUS FOR .NET 6: FAILED.
+            QUALITY GATE STATUS FOR .NET 7: FAILED.
 
             [View and resolve details on][1]
 
