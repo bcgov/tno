@@ -1,6 +1,5 @@
 ARG BUILD_CONFIGURATION=Release
-# TODO: We will need to update the following to use .net 7 when the information is available
-FROM image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/aspnet:6.0 AS base
+FROM image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/aspnet:7.0 AS base
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
