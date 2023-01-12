@@ -1,0 +1,173 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: buildah-subscriber
+  annotations:
+    tekton.dev/displayName: Buildah Pipeline
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/tags: build deploy
+  labels:
+    name: buildah-subscriber
+    part-of: tno
+    version: 1.0.0
+    component: pipeline
+    managed-by: kustomize
+spec:
+  params:
+    - name: GIT_REF
+      description: >-
+        The git revision reference to build.
+      type: string
+      default: dev
+
+    - name: CONTEXT
+      description: >-
+        The root path to the git repo.
+      type: string
+      default: tno
+
+    - name: IMAGE_TAG
+      description: >-
+        The tag given to the built images.
+        Use this to create versioned images.
+      type: string
+      default: latest
+
+    - name: PROJECT_SHORTNAME
+      description: >-
+        The project namespace shortname.
+        The part before the "-" (i.e. 9b301c-dev = 9b301c).
+      type: string
+      default: 9b301c
+
+    - name: DEPLOY_TO
+      description: >-
+        Identify the environment to deploy the solution to [dev,test,prod,tools].
+      type: string
+      default: dev
+
+    - name: SUBSCRIBER_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: https://mmia-dev.apps.silver.devops.gov.bc.ca
+
+  workspaces:
+    - name: source
+      description: |
+        Git repo source code.
+    - name: conditions
+      description: |
+        Pipeline configuration file.
+    - name: owasp-settings
+      description: |
+        mounts /zap/wrk to store generated configs and results.
+
+  tasks:
+    - name: wait
+      taskRef:
+        name: pipeline-wait
+        kind: Task
+      params:
+        - name: PIPELINE_NAME
+          value: $(context.pipelineRun.name)
+
+    - name: git
+      taskRef:
+        name: git-conditions
+        kind: Task
+      runAfter:
+        - wait
+      params:
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+
+    - name: build-subscriber
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: subscriber
+        - name: CONTEXT
+          value: $(params.CONTEXT)/app/subscriber
+        - name: DOCKERFILE
+          value: Dockerfile.open
+        - name: IMAGE
+          value: subscriber
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
+    - name: maintenance-on
+      runAfter:
+        - build-subscriber
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: nginx
+
+    - name: deploy-subscriber
+      runAfter:
+        - maintenance-on
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: subscriber
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: maintenance-off
+      runAfter:
+        - deploy-subscriber
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: subscriber
+
+    - name: owasp-scan
+      taskRef:
+        name: owasp-scanner
+        kind: Task
+      runAfter:
+        - maintenance-off
+      params:
+        - name: TARGET_URL
+          value: $(params.SUBSCRIBER_URL)
+        - name: SCAN_TYPE
+          value: quick
+        - name: SCAN_DURATION
+          value: "1"
+      workspaces:
+        - name: owasp-settings
+          workspace: owasp-settings

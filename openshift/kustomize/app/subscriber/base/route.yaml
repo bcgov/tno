@@ -12,7 +12,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: tno-sub-dev.apps.silver.devops.gov.bc.ca
+  host: mmia-dev.apps.silver.devops.gov.bc.ca
   path: ""
   port:
     targetPort: 8080-tcp
