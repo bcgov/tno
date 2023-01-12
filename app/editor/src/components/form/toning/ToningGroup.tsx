@@ -1,9 +1,8 @@
 import { useFormikContext } from 'formik';
 import { IContentModel } from 'hooks';
 import React from 'react';
-import { Col, Row } from 'tno-core';
+import { Col, Error, Row } from 'tno-core';
 
-import { Error } from '../error';
 import * as styled from './styled';
 
 export interface IToningGroupProps {
