@@ -51,7 +51,7 @@ export const ContentSummaryForm = styled.div`
   .multi-group {
     align-items: center;
     justify-content: center;
-    background-color: #f2f2f2;
+    background-color: #faf9f7;
     min-height: 4em;
     min-width: fit-content;
     padding: 0.5em;
