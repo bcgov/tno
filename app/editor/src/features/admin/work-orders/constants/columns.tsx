@@ -1,7 +1,7 @@
 import { IWorkOrderModel } from 'hooks/api-editor';
 import moment from 'moment';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { Ellipsis } from 'tno-core/dist/components/cell';
+import { CellEllipsis } from 'tno-core';
 
 export const columns: (Column<IWorkOrderModel> &
   UseSortByColumnOptions<IWorkOrderModel> &
@@ -17,7 +17,7 @@ export const columns: (Column<IWorkOrderModel> &
     Header: 'Content',
     accessor: 'content',
     width: 4,
-    Cell: ({ value }) => <Ellipsis>{value?.headline}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value?.headline}</CellEllipsis>,
   },
   {
     Header: 'Submitted',

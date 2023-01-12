@@ -1,10 +1,9 @@
-import { Checkbox } from 'components/form';
 import { ToolBarSection } from 'components/tool-bar';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
 import { ContentTypeName } from 'hooks';
 import { FaEye } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { Checkbox, Col, Row } from 'tno-core';
 
 export interface IShowOnlySectionProps {
   onChange: (filter: IContentListFilter) => void;

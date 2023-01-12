@@ -86,10 +86,6 @@ db-remove: ## Remove the last database migration.
 	$(info Remove the last migration.)
 	@cd dal; dotnet ef migrations remove --force;
 
-db-clean: ## Drop the database and refresh.
-	$(info Drop the database and refresh.)
-	@cd dal; dotnet ef database drop --force; dotnet ef database update
-
 db-refresh: ## Rollback to a blank database and rerun the database migrations.
 	$(info Rollback to a blank database and rerun the database migrations.)
 	@make db-drop

@@ -1,7 +1,6 @@
-import { instanceOfIOption } from 'components/form';
 import { ToolBar } from 'components/tool-bar/ToolBar';
 import { useContent } from 'store/hooks';
-import { replaceQueryParams } from 'tno-core';
+import { instanceOfIOption, replaceQueryParams } from 'tno-core';
 
 import { IContentListAdvancedFilter, IContentListFilter } from '../list-view/interfaces';
 import {

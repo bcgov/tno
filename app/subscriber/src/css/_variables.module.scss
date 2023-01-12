@@ -1,11 +1,9 @@
-@import './_variables';
 @import './_colors';
+@import './_fonts';
 
 :export {
-  mapfilterHeight: $mapfilter-height;
-  footerHeight: $footer-height;
-  headerHeight: $header-height;
-
+  actionButtonColor: $action-button-color;
+  backgroundColor: $background-color;
   primaryColor: $primary-color;
   primaryColorRgb: $primary-color-rgb;
   primaryLightColor: $primary-light-color;
@@ -13,22 +11,35 @@
   secondaryVariantColor: $secondary-variant-color;
   secondaryVariantColorRgb: $secondary-variant-color-rgb;
   lightVariantColor: $light-variant-color;
+  lightLabelColor: $light-label-color;
   darkVariantColor: $dark-variant-color;
   textColor: $text-color;
-  formBackground: $form-background-color;
-  dropdownBackgroundColor: $dropdown-background-color;
   accentColor: $accent-color;
   lightAccentColor: $light-accent-color;
-  tableColor: $table-color;
-  tableHeaderColor: $table-header-color;
   sresIconColor: $sres-icon-color;
   dangerColor: $danger-color;
+  completedColor: $completed-color;
   lightDangerColor: $light-danger-color;
   iconLightColor: $icon-light-color;
   activeColor: $active-color;
   completedColor: $completed-color;
   filterBackgroundColor: $filter-background-color;
+  darkerBackgroundColor: $darker-background-color;
   slideOutBlue: $slide-out-blue;
+  borderColor: $border-color;
+  actionIconColor: $action-icon-color;
+  activeTabColor: $active-tab-color;
+
+  // Table
+  tableColor: $table-color;
+  tableHeaderColor: $table-header-color;
+  tableEvenRowColor: $table-even-row-color;
+  tableOddRowColor: $table-odd-row-color;
+
+  // Form
+  formBackgroundColor: $form-background-color;
+  dropdownBackgroundColor: $dropdown-background-color;
+  inputRequiredBorderColor: $input-required-border-color;
 
   primary: $bs-primary;
   secondary: $bs-secondary;
@@ -50,4 +61,6 @@
   whiteRgb: $bs-white-rgb;
   blackRgb: $bs-black-rgb;
   textOpacity: $bs-text-opacity;
+
+  bcSans: $bc-sans;
 }

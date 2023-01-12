@@ -1,0 +1,26 @@
+---
+# Allow the app to communicate with the api.
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: pod-from-pod-permit-subscriber-api
+  namespace: default
+  labels:
+    name: subscriber-app
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  #description: Allow api pod(s) to receive communication from app pod(s).
+  podSelector:
+    matchLabels:
+      solution: tno
+      app: api
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              solution: tno
+              app: subscriber

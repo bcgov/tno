@@ -1,11 +1,10 @@
 import 'react-quill/dist/quill.snow.css';
 
-import { IOptionItem, OptionItem, TimeInput, Wysiwyg } from 'components/form';
-import { FormikRadioGroup, FormikSelect, FormikText } from 'components/formik';
-import { FormikDatePicker } from 'components/formik/datepicker';
+import { Wysiwyg } from 'components/form';
+import { ToningGroup } from 'components/form/toning/ToningGroup';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
-import { getIn, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
 import { useCombinedView } from 'hooks';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
@@ -14,10 +13,23 @@ import moment from 'moment';
 import React from 'react';
 import { TbLanguage } from 'react-icons/tb';
 import { useContent, useLookup } from 'store/hooks';
-import { Button, ButtonVariant, Col, FieldSize, Row, Show, useKeycloakWrapper } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  FormikDatePicker,
+  FormikSelect,
+  FormikText,
+  IOptionItem,
+  OptionItem,
+  Row,
+  Show,
+  TimeInput,
+  useKeycloakWrapper,
+} from 'tno-core';
 import { getSortableOptions } from 'utils';
 
-import { toningOptions } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
@@ -45,7 +57,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 }) => {
   const keycloak = useKeycloakWrapper();
   const [{ series, categories, users }] = useLookup();
-  const { values, setFieldValue, errors } = useFormikContext<IContentForm>();
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
   const combined = useCombinedView();
@@ -115,8 +127,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const setMedia = () => {
     setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/stream?path=${path}`);
   };
-
-  const toningError = getIn(errors, 'tone');
 
   return (
     <styled.ContentSummaryForm className="content-properties">
@@ -257,6 +267,9 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
       </Show>
       <Show visible={contentType !== ContentTypeName.Image}>
         <Row className="multi-section">
+          <div className="multi-group">
+            <ToningGroup fieldName="tonePools" />
+          </div>
           <Row className="multi-group">
             <FormikText
               name="tags"
@@ -276,21 +289,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               Clear Tags
             </Button>
           </Row>
-          <div className="multi-group">
-            <FormikRadioGroup
-              label="Toning"
-              direction="row"
-              className="toning"
-              error={savePressed && toningError}
-              name="tonePool"
-              required
-              options={toningOptions}
-              onChange={(e, value) => {
-                setFieldValue('tonePool', value);
-                setFieldValue('tone', value?.value);
-              }}
-            />
-          </div>
+
           <Show visible={contentType !== ContentTypeName.Image}>
             <Row className="multi-group">
               <FormikText

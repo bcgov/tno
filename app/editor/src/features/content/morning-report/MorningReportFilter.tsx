@@ -1,8 +1,17 @@
-import { Checkbox, IOptionItem, OptionItem, RadioGroup, Select } from 'components/form';
 import { ContentTypeName, useLookupOptions } from 'hooks';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Col, FieldSize, replaceQueryParams, Row } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  FieldSize,
+  IOptionItem,
+  OptionItem,
+  RadioGroup,
+  replaceQueryParams,
+  Row,
+  Select,
+} from 'tno-core';
 
 import { timeFrames } from '../list-view/constants';
 import { queryToFilter } from '../list-view/utils';
@@ -21,7 +30,12 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
-    storeMorningReportFilter(queryToFilter(filter, window.location.search));
+    storeMorningReportFilter(
+      queryToFilter(
+        { ...filter, contentType: ContentTypeName.PrintContent },
+        window.location.search,
+      ),
+    );
     // Only want this to run on the first load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -98,7 +112,8 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
               name="isPrintContent"
               label="Print Content"
               tooltip="Newspaper content without audio/video"
-              checked={filter.contentType === ContentTypeName.PrintContent}
+              checked
+              disabled
               onChange={(e) => {
                 onFilterChange({
                   ...filter,

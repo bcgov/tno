@@ -80,6 +80,10 @@ spec:
           echo 'BUILD_EDITOR=true' >> build.env
         fi
 
+        if grep -s app/subscriber <<< $DIFF; then
+          echo 'BUILD_SUBSCRIBER=true' >> build.env
+        fi
+
         if grep -s api/net <<< $DIFF; then
           echo 'BUILD_API=true' >> build.env
         elif grep -s libs/net/dal <<< $DIFF; then

@@ -1,4 +1,3 @@
-import { IconButton } from 'components/form';
 import { makeUserFilter } from 'features/admin/users/utils/makeUserFilter';
 import { IUserModel } from 'hooks';
 import React from 'react';
@@ -6,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useUsers } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, Page, PagedTable, Row } from 'tno-core';
+import { Col, IconButton, Page, PagedTable, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { IUserListFilter } from './interfaces/IUserListFilter';

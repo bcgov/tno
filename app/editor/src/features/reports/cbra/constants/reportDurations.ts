@@ -1,4 +1,4 @@
-import { OptionItem } from 'components/form';
+import { OptionItem } from 'tno-core';
 
 export const reportDurations = [
   new OptionItem<number>('Last 7 days', 0),

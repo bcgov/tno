@@ -51,6 +51,11 @@ spec:
       type: string
       default: https://tno-dev.apps.silver.devops.gov.bc.ca
 
+    - name: SUBSCRIBER_URL
+      description: The URL to the web application that will be ZAP scanned.
+      type: string
+      default: https://mmia-dev.apps.silver.devops.gov.bc.ca
+
   workspaces:
     - name: source
       description: |
@@ -132,6 +137,29 @@ spec:
         - name: conditions
           workspace: conditions
 
+    - name: build-subscriber
+      taskRef:
+        name: build-component
+        kind: Task
+      runAfter:
+        - git
+      params:
+        - name: COMPONENT
+          value: subscriber
+        - name: CONTEXT
+          value: $(params.CONTEXT)/app/subscriber
+        - name: DOCKERFILE
+          value: Dockerfile.open
+        - name: IMAGE
+          value: subscriber
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+
     - name: build-api
       taskRef:
         name: build-component
@@ -155,7 +183,7 @@ spec:
         - name: conditions
           workspace: conditions
 
-    - name: maintenance-on
+    - name: maintenance-on-editor
       runAfter:
         - build-db-migration
         - build-api
@@ -171,9 +199,26 @@ spec:
         - name: SERVICE
           value: nginx
 
+    - name: maintenance-on-subscriber
+      runAfter:
+        - build-db-migration
+        - build-api
+        - build-subscriber
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: nginx
+
     - name: db-migration
       runAfter:
-        - maintenance-on
+        - maintenance-on-editor
+        - maintenance-on-subscriber
       taskRef:
         name: db-migration-conditional
         kind: Task
@@ -210,7 +255,7 @@ spec:
 
     - name: deploy-editor
       runAfter:
-        - db-migration
+        - deploy-api
       taskRef:
         name: oc-deploy-with-tag
         kind: Task
@@ -224,9 +269,24 @@ spec:
         - name: ENV
           value: $(params.DEPLOY_TO)
 
-    - name: maintenance-off
+    - name: deploy-subscriber
       runAfter:
-        - db-migration
+        - deploy-api
+      taskRef:
+        name: oc-deploy-with-tag
+        kind: Task
+      params:
+        - name: PROJECT_SHORTNAME
+          value: $(params.PROJECT_SHORTNAME)
+        - name: IMAGE
+          value: subscriber
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: ENV
+          value: $(params.DEPLOY_TO)
+
+    - name: maintenance-off-editor
+      runAfter:
         - deploy-api
         - deploy-editor
       taskRef:
@@ -240,12 +300,27 @@ spec:
         - name: SERVICE
           value: editor
 
+    - name: maintenance-off-subscriber
+      runAfter:
+        - deploy-api
+        - deploy-subscriber
+      taskRef:
+        name: oc-patch-route
+        kind: Task
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: subscriber
+
     - name: owasp-scan
       taskRef:
         name: owasp-scanner
         kind: Task
       runAfter:
-        - maintenance-off
+        - maintenance-off-editor
       params:
         - name: TARGET_URL
           value: $(params.EDITOR_URL)

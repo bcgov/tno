@@ -1,7 +1,7 @@
-import { FormikTextArea } from 'components/formik';
 import { useFormikContext } from 'formik';
 import { ConnectionTypeName, IConnectionModel } from 'hooks';
 import React from 'react';
+import { FormikTextArea } from 'tno-core';
 
 import {
   AWSConfiguration,

@@ -83,7 +83,7 @@ spec:
                   key: KEYCLOAK_AUDIENCE
             - name: Auth__Keycloak__Secret
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 

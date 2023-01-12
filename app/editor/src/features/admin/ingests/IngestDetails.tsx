@@ -1,10 +1,3 @@
-import {
-  FormikCheckbox,
-  FormikError,
-  FormikSelect,
-  FormikText,
-  FormikTextArea,
-} from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
 import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
@@ -12,7 +5,17 @@ import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { useDataLocations } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, Row } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FormikCheckbox,
+  FormikError,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+  Row,
+} from 'tno-core';
 import { getSortableOptions } from 'utils';
 
 import * as styled from './styled';

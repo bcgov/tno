@@ -1,5 +1,5 @@
-import { FormPage } from 'components/form';
 import styled from 'styled-components';
+import { FormPage } from 'tno-core';
 
 export const ConnectionList = styled(FormPage)`
   .filter-bar {

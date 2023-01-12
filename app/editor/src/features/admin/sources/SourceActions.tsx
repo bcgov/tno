@@ -1,9 +1,9 @@
-import { FormikCheckbox } from 'components/formik';
 import { getIn, useFormikContext } from 'formik';
 import { useNamespace } from 'hooks';
 import { ISourceActionModel, ISourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { FormikCheckbox } from 'tno-core';
 
 export const SourceActions: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<ISourceModel>();

@@ -1,6 +1,6 @@
 import { ISourceModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Ellipsis } from 'tno-core';
+import { CellCheckbox, CellEllipsis } from 'tno-core';
 
 export const columns: (Column<ISourceModel> &
   UseSortByColumnOptions<ISourceModel> &
@@ -11,7 +11,7 @@ export const columns: (Column<ISourceModel> &
     accessor: 'name',
     sortType: 'string',
     width: 3,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Code',
@@ -23,12 +23,12 @@ export const columns: (Column<ISourceModel> &
     Header: 'Licence',
     width: 1,
     accessor: (row) => row.license?.name,
-    Cell: ({ value }: any) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,
-    Cell: (cell) => <Checkbox checked={cell.value} />,
+    Cell: (cell) => <CellCheckbox checked={cell.value} />,
   },
 ];

@@ -1,6 +1,6 @@
 import { ICategoryModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { Checkbox, Ellipsis } from 'tno-core/dist/components/cell';
+import { CellCheckbox, CellEllipsis } from 'tno-core';
 
 export const columns: (Column<ICategoryModel> &
   UseSortByColumnOptions<ICategoryModel> &
@@ -10,18 +10,18 @@ export const columns: (Column<ICategoryModel> &
     Header: 'Name',
     accessor: 'name',
     width: 3,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Description',
     accessor: 'description',
     width: 6,
-    Cell: ({ value }) => <Ellipsis>{value}</Ellipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,
-    Cell: (cell) => <Checkbox checked={cell.value} />,
+    Cell: (cell) => <CellCheckbox checked={cell.value} />,
   },
 ];

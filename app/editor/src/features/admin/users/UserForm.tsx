@@ -1,11 +1,4 @@
-import { IconButton, OptionItem } from 'components/form';
-import {
-  FormikCheckbox,
-  FormikForm,
-  FormikSelect,
-  FormikText,
-  FormikTextArea,
-} from 'components/formik';
+import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal, useTooltips } from 'hooks';
 import { IUserModel, UserStatusName } from 'hooks/api-editor';
@@ -15,7 +8,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
-import { Button, ButtonVariant, FieldSize, Show } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  FieldSize,
+  FormikCheckbox,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+  IconButton,
+  OptionItem,
+  Show,
+} from 'tno-core';
 import { Col, Row } from 'tno-core';
 import { getEnumStringOptions } from 'utils';
 

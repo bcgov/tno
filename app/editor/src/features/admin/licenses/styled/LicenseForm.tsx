@@ -1,5 +1,5 @@
-import { FormPage } from 'components/form/formpage/styled';
 import styled from 'styled-components';
+import { FormPage } from 'tno-core';
 
 export const LicenseForm = styled(FormPage)`
   display: flex;
