@@ -75,8 +75,6 @@ spec:
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080
-            - name: Logging__LogLevel__TNO
-              value: Info
             - name: HubPath
               value: /workOrderHub
 

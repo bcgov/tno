@@ -1,0 +1,28 @@
+# The route for the app.
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: subscriber
+  namespace: default
+  labels:
+    name: subscriber-app
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: tno-sub-dev.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: subscriber
+    weight: 100
