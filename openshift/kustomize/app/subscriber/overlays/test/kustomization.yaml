@@ -27,7 +27,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/host
-        value: tno-sub-test.apps.silver.devops.gov.bc.ca
+        value: mmia-test.apps.silver.devops.gov.bc.ca
   - target:
       kind: DeploymentConfig
       name: subscriber
