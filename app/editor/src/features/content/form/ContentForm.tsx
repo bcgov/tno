@@ -39,8 +39,6 @@ import {
   FieldSize,
   FormikHidden,
   FormikSelect,
-  FormikText,
-  FormikTextArea,
   FormPage,
   IconButton,
   Row,
@@ -354,6 +352,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           </Row>
           <FormikForm
             onSubmit={handleSave}
+            validateOnBlur
             validationSchema={ContentFormSchema}
             initialValues={form}
             loading={(request: IAjaxRequest) =>
@@ -373,7 +372,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   <Show visible={size === 0}>
                     <Row flex="1 1 100%" wrap="nowrap">
                       <Col flex="1 1 0%">
-                        <FormikTextArea
+                        <FastFormikTextArea
+                          formikProps={props}
                           name="headline"
                           required
                           label="Headline"
@@ -396,7 +396,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     <Col flex="1.5 1 0%">
                       <Row wrap="nowrap">
                         <Col flex="1 1 0%">
-                          <FormikTextArea
+                          <FastFormikTextArea
+                            formikProps={props}
                             name="headline"
                             required
                             className="headline"
@@ -404,7 +405,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             value={props.values.headline}
                           />
                           <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
-                            <FormikText name="byline" label="Byline" required />
+                            <FastFormikText
+                              formikProps={props}
+                              name="byline"
+                              label="Byline"
+                              required
+                            />
                           </Show>
                         </Col>
                         <Col>
@@ -451,7 +457,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             />
                             <FormikHidden name="otherSource" />
                             <Show visible={!isImageForm(contentType)}>
-                              <FormikText
+                              <FastFormikText
+                                formikProps={props}
                                 name="tempSource"
                                 label="Other Source"
                                 onChange={(e) => {
@@ -473,18 +480,24 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         <Col grow={1}></Col>
                         <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                           <Col grow={1}>
-                            <FormikText name="edition" label="Edition" />
+                            <FastFormikText formikProps={props} name="edition" label="Edition" />
                           </Col>
                         </Show>
                       </Row>
                       <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                         <Row>
-                          <FormikText name="section" label="Section" required />
-                          <FormikText name="page" label="Page" />
+                          <FastFormikText
+                            formikProps={props}
+                            name="section"
+                            label="Section"
+                            required
+                          />
+                          <FastFormikText formikProps={props} name="page" label="Page" />
                         </Row>
                       </Show>
                       <Show visible={isSnippetForm(contentType)}>
-                        <FormikText
+                        <FastFormikText
+                          formikProps={props}
                           style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
                           className="source-url"
                           name="sourceUrl"
@@ -521,7 +534,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               window.open(props.values.sourceUrl, '_blank', 'noreferrer')
                             }
                           />
-                        </FormikText>
+                        </FastFormikText>
                       </Show>
                     </Col>
                   </Show>
