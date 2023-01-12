@@ -30,7 +30,12 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
-    storeMorningReportFilter(queryToFilter(filter, window.location.search));
+    storeMorningReportFilter(
+      queryToFilter(
+        { ...filter, contentType: ContentTypeName.PrintContent },
+        window.location.search,
+      ),
+    );
     // Only want this to run on the first load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -107,7 +112,8 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
               name="isPrintContent"
               label="Print Content"
               tooltip="Newspaper content without audio/video"
-              checked={filter.contentType === ContentTypeName.PrintContent}
+              checked
+              disabled
               onChange={(e) => {
                 onFilterChange({
                   ...filter,
