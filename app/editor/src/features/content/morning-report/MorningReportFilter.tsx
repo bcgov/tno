@@ -23,6 +23,7 @@ export interface IMorningReportFilterProps {}
 export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
   const [{ morningReportFilter: filter }, { storeMorningReportFilter }] = useContent();
   const [{ productOptions: pOptions, sourceOptions }] = useLookupOptions();
+  const [frontPage, setFrontPage] = React.useState<boolean>(false);
 
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
 
@@ -109,44 +110,31 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
           <label>Filters</label>
           <Row className="action-filters">
             <Checkbox
-              name="isPrintContent"
-              label="Print Content"
-              tooltip="Newspaper content without audio/video"
-              checked
-              disabled
+              name="frontPage"
+              label="Front Page"
+              value="Front Page"
+              tooltip="Front page content"
+              checked={filter.productId === 11}
               onChange={(e) => {
+                setFrontPage(!frontPage);
                 onFilterChange({
                   ...filter,
                   pageIndex: 0,
-                  contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
+                  productId: frontPage ? 11 : 0,
                 });
               }}
             />
             <Checkbox
-              name="includedInCategory"
-              label="Included in EoD"
-              tooltip="Content included in Event of the Day"
-              value={filter.includedInCategory}
-              checked={filter.includedInCategory}
+              name="commentary"
+              label="Commentary"
+              value="Commentary"
+              tooltip="Content identified as commentary"
+              checked={filter.commentary !== ''}
               onChange={(e) => {
                 onFilterChange({
                   ...filter,
                   pageIndex: 0,
-                  includedInCategory: e.target.checked,
-                });
-              }}
-            />
-            <Checkbox
-              name="ticker"
-              label="On Ticker"
-              value="On Ticker"
-              tooltip="Content identified as on ticker"
-              checked={filter.onTicker !== ''}
-              onChange={(e) => {
-                onFilterChange({
-                  ...filter,
-                  pageIndex: 0,
-                  onTicker: e.target.checked ? e.target.value : '',
+                  commentary: e.target.checked ? e.target.value : '',
                 });
               }}
             />
@@ -180,7 +168,7 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
             />
             <Checkbox
               name="includeHidden"
-              label="Removed"
+              label="Hidden"
               tooltip="Content removed from the list"
               value={filter.includeHidden}
               checked={filter.includeHidden}
