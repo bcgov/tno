@@ -323,7 +323,7 @@ public class ClipAction : CommandAction<ClipOptions>
             }
 
             // Return the first file that is long enough.
-            var fileDuration = await GetDurationAsync(file);
+            var fileDuration = await ParseDurationAsync(file);
             if (fileDuration >= schedule.CalcDuration().TotalSeconds) return file;
 
             this.Logger.LogWarning("Ingest '{name}' schedule '{id}:{name}' capture file duration is less than the requested duration", ingest.Name, schedule.Id, schedule.Name);
@@ -373,38 +373,24 @@ public class ClipAction : CommandAction<ClipOptions>
     }
 
     /// <summary>
-    /// Get the duration of the file in seconds.
-    /// Handles different types of A/V files (i.e. mkv, mp4, mp3).
-    /// </summary>
-    /// <param name="inputFile"></param>
-    /// <returns></returns>
-    private static async Task<long> GetDurationAsync(string inputFile)
-    {
-        var ext = Path.GetExtension(inputFile);
-
-        switch (ext)
-        {
-            case ".mkv":
-                var tempFile = await RepackageFileAsync(inputFile);
-                var duration = await ParseDurationAsync(tempFile);
-                File.Delete(tempFile);
-                return duration;
-            default:
-                return await ParseDurationAsync(inputFile);
-        }
-    }
-
-    /// <summary>
     /// Parse the duration of the A/V file from its meta-data.
     /// </summary>
     /// <param name="inputFile"></param>
     /// <returns></returns>
     private static async Task<long> ParseDurationAsync(string inputFile)
     {
+        var ext = Path.GetExtension(inputFile);
+
+        var command = ext switch
+        {
+            ".mkv" => $"-c \"ffprobe -v 0 -show_entries packet=pts -of compact=p=0:nk=1 -read_intervals 999999 -select_streams v:0 '{inputFile}' | tail -1\"",
+            _ => $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\""
+        };
+
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"";
+        process.StartInfo.Arguments = command;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardOutput = true;
@@ -415,7 +401,10 @@ public class ClipAction : CommandAction<ClipOptions>
         await process.WaitForExitAsync();
 
         if (String.IsNullOrWhiteSpace(output)) return 0;
-        return float.TryParse(output, out float value) ? (long)Math.Floor(value) : 0;
+
+        output = output.Trim();
+        var seconds = output.IndexOf('.') > -1 ? output : output.Insert(output.Length - 3, ".");
+        return float.TryParse(seconds, out float value) ? (long)Math.Floor(value) : 0;
     }
 
     /// <summary>
