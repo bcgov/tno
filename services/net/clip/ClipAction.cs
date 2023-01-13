@@ -323,7 +323,7 @@ public class ClipAction : CommandAction<ClipOptions>
             }
 
             // Return the first file that is long enough.
-            var fileDuration = await GetDurationAsync(file);
+            var fileDuration = await ParseDurationAsync(file);
             if (fileDuration >= schedule.CalcDuration().TotalSeconds) return file;
 
             this.Logger.LogWarning("Ingest '{name}' schedule '{id}:{name}' capture file duration is less than the requested duration", ingest.Name, schedule.Id, schedule.Name);
@@ -373,31 +373,20 @@ public class ClipAction : CommandAction<ClipOptions>
     }
 
     /// <summary>
-    /// Get the duration of the file in seconds.
-    /// Handles different types of A/V files (i.e. mkv, mp4, mp3).
+    /// Parse the duration of the A/V file from its meta-data.
     /// </summary>
     /// <param name="inputFile"></param>
     /// <returns></returns>
-    private static async Task<long> GetDurationAsync(string inputFile)
+    private static async Task<long> ParseDurationAsync(string inputFile)
     {
         var ext = Path.GetExtension(inputFile);
 
-        switch (ext)
+        var command = ext switch
         {
-            case ".mkv":
-                return await ParseDurationAsync($"-c \"ffprobe -v 0 -show_entries packet=pts -of compact=p=0:nk=1 -read_intervals 999999 -select_streams v:0 '{inputFile}' | tail -1\"");
-            default:
-                return await ParseDurationAsync($"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"");
-        }
-    }
+            ".mkv" => $"-c \"ffprobe -v 0 -show_entries packet=pts -of compact=p=0:nk=1 -read_intervals 999999 -select_streams v:0 '{inputFile}' | tail -1\"",
+            _ => $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\""
+        };
 
-    /// <summary>
-    /// Parse the duration of the A/V file from its meta-data.
-    /// </summary>
-    /// <param name="command"></param>
-    /// <returns></returns>
-    private static async Task<long> ParseDurationAsync(string command)
-    {
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
