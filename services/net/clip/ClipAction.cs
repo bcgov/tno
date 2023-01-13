@@ -385,26 +385,23 @@ public class ClipAction : CommandAction<ClipOptions>
         switch (ext)
         {
             case ".mkv":
-                var tempFile = await RepackageFileAsync(inputFile);
-                var duration = await ParseDurationAsync(tempFile);
-                File.Delete(tempFile);
-                return duration;
+                return await ParseDurationAsync($"-c \"ffprobe -v 0 -show_entries packet=pts -of compact=p=0:nk=1 -read_intervals 999999 -select_streams v:0 '{inputFile}' | tail -1\"");
             default:
-                return await ParseDurationAsync(inputFile);
+                return await ParseDurationAsync($"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"");
         }
     }
 
     /// <summary>
     /// Parse the duration of the A/V file from its meta-data.
     /// </summary>
-    /// <param name="inputFile"></param>
+    /// <param name="command"></param>
     /// <returns></returns>
-    private static async Task<long> ParseDurationAsync(string inputFile)
+    private static async Task<long> ParseDurationAsync(string command)
     {
         var process = new System.Diagnostics.Process();
         process.StartInfo.Verb = $"Duration";
         process.StartInfo.FileName = "/bin/sh";
-        process.StartInfo.Arguments = $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\"";
+        process.StartInfo.Arguments = command;
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.RedirectStandardOutput = true;
@@ -415,7 +412,10 @@ public class ClipAction : CommandAction<ClipOptions>
         await process.WaitForExitAsync();
 
         if (String.IsNullOrWhiteSpace(output)) return 0;
-        return float.TryParse(output, out float value) ? (long)Math.Floor(value) : 0;
+
+        output = output.Trim();
+        var seconds = output.IndexOf('.') > -1 ? output : output.Insert(output.Length - 3, ".");
+        return float.TryParse(seconds, out float value) ? (long)Math.Floor(value) : 0;
     }
 
     /// <summary>
