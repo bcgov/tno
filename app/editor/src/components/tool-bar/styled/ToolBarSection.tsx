@@ -36,6 +36,9 @@ export const ToolBarSection = styled(Col)`
     }
     .action-button {
       color: ${(props) => props.theme.css.actionButtonColor};
+      :hover {
+        color: ${(props) => props.theme.css.lightVariantColor};
+      }
       height: 1.75em;
       width: 2em;
       cursor: pointer;
