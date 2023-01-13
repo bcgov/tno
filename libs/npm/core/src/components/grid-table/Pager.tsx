@@ -1,5 +1,6 @@
 import React from 'react';
 import { BiFirstPage, BiLastPage } from 'react-icons/bi';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { Button, ButtonVariant } from '../button';
 import { Row } from '../flex';
@@ -65,6 +66,29 @@ export const Pager: React.FC<IPagerProps> = ({
   setPageSize,
   manualPageSize,
 }) => {
+  const { search } = useLocation();
+  let query = React.useMemo(() => new URLSearchParams(search), [search]);
+  let [searchParams, setSearchParams] = useSearchParams(query);
+  const qtyCookie = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('qty='))
+    ?.split('=')[1];
+
+  // update cookie when qty changes
+  React.useEffect(() => {
+    if (qtyCookie !== searchParams.get('qty') && searchParams.get('qty') !== null)
+      document.cookie = `qty=${searchParams.get('qty')}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+  }, [qtyCookie, searchParams]);
+
+  // only want to run on page load to set qty to stored cookie
+  React.useEffect(() => {
+    if (qtyCookie !== null) setSearchParams({ ...searchParams, qty: qtyCookie });
+    if (searchParams.get('qty') !== pageSize.toString()) {
+      setPageSize(parseInt(searchParams.get('qty') ?? qtyCookie ?? '20'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const rows = React.useCallback(() => {
     // TODO: Handle dynamic pageLimit.  Calculate center.
     let startIndex = 0;
@@ -142,14 +166,16 @@ export const Pager: React.FC<IPagerProps> = ({
           <Text
             className="page-size"
             tooltip="Choose page size"
-            defaultValue={20}
+            defaultValue={searchParams.get('qty') ?? qtyCookie ?? '20'}
             type="number"
             name="pageSize"
             onChange={(e) => {
               if (Number(e.target.value) > 100) {
+                setSearchParams({ ...searchParams, qty: e.target.value });
                 setPageSize(100);
               }
               if (!!Number(e.target.value)) {
+                setSearchParams({ ...searchParams, qty: e.target.value });
                 setPageSize(Number(e.target.value));
               }
             }}
