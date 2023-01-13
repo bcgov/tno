@@ -8,6 +8,7 @@ import { Text } from '../form/text';
 import { Show } from '../show';
 import * as styled from './styled';
 
+const QTY = 'qty';
 export interface IPagerProps {
   /**
    * Page index position.
@@ -69,25 +70,22 @@ export const Pager: React.FC<IPagerProps> = ({
   const { search } = useLocation();
   let query = React.useMemo(() => new URLSearchParams(search), [search]);
   let [searchParams, setSearchParams] = useSearchParams(query);
-  const qtyCookie = document.cookie
-    .split('; ')
-    .find((row) => row.startsWith('qty='))
-    ?.split('=')[1];
 
-  // update cookie when qty changes
   React.useEffect(() => {
-    if (qtyCookie !== searchParams.get('qty') && searchParams.get('qty') !== null)
-      document.cookie = `qty=${searchParams.get('qty')}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
-  }, [qtyCookie, searchParams]);
-
-  // only want to run on page load to set qty to stored cookie
-  React.useEffect(() => {
-    if (qtyCookie !== null) setSearchParams({ ...searchParams, qty: qtyCookie });
-    if (searchParams.get('qty') !== pageSize.toString()) {
-      setPageSize(parseInt(searchParams.get('qty') ?? qtyCookie ?? '20'));
+    const qty = searchParams.get(QTY);
+    if (!!qty && qty !== pageSize.toString()) {
+      setPageSize(parseInt(qty));
     }
+    // Extract quantity from URL or cookie the first time loading.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    const qty = searchParams.get(QTY);
+    if (!!qty) {
+      if (pageSize !== parseInt(qty)) setPageSize(parseInt(qty));
+    }
+  }, [pageSize, searchParams, setPageSize]);
 
   const rows = React.useCallback(() => {
     // TODO: Handle dynamic pageLimit.  Calculate center.
@@ -166,7 +164,7 @@ export const Pager: React.FC<IPagerProps> = ({
           <Text
             className="page-size"
             tooltip="Choose page size"
-            defaultValue={searchParams.get('qty') ?? qtyCookie ?? '20'}
+            value={pageSize}
             type="number"
             name="pageSize"
             onChange={(e) => {

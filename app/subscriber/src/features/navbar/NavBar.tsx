@@ -36,10 +36,10 @@ export const NavBar: React.FC = () => {
     }
   };
 
-  const handleClick = (menu: string = '') => {
-    if (activeHover === menu) setActiveHover('');
-    else setActiveHover(menu);
-  };
+  // const handleClick = (menu: string = '') => {
+  //   if (activeHover === menu) setActiveHover('');
+  //   else setActiveHover(menu);
+  // };
 
   return (
     <div onMouseLeave={onMouseLeave} onMouseOver={onMouseOver} ref={ref}>

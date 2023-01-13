@@ -41,6 +41,10 @@ export const ContentListView: React.FC = () => {
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
   const [loading, setLoading] = React.useState(false);
 
+  const selectedRowIds = !!contentId
+    ? ({ [contentId]: true } as Record<string, boolean>)
+    : undefined;
+
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
     storeFilter(queryToFilter(filter, window.location.search));
@@ -143,7 +147,7 @@ export const ContentListView: React.FC = () => {
               isLoading={loading}
               sorting={{ sortBy: filter.sort }}
               getRowId={(content) => content.id.toString()}
-              selectedRowIds={{ [contentId]: true }}
+              selectedRowIds={selectedRowIds}
               onRowClick={handleRowClick}
               onChangePage={handleChangePage}
               onChangeSort={handleChangeSort}
