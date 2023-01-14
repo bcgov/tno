@@ -82,9 +82,11 @@ export const Pager: React.FC<IPagerProps> = ({
 
   // only want to run on page load to set qty to stored cookie
   React.useEffect(() => {
-    if (qtyCookie !== null) setSearchParams({ ...searchParams, qty: qtyCookie });
-    if (searchParams.get('qty') !== pageSize.toString()) {
-      setPageSize(parseInt(searchParams.get('qty') ?? qtyCookie ?? '20'));
+    if (qtyCookie !== null && qtyCookie !== 'undefined' && qtyCookie !== searchParams.get('qty')) {
+      setSearchParams({ ...searchParams, qty: qtyCookie });
+    }
+    if (qtyCookie !== null && qtyCookie !== 'undefined') {
+      setPageSize(parseInt(qtyCookie ?? '20'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -166,7 +168,7 @@ export const Pager: React.FC<IPagerProps> = ({
           <Text
             className="page-size"
             tooltip="Choose page size"
-            defaultValue={searchParams.get('qty') ?? qtyCookie ?? '20'}
+            defaultValue={searchParams.get('qty') ?? qtyCookie !== 'undefined' ? qtyCookie : '20'}
             type="number"
             name="pageSize"
             onChange={(e) => {
@@ -175,8 +177,8 @@ export const Pager: React.FC<IPagerProps> = ({
                 setPageSize(100);
               }
               if (!!Number(e.target.value)) {
-                setSearchParams({ ...searchParams, qty: e.target.value });
                 setPageSize(Number(e.target.value));
+                setSearchParams({ ...searchParams, qty: e.target.value });
               }
             }}
           />
