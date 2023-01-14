@@ -403,9 +403,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             label="Headline"
                             value={props.values.headline}
                           />
-                          <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
-                            <FormikText name="byline" label="Byline" required />
-                          </Show>
                         </Col>
                         <Col>
                           <Row>
@@ -468,19 +465,15 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           </Row>
                         </Col>
                       </Row>
-                      <Row></Row>
                       <Row>
                         <Col grow={1}></Col>
-                        <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
-                          <Col grow={1}>
-                            <FormikText name="edition" label="Edition" />
-                          </Col>
-                        </Show>
                       </Row>
                       <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
                         <Row>
+                          <FormikText name="byline" label="Byline" required />
                           <FormikText name="section" label="Section" required />
                           <FormikText name="page" label="Page" />
+                          <FormikText name="edition" label="Edition" />
                         </Row>
                       </Show>
                       <Show visible={isSnippetForm(contentType)}>
