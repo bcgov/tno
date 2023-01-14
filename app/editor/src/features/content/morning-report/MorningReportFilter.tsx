@@ -112,7 +112,7 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
               label="Front Page"
               value="Front Page"
               tooltip="Front page content"
-              checked={filter.productId !== 0}
+              checked={filter.productId === 11}
               onChange={(e) => {
                 onFilterChange({
                   ...filter,
