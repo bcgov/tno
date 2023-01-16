@@ -284,12 +284,22 @@ export const GridTable = <T extends object>({
   }, [initialSortBy, instance, onChangeSort, sortBy]);
 
   React.useEffect(() => {
-    instance.toggleAllRowsSelected(false);
-    const rows = instance.rows.filter((x) => x.id === Object.keys(initSelectedRowIds as object)[0]);
-    if (rows && rows.length === 1) {
-      const row = rows[0];
-      row.toggleRowSelected(true);
-      setActiveRow(row);
+    if (!!initSelectedRowIds) {
+      // For each row toggle it if it needs to change based on the latest selected values.
+      const selectedRowIds = Object.keys(initSelectedRowIds as Record<string, boolean>);
+      var first = true;
+      instance.rows.forEach((row) => {
+        const select = selectedRowIds.find((id) => id === row.id);
+        if (!select && row.isSelected) row.toggleRowSelected(false);
+        else if (!!select && row.id === select) {
+          row.toggleRowSelected(initSelectedRowIds[select]);
+          if (initSelectedRowIds[select] && first) {
+            // Set the first selected row as the active row.
+            setActiveRow(row);
+            first = false;
+          }
+        }
+      });
     }
   }, [initSelectedRowIds, instance]);
 

@@ -1,0 +1,62 @@
+name: React Subscriber Application
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+    paths:
+      - app/subscriber/**
+  pull_request:
+    branches:
+      - master
+      - dev
+    paths:
+      - app/subscriber/**
+
+jobs:
+  build-app-subscriber:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      working-directory: ./app/subscriber
+
+    strategy:
+      matrix:
+        node-version:
+          - "18.11.0"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Extract Branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Use NodeJs ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Set Yarn Version
+        run: npm set version 3.2.0
+
+      - name: Install Dependencies
+        run: yarn
+        working-directory: ${{ env.working-directory }}
+
+      - name: Linting
+        run: yarn lint
+        working-directory: ${{ env.working-directory }}
+
+      # - name: Unit Tests
+      #   run: yarn test
+      #   working-directory: ${{ env.working-directory }}
+
+      - name: Building
+        run: yarn build --if-present
+        working-directory: ${{ env.working-directory }}

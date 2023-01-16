@@ -40,7 +40,7 @@ export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
       <Row>
         {' '}
         {toningOptions.map((option) => (
-          <Col>
+          <Col key={option}>
             {determineIndicator(option)}
             <button
               className={active === option ? 'active' : ''}

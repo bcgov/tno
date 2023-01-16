@@ -80,7 +80,7 @@ public static class DictionaryExtensions
     /// <returns></returns>
     public static long[] GetLongArrayValue(this IDictionary<string, Microsoft.Extensions.Primitives.StringValues> dict, string key)
     {
-        return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues value) ? value.ToArray().Select(v => long.Parse(v)).ToArray() : Array.Empty<long>();
+        return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues value) ? value.ToArray().Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => long.Parse(v!)).ToArray() : Array.Empty<long>();
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ public static class DictionaryExtensions
     /// <returns></returns>
     public static string[] GetStringArrayValue(this IDictionary<string, Microsoft.Extensions.Primitives.StringValues> dict, string key)
     {
-        return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues value) ? value.ToArray() : Array.Empty<string>();
+        return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues value) ? value.ToArray().Where(v => !String.IsNullOrWhiteSpace(v)).Select(v => v!).ToArray() : Array.Empty<string>();
     }
 
     /// <summary>

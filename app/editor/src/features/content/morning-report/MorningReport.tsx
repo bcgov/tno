@@ -35,6 +35,10 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
   const [commentary, setCommentary] = React.useState('1');
 
+  const selectedRowIds = !!contentId
+    ? ({ [contentId]: true } as Record<string, boolean>)
+    : undefined;
+
   const page = React.useMemo(
     () =>
       !!content
@@ -70,7 +74,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   const handleRowClick = (row: TRow<IContentModel>) => {
     // TODO: Open up ContentForm
     // setContentType(content.contentType);
-    // navigate(`/contents/combined/${content.id}`);
+    // navigate(`/morning/reports/${content.id}`);
   };
 
   const handleChangePage = React.useCallback(
@@ -146,7 +150,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
             isLoading={loading}
             sorting={{ sortBy: filter.sort }}
             getRowId={(content) => content.id.toString()}
-            selectedRowIds={{ [contentId]: true }}
+            selectedRowIds={selectedRowIds}
             onRowClick={handleRowClick}
             onSelectedRowsChange={handleSelectedRowsChanged}
             onChangePage={handleChangePage}

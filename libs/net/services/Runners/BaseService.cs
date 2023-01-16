@@ -84,12 +84,13 @@ public abstract class BaseService
     /// <returns></returns>
     protected virtual IServiceCollection ConfigureServices(IServiceCollection services)
     {
+
         var jsonSerializerOptions = new JsonSerializerOptions()
         {
-            DefaultIgnoreCondition = !String.IsNullOrWhiteSpace(this.Configuration["Serialization:Json:DefaultIgnoreCondition"]) ? Enum.Parse<JsonIgnoreCondition>(this.Configuration["Serialization:Json:DefaultIgnoreCondition"]) : JsonIgnoreCondition.WhenWritingNull,
-            PropertyNameCaseInsensitive = !String.IsNullOrWhiteSpace(this.Configuration["Serialization:Json:PropertyNameCaseInsensitive"]) && Boolean.Parse(this.Configuration["Serialization:Json:PropertyNameCaseInsensitive"]),
+            DefaultIgnoreCondition = this.Configuration.GetValue<JsonIgnoreCondition>("Serialization:Json:DefaultIgnoreCondition", JsonIgnoreCondition.WhenWritingNull),
+            PropertyNameCaseInsensitive = this.Configuration.GetValue<bool>("Serialization:Json:PropertyNameCaseInsensitive", false),
             PropertyNamingPolicy = this.Configuration["Serialization:Json:PropertyNamingPolicy"] == "CamelCase" ? JsonNamingPolicy.CamelCase : null,
-            WriteIndented = !string.IsNullOrWhiteSpace(this.Configuration["Serialization:Json:WriteIndented"]) && Boolean.Parse(this.Configuration["Serialization:Json:WriteIndented"])
+            WriteIndented = this.Configuration.GetValue<bool>("Serialization:Json:WriteIndented", true)
         };
 
         services
@@ -128,7 +129,7 @@ public abstract class BaseService
         //     .Bind(this.Configuration.GetSection("Service"))
         //     .ValidateDataAnnotations();
 
-        services.AddHttpClient(typeof(BaseService).FullName, client => { });
+        services.AddHttpClient(typeof(BaseService).FullName ?? nameof(BaseService), client => { });
 
         // API services
         services.AddMvcCore()
