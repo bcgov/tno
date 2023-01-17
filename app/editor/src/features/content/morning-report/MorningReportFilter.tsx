@@ -23,7 +23,6 @@ export interface IMorningReportFilterProps {}
 export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
   const [{ morningReportFilter: filter }, { storeMorningReportFilter }] = useContent();
   const [{ productOptions: pOptions, sourceOptions }] = useLookupOptions();
-  const [frontPage, setFrontPage] = React.useState<boolean>(false);
 
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
 
@@ -116,25 +115,10 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
               tooltip="Front page content"
               checked={filter.productId === 11}
               onChange={(e) => {
-                setFrontPage(!frontPage);
                 onFilterChange({
                   ...filter,
                   pageIndex: 0,
-                  productId: frontPage ? 11 : 0,
-                });
-              }}
-            />
-            <Checkbox
-              name="commentary"
-              label="Commentary"
-              value="Commentary"
-              tooltip="Content identified as commentary"
-              checked={filter.commentary !== ''}
-              onChange={(e) => {
-                onFilterChange({
-                  ...filter,
-                  pageIndex: 0,
-                  commentary: e.target.checked ? e.target.value : '',
+                  productId: e.target.checked ? 11 : 0,
                 });
               }}
             />
