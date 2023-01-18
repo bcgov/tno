@@ -17,7 +17,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
-    sourceMapFilename: "[name].js.map"
+    sourceMapFilename: '[name].js.map',
   },
-  devtool: "source-map"
+  devtool: 'source-map',
 };
