@@ -79,6 +79,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
               <FaClock className="icon-indicator" />
               <ToggleGroup
                 defaultSelected={timeFrameSelected}
+                disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
                 options={[
                   {
                     label: 'TODAY',

@@ -13,17 +13,25 @@ export interface IToggleGroupProps {
   label?: string;
   options: IToggleOption[];
   defaultSelected?: string;
+  disabled?: boolean;
 }
 
 /**
  * A group of toggle buttons that can be used to perform actions
  * @param options The options to display in the toggle group, can contain a label and an onClick function
  * @param defaultSelected The default selected option
+ * @param disabled Whether the toggle group is disabled
  * @returns The ToggleGroup component
  */
-export const ToggleGroup: React.FC<IToggleGroupProps> = ({ label, options, defaultSelected }) => {
+export const ToggleGroup: React.FC<IToggleGroupProps> = ({
+  label,
+  options,
+  defaultSelected,
+  disabled,
+}) => {
   const [activeToggle, setActiveToggle] = React.useState(defaultSelected?.toLowerCase() ?? '');
   const [showDropDown, setShowDropDown] = React.useState(false);
+
   const onDropDownClick = () => {
     setShowDropDown(!showDropDown);
   };
@@ -32,7 +40,8 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ label, options, defau
   // ensure default selected gets reset when new content is loaded
   React.useEffect(() => {
     if (defaultSelected) setActiveToggle(defaultSelected?.toLowerCase());
-  }, [defaultSelected]);
+    if (disabled) setActiveToggle('');
+  }, [defaultSelected, disabled]);
 
   // Close dropdown when clicking outside of it
   React.useEffect(() => {
@@ -53,6 +62,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({ label, options, defau
       {options?.map((option, index) => (
         <button
           key={option.label}
+          disabled={disabled}
           className={`toggle-item ${activeToggle === option.label.toLowerCase() ? 'active' : ''}`}
           type="button"
           onClick={() => {
