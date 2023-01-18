@@ -57,7 +57,7 @@ public class ContentReference : AuditColumns
     public DateTime? PublishedOn { get; set; }
 
     /// <summary>
-    /// get/set - When the content was updated.
+    /// get/set - When the content was updated by the source.
     /// </summary>
     [Column("source_updated_on")]
     public DateTime? SourceUpdateOn { get; set; }

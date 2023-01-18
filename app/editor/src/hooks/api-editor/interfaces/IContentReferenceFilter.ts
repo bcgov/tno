@@ -3,6 +3,7 @@ import { IPageFilter } from '.';
 
 export interface IContentReferenceFilter extends IPageFilter {
   source?: string;
+  sources?: string[];
   uid?: string;
   topic?: string;
   status?: WorkflowStatusName;

@@ -27,17 +27,17 @@ namespace TNO.API.Areas.Admin.Controllers;
 public class ContentReferenceController : ControllerBase
 {
     #region Variables
-    private readonly IContentReferenceService _service;
+    private readonly IContentReferenceService _contentReferenceService;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a ContentReferenceController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="service"></param>
-    public ContentReferenceController(IContentReferenceService service)
+    /// <param name="contentReferenceService"></param>
+    public ContentReferenceController(IContentReferenceService contentReferenceService)
     {
-        _service = service;
+        _contentReferenceService = contentReferenceService;
     }
     #endregion
 
@@ -54,7 +54,7 @@ public class ContentReferenceController : ControllerBase
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _service.Find(new DAL.Models.ContentReferenceFilter(query));
+        var result = _contentReferenceService.Find(new DAL.Models.ContentReferenceFilter(query));
         var page = new Paged<ContentReferenceModel>(result.Items.Select(cr => new ContentReferenceModel(cr)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
@@ -72,7 +72,7 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult FindById(string source, [FromQuery] string uid)
     {
-        var result = _service.FindById(new[] { source, uid });
+        var result = _contentReferenceService.FindById(new[] { source, uid });
 
         if (result == null) return new NoContentResult();
         return new JsonResult(new ContentReferenceModel(result));
@@ -90,7 +90,7 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult Update(ContentReferenceModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity());
+        var result = _contentReferenceService.UpdateAndSave(model.ToEntity());
         return new JsonResult(new ContentReferenceModel(result));
     }
 
@@ -106,8 +106,23 @@ public class ContentReferenceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ContentReference" })]
     public IActionResult Delete(ContentReferenceModel model)
     {
-        _service.DeleteAndSave(model.ToEntity());
+        _contentReferenceService.DeleteAndSave(model.ToEntity());
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Find all the content ids for the specified 'uid'.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <returns></returns>
+    [HttpGet("content/ids")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(long[]), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "ContentReference" })]
+    public IActionResult FindContentId([FromQuery] string uid)
+    {
+        var result = _contentReferenceService.FindContentIds(uid);
+        return new JsonResult(result);
     }
     #endregion
 }

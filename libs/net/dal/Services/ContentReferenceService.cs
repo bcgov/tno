@@ -20,7 +20,11 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
     #endregion
 
     #region Methods
-
+    /// <summary>
+    /// Make a request to the database fro the specified filter.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
     public IPaged<ContentReference> Find(ContentReferenceFilter filter)
     {
         var query = this.Context.ContentReferences
@@ -32,6 +36,8 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
 
         if (!String.IsNullOrWhiteSpace(filter.Source))
             query = query.Where(c => c.Source == filter.Source);
+        if (filter.Sources?.Any() == true)
+            query = query.Where(c => filter.Sources.Contains(c.Source));
         if (!String.IsNullOrWhiteSpace(filter.Uid))
             query = query.Where(c => EF.Functions.Like(c.Uid.ToLower(), $"%{filter.Uid.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Topic))
@@ -99,6 +105,19 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         this.Context.ResetVersion(original);
         base.UpdateAndSave(original);
         return original;
+    }
+
+    /// <summary>
+    /// Find all the content ids for the specified 'uid'.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <returns></returns>
+    public long[] FindContentIds(string uid)
+    {
+        return this.Context.Contents
+            .AsNoTracking()
+            .Where(c => c.Uid.ToLower() == uid.ToLower()).Select(c => c.Id)
+            .ToArray();
     }
     #endregion
 }
