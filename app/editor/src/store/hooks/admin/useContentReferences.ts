@@ -23,6 +23,12 @@ interface IContentReferenceController {
    * Make an AJAX DELETE request to delete the content reference.
    */
   deleteContentReference: (model: IContentReferenceModel) => Promise<IContentReferenceModel>;
+  /**
+   * Find all content ids for specified 'uid'.
+   * @param uid
+   * @returns
+   */
+  findContentIds: (uid: string) => Promise<number[]>;
 }
 
 /**
@@ -58,6 +64,12 @@ export const useContentReferences = (): [IAdminState, IContentReferenceControlle
       deleteContentReference: async (model: IContentReferenceModel) => {
         const response = await dispatch<IContentReferenceModel>('delete-data-source', () =>
           api.deleteContentReference(model),
+        );
+        return response.data;
+      },
+      findContentIds: async (uid: string) => {
+        const response = await dispatch<number[]>('find-content-references-content-ids', () =>
+          api.findContentIds(uid),
         );
         return response.data;
       },

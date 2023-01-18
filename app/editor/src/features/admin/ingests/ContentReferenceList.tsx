@@ -2,7 +2,8 @@ import { useFormikContext } from 'formik';
 import { IContentReferenceFilter, IContentReferenceModel, IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
-import { SortingRule } from 'react-table';
+import { Row as rtRow, SortingRule } from 'react-table';
+import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useContentReferences } from 'store/hooks/admin';
 import { FieldSize, IconButton, IPage, Page, PagedTable, Row, SelectDate, Text } from 'tno-core';
@@ -22,9 +23,14 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
   const [, api] = useContentReferences();
   const { values } = useFormikContext<IIngestModel>();
 
+  const sources = [
+    values.source?.code,
+    ...(values.configuration?.sources?.split('&').map((s: string) => s.split('=').slice(-1)) ?? []),
+  ].filter((s) => s !== undefined) as string[];
+
   const [filter, setFilter] = React.useState<IContentReferenceListFilter>({
     ...defaultContentReferenceFilter,
-    source: values.source?.code,
+    sources: sources,
   });
   const [page, setPage] = React.useState<IPage<IContentReferenceModel>>(
     defaultContentReferencePage,
@@ -37,6 +43,7 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
           page: filter.pageIndex + 1,
           quantity: filter.pageSize,
           source: filter.source,
+          sources: filter.sources,
           uid: filter.uid,
           status: filter.status ? filter.status : undefined,
           publishedOn: filter.publishedOn ? moment(filter.publishedOn).toISOString() : undefined,
@@ -79,6 +86,18 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
       }
     },
     [filter],
+  );
+
+  const handleRowClick = React.useCallback(
+    async (row: rtRow<IContentReferenceModel>) => {
+      const ids = await api.findContentIds(row.original.uid);
+      if (ids.length) {
+        window.open(`/contents/${ids[0]}`, '_blank');
+      } else {
+        toast.error('No content found, the uid may have been changed.');
+      }
+    },
+    [api],
   );
 
   return (
@@ -143,6 +162,7 @@ export const ContentReferenceList: React.FC<IContentReferenceListProps> = (props
         sorting={{ sortBy: filter.sort }}
         onChangePage={handleChangePage}
         onChangeSort={handleChangeSort}
+        onRowClick={handleRowClick}
       />
     </styled.ContentReferenceList>
   );
