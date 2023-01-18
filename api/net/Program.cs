@@ -50,12 +50,16 @@ var env = builder.Environment;
 
 builder.Services.AddStorageConfig(config);
 
+var defaultIgnoreCondition = config.GetValue<JsonIgnoreCondition>("Serialization:Json:DefaultIgnoreCondition", JsonIgnoreCondition.WhenWritingNull);
+var propertyNameCaseInsensitive = config.GetValue<bool>("Serialization:Json:PropertyNameCaseInsensitive", false);
+var propertyNamingPolicy = config.GetValue<string>("Serialization:Json:PropertyNamingPolicy");
+var writeIndented = config.GetValue<bool>("Serialization:Json:WriteIndented", false);
 var jsonSerializerOptions = new JsonSerializerOptions()
 {
-    DefaultIgnoreCondition = !String.IsNullOrWhiteSpace(config["Serialization:Json:DefaultIgnoreCondition"]) ? Enum.Parse<JsonIgnoreCondition>(config["Serialization:Json:DefaultIgnoreCondition"]) : JsonIgnoreCondition.WhenWritingNull,
-    PropertyNameCaseInsensitive = !String.IsNullOrWhiteSpace(config["Serialization:Json:PropertyNameCaseInsensitive"]) && Boolean.Parse(config["Serialization:Json:PropertyNameCaseInsensitive"]),
-    PropertyNamingPolicy = config["Serialization:Json:PropertyNamingPolicy"] == "CamelCase" ? JsonNamingPolicy.CamelCase : null,
-    WriteIndented = !string.IsNullOrWhiteSpace(config["Serialization:Json:WriteIndented"]) && Boolean.Parse(config["Serialization:Json:WriteIndented"])
+    DefaultIgnoreCondition = defaultIgnoreCondition,
+    PropertyNameCaseInsensitive = propertyNameCaseInsensitive,
+    PropertyNamingPolicy = propertyNamingPolicy == "CamelCase" ? JsonNamingPolicy.CamelCase : null,
+    WriteIndented = writeIndented
 };
 builder.Services.Configure<JsonSerializerOptions>(options =>
 {
@@ -238,7 +242,7 @@ builder.Services.AddCors(options =>
         {
             cfg.AllowAnyHeader();
             cfg.AllowAnyMethod();
-            cfg.WithOrigins(builder.Configuration["AllowedCORS"]);
+            cfg.WithOrigins(builder.Configuration["AllowedCORS"] ?? "");
         }));
 builder.Services.AddSignalR(options =>
     {
@@ -269,7 +273,7 @@ if (app.Environment.IsDevelopment())
         var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
         foreach (var description in apiVersionProvider.ApiVersionDescriptions)
         {
-            options.SwaggerEndpoint(String.Format(config.GetValue<string>("Swagger:EndpointPath"), description.GroupName), description.GroupName);
+            options.SwaggerEndpoint(String.Format(config.GetValue<string>("Swagger:EndpointPath") ?? "", description.GroupName), description.GroupName);
         }
         options.RoutePrefix = config.GetValue<string>("Swagger:RoutePrefix");
     });
@@ -293,10 +297,7 @@ app.UseAuthorization();
 app.UseMetricServer();
 app.UseHttpMetrics();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapMetrics().RequireAuthorization();
-});
+app.MapMetrics().RequireAuthorization();
 
 app.MapControllers();
 
