@@ -337,7 +337,13 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               </Button>
 
               <Modal
-                body={<Wysiwyg label="Summary" required fieldName="summary" />}
+                body={
+                  <Wysiwyg
+                    label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
+                    required
+                    fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
+                  />
+                }
                 isShowing={showExpandModal}
                 hide={() => setShowExpandModal(!showExpandModal)}
                 customButtons={
