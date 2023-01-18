@@ -27,7 +27,11 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
 
   return (
     <styled.DateRangeSection>
-      <FaCalendarAlt className="action-icon calendar" />
+      <FaCalendarAlt
+        data-for="main-tooltip"
+        data-tip="Date range"
+        className="action-icon calendar"
+      />
       <SelectDate
         name="startDate"
         placeholderText="mm/dd/yyyy"
@@ -40,6 +44,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
           })
         }
       />
+      <span className="to-text">to</span>
       <SelectDate
         name="endDate"
         placeholderText="mm/dd/yyyy"
