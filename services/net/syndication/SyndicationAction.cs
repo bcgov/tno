@@ -320,6 +320,13 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         var response = await _httpClient.GetAsync(url);
         var data = await response.Content.ReadAsStringAsync();
 
+        if (!response.IsSuccessStatusCode)
+        {
+            var ex = new HttpRequestException(response.ReasonPhrase, null, response.StatusCode);
+            this.Logger.LogError(ex, "Failed to fetch syndication feed for ingest '{name}'", manager.Ingest.Name);
+            throw ex;
+        }
+
         try
         {
             // Reformat dates because timezone abbreviations don't work...

@@ -72,7 +72,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             else if (!this.Ingests.Any(ds => ds.IsEnabled))
             {
                 // If there are no ingests, then we need to keep the service alive.
-                this.Logger.LogWarning("There are no configured ingests for this data location");
+                this.Logger.LogWarning("There are no configured ingests for this data location '{Location}'", this.Options.DataLocation);
             }
             else
             {
