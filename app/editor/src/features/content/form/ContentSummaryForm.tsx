@@ -13,6 +13,7 @@ import moment from 'moment';
 import React from 'react';
 import { TbLanguage } from 'react-icons/tb';
 import { useContent, useLookup } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
@@ -111,7 +112,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [categories]);
 
   React.useEffect(() => {
-    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id)));
+    setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
   }, [series]);
 
   React.useEffect(() => {
@@ -139,7 +140,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 label="Series"
                 width={FieldSize.Medium}
                 value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={seriesOptions}
+                options={filterEnabled(seriesOptions)}
                 isDisabled={!!values.otherSeries}
                 onChange={(e) => {
                   setFieldValue('otherSeries', '');
@@ -217,7 +218,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             name="categories"
             label="Event of Day Category"
             width={FieldSize.Medium}
-            options={categoryOptions}
+            options={filterEnabled(categoryOptions)}
             value={
               !!values.categories?.length
                 ? categoryOptions.find((c) => c.value === values.categories[0].id)

@@ -30,6 +30,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { IAjaxRequest } from 'store/slices';
 import {
   Area,
@@ -413,7 +414,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 ''
                               }
                               label="Designation"
-                              options={productOptions}
+                              options={filterEnabled(productOptions)}
                               required
                             />
                             <FormikSelect
@@ -434,7 +435,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                   }
                                 }
                               }}
-                              options={sourceOptions.filter(
+                              options={filterEnabled(sourceOptions).filter(
                                 (x) =>
                                   !isImageForm(contentType) ||
                                   x.label.includes('(TC)') ||

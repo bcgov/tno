@@ -17,7 +17,7 @@ const displayName = (user: IUserModel) => {
 export const getUserOptions = <T extends IUserModel>(
   items: T[],
   prepend: IOptionItem[] = [],
-  map: (item: T) => IOptionItem = (u) => new OptionItem(displayName(u), u.id),
+  map: (item: T) => IOptionItem = (u) => new OptionItem(displayName(u), u.id, u.isEnabled),
 ) => {
   return prepend.concat([...items].sort(sortUser).map(map));
 };

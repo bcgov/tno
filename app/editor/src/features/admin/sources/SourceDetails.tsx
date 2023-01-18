@@ -3,6 +3,7 @@ import { useTooltips } from 'hooks';
 import { ISourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea, OptionItem } from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
 import { getSortableOptions, getUserOptions } from 'utils';
@@ -63,7 +64,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           label="Owner"
           name="ownerId"
           tooltip="The user that manages this content"
-          options={users}
+          options={filterEnabled(users)}
         />
         <FormikSelect
           label="Product Designation Override"

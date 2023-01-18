@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
@@ -41,7 +42,7 @@ export const UserForm: React.FC = () => {
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [roleOptions, setRoleOptions] = React.useState(
-    lookups.roles.map((r) => new OptionItem(r.name, r.id)),
+    lookups.roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
   );
 
   // const isLinkedToKeycloak = user.key !== '00000000-0000-0000-0000-000000000000';
@@ -141,7 +142,7 @@ export const UserForm: React.FC = () => {
                   <FormikSelect
                     label="Roles"
                     name="role"
-                    options={roleOptions}
+                    options={filterEnabled(roleOptions)}
                     width={FieldSize.Big}
                     placeholder="Select Role"
                     tooltip="Add a role to the user"

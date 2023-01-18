@@ -2,6 +2,7 @@ import { useLookupOptions, useTooltips } from 'hooks';
 import { ContentTypeName } from 'hooks/api-editor';
 import React from 'react';
 import { useContent } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { initialContentState } from 'store/slices';
 import {
   Button,
@@ -110,7 +111,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
         <Select
           name="productId"
           label="Product Designation"
-          options={productOptions}
+          options={filterEnabled(productOptions)}
           value={productOptions.find((mt) => mt.value === filter.productId)}
           width={FieldSize.Big}
           defaultValue={productOptions[0]}
@@ -127,7 +128,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
           name="user"
           label="User"
           width={FieldSize.Big}
-          options={userOptions}
+          options={filterEnabled(userOptions)}
           value={userOptions.find((u) => u.value === filter.userId)}
           onChange={(newValue) => {
             const userId = !!newValue ? (newValue as IOptionItem).value : 0;
@@ -265,13 +266,17 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
                 if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
               }}
               onChange={(newValue: any) => {
-                const optionItem = sourceOptions.find((ds) => ds.value === newValue.value);
+                const optionItem = filterEnabled(sourceOptions).find(
+                  (ds) => ds.value === newValue.value,
+                );
                 const newSearchTerm =
                   optionItem?.label.substring(optionItem.label.indexOf('(') + 1).replace(')', '') ??
                   '';
                 onAdvancedFilterChange({ ...filterAdvanced, searchTerm: newSearchTerm });
               }}
-              options={[new OptionItem('', 0) as IOptionItem].concat([...sourceOptions])}
+              options={[new OptionItem('', 0) as IOptionItem].concat([
+                ...filterEnabled(sourceOptions),
+              ])}
               value={sourceOptions.find((s) => s.label === filterAdvanced.searchTerm)}
             />
           </Show>
