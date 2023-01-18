@@ -339,7 +339,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               <Modal
                 body={
                   <Wysiwyg
-                    label="Summary"
+                    label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
                     required
                     fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
                   />
