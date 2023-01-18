@@ -75,7 +75,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     if ((!!filterAdvanced.startDate || !!filterAdvanced.endDate) && filter.timeFrame !== '') {
       onChange({ ...filter, timeFrame: '' });
     }
-  }, [filterAdvanced, filter, onChange]);
+  }, [filterAdvanced.startDate, filterAdvanced.endDate, filter, onChange]);
 
   return (
     <ToolBarSection
@@ -123,7 +123,11 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
             </Row>
           </Col>
           <Col>
-            <DateRangeSection onAdvancedFilterChange={onAdvancedFilterChange} onSearch={onSearch} />
+            <DateRangeSection
+              onChange={onChange}
+              onAdvancedFilterChange={onAdvancedFilterChange}
+              onSearch={onSearch}
+            />
             <Row>
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select
