@@ -59,7 +59,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   const usersSelected =
     usersSelections
       .find((i) => (i.value === search.userId ? +search.userId : 0))
-      ?.label.toLowerCase() ?? 'my content';
+      ?.label.toLowerCase() ?? 'all content';
 
   React.useEffect(() => {
     setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));
