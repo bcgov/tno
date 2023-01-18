@@ -9,6 +9,9 @@ export const ToggleGroup = styled(Row)`
     color: ${(props) => props.theme.css.backgroundColor};
   }
   .toggle-item {
+    :disabled {
+      cursor: not-allowed;
+    }
     position: relative;
     .dd-menu {
       left: 0;

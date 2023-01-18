@@ -11,11 +11,13 @@ import * as styled from './styled';
 
 export interface IDateRangeSectionProps {
   onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
+  onChange: (filter: IContentListFilter) => void;
   onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
 }
 export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
   onAdvancedFilterChange,
   onSearch,
+  onChange,
 }) => {
   const [{ filter, filterAdvanced }] = useContent();
   /** retrigger fetch on change of date or clear*/
@@ -59,6 +61,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
             startDate: undefined,
             endDate: undefined,
           });
+          onChange({ ...filter, timeFrame: 0 });
         }}
       >
         X

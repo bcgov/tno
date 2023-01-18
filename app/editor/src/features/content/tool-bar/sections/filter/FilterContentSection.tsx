@@ -32,7 +32,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   onAdvancedFilterChange,
   onSearch,
 }) => {
-  const [{ filter }] = useContent();
+  const [{ filter, filterAdvanced }] = useContent();
   const [{ productOptions: pOptions, users }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
@@ -70,6 +70,13 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     value && onChange({ ...filter, userId: value });
   };
 
+  /** clear time fram when start end date is selected */
+  React.useEffect(() => {
+    if ((!!filterAdvanced.startDate || !!filterAdvanced.endDate) && filter.timeFrame !== '') {
+      onChange({ ...filter, timeFrame: '' });
+    }
+  }, [filterAdvanced.startDate, filterAdvanced.endDate, filter, onChange]);
+
   return (
     <ToolBarSection
       children={
@@ -79,6 +86,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
               <FaClock className="icon-indicator" />
               <ToggleGroup
                 defaultSelected={timeFrameSelected}
+                disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
                 options={[
                   {
                     label: 'TODAY',
@@ -115,7 +123,11 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
             </Row>
           </Col>
           <Col>
-            <DateRangeSection onAdvancedFilterChange={onAdvancedFilterChange} onSearch={onSearch} />
+            <DateRangeSection
+              onChange={onChange}
+              onAdvancedFilterChange={onAdvancedFilterChange}
+              onSearch={onSearch}
+            />
             <Row>
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select
