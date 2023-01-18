@@ -326,6 +326,42 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-filemonitor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/filemonitor/TNO.Services.FileMonitor.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-filemonitor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/filemonitor/TNO.Services.FileMonitor.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-filemonitor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/filemonitor/TNO.Services.FileMonitor.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-image",
       "command": "dotnet",
       "type": "process",

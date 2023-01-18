@@ -234,7 +234,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         try
         {
             // Fetch content reference.
-            var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, content.Uid);
+            var reference = await this.FindContentReferenceAsync(content.Source, content.Uid);
             if (reference == null)
             {
                 reference = await AddContentReferenceAsync(manager.Ingest, content);
@@ -273,7 +273,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         // Add a content reference record.
         var model = new ContentReferenceModel()
         {
-            Source = ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code."),
+            Source = content.Source,
             Uid = content.Uid,
             Topic = ingest.Topic,
             Status = (int)WorkflowStatus.InProgress,

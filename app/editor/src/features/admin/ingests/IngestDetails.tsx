@@ -14,6 +14,7 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  OptionItem,
   Row,
 } from 'tno-core';
 import { getSortableOptions } from 'utils';
@@ -22,6 +23,10 @@ import * as styled from './styled';
 
 interface IIngestDetailsProps {}
 
+/**
+ * A component with ingest detail form.
+ * @returns Component provides ingest detail form.
+ */
 export const IngestDetails: React.FC<IIngestDetailsProps> = () => {
   const { values, setFieldValue, setErrors, errors } = useFormikContext<IIngestModel>();
   const [lookups] = useLookup();
@@ -31,7 +36,11 @@ export const IngestDetails: React.FC<IIngestDetailsProps> = () => {
   const [loading, setLoading] = React.useState(true);
   const dataLocationOptions = getSortableOptions(dataLocations);
 
-  const sources = getSortableOptions(lookups.sources);
+  const sources = getSortableOptions(
+    lookups.sources,
+    [],
+    (i) => new OptionItem(`(${i.code}) ${i.name}`, i.id),
+  );
   const products = getSortableOptions(lookups.products);
 
   React.useEffect(() => {
