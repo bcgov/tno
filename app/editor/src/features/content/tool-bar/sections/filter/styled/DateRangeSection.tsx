@@ -18,4 +18,8 @@ export const DateRangeSection = styled(Row)`
     height: 1.25em;
     width: 1.25em;
   }
+  .to-text {
+    align-self: center;
+    margin-right: 0.25em;
+  }
 `;
