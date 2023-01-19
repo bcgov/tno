@@ -5,7 +5,7 @@ import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
 import { FormikCheckbox, FormikSelect, FormikText, Row } from 'tno-core';
 
-import { TimeZones } from './constants';
+import { LoggingLevels, TimeZones } from './constants';
 import * as styled from './styled';
 
 export const AudioClip: React.FC = (props) => {
@@ -14,6 +14,7 @@ export const AudioClip: React.FC = (props) => {
   useTooltips();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
+  const logLevel = LoggingLevels.find((t) => t.value === values.configuration.logLevel);
 
   return (
     <styled.IngestType>
@@ -29,6 +30,12 @@ export const AudioClip: React.FC = (props) => {
         tooltip="Timezone of the source"
         options={TimeZones}
         value={timeZone}
+      />
+      <FormikSelect
+        label="Logging Level"
+        name="configuration.logLevel"
+        options={LoggingLevels}
+        value={logLevel}
       />
       <FormikText
         label="Capture Filename Filter"

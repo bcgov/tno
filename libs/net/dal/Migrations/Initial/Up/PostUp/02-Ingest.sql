@@ -596,13 +596,13 @@ INSERT INTO public.ingest (
       "videoInput": "/dev/video0",
       "videoThreadQueueSize": "1024",
       "videoInputFormat": "v4l2",
-      "videoFramerate": "30",
+      "videoFramerate": "60",
       "audioInput": "hw:CARD=HDMI",
       "audioThreadQueueSize": "1024",
       "audioInputFormat": "alsa",
       "audioChannels": "2",
       "audioChannelLayout": "stereo",
-      "bufferSize": "640k",
+      "bufferSize": "",
       "audioEncoder": "",
       "audioBufferSize": "",
       "videoEncoder": "",
@@ -613,7 +613,7 @@ INSERT INTO public.ingest (
       "crf": "",
       "otherArgs": "",
       "fileName": "{schedule.Name}.mpg",
-      "maxRate": "64000k" }' -- configuration
+      "maxRate": "" }' -- configuration
   , 2 -- schedule_type
   , 3 -- retry_limit
   , conNoneId -- source_connection_id
@@ -638,14 +638,14 @@ INSERT INTO public.ingest (
       "videoInput": "/dev/video0",
       "videoThreadQueueSize": 1024,
       "videoInputFormat": "v4l2",
-      "videoFramerate": "30",
+      "videoFramerate": "60",
       "audioInput": "hw:CARD=HDMI",
       "audioThreadQueueSize": "1024",
       "audioInputFormat": "alsa",
       "audioChannels": "2",
       "audioChannelLayout": "stereo",
-      "bufferSize": "640k",
-      "maxRate": "64000k",
+      "bufferSize": "",
+      "maxRate": "",
       "fileName": "{schedule.Name}.mpg" }' -- configuration
   , 2 -- schedule_type
   , 3 -- retry_limit
@@ -980,14 +980,14 @@ INSERT INTO public.ingest (
   , '' -- updated_by
 ), (
   'CFAX' -- name
-  , '' -- description
+  , 'http://playerservices.streamtheworld.com/pls/CFAXAM.pls' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
   , (SELECT id FROM public.source WHERE code = 'CFAX') -- source_id
   , 'CFAX' -- topic
   , talkRadioId -- product_id
   , '{ "serviceType":"stream",
-      "url": "http://playerservices.streamtheworld.com/pls/CFAXAM.pls",
+      "url": "http://18393.live.streamtheworld.com:80/CFAXAM_SC",
       "timeZone":"Pacific Standard Time",
       "language": "en-CA",
       "post": false,
@@ -1020,14 +1020,14 @@ INSERT INTO public.ingest (
   , '' -- updated_by
 ), (
   'CKFR' -- name
-  , '' -- description
+  , 'http://playerservices.streamtheworld.com/pls/CKFRAM.pls' -- description
   , true -- is_enabled
   , ingestAudioId -- ingest_type_id
   , (SELECT id FROM public.source WHERE code = 'CKFR') -- source_id
   , 'CKFR' -- topic
   , talkRadioId -- product_id
   , '{ "serviceType":"stream",
-      "url": "http://playerservices.streamtheworld.com/pls/CKFRAM.pls",
+      "url": "http://19813.live.streamtheworld.com:80/CKFRAM_SC",
       "timeZone":"Pacific Standard Time",
       "language": "en-CA",
       "post": false,
