@@ -35,7 +35,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'productId',
     Header: 'Designation',
-    width: 2,
+    width: 1,
     accessor: (row) => row.product?.name,
     Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
@@ -65,7 +65,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   {
     id: 'publishedOn',
     Header: 'Pub Date',
-    width: 1,
+    width: 2,
     accessor: (row) => row.publishedOn ?? row.createdOn,
     Cell: ({ value }: any) => (
       <div className="center">
