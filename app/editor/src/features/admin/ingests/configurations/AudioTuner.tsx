@@ -1,13 +1,16 @@
 import { useFormikContext } from 'formik';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
-import { FormikSelect, FormikText } from 'tno-core';
+import { Col, FormikSelect, FormikText, Row } from 'tno-core';
 
-import { TimeZones } from './constants';
+import { Languages, LoggingLevels, TimeZones } from './constants';
 import * as styled from './styled';
 
 export const AudioTuner: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
+
+  const language = Languages.find((t) => t.value === values.configuration.language);
+  const logLevel = LoggingLevels.find((t) => t.value === values.configuration.logLevel);
 
   return (
     <styled.IngestType>
@@ -22,6 +25,24 @@ export const AudioTuner: React.FC = (props) => {
         name="configuration.frequency"
         value={values.configuration.frequency}
       />
+      <Row>
+        <Col flex="1 1 0">
+          <FormikSelect
+            label="Language"
+            name="configuration.language"
+            options={Languages}
+            value={language}
+          />
+        </Col>
+        <Col flex="1 1 0">
+          <FormikSelect
+            label="Logging Level"
+            name="configuration.logLevel"
+            options={LoggingLevels}
+            value={logLevel}
+          />
+        </Col>
+      </Row>
     </styled.IngestType>
   );
 };
