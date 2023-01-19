@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.208",
+  "version": "0.0.211",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -64,7 +64,6 @@
     "@typescript-eslint/parser": "^5.48.1",
     "axios-mock-adapter": "^1.21.2",
     "compression-webpack-plugin": "^10.0.0",
-    "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
     "eslint": "^8.31.0",
@@ -87,8 +86,8 @@
   "scripts": {
     "prebuild": "rm -rf dist/",
     "build": "tsc --build",
-    "postbuild": "yarn run copy-files",
-    "copy-files": "copyfiles ./src/@types/*.* ./src/@types/**/*.* ./src/css/**/*.* ./src/assets/*.* dist -a -u 1",
+    "prepack": "yarn run copy-files",
+    "copy-files": "cp -R ./src/assets ./dist; cp -R ./src/@types ./dist; cp -R ./src/css ./dist",
     "clean": "rm -rf dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete;",
     "pretty-quick": "pretty-quick",
     "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",

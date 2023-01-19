@@ -19,7 +19,7 @@ export const initialContentState: IContentState = {
     otherSource: '',
     productId: 0,
     ownerId: '',
-    userId: '',
+    userId: 0,
     timeFrame: 0,
     onTicker: '',
     commentary: '',

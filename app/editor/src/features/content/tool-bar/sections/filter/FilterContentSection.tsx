@@ -6,36 +6,32 @@ import {
 } from 'features/content/list-view/interfaces';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
-import { FaCalendarAlt, FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
+import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import {
-  Col,
-  FieldSize,
-  fromQueryString,
-  IOptionItem,
-  OptionItem,
-  Row,
-  Select,
-  SelectDate,
-} from 'tno-core';
+import { Col, FieldSize, fromQueryString, IOptionItem, OptionItem, Row, Select } from 'tno-core';
 import { getUserOptions } from 'utils';
 
+import { DateRangeSection } from '.';
 import { InputOption } from './InputOption';
 
 export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
   onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
+  onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
 }
 
 /**
  * Component containing the filter section of the content tool bar
  * @param onChange determine what happens when filter changes are applied
+ * @param onAdvancedFilterChange determine what happens when advanced filter changes are applied
+ * @param onSearch determine what happens when the search button is clicked
  * @returns The filter content section
  */
 export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   onChange,
   onAdvancedFilterChange,
+  onSearch,
 }) => {
   const [{ filter, filterAdvanced }] = useContent();
   const [{ productOptions: pOptions, users }] = useLookupOptions();
@@ -60,7 +56,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   const usersSelected =
     usersSelections
       .find((i) => (i.value === search.userId ? +search.userId : 0))
-      ?.label.toLowerCase() ?? 'my content';
+      ?.label.toLowerCase() ?? 'all content';
 
   React.useEffect(() => {
     setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));
@@ -75,6 +71,13 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     value && onChange({ ...filter, userId: value });
   };
 
+  /** clear time fram when start end date is selected */
+  React.useEffect(() => {
+    if ((!!filterAdvanced.startDate || !!filterAdvanced.endDate) && filter.timeFrame !== '') {
+      onChange({ ...filter, timeFrame: '' });
+    }
+  }, [filterAdvanced.startDate, filterAdvanced.endDate, filter, onChange]);
+
   return (
     <ToolBarSection
       children={
@@ -84,6 +87,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
               <FaClock className="icon-indicator" />
               <ToggleGroup
                 defaultSelected={timeFrameSelected}
+                disabled={!!filterAdvanced.startDate || !!filterAdvanced.endDate}
                 options={[
                   {
                     label: 'TODAY',
@@ -120,37 +124,11 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
             </Row>
           </Col>
           <Col>
-            <Row className="date-range">
-              <FaCalendarAlt className="action-icon" />
-
-              <SelectDate
-                name="startDate"
-                placeholderText="mm/dd/yyyy"
-                selected={
-                  !!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined
-                }
-                width="8em"
-                onChange={(date) =>
-                  onAdvancedFilterChange({
-                    ...filterAdvanced,
-                    startDate: !!date ? date.toString() : undefined,
-                  })
-                }
-              />
-              <SelectDate
-                name="endDate"
-                placeholderText="mm/dd/yyyy"
-                selected={!!filterAdvanced.endDate ? new Date(filterAdvanced.endDate) : undefined}
-                width="8em"
-                onChange={(date) => {
-                  date?.setHours(23, 59, 59);
-                  onAdvancedFilterChange({
-                    ...filterAdvanced,
-                    endDate: !!date ? date.toString() : undefined,
-                  });
-                }}
-              />
-            </Row>
+            <DateRangeSection
+              onChange={onChange}
+              onAdvancedFilterChange={onAdvancedFilterChange}
+              onSearch={onSearch}
+            />
             <Row>
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select

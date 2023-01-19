@@ -13,7 +13,7 @@ interface ICellDateProps {
  * @param param0 Component properties
  * @returns The data formatted as a string.
  */
-export const CellDate: React.FC<ICellDateProps> = ({ value, format = 'MM/DD/YYYY' }) => {
+export const CellDate: React.FC<ICellDateProps> = ({ value, format = 'MM/DD/YYYY HH:mm:ss' }) => {
   if (value !== undefined) {
     const created = moment(value);
     const text = created.isValid() ? created.format(format) : '';

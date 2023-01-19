@@ -45,5 +45,10 @@ export const useApiAdminContentReferences = (
         },
       );
     },
+    findContentIds: (uid: string) => {
+      return api.get<number[], AxiosResponse<number[]>, any>(
+        `/admin/content/references/content/ids?uid=${uid}`,
+      );
+    },
   }).current;
 };

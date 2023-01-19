@@ -8,22 +8,28 @@ export const contentReferenceColumns: (Column<IContentReferenceModel> &
   {
     Header: 'UID',
     accessor: 'uid',
+    width: 5,
+  },
+  {
+    Header: 'Source',
+    accessor: 'source',
+    width: 1,
   },
   {
     Header: 'Published On',
     accessor: 'publishedOn',
     Cell: (cell) => <CellDate value={cell.value} />,
-    width: 25,
+    width: 1,
   },
   {
     Header: 'Updated On',
     accessor: 'sourceUpdatedOn',
     Cell: (cell) => <CellDate value={cell.value} />,
-    width: 25,
+    width: 1,
   },
   {
     Header: 'Status',
     accessor: (row) => row.status,
-    width: 25,
+    width: 1,
   },
 ];

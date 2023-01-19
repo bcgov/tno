@@ -17,6 +17,9 @@ export const ToningGroup = styled(Col)`
     min-width: 2rem;
     min-height: 2rem;
     align-self: center;
+    :hover {
+      cursor: pointer;
+    }
   }
 
   .blank {

@@ -240,7 +240,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 reference = await AddContentReferenceAsync(manager.Ingest, content);
             }
             else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow) ||
-                    (reference.Status != (int)WorkflowStatus.InProgress && reference.PublishedOn != content.PublishedOn))
+                    (reference.Status != (int)WorkflowStatus.InProgress && reference.PublishedOn < content.PublishedOn))
             {
                 // If another process has it in progress only attempt to do an import if it's
                 // more than an hour old. Assumption is that it is stuck.
