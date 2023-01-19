@@ -67,10 +67,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -87,7 +87,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 return new JsonResult(new FolderModel(_options.GetCapturePath(), path));
             }
@@ -116,10 +116,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -135,7 +135,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 return Directory.Exists(Path.Combine(_options.GetCapturePath(), path)) ? new OkResult() : new NoContentResult();
             }
@@ -169,10 +169,10 @@ public class StorageController : ControllerBase
         var file = files.First();
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -196,7 +196,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_options.GetCapturePath(), path, file.FileName);
                 if (String.IsNullOrWhiteSpace(Path.GetFileName(safePath))) throw new InvalidOperationException("Filename missing");
@@ -254,10 +254,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -279,7 +279,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_options.GetCapturePath(), path);
                 if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
@@ -317,10 +317,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -342,7 +342,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_options.GetCapturePath(), path);
                 if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
@@ -383,10 +383,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -413,7 +413,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var rootPath = _options.GetCapturePath();
                 var safePath = Path.Combine(rootPath, path.MakeRelativePath());
@@ -467,10 +467,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -491,7 +491,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_options.GetCapturePath(), path.MakeRelativePath());
                 if (!safePath.FileExists() && !safePath.DirectoryExists()) throw new InvalidOperationException($"File/folder does not exist: '{path}'");
@@ -536,10 +536,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -574,7 +574,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_options.GetCapturePath(), path.MakeRelativePath());
                 var file = await FfmpegHelper.CreateClipAsync(safePath, start, end, outputName);
@@ -607,10 +607,10 @@ public class StorageController : ControllerBase
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).GetDirectoryPath().MakeRelativePath();
         var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
-        if (connection != null)
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            if (connection.ConnectionType == ConnectionType.SSH)
+            if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
                 var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
@@ -654,7 +654,7 @@ public class StorageController : ControllerBase
                         client.Disconnect();
                 }
             }
-            else if (connection.ConnectionType == ConnectionType.LocalVolume)
+            else if (connection == null || connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_options.GetCapturePath(), path.MakeRelativePath());
                 var file = await FfmpegHelper.JoinClipsAsync(safePath, prefix);
