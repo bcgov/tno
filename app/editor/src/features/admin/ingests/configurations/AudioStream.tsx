@@ -3,9 +3,9 @@ import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
-import { FormikSelect, FormikText } from 'tno-core';
+import { Col, FormikSelect, FormikText, Row } from 'tno-core';
 
-import { Languages, TimeZones } from './constants';
+import { Languages, LoggingLevels, TimeZones } from './constants';
 import * as styled from './styled';
 
 export const AudioStream: React.FC = (props) => {
@@ -15,6 +15,7 @@ export const AudioStream: React.FC = (props) => {
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);
+  const logLevel = LoggingLevels.find((t) => t.value === values.configuration.logLevel);
 
   return (
     <styled.IngestType>
@@ -31,12 +32,24 @@ export const AudioStream: React.FC = (props) => {
         options={TimeZones}
         value={timeZone}
       />
-      <FormikSelect
-        label="Language"
-        name="configuration.language"
-        options={Languages}
-        value={language}
-      />
+      <Row>
+        <Col flex="1 1 0">
+          <FormikSelect
+            label="Language"
+            name="configuration.language"
+            options={Languages}
+            value={language}
+          />
+        </Col>
+        <Col flex="1 1 0">
+          <FormikSelect
+            label="Logging Level"
+            name="configuration.logLevel"
+            options={LoggingLevels}
+            value={logLevel}
+          />
+        </Col>
+      </Row>
       <FormikText label="Format" name="configuration.format" tooltip="Format of the stream" />
       <p>Use "{'{schedule.Name}'}.mp3" to name the file with the schedule name.</p>
       <FormikText

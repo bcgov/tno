@@ -67,7 +67,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
             setFilter({ ...filter, roleName: e.value });
           }}
           width={FieldSize.Medium}
-          options={filterEnabled(roleOptions)}
+          options={filterEnabled(roleOptions, filter.roleName)}
           name="role"
           placeholder="Search by role"
           value={roleOptions.find((s) => s.value === filter.roleName) || ''}

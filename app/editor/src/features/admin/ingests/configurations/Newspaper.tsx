@@ -211,7 +211,7 @@ export const Newspaper: React.FC = (props) => {
         label="Default Source"
         name="configuration.defaultSource"
         tooltip="Source to use for publications missing from Sources list. If not set, articles will be discarded"
-        options={filterEnabled(sources)}
+        options={filterEnabled(sources, source)}
         value={source}
       />
     </styled.IngestType>

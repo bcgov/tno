@@ -90,7 +90,7 @@ export const WorkOrderForm: React.FC = () => {
               <Col flex="1 1 0">
                 <FormikText name="workType" label="Type" disabled />
                 <FormikSelect
-                  options={filterEnabled(userOptions)}
+                  options={filterEnabled(userOptions, values.requestorId)}
                   name="requestorId"
                   label="Requestor"
                   value={userOptions.find((s) => s.value === values.requestorId) || ''}

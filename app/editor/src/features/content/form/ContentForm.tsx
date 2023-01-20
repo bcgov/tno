@@ -414,7 +414,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 ''
                               }
                               label="Designation"
-                              options={filterEnabled(productOptions)}
+                              options={filterEnabled(productOptions, props.values.productId)}
                               required
                             />
                             <FormikSelect
@@ -429,13 +429,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                   const source = sources.find((ds) => ds.id === newValue.value);
                                   props.setFieldValue('sourceId', newValue.value);
                                   props.setFieldValue('otherSource', source?.code ?? '');
-                                  if (!!source) {
+                                  if (!!source?.licenseId)
                                     props.setFieldValue('licenseId', source.licenseId);
+                                  if (!!source?.productId)
                                     props.setFieldValue('productId', source.productId);
-                                  }
                                 }
                               }}
-                              options={filterEnabled(sourceOptions).filter(
+                              options={filterEnabled(sourceOptions, props.values.sourceId).filter(
                                 (x) =>
                                   !isImageForm(contentType) ||
                                   x.label.includes('(TC)') ||
@@ -446,6 +446,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               )}
                               required={!props.values.otherSource}
                               isDisabled={!!props.values.tempSource}
+                            />
+                            <FormikSelect
+                              name="productId"
+                              value={
+                                productOptions.find((mt) => mt.value === props.values.productId) ??
+                                ''
+                              }
+                              label="Designation"
+                              options={productOptions}
+                              required
                             />
                             <FormikHidden name="otherSource" />
                             <Show visible={!isImageForm(contentType)}>

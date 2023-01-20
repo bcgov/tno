@@ -119,12 +119,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
     setStreamUrl(path ? `/api/editor/contents/stream?path=${path}` : '');
   }, [path]);
 
-  React.useEffect(() => {
-    if (!!streamUrl && !!videoRef.current) {
-      videoRef.current.src = streamUrl;
-    }
-  }, [streamUrl, videoRef]);
-
   const setMedia = () => {
     setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/stream?path=${path}`);
   };
@@ -140,7 +134,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 label="Series"
                 width={FieldSize.Medium}
                 value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={filterEnabled(seriesOptions)}
+                options={filterEnabled(seriesOptions, values.seriesId)}
                 isDisabled={!!values.otherSeries}
                 onChange={(e) => {
                   setFieldValue('otherSeries', '');
@@ -218,7 +212,10 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             name="categories"
             label="Event of Day Category"
             width={FieldSize.Medium}
-            options={filterEnabled(categoryOptions)}
+            options={filterEnabled(
+              categoryOptions,
+              !!values.categories?.length ? values.categories[0].id : null,
+            )}
             value={
               !!values.categories?.length
                 ? categoryOptions.find((c) => c.value === values.categories[0].id)
@@ -426,6 +423,22 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         <Show visible={contentType !== ContentTypeName.Image}>
           <Col className="video" alignItems="stretch">
             <video ref={videoRef} className={!streamUrl ? 'hidden' : ''} controls>
+              <source src={streamUrl} type="audio/m4a" />
+              <source src={streamUrl} type="audio/flac" />
+              <source src={streamUrl} type="audio/mp3" />
+              <source src={streamUrl} type="audio/mp4" />
+              <source src={streamUrl} type="audio/wav" />
+              <source src={streamUrl} type="audio/wma" />
+              <source src={streamUrl} type="audio/aac" />
+              <source src={streamUrl} type="video/wmv" />
+              <source src={streamUrl} type="video/mov" />
+              <source src={streamUrl} type="video/mpeg" />
+              <source src={streamUrl} type="video/mpg" />
+              <source src={streamUrl} type="video/avi" />
+              <source src={streamUrl} type="video/mp4" />
+              <source src={streamUrl} type="video/gif" />
+              <source src={streamUrl} type="video/ogg" />
+              <source src={streamUrl} type="video/webm" />
               HTML5 Video is required for this example
             </video>
           </Col>

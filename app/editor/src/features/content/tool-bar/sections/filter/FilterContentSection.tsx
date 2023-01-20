@@ -145,7 +145,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                 components={{
                   Option: InputOption,
                 }}
-                onChange={(newValues) => {
+                onChange={(newValues: any[]) => {
                   const productIds = Array.isArray(newValues)
                     ? newValues.map((opt) => opt.value)
                     : [0];

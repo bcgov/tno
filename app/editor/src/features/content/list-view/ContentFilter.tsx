@@ -111,11 +111,11 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
         <Select
           name="productId"
           label="Product Designation"
-          options={filterEnabled(productOptions)}
+          options={filterEnabled(productOptions, filter.productId)}
           value={productOptions.find((mt) => mt.value === filter.productId)}
           width={FieldSize.Big}
           defaultValue={productOptions[0]}
-          onChange={(newValue) => {
+          onChange={(newValue: any) => {
             const productId = !!newValue ? (newValue as IOptionItem).value : 0;
             onFilterChange({
               ...filter,
@@ -128,9 +128,9 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
           name="user"
           label="User"
           width={FieldSize.Big}
-          options={filterEnabled(userOptions)}
+          options={filterEnabled(userOptions, filter.userId)}
           value={userOptions.find((u) => u.value === filter.userId)}
-          onChange={(newValue) => {
+          onChange={(newValue: any) => {
             const userId = !!newValue ? (newValue as IOptionItem).value : 0;
             onFilterChange({
               ...filter,
@@ -266,7 +266,7 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
                 if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
               }}
               onChange={(newValue: any) => {
-                const optionItem = filterEnabled(sourceOptions).find(
+                const optionItem = filterEnabled(sourceOptions, newValue.value).find(
                   (ds) => ds.value === newValue.value,
                 );
                 const newSearchTerm =
@@ -275,9 +275,9 @@ export const ContentFilter: React.FC<IContentFilterProps> = ({ onSearch }) => {
                 onAdvancedFilterChange({ ...filterAdvanced, searchTerm: newSearchTerm });
               }}
               options={[new OptionItem('', 0) as IOptionItem].concat([
-                ...filterEnabled(sourceOptions),
+                ...filterEnabled(sourceOptions, filterAdvanced.searchTerm),
               ])}
-              value={sourceOptions.find((s) => s.label === filterAdvanced.searchTerm)}
+              value={sourceOptions.find((s) => s.value === filterAdvanced.searchTerm)}
             />
           </Show>
           <Show visible={filterAdvanced.fieldType !== 'otherSource'}>

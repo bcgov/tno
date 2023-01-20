@@ -4,7 +4,6 @@ using System.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Renci.SshNet;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.Storage;
 using TNO.API.Helpers;
@@ -67,10 +66,10 @@ public class StorageController : ControllerBase
     public IActionResult GetFolder([FromRoute] int? locationId, [FromQuery] string? path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -116,10 +115,10 @@ public class StorageController : ControllerBase
     public IActionResult FolderExists([FromRoute] int? locationId, [FromQuery] string? path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -169,11 +168,10 @@ public class StorageController : ControllerBase
         if (files.Count == 0) throw new InvalidOperationException("File missing");
         var file = files.First();
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -255,11 +253,10 @@ public class StorageController : ControllerBase
     public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -319,11 +316,10 @@ public class StorageController : ControllerBase
     public IActionResult Download([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -386,11 +382,10 @@ public class StorageController : ControllerBase
     public IActionResult Move([FromRoute] int? locationId, [FromQuery] string path, [FromQuery] string destination)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -471,11 +466,10 @@ public class StorageController : ControllerBase
     public IActionResult Delete([FromRoute] int? locationId, [FromQuery] string path)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -541,11 +535,10 @@ public class StorageController : ControllerBase
     public async Task<IActionResult> CreateClipAsync([FromRoute] int? locationId, [FromQuery] string path, [FromQuery] int start, [FromQuery] int end, [FromQuery] string outputName)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
@@ -613,11 +606,10 @@ public class StorageController : ControllerBase
     public async Task<IActionResult> JoinClipsAsync([FromRoute] int? locationId, [FromQuery] string path, [FromQuery] string prefix)
     {
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).GetDirectoryPath().MakeRelativePath();
-
-        if (locationId != null)
+        var connection = locationId.HasValue ? _connection.GetConnection(locationId.Value) : null;
+        if (connection != null || locationId > 0)
         {
             // TODO: Handle multiple storage locations.
-            var connection = _connection.GetConnection(locationId.Value);
             if (connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(connection);
