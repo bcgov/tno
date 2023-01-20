@@ -384,6 +384,7 @@ public class ClipAction : CommandAction<ClipOptions>
         var command = ext switch
         {
             ".mkv" => $"-c \"ffprobe -v 0 -show_entries packet=pts -of compact=p=0:nk=1 -read_intervals 999999 -select_streams v:0 '{inputFile}' | tail -1\"",
+            ".webm" => $"-c \"ffprobe -v 0 -show_entries packet=pts -of compact=p=0:nk=1 -read_intervals 999999 -select_streams v:0 '{inputFile}' | tail -1\"",
             _ => $"-c \"ffprobe -i '{inputFile}' -show_format -v quiet | sed -n 's/duration=//p'\""
         };
 

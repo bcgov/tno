@@ -11,8 +11,8 @@ export const defaultIngest: IIngestModel = {
   ingestTypeId: 0,
   scheduleType: ScheduleTypeName.None,
   configuration: {
-    post: true,
-    import: true,
+    post: false,
+    import: false,
   },
   sourceConnectionId: 0,
   destinationConnectionId: 0,
