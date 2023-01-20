@@ -22,7 +22,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
   const [{ filter, filterAdvanced }] = useContent();
   /** retrigger fetch on change of date or clear*/
   React.useEffect(() => {
-    onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
+    onSearch({ ...filter, ...filterAdvanced });
   }, [filter, filterAdvanced, onSearch]);
 
   return (
