@@ -11,7 +11,7 @@ import { Button, ButtonVariant, Col, Error, FieldSize, Row, Text } from 'tno-cor
 
 import { defaultFolder } from '../../storage/constants';
 import { ClipDirectoryTable } from './ClipDirectoryTable';
-import { IContentForm } from './interfaces';
+import { IContentForm, IStream } from './interfaces';
 import * as styled from './styled';
 import { toForm } from './utils';
 
@@ -56,7 +56,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   // TODO: Hardcoding the folder location isn't ideal as the API may be configured differently.
   const [path, setPath] = React.useState(initPath ?? '');
   const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
-  const [streamUrl, setStreamUrl] = React.useState<string>();
+  const [stream, setStream] = React.useState<IStream>();
   const [item, setItem] = React.useState<IItemModel>();
   const [start, setStart] = React.useState<string>('');
   const [end, setEnd] = React.useState<string>('');
@@ -81,10 +81,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   }, [error, setClipErrors]);
 
   React.useEffect(() => {
-    if (!!streamUrl && !!videoRef.current) {
-      videoRef.current.src = streamUrl;
+    if (!!stream && !!videoRef.current) {
+      videoRef.current.src = stream.url;
     }
-  }, [streamUrl, videoRef]);
+  }, [stream, videoRef]);
 
   const onDelete = async (item: IItemModel) => {
     setItem(item);
@@ -118,8 +118,13 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const onSelect = (item?: IItemModel) => {
     setItem(item);
     setCurrFile(!!item ? item.name : '');
-    setStreamUrl(
-      !!item ? `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}` : undefined,
+    setStream(
+      !!item
+        ? {
+            url: `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}`,
+            type: item.mimeType ?? 'video/mp4',
+          }
+        : undefined,
     );
   };
 
@@ -154,8 +159,13 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
         setStart('');
         setEnd('');
         setCurrFile(!!item ? item.name : '');
-        setStreamUrl(
-          !!item ? `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}` : undefined,
+        setStream(
+          !!item
+            ? {
+                url: `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}`,
+                type: item.mimeType ?? 'video/mp4',
+              }
+            : undefined,
         );
       });
     } catch {
@@ -195,8 +205,8 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   const navigate = (item?: IItemModel) => {
     if (item?.isDirectory) {
       setPath(`${path}/${item?.name}`);
-    } else if (streamUrl) {
-      setStreamUrl(undefined);
+    } else if (stream) {
+      setStream(undefined);
     }
   };
 
@@ -222,26 +232,10 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
           </div>
         </Col>
       </Row>
-      <Row justifyContent="center" className={!streamUrl ? 'hidden' : ''}>
+      <Row justifyContent="center" className={!stream ? 'hidden' : ''}>
         <Col className="video">
           <Row>
             <video ref={videoRef} controls>
-              <source src={streamUrl} type="audio/m4a" />
-              <source src={streamUrl} type="audio/flac" />
-              <source src={streamUrl} type="audio/mp3" />
-              <source src={streamUrl} type="audio/mp4" />
-              <source src={streamUrl} type="audio/wav" />
-              <source src={streamUrl} type="audio/wma" />
-              <source src={streamUrl} type="audio/aac" />
-              <source src={streamUrl} type="video/wmv" />
-              <source src={streamUrl} type="video/mov" />
-              <source src={streamUrl} type="video/mpeg" />
-              <source src={streamUrl} type="video/mpg" />
-              <source src={streamUrl} type="video/avi" />
-              <source src={streamUrl} type="video/mp4" />
-              <source src={streamUrl} type="video/gif" />
-              <source src={streamUrl} type="video/ogg" />
-              <source src={streamUrl} type="video/webm" />
               HTML5 Video is required for this example
             </video>
           </Row>

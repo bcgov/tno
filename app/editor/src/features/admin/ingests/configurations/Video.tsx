@@ -43,6 +43,7 @@ export const Video: React.FC = (props) => {
           });
         }}
       />
+      <hr />
       {ConnectionSettings()}
     </styled.IngestType>
   );

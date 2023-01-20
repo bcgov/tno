@@ -967,7 +967,7 @@ INSERT INTO public.ingest (
   , 'CKNW' -- topic
   , talkRadioId -- product_id
   , '{ "serviceType":"stream",
-      "url": "http://live.leanstream.co/CKNWAM-MP3?reciva",
+      "url": "http://live.leanstream.co/CKNWAM-MP3",
       "timeZone":"Pacific Standard Time",
       "language": "en-CA",
       "post": false,

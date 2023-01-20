@@ -30,7 +30,7 @@ import {
 } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
-import { IContentForm } from './interfaces';
+import { IContentForm, IStream } from './interfaces';
 import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
 import { getTotalTime } from './utils';
@@ -77,7 +77,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         size: fileReference.size,
       } as IFile)
     : undefined;
-  const [streamUrl, setStreamUrl] = React.useState<string>('');
+  const [stream, setStream] = React.useState<IStream>();
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
@@ -115,11 +115,22 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [series]);
 
   React.useEffect(() => {
-    setStreamUrl(path ? `/api/editor/contents/stream?path=${path}` : '');
+    // TODO: Get MimeType from file.
+    setStream(
+      !!path ? { url: `/api/editor/contents/stream?path=${path}`, type: 'video/mp4' } : undefined,
+    );
   }, [path]);
 
+  React.useEffect(() => {
+    if (!!stream && !!videoRef.current) {
+      videoRef.current.src = stream.url;
+    }
+  }, [stream, videoRef]);
+
   const setMedia = () => {
-    setStreamUrl(!!streamUrl ? '' : `/api/editor/contents/stream?path=${path}`);
+    setStream(
+      !!stream ? undefined : { url: `/api/editor/contents/stream?path=${path}`, type: 'video/mp4' },
+    );
   };
 
   return (
@@ -391,7 +402,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
             }}
             onDelete={() => {
-              setStreamUrl('');
+              setStream(undefined);
               if (!!videoRef.current) {
                 videoRef.current.src = '';
               }
@@ -407,34 +418,18 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               variant={ButtonVariant.secondary}
               className={!file ? 'hidden' : 'show-player'}
             >
-              {!!streamUrl ? 'Hide Player' : 'Show Player'}
+              {!!stream ? 'Hide Player' : 'Show Player'}
             </Button>
           </Show>
         </Row>
-        <Show visible={contentType === ContentTypeName.Image && !!streamUrl}>
+        <Show visible={contentType === ContentTypeName.Image && !!stream}>
           <Col>
-            <img alt="" className="object-fit" src={streamUrl}></img>
+            <img alt="" className="object-fit" src={stream?.url}></img>
           </Col>
         </Show>
         <Show visible={contentType !== ContentTypeName.Image}>
           <Col className="video" alignItems="stretch">
-            <video ref={videoRef} className={!streamUrl ? 'hidden' : ''} controls>
-              <source src={streamUrl} type="audio/m4a" />
-              <source src={streamUrl} type="audio/flac" />
-              <source src={streamUrl} type="audio/mp3" />
-              <source src={streamUrl} type="audio/mp4" />
-              <source src={streamUrl} type="audio/wav" />
-              <source src={streamUrl} type="audio/wma" />
-              <source src={streamUrl} type="audio/aac" />
-              <source src={streamUrl} type="video/wmv" />
-              <source src={streamUrl} type="video/mov" />
-              <source src={streamUrl} type="video/mpeg" />
-              <source src={streamUrl} type="video/mpg" />
-              <source src={streamUrl} type="video/avi" />
-              <source src={streamUrl} type="video/mp4" />
-              <source src={streamUrl} type="video/gif" />
-              <source src={streamUrl} type="video/ogg" />
-              <source src={streamUrl} type="video/webm" />
+            <video ref={videoRef} className={!stream ? 'hidden' : ''} controls>
               HTML5 Video is required for this example
             </video>
           </Col>

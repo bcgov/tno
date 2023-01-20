@@ -79,6 +79,7 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
               required
               onChange={handleChange}
             />
+            <hr />
             <p>
               If the ingest service will connect to a remote source of data select the connection,
               otherwise select 'None'.
@@ -149,6 +150,7 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                 </Col>
               </Row>
             </Show>
+            <hr />
             <p>
               If the ingest service will generate files select the connection that represents the
               destination for these files, otherwise select 'None'.
@@ -175,7 +177,11 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                 disabled
               />
             </Show>
-            <p>Ingest services that do not generate content may not need to post to Kafka.</p>
+            <hr />
+            <p>
+              Ingest services that do not generate content may not need to post to Kafka. Capture
+              services normally will not need to post or import their content.
+            </p>
             <FormikCheckbox label="Post to Kafka" name="configuration.post" />
             <p>
               Select if content will be imported by the content service. This provides a way to

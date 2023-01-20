@@ -33,6 +33,7 @@ export const Audio: React.FC = (props) => {
           });
         }}
       />
+      <hr />
       <Show visible={values.configuration.serviceType === 'stream'}>
         <AudioStream />
       </Show>
