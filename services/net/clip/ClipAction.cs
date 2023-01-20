@@ -522,7 +522,7 @@ public class ClipAction : CommandAction<ClipOptions>
     private static string GetCopy(IngestModel ingest)
     {
         var value = ingest.GetConfigurationValue("copy");
-        return String.IsNullOrWhiteSpace(value) ? " -c:v copy -c:a copy" : $" {value}";
+        return String.IsNullOrWhiteSpace(value) ? "" : $" {value}";
     }
     #endregion
 }
