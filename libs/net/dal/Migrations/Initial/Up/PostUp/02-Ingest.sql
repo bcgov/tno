@@ -185,7 +185,7 @@ INSERT INTO public.ingest (
   , 'CPNEWS' -- topic
   , wireId -- product_id
   , '{ "url":"http://www.commandnews.com/fpweb/fp.dll/$bc-rss/htm/rss/x_searchlist.htm/_drawerid/!default_bc-rss/_profileid/rss/_iby/daj/_iby/daj/_svc/cp_pub/_k/XQkKHjnAUpumRfdr",
-      "timeZone": "Pacific Standard Time",
+      "timeZone": "Eastern Standard Time",
       "language": "en-CA",
       "fetchContent": true,
       "post": true,
