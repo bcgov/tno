@@ -6,7 +6,7 @@ import { Row } from 'tno-core/dist/components/flex/row';
  * The navigation bar that is used throughout the TNO editor application. Add or remove navigation bar items here.
  */
 export const NavBar: React.FC = () => {
-  const [activeHover, setActiveHover] = React.useState<string>('');
+  const [, setActiveHover] = React.useState<string>('');
 
   const hideRef = React.useRef(false);
   const ref = React.useRef<any>();

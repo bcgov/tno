@@ -7,6 +7,7 @@ import {
 import { useLookupOptions } from 'hooks';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { FieldSize, IOptionItem, OptionItem, Row, Select, Show, Text } from 'tno-core';
 
 export interface IAdvancedSearchSectionProps {
@@ -52,7 +53,9 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
               onChange={(newValue: any) => {
                 if (!newValue) onChange({ ...filterAdvanced, searchTerm: '' });
                 else {
-                  const optionItem = sourceOptions.find((ds) => ds.value === newValue.value);
+                  const optionItem = filterEnabled(sourceOptions, newValue.value).find(
+                    (ds) => ds.value === newValue.value,
+                  );
                   const newSearchTerm =
                     optionItem?.label
                       .substring(optionItem.label.indexOf('(') + 1)
@@ -60,8 +63,10 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
                   onChange({ ...filterAdvanced, searchTerm: newSearchTerm });
                 }
               }}
-              options={[new OptionItem('', 0) as IOptionItem].concat([...sourceOptions])}
-              value={sourceOptions.find((s) => s.label === filterAdvanced.searchTerm)}
+              options={[new OptionItem('', 0) as IOptionItem].concat([
+                ...filterEnabled(sourceOptions, filterAdvanced.searchTerm),
+              ])}
+              value={sourceOptions.find((s) => s.value === filterAdvanced.searchTerm)}
             />
           </Show>
           <Show visible={filterAdvanced.fieldType !== 'otherSource'}>

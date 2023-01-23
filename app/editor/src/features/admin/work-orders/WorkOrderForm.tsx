@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useWorkOrders } from 'store/hooks/admin';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
@@ -89,7 +90,7 @@ export const WorkOrderForm: React.FC = () => {
               <Col flex="1 1 0">
                 <FormikText name="workType" label="Type" disabled />
                 <FormikSelect
-                  options={userOptions}
+                  options={filterEnabled(userOptions, values.requestorId)}
                   name="requestorId"
                   label="Requestor"
                   value={userOptions.find((s) => s.value === values.requestorId) || ''}

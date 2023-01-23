@@ -2,6 +2,7 @@ import { UserStatusName } from 'hooks';
 import React, { useState } from 'react';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { FieldSize, IconButton, OptionItem, Select, Text } from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
 import { getEnumStringOptions } from 'utils';
@@ -17,7 +18,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
   const statusOptions = getEnumStringOptions(UserStatusName);
   const [lookups] = useLookup();
   const [roleOptions, setRoleOptions] = React.useState(
-    lookups.roles.map((r) => new OptionItem(r.name, r.id)),
+    lookups.roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
   );
 
   React.useEffect(() => {
@@ -66,7 +67,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
             setFilter({ ...filter, roleName: e.value });
           }}
           width={FieldSize.Medium}
-          options={roleOptions}
+          options={filterEnabled(roleOptions, filter.roleName)}
           name="role"
           placeholder="Search by role"
           value={roleOptions.find((s) => s.value === filter.roleName) || ''}

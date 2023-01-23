@@ -8,6 +8,7 @@ import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { Col, FieldSize, fromQueryString, IOptionItem, OptionItem, Row, Select } from 'tno-core';
 import { getUserOptions } from 'utils';
 
@@ -115,7 +116,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                   },
                   {
                     label: 'OTHER',
-                    dropDownOptions: userOptions,
+                    dropDownOptions: filterEnabled(userOptions),
                     onClick: onOtherClick,
                   },
                 ]}
@@ -137,7 +138,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                 isMulti
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}
-                options={productOptions}
+                options={filterEnabled(productOptions)}
                 // value={productOptions.find((mt) => mt.value === filter.productId)}
                 width={FieldSize.Big}
                 defaultValue={productOptions[0]}

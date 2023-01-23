@@ -30,6 +30,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useContent, useWorkOrders } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import { IAjaxRequest } from 'store/slices';
 import {
   Area,
@@ -407,6 +408,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         <Col>
                           <Row>
                             <FormikSelect
+                              name="productId"
+                              value={
+                                productOptions.find((mt) => mt.value === props.values.productId) ??
+                                ''
+                              }
+                              label="Designation"
+                              options={filterEnabled(productOptions, props.values.productId)}
+                              required
+                            />
+                            <FormikSelect
                               name="sourceId"
                               label="Source"
                               width={FieldSize.Big}
@@ -424,7 +435,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                     props.setFieldValue('productId', source.productId);
                                 }
                               }}
-                              options={sourceOptions.filter(
+                              options={filterEnabled(sourceOptions, props.values.sourceId).filter(
                                 (x) =>
                                   !isImageForm(contentType) ||
                                   x.label.includes('(TC)') ||

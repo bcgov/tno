@@ -3,6 +3,7 @@ import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Col,
   FormikCheckbox,
@@ -24,7 +25,7 @@ export const Newspaper: React.FC = (props) => {
   const language = Languages.find((t) => t.value === values.configuration.language);
   const fileType = FileTypes.find((t) => t.value === values.configuration.fileFormat);
   const [lookups] = useLookup();
-  const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code));
+  const sources = lookups.sources.map((s) => new OptionItem(s.name, s.code, s.isEnabled));
   const source = sources.find((t) => t.value === values.configuration.defaultSource);
 
   return (
@@ -210,7 +211,7 @@ export const Newspaper: React.FC = (props) => {
         label="Default Source"
         name="configuration.defaultSource"
         tooltip="Source to use for publications missing from Sources list. If not set, articles will be discarded"
-        options={sources}
+        options={filterEnabled(sources, source)}
         value={source}
       />
     </styled.IngestType>

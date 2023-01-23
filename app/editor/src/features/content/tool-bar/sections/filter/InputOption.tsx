@@ -45,7 +45,7 @@ export const InputOption: React.FC<any> = ({
       getStyles={getStyles}
       innerProps={props}
     >
-      <input type="checkbox" checked={isSelected} />
+      <input type="checkbox" defaultChecked={isSelected} />
       {children}
     </components.Option>
   );

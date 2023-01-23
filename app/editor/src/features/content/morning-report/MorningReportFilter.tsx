@@ -1,6 +1,7 @@
 import { ContentTypeName, useLookupOptions } from 'hooks';
 import React from 'react';
 import { useContent } from 'store/hooks';
+import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Checkbox,
   Col,
@@ -69,10 +70,10 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
           name="productId"
           label="Product Designation"
           width={FieldSize.Medium}
-          options={productOptions}
+          options={filterEnabled(productOptions, filter.productId)}
           value={productOptions.find((mt) => mt.value === filter.productId)}
           defaultValue={productOptions[0]}
-          onChange={(newValue) => {
+          onChange={(newValue: any) => {
             var productId = !!newValue ? (newValue as IOptionItem).value ?? 0 : 0;
             onFilterChange({
               ...filter,
@@ -93,8 +94,10 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
               sourceId: sourceId as number,
             });
           }}
-          options={[new OptionItem('', 0) as IOptionItem].concat([...sourceOptions])}
-          value={sourceOptions.find((s) => s.label === filter.otherSource)}
+          options={[new OptionItem('', 0) as IOptionItem].concat([
+            ...filterEnabled(sourceOptions, filter.otherSource),
+          ])}
+          value={sourceOptions.find((s) => s.value === filter.otherSource)}
         />
         <RadioGroup
           name="timeFrame"
