@@ -23,14 +23,14 @@ spec:
           volumes:
             - name: entrypoint
               configMap:
-                defaultMode: 0700
+                defaultMode: 0754
                 name: purge-service
             - name: av-storage
               persistentVolumeClaim:
                 claimName: av-storage
           containers:
             - name: purge-service
-              image: busybox:1.35.0
+              image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/alpine:3.17.1
               imagePullPolicy: IfNotPresent
               resources:
                 requests:
@@ -42,7 +42,6 @@ spec:
               volumeMounts:
                 - name: entrypoint
                   mountPath: /bin/entrypoint.sh
-                  readonly: true
                   subPath: entrypoint.sh
                 - name: av-storage
                   mountPath: /data

@@ -16,7 +16,7 @@ metadata:
     created-by: jeremy.foster
 data:
   entrypoint.sh: |-
-    #!/bin/sh
+    #!/bin/bash
 
     # *********************************************************************************
     # Delete folders that are older than the specified number of days.
@@ -24,39 +24,30 @@ data:
     # arg1: Folder path to purge (i.e. /data/capture)
     # arg2: Number of days to keep in storage (i.e 2 = Delete everything two days old)
     # *********************************************************************************
+
+    delete_folder () {
+      FOLDER=$(basename $1)
+      DELETE_S=$(($(date +%s) - (24*60*60*${2-0})))
+      FOLDER_S=$(date -d "$FOLDER" +%s)
+
+      if [ "$FOLDER_S" -le "$DELETE_S" ]; then
+        echo "DELETE $1"
+        rm -rf $1
+      fi
+    }
+    export -f delete_folder;
+
     purge_folders () {
       echo "************************************"
       echo "Purging $1"
+      echo "Deleting folders older than $2 days"
 
-      for d in $1/*/*/ ; do
-        [ -L "${d%/}" ] && continue
-
-        DELETE=1
-
-        # Loop through each day to determine if the folder should be deleted.
-        i=0
-        while [ $i -lt $2 ]; do
-          DAY=$(date -D %s -d $(( $(date +%s) - (24*60*60*$i))) +"%Y-%m-%d")
-          MATCH=$(echo $d | grep -iE "^${1}/.*/${DAY}/$" | wc -l)
-
-          # Find a match, mark for keep.
-          if [ $MATCH -eq 1 ]; then
-            DELETE=0
-          fi
-          i=$(( $i + 1 ))
-        done
-
-        if [ $DELETE -eq 1 ]; then
-          echo "Delete - $d"
-          rm -rf $d
-        else
-          echo "Keep - $d"
-        fi
-
-      done
+      find $1/*/*/ -type d -prune -exec bash -c 'delete_folder "$0" $1' {} $2 \;
 
       echo "************************************"
     }
 
-    purge_folders "/data/capture" 2
-    purge_folders "/data/clip" 2
+    purge_folders /data/capture 2;
+    purge_folders /data/clips 2;
+    purge_folders /data/images 2;
+    purge_folders /data/papers 2;
