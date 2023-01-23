@@ -8,7 +8,7 @@
 # *********************************************************************************
 
 delete_folder () {
-  FOLDER=$(basename "$1")
+  FOLDER=$(basename $1)
   DELETE_S=$(($(date +%s) - (24*60*60*${2-0})))
   FOLDER_S=$(date -d "$FOLDER" +%s)
 
@@ -24,12 +24,12 @@ purge_folders () {
   echo "Purging $1"
   echo "Deleting folders older than $2 days"
 
-  find $1/*/*/ -type d -exec bash -c 'delete_folder "$0" $1' {} $2 \;
+  find $1/*/*/ -type d -prune -exec bash -c 'delete_folder "$0" $1' {} $2 \;
 
   echo "************************************"
 }
 
-# purge_folders "/data/capture" 2
-# purge_folders "/data/clip" 2
-
-purge_folders $1 $2
+purge_folders /data/capture 2
+purge_folders /data/clips 2
+purge_folders /data/images 2
+purge_folders /data/papers 2
