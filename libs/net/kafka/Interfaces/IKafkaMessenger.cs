@@ -33,7 +33,7 @@ public interface IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public Task<DeliveryResult<string, TranscriptRequest>?> SendMessageAsync(string topic, TranscriptRequest request);
+    public Task<DeliveryResult<string, TranscriptRequestModel>?> SendMessageAsync(string topic, TranscriptRequestModel request);
 
     /// <summary>
     /// Send a message to Kafka.
@@ -41,7 +41,7 @@ public interface IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public Task<DeliveryResult<string, IndexRequest>?> SendMessageAsync(string topic, IndexRequest request);
+    public Task<DeliveryResult<string, IndexRequestModel>?> SendMessageAsync(string topic, IndexRequestModel request);
 
     /// <summary>
     /// Send a message to Kafka.
@@ -49,5 +49,13 @@ public interface IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public Task<DeliveryResult<string, NLPRequest>?> SendMessageAsync(string topic, NLPRequest request);
+    public Task<DeliveryResult<string, NlpRequestModel>?> SendMessageAsync(string topic, NlpRequestModel request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, FileRequestModel>?> SendMessageAsync(string topic, FileRequestModel request);
 }

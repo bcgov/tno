@@ -40,9 +40,9 @@ export interface ISelectBaseProps {
    */
   error?: string;
   /**
-   * When the user pressed the delete button.
+   * The value to set when clearing the current selection.
    */
-  onClear?: () => void;
+  clearValue?: unknown;
   /**
    * Key down capture event.  The react-select component doesn't natively support, so this is a workaround.
    */
@@ -91,14 +91,13 @@ export const Select = <OptionType extends IOptionItem>({
   onInput,
   onInvalid,
   onChange,
-  onClear,
   onKeyDown,
   onKeyDownCapture,
   onKeyUp,
   onKeyUpCapture,
   ...rest
 }: ISelectProps<OptionType>) => {
-  const selectRef = React.useRef(null);
+  const selectRef = React.useRef<any>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   return (
@@ -122,7 +121,7 @@ export const Select = <OptionType extends IOptionItem>({
         <Row
           onKeyUp={(e) => {
             if (e.code === 'Delete') {
-              onClear?.();
+              if (!!selectRef.current) selectRef.current.select.clearValue();
             }
           }}
           data-for="select-tooltip"
@@ -140,7 +139,8 @@ export const Select = <OptionType extends IOptionItem>({
             isClearable
             options={options}
             onChange={(newValue: unknown, actionMeta: ActionMeta<unknown>) => {
-              onChange?.(newValue, actionMeta);
+              if (newValue === null) onChange?.(rest.clearValue, actionMeta);
+              else onChange?.(newValue, actionMeta);
               inputRef?.current?.setCustomValidity('');
             }}
             onFocus={(e: any) => {

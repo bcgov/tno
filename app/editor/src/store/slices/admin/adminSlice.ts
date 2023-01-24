@@ -41,6 +41,9 @@ export const initialAdminState: IAdminState = {
   workOrderFilter: {
     pageIndex: 0,
     pageSize: 10,
+    status: '',
+    workType: '',
+    keyword: '',
     sort: [],
   },
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },

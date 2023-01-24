@@ -40,7 +40,6 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     public IPaged<WorkOrder> Find(WorkOrderFilter filter)
     {
         var query = this.Context.WorkOrders
-            .Include(m => m.Content)
             .AsNoTracking()
             .AsQueryable();
 
@@ -50,7 +49,7 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
             query = query.Where(c => c.Status == filter.Status);
 
         if (filter.ContentId.HasValue)
-            query = query.Where(c => c.ContentId == filter.ContentId);
+            query = query.Where(c => EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{filter.ContentId}}}"));
         if (filter.RequestorId.HasValue)
             query = query.Where(c => c.RequestorId == filter.RequestorId);
         if (filter.AssignedId.HasValue)
@@ -105,7 +104,25 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     {
         var query = this.Context.WorkOrders
             .AsNoTracking()
-            .Where(c => c.ContentId == contentId)
+            .Where(c => EF.Functions.JsonContains(c.Configuration, $"{{\"contentId\":{contentId}}}"))
+            .OrderByDescending(c => c.CreatedOn);
+
+        return query.ToArray();
+    }
+
+    /// <summary>
+    /// Find all work orders for the specified 'locationId' and 'path'.
+    /// Generally speaking there shouldn't be many work order requests for a single file,
+    /// which means it should be quicker to return the lot and filter afterwards.
+    /// </summary>
+    /// <param name="locationId"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public IEnumerable<WorkOrder> FindByFile(int locationId, string path)
+    {
+        var query = this.Context.WorkOrders
+            .AsNoTracking()
+            .Where(c => EF.Functions.JsonContains(c.Configuration, $"{{\"locationId\":{locationId}, \"path\":\"{path}\"}}"))
             .OrderByDescending(c => c.CreatedOn);
 
         return query.ToArray();
@@ -119,7 +136,6 @@ public class WorkOrderService : BaseService<WorkOrder, long>, IWorkOrderService
     public override WorkOrder? FindById(long id)
     {
         return this.Context.WorkOrders
-            .Include(m => m.Content)
             .FirstOrDefault(m => m.Id == id);
     }
     #endregion

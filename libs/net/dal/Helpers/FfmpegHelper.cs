@@ -41,6 +41,7 @@ public static class FfmpegHelper
         // TODO: A failure will not clean up the mux file.
         var code = await RunProcessAsync(process);
         File.Delete(muxfile);
+        if (!Directory.GetFiles(Path.GetDirectoryName(muxfile)!).Any()) Directory.Delete(Path.GetDirectoryName(muxfile)!);
         // TODO: propagate exception properly.
         if (code != 0) throw new Exception($"An unexpected error occurred while joining clip '{path}'");
         return Output;
@@ -95,7 +96,7 @@ public static class FfmpegHelper
         var directory = Path.GetDirectoryName(path) ?? "";
         var clips = Directory.GetFileSystemEntries(directory, prefix + "_*." + ext);
         // TODO: Two users with same prefix will overwrite each other.
-        var muxfile = Path.Combine(directory, "_tmp", $"{prefix}.txt");
+        var muxfile = Path.Combine(directory, ".mux", $"{prefix}.txt");
         var muxpath = Path.GetDirectoryName(muxfile) ?? "";
         if (!muxpath.DirectoryExists()) Directory.CreateDirectory(muxpath);
 

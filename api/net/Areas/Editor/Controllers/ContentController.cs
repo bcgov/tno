@@ -20,6 +20,7 @@ using System.Net.Mime;
 using TNO.API.Helpers;
 using TNO.Models.Extensions;
 using System.Web;
+using System.Text.Json;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -48,6 +49,7 @@ public class ContentController : ControllerBase
     private readonly IConnectionHelper _connection;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
     #endregion
 
@@ -63,6 +65,7 @@ public class ContentController : ControllerBase
     /// <param name="storageOptions"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public ContentController(
         IContentService contentService,
@@ -73,6 +76,7 @@ public class ContentController : ControllerBase
         IOptions<StorageOptions> storageOptions,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
+        IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ContentController> logger)
     {
         _contentService = contentService;
@@ -83,6 +87,7 @@ public class ContentController : ControllerBase
         _connection = connection;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
+        _serializerOptions = serializerOptions.Value;
         _logger = logger;
     }
     #endregion
@@ -141,10 +146,10 @@ public class ContentController : ControllerBase
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Publish));
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
 
             // Always index the content.
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Index));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -171,14 +176,14 @@ public class ContentController : ControllerBase
         {
             // If a request is submitted to unpublish we do it regardless of the current state of the content.
             if (content.Status == ContentStatus.Unpublish)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Unpublish));
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Unpublish));
 
             // Any request to publish, or if content is already published, we will republish.
             if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Publish));
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
 
             // Always index the content.
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Index));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -203,7 +208,7 @@ public class ContentController : ControllerBase
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(model.Id, IndexAction.Delete));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(model.Id, IndexAction.Delete));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -229,7 +234,7 @@ public class ContentController : ControllerBase
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Publish));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -255,7 +260,7 @@ public class ContentController : ControllerBase
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequest(content.Id, IndexAction.Unpublish));
+            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Unpublish));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -352,34 +357,10 @@ public class ContentController : ControllerBase
         var content = _contentService.FindById(contentId) ?? throw new InvalidOperationException("Entity does not exist");
         content.Version = version;
 
-        var connection = _connection.GetConnection(locationId);
-        if (connection?.ConnectionType == ConnectionType.SSH)
+        var dataLocation = _connection.GetDataLocation(locationId);
+        if (dataLocation?.Connection?.ConnectionType == ConnectionType.LocalVolume)
         {
-            var configuration = _connection.GetConfiguration(connection);
-            var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
-            using var client = _connection.CreateSftpClient(configuration);
-            try
-            {
-                client.Connect();
-                var safePath = Path.Combine(locationPath, path);
-                if (!client.Exists(safePath)) throw new InvalidOperationException($"File does not exist: '{path}'");
-                var tmpPath = _connection.CopyFile(client, safePath, _storageOptions.GetCapturePath(), this.User);
-                var file = new FileInfo(tmpPath);
-                // If the content has a file reference, then update it.  Otherwise, add one.
-                if (content.FileReferences.Any()) _fileReferenceService.Attach(content, file, _storageOptions.GetUploadPath());
-                else _fileReferenceService.Attach(new ContentFileReference(content, file), _storageOptions.GetUploadPath());
-
-                return new JsonResult(new ContentModel(content));
-            }
-            finally
-            {
-                if (client.IsConnected)
-                    client.Disconnect();
-            }
-        }
-        else if (connection?.ConnectionType == ConnectionType.LocalVolume)
-        {
-            var configuration = _connection.GetConfiguration(connection);
+            var configuration = _connection.GetConfiguration(dataLocation.Connection);
             var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
 
             var safePath = Path.Combine(locationPath, path);
@@ -392,7 +373,7 @@ public class ContentController : ControllerBase
 
             return new JsonResult(new ContentModel(content));
         }
-        else if (connection == null)
+        else if (dataLocation?.Connection == null)
         {
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
             if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
@@ -404,8 +385,7 @@ public class ContentController : ControllerBase
 
             return new JsonResult(new ContentModel(content));
         }
-
-        throw new NotImplementedException($"Data location type '{connection?.ConnectionType}' has not been configured");
+        throw new NotImplementedException($"Data location type '{dataLocation?.Connection?.ConnectionType}' has not been configured");
     }
     #endregion
     #endregion

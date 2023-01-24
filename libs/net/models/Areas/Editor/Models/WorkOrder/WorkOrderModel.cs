@@ -1,3 +1,4 @@
+using System.Text.Json;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -25,11 +26,6 @@ public class WorkOrderModel : AuditColumnsModel
     public WorkOrderStatus Status { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to the content to work on.
-    /// </summary>
-    public long? ContentId { get; set; }
-
-    /// <summary>
     /// get/set - Foreign key to the user requested this work order.
     /// </summary>
     public int? RequestorId { get; set; }
@@ -48,6 +44,11 @@ public class WorkOrderModel : AuditColumnsModel
     /// get/set - Notes about the work order.
     /// </summary>
     public string Note { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The work order configuration.
+    /// </summary>
+    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -60,34 +61,17 @@ public class WorkOrderModel : AuditColumnsModel
     /// Creates a new instance of an WorkOrderModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public WorkOrderModel(Entities.WorkOrder entity) : base(entity)
+    /// <param name="options"></param>
+    public WorkOrderModel(Entities.WorkOrder entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
         this.WorkType = entity.WorkType;
         this.Status = entity.Status;
-        this.ContentId = entity.ContentId;
         this.RequestorId = entity.RequestorId;
         this.AssignedId = entity.AssignedId;
         this.Description = entity.Description;
         this.Note = entity.Note;
-    }
-
-    /// <summary>
-    /// Explicit cast to entity.
-    /// </summary>
-    /// <param name="model"></param>
-    public static explicit operator Entities.WorkOrder(WorkOrderModel model)
-    {
-        return new Entities.WorkOrder(model.WorkType, model.Description)
-        {
-            Id = model.Id,
-            Status = model.Status,
-            ContentId = model.ContentId,
-            AssignedId = model.AssignedId,
-            RequestorId = model.RequestorId,
-            Note = model.Note,
-            Version = model.Version ?? 0,
-        };
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
     }
     #endregion
 }

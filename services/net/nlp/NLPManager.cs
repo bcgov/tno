@@ -14,10 +14,10 @@ using TNO.Services.NLP.OpenNLP;
 namespace TNO.Services.NLP;
 
 /// <summary>
-/// NLPManager class, provides a common way to manager the actions this service performs.
+/// NlpManager class, provides a common way to manager the actions this service performs.
 /// Each time the manager is run it will execute NLP processes to extract data.
 /// </summary>
-public class NLPManager : ServiceManager<NLPOptions>
+public class NlpManager : ServiceManager<NLPOptions>
 {
     #region Variables
     private readonly EntityExtractor _extractor = new();
@@ -32,7 +32,7 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <summary>
     /// get - Kafka Listener object.
     /// </summary>
-    protected IKafkaListener<string, NLPRequest> Listener { get; private set; }
+    protected IKafkaListener<string, NlpRequestModel> Listener { get; private set; }
 
     /// <summary>
     /// get - Kafka message producer.
@@ -42,19 +42,19 @@ public class NLPManager : ServiceManager<NLPOptions>
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a NLPManager object, initializes with specified parameters.
+    /// Creates a new instance of a NlpManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="consumer"></param>
     /// <param name="producer"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public NLPManager(
-        IKafkaListener<string, NLPRequest> consumer,
+    public NlpManager(
+        IKafkaListener<string, NlpRequestModel> consumer,
         IKafkaMessenger producer,
         IApiService api,
         IOptions<NLPOptions> options,
-        ILogger<NLPManager> logger)
+        ILogger<NlpManager> logger)
         : base(api, options, logger)
     {
         this.Producer = producer;
@@ -192,7 +192,7 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, NLPRequest> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, NlpRequestModel> result)
     {
         try
         {
@@ -205,11 +205,11 @@ public class NLPManager : ServiceManager<NLPOptions>
             }
             else
             {
-                request.Content = await this.Api.FindContentByIdAsync(request.ContentId);
-                if (request.Content != null)
+                var content = await this.Api.FindContentByIdAsync(request.ContentId);
+                if (content != null)
                 {
                     await UpdateContentAsync(request);
-                    await SendIndexingRequest(request);
+                    await SendIndexingRequest(content);
                 }
                 else
                 {
@@ -242,51 +242,51 @@ public class NLPManager : ServiceManager<NLPOptions>
     }
 
     /// <summary>
-    /// Make a request to generate a transcription for the specified 'content'.
+    /// Make a request to parse text with natural language processing.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task UpdateContentAsync(NLPRequest request)
+    private async Task UpdateContentAsync(NlpRequestModel request)
     {
-        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
-
-        this.Logger.LogInformation("NLP requested.  Content ID: {Id}", request.Content.Id);
+        this.Logger.LogInformation("NLP requested.  Content ID: {Id}", request.ContentId);
         var hasWorkOrder = await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
-
 
         if (hasWorkOrder)
         {
-            var labels = await RequestNlpAsync(request); // TODO: Extract language from data source.
-
             // Fetch content again because it may have been updated by an external source.
             // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-            var result = await this.Api.FindContentByIdAsync(request.Content.Id);
-            if (result != null && labels.Any())
+            var content = await this.Api.FindContentByIdAsync(request.ContentId);
+
+            if (content != null)
             {
-                // Only add new labels.
-                var originalLabels = new List<ContentLabelModel>(result.Labels);
-                foreach (var label in labels)
+                var labels = await ExtractEntitiesAsync(content); // TODO: Extract language from data source.
+                if (labels.Any())
                 {
-                    var original = result.Labels.FirstOrDefault(l => l.Key == label.Key && l.Value == label.Value);
-                    if (original == null) originalLabels.Add(label);
+                    // Only add new labels.
+                    var originalLabels = new List<ContentLabelModel>(content.Labels);
+                    foreach (var label in labels)
+                    {
+                        var original = content.Labels.FirstOrDefault(l => l.Key == label.Key && l.Value == label.Value);
+                        if (original == null) originalLabels.Add(label);
+                    }
+                    content.Labels = originalLabels.ToArray();
+
+                    await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
+                    this.Logger.LogInformation("Labels updated.  Content ID: {Id}", request.ContentId);
+
+                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
                 }
-                result.Labels = originalLabels.ToArray();
-
-                await this.Api.UpdateContentAsync(result); // TODO: This can result in an editor getting a optimistic concurrency error.
-                this.Logger.LogInformation("Labels updated.  Content ID: {Id}", request.Content.Id);
-
-                await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
-            }
-            else if (!labels.Any())
-            {
-                this.Logger.LogWarning("Content did not generate a labels. Content ID: {Id}", request.Content.Id);
-                await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
+                else if (!labels.Any())
+                {
+                    this.Logger.LogWarning("Content did not generate a labels. Content ID: {Id}", request.ContentId);
+                    await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
+                }
             }
             else
             {
                 // The content is no longer available for some reason.
-                this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.Content.Id);
+                this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.ContentId);
                 await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
             }
         }
@@ -302,15 +302,15 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <param name="request"></param>
     /// <param name="status"></param>
     /// <returns>Whether a work order exists or is not required.</returns>
-    private async Task<bool> UpdateWorkOrderAsync(NLPRequest request, WorkOrderStatus status)
+    private async Task<bool> UpdateWorkOrderAsync(NlpRequestModel request, WorkOrderStatus status)
     {
         if (request.WorkOrderId > 0)
         {
-            request.WorkOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
-            if (request.WorkOrder != null && !_ignoreWorkOrders.Contains(request.WorkOrder.Status))
+            var workOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
+            if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
             {
-                request.WorkOrder.Status = status;
-                request.WorkOrder = await this.Api.UpdateWorkOrderAsync(request.WorkOrder);
+                workOrder.Status = status;
+                await this.Api.UpdateWorkOrderAsync(workOrder);
                 return true;
             }
         }
@@ -320,22 +320,18 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <summary>
     /// Make a request to OpenNLP models to extract information from content.
     /// </summary>
-    /// <param name="request"></param>
-    /// <param name="language"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private Task<ContentLabelModel[]> RequestNlpAsync(NLPRequest request)
+    private Task<ContentLabelModel[]> ExtractEntitiesAsync(ContentModel content)
     {
-        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
-
         var labels = new List<ContentLabelModel>();
-
-        labels.AddRange(ExtractEntity(request.Content, EntityType.Person));
-        labels.AddRange(ExtractEntity(request.Content, EntityType.Organization));
-        labels.AddRange(ExtractEntity(request.Content, EntityType.Location));
-        labels.AddRange(ExtractEntity(request.Content, EntityType.Date));
-        labels.AddRange(ExtractEntity(request.Content, EntityType.Time));
-        labels.AddRange(ExtractEntity(request.Content, EntityType.Money));
+        labels.AddRange(ExtractEntity(content, EntityType.Person));
+        labels.AddRange(ExtractEntity(content, EntityType.Organization));
+        labels.AddRange(ExtractEntity(content, EntityType.Location));
+        labels.AddRange(ExtractEntity(content, EntityType.Date));
+        labels.AddRange(ExtractEntity(content, EntityType.Time));
+        labels.AddRange(ExtractEntity(content, EntityType.Money));
 
         return Task.FromResult(labels.ToArray());
     }
@@ -363,23 +359,21 @@ public class NLPManager : ServiceManager<NLPOptions>
     /// <summary>
     /// Send a request to Kafka to update the indexes in Elasticsearch.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task SendIndexingRequest(NLPRequest request)
+    private async Task SendIndexingRequest(ContentModel content)
     {
-        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
-
         if (!String.IsNullOrWhiteSpace(this.Options.IndexingTopic))
         {
-            var result = await this.Producer.SendMessageAsync(this.Options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Index));
-            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {request.Content.Id}");
+            var result = await this.Producer.SendMessageAsync(this.Options.IndexingTopic, new IndexRequestModel(content, IndexAction.Index));
+            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {content.Id}");
 
-            if (request.Content.Status == ContentStatus.Published)
+            if (content.Status == ContentStatus.Published)
             {
-                result = await this.Producer.SendMessageAsync(this.Options.IndexingTopic, new IndexRequest(request.Content, IndexAction.Publish));
-                if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {request.Content.Id}");
+                result = await this.Producer.SendMessageAsync(this.Options.IndexingTopic, new IndexRequestModel(content, IndexAction.Publish));
+                if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting an indexing request.  ContentId: {content.Id}");
             }
         }
     }

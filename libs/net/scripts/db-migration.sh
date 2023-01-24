@@ -16,7 +16,7 @@ l1=$(($fl1 + 2));
 sed -i "${l1}i\ \ \ \ \ \ \ \ \ \ \ \ PreUp(migrationBuilder);" $FILE1;
 
 fl=$(grep -n "protected override void Down(MigrationBuilder migrationBuilder)" $FILE1 | head -n 1 | cut -d: -f1);
-l2=$(($fl - 2));
+l2=$(($fl - 3));
 sed -i "${l2}i\ \ \ \ \ \ \ \ \ \ \ \ PostUp(migrationBuilder);" $FILE1;
 
 l3=$(($fl + 3));

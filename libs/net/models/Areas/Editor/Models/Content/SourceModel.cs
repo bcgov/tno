@@ -98,7 +98,7 @@ public class SourceModel : BaseTypeModel<int>
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
-            Configuration = JsonSerializer.Serialize(model.Configuration)
+            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration))
         };
     }
     #endregion

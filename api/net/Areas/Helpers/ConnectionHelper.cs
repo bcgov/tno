@@ -36,14 +36,13 @@ public class ConnectionHelper : IConnectionHelper
 
     #region Methods
     /// <summary>
-    /// Get the connection for the specified data location.
+    /// Get the data location for the specified 'id'.
     /// </summary>
-    /// <param name="locationId"></param>
+    /// <param name="id"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public Connection? GetConnection(int locationId)
+    public DataLocation? GetDataLocation(int id)
     {
-        return _dataLocationService.FindById(locationId)?.Connection;
+        return _dataLocationService.FindById(id);
     }
 
     /// <summary>
@@ -52,9 +51,9 @@ public class ConnectionHelper : IConnectionHelper
     /// <param name="location"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public Connection? GetConnection(string location)
+    public DataLocation? GetDataLocation(string location)
     {
-        return _dataLocationService.FindByName(HttpUtility.UrlDecode(location))?.Connection;
+        return _dataLocationService.FindByName(HttpUtility.UrlDecode(location));
     }
 
     /// <summary>

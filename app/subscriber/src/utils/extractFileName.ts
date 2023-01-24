@@ -1,15 +1,11 @@
-import { AxiosResponseHeaders } from 'axios';
+import { AxiosResponseHeaders, RawAxiosResponseHeaders } from 'axios';
 
 /**
  * Extract the filename from the Content-Disposition header.
  * @param headers Axios headers.
  * @returns filename or undefined.
  */
-export const extractFileName = (
-  headers:
-    | AxiosResponseHeaders
-    | Partial<Record<string, string> & { 'set-cookie'?: string[] | undefined }>,
-) => {
+export const extractFileName = (headers: RawAxiosResponseHeaders | AxiosResponseHeaders) => {
   var disposition = headers['content-disposition'];
   if (disposition && disposition.indexOf('attachment') !== -1) {
     var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;

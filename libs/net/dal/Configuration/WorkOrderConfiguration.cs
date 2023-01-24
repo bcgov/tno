@@ -13,13 +13,12 @@ public class WorkOrderConfiguration : AuditColumnsConfiguration<WorkOrder>
         builder.Property(m => m.Status).IsRequired();
         builder.Property(m => m.WorkType).IsRequired();
 
-        builder.Property(m => m.ContentId);
         builder.Property(m => m.RequestorId);
         builder.Property(m => m.AssignedId);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(500);
         builder.Property(m => m.Note).IsRequired().HasColumnType("text");
+        builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
-        builder.HasOne(m => m.Content).WithMany(m => m.WorkOrders).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.Requestor).WithMany(m => m.WorkOrderRequests).HasForeignKey(m => m.RequestorId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.Assigned).WithMany(m => m.WorkOrdersAssigned).HasForeignKey(m => m.AssignedId).OnDelete(DeleteBehavior.Restrict);
 

@@ -360,6 +360,42 @@
         "${workspaceFolder}/filemonitor/TNO.Services.FileMonitor.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-filecopy",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/filecopy/TNO.Services.FileCopy.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-filecopy",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/filecopy/TNO.Services.FileCopy.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-filecopy",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/filecopy/TNO.Services.FileCopy.csproj"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

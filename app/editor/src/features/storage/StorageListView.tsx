@@ -1,27 +1,22 @@
-import { FormikForm } from 'components/formik';
-import { ContentClipForm } from 'features/content';
-import { defaultFormValues } from 'features/content/form/constants';
-import { IContentForm } from 'features/content/form/interfaces';
-import { ContentTypeName, useCombinedView, useTooltips } from 'hooks';
+import { useQuery, useTooltips } from 'hooks';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
-import * as styled from './styled';
+import { FileManager } from '.';
 
 export const StorageListView: React.FC = (props) => {
-  const [, setClipErrors] = React.useState<string>('');
-  const { formType } = useCombinedView(ContentTypeName.Snippet);
-  const [contentType] = React.useState(formType ?? ContentTypeName.Snippet);
-  const [form, setForm] = React.useState<IContentForm>({
-    ...defaultFormValues(contentType),
-  });
-
+  const { id } = useParams();
+  const query = useQuery();
   useTooltips();
 
+  const [, setClipErrors] = React.useState<string>('');
+
   return (
-    <styled.StorageListView>
-      <FormikForm onSubmit={() => {}} initialValues={form}>
-        <ContentClipForm content={form} setContent={setForm} setClipErrors={setClipErrors} />
-      </FormikForm>
-    </styled.StorageListView>
+    <FileManager
+      setClipErrors={setClipErrors}
+      locationId={parseInt(id ?? '1')}
+      showLocations={true}
+      path={query.get('path') ?? ''}
+    />
   );
 };

@@ -61,7 +61,7 @@ export const WorkOrderForm: React.FC = () => {
         : await api.updateWorkOrder(values);
       setWorkOrder(result);
       toast.success(`Work order has successfully been saved.`);
-      if (!originalId) navigate(`/admin/work/orders/${result.id}`);
+      if (!originalId) navigate(`/work/orders/${result.id}`);
     } catch {}
   };
 
@@ -75,7 +75,7 @@ export const WorkOrderForm: React.FC = () => {
         iconType="back"
         label="Back to WorkOrders"
         className="back-button"
-        onClick={() => navigate('/admin/work/orders')}
+        onClick={() => navigate('/work/orders')}
       />
       <FormikForm
         initialValues={workOrder}
@@ -113,13 +113,13 @@ export const WorkOrderForm: React.FC = () => {
                 <FormikTextArea name="note" label="Note" />
               </Col>
             </Row>
-            <Show visible={!!values.contentId}>
+            <Show visible={!!values.configuration.contentId}>
               <Row>
                 <Col flex="1 1 0">
                   <FormikText name="content.headline" label="Content Headline" disabled>
                     <Button
                       variant={ButtonVariant.secondary}
-                      onClick={() => goToContent(values.contentId!)}
+                      onClick={() => goToContent(values.configuration.contentId!)}
                     >
                       Go
                     </Button>
@@ -180,7 +180,7 @@ export const WorkOrderForm: React.FC = () => {
                 try {
                   await api.deleteWorkOrder(workOrder);
                   toast.success(`Work order has successfully been deleted.`);
-                  navigate('/admin/work/orders');
+                  navigate('/work/orders');
                 } finally {
                   toggle();
                 }

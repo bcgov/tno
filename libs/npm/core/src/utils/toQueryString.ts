@@ -19,7 +19,7 @@ export const toQueryString = (
 ) => {
   const { includeUndefined = false, includeEmpty = true } = options;
   if (params === undefined || params === null) return '';
-  const values = [];
+  const values: string[] = [];
   for (var key in params) {
     const paramKey = key;
     if (params.hasOwnProperty(paramKey)) {

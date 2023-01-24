@@ -6,4 +6,5 @@ export const defaultWorkOrder: IWorkOrderModel = {
   workType: WorkOrderTypeName.Transcription,
   status: WorkOrderStatusName.Submitted,
   note: '',
+  configuration: {},
 };

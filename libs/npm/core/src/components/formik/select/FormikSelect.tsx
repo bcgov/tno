@@ -21,7 +21,6 @@ export const FormikSelect = <OptionType extends IOptionItem>({
   isDisabled,
   options,
   onChange,
-  onClear,
   clearValue = undefined,
   ...rest
 }: IFormikSelectProps<OptionType>) => {
@@ -45,10 +44,7 @@ export const FormikSelect = <OptionType extends IOptionItem>({
           if (onChange) onChange(newValue, actionMeta);
         }}
         onBlur={handleBlur}
-        onClear={() => {
-          setFieldValue(name, Array.isArray(value) ? [] : clearValue);
-          onClear?.();
-        }}
+        clearValue={Array.isArray(value) ? [] : clearValue}
         isDisabled={isDisabled || isSubmitting}
         error={error}
         {...rest}

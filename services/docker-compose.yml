@@ -248,3 +248,31 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  filecopy:
+    image: tno:filecopy
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-filecopy
+    build:
+      context: ./
+      dockerfile: services/net/filecopy/Dockerfile
+    env_file:
+      - services/net/filecopy/.env
+    ports:
+      - ${FILECOPY_PORT:-40029}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s

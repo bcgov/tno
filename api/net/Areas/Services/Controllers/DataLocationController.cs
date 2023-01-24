@@ -47,6 +47,22 @@ public class DataLocationController : ControllerBase
 
     #region Endpoints
     /// <summary>
+    /// Find a data location for the specified 'id'.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("{id:int}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(DataLocationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "DataLocation" })]
+    public IActionResult FindById(int id)
+    {
+        var result = _serviceDataLocation.FindById(id);
+        if (result == null) return new NoContentResult();
+        return new JsonResult(new DataLocationModel(result, _serializerOptions));
+    }
+
+    /// <summary>
     /// Find a data location for the specified 'name'.
     /// </summary>
     /// <returns></returns>

@@ -82,7 +82,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     { content: page },
     { getContent, addContent, updateContent, deleteContent, upload, attach },
   ] = useContent();
-  const [, { transcribe, nlp }] = useWorkOrders();
+  const [, { findWorkOrders, transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
@@ -127,18 +127,22 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   const fetchContent = React.useCallback(
     (id: number) => {
-      getContent(id).then((data) => {
-        setForm(toForm(data));
-        // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
-        setContentType(data.contentType);
+      getContent(id).then((content) => {
+        setForm(toForm(content));
+        findWorkOrders({ contentId: id }).then((res) => {
+          setForm({ ...toForm(content), workOrders: res.data.items });
+          // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
+        });
+        setContentType(content.contentType);
       });
     },
-    [getContent],
+    [getContent, findWorkOrders],
   );
 
   const onWorkOrder = React.useCallback(
     (workOrder: IWorkOrderModel) => {
-      if (!!id && +id === workOrder.contentId) fetchContent(workOrder.contentId);
+      if (!!id && +id === workOrder.configuration.contentId)
+        fetchContent(workOrder.configuration.contentId);
     },
     [fetchContent, id],
   );
@@ -190,7 +194,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       } else {
         result = toForm({ ...contentResult, tonePools: values.tonePools });
       }
-      setForm(result);
+      setForm({ ...result, workOrders: form.workOrders });
 
       toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
@@ -213,7 +217,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       // If the upload fails, we still need to update the form from the original update.
       if (!!contentResult) {
         result = toForm(contentResult);
-        setForm(result);
+        setForm({ ...result, workOrders: form.workOrders });
         if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
       }
     }
@@ -408,16 +412,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         <Col>
                           <Row>
                             <FormikSelect
-                              name="productId"
-                              value={
-                                productOptions.find((mt) => mt.value === props.values.productId) ??
-                                ''
-                              }
-                              label="Designation"
-                              options={filterEnabled(productOptions, props.values.productId)}
-                              required
-                            />
-                            <FormikSelect
                               name="sourceId"
                               label="Source"
                               width={FieldSize.Big}
@@ -453,7 +447,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 productOptions.find((mt) => mt.value === props.values.productId) ??
                                 ''
                               }
-                              label="Designation"
+                              label="Product"
                               options={productOptions}
                               required
                             />

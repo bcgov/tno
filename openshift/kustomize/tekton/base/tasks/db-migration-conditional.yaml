@@ -64,14 +64,14 @@ spec:
         fi
 
         # Check if this image needs to be built.
-        if [ "BUILD_DB" = true ]; then
+        if [ ${BUILD_DB} = true ]; then
           echo "Fetching connection information"
 
           PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
           IMAGE=image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.IMAGE):$(params.IMAGE_TAG)
           CONNECTION_STRING=$(oc -n $PROJECT get configmap $(params.API_NAME) -o jsonpath='{.data.CONNECTION_STRING}')
           DB_USERNAME=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.user}' | base64 -d)
-          DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.password}' | base64 -d)
+          # DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.password}' | base64 -d)
 
           echo "Running database migration in $PROJECT"
           oc run $(params.IMAGE) \

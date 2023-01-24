@@ -45,7 +45,7 @@ export function toForm(model: IContentModel): IContentForm {
     timeTrackings: model.timeTrackings ?? [],
     fileReferences: model.fileReferences ?? [],
     links: model.links ?? [],
-    workOrders: model.workOrders ?? [],
+    workOrders: [],
     // Print Content
     section: model.printContent?.section ?? '',
     edition: model.printContent?.edition ?? '',

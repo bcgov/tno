@@ -132,7 +132,7 @@ spec:
                   name: azure-cognitive-services
                   key: AZURE_COGNITIVE_SERVICES_KEY
 
-            # Indexing Service Configuration
+            # Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:

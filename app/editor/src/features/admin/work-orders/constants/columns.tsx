@@ -15,9 +15,9 @@ export const columns: (Column<IWorkOrderModel> &
   },
   {
     Header: 'Content',
-    accessor: 'content',
+    accessor: 'configuration',
     width: 4,
-    Cell: ({ value }) => <CellEllipsis>{value?.headline}</CellEllipsis>,
+    Cell: ({ value }) => <CellEllipsis>{value?.contentId}</CellEllipsis>,
   },
   {
     Header: 'Submitted',

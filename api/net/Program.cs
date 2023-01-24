@@ -207,6 +207,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services
+    .Configure<ApiOptions>(config.GetSection("API"))
     .AddScoped<IConnectionHelper, ConnectionHelper>()
     .AddTNOServices(config, env)
     .AddKafkaMessenger(config)

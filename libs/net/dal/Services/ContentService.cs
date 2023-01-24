@@ -168,7 +168,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.TimeTrackings)
             .Include(c => c.FileReferences)
             .Include(c => c.Links)
-            .Include(c => c.WorkOrders)
             .FirstOrDefault(c => c.Id == id);
     }
 

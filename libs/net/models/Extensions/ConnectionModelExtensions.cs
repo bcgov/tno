@@ -1,6 +1,7 @@
 using System.Text.Json;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 
 namespace TNO.Models.Extensions;
 
@@ -80,12 +81,12 @@ public static class ConnectionModelExtensions
             {
                 JsonValueKind.String => (T)Convert.ChangeType($"{element.GetString()}".Trim(), typeof(T)),
                 JsonValueKind.Null or JsonValueKind.Undefined => default,
-                JsonValueKind.Number => (T)Convert.ChangeType($"{element.GetInt32()}", typeof(T)),
+                JsonValueKind.Number => element.GetInt64().ChangeType<T>(), // TODO: Handle different number types.
                 JsonValueKind.True or JsonValueKind.False => (T)Convert.ChangeType($"{element.GetBoolean()}", typeof(T)),
                 _ => (T)Convert.ChangeType($"{element}", typeof(T)),
             };
         }
 
-        throw new ConfigurationException($"Connection configuration '{key}' is not a valid JSON element");
+        throw new ConfigurationException($"Dictionary key '{key}' is not a valid JSON element");
     }
 }

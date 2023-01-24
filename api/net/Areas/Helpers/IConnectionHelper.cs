@@ -12,16 +12,16 @@ public interface IConnectionHelper
     /// <summary>
     ///
     /// </summary>
-    /// <param name="locationId"></param>
+    /// <param name="id"></param>
     /// <returns></returns>
-    Connection? GetConnection(int locationId);
+    DataLocation? GetDataLocation(int id);
 
     /// <summary>
     ///
     /// </summary>
     /// <param name="location"></param>
     /// <returns></returns>
-    Connection? GetConnection(string location);
+    DataLocation? GetDataLocation(string location);
 
     /// <summary>
     ///

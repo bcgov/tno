@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 using TNO.Entities.Validation;
 
@@ -106,7 +107,7 @@ public class Ingest : AuditColumns
     /// get/set - Configuration settings.
     /// </summary>
     [Column("configuration")]
-    public string Configuration { get; set; } = "{}";
+    public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - Maximum number of failures before stopping.

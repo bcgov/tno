@@ -1,18 +1,20 @@
 import React from 'react';
 import { FaAngleDown } from 'react-icons/fa';
-import { Col, IOptionItem, Row, Show } from 'tno-core';
+import { Col, IOptionItem, IRowProps, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
 interface IToggleOption {
+  id?: string | number;
   label: string;
   dropDownOptions?: IOptionItem[];
   onClick?: (value?: number) => void;
 }
-export interface IToggleGroupProps {
+
+export interface IToggleGroupProps extends IRowProps {
   label?: string;
   options: IToggleOption[];
-  defaultSelected?: string;
+  defaultSelected?: string | number;
   disabled?: boolean;
 }
 
@@ -26,20 +28,18 @@ export interface IToggleGroupProps {
 export const ToggleGroup: React.FC<IToggleGroupProps> = ({
   label,
   options,
-  defaultSelected,
+  defaultSelected = '',
   disabled,
+  ...rest
 }) => {
-  const [activeToggle, setActiveToggle] = React.useState(defaultSelected?.toLowerCase() ?? '');
-  const [showDropDown, setShowDropDown] = React.useState(false);
-
-  const onDropDownClick = () => {
-    setShowDropDown(!showDropDown);
-  };
   const ref = React.useRef<HTMLDivElement>(null);
+
+  const [activeToggle, setActiveToggle] = React.useState(defaultSelected);
+  const [showDropDown, setShowDropDown] = React.useState(false);
 
   // ensure default selected gets reset when new content is loaded
   React.useEffect(() => {
-    if (defaultSelected) setActiveToggle(defaultSelected?.toLowerCase());
+    if (defaultSelected) setActiveToggle(defaultSelected);
     if (disabled) setActiveToggle('');
   }, [defaultSelected, disabled]);
 
@@ -57,17 +57,17 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
   }, [showDropDown]);
 
   return (
-    <styled.ToggleGroup>
+    <styled.ToggleGroup {...rest}>
       {label && <label>{label}</label>}
-      {options?.map((option, index) => (
+      {options?.map((option) => (
         <button
-          key={option.label}
+          key={option.id ?? option.label}
           disabled={disabled}
-          className={`toggle-item ${activeToggle === option.label.toLowerCase() ? 'active' : ''}`}
+          className={`toggle-item ${activeToggle === (option.id ?? option.label) ? 'active' : ''}`}
           type="button"
           onClick={() => {
-            setActiveToggle(option.label.toLowerCase());
-            !!option.dropDownOptions && onDropDownClick();
+            setActiveToggle(option.id ?? option.label);
+            setShowDropDown(!showDropDown);
             option.onClick?.();
           }}
         >
@@ -84,7 +84,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
                       key={x.value}
                       className="dd-item"
                       onClick={() => {
-                        option.onClick && typeof x.value === 'number' && option.onClick(x.value);
+                        if (typeof x.value === 'number') option.onClick?.(x.value);
                         setShowDropDown(false);
                       }}
                     >

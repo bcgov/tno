@@ -1,6 +1,7 @@
 namespace TNO.Test.Entities;
 
 using System.Diagnostics.CodeAnalysis;
+using TNO.Core.Extensions;
 using TNO.Entities;
 
 [Trait("category", "unit")]
@@ -13,7 +14,7 @@ public class ConnectionTest
     {
         // Arrange
         // Act
-        var item = new TNO.Entities.Connection("test");
+        var item = new Connection("test");
 
         // Assert
         Assert.Equal(0, item.Id);
@@ -23,7 +24,7 @@ public class ConnectionTest
         Assert.Equal(0, item.SortOrder);
 
         Assert.Equal(ConnectionType.LocalVolume, item.ConnectionType);
-        Assert.Equal("{}", item.Configuration);
+        Assert.Equal("{}", item.Configuration.ToJson());
 
         Assert.Equal("", item.CreatedBy);
         Assert.Equal(DateTime.MinValue, item.CreatedOn);

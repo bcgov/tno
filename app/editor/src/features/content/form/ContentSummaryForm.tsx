@@ -4,6 +4,7 @@ import { Wysiwyg } from 'components/form';
 import { ToningGroup } from 'components/form/toning/ToningGroup';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
+import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import { useCombinedView } from 'hooks';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
@@ -31,7 +32,7 @@ import {
 } from 'tno-core';
 import { getSortableOptions } from 'utils';
 
-import { IContentForm, IStream } from './interfaces';
+import { IContentForm } from './interfaces';
 import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
 import { getTotalTime } from './utils';
@@ -78,7 +79,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         size: fileReference.size,
       } as IFile)
     : undefined;
-  const [stream, setStream] = React.useState<IStream>();
+  const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {

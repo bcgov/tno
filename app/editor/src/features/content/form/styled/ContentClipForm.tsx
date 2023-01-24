@@ -31,15 +31,6 @@ export const ContentClipForm = styled.div`
     }
   }
 
-  .create-clip {
-    margin-top: 35px;
-  }
-
-  .start-end {
-    margin-left: 4px;
-    font-weight: bold;
-  }
-
   .navigate {
     cursor: pointer;
     text-decoration: underline;

@@ -49,7 +49,11 @@ spec:
       mountPath: /data
   steps:
     - name: build
-      image: buildah:latest
+      image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/buildah:latest
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
       workingDir: $(workspaces.source.path)
       env:
         - name: IMAGE_REGISTRY_USER

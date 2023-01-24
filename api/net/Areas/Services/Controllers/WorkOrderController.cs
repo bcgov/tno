@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.API.Models;
@@ -30,6 +32,7 @@ public class WorkOrderController : ControllerBase
     #region Variables
     private readonly IWorkOrderService _service;
     private readonly IHubContext<WorkOrderHub> _hub;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -38,10 +41,12 @@ public class WorkOrderController : ControllerBase
     /// </summary>
     /// <param name="service"></param>
     /// <param name="hub"></param>
-    public WorkOrderController(IWorkOrderService service, IHubContext<WorkOrderHub> hub)
+    /// <param name="serializerOptions"></param>
+    public WorkOrderController(IWorkOrderService service, IHubContext<WorkOrderHub> hub, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
         _hub = hub;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -62,7 +67,7 @@ public class WorkOrderController : ControllerBase
         if (result == null)
             return NoContent();
 
-        return new JsonResult(new WorkOrderModel(result));
+        return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -80,9 +85,9 @@ public class WorkOrderController : ControllerBase
         var entity = _service.FindById(workOrder.Id);
         if (entity == null) throw new InvalidOperationException("Work order does not exist");
 
-        _service.UpdateAndSave(workOrder.UpdateEntity(entity));
-        await _hub.Clients.All.SendAsync("WorkOrder", workOrder);
-        return new JsonResult(new WorkOrderModel(entity));
+        var result = _service.UpdateAndSave(workOrder.CopyTo(entity, _serializerOptions));
+        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderModel(result, _serializerOptions));
+        return new JsonResult(new WorkOrderModel(entity, _serializerOptions));
     }
     #endregion
 }
