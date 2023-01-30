@@ -72,20 +72,31 @@ export const Pager: React.FC<IPagerProps> = ({
   let [searchParams, setSearchParams] = useSearchParams(query);
 
   React.useEffect(() => {
-    const qty = searchParams.get(QTY);
-    if (!!qty && qty !== pageSize.toString()) {
-      setPageSize(parseInt(qty));
+    if (manualPageSize) {
+      const qty = searchParams.get(QTY);
+      const cachedQty = localStorage.getItem(QTY);
+
+      if (!!qty && qty !== pageSize.toString()) {
+        setPageSize(parseInt(qty));
+      }
+
+      if (!qty && !!cachedQty && cachedQty !== pageSize.toString()) {
+        setPageSize(parseInt(cachedQty));
+        setSearchParams({ ...searchParams, qty: cachedQty });
+      }
     }
     // Extract quantity from URL or cookie the first time loading.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
-    const qty = searchParams.get(QTY);
-    if (!!qty) {
-      if (pageSize !== parseInt(qty)) setPageSize(parseInt(qty));
+    if (manualPageSize) {
+      const qty = searchParams.get(QTY);
+      if (!!qty) {
+        if (pageSize !== parseInt(qty)) setPageSize(parseInt(qty));
+      }
     }
-  }, [pageSize, searchParams, setPageSize]);
+  }, [manualPageSize, pageSize, searchParams, setPageSize]);
 
   const rows = React.useCallback(() => {
     // TODO: Handle dynamic pageLimit.  Calculate center.
@@ -170,10 +181,12 @@ export const Pager: React.FC<IPagerProps> = ({
             onChange={(e) => {
               if (Number(e.target.value) > 100) {
                 setSearchParams({ ...searchParams, qty: e.target.value });
+                localStorage.setItem('qty', e.target.value);
                 setPageSize(100);
               }
               if (!!Number(e.target.value)) {
                 setSearchParams({ ...searchParams, qty: e.target.value });
+                localStorage.setItem('qty', e.target.value);
                 setPageSize(Number(e.target.value));
               }
             }}
