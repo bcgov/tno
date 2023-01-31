@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Models;
@@ -27,6 +29,7 @@ public class SourceController : ControllerBase
 {
     #region Variables
     private readonly ISourceService _serviceSource;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -34,9 +37,11 @@ public class SourceController : ControllerBase
     /// Creates a new instance of a SourceController object, initializes with specified parameters.
     /// </summary>
     /// <param name="serviceSource"></param>
-    public SourceController(ISourceService serviceSource)
+    /// <param name="serializerOptions"></param>
+    public SourceController(ISourceService serviceSource, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _serviceSource = serviceSource;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -54,7 +59,7 @@ public class SourceController : ControllerBase
     {
         var result = _serviceSource.FindByCode(code);
         if (result == null) return new NoContentResult();
-        return new JsonResult(new SourceModel(result));
+        return new JsonResult(new SourceModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -68,7 +73,7 @@ public class SourceController : ControllerBase
     public IActionResult GetSources()
     {
         var result = _serviceSource.FindAll();
-        return new JsonResult(result.Select(ds => new SourceModel(ds)));
+        return new JsonResult(result.Select(ds => new SourceModel(ds, _serializerOptions)));
     }
     #endregion
 }

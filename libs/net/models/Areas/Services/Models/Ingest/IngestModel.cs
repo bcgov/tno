@@ -148,7 +148,7 @@ public class IngestModel : AuditColumnsModel
         this.IngestTypeId = entity.IngestTypeId;
         this.IngestType = entity.IngestType != null ? new IngestTypeModel(entity.IngestType) : null;
         this.SourceId = entity.SourceId;
-        this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
+        this.Source = entity.Source != null ? new SourceModel(entity.Source, options) : null;
         this.ScheduleType = entity.ScheduleType;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
         this.LastRanOn = entity.State?.LastRanOn;

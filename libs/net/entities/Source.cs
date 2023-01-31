@@ -69,6 +69,12 @@ public class Source : BaseType<int>
     public bool DisableTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - Configuration settings.
+    /// </summary>
+    [Column("configuration")]
+    public string Configuration { get; set; } = "{}";
+
+    /// <summary>
     /// get - List of content linked to this source.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();

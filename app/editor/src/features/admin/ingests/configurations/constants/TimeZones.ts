@@ -1,6 +1,7 @@
 import { OptionItem } from 'tno-core';
 
 export const TimeZones = [
+  new OptionItem('None', undefined),
   new OptionItem('(UTC-12:00) International Date Line West', 'Dateline Standard Time'),
   new OptionItem('(UTC-11:00) Coordinated Universal Time-11', 'UTC-11'),
   new OptionItem('(UTC-10:00) Aleutian Islands', 'Aleutian Standard Time'),

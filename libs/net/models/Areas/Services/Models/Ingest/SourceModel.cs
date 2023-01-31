@@ -1,4 +1,5 @@
 using TNO.API.Models;
+using System.Text.Json;
 
 namespace TNO.API.Areas.Services.Models.Ingest;
 
@@ -67,6 +68,11 @@ public class SourceModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public bool DisableTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -79,7 +85,7 @@ public class SourceModel : AuditColumnsModel
     /// Creates a new instance of an SourceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public SourceModel(Entities.Source entity) : base(entity)
+    public SourceModel(Entities.Source entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
         this.Code = entity.Code;
@@ -93,6 +99,7 @@ public class SourceModel : AuditColumnsModel
         this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
     }
     #endregion
 
@@ -104,6 +111,7 @@ public class SourceModel : AuditColumnsModel
     public Entities.Source ToEntity()
     {
         var entity = (Entities.Source)this;
+        entity.Configuration = JsonSerializer.Serialize(this.Configuration);
         return entity;
     }
 
@@ -123,6 +131,7 @@ public class SourceModel : AuditColumnsModel
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
+            Configuration = JsonSerializer.Serialize(model.Configuration),
             Version = model.Version ?? 0
         };
 

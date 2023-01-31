@@ -1,5 +1,6 @@
 using TNO.API.Areas.Admin.Models.Product;
 using TNO.API.Models;
+using System.Text.Json;
 
 namespace TNO.API.Areas.Admin.Models.Source;
 
@@ -77,6 +78,11 @@ public class SourceModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public IEnumerable<SourceSourceActionModel> Actions { get; set; } = Array.Empty<SourceSourceActionModel>();
 
     /// <summary>
@@ -95,7 +101,8 @@ public class SourceModel : AuditColumnsModel
     /// Creates a new instance of an SourceModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
-    public SourceModel(Entities.Source entity) : base(entity)
+    /// <param name="options"></param>
+    public SourceModel(Entities.Source entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
         this.Code = entity.Code;
@@ -110,6 +117,7 @@ public class SourceModel : AuditColumnsModel
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
+        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
 
         this.Actions = entity.ActionsManyToMany.Select(a => new SourceSourceActionModel(a));
         this.Metrics = entity.MetricsManyToMany.Select(m => new SourceMetricModel(m));
@@ -121,9 +129,10 @@ public class SourceModel : AuditColumnsModel
     /// Creates a new instance of a Source object.
     /// </summary>
     /// <returns></returns>
-    public Entities.Source ToEntity()
+    public Entities.Source ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Source)this;
+        entity.Configuration = JsonSerializer.Serialize(this.Configuration, options);
         return entity;
     }
 
@@ -143,6 +152,7 @@ public class SourceModel : AuditColumnsModel
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
+            Configuration = JsonSerializer.Serialize(model.Configuration),
             Version = model.Version ?? 0
         };
 

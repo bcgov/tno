@@ -8,6 +8,7 @@ import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea, OptionItem } 
 import { Col } from 'tno-core/dist/components/flex';
 import { getSortableOptions, getUserOptions } from 'utils';
 
+import { TimeZones } from '../ingests/configurations/constants';
 import { SourceActions } from '.';
 import * as styled from './styled';
 
@@ -15,6 +16,7 @@ interface ISourceDetailsProps {}
 
 export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
   const { values, setFieldValue } = useFormikContext<ISourceModel>();
+  const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const [lookups] = useLookup();
   useTooltips();
 
@@ -71,6 +73,13 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           name="productId"
           tooltip="The product designation the source content will be assigned (overrides the value in the ingest)"
           options={products}
+        />
+        <FormikSelect
+          label="Timezone Override"
+          name="configuration.timeZone"
+          tooltip="Timezone of the source (overrides the value in the ingest)"
+          options={TimeZones}
+          value={timeZone}
         />
       </Col>
       <Col>
