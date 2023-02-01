@@ -2,8 +2,15 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const ToolBarSection = styled(Col)`
+@media screen and (max-width: 1847px) {
+  padding: 0.2em;
+}
+
+@media screen and (min-width: 1847px) {
   padding: 0.5em;
+}
   min-height: 7.25em;
+  z-index: 100;
   .title-container {
     font-weight: 600;
     font-size: 1.25em;
