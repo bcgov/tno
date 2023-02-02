@@ -1,10 +1,11 @@
-import { ContentTypeName } from 'hooks';
 import { OptionItem } from 'tno-core';
 
+import { ShowOnlyValues } from './ShowOnlyValues';
+
 export const showOnlyOptions = [
-  new OptionItem('Print Content', ContentTypeName.PrintContent),
-  new OptionItem('Included in EoD', 'true'),
-  new OptionItem('On Ticker', 'On Ticker'),
-  new OptionItem('Commentary', 'Commentary'),
-  new OptionItem('Top Story', 'Top Story'),
+  new OptionItem('Print Content', ShowOnlyValues.PrintContent),
+  new OptionItem('Included in EoD', ShowOnlyValues.IncludedInEod),
+  new OptionItem('On Ticker', ShowOnlyValues.PrintContent),
+  new OptionItem('Commentary', ShowOnlyValues.Commentary),
+  new OptionItem('Top Story', ShowOnlyValues.TopStory),
 ];

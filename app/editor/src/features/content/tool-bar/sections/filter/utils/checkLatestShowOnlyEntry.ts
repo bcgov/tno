@@ -1,3 +1,4 @@
+import { ShowOnlyValues } from 'features/content/form/constants/ShowOnlyValues';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
 import { ContentTypeName } from 'hooks';
 import { IOptionItem } from 'tno-core';
@@ -13,39 +14,42 @@ export const checkLatestShowOnlyEntry = (
   onChange: (filter: IContentListFilter) => void,
   filter: IContentListFilter,
 ) => {
-  if (newValues[newValues.length - 1].value === ContentTypeName.PrintContent) {
-    onChange({
-      ...filter,
-      pageIndex: 0,
-      contentType: ContentTypeName.PrintContent,
-    });
-  }
-  if ((newValues[newValues.length - 1].label as string).includes('EoD')) {
-    onChange({
-      ...filter,
-      pageIndex: 0,
-      includedInCategory: true,
-    });
-  }
-  if ((newValues[newValues.length - 1].label as string).includes('Ticker')) {
-    onChange({
-      ...filter,
-      pageIndex: 0,
-      onTicker: 'On Ticker',
-    });
-  }
-  if ((newValues[newValues.length - 1].label as string).includes('Commentary')) {
-    onChange({
-      ...filter,
-      pageIndex: 0,
-      commentary: 'Commentary',
-    });
-  }
-  if ((newValues[newValues.length - 1].label as string).includes('Top Story')) {
-    onChange({
-      ...filter,
-      pageIndex: 0,
-      topStory: 'Top Story',
-    });
+  // convert to switch statement
+  switch (newValues[newValues.length - 1].value) {
+    case ShowOnlyValues.PrintContent:
+      onChange({
+        ...filter,
+        pageIndex: 0,
+        contentType: ContentTypeName.PrintContent,
+      });
+      break;
+    case ShowOnlyValues.IncludedInEod:
+      onChange({
+        ...filter,
+        pageIndex: 0,
+        includedInCategory: true,
+      });
+      break;
+    case ShowOnlyValues.OnTicker:
+      onChange({
+        ...filter,
+        pageIndex: 0,
+        onTicker: ShowOnlyValues.OnTicker,
+      });
+      break;
+    case ShowOnlyValues.Commentary:
+      onChange({
+        ...filter,
+        pageIndex: 0,
+        commentary: ShowOnlyValues.Commentary,
+      });
+      break;
+    case ShowOnlyValues.TopStory:
+      onChange({
+        ...filter,
+        pageIndex: 0,
+        topStory: ShowOnlyValues.TopStory,
+      });
+      break;
   }
 };

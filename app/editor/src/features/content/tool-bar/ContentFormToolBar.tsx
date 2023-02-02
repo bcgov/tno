@@ -47,7 +47,6 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
     // Return a function to disconnect the event listener
     return () => window.removeEventListener('resize', calcWidth);
   }, []);
-  console.log(width);
   return (
     <ToolBar variant="dark">
       <StatusSection status={status} />
