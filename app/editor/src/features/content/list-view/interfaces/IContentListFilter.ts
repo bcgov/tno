@@ -16,6 +16,7 @@ export interface IContentListFilter {
   userId: number | '';
   timeFrame: number | '';
   // Actions
+  showOnly?: string;
   onTicker: string;
   commentary: string;
   topStory: string;
