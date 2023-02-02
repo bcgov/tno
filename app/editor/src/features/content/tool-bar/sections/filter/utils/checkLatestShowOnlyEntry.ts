@@ -30,13 +30,6 @@ export const checkLatestShowOnlyEntry = (
         includedInCategory: true,
       });
       break;
-    case ShowOnlyValues.OnTicker:
-      onChange({
-        ...filter,
-        pageIndex: 0,
-        onTicker: ShowOnlyValues.OnTicker,
-      });
-      break;
     case ShowOnlyValues.Commentary:
       onChange({
         ...filter,

@@ -58,7 +58,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
               closeMenuOnSelect={false}
               hideSelectedOptions={false}
               options={showOnlyOptions}
-              width={FieldSize.Medium}
+              width={FieldSize.Small}
               defaultValue={getSelectedOptions(filter)}
               components={{
                 Option: InputOption,
@@ -106,20 +106,6 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
                     ...filter,
                     pageIndex: 0,
                     includedInCategory: e.target.checked,
-                  });
-                }}
-              />
-              <Checkbox
-                name="ticker"
-                label="On Ticker"
-                value="On Ticker"
-                tooltip="Content identified as on ticker"
-                checked={filter.onTicker !== ''}
-                onChange={(e) => {
-                  onChange({
-                    ...filter,
-                    pageIndex: 0,
-                    onTicker: e.target.checked ? e.target.value : '',
                   });
                 }}
               />
