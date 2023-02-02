@@ -71,6 +71,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             }
             else if (!this.Ingests.Any(ds => ds.IsEnabled))
             {
+                await StopAllAsync(this.Ingests);
                 // If there are no ingests, then we need to keep the service alive.
                 this.Logger.LogWarning("There are no configured ingests for this data location '{Location}'", this.Options.DataLocation);
             }
@@ -91,8 +92,14 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                     // Ask all live threads to stop.
                     if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
                     {
-                        await manager.StopAsync();
+                        await StopAllAsync(_ingests.Values);
                         this.State.Stop();
+                        break;
+                    }
+                    else if (!ingest.IsEnabled)
+                    {
+                        await manager.StopAsync();
+                        continue;
                     }
 
                     // If the service isn't running, don't make additional requests.
@@ -141,6 +148,22 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             var ingests = await GetIngestsAsync();
             this.Ingests.Clear();
             this.Ingests.AddRange(ingests);
+        }
+    }
+
+    private async Task StopAllAsync(List<IngestModel> ingests)
+    {
+        foreach (var ingest in ingests) {
+            if (!_ingests.ContainsKey(ingest.Id)) _ingests.Add(ingest.Id, _factory.Create(ingest));
+        }
+        await StopAllAsync(_ingests.Values);
+    }
+
+    private async Task StopAllAsync(Dictionary<int, TIngestServiceActionManager>.ValueCollection managers)
+    {
+        foreach (var manager in managers)
+        {
+            await manager.StopAsync();
         }
     }
 
