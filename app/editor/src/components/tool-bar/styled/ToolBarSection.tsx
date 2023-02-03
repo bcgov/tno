@@ -10,7 +10,7 @@ export const ToolBarSection = styled(Col)`
   padding: 0.5em;
 }
   min-height: 7.25em;
-  z-index: 100;
+  z-index: 50;
   .title-container {
     font-weight: 600;
     font-size: 1.25em;
