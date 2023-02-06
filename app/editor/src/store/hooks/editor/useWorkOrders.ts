@@ -14,6 +14,7 @@ interface IWorkOrderController {
   findWorkOrders: (filter: IWorkOrderFilter) => Promise<AxiosResponse<IPaged<IWorkOrderModel>>>;
   transcribe: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
   nlp: (content: IContentModel) => Promise<AxiosResponse<IWorkOrderModel>>;
+  requestFile: (locationId: number, path: string) => Promise<AxiosResponse<IWorkOrderModel>>;
 }
 
 export const useWorkOrders = (): [any, IWorkOrderController] => {
@@ -36,6 +37,9 @@ export const useWorkOrders = (): [any, IWorkOrderController] => {
       },
       nlp: async (content: IContentModel) => {
         return await dispatch('nlp-content', () => api.nlp(content));
+      },
+      requestFile: async (locationId: number, path: string) => {
+        return await dispatch('request-file', () => api.requestFile(locationId, path));
       },
     }),
     [api, dispatch],

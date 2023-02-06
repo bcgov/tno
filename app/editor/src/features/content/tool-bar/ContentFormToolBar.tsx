@@ -56,11 +56,9 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
         <ToolBarSection
           children={
             <ToggleGroup
-              defaultSelected={licenses
-                .find((l) => l.id === values.licenseId)
-                ?.name.replace(/expire/i, '')
-                .toLowerCase()}
+              defaultSelected={values.licenseId}
               options={licenses.map((l) => ({
+                id: l.id,
                 label: l.name.toUpperCase().replace(/expire/i, ''),
                 onClick: () => setFieldValue('licenseId', Number(l.id)),
               }))}

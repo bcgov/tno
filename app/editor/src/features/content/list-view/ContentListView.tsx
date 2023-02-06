@@ -5,6 +5,7 @@ import {
   useApiHub,
   useCombinedView,
   useTooltips,
+  WorkOrderTypeName,
 } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
@@ -64,10 +65,16 @@ export const ContentListView: React.FC = () => {
 
   const onWorkOrder = React.useCallback(
     (workOrder: IWorkOrderModel) => {
-      if (!!workOrder.contentId) {
-        getContent(workOrder.contentId ?? 0).then((content) => {
-          updateContent([content]);
-        });
+      if (
+        [WorkOrderTypeName.Transcription, WorkOrderTypeName.NaturalLanguageProcess].includes(
+          workOrder.workType,
+        )
+      ) {
+        if (!!workOrder.configuration.contentId) {
+          getContent(workOrder.configuration.contentId ?? 0).then((content) => {
+            updateContent([content]);
+          });
+        }
       }
     },
     [getContent, updateContent],

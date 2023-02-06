@@ -4,7 +4,6 @@ using TNO.API.Areas.Services.Models.ContentReference;
 using DataLocationModels = TNO.API.Areas.Services.Models.DataLocation;
 using IngestModels = TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Areas.Services.Models.WorkOrder;
-using TNO.Kafka.Models;
 using TNO.API.Areas.Kafka.Models;
 
 namespace TNO.Services;
@@ -51,6 +50,13 @@ public interface IApiService
     #endregion
 
     #region Data Locations
+    /// <summary>
+    /// Make an AJAX request to the api to get the data location for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<DataLocationModels.DataLocationModel?> GetDataLocationAsync(int id);
+
     /// <summary>
     /// Make an AJAX request to the api to get the data location for the specified 'name'.
     /// </summary>
@@ -188,6 +194,6 @@ public interface IApiService
     /// <param name="topic"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    Task<DeliveryResultModel<SourceContent>?> SendMessageAsync(string topic, SourceContent content);
+    Task<DeliveryResultModel<TNO.Kafka.Models.SourceContent>?> SendMessageAsync(string topic, TNO.Kafka.Models.SourceContent content);
     #endregion
 }

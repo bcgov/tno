@@ -1,8 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using TNO.API.Models;
-using TNO.Core.Extensions;
 using TNO.Entities;
 
 namespace TNO.API.Areas.Editor.Models.Content;
@@ -178,11 +176,6 @@ public class ContentModel : AuditColumnsModel
     /// get - An array of content links.
     /// </summary>
     public IEnumerable<ContentLinkModel> Links { get; set; } = Array.Empty<ContentLinkModel>();
-
-    /// <summary>
-    /// get - An array of work orders.
-    /// </summary>
-    public IEnumerable<WorkOrderModel> WorkOrders { get; set; } = Array.Empty<WorkOrderModel>();
     #endregion
 
     #region Constructors
@@ -230,7 +223,6 @@ public class ContentModel : AuditColumnsModel
         this.FileReferences = entity.FileReferences.Select(e => new FileReferenceModel(e));
         this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
         this.Links = entity.Links.Select(e => new ContentLinkModel(e));
-        this.WorkOrders = entity.WorkOrders.Select(e => new WorkOrderModel(e));
     }
     #endregion
 

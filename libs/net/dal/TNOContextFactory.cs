@@ -1,3 +1,4 @@
+using DotNetEnv.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -31,9 +32,8 @@ public class TNOContextFactory : IDesignTimeDbContextFactory<TNOContext>
             builder
                 .AddFilter("Microsoft", LogLevel.Warning)
                 .AddFilter("System", LogLevel.Warning)
-                .AddFilter("TNO.Api", LogLevel.Debug)
+                .AddFilter("TNO", LogLevel.Debug)
                 .AddConsole();
-            // .AddEventLog();
         });
         _logger = loggerFactory.CreateLogger<TNOContextFactory>();
     }
@@ -47,7 +47,6 @@ public class TNOContextFactory : IDesignTimeDbContextFactory<TNOContext>
     /// <returns></returns>
     public TNOContext CreateDbContext(string[] args)
     {
-        DotNetEnv.Env.Load();
         string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 
         // As per Microsoft documentation, a typical sequence of configuration providers is:
@@ -59,6 +58,7 @@ public class TNOContextFactory : IDesignTimeDbContextFactory<TNOContext>
         // source: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-3.1#configuration-providers
         var builder = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
+            .AddDotNetEnv($"{Environment.CurrentDirectory}/.env")
             .AddJsonFile("connectionstrings.json", optional: true, reloadOnChange: true)
             .AddJsonFile($"connectionstrings.{environment}.json", optional: true, reloadOnChange: true);
 
@@ -72,14 +72,12 @@ public class TNOContextFactory : IDesignTimeDbContextFactory<TNOContext>
         _logger.LogInformation("Context Factory Started");
 
         var config = builder.Build();
-
         var cs = config.GetConnectionString("TNO");
         var sqlBuilder = new NpgsqlConnectionStringBuilder(cs)
         {
             Username = config["DB_POSTGRES_USERNAME"],
             Password = config["DB_POSTGRES_PASSWORD"]
         };
-
         var optionsBuilder = new DbContextOptionsBuilder<TNOContext>();
         optionsBuilder.UseNpgsql(sqlBuilder.ConnectionString, options =>
         {

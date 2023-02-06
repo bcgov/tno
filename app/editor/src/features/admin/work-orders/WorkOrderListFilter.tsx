@@ -40,24 +40,26 @@ export const WorkOrderListFilter: React.FC<IWorkOrderFilterProps> = () => {
     <styled.WorkOrderListFilter>
       <Row className="filter-bar" justifyContent="center">
         <Select
+          name="workType"
+          options={typeOptions}
+          placeholder="Search by type"
+          value={typeOptions.find((s) => s.value === filter.workType) || ''}
+          width={FieldSize.Medium}
+          clearValue=""
           onChange={(e: any) => {
             setFilter({ ...filter, workType: e.value });
           }}
-          width={FieldSize.Medium}
-          options={typeOptions}
-          name="workType"
-          placeholder="Search by type"
-          value={typeOptions.find((s) => s.value === filter.workType) || ''}
         />
         <Select
-          onChange={(e: any) => {
-            setFilter({ ...filter, status: e.value });
-          }}
-          width={FieldSize.Medium}
-          options={statusOptions}
           name="status"
+          options={statusOptions}
           placeholder="Search by status"
           value={statusOptions.find((s) => s.value === filter.status) || ''}
+          width={FieldSize.Medium}
+          clearValue=""
+          onChange={(e: any) => {
+            setFilter({ ...filter, status: e.value ?? '' });
+          }}
         />
         <Text
           onChange={(e) => {
@@ -79,11 +81,19 @@ export const WorkOrderListFilter: React.FC<IWorkOrderFilterProps> = () => {
             setFilter({
               sort: [],
               keyword: '',
-              status: undefined,
+              status: '',
+              workType: '',
               pageIndex: 0,
               pageSize: 10,
             });
-            storeFilter({ sort: [], pageIndex: 0, pageSize: 10 });
+            storeFilter({
+              sort: [],
+              pageIndex: 0,
+              pageSize: 10,
+              status: '',
+              workType: '',
+              keyword: '',
+            });
           }}
         />
       </Row>

@@ -413,8 +413,7 @@ public class ContentManager : ServiceManager<ContentOptions>
         finally
         {
             client.Disconnect();
-            if (file != null)
-                file.Close();
+            file?.Close();
         }
     }
 
@@ -424,9 +423,9 @@ public class ContentManager : ServiceManager<ContentOptions>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task<DeliveryResult<string, TranscriptRequest>> SendMessageAsync(ContentModel content)
+    private async Task<DeliveryResult<string, TranscriptRequestModel>> SendMessageAsync(ContentModel content)
     {
-        var result = await this.Producer.SendMessageAsync(this.Options.TranscriptionTopic, new TranscriptRequest(content, "ContentService"));
+        var result = await this.Producer.SendMessageAsync(this.Options.TranscriptionTopic, new TranscriptRequestModel(content, null, "ContentService"));
         if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka for {content.OtherSource}:{content.Uid}");
         return result;
     }

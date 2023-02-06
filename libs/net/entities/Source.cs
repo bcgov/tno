@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
@@ -72,7 +73,7 @@ public class Source : BaseType<int>
     /// get/set - Configuration settings.
     /// </summary>
     [Column("configuration")]
-    public string Configuration { get; set; } = "{}";
+    public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - List of content linked to this source.

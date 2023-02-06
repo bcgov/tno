@@ -16,7 +16,7 @@ public class IngestConfiguration : AuditColumnsConfiguration<Ingest>
         builder.Property(m => m.IngestTypeId).IsRequired();
         builder.Property(m => m.SourceId).IsRequired();
         builder.Property(m => m.ProductId).IsRequired();
-        builder.Property(m => m.Configuration).IsRequired().HasColumnType("json");
+        builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         builder.Property(m => m.RetryLimit).IsRequired().HasDefaultValue(3);
         builder.Property(m => m.ScheduleType).HasDefaultValue(ScheduleType.None);
         builder.Property(m => m.SourceConnectionId).IsRequired();

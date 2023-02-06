@@ -71,6 +71,7 @@ INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
+FILECOPY_PORT=$portFileCopy
 
 #############################
 # Kafka Configuration
@@ -621,4 +622,23 @@ Service__ApiUrl=http://host.docker.internal:$portApi/api
 
 Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/nlp/.env
     echo "./services/net/nlp/.env created"
+fi
+
+## FileCopy Service
+if test -f "./services/net/filecopy/.env"; then
+    echo "./services/net/filecopy/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+
+Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/filecopy/.env
+    echo "./services/net/filecopy/.env created"
 fi

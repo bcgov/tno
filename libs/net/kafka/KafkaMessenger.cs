@@ -84,7 +84,7 @@ public class KafkaMessenger : IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<DeliveryResult<string, TranscriptRequest>?> SendMessageAsync(string topic, TranscriptRequest request)
+    public async Task<DeliveryResult<string, TranscriptRequestModel>?> SendMessageAsync(string topic, TranscriptRequestModel request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
 
@@ -97,7 +97,7 @@ public class KafkaMessenger : IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<DeliveryResult<string, IndexRequest>?> SendMessageAsync(string topic, IndexRequest request)
+    public async Task<DeliveryResult<string, IndexRequestModel>?> SendMessageAsync(string topic, IndexRequestModel request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
 
@@ -110,11 +110,24 @@ public class KafkaMessenger : IKafkaMessenger
     /// <param name="topic"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<DeliveryResult<string, NLPRequest>?> SendMessageAsync(string topic, NLPRequest request)
+    public async Task<DeliveryResult<string, NlpRequestModel>?> SendMessageAsync(string topic, NlpRequestModel request)
     {
         if (request == null) throw new ArgumentNullException(nameof(request));
 
         return await SendMessageAsync(topic, $"{request.ContentId}", request);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, FileRequestModel>?> SendMessageAsync(string topic, FileRequestModel request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"{request.LocationId}:{request.Path}", request);
     }
     #endregion
 }

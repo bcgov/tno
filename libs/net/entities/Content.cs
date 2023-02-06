@@ -207,11 +207,6 @@ public class Content : AuditColumns
     /// get - Collection of links to related content.
     /// </summary>
     public virtual List<ContentLink> Links { get; } = new List<ContentLink>();
-
-    /// <summary>
-    /// get - Collection of work orders for this content.
-    /// </summary>
-    public virtual List<WorkOrder> WorkOrders { get; } = new List<WorkOrder>();
     #endregion
 
     #region Constructors

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
@@ -21,7 +22,7 @@ public class Connection : BaseType<int>
     /// get/set - Connection settings.
     /// </summary>
     [Column("configuration")]
-    public string Configuration { get; set; } = "{}";
+    public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - Whether the connection is read only.
@@ -71,7 +72,7 @@ public class Connection : BaseType<int>
     public Connection(string name, ConnectionType connectionType, string configuration, bool isReadOnly) : base(name)
     {
         this.ConnectionType = connectionType;
-        this.Configuration = configuration;
+        this.Configuration = JsonDocument.Parse(configuration);
         this.IsReadOnly = isReadOnly;
     }
     #endregion

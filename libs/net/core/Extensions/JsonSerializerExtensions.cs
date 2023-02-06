@@ -13,7 +13,7 @@ namespace TNO.Core.Extensions
         /// JSON formatting options.
         /// </summary>
         /// <value></value>
-        private static readonly JsonSerializerOptions _jsonFormatOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions _jsonFormatOptions = new()
         {
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

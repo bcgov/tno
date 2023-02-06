@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace TNO.Entities;
 
@@ -64,15 +65,10 @@ public class WorkOrder : AuditColumns
     public string Note { get; set; } = "";
 
     /// <summary>
-    /// get/set - Foreign key to the content associated with this work order.
+    /// get/set - Work order configuration.
     /// </summary>
-    [Column("content_id")]
-    public long? ContentId { get; set; }
-
-    /// <summary>
-    /// get/set - The content associated with this work order.
-    /// </summary>
-    public Content? Content { get; set; }
+    [Column("configuration")]
+    public JsonDocument Configuration { get; set; } = JsonDocument.Parse("{}");
     #endregion
 
     #region Constructors
@@ -96,14 +92,45 @@ public class WorkOrder : AuditColumns
     /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
     /// </summary>
     /// <param name="type"></param>
+    /// <param name="description"></param>
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, string description, JsonDocument configuration) : this(type, description)
+    {
+        this.Configuration = configuration;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="description"></param>
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, string description, string configuration) : this(type, description, JsonDocument.Parse(configuration))
+    {
+    }
+
+    /// <summary>
+    /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="requestor"></param>
+    public WorkOrder(WorkOrderType type, User requestor, string description) : this(type, description)
+    {
+        this.RequestorId = requestor.Id;
+        this.Requestor = requestor;
+    }
+
+    /// <summary>
+    /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="type"></param>
     /// <param name="requestor"></param>
     /// <param name="description"></param>
-    public WorkOrder(WorkOrderType type, User requestor, string description) : base()
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, User requestor, string description, string configuration) : this(type, description, configuration)
     {
-        this.WorkType = type;
-        this.RequestorId = requestor?.Id;
+        this.RequestorId = requestor.Id;
         this.Requestor = requestor;
-        this.Description = description;
     }
 
     /// <summary>
@@ -112,70 +139,55 @@ public class WorkOrder : AuditColumns
     /// <param name="type"></param>
     /// <param name="requestorId"></param>
     /// <param name="description"></param>
-    public WorkOrder(WorkOrderType type, int requestorId, string description) : base()
+    /// <param name="configuration"></param>
+    public WorkOrder(WorkOrderType type, int requestorId, string description, string configuration) : this(type, description, configuration)
     {
-        this.WorkType = type;
         this.RequestorId = requestorId;
-        this.Description = description;
     }
 
     /// <summary>
     /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
     /// </summary>
     /// <param name="type"></param>
-    /// <param name="content"></param>
     /// <param name="description"></param>
-    public WorkOrder(WorkOrderType type, Content content, string description) : base()
+    /// <param name="content"></param>
+    public WorkOrder(WorkOrderType type, string description, Content content) : this(type, description, content.Id)
     {
-        this.WorkType = type;
-        this.ContentId = content?.Id;
-        this.Content = content;
-        this.Description = description;
     }
 
     /// <summary>
     /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
     /// </summary>
     /// <param name="type"></param>
+    /// <param name="description"></param>
     /// <param name="contentId"></param>
-    /// <param name="description"></param>
-    public WorkOrder(WorkOrderType type, long contentId, string description) : base()
+    public WorkOrder(WorkOrderType type, string description, long contentId) : this(type, description, $"{{ \"contentId\": {contentId} }}")
     {
-        this.WorkType = type;
-        this.ContentId = contentId;
-        this.Description = description;
     }
 
     /// <summary>
     /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
     /// </summary>
     /// <param name="type"></param>
-    /// <param name="content"></param>
     /// <param name="requestor"></param>
     /// <param name="description"></param>
-    public WorkOrder(WorkOrderType type, Content content, User requestor, string description) : base()
+    /// <param name="content"></param>
+    public WorkOrder(WorkOrderType type, User requestor, string description, Content content) : this(type, description, content)
     {
-        this.WorkType = type;
-        this.ContentId = content?.Id;
-        this.Content = content;
-        this.RequestorId = requestor?.Id;
+        this.RequestorId = requestor.Id;
         this.Requestor = requestor;
-        this.Description = description;
     }
 
     /// <summary>
     /// Creates a new instance of a WorkOrder object, initializes with specified parameters.
     /// </summary>
     /// <param name="type"></param>
-    /// <param name="contentId"></param>
     /// <param name="requestorId"></param>
     /// <param name="description"></param>
-    public WorkOrder(WorkOrderType type, long contentId, int requestorId, string description) : base()
+    /// <param name="contentId"></param>
+    public WorkOrder(WorkOrderType type, int requestorId, string description, long contentId) : this(type, description, contentId)
     {
-        this.WorkType = type;
-        this.ContentId = contentId;
         this.RequestorId = requestorId;
-        this.Description = description;
     }
     #endregion
 }

@@ -38,6 +38,10 @@ public class ItemModel
     /// </summary>
     public DateTime? Modified { get; set; }
 
+    /// <summary>
+    /// get/set - Whether the file/folder is locally accessible to the API.
+    /// </summary>
+    public bool IsLocal { get; set; }
     #endregion
 
     #region Constructors
@@ -50,14 +54,16 @@ public class ItemModel
     /// Creates a new instance of an ItemModel, initializes with specified parameter.
     /// </summary>
     /// <param name="path"></param>
-    public ItemModel(string path)
+    /// <param name="isLocal"></param>
+    public ItemModel(string path, bool isLocal = false)
     {
+        this.IsLocal = isLocal;
         this.Name = System.IO.Path.GetFileName(path);
-        var ext = System.IO.Path.GetExtension(path).Replace(".", "");
-        if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
         this.IsDirectory = (System.IO.File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;
         if (!this.IsDirectory)
         {
+            var ext = System.IO.Path.GetExtension(path).Replace(".", "");
+            if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             var info = new System.IO.FileInfo(path);
             this.Size = info.Length;
             this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
@@ -74,15 +80,17 @@ public class ItemModel
     /// Creates a new instance of an ItemModel, initializes with specified parameter.
     /// </summary>
     /// <param name="file"></param>
-    public ItemModel(Renci.SshNet.Sftp.SftpFile file)
+    /// <param name="isLocal"></param>
+    public ItemModel(Renci.SshNet.Sftp.SftpFile file, bool isLocal = false)
     {
+        this.IsLocal = isLocal;
         this.Name = file.Name;
-        var ext = System.IO.Path.GetExtension(file.Name).Replace(".", "");
-        if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
         this.IsDirectory = file.IsDirectory;
         this.Modified = file.Attributes.LastWriteTime;
         if (!this.IsDirectory)
         {
+            var ext = System.IO.Path.GetExtension(file.Name).Replace(".", "");
+            if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             this.Size = file.Attributes.Size;
             if (!String.IsNullOrWhiteSpace(this.Extension))
                 this.MimeType = MimeTypeMap.GetMimeType(this.Extension);
@@ -94,15 +102,17 @@ public class ItemModel
     /// </summary>
     /// <param name="name"></param>
     /// <param name="attributes"></param>
-    public ItemModel(string name, Renci.SshNet.Sftp.SftpFileAttributes attributes)
+    /// <param name="isLocal"></param>
+    public ItemModel(string name, Renci.SshNet.Sftp.SftpFileAttributes attributes, bool isLocal = false)
     {
+        this.IsLocal = isLocal;
         this.Name = name;
-        var ext = System.IO.Path.GetExtension(name).Replace(".", "");
-        if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
         this.IsDirectory = attributes.IsDirectory;
         this.Modified = attributes.LastWriteTime;
         if (!this.IsDirectory)
         {
+            var ext = System.IO.Path.GetExtension(name).Replace(".", "");
+            if (!string.IsNullOrWhiteSpace(ext)) this.Extension = ext;
             this.Size = attributes.Size;
             if (!String.IsNullOrWhiteSpace(this.Extension))
                 this.MimeType = MimeTypeMap.GetMimeType(this.Extension);

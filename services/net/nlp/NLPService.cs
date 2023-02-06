@@ -40,9 +40,9 @@ public class NLPService : KafkaConsumerService
         services
             .Configure<NLPOptions>(this.Configuration.GetSection("Service"))
             .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
-            .AddTransient<IKafkaListener<string, NLPRequest>, KafkaListener<string, NLPRequest>>()
+            .AddTransient<IKafkaListener<string, NlpRequestModel>, KafkaListener<string, NlpRequestModel>>()
             .AddTransient<IKafkaMessenger, KafkaMessenger>()
-            .AddSingleton<IServiceManager, NLPManager>();
+            .AddSingleton<IServiceManager, NlpManager>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<NLPOptions>()

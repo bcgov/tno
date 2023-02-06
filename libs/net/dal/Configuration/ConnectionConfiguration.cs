@@ -10,7 +10,7 @@ public class ConnectionConfiguration : BaseTypeConfiguration<Connection, int>
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.ConnectionType).IsRequired().HasDefaultValue(ConnectionType.LocalVolume);
-        builder.Property(m => m.Configuration).IsRequired().HasColumnType("json");
+        builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         builder.Property(m => m.IsReadOnly).IsRequired();
 
         base.Configure(builder);

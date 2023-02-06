@@ -132,6 +132,8 @@ export interface IGridTableProps<T extends object = Record<string, unknown>> {
    * Whether to add to infinite items - helps the system to determine whether to clear infinite list if filter is applied.
    */
   setAddToInfiniteItems?: (add: boolean) => void;
+  /** Whether a row can be selected. */
+  enableRowSelect?: boolean;
 }
 
 /**
@@ -162,6 +164,7 @@ export const GridTable = <T extends object>({
   getRowId,
   infiniteScroll,
   setAddToInfiniteItems,
+  enableRowSelect = true,
 }: IGridTableProps<T>) => {
   const {
     showPaging = infiniteScroll ? false : true,
@@ -340,7 +343,11 @@ export const GridTable = <T extends object>({
   };
 
   return (
-    <styled.GridTable className={`table${className ? ` ${className}` : ''}`} {...getTableProps()}>
+    <styled.GridTable
+      className={`table${className ? ` ${className}` : ''}`}
+      enableRowSelect={enableRowSelect}
+      {...getTableProps()}
+    >
       {Header && <Header {...instance} />}
       <div role="rowheader">
         {headerGroups.map((headerGroup) => (
@@ -364,7 +371,7 @@ export const GridTable = <T extends object>({
             return (
               <div
                 {...row.getRowProps()}
-                onClick={(e) => handleRowClick(e, row)}
+                onClick={(e) => (enableRowSelect ? handleRowClick(e, row) : undefined)}
                 className={onRowRenderClassName(row)}
                 ref={lastRowRef}
               >
@@ -381,7 +388,7 @@ export const GridTable = <T extends object>({
             return (
               <div
                 {...row.getRowProps()}
-                onClick={(e) => handleRowClick(e, row)}
+                onClick={(e) => (enableRowSelect ? handleRowClick(e, row) : undefined)}
                 className={onRowRenderClassName(row)}
               >
                 {row.cells.map((cell) => {

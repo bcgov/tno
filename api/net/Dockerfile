@@ -43,6 +43,7 @@ RUN chgrp -R 0 /av && \
     chmod -R g=u /av
 
 # USER appuser
+USER 1001
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

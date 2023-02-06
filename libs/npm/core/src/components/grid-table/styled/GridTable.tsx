@@ -1,6 +1,12 @@
+import { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 
-export const GridTable = styled.div`
+interface IGridTableProps extends HTMLAttributes<HTMLDivElement> {
+  /** Whether a row can be selected. */
+  enableRowSelect?: boolean;
+}
+
+export const GridTable = styled.div<IGridTableProps>`
   display: grid;
   padding: 5px;
   border-radius: 0.25em;
@@ -65,10 +71,11 @@ export const GridTable = styled.div`
       &:nth-child(even) {
         background-color: ${(props) => props.theme.css.tableRowNColor};
       }
+
       &:hover {
         /* background-color: ${(props) => props.theme.css.tableRowHoverColor}; */
-        filter: brightness(50%);
-        cursor: pointer;
+        filter: ${(props) => (props.enableRowSelect ? 'brightness(50%)' : 'none')};
+        cursor: ${(props) => (props.enableRowSelect ? 'pointer' : 'default')};
       }
       &:last-child {
         border-bottom-left-radius: 0.25em;

@@ -43,7 +43,7 @@ public class IndexingService : KafkaConsumerService
             .Configure<ProducerConfig>(this.Configuration.GetSection("Kafka:Producer"))
             .Configure<AdminClientConfig>(this.Configuration.GetSection("Kafka:Admin"))
             .AddTransient<IKafkaAdmin, KafkaAdmin>()
-            .AddTransient<IKafkaListener<string, IndexRequest>, KafkaListener<string, IndexRequest>>()
+            .AddTransient<IKafkaListener<string, IndexRequestModel>, KafkaListener<string, IndexRequestModel>>()
             .AddTransient<IKafkaMessenger, KafkaMessenger>()
             .AddSingleton<IServiceManager, IndexingManager>();
 

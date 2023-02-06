@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
@@ -54,9 +55,9 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         return includeConnection ? result : result
             .Select(ds =>
             {
-                ds.Configuration = "{}";
-                ds.SourceConnection!.Configuration = "{}";
-                ds.DestinationConnection!.Configuration = "{}";
+                ds.Configuration = JsonDocument.Parse("{}");
+                ds.SourceConnection!.Configuration = JsonDocument.Parse("{}");
+                ds.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
                 return ds;
             });
     }
@@ -108,9 +109,9 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         var items = query?.ToArray()
             .Select(ds =>
             {
-                ds.Configuration = "{}";
-                ds.SourceConnection!.Configuration = "{}";
-                ds.DestinationConnection!.Configuration = "{}";
+                ds.Configuration = JsonDocument.Parse("{}");
+                ds.SourceConnection!.Configuration = JsonDocument.Parse("{}");
+                ds.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
                 return ds;
             }) ?? Array.Empty<Ingest>();
         return new Paged<Ingest>(items, filter.Page, filter.Quantity, total);
@@ -142,7 +143,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         return includeConnection ? result : result
             .Select(i =>
             {
-                i.Configuration = "{}";
+                i.Configuration = JsonDocument.Parse("{}");
                 return i;
             });
     }
@@ -173,7 +174,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
         return includeConnection ? result : result
             .Select(ds =>
             {
-                ds.Configuration = "{}";
+                ds.Configuration = JsonDocument.Parse("{}");
                 return ds;
             });
     }

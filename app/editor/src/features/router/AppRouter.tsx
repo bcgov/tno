@@ -1,6 +1,6 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
-import { AdminRouter } from 'features/admin';
+import { AdminRouter, WorkOrderForm, WorkOrderList } from 'features/admin';
 import { ContentForm, ContentListView, ContentLogs, MorningReport } from 'features/content';
 import { Login } from 'features/login';
 import { ReportsRouter } from 'features/reports';
@@ -100,11 +100,13 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           element={<PrivateRoute claims={Claim.editor} element={<MorningReport />}></PrivateRoute>}
         />
         <Route
-          path="storage"
+          path="storage/locations/:id"
           element={
             <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
           }
         />
+        <Route path="work/orders" element={<WorkOrderList />} />
+        <Route path="work/orders/:id" element={<WorkOrderForm />} />
         <Route
           path="reports/*"
           element={<PrivateRoute claims={Claim.administrator} element={<ReportsRouter />} />}

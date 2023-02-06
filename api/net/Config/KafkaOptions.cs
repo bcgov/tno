@@ -22,6 +22,11 @@ public class KafkaOptions
     public string NLPTopic { get; set; } = "";
 
     /// <summary>
+    /// get/set - The Kafka topic name to request a remote file.
+    /// </summary>
+    public string FileRequestTopic { get; set; } = "";
+
+    /// <summary>
     /// get/set - The Kafka topic name to request a notification to be sent.
     /// </summary>
     public string NotificationTopic { get; set; } = "";

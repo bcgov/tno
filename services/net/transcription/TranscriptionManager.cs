@@ -11,6 +11,7 @@ using TNO.Kafka;
 using TNO.Core.Extensions;
 using TNO.Core.Exceptions;
 using TNO.Entities;
+using TNO.API.Areas.Services.Models.Content;
 
 namespace TNO.Services.Transcription;
 
@@ -31,7 +32,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <summary>
     /// get - Kafka Consumer object.
     /// </summary>
-    protected IKafkaListener<string, TranscriptRequest> Listener { get; private set; }
+    protected IKafkaListener<string, TranscriptRequestModel> Listener { get; private set; }
     #endregion
 
     #region Constructors
@@ -43,7 +44,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public TranscriptionManager(
-        IKafkaListener<string, TranscriptRequest> listener,
+        IKafkaListener<string, TranscriptRequestModel> listener,
         IApiService api,
         IOptions<TranscriptionOptions> options,
         ILogger<TranscriptionManager> logger)
@@ -184,7 +185,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, TranscriptRequest> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, TranscriptRequestModel> result)
     {
         try
         {
@@ -197,11 +198,11 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             }
             else
             {
-                request.Content = await this.Api.FindContentByIdAsync(request.ContentId);
-                if (request.Content != null)
+                var content = await this.Api.FindContentByIdAsync(request.ContentId);
+                if (content != null)
                 {
                     // TODO: Handle multi-threading so that more than one transcription can be performed at a time.
-                    await UpdateTranscriptionAsync(request);
+                    await UpdateTranscriptionAsync(request, content);
                 }
                 else
                 {
@@ -236,15 +237,14 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// Make a request to generate a transcription for the specified 'content'.
     /// </summary>
     /// <param name="request"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task UpdateTranscriptionAsync(TranscriptRequest request)
+    private async Task UpdateTranscriptionAsync(TranscriptRequestModel request, ContentModel content)
     {
-        if (request.Content == null) throw new ArgumentException("Request must include the content", nameof(request));
-
         // TODO: Handle different storage locations.
         // Remote storage locations may not be easily accessible by this service.
-        var path = request.Content.FileReferences.FirstOrDefault()?.Path;
+        var path = content.FileReferences.FirstOrDefault()?.Path;
         var safePath = Path.Join(this.Options.VolumePath, path.MakeRelativePath());
 
         if (File.Exists(safePath))
@@ -258,38 +258,38 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
 
             if (!String.IsNullOrEmpty(safePath))
             {
-                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", request.Content.Id);
+                this.Logger.LogInformation("Transcription requested.  Content ID: {Id}", request.ContentId);
                 var hasWorkOrder = await UpdateWorkOrderAsync(request, WorkOrderStatus.InProgress);
 
                 if (hasWorkOrder)
                 {
-                    var original = request.Content.Body;
+                    var original = content.Body;
                     var fileBytes = File.ReadAllBytes(safePath);
                     var transcript = await RequestTranscriptionAsync(fileBytes); // TODO: Extract language from data source.
 
                     // Fetch content again because it may have been updated by an external source.
                     // This can introduce issues if the transcript has been edited as now it will overwrite what was changed.
-                    var content = await this.Api.FindContentByIdAsync(request.Content.Id);
+                    content = (await this.Api.FindContentByIdAsync(request.ContentId))!;
                     if (content != null && !String.IsNullOrWhiteSpace(transcript))
                     {
                         // The transcription may have been edited during this process and now those changes will be lost.
-                        if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.Content.Id);
+                        if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.ContentId);
 
                         content.Body = transcript;
                         await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
-                        this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.Content.Id);
+                        this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.ContentId);
 
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
                     }
                     else if (String.IsNullOrWhiteSpace(transcript))
                     {
-                        this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", request.Content.Id);
+                        this.Logger.LogWarning("Content did not generate a transcript. Content ID: {Id}", request.ContentId);
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
                     }
                     else
                     {
                         // The content is no longer available for some reason.
-                        this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.Content.Id);
+                        this.Logger.LogError("Content no longer exists. Content ID: {Id}", request.ContentId);
                         await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
                     }
                 }
@@ -301,7 +301,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         }
         else
         {
-            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.Content.Id, safePath);
+            this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.ContentId, safePath);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
         }
     }
@@ -312,15 +312,15 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
     /// <param name="request"></param>
     /// <param name="status"></param>
     /// <returns>Whether a work order exists or is not required.</returns>
-    private async Task<bool> UpdateWorkOrderAsync(TranscriptRequest request, WorkOrderStatus status)
+    private async Task<bool> UpdateWorkOrderAsync(TranscriptRequestModel request, WorkOrderStatus status)
     {
         if (request.WorkOrderId > 0)
         {
-            request.WorkOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
-            if (request.WorkOrder != null && !_ignoreWorkOrders.Contains(request.WorkOrder.Status))
+            var workOrder = await this.Api.FindWorkOrderAsync(request.WorkOrderId);
+            if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
             {
-                request.WorkOrder.Status = status;
-                request.WorkOrder = await this.Api.UpdateWorkOrderAsync(request.WorkOrder);
+                workOrder.Status = status;
+                await this.Api.UpdateWorkOrderAsync(workOrder);
                 return true;
             }
         }

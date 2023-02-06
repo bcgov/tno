@@ -1,17 +1,14 @@
-import { Breadcrumb } from 'components/breadcrumb';
-import { Modal } from 'components/modal';
-import { ToggleGroup } from 'components/toggle-group';
+import { FileManager } from 'features/storage';
+import { IFileItem } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
-import { IFileReferenceModel, IFolderModel, IItemModel } from 'hooks/api-editor';
-import { useModal } from 'hooks/modal';
+import { useQuery } from 'hooks';
+import { IFileReferenceModel } from 'hooks/api-editor';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useContent, useLookup, useStorage } from 'store/hooks';
-import { Button, ButtonVariant, Col, Error, FieldSize, Row, Text } from 'tno-core';
+import { useContent } from 'store/hooks';
 
-import { defaultFolder } from '../../storage/constants';
-import { ClipDirectoryTable } from './ClipDirectoryTable';
-import { IContentForm, IStream } from './interfaces';
+import { IContentForm } from './interfaces';
 import * as styled from './styled';
 import { toForm } from './utils';
 
@@ -20,8 +17,6 @@ export interface IContentClipFormProps {
   content: IContentForm;
   /** A way to update the content when attaching a file. */
   setContent: (content: IContentForm) => void;
-  /** The initial path to load */
-  path?: string;
   /** Pass the clip errors back to the content form */
   setClipErrors: (errors: string) => void;
 }
@@ -34,298 +29,51 @@ export interface IContentClipFormProps {
 export const ContentClipForm: React.FC<IContentClipFormProps> = ({
   content,
   setContent,
-  path: initPath,
   setClipErrors,
 }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const { toggle, isShowing } = useModal();
-  const storageApi = useStorage();
   const [, contentApi] = useContent();
-  const [{ dataLocations }] = useLookup();
+  const navigate = useNavigate();
+  const query = useQuery();
 
-  const locations = [{ id: 0, name: 'API' }, ...dataLocations].map((i) => ({
-    label: i.name,
-    data: i,
-    onClick: () => {
-      setPath('');
-      setLocationId(i.id);
-    },
-  }));
-  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [locationId, setLocationId] = React.useState(parseInt(query.get('locationId') ?? '1')); // TODO: Should not hardcode data location.
+  const [path, setPath] = React.useState(query.get('path') ?? '');
 
-  // TODO: Hardcoding the folder location isn't ideal as the API may be configured differently.
-  const [path, setPath] = React.useState(initPath ?? '');
-  const [folder, setFolder] = React.useState<IFolderModel>(defaultFolder);
-  const [stream, setStream] = React.useState<IStream>();
-  const [item, setItem] = React.useState<IItemModel>();
-  const [start, setStart] = React.useState<string>('');
-  const [end, setEnd] = React.useState<string>('');
-  const [currFile, setCurrFile] = React.useState<string>('');
-  const [prefix, setPrefix] = React.useState<string>('');
-  const [error, setError] = React.useState<string>('');
-  const [locationId, setLocationId] = React.useState(0);
-
-  React.useEffect(() => {
-    // Many data source locations will not have an existing clip folder.
-    // Check if it exists before attempting to load it.
-    storageApi.folderExists(locationId, path).then((exists) => {
-      var directory = exists ? path : '/';
-      storageApi.getFolder(locationId, directory).then((directory) => {
-        setFolder(directory);
-      });
-    });
-  }, [path, storageApi, locationId]);
-
-  React.useEffect(() => {
-    setClipErrors(error);
-  }, [error, setClipErrors]);
-
-  React.useEffect(() => {
-    if (!!stream && !!videoRef.current) {
-      videoRef.current.src = stream.url;
-    }
-  }, [stream, videoRef]);
-
-  const onDelete = async (item: IItemModel) => {
-    setItem(item);
-    toggle();
-  };
-
-  const onDownload = async (item: IItemModel) => {
-    await storageApi.download(locationId, `${path}/${item.name}`);
-  };
-
-  const onAttach = async (item: IItemModel) => {
+  const onAttach = async (item: IFileItem) => {
     if (values.id === 0) {
       // Add a reference to the file so that it can be copied to the API when the content is saved.
       setFieldValue('fileReferences', [
         {
           contentType: item.mimeType,
           fileName: item.name,
-          path: `${path}/${item.name}`,
+          path: `${item.path}/${item.name}`,
           size: item.size,
           isUploaded: false,
         } as IFileReferenceModel,
       ]);
     } else {
-      await contentApi.attach(content.id, locationId, `${path}/${item.name}`).then((data) => {
-        setContent(toForm(data));
-        toast.success('Attachment added to this snippet.');
-      });
-    }
-  };
-
-  const onSelect = (item?: IItemModel) => {
-    setItem(item);
-    setCurrFile(!!item ? item.name : '');
-    setStream(
-      !!item
-        ? {
-            url: `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}`,
-            type: item.mimeType ?? 'video/mp4',
-          }
-        : undefined,
-    );
-  };
-
-  const createClip = async () => {
-    if (!start || !end) {
-      setError('The clip start time and clip end time must both be set.');
-    } else if (parseInt(start) >= parseInt(end)) {
-      setError('The clip start time must be before the clip end time.');
-    } else if (prefix === '') {
-      setError('Filename is a required field.');
-    } else {
-      setError('');
-      try {
-        await storageApi
-          .clip(locationId, `${path}/${currFile}`, start, end, prefix)
-          .then((item) => {
-            setFolder({ ...folder, items: [...folder.items, item] });
-            setStart('');
-            setEnd('');
-          });
-      } catch {
-        // Ignore error it's already handled.
-      }
-    }
-  };
-
-  const joinClips = async () => {
-    try {
-      await storageApi.join(locationId, `${path}/${currFile}`, prefix).then((item) => {
-        setItem(item);
-        setFolder({ ...folder, items: [...folder.items, item] });
-        setStart('');
-        setEnd('');
-        setCurrFile(!!item ? item.name : '');
-        setStream(
-          !!item
-            ? {
-                url: `/api/editor/storage/${locationId}/stream?path=${path}/${item.name}`,
-                type: item.mimeType ?? 'video/mp4',
-              }
-            : undefined,
-        );
-      });
-    } catch {
-      // Ignore error it's already handled.
-    }
-  };
-
-  const getTime = () => {
-    return !!videoRef.current ? Math.floor(videoRef.current?.currentTime).toString() : '';
-  };
-
-  const getTimePoint = (time: string) => {
-    if (time) {
-      const currentTime = +time;
-      const hours =
-        currentTime < 3600
-          ? ''
-          : Math.floor(currentTime / 3600).toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
-            ':';
-      const minutes = (Math.floor(currentTime / 60) % 60).toLocaleString(undefined, {
-        minimumIntegerDigits: 2,
-      });
-      const seconds = (currentTime % 60).toLocaleString(undefined, { minimumIntegerDigits: 2 });
-      return `${hours}${minutes}:${seconds}`;
-    }
-    return time;
-  };
-
-  const setStartTime = () => {
-    setStart(getTime());
-  };
-
-  const setEndTime = () => {
-    setEnd(getTime());
-  };
-
-  const navigate = (item?: IItemModel) => {
-    if (item?.isDirectory) {
-      setPath(`${path}/${item?.name}`);
-    } else if (stream) {
-      setStream(undefined);
+      await contentApi
+        .attach(content.id, item.locationId, `${item.path}/${item.name}`)
+        .then((data) => {
+          setContent(toForm(data));
+          toast.success('Attachment added to this snippet.');
+        });
     }
   };
 
   return (
     <styled.ContentClipForm>
-      <div>
-        <ToggleGroup label="Location" defaultSelected={locations[0].label} options={locations} />
-      </div>
-      <div>
-        <Breadcrumb label="Path" path={path} setPath={setPath} />
-      </div>
-      <Row>
-        <Col flex="1 1 100%">
-          <div className="file-table">
-            <ClipDirectoryTable
-              data={folder.items}
-              onDelete={onDelete}
-              onSelect={onSelect}
-              onDownload={onDownload}
-              onAttach={onAttach}
-              navigate={navigate}
-            />
-          </div>
-        </Col>
-      </Row>
-      <Row justifyContent="center" className={!stream ? 'hidden' : ''}>
-        <Col className="video">
-          <Row>
-            <video ref={videoRef} controls>
-              HTML5 Video is required for this example
-            </video>
-          </Row>
-          <Row justifyContent="center">{<Error error={error} />}</Row>
-        </Col>
-        <Row className="video-buttons" justifyContent="center">
-          <Col>
-            <p className="start-end">Start: {getTimePoint(start)}</p>
-            <Button
-              onClick={() => {
-                setStartTime();
-              }}
-              variant={ButtonVariant.secondary}
-            >
-              Set Start
-            </Button>
-          </Col>
-          <Col>
-            <p className="start-end">End: {getTimePoint(end)}</p>
-            <Button
-              onClick={() => {
-                setEndTime();
-              }}
-              variant={ButtonVariant.secondary}
-            >
-              Set End
-            </Button>
-          </Col>
-          <Col>
-            <p className="start-end">Filename:</p>
-            <Text
-              name="prefix"
-              width={FieldSize.Small}
-              label=""
-              className="prefix"
-              onChange={(e) => {
-                setPrefix(e.target.value);
-              }}
-            />
-          </Col>
-          <Col>
-            <Button
-              className="create-clip"
-              onClick={() => {
-                createClip();
-              }}
-              variant={ButtonVariant.secondary}
-            >
-              Create Clip
-            </Button>
-          </Col>
-          <Col>
-            <Button
-              className="create-clip"
-              onClick={() => {
-                joinClips();
-              }}
-              variant={ButtonVariant.secondary}
-            >
-              Join Clips
-            </Button>
-          </Col>
-          {/* Modal to appear when removing a file */}
-          <Modal
-            isShowing={isShowing}
-            hide={toggle}
-            type="delete"
-            headerText="Confirm Delete"
-            body={`Are you sure you want to delete this ${item?.isDirectory ? 'folder' : 'file'}?`}
-            confirmText="Yes, Remove It"
-            onConfirm={async () => {
-              try {
-                // TODO: Only certain users should be allowed to delete certain files/folders.
-                await storageApi.delete(
-                  locationId,
-                  item?.isDirectory ? path : `${path}/${item?.name}`,
-                );
-                onSelect();
-                setFolder({
-                  ...folder,
-                  items: folder.items.filter((i) => i.name !== item?.name),
-                });
-                toast.success(`${item?.name} has been deleted`);
-              } finally {
-                toggle();
-              }
-            }}
-          />
-        </Row>
-      </Row>
+      <FileManager
+        locationId={locationId}
+        path={path}
+        onAttach={onAttach}
+        onNavigate={(locationId, path) => {
+          setLocationId(locationId);
+          setPath(path);
+          navigate(`${window.location.pathname}?path=${path}`);
+        }}
+        setClipErrors={setClipErrors}
+      />
     </styled.ContentClipForm>
   );
 };

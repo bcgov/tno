@@ -20,7 +20,7 @@ public static class DbContextHelper
             .UseInMemoryDatabase(databaseName: dbName ?? Guid.NewGuid().ToString())
             .ConfigureWarnings(o => o.Ignore(InMemoryEventId.TransactionIgnoredWarning))
             .Options;
-        return new TNOContext(options);
+        return new TnoTestContext(options);
     }
 
     /// <summary>

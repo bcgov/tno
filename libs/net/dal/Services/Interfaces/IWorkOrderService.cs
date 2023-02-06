@@ -20,4 +20,12 @@ public interface IWorkOrderService : IBaseService<WorkOrder, long>
     /// <param name="contentId"></param>
     /// <returns></returns>
     IEnumerable<WorkOrder> FindByContentId(long contentId);
+
+    /// <summary>
+    /// Find all work orders for the specified 'locationId' and 'path'.
+    /// </summary>
+    /// <param name="locationId"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    IEnumerable<WorkOrder> FindByFile(int locationId, string path);
 }

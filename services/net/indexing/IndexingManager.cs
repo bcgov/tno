@@ -34,7 +34,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <summary>
     /// get - Kafka message consumer.
     /// </summary>
-    protected IKafkaListener<string, IndexRequest> Listener { get; private set; }
+    protected IKafkaListener<string, IndexRequestModel> Listener { get; private set; }
 
     /// <summary>
     /// get - Kafka message producer.
@@ -59,7 +59,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="logger"></param>
     public IndexingManager(
         IKafkaAdmin kafkaAdmin,
-        IKafkaListener<string, IndexRequest> consumer,
+        IKafkaListener<string, IndexRequestModel> consumer,
         IKafkaMessenger producer,
         IApiService api,
         IOptions<IndexingOptions> options,
@@ -214,7 +214,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <param name="result"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task HandleMessageAsync(ConsumeResult<string, IndexRequest> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, IndexRequestModel> result)
     {
         try
         {
@@ -383,9 +383,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         if (!String.IsNullOrWhiteSpace(this.Options.NotificationTopic))
         {
-            // TODO: Make request to API to determine what natifications should be sent.
+            // TODO: Make request to API to determine what notifications should be sent.
             // TODO: Generate appropriate notification request.
-            var notification = new NotificationRequest(0, content.Id, 0, 0);
+            var notification = new NotificationRequestModel(0, content.Id, 0, 0);
             var result = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, content.Uid, notification);
             if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting a notification request.  ContentId: {content.Id}");
         }

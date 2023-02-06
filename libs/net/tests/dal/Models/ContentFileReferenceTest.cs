@@ -38,7 +38,7 @@ public class ContentFileReferenceTest
         Assert.Equal(content.Version, item.Version);
         Assert.Equal(content, item.Content);
         Assert.Equal(file, item.File);
-        Assert.Equal("source/source-1.pdf", item.Path);
+        Assert.Equal($"source{Path.DirectorySeparatorChar}source-1.pdf", item.Path);
         Assert.Equal(file.FileName, item.FileName);
         Assert.Equal("plain/text", item.ContentType);
         Assert.Equal(file.Length, item.Size);

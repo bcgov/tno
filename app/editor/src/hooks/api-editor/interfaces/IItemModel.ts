@@ -5,4 +5,5 @@ export interface IItemModel {
   size?: number;
   mimeType?: string;
   modified?: string;
+  isLocal: boolean;
 }

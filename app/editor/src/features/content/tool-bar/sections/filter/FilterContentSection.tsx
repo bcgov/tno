@@ -47,16 +47,15 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     { label: '48 HRS', value: 2 },
     { label: 'ALL', value: 3 },
   ];
-  const timeFrameSelected = timeFrames[search.timeFrame ?? 0].label.toLowerCase() ?? 'today';
+  const timeFrameSelected = timeFrames[search.timeFrame ?? 0].label;
 
   const usersSelections = [
     { label: 'ALL CONTENT', value: 0 },
     { label: 'MY CONTENT', value: userInfo?.id ?? 0 },
   ];
   const usersSelected =
-    usersSelections
-      .find((i) => (i.value === search.userId ? +search.userId : 0))
-      ?.label.toLowerCase() ?? 'all content';
+    usersSelections.find((i) => (i.value === search.userId ? +search.userId : 0))?.label ??
+    'ALL CONTENT';
 
   React.useEffect(() => {
     setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));
@@ -71,7 +70,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     value && onChange({ ...filter, userId: value });
   };
 
-  /** clear time fram when start end date is selected */
+  /** clear time frame when start end date is selected */
   React.useEffect(() => {
     if ((!!filterAdvanced.startDate || !!filterAdvanced.endDate) && filter.timeFrame !== '') {
       onChange({ ...filter, timeFrame: '' });
@@ -95,9 +94,18 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                       onChange({ ...filter, timeFrame: 0 });
                     },
                   },
-                  { label: '24 HRS', onClick: () => onChange({ ...filter, timeFrame: 1 }) },
-                  { label: '48 HRS', onClick: () => onChange({ ...filter, timeFrame: 2 }) },
-                  { label: 'ALL', onClick: () => onChange({ ...filter, timeFrame: 3 }) },
+                  {
+                    label: '24 HRS',
+                    onClick: () => onChange({ ...filter, timeFrame: 1 }),
+                  },
+                  {
+                    label: '48 HRS',
+                    onClick: () => onChange({ ...filter, timeFrame: 2 }),
+                  },
+                  {
+                    label: 'ALL',
+                    onClick: () => onChange({ ...filter, timeFrame: 3 }),
+                  },
                 ]}
               />
             </Row>

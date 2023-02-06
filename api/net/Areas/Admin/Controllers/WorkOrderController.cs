@@ -1,15 +1,16 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
 using TNO.API.Models;
 using TNO.API.SignalR;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
-using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Keycloak;
 
@@ -18,7 +19,7 @@ namespace TNO.API.Areas.Admin.Controllers;
 /// <summary>
 /// WorkOrderController class, provides WorkOrder endpoints for the admin api.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Administrator)]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("admin")]
 [ApiVersion("1.0")]
@@ -33,6 +34,7 @@ public class WorkOrderController : ControllerBase
     #region Variables
     private readonly IWorkOrderService _workOrderService;
     private readonly IHubContext<WorkOrderHub> _hub;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -41,10 +43,12 @@ public class WorkOrderController : ControllerBase
     /// </summary>
     /// <param name="workOrderService"></param>
     /// <param name="hub"></param>
-    public WorkOrderController(IWorkOrderService workOrderService, IHubContext<WorkOrderHub> hub)
+    /// <param name="serializerOptions"></param>
+    public WorkOrderController(IWorkOrderService workOrderService, IHubContext<WorkOrderHub> hub, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _workOrderService = workOrderService;
         _hub = hub;
+        _serializerOptions = serializerOptions.Value;
     }
     #endregion
 
@@ -62,7 +66,7 @@ public class WorkOrderController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _workOrderService.Find(new WorkOrderFilter(query));
-        var items = result.Items.Select(ds => new WorkOrderModel(ds));
+        var items = result.Items.Select(ds => new WorkOrderModel(ds, _serializerOptions));
         var page = new Paged<WorkOrderModel>(items, result.Page, result.Quantity, items.Count());
         return new JsonResult(page);
     }
@@ -82,7 +86,7 @@ public class WorkOrderController : ControllerBase
         var result = _workOrderService.FindById(id);
 
         if (result == null) return new NoContentResult();
-        return new JsonResult(new WorkOrderModel(result));
+        return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -97,8 +101,8 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Add(WorkOrderModel model)
     {
-        var result = _workOrderService.AddAndSave((WorkOrder)model);
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new WorkOrderModel(result));
+        var result = _workOrderService.AddAndSave(model.ToEntity(_serializerOptions));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new WorkOrderModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -116,9 +120,9 @@ public class WorkOrderController : ControllerBase
     {
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");
-        var result = _workOrderService.UpdateAndSave(model.CopyTo(entity));
+        var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
         await _hub.Clients.All.SendAsync("WorkOrder", model);
-        return new JsonResult(new WorkOrderModel(result));
+        return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 
     /// <summary>
@@ -134,7 +138,7 @@ public class WorkOrderController : ControllerBase
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Delete(WorkOrderModel model)
     {
-        _workOrderService.DeleteAndSave((WorkOrder)model);
+        _workOrderService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
     }
     #endregion
