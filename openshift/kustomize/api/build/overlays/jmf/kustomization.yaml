@@ -19,4 +19,4 @@ patches:
         value: https://github.com/fosol/tno.git
       - op: replace
         path: /spec/source/git/ref
-        value: dev
+        value: tno-736

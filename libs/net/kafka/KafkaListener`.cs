@@ -201,6 +201,14 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
                 _logger.LogWarning("Unexpected consume containing no message");
             }
         }
+        catch (ConsumeException ex)
+        {
+            // No need to thro
+            if (ex.Message.Contains("Subscribed topic not available:"))
+                _logger.LogWarning(ex, "Subscribed topic not available: {topic}: Broker: Unknown topic or partition", this.Consumer?.Subscription);
+            else
+                HandleException(ex);
+        }
         catch (Exception ex)
         {
             HandleException(ex);
