@@ -57,7 +57,7 @@ public class ConnectionModel : BaseTypeWithAuditColumnsModel<int>
     public Entities.Connection ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Connection)this;
-        entity.Configuration = JsonSerializer.Serialize(this.Configuration, options);
+        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
         return entity;
     }
 
@@ -73,7 +73,7 @@ public class ConnectionModel : BaseTypeWithAuditColumnsModel<int>
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             ConnectionType = model.ConnectionType,
-            Configuration = JsonSerializer.Serialize(model.Configuration),
+            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
             Version = model.Version ?? 0
         };
 
