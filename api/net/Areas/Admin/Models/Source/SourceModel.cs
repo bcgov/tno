@@ -1,4 +1,3 @@
-using TNO.API.Areas.Admin.Models.Product;
 using TNO.API.Models;
 using System.Text.Json;
 
@@ -132,7 +131,7 @@ public class SourceModel : AuditColumnsModel
     public Entities.Source ToEntity(JsonSerializerOptions options)
     {
         var entity = (Entities.Source)this;
-        entity.Configuration = JsonSerializer.Serialize(this.Configuration, options);
+        entity.Configuration = JsonDocument.Parse(JsonSerializer.Serialize(this.Configuration, options));
         return entity;
     }
 
@@ -152,7 +151,7 @@ public class SourceModel : AuditColumnsModel
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
-            Configuration = JsonSerializer.Serialize(model.Configuration),
+            Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
             Version = model.Version ?? 0
         };
 
