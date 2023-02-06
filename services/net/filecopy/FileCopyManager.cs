@@ -271,8 +271,9 @@ public class FileCopyManager : ServiceManager<FileCopyOptions>
                     var localDirectory = Path.GetDirectoryName(localPath) ?? throw new ConfigurationException("Local path is invalid");
                     if (!Directory.Exists(localDirectory)) Directory.CreateDirectory(localDirectory);
 
-                    this.Logger.LogInformation("Copying remote file. Path: {path}", remotePath);
+                    this.Logger.LogInformation("File copy started. Path: {path}", remotePath);
                     SftpHelper.CopyFile(client, remotePath, localPath);
+                    this.Logger.LogInformation("File copy completed. Path: {path}", remotePath);
 
                     await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
                 }

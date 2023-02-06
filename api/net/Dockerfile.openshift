@@ -1,5 +1,10 @@
 ARG BUILD_CONFIGURATION=Release
 FROM image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/aspnet:7.0 AS base
+
+RUN apt-get update && apt-get -y upgrade
+RUN apt -y install curl libc6-dev libgdiplus ffmpeg
+RUN apt-get clean
+
 EXPOSE 443 8080
 
 # Copy csproj and restore as distinct layers
