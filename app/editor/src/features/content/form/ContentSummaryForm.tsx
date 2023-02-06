@@ -184,6 +184,12 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               }
               value={!!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
               onChange={(date) => {
+                if (!!values.publishedOnTime) {
+                  const hours = values.publishedOnTime?.split(':');
+                  if (!!hours && !!date) {
+                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                  }
+                }
                 setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
               }}
             />
