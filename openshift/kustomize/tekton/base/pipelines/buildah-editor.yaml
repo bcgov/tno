@@ -58,6 +58,9 @@ spec:
     - name: conditions
       description: |
         Pipeline configuration file.
+    - name: build
+      description: |
+        Pipeline build volume
     - name: owasp-settings
       description: |
         mounts /zap/wrk to store generated configs and results.
@@ -110,6 +113,8 @@ spec:
           workspace: source
         - name: conditions
           workspace: conditions
+        - name: build
+          workspace: build
 
     - name: maintenance-on
       runAfter:

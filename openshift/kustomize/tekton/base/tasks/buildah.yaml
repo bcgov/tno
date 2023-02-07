@@ -39,6 +39,8 @@ spec:
       default: vfs
   workspaces:
     - name: source
+    - name: build
+      mountPath: /var/lib/containers/storage/vfs/dir
   steps:
     - name: build
       image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/buildah:latest
@@ -64,7 +66,7 @@ spec:
           cpu: 250m
         limits:
           memory: 2560Mi
-          cpu: 500m
+          cpu: 1000m
       script: |
         #!/usr/bin/env bash
         set -xe

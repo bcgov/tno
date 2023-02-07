@@ -56,6 +56,9 @@ spec:
     - name: owasp-settings
       description: |
         mounts /zap/wrk to store generated configs and results.
+    - name: build
+      description: |
+        Pipeline build volume
 
   tasks:
     - name: wait
@@ -101,6 +104,8 @@ spec:
       workspaces:
         - name: source
           workspace: source
+        - name: build
+          workspace: build
 
     - name: deploy-api
       runAfter:
