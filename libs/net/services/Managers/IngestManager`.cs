@@ -88,9 +88,6 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                     var delayMS = ingest.IngestSchedules.Where(s => s.Schedule?.DelayMS > 0).Min(s => s.Schedule?.DelayMS) ?? delay;
                     delay = delayMS < delay ? delayMS : delay;
 
-                    // Fetch the latest version of the ingest for checking if the location is still valid or not.
-                    var theLatest = await this.Api.GetIngestAsync(ingest.Id);
-
                     // Maintain a dictionary of managers for each ingest.
                     // Fire event for the ingest scheduler.
                     var hasKey = _ingests.ContainsKey(ingest.Id);
@@ -104,10 +101,16 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                         this.State.Stop();
                         break;
                     }
-                    else if (!ingest.IsEnabled || (theLatest != null && !theLatest.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())))
+                    else
                     {
-                        await manager.StopAsync();
-                        continue;
+                        // Fetch the latest version of the ingest for checking if the location is still valid or not.
+                        var theLatest = await this.Api.GetIngestAsync(ingest.Id);
+
+                        if (!ingest.IsEnabled || (theLatest != null && !theLatest.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())))
+                        {
+                            await manager.StopAsync();
+                            continue;
+                        }
                     }
 
                     // If the service isn't running, don't make additional requests.
