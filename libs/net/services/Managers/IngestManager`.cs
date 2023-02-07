@@ -88,10 +88,8 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                     var delayMS = ingest.IngestSchedules.Where(s => s.Schedule?.DelayMS > 0).Min(s => s.Schedule?.DelayMS) ?? delay;
                     delay = delayMS < delay ? delayMS : delay;
 
-                    // Fetch the latest version of the ingest and check if the location is still valid or not.
+                    // Fetch the latest version of the ingest for checking if the location is still valid or not.
                     var theLatest = await this.Api.GetIngestAsync(ingest.Id);
-                    var isExpected = theLatest?.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower());
-                    if (!isExpected.HasValue || !isExpected.Value) continue;
 
                     // Maintain a dictionary of managers for each ingest.
                     // Fire event for the ingest scheduler.
@@ -106,7 +104,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                         this.State.Stop();
                         break;
                     }
-                    else if (!ingest.IsEnabled)
+                    else if (!ingest.IsEnabled || (theLatest != null && !theLatest.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())))
                     {
                         await manager.StopAsync();
                         continue;
