@@ -34,13 +34,15 @@ RUN chmod +x /app/entrypoint.sh
 RUN mkdir /data
 VOLUME /data
 RUN chgrp -R 0 /data && \
-    chmod -R g=u /data
+    chmod -R g=u /data && \
+    chown -R 1001 /av
 
 # This volume is the local storage for capture A/V files.
 RUN mkdir /av
 VOLUME /av
 RUN chgrp -R 0 /av && \
-    chmod -R g=u /av
+    chmod -R g=u /av && \
+    chown -R 1001 /av
 
 # USER appuser
 ENTRYPOINT ["/app/entrypoint.sh"]

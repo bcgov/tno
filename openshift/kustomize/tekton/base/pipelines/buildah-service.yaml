@@ -58,6 +58,9 @@ spec:
     - name: conditions
       description: |
         Pipeline configuration file.
+    - name: build
+      description: |
+        Pipeline build volume
 
   tasks:
     - name: wait
@@ -103,6 +106,8 @@ spec:
       workspaces:
         - name: source
           workspace: source
+        - name: build
+          workspace: build
 
     - name: deploy-service
       runAfter:
