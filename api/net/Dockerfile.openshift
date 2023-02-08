@@ -35,7 +35,7 @@ RUN mkdir /data
 VOLUME /data
 RUN chgrp -R 0 /data && \
     chmod -R g=u /data && \
-    chown -R 1001 /av
+    chown -R 1001 /data
 
 # This volume is the local storage for capture A/V files.
 RUN mkdir /av

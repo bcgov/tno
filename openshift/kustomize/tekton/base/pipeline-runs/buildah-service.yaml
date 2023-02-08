@@ -1,27 +1,33 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: buildah-services-
+  generateName: buildah-service-
   annotations:
     description: >-
-      Build and deploy all services that were changed in the last PR.
+      Build and deploy the specified service.
     tags: "oc,git,docker,build,deploy"
   labels:
-    name: buildah-services-pipeline
+    name: buildah-service
     part-of: tno
     version: 1.0.0
     component: pipeline
     managed-by: kustomize
 spec:
   pipelineRef:
-    name: buildah-services
+    name: buildah-service
   params:
     - name: GIT_REF
       value: dev
-    - name: IMAGE_TAG
-      value: latest
     - name: CONTEXT
       value: tno
+    - name: SERVICE_NAME
+      value: transcription
+    - name: IMAGE_TAG
+      value: latest
+    - name: PROJECT_SHORTNAME
+      value: 9b301c
+    - name: DEPLOY_TO
+      value: dev
   serviceAccountName: pipeline
   timeout: 1h45m0s
   workspaces:
@@ -36,6 +42,16 @@ spec:
           resources:
             requests:
               storage: 50Mi
+          storageClassName: netapp-file-standard
+          volumeMode: Filesystem
+    - name: build
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
           storageClassName: netapp-file-standard
           volumeMode: Filesystem
     - name: owasp-settings
