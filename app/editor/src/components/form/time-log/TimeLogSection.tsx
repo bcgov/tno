@@ -16,6 +16,15 @@ export interface ITimeLogSectionProps {
   userId: number;
 }
 
+/**
+ * TimeLogSection contains the input for time tracking gor a content item.
+ * @param effort The total effort for the content item.
+ * @param setEffort The setter for the total effort.
+ * @param toggle The toggle function for the time log modal.
+ * @param content The content from parent.
+ * @param setContent The setter for the content.
+ * @param userId The id of the user.
+ */
 export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({
   effort,
   setEffort,
