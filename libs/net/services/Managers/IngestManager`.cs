@@ -104,9 +104,9 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                     else
                     {
                         // Fetch the latest version of the ingest for checking if the location is still valid or not.
-                        var theLatest = await this.Api.GetIngestAsync(ingest.Id);
+                        var theLatest = await Api.GetIngestAsync(ingest.Id);
 
-                        if (!ingest.IsEnabled || (theLatest != null && !theLatest.DataLocations.Any(d => d.Name.ToLower() == this.Options.DataLocation.ToLower())))
+                        if (!ingest.IsEnabled || (!theLatest?.DataLocations.Any(d => d.Name.ToLower() == Options.DataLocation.ToLower()) ?? true))
                         {
                             await manager.StopAsync();
                             continue;
