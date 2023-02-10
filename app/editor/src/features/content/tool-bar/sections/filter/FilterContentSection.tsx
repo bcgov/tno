@@ -38,7 +38,6 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [{ userInfo }] = useApp();
-
   const search = fromQueryString(window.location.search);
 
   const timeFrames = [
@@ -147,7 +146,10 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}
                 options={filterEnabled(productOptions)}
-                // value={productOptions.find((mt) => mt.value === filter.productId)}
+                value={
+                  filter.productIds?.map((id) => productOptions.find((opt) => opt.value === id)) ??
+                  ''
+                }
                 width={FieldSize.Big}
                 defaultValue={productOptions[0]}
                 components={{

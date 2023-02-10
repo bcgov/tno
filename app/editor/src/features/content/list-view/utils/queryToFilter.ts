@@ -31,7 +31,12 @@ export const queryToFilter = (
       ownerId: convertTo(search.ownerId, 'number', filter.ownerId),
       userId: convertTo(search.userId, 'number', filter.userId),
       timeFrame: convertTo(search.timeFrame, 'number', filter.timeFrame),
-      productIds: filter.productIds,
+      productIds: search.productIds
+        ? search.productIds
+            .split('&')
+            .filter((item: string | string[]) => item.includes('productIds'))
+            .map((item: string) => Number(item.split('=')[1]))
+        : [],
       // Actions
       onTicker: convertTo(search.onTicker, 'string', filter.onTicker),
       commentary: convertTo(search.commentary, 'string', filter.commentary),

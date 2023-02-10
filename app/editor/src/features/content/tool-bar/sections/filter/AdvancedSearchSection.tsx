@@ -5,6 +5,7 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { useLookupOptions } from 'hooks';
+import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
@@ -66,7 +67,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
               options={[new OptionItem('', 0) as IOptionItem].concat([
                 ...filterEnabled(sourceOptions, filterAdvanced.searchTerm),
               ])}
-              value={sourceOptions.find((s) => s.value === filterAdvanced.searchTerm)}
+              value={sourceOptions.find((s) => s.label === filterAdvanced.searchTerm)}
             />
           </Show>
           <Show visible={filterAdvanced.fieldType !== 'otherSource'}>

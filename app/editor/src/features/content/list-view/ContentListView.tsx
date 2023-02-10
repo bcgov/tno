@@ -21,7 +21,7 @@ import { ContentToolBar } from '../tool-bar';
 import { columns, defaultPage } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
-import { makeFilter, queryToFilter } from './utils';
+import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
 
 /**
  * ContentListView provides a way to list, search and select content for viewing and editing.
@@ -32,8 +32,10 @@ export const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
   const { id: contentId = '' } = useParams();
   const [, { updateContent }] = useContentStore();
-  const [{ filter, filterAdvanced, content }, { findContent, getContent, storeFilter }] =
-    useContent();
+  const [
+    { filter, filterAdvanced, content },
+    { findContent, getContent, storeFilter, storeFilterAdvanced },
+  ] = useContent();
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   useTooltips();
@@ -49,6 +51,7 @@ export const ContentListView: React.FC = () => {
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
     storeFilter(queryToFilter(filter, window.location.search));
+    storeFilterAdvanced(queryToFilterAdvanced(filterAdvanced, window.location.search));
     // Only want this to run on the first load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
