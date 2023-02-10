@@ -15,8 +15,8 @@ COPY services/net/image services/net/image
 COPY libs/net libs/net
 RUN if [ ! -d services/net/image/keys ]; then mkdir services/net/image/keys; fi
 
-# RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
-#     fix_permissions "/app" "/tmp"
+RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
+    fix_permissions "/app" "/tmp"
 
 WORKDIR /src/services/net/image
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build

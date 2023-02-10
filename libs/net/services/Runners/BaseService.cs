@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotNetEnv.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -47,9 +48,10 @@ public abstract class BaseService
     /// <param name="args"></param>
     public BaseService(string[] args)
     {
-        DotNetEnv.Env.Load();
+        DotNetEnv.Env.Load($"{Environment.CurrentDirectory}{Path.DirectorySeparatorChar}.env");
         var builder = WebApplication.CreateBuilder(args);
-        this.Configuration = Configure(builder, args).Build();
+        this.Configuration = Configure(builder, args)
+            .Build();
         ConfigureServices(builder.Services);
         this.App = builder.Build();
         Console.OutputEncoding = Encoding.UTF8;
