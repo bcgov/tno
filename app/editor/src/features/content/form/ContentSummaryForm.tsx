@@ -307,7 +307,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Button>
           </Row>
 
-          <Show visible={contentType !== ContentTypeName.Image}>
+          <Show visible={contentType === ContentTypeName.Snippet}>
             <Row className="multi-group">
               <TimeLogSection
                 toggle={toggle}
