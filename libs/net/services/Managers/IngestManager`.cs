@@ -64,7 +64,12 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         // Always keep looping until an unexpected failure occurs.
         while (true)
         {
-            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause) this.State.Stop();
+            if (this.State.Status == ServiceStatus.RequestSleep || this.State.Status == ServiceStatus.RequestPause)
+            {
+                await StopAllAsync(this.Ingests);
+                this.State.Stop();
+            }
+
             if (this.State.Status == ServiceStatus.Sleeping || this.State.Status == ServiceStatus.Paused)
             {
                 this.Logger.LogDebug("The service is not running '{Status}'", this.State.Status);
@@ -96,10 +101,16 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                         this.State.Stop();
                         break;
                     }
-                    else if (!ingest.IsEnabled)
+                    else
                     {
-                        await manager.StopAsync();
-                        continue;
+                        // Fetch the latest version of the ingest for checking if the location is still valid or not.
+                        var theLatest = await Api.GetIngestAsync(ingest.Id);
+
+                        if (!ingest.IsEnabled || (!theLatest?.DataLocations.Any(d => d.Name.ToLower() == Options.DataLocation.ToLower()) ?? true))
+                        {
+                            await manager.StopAsync();
+                            continue;
+                        }
                     }
 
                     // If the service isn't running, don't make additional requests.
