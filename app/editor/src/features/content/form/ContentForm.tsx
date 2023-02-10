@@ -438,7 +438,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                   x.label.includes('(POST)') ||
                                   x.label.includes('(SUN)'),
                               )}
-                              required={!props.values.otherSource}
+                              required={
+                                !props.values.otherSource || props.values.otherSource !== ''
+                              }
                               isDisabled={!!props.values.tempSource}
                             />
                             <FormikSelect

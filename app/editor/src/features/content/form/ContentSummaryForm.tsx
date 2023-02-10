@@ -1,6 +1,7 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { Wysiwyg } from 'components/form';
+import { TimeLogSection } from 'components/form/time-log/TimeLogSection';
 import { ToningGroup } from 'components/form/toning/ToningGroup';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
@@ -308,50 +309,14 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 
           <Show visible={contentType !== ContentTypeName.Image}>
             <Row className="multi-group">
-              <FormikText
-                width={FieldSize.Small}
-                name="prep"
-                label="Prep Time (minutes)"
-                type="number"
+              <TimeLogSection
+                toggle={toggle}
+                content={content}
+                setContent={setContent}
+                effort={effort}
+                setEffort={setEffort}
+                userId={userId!}
               />
-              <Button
-                className="top-spacer add-time"
-                variant={ButtonVariant.secondary}
-                disabled={isNaN((values as any).prep)}
-                onClick={() => {
-                  setEffort(effort!! + Number((values as any).prep));
-                  setFieldValue('timeTrackings', [
-                    ...values.timeTrackings,
-                    {
-                      userId: userId,
-                      activity: !!values.id ? 'Updated' : 'Created',
-                      effort: (values as any).prep,
-                      createdOn: new Date(),
-                    },
-                  ]);
-                  setFieldValue('prep', '');
-                }}
-              >
-                Add
-              </Button>
-              <FormikText
-                disabled
-                width={FieldSize.Tiny}
-                name="total"
-                label="Total"
-                value={effort?.toString()}
-              />
-              <Button
-                onClick={() => {
-                  setContent({ ...content, timeTrackings: values.timeTrackings });
-                  toggle();
-                }}
-                className="top-spacer"
-                variant={ButtonVariant.secondary}
-              >
-                View Log
-              </Button>
-
               <Modal
                 body={
                   <Wysiwyg
