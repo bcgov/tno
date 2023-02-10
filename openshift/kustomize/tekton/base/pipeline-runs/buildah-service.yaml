@@ -52,7 +52,7 @@ spec:
           resources:
             requests:
               storage: 5Gi
-          storageClassName: netapp-file-standard
+          storageClassName: netapp-block-standard
           volumeMode: Filesystem
     - name: owasp-settings
       emptyDir: {}

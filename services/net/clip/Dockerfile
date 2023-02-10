@@ -15,8 +15,8 @@ COPY services/net/command services/net/command
 COPY services/net/clip services/net/clip
 COPY libs/net libs/net
 
-# RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
-#     fix_permissions "/app" "/tmp"
+RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
+    fix_permissions "/app" "/tmp"
 
 WORKDIR /src/services/net/clip
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build

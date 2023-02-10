@@ -64,7 +64,7 @@ spec:
                 resources:
                   requests:
                     storage: 20Gi
-                storageClassName: netapp-file-standard
+                storageClassName: netapp-block-standard
                 volumeMode: Filesystem
           - name: owasp-settings
             emptyDir: {}

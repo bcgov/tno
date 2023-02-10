@@ -48,7 +48,7 @@ spec:
         capabilities:
           add:
             - SETFCAP
-            - NET_BIND_SERVICE
+        runAsUser: 0
       workingDir: $(workspaces.source.path)
       env:
         - name: IMAGE_REGISTRY_USER
