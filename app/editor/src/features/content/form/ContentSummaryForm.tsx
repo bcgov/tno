@@ -19,6 +19,7 @@ import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
+  Claim,
   Col,
   FieldSize,
   FormikDatePicker,
@@ -218,13 +219,15 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Show>
           </Row>
         </Col>
-        <div className="vl" />
-        <Col className="transcription-section">
-          <label className="label">Create Labels</label>
-          <Button>
-            <TbLanguage className="nlp-button" /> START NLP
-          </Button>
-        </Col>
+        <Show visible={keycloak.hasClaim(Claim.administrator)}>
+          <div className="vl" />
+          <Col className="transcription-section">
+            <label className="label">Create Labels</label>
+            <Button>
+              <TbLanguage className="nlp-button" /> START NLP
+            </Button>
+          </Col>
+        </Show>
         <div className="vl" />
         <Col>
           <FormikSelect
