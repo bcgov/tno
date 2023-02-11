@@ -144,7 +144,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             <Row>
               <FormikSelect
                 name="seriesId"
-                label={contentType === ContentTypeName.Snippet ? 'Show/Program' : 'Series'}
+                label="Show/Program"
                 width={FieldSize.Medium}
                 value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
                 options={filterEnabled(seriesOptions, values.seriesId)}
