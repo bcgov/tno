@@ -20,6 +20,8 @@ export const mockContents: IContentModel[] = [
     page: 'page',
     publishedOn: new Date().toISOString(),
     summary: '',
+    isHidden: false,
+    isApproved: true,
   },
   {
     id: 2,
@@ -39,6 +41,8 @@ export const mockContents: IContentModel[] = [
     page: 'page',
     publishedOn: new Date().toISOString(),
     summary: '',
+    isHidden: false,
+    isApproved: true,
   },
   {
     id: 3,
@@ -58,6 +62,8 @@ export const mockContents: IContentModel[] = [
     page: 'page',
     publishedOn: new Date().toISOString(),
     summary: '',
+    isHidden: false,
+    isApproved: true,
   },
   {
     id: 4,
@@ -77,6 +83,8 @@ export const mockContents: IContentModel[] = [
     page: 'page',
     publishedOn: new Date().toISOString(),
     summary: '',
+    isHidden: false,
+    isApproved: true,
   },
   {
     id: 5,
@@ -96,6 +104,8 @@ export const mockContents: IContentModel[] = [
     page: 'page',
     publishedOn: new Date().toISOString(),
     summary: '',
+    isHidden: false,
+    isApproved: true,
   },
   {
     id: 6,
@@ -115,5 +125,7 @@ export const mockContents: IContentModel[] = [
     page: 'page',
     publishedOn: new Date().toISOString(),
     summary: '',
+    isHidden: false,
+    isApproved: true,
   },
 ];

@@ -286,10 +286,15 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task PublishContentAsync(ContentModel content)
     {
+        // Remove the transcript body if it hasn't been approved.
+        var body = content.Body;
+        if (!content.IsApproved && content.ContentType == ContentType.Snippet) content.Body = "";
         var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
+
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
+            content.Body = body;
             // Update the status of the content to indicate it has been published.
             if (content.Status != ContentStatus.Published)
             {

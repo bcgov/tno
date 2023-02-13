@@ -31,6 +31,8 @@ export interface IContentForm {
   page: string;
   summary: string;
   body: string;
+  isHidden: boolean;
+  isApproved: boolean;
   actions: IContentActionModel[];
   categories: IContentCategoryModel[];
   tags: IContentTagModel[];

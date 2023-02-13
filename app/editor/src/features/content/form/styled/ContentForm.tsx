@@ -119,4 +119,8 @@ export const ContentForm = styled.div`
       color: ${(props) => props.theme.css.primaryColor};
     }
   }
+
+  .approve-transcript {
+    padding-left: 1em;
+  }
 `;
