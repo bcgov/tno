@@ -45,7 +45,7 @@ spec:
     type: Docker
     dockerStrategy:
       imageOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/indexing/Dockerfile
+      dockerfilePath: services/net/indexing/Dockerfile.openshift
   output:
     to:
       kind: ImageStreamTag
