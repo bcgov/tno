@@ -654,24 +654,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         Transcribe
                       </Button>
                     </Show>
-                    <Show visible={!!props.values.id && props.values.body.length > 0}>
-                      <Button
-                        onClick={() =>
-                          isWorkOrderStatus(
-                            form.workOrders,
-                            WorkOrderTypeName.NaturalLanguageProcess,
-                            [WorkOrderStatusName.Completed],
-                          )
-                            ? toggleNLP()
-                            : handleNLP(props.values)
-                        }
-                        variant={ButtonVariant.action}
-                        disabled={props.isSubmitting}
-                        tooltip="Request Natural Language Processing"
-                      >
-                        NLP
-                      </Button>
-                    </Show>
+
                     <Button
                       onClick={toggleDelete}
                       variant={ButtonVariant.danger}
