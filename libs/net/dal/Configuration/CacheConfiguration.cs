@@ -13,6 +13,8 @@ public class CacheConfiguration : AuditColumnsConfiguration<Cache>
         builder.Property(m => m.Value).IsRequired().HasMaxLength(150);
         builder.Property(m => m.Description).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
 
+        builder.HasIndex(m => new { m.Key, m.Value }, "IX_cache");
+
         base.Configure(builder);
     }
 }

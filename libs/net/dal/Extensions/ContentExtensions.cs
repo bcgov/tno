@@ -61,8 +61,6 @@ public static class ContentExtensions
             context.Entry(updated.Series).State = EntityState.Added;
             updated.SeriesId = 0;
         }
-        if (updated.PrintContent != null)
-            context.Entry(updated.PrintContent).State = EntityState.Added;
         return updated;
     }
 
@@ -212,16 +210,6 @@ public static class ContentExtensions
             if (current == null)
                 original.Links.Add(a);
         });
-
-        if (original.PrintContent != null && updated.PrintContent != null)
-        {
-            context.Entry(original.PrintContent).CurrentValues.SetValues(updated.PrintContent);
-        }
-        else if (updated.PrintContent != null)
-        {
-            context.Entry(updated.PrintContent).State = EntityState.Added;
-            original.PrintContent = updated.PrintContent;
-        }
 
         context.Entry(original).CurrentValues.SetValues(updated);
 

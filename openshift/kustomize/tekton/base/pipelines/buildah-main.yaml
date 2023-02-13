@@ -124,7 +124,7 @@ spec:
         name: build-component
         kind: Task
       runAfter:
-        - git
+        - build-db-migration
       params:
         - name: COMPONENT
           value: editor
@@ -149,7 +149,7 @@ spec:
         name: build-component
         kind: Task
       runAfter:
-        - git
+        - build-editor
       params:
         - name: COMPONENT
           value: subscriber
@@ -174,7 +174,7 @@ spec:
         name: build-component
         kind: Task
       runAfter:
-        - git
+        - build-subscriber
       params:
         - name: COMPONENT
           value: api

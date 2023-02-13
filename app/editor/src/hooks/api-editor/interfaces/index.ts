@@ -30,7 +30,6 @@ export * from './ILookupModel';
 export * from './IMetricModel';
 export * from './IPaged';
 export * from './IPageFilter';
-export * from './IPrintContentModel';
 export * from './IProductModel';
 export * from './IRegisterModel';
 export * from './IResponseErrorModel';

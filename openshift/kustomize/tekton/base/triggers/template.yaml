@@ -63,7 +63,7 @@ spec:
                   - ReadWriteOnce
                 resources:
                   requests:
-                    storage: 20Gi
+                    storage: 5Gi
                 storageClassName: netapp-block-standard
                 volumeMode: Filesystem
           - name: owasp-settings

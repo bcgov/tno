@@ -43,8 +43,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     id: 'page',
     Header: 'Section Page',
     width: 1,
-    accessor: (row) =>
-      row.printContent?.section ? `${row.printContent.section}/${row.page}` : row.page,
+    accessor: (row) => (row.section ? `${row.section}/${row.page}` : row.page),
     Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {

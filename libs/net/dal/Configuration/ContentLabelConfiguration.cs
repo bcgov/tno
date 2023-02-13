@@ -16,7 +16,7 @@ public class ContentLabelConfiguration : AuditColumnsConfiguration<ContentLabel>
 
         builder.HasOne(m => m.Content).WithMany(m => m.Labels).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(m => new { m.Key, m.Value });
+        builder.HasIndex(m => new { m.Key, m.Value }, "IX_content_label");
 
         base.Configure(builder);
     }

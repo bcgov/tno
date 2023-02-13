@@ -15,13 +15,11 @@ import {
   IContentTagModel,
   IContentTonePoolModel,
   IFileReferenceModel,
-  IPrintContentModel,
   ITimeTrackingModel,
 } from '.';
 
 export interface IContentModel extends IAuditColumnsModel {
   id: number;
-  printContent?: IPrintContentModel;
   status: ContentStatusName;
   contentType: ContentTypeName;
   licenseId: number;
@@ -37,7 +35,10 @@ export interface IContentModel extends IAuditColumnsModel {
   ownerId?: number;
   owner?: IUserModel;
   headline: string;
+  byline: string;
   uid?: string;
+  edition: string;
+  section: string;
   page: string;
   publishedOn: string;
   summary: string;

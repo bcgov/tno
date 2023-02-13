@@ -1,7 +1,7 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { AdminRouter, WorkOrderForm, WorkOrderList } from 'features/admin';
-import { ContentForm, ContentListView, ContentLogs, MorningReport } from 'features/content';
+import { ContentForm, ContentListView, MorningReport } from 'features/content';
 import { Login } from 'features/login';
 import { ReportsRouter } from 'features/reports';
 import { StorageListView } from 'features/storage';
@@ -57,12 +57,6 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           }
         />
         <Route
-          path="contents/log"
-          element={
-            <PrivateRoute claims={Claim.administrator} element={<ContentLogs />}></PrivateRoute>
-          }
-        />
-        <Route
           path="/contents/combined/:id"
           element={
             <PrivateRoute claims={Claim.editor} element={<ContentListView />}></PrivateRoute>
@@ -92,6 +86,15 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
             <PrivateRoute
               claims={Claim.editor}
               element={<ContentForm contentType={ContentTypeName.Image} />}
+            ></PrivateRoute>
+          }
+        />
+        <Route
+          path="stories/:id"
+          element={
+            <PrivateRoute
+              claims={Claim.editor}
+              element={<ContentForm contentType={ContentTypeName.Story} />}
             ></PrivateRoute>
           }
         />

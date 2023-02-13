@@ -97,10 +97,28 @@ public class Content : AuditColumns
     public string Headline { get; set; } = "";
 
     /// <summary>
+    /// get/set - The author or writer's name.
+    /// </summary>
+    [Column("byline")]
+    public string Byline { get; set; } = "";
+
+    /// <summary>
     /// get/set - Unique identifier from the source if possible.
     /// </summary>
     [Column("uid")]
     public string Uid { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The print content edition.
+    /// </summary>
+    [Column("edition")]
+    public string Edition { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The section in the print content.
+    /// </summary>
+    [Column("section")]
+    public string Section { get; set; } = "";
 
     /// <summary>
     /// get/set - The page this story was found one.
@@ -137,11 +155,6 @@ public class Content : AuditColumns
     /// </summary>
     [Column("is_hidden")]
     public bool IsHidden { get; set; }
-
-    /// <summary>
-    /// get/set - The one-to-one relationship to print content (if this content is print content).
-    /// </summary>
-    public virtual PrintContent? PrintContent { get; set; }
 
     /// <summary>
     /// get - Collection of logs associated with this content.

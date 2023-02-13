@@ -25,9 +25,10 @@ public class UserConfiguration : AuditColumnsConfiguration<User>
         builder.Property(m => m.Code).IsRequired().HasMaxLength(10).HasDefaultValueSql("''");
 
 
-        builder.HasIndex(m => m.Username).IsUnique();
-        builder.HasIndex(m => m.Key).IsUnique();
-        builder.HasIndex(m => m.Email);
+        builder.HasIndex(m => m.Username, "IX_username").IsUnique();
+        builder.HasIndex(m => m.Key, "IX_key").IsUnique();
+        builder.HasIndex(m => m.Email, "IX_email");
+        builder.HasIndex(m => new { m.LastName, m.FirstName }, "IX_last_first_name");
 
         base.Configure(builder);
     }

@@ -39,5 +39,15 @@ spec:
               storage: 50Mi
           storageClassName: netapp-file-standard
           volumeMode: Filesystem
+    - name: build
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+          storageClassName: netapp-block-standard
+          volumeMode: Filesystem
     - name: owasp-settings
       emptyDir: {}
