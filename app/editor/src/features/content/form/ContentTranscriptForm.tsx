@@ -1,4 +1,5 @@
 import { Wysiwyg } from 'components/form';
+import { Tags } from 'components/form/tags';
 
 import * as styled from './styled';
 
@@ -10,6 +11,7 @@ export const ContentTranscriptForm: React.FC = () => {
   return (
     <styled.ContentTranscriptForm>
       <Wysiwyg fieldName="body" />
+      <Tags fieldName="body" />
     </styled.ContentTranscriptForm>
   );
 };

@@ -1,13 +1,13 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { Wysiwyg } from 'components/form';
+import { Tags } from 'components/form/tags';
 import { TimeLogSection } from 'components/form/time-log/TimeLogSection';
 import { ToningGroup } from 'components/form/toning/ToningGroup';
 import { Modal } from 'components/modal/Modal';
 import { IFile, Upload } from 'components/upload';
 import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
-import { useCombinedView } from 'hooks';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
 import _ from 'lodash';
@@ -38,8 +38,6 @@ import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
 import { getTotalTime } from './utils';
 
-const tagMatch = /\[.*?\]/g;
-
 export interface IContentSummaryFormProps {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
@@ -63,7 +61,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [, { download }] = useContent();
-  const combined = useCombinedView();
 
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
@@ -287,25 +284,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           <div className="multi-group">
             <ToningGroup fieldName="tonePools" />
           </div>
-          <Row className="multi-group">
-            <FormikText
-              name="tags"
-              label="Tags"
-              disabled
-              width={combined ? FieldSize.Big : FieldSize.Large}
-              value={values.tags.map((t) => t.id).join(', ')}
-            />
-            <Button
-              variant={ButtonVariant.danger}
-              className="top-spacer"
-              onClick={() => {
-                setFieldValue('summary', values.summary.replace(tagMatch, ''));
-                setFieldValue('tags', []);
-              }}
-            >
-              Clear Tags
-            </Button>
-          </Row>
+          <Tags fieldName="summary" />
 
           <Show visible={contentType === ContentTypeName.Snippet}>
             <Row className="multi-group">
