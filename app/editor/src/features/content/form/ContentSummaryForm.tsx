@@ -13,13 +13,11 @@ import { useModal } from 'hooks/modal';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { TbLanguage } from 'react-icons/tb';
 import { useContent, useLookup } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
-  Claim,
   Col,
   FieldSize,
   FormikDatePicker,
@@ -219,15 +217,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Show>
           </Row>
         </Col>
-        <Show visible={keycloak.hasClaim(Claim.administrator)}>
-          <div className="vl" />
-          <Col className="transcription-section">
-            <label className="label">Create Labels</label>
-            <Button>
-              <TbLanguage className="nlp-button" /> START NLP
-            </Button>
-          </Col>
-        </Show>
         <div className="vl" />
         <Col>
           <FormikSelect

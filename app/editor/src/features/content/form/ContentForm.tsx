@@ -36,7 +36,6 @@ import {
   Area,
   Button,
   ButtonVariant,
-  Claim,
   Col,
   FieldSize,
   FormikHidden,
@@ -49,7 +48,6 @@ import {
   Show,
   Tab,
   Tabs,
-  useKeycloakWrapper,
 } from 'tno-core';
 import { hasErrors } from 'utils';
 
@@ -77,7 +75,6 @@ export interface IContentFormProps {
 export const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.Snippet,
 }) => {
-  const keycloak = useKeycloakWrapper();
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
@@ -657,30 +654,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         Transcribe
                       </Button>
                     </Show>
-                    <Show
-                      visible={
-                        !!props.values.id &&
-                        props.values.body.length > 0 &&
-                        keycloak.hasClaim(Claim.administrator)
-                      }
-                    >
-                      <Button
-                        onClick={() =>
-                          isWorkOrderStatus(
-                            form.workOrders,
-                            WorkOrderTypeName.NaturalLanguageProcess,
-                            [WorkOrderStatusName.Completed],
-                          )
-                            ? toggleNLP()
-                            : handleNLP(props.values)
-                        }
-                        variant={ButtonVariant.action}
-                        disabled={props.isSubmitting}
-                        tooltip="Request Natural Language Processing"
-                      >
-                        NLP
-                      </Button>
-                    </Show>
+
                     <Button
                       onClick={toggleDelete}
                       variant={ButtonVariant.danger}
