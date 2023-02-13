@@ -85,7 +85,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/syndication/Dockerfile
+          value: $(params.CONTEXT)/services/net/syndication/Dockerfile.openshift
         - name: IMAGE
           value: syndication-service
         - name: IMAGE_TAG
@@ -126,7 +126,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/capture/Dockerfile
+          value: $(params.CONTEXT)/services/net/capture/Dockerfile.openshift
         - name: IMAGE
           value: capture-service
         - name: IMAGE_TAG
@@ -167,7 +167,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/clip/Dockerfile
+          value: $(params.CONTEXT)/services/net/clip/Dockerfile.openshift
         - name: IMAGE
           value: clip-service
         - name: IMAGE_TAG
@@ -208,7 +208,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/filemonitor/Dockerfile
+          value: $(params.CONTEXT)/services/net/filemonitor/Dockerfile.openshift
         - name: IMAGE
           value: filemonitor-service
         - name: IMAGE_TAG
@@ -249,7 +249,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/image/Dockerfile
+          value: $(params.CONTEXT)/services/net/image/Dockerfile.openshift
         - name: IMAGE
           value: image-service
         - name: IMAGE_TAG
@@ -290,7 +290,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/content/Dockerfile
+          value: $(params.CONTEXT)/services/net/content/Dockerfile.openshift
         - name: IMAGE
           value: content-service
         - name: IMAGE_TAG
@@ -331,7 +331,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/indexing/Dockerfile
+          value: $(params.CONTEXT)/services/net/indexing/Dockerfile.openshift
         - name: IMAGE
           value: indexing-service
         - name: IMAGE_TAG
@@ -372,7 +372,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/transcription/Dockerfile
+          value: $(params.CONTEXT)/services/net/transcription/Dockerfile.openshift
         - name: IMAGE
           value: transcription-service
         - name: IMAGE_TAG
@@ -413,7 +413,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/nlp/Dockerfile
+          value: $(params.CONTEXT)/services/net/nlp/Dockerfile.openshift
         - name: IMAGE
           value: nlp-service
         - name: IMAGE_TAG
@@ -454,7 +454,7 @@ spec:
         - name: CONTEXT
           value: $(params.CONTEXT)
         - name: DOCKERFILE
-          value: $(params.CONTEXT)/services/net/filecopy/Dockerfile
+          value: $(params.CONTEXT)/services/net/filecopy/Dockerfile.openshift
         - name: IMAGE
           value: filecopy-service
         - name: IMAGE_TAG
