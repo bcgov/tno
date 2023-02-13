@@ -25,6 +25,7 @@ export function toModel(values: IContentForm): IContentModel {
     sourceId: values.sourceId,
     otherSource: values.otherSource,
     headline: values.headline,
+    byline: values.byline,
     page: values.page,
     summary: values.summary,
     body: values.body,
@@ -42,14 +43,9 @@ export function toModel(values: IContentForm): IContentModel {
     tonePools: values.tonePools,
     fileReferences: values.fileReferences,
     links: values.links,
-    printContent: !values.section
-      ? undefined
-      : {
-          contentId: values.id,
-          edition: values.edition,
-          section: values.section,
-          byline: values.byline,
-        },
+    // Print Content
+    edition: values.edition,
+    section: values.section,
     publishedOn: moment(values.publishedOn).toISOString(),
     version: values.version,
   };

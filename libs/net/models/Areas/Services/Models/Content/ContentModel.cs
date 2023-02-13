@@ -67,12 +67,27 @@ public class ContentModel : AuditColumnsModel
     public string Headline { get; set; } = "";
 
     /// <summary>
+    /// get/set - The author or writer's name.
+    /// </summary>
+    public string Byline { get; set; } = "";
+
+    /// <summary>
     /// get/set - A unique identifier for the content from the source.
     /// </summary>
     public string Uid { get; set; } = "";
 
     /// <summary>
-    /// get/set - The page.
+    /// get/set - The print content edition.
+    /// </summary>
+    public string Edition { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The print content section.
+    /// </summary>
+    public string Section { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The print content page.
     /// </summary>
     public string Page { get; set; } = "";
 
@@ -155,7 +170,10 @@ public class ContentModel : AuditColumnsModel
         this.SeriesId = entity.SeriesId;
         this.OwnerId = entity.OwnerId;
         this.Headline = entity.Headline;
+        this.Byline = entity.Byline;
         this.Uid = entity.Uid;
+        this.Edition = entity.Edition;
+        this.Section = entity.Section;
         this.Page = entity.Page;
         this.Summary = entity.Summary;
         this.Body = entity.Body;
@@ -183,6 +201,9 @@ public class ContentModel : AuditColumnsModel
             Id = model.Id,
             Status = model.Status,
             SeriesId = model.SeriesId,
+            Byline = model.Byline,
+            Edition = model.Edition,
+            Section = model.Section,
             Page = model.Page,
             PublishedOn = model.PublishedOn,
             Summary = model.Summary,

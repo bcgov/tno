@@ -22,6 +22,8 @@ public class ScheduleConfiguration : AuditColumnsConfiguration<Schedule>
         builder.Property(m => m.RunOnMonths);
         builder.Property(m => m.DayOfMonth);
 
+        builder.HasIndex(m => new { m.Name, m.IsEnabled, m.ScheduleType }, "IX_schedule");
+
         base.Configure(builder);
     }
 }

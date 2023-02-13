@@ -24,6 +24,7 @@ export function toForm(model: IContentModel): IContentForm {
     productId: model.productId,
     licenseId: model.licenseId,
     headline: model.headline,
+    byline: model.byline ?? '',
     sourceId: model.sourceId,
     otherSource: model.otherSource,
     tempSource: !!model.sourceId ? '' : model.otherSource,
@@ -47,9 +48,8 @@ export function toForm(model: IContentModel): IContentForm {
     links: model.links ?? [],
     workOrders: [],
     // Print Content
-    section: model.printContent?.section ?? '',
-    edition: model.printContent?.edition ?? '',
-    byline: model.printContent?.byline ?? '',
+    section: model.section ?? '',
+    edition: model.edition ?? '',
     version: model.version,
   };
 }

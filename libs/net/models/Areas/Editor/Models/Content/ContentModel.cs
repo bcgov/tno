@@ -92,12 +92,27 @@ public class ContentModel : AuditColumnsModel
     public string Headline { get; set; } = "";
 
     /// <summary>
+    /// get/set - The author or writer's name.
+    /// </summary>
+    public string Byline { get; set; } = "";
+
+    /// <summary>
     /// get/set - A unique identifier for the content from the source.
     /// </summary>
     public string Uid { get; set; } = "";
 
     /// <summary>
-    /// get/set - The page.
+    /// get/set - The print content edition.
+    /// </summary>
+    public string Edition { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The print content section.
+    /// </summary>
+    public string Section { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The print content page.
     /// </summary>
     public string Page { get; set; } = "";
 
@@ -125,11 +140,6 @@ public class ContentModel : AuditColumnsModel
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
-
-    /// <summary>
-    /// get/set - Print content properties.
-    /// </summary>
-    public PrintContentModel? PrintContent { get; set; }
 
     /// <summary>
     /// get/set - Upload files with content.
@@ -205,15 +215,16 @@ public class ContentModel : AuditColumnsModel
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
         this.Headline = entity.Headline;
+        this.Byline = entity.Byline;
         this.Uid = entity.Uid;
+        this.Edition = entity.Edition;
+        this.Section = entity.Section;
         this.Page = entity.Page;
         this.Summary = entity.Summary;
         this.Body = entity.Body;
         this.SourceUrl = entity.SourceUrl;
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
-
-        this.PrintContent = entity.PrintContent != null ? new PrintContentModel(entity.PrintContent) : null;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Categories = entity.CategoriesManyToMany.Select(e => new ContentCategoryModel(e));
@@ -238,6 +249,9 @@ public class ContentModel : AuditColumnsModel
             Id = model.Id,
             Status = model.Status,
             SeriesId = model.SeriesId,
+            Byline = model.Byline,
+            Edition = model.Edition,
+            Section = model.Section,
             Page = model.Page,
             PublishedOn = model.PublishedOn,
             Summary = model.Summary,
@@ -246,11 +260,6 @@ public class ContentModel : AuditColumnsModel
             IsHidden = model.IsHidden,
             Version = model.Version ?? 0,
         };
-
-        if (model.PrintContent != null)
-        {
-            entity.PrintContent = new Entities.PrintContent(entity, model.PrintContent.Edition, model.PrintContent.Section, model.PrintContent.Byline);
-        }
 
         if (!String.IsNullOrWhiteSpace(model.OtherSeries))
         {

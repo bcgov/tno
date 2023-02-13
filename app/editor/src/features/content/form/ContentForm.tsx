@@ -59,7 +59,7 @@ import { ContentClipForm, ContentLabelsForm, ContentSummaryForm, ContentTranscri
 import { defaultFormValues } from './constants';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
-import { isImageForm, isSnippetForm, toForm, toModel, triggerFormikValidate } from './utils';
+import { getContentPath, toForm, toModel, triggerFormikValidate } from './utils';
 import { WorkOrderStatus } from './WorkOrderStatus';
 
 export interface IContentFormProps {
@@ -200,13 +200,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
       if (!originalId)
         navigate(
-          `${
-            isImageForm(contentResult?.contentType)
-              ? '/images/'
-              : isSnippetForm(contentResult?.contentType)
-              ? '/snippets/'
-              : '/papers/'
-          }${combined ? '/contents/combined/' : ''}${contentResult.id}`,
+          `${getContentPath(contentResult?.contentType)}${combined ? 'combined/' : ''}${
+            contentResult.id
+          }`,
         );
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
@@ -303,9 +299,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 variant={ButtonVariant.secondary}
                 tooltip="Full Page View"
                 onClick={() => {
-                  if (isImageForm(contentType)) navigate(`/images/${id}`);
-                  else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
-                  else navigate(`/papers/${id}`);
+                  navigate(`${getContentPath(contentType)}${id}`);
                 }}
               >
                 <FontAwesomeIcon icon={faUpRightFromSquare} />
@@ -319,9 +313,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   const id = page?.items[indexPosition - 1]?.id;
                   if (!!id) {
                     if (!!combined) navigate(`/contents/combined/${id}`);
-                    else if (isImageForm(contentType)) navigate(`/images/${id}`);
-                    else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
-                    else navigate(`/papers/${id}`);
+                    else navigate(`${getContentPath(contentType)}${id}`);
                   }
                 }}
                 disabled={!enablePrev}
@@ -334,9 +326,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 onClick={() => {
                   const id = page?.items[indexPosition + 1]?.id;
                   if (combined) navigate(`/contents/combined/${id}`);
-                  else if (isImageForm(contentType)) navigate(`/images/${id}`);
-                  else if (isSnippetForm(contentType)) navigate(`/snippets/${id}`);
-                  else navigate(`/papers/${id}`);
+                  else navigate(`${getContentPath(contentType)}${id}`);
                 }}
                 disabled={!enableNext}
               >
@@ -431,7 +421,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               }}
                               options={filterEnabled(sourceOptions, props.values.sourceId).filter(
                                 (x) =>
-                                  !isImageForm(contentType) ||
+                                  contentType !== ContentTypeName.Image ||
                                   x.label.includes('(TC)') ||
                                   x.label.includes('(PROVINCE)') ||
                                   x.label.includes('(GLOBE)') ||
@@ -454,7 +444,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               required
                             />
                             <FormikHidden name="otherSource" />
-                            <Show visible={!isImageForm(contentType)}>
+                            <Show visible={contentType !== ContentTypeName.Image}>
                               <FormikText
                                 name="tempSource"
                                 label="Other Source"
@@ -475,59 +465,69 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       <Row>
                         <Col grow={1}></Col>
                       </Row>
-                      <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
+                      <Show visible={contentType === ContentTypeName.PrintContent}>
                         <Row>
                           <FormikText name="byline" label="Byline" required />
+                          <FormikText name="edition" label="Edition" />
                           <FormikText name="section" label="Section" required />
                           <FormikText name="page" label="Page" />
-                          <FormikText name="edition" label="Edition" />
                         </Row>
                       </Show>
-                      <Show visible={isSnippetForm(contentType)}>
-                        <FormikText
-                          style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
-                          className="source-url"
-                          name="sourceUrl"
-                          label="Source URL"
-                          tooltip="The URL to the original source story"
-                          width={FieldSize.Large}
-                          onKeyDown={(e) => {
-                            if (e.ctrlKey && props.values.sourceUrl) {
-                              setTextDecorationStyle('underline');
-                              setCursorStyle('pointer');
-                            }
-                          }}
-                          onKeyUp={() => {
-                            if (textDecorationStyle !== 'none') setTextDecorationStyle('none');
-                            if (cursorStyle !== 'text') setCursorStyle('text');
-                          }}
-                          onClick={(e) => {
-                            if (e.ctrlKey && props.values.sourceUrl) {
-                              window.open(props.values.sourceUrl, '_blank', 'noreferrer');
-                            }
-                          }}
-                        >
-                          <FaCopy
-                            className="icon-button src-cpy"
-                            onClick={() => {
-                              if (props.values.sourceUrl) {
-                                navigator.clipboard.writeText(props.values.sourceUrl);
+                      <Show
+                        visible={
+                          contentType === ContentTypeName.Snippet ||
+                          contentType === ContentTypeName.Story
+                        }
+                      >
+                        <Row>
+                          <FormikText name="byline" label="Byline" />
+                          <FormikText
+                            style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
+                            className="source-url"
+                            name="sourceUrl"
+                            label="Source URL"
+                            tooltip="The URL to the original source story"
+                            width={FieldSize.Large}
+                            onKeyDown={(e) => {
+                              if (e.ctrlKey && props.values.sourceUrl) {
+                                setTextDecorationStyle('underline');
+                                setCursorStyle('pointer');
                               }
                             }}
-                          />
-                          <FaExternalLinkAlt
-                            className={`icon-button ${!props.values.sourceUrl && 'disabled'}`}
-                            onClick={() =>
-                              window.open(props.values.sourceUrl, '_blank', 'noreferrer')
-                            }
-                          />
-                        </FormikText>
+                            onKeyUp={() => {
+                              if (textDecorationStyle !== 'none') setTextDecorationStyle('none');
+                              if (cursorStyle !== 'text') setCursorStyle('text');
+                            }}
+                            onClick={(e) => {
+                              if (e.ctrlKey && props.values.sourceUrl) {
+                                window.open(props.values.sourceUrl, '_blank', 'noreferrer');
+                              }
+                            }}
+                          >
+                            <FaCopy
+                              className="icon-button src-cpy"
+                              onClick={() => {
+                                if (props.values.sourceUrl) {
+                                  navigator.clipboard.writeText(props.values.sourceUrl);
+                                }
+                              }}
+                            />
+                            <FaExternalLinkAlt
+                              className={`icon-button ${!props.values.sourceUrl && 'disabled'}`}
+                              onClick={() => {
+                                if (props.values.sourceUrl) {
+                                  window.open(props.values.sourceUrl, '_blank', 'noreferrer');
+                                }
+                              }}
+                            />
+                          </FormikText>
+                        </Row>
                       </Show>
                     </Col>
                   </Show>
                 </Row>
                 <Row>
-                  <Show visible={isSnippetForm(contentType) || isImageForm(contentType)}>
+                  <Show visible={contentType !== ContentTypeName.PrintContent}>
                     <Tabs
                       className={`'expand'} ${size === 1 ? 'small' : 'large'}`}
                       tabs={
@@ -602,7 +602,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Show>
                     </Tabs>
                   </Show>
-                  <Show visible={!isSnippetForm(contentType) && !isImageForm(contentType)}>
+                  <Show visible={contentType === ContentTypeName.PrintContent}>
                     <ContentSummaryForm
                       content={form}
                       setContent={setForm}

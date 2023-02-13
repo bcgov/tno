@@ -11,7 +11,7 @@ public class ContentActionConfiguration : AuditColumnsConfiguration<ContentActio
         builder.HasKey(m => new { m.ContentId, m.ActionId });
         builder.Property(m => m.ContentId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.ActionId).IsRequired().ValueGeneratedNever();
-        builder.Property(m => m.Value).IsRequired();
+        builder.Property(m => m.Value).IsRequired().HasMaxLength(150);
 
         builder.HasOne(m => m.Content).WithMany(m => m.ActionsManyToMany).HasForeignKey(m => m.ContentId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Action).WithMany(m => m.ContentsManyToMany).HasForeignKey(m => m.ActionId).OnDelete(DeleteBehavior.Cascade);

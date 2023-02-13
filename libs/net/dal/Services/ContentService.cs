@@ -46,7 +46,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Series)
             .Include(c => c.License)
             .Include(c => c.Owner)
-            .Include(c => c.PrintContent)
             .AsQueryable();
 
         if (asNoTracking)
@@ -59,14 +58,14 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(filter.PageName))
             query = query.Where(c => EF.Functions.Like(c.Page.ToLower(), $"%{filter.PageName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Section.ToLower(), $"%{filter.Section.ToLower()}%"));
+            query = query.Where(c => EF.Functions.Like(c.Section.ToLower(), $"%{filter.Section.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Product))
             query = query.Where(c => EF.Functions.Like(c.Product!.Name.ToLower(), $"%{filter.Product.ToLower()}%"));
 
         if (!String.IsNullOrWhiteSpace(filter.Edition))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Edition.ToLower(), $"%{filter.Edition.ToLower()}%"));
+            query = query.Where(c => EF.Functions.Like(c.Edition.ToLower(), $"%{filter.Edition.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Byline))
-            query = query.Where(c => c.PrintContent != null && EF.Functions.Like(c.PrintContent.Byline.ToLower(), $"%{filter.Byline.ToLower()}%"));
+            query = query.Where(c => EF.Functions.Like(c.Byline.ToLower(), $"%{filter.Byline.ToLower()}%"));
 
         if (filter.ContentType.HasValue)
             query = query.Where(c => c.ContentType == filter.ContentType);
@@ -159,7 +158,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.License)
             .Include(c => c.Source)
             .Include(c => c.Owner)
-            .Include(c => c.PrintContent)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
             .Include(c => c.CategoriesManyToMany).ThenInclude(cc => cc.Category)
             .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
@@ -179,7 +177,6 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.License)
             .Include(c => c.Source)
             .Include(c => c.Owner)
-            .Include(c => c.PrintContent)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
             .Include(c => c.CategoriesManyToMany).ThenInclude(cc => cc.Category)
             .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)

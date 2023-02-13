@@ -27,8 +27,8 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.HasMany(m => m.Metrics).WithMany(m => m.Sources).UsingEntity<SourceMetric>();
         builder.HasOne(m => m.Product).WithMany(m => m.Sources).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(m => m.Name).IsUnique();
-        builder.HasIndex(m => m.Code).IsUnique();
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
+        builder.HasIndex(m => m.Code, "IX_code").IsUnique();
 
         base.Configure(builder);
     }

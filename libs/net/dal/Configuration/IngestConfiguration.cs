@@ -30,7 +30,8 @@ public class IngestConfiguration : AuditColumnsConfiguration<Ingest>
         builder.HasMany(m => m.Schedules).WithMany(m => m.Ingests).UsingEntity<IngestSchedule>();
         builder.HasMany(m => m.DataLocations).WithMany(m => m.Ingests).UsingEntity<IngestDataLocation>();
 
-        builder.HasIndex(m => m.Name).IsUnique();
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
+        builder.HasIndex(m => new { m.IngestTypeId, m.SourceId, m.Topic }, "IX_ingest");
 
         base.Configure(builder);
     }

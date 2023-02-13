@@ -21,7 +21,6 @@ public class TNOContext : DbContext
     #region Properties
     public DbSet<Content> Contents => Set<Content>();
     public DbSet<ContentLog> ContentLogs => Set<ContentLog>();
-    public DbSet<PrintContent> PrintContents => Set<PrintContent>();
     public DbSet<ContentReference> ContentReferences => Set<ContentReference>();
     public DbSet<ContentLink> ContentLinks => Set<ContentLink>();
     public DbSet<FileReference> FileReferences => Set<FileReference>();

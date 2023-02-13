@@ -18,6 +18,9 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.LicenseId).IsRequired();
         builder.Property(m => m.ProductId).IsRequired();
         builder.Property(m => m.SeriesId);
+        builder.Property(m => m.Edition).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.Section).IsRequired().HasMaxLength(100);
+        builder.Property(m => m.Byline).IsRequired().HasMaxLength(500);
         builder.Property(m => m.OwnerId);
         builder.Property(m => m.PublishedOn);
         builder.Property(m => m.IsHidden).IsRequired();
@@ -38,8 +41,10 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasMany(m => m.Tags).WithMany(m => m.Contents).UsingEntity<ContentTag>();
         builder.HasMany(m => m.TonePools).WithMany(m => m.Contents).UsingEntity<ContentTonePool>();
 
-        builder.HasIndex(m => new { m.PublishedOn, m.CreatedOn });
-        builder.HasIndex(m => new { m.ContentType, m.OtherSource, m.Uid, m.Page, m.Status });
+        builder.HasIndex(m => new { m.PublishedOn, m.CreatedOn }, "IX_content_dates");
+        builder.HasIndex(m => new { m.ContentType, m.OtherSource, m.Uid, m.Page, m.Status, m.IsHidden }, "IX_content");
+        builder.HasIndex(m => new { m.Edition, m.Section, m.Byline }, "IX_print_content");
+        builder.HasIndex(m => m.Headline, "IX_headline");
 
         base.Configure(builder);
     }
