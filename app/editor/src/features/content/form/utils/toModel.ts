@@ -29,6 +29,8 @@ export function toModel(values: IContentForm): IContentModel {
     page: values.page,
     summary: values.summary,
     body: values.body,
+    isHidden: values.isHidden,
+    isApproved: values.isApproved,
     actions: values.actions,
     categories: values.categories,
     tags: values.tags,

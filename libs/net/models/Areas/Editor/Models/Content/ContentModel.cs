@@ -137,6 +137,11 @@ public class ContentModel : AuditColumnsModel
     public bool IsHidden { get; set; }
 
     /// <summary>
+    /// get/set - Whether the content has been approved for publishing.
+    /// </summary>
+    public bool IsApproved { get; set; }
+
+    /// <summary>
     /// get/set - When the content has been or will be published.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -225,6 +230,7 @@ public class ContentModel : AuditColumnsModel
         this.SourceUrl = entity.SourceUrl;
         this.PublishedOn = entity.PublishedOn;
         this.IsHidden = entity.IsHidden;
+        this.IsApproved = entity.IsApproved;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
         this.Categories = entity.CategoriesManyToMany.Select(e => new ContentCategoryModel(e));
@@ -258,6 +264,7 @@ public class ContentModel : AuditColumnsModel
             Body = model.Body,
             SourceUrl = model.SourceUrl,
             IsHidden = model.IsHidden,
+            IsApproved = model.IsApproved,
             Version = model.Version ?? 0,
         };
 

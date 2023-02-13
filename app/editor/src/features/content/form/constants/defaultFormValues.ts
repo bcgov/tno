@@ -23,6 +23,8 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     body: '',
     publishedOn: '',
     publishedOnTime: '',
+    isHidden: false,
+    isApproved: contentType !== ContentTypeName.Snippet,
     actions: [],
     categories: [],
     tags: [],

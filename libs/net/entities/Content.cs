@@ -157,6 +157,12 @@ public class Content : AuditColumns
     public bool IsHidden { get; set; }
 
     /// <summary>
+    /// get/set - Whether the content has been approved for publishing.
+    /// </summary>
+    [Column("is_approved")]
+    public bool IsApproved { get; set; }
+
+    /// <summary>
     /// get - Collection of logs associated with this content.
     /// </summary>
     public virtual List<ContentLog> Logs { get; } = new List<ContentLog>();
@@ -252,6 +258,7 @@ public class Content : AuditColumns
         this.Product = product;
         this.OwnerId = owner?.Id;
         this.Owner = owner;
+        this.IsApproved = contentType != ContentType.Snippet;
     }
 
     /// <summary>
@@ -295,6 +302,7 @@ public class Content : AuditColumns
         this.LicenseId = licenseId;
         this.ProductId = productId;
         this.OwnerId = ownerId;
+        this.IsApproved = contentType != ContentType.Snippet;
     }
 
     /// <summary>
@@ -328,7 +336,8 @@ public class Content : AuditColumns
     /// <param name="product"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, Source source, ContentType contentType, License license, Product product, User? owner = null) : this(uid, headline, contentType, license, product, owner)
+    public Content(string uid, string headline, Source source, ContentType contentType, License license, Product product, User? owner = null)
+        : this(uid, headline, contentType, license, product, owner)
     {
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
@@ -347,7 +356,8 @@ public class Content : AuditColumns
     /// <param name="product"></param>
     /// <param name="owner"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null) : this(uid, headline, otherSource, contentType, license, product, owner)
+    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null)
+        : this(uid, headline, otherSource, contentType, license, product, owner)
     {
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
@@ -365,7 +375,8 @@ public class Content : AuditColumns
     /// <param name="productId"></param>
     /// <param name="ownerId"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int productId, int? ownerId = null) : this(uid, headline, otherSource, contentType, licenseId, productId, ownerId)
+    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int productId, int? ownerId = null)
+        : this(uid, headline, otherSource, contentType, licenseId, productId, ownerId)
     {
         this.SourceId = sourceId;
     }

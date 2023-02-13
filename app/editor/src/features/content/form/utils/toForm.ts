@@ -34,6 +34,8 @@ export function toForm(model: IContentModel): IContentForm {
     otherSeries: '',
     publishedOn: model.publishedOn ?? '',
     publishedOnTime: !!model.publishedOn ? moment(model.publishedOn).format('HH:mm:ss') : '',
+    isHidden: model.isHidden,
+    isApproved: model.isApproved,
     actions: model.actions ?? [],
     categories: model.categories ?? [],
     tags: model.tags ?? [],

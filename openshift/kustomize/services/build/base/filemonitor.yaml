@@ -45,7 +45,7 @@ spec:
     type: Docker
     dockerStrategy:
       filemonitorOptimizationPolicy: SkipLayers
-      dockerfilePath: services/net/filemonitor/Dockerfile.openshift
+      dockerfilePath: services/net/filemonitor/Dockerfile
   output:
     to:
       kind: ImageStreamTag

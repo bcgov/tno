@@ -38,6 +38,7 @@ import {
   ButtonVariant,
   Col,
   FieldSize,
+  FormikCheckbox,
   FormikHidden,
   FormikSelect,
   FormikText,
@@ -547,14 +548,23 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           />
                           <Show visible={props.values.contentType === ContentTypeName.Snippet}>
                             <Tab
-                              label="Transcript"
                               onClick={() => setActive('transcript')}
                               active={active === 'transcript'}
                             >
-                              <WorkOrderStatus
-                                workOrders={form.workOrders}
-                                type={WorkOrderTypeName.Transcription}
-                              />
+                              <Row>
+                                <span>Transcript</span>
+                                <WorkOrderStatus
+                                  workOrders={form.workOrders}
+                                  type={WorkOrderTypeName.Transcription}
+                                />
+                                <Show visible={!!props.values.body}>
+                                  <FormikCheckbox
+                                    name="isApproved"
+                                    label="Approved"
+                                    className="approve-transcript"
+                                  />
+                                </Show>
+                              </Row>
                             </Tab>
                             <Tab
                               label="Clips"
