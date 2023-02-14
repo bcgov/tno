@@ -1,5 +1,6 @@
 import React from 'react';
 import { toast } from 'react-toastify';
+import { Col } from 'tno-core';
 
 import { useApp } from './useApp';
 
@@ -19,7 +20,13 @@ export const useToastError = () => {
 
   React.useEffect(() => {
     errors.forEach((e) => {
-      toast.error(e.message, {});
+      toast.error(
+        <Col>
+          <p>{e.message}</p>
+          <p>{e.detail}</p>
+        </Col>,
+        {},
+      );
     });
   }, [errors]);
 };
