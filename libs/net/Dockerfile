@@ -11,8 +11,8 @@ RUN dotnet tool install --global dotnet-ef
 
 WORKDIR /src
 COPY . .
-# RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
-#     fix_permissions "/src" "/tmp"
+RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
+    fix_permissions "/src" "/tmp"
 RUN dotnet restore
 RUN chmod -R 0777 /src
 RUN mkdir /.local

@@ -11,7 +11,7 @@ using TNO.Core.Exceptions;
 namespace TNO.API.Middleware
 {
     /// <summary>
-    /// ErrorHandlingMidleware class, provides a way to catch and handle unhandled errors in a generic way.
+    /// ErrorHandlingMiddleware class, provides a way to catch and handle unhandled errors in a generic way.
     /// </summary>
     public class ErrorHandlingMiddleware
     {
@@ -99,7 +99,10 @@ namespace TNO.API.Middleware
             else if (ex is DbUpdateException)
             {
                 code = HttpStatusCode.BadRequest;
-                message = "A database error occurred while updating.";
+                if (ex.InnerException?.Message.Contains("23505: duplicate key value violates unique constraint") == true)
+                    message = "A record already exists with this key.";
+                else
+                    message = "A database error occurred while updating.";
 
                 _logger.LogDebug(ex, "Database update error", ex.Message);
             }

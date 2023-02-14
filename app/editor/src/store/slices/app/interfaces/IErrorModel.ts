@@ -3,4 +3,5 @@ export interface IErrorModel {
   statusText?: string;
   data?: any;
   message: string;
+  detail?: string;
 }

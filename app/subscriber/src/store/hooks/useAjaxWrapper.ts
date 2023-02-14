@@ -30,14 +30,17 @@ export const useAjaxWrapper = () => {
           if (ae.response?.status === 304) throw error;
 
           let message = 'An unexpected error has occurred.';
+          let detail = '';
           const data = ae.response?.data as any;
 
           if (ae.response?.status === 401) message = 'Authentication required.';
           else if (ae.response?.status === 403)
             message = 'Authorization required.  Your account does not have access.';
           else if (typeof data === 'string' && !!data) message = data;
-          else if (!!data?.error) message = `${data?.error}\n${data.details}`;
-          else if (!!data?.errors) {
+          else if (!!data?.error) {
+            message = `${data?.error}`;
+            detail = data?.details;
+          } else if (!!data?.errors) {
             message = Object.entries(data.errors)
               .map((p) => p.toString())
               .toString();
@@ -47,6 +50,7 @@ export const useAjaxWrapper = () => {
             statusText: ae.response?.statusText,
             data: ae.response?.data,
             message: message,
+            detail,
           });
 
           throw error;
