@@ -57,6 +57,11 @@ public abstract class ContentBase
     public string Summary { get; set; } = "";
 
     /// <summary>
+    /// get/set - The story body
+    /// </summary>
+    public string Body { get; set; } = "";
+
+    /// <summary>
     /// get/set - A data location is where the source was ingested and the files may reside.
     /// </summary>
     public string DataLocation { get; set; } = "";

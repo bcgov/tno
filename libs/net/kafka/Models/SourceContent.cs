@@ -9,9 +9,9 @@ public class SourceContent : ContentBase
 {
     #region Properties
     /// <summary>
-    /// get/set - The story body
+    /// get/set - Foreign key to the user who requested the content to be created.
     /// </summary>
-    public string Body { get; set; } = "";
+    public int? RequestedById { get; set; }
     #endregion
 
     #region Constructors

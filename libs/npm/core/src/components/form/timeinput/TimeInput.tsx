@@ -17,12 +17,12 @@ export interface ITimeInputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const TimeInput: React.FC<ITimeInputProps> = ({ label, error, ...rest }) => {
   const formatTime = (value: string) => {
     const chars = value.split('');
-    const hours = [/[0-2]/, chars[0] === '2' ? /[0-3]/ : /[0-9]/] as any;
+    const hours = [/[0-2]/, chars[0] === '2' ? /[0-3]/ : /[0-9]/] as Array<string | RegExp>;
 
     const minutes = [/[0-5]/, /[0-9]/];
     const seconds = [/[0-5]/, /[0-9]/];
 
-    return hours.concat(':').concat(minutes).concat(':').concat(seconds) as any;
+    return hours.concat(':').concat(minutes).concat(':').concat(seconds);
   };
   return (
     <styled.TimeInput {...rest}>

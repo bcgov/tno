@@ -63,6 +63,7 @@ export const ContentClipForm: React.FC<IContentClipFormProps> = ({
 
   return (
     <styled.ContentClipForm>
+      <p className="text">Find and attach an existing clip to this snippet.</p>
       <FileManager
         locationId={locationId}
         path={path}

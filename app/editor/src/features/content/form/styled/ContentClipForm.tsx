@@ -116,4 +116,15 @@ export const ContentClipForm = styled.div`
     color: ${(props) => props.theme.css.dangerColor};
     font-weight: 700;
   }
+
+  .text {
+    margin: 0 1em 0 1em;
+    padding: 0.25em 0.5em 0.25em 0.5em;
+    background-color: ${(props) => props.theme.css.borderColor};
+    border-radius: 0.5em;
+  }
+
+  .ingest {
+    margin: 0 1em 0 1em;
+  }
 `;

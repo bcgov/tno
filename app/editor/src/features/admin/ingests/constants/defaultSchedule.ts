@@ -14,6 +14,7 @@ export const defaultSchedule = (
   isEnabled: true,
   scheduleType: scheduleType,
   delayMS: '',
+  runOnlyOnce: false,
   repeat: 0,
   runOnWeekDays: ScheduleWeekDayName.NA,
   runOnMonths: ScheduleMonthName.NA,

@@ -1,7 +1,7 @@
 import { ContentStatus, ContentTypeName, LogicalOperator } from '..';
-import { IPageFilter } from '.';
+import { ISortPageFilter } from '.';
 
-export interface IContentFilter extends IPageFilter {
+export interface IContentFilter extends ISortPageFilter {
   contentType?: ContentTypeName;
   productId?: number;
   otherSource?: string;
@@ -25,5 +25,4 @@ export interface IContentFilter extends IPageFilter {
   actions?: string[];
   productIds?: number[];
   logicalOperator?: LogicalOperator;
-  sort?: string[];
 }

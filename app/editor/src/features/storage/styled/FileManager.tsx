@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const FileManager = styled.div`
-  min-width: 70em;
+  min-width: 90%;
   background-color: white;
   padding: 0.5em 1em 1em 1em;
 

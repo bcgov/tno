@@ -1,7 +1,8 @@
+using System;
 using TNO.API.Models;
 using TNO.Entities;
 
-namespace TNO.API.Areas.Admin.Models.Ingest;
+namespace TNO.API.Areas.Editor.Models.Ingest;
 
 /// <summary>
 /// ScheduleModel class, provides a model that represents an schedule.
@@ -57,6 +58,11 @@ public class ScheduleModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public bool RunOnlyOnce { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public int Repeat { get; set; }
 
     /// <summary>
@@ -73,6 +79,11 @@ public class ScheduleModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public int DayOfMonth { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? RequestedById { get; set; }
     #endregion
 
     #region Constructors
@@ -98,11 +109,51 @@ public class ScheduleModel : AuditColumnsModel
             this.RunOn = entity.RunOn;
             this.StartAt = entity.StartAt;
             this.StopAt = entity.StopAt;
+            this.RunOnlyOnce = entity.RunOnlyOnce;
             this.Repeat = entity.Repeat;
             this.RunOnWeekDays = entity.RunOnWeekDays;
             this.RunOnMonths = entity.RunOnMonths;
             this.DayOfMonth = entity.DayOfMonth;
+            this.RequestedById = entity.RequestedById;
         }
+    }
+    #endregion
+
+    #region Methods
+    /// <summary>
+    /// Creates a new instance of a Ingest object.
+    /// </summary>
+    /// <returns></returns>
+    public Entities.Schedule ToEntity()
+    {
+        var entity = (Entities.Schedule)this;
+        return entity;
+    }
+
+    /// <summary>
+    /// Explicit conversion to entity.
+    /// </summary>
+    /// <param name="model"></param>
+    public static explicit operator Entities.Schedule(ScheduleModel model)
+    {
+        var entity = new Entities.Schedule(model.Name, model.ScheduleType, model.DelayMS)
+        {
+            Id = model.Id,
+            Description = model.Description,
+            RunOn = model.RunOn,
+            IsEnabled = model.IsEnabled,
+            StartAt = model.StartAt,
+            StopAt = model.StopAt,
+            RunOnlyOnce = model.RunOnlyOnce,
+            Repeat = model.Repeat,
+            RunOnWeekDays = model.RunOnWeekDays,
+            RunOnMonths = model.RunOnMonths,
+            DayOfMonth = model.DayOfMonth,
+            RequestedById = model.RequestedById,
+            Version = model.Version ?? 0
+        };
+
+        return entity;
     }
     #endregion
 }

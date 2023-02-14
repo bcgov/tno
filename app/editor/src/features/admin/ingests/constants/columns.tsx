@@ -14,6 +14,12 @@ export const columns: (Column<IIngestModel> &
     Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
+    Header: 'Source',
+    width: 1,
+    accessor: (row) => row.source?.code,
+    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
+  },
+  {
     Header: 'Type',
     width: 1,
     accessor: (row) => row.ingestType?.name,

@@ -628,7 +628,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Button>
                   <Button
                     variant={ButtonVariant.success}
-                    disabled={props.isSubmitting}
+                    disabled={
+                      props.isSubmitting ||
+                      (contentType === ContentTypeName.Snippet &&
+                        props.values.fileReferences.length === 0 &&
+                        !props.values.file)
+                    }
                     onClick={() => {
                       setSavePressed(true);
                       handlePublish(props);
@@ -657,7 +662,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           (props.values.fileReferences.length > 0 &&
                             !props.values.fileReferences[0].isUploaded)
                         }
-                        tooltip="Request a transcription"
                       >
                         Transcribe
                       </Button>

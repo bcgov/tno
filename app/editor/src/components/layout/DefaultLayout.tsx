@@ -2,8 +2,10 @@ import { UnauthenticatedHome } from 'features/home';
 import { UserInfo } from 'features/login';
 import { NavBar } from 'features/navbar';
 import {
+  ContentTypeName,
   HubMethodName,
-  IWorkOrderModel,
+  IContentMessageModel,
+  IWorkOrderMessageModel,
   IWorkOrderToast,
   useApiHub,
   WorkOrderStatusName,
@@ -57,8 +59,8 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
     };
   }, [keycloak, setToken]);
 
-  const onWorkOrder = React.useCallback(
-    (workOrder: IWorkOrderModel) => {
+  const onWorkOrderMessage = React.useCallback(
+    (workOrder: IWorkOrderMessageModel) => {
       if (workOrder.workType === WorkOrderTypeName.FileRequest) {
         const toastId = toastIds.find((t) => t.workOrderId === workOrder.id);
         if (toastId) {
@@ -100,8 +102,26 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
   );
 
   React.useEffect(() => {
-    return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
-  }, [onWorkOrder, hub]);
+    return hub.listen(HubMethodName.WorkOrder, onWorkOrderMessage);
+  }, [onWorkOrderMessage, hub]);
+
+  const onContentMessage = React.useCallback((content: IContentMessageModel) => {
+    if (content.contentType === ContentTypeName.Snippet) {
+      toast.success(() => (
+        <div>
+          Clip created "
+          <Link to={`/snippets/${content.id}`} target="_blank">
+            {content.headline}
+          </Link>
+          "
+        </div>
+      ));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    return hub.listen(HubMethodName.Content, onContentMessage);
+  }, [onContentMessage, hub]);
 
   return (
     <styled.Layout {...rest}>

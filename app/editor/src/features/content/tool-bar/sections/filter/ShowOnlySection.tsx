@@ -96,6 +96,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
                 }}
               />
               <Checkbox
+                className="spaced"
                 name="includedInCategory"
                 label="Included in EoD"
                 tooltip="Content included in Event of the Day"
@@ -126,6 +127,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
                 }}
               />
               <Checkbox
+                className="spaced"
                 name="topStory"
                 label="Top Story"
                 value="Top Story"

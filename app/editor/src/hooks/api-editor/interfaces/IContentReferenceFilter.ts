@@ -1,7 +1,7 @@
 import { WorkflowStatusName } from '../constants';
-import { IPageFilter } from '.';
+import { ISortPageFilter } from '.';
 
-export interface IContentReferenceFilter extends IPageFilter {
+export interface IContentReferenceFilter extends ISortPageFilter {
   source?: string;
   sources?: string[];
   uid?: string;
@@ -15,5 +15,4 @@ export interface IContentReferenceFilter extends IPageFilter {
   updatedOn?: string;
   updatedStartOn?: string;
   updatedEndOn?: string;
-  sort?: string[];
 }
