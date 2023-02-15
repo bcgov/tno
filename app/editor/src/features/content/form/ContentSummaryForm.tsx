@@ -214,43 +214,33 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Show>
           </Row>
         </Col>
-        <div className="vl" />
-        <Col>
-          <FormikSelect
-            name="categories"
-            label="Event of Day Category"
-            width={FieldSize.Medium}
-            options={filterEnabled(
-              categoryOptions,
-              !!values.categories?.length ? values.categories[0].id : null,
-            )}
-            value={
-              !!values.categories?.length
-                ? categoryOptions.find((c) => c.value === values.categories[0].id)
-                : []
-            }
-            onChange={(e: any) => {
-              // only supports one at a time right now
-              let value;
-              if (!!e?.value) {
-                value = categories.find((c) => c.id === e.value);
+        <Show visible={contentType !== ContentTypeName.Image}>
+          <div className="vl" />
+          <Col>
+            <FormikSelect
+              name="categories"
+              label="Event of Day Category"
+              width={FieldSize.Medium}
+              options={filterEnabled(
+                categoryOptions,
+                !!values.categories?.length ? values.categories[0].id : null,
+              )}
+              value={
+                !!values.categories?.length
+                  ? categoryOptions.find((c) => c.value === values.categories[0].id)
+                  : []
               }
-              setFieldValue('categories', !!value ? [value] : []);
-            }}
-          />
-        </Col>
-        {/* <Show visible={contentType !== ContentTypeName.Image}>
-          <Col className="licenses">
-            <RadioGroup
-              name="expireOptions"
-              label="Licence"
-              spaceUnderRadio
-              options={licenseOptions}
-              value={licenseOptions.find((e) => e.value === values?.licenseId)}
-              onChange={(e) => setFieldValue('licenseId', Number(e.target.value))}
+              onChange={(e: any) => {
+                // only supports one at a time right now
+                let value;
+                if (!!e?.value) {
+                  value = categories.find((c) => c.id === e.value);
+                }
+                setFieldValue('categories', !!value ? [value] : []);
+              }}
             />
           </Col>
-        </Show> */}
+        </Show>
       </Row>
       <Show visible={contentType !== ContentTypeName.Image}>
         <Col flex="1 1 0">
