@@ -445,21 +445,19 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                               required
                             />
                             <FormikHidden name="otherSource" />
-                            <Show visible={contentType !== ContentTypeName.Image}>
-                              <FormikText
-                                name="tempSource"
-                                label="Other Source"
-                                onChange={(e) => {
-                                  const value = e.currentTarget.value;
-                                  props.setFieldValue('tempSource', value);
-                                  props.setFieldValue('otherSource', value);
-                                  if (!!value) {
-                                    props.setFieldValue('sourceId', undefined);
-                                  }
-                                }}
-                                required={!!props.values.tempSource}
-                              />
-                            </Show>
+                            <FormikText
+                              name="tempSource"
+                              label="Other Source"
+                              onChange={(e) => {
+                                const value = e.currentTarget.value;
+                                props.setFieldValue('tempSource', value);
+                                props.setFieldValue('otherSource', value);
+                                if (!!value) {
+                                  props.setFieldValue('sourceId', undefined);
+                                }
+                              }}
+                              required={!!props.values.tempSource}
+                            />
                           </Row>
                         </Col>
                       </Row>
@@ -626,7 +624,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     disabled={props.isSubmitting}
                     onClick={() => setSavePressed(true)}
                   >
-                    Save
+                    Save without publishing
                   </Button>
                   <Button
                     variant={ButtonVariant.success}
