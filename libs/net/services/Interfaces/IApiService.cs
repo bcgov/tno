@@ -94,6 +94,15 @@ public interface IApiService
     public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForTopicAsync(string topic);
     #endregion
 
+    #region Ingest Schedules
+    /// <summary>
+    /// Delete the specified 'schedule' from the ingests.
+    /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    public Task<IngestModels.ScheduleModel?> DeleteIngestSchedule(IngestModels.IngestScheduleModel schedule);
+    #endregion
+
     #region Contents
     /// <summary>
     /// Make an AJAX request to the api to update the content for the specified ContentModel.

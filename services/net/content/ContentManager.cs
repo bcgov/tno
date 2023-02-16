@@ -248,7 +248,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 LicenseId = source?.LicenseId ?? 1,  // TODO: Default license by configuration.
                 SeriesId = null, // TODO: Provide default series from Data Source config settings.
                 OtherSeries = null, // TODO: Provide default series from Data Source config settings.
-                OwnerId = source?.OwnerId,
+                OwnerId = model.RequestedById ?? source?.OwnerId,
                 Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
                 Uid = model.Uid,
                 Page = "", // TODO: Provide default page from Data Source config settings.
@@ -266,13 +266,13 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (!String.IsNullOrWhiteSpace(model.FilePath))
             {
                 // A service needs to know it's context so that it can import files.
-                // Default to the service data location if the source model does not specify.
-                var dataLocation = await this.Api.GetDataLocationAsync(!String.IsNullOrWhiteSpace(model.DataLocation) ? model.DataLocation : this.Options.DataLocation)
+                // If this service is running in the same location as the content it will be local.
+                var dataLocation = this.Options.DataLocation == model.DataLocation ? null : (await this.Api.GetDataLocationAsync(model.DataLocation))
                     ?? throw new ConfigurationException("Service data location is not configured correctly");
                 try
                 {
                     // TODO: It isn't ideal to copy files via the API as large files will block this service.  Need to figure out a more performant process at some point.
-                    content = (dataLocation.Connection?.ConnectionType) switch
+                    content = (dataLocation?.Connection?.ConnectionType) switch
                     {
                         ConnectionType.NAS => throw new NotImplementedException(),
                         ConnectionType.HTTP => throw new NotImplementedException(),

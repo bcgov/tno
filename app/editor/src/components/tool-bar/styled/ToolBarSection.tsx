@@ -2,13 +2,13 @@ import styled from 'styled-components';
 import { Col } from 'tno-core';
 
 export const ToolBarSection = styled(Col)`
-@media screen and (max-width: 1847px) {
-  padding: 0.2em;
-}
+  @media screen and (max-width: 1847px) {
+    padding: 0.2em;
+  }
 
-@media screen and (min-width: 1847px) {
-  padding: 0.5em;
-}
+  @media screen and (min-width: 1847px) {
+    padding: 0.5em;
+  }
   min-height: 7.25em;
   z-index: 50;
   .title-container {
@@ -16,17 +16,16 @@ export const ToolBarSection = styled(Col)`
     font-size: 1.25em;
     margin-top: 1em;
   }
-    .white-bg {
-      background-color: ${(props) => props.theme.css.backgroundColor};
-      padding: 0.25em;
-      border-radius: 4px;
-    }
-    .title-children {
-      border-radius: 4px;
-    }
+  .white-bg {
+    background-color: ${(props) => props.theme.css.backgroundColor};
+    padding: 0.25em;
+    border-radius: 4px;
+  }
+  .title-children {
+    border-radius: 4px;
+  }
 
   .children-container {
-
     .txt {
       background-color: ${(props) => props.theme.css.backgroundColor};
     }
@@ -66,7 +65,7 @@ export const ToolBarSection = styled(Col)`
       align-self: center;
       padding-left: 0.5em;
       padding-right: 0.25em;
-      color: ${(props) => props.theme.css.primaryColor}
+      color: ${(props) => props.theme.css.primaryColor};
       height: 100%;
       width: 1.25em;
       cursor: pointer;
@@ -84,5 +83,9 @@ export const ToolBarSection = styled(Col)`
     font-size: 0.75em;
     padding: 0.5em;
     justify-content: center;
+  }
+
+  .spaced {
+    margin-left: 1em;
   }
 `;

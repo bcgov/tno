@@ -281,6 +281,19 @@ public class ApiService : IApiService
     }
     #endregion
 
+    #region Ingest Schedule Methods
+    /// <summary>
+    /// Delete specified 'schedule' from ingests.
+    /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    public async Task<IngestModels.ScheduleModel?> DeleteIngestSchedule(IngestModels.IngestScheduleModel schedule)
+    {
+        var url = this.Options.ApiUrl.Append($"services/ingests/schedules/{schedule.IngestId}");
+        return await RetryRequestAsync(async () => await this.Client.DeleteAsync<IngestModels.ScheduleModel>(url, JsonContent.Create(schedule.Schedule)));
+    }
+    #endregion
+
     #region Content Reference Methods
     /// <summary>
     /// Make an HTTP request to the api to find the content reference for the specified key.

@@ -55,6 +55,10 @@ export const ToggleGroup = styled(Row)`
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
   }
+  .toggle-item:hover {
+    color: ${(props) => props.theme.css.backgroundColor};
+    background-color: ${(props) => props.theme.css.actionButtonColor};
+  }
   label {
     margin-right: 1em;
   }

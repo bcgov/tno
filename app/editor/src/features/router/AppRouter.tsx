@@ -1,6 +1,7 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
 import { AdminRouter, WorkOrderForm, WorkOrderList } from 'features/admin';
+import { RequestClip } from 'features/clips';
 import { ContentForm, ContentListView, MorningReport } from 'features/content';
 import { Login } from 'features/login';
 import { ReportsRouter } from 'features/reports';
@@ -108,6 +109,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
             <PrivateRoute claims={Claim.editor} element={<StorageListView />}></PrivateRoute>
           }
         />
+        <Route path="clips" element={<RequestClip />} />
         <Route path="work/orders" element={<WorkOrderList />} />
         <Route path="work/orders/:id" element={<WorkOrderForm />} />
         <Route

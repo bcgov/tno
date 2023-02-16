@@ -2,10 +2,13 @@ using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
+using TNO.API.SignalR;
 using TNO.DAL.Config;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -33,6 +36,7 @@ public class ContentController : ControllerBase
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
     private readonly StorageOptions _storageOptions;
+    private readonly IHubContext<WorkOrderHub> _hub;
     #endregion
 
     #region Constructors
@@ -41,12 +45,17 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
+    /// <param name="hub"></param>
     /// <param name="storageOptions"></param>
-    public ContentController(IContentService contentService, IFileReferenceService fileReferenceService,
+    public ContentController(
+        IContentService contentService,
+        IFileReferenceService fileReferenceService,
+        IHubContext<WorkOrderHub> hub,
         IOptions<StorageOptions> storageOptions)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
+        _hub = hub;
         _storageOptions = storageOptions.Value;
     }
     #endregion
@@ -137,6 +146,10 @@ public class ContentController : ControllerBase
         content.Version = version; // TODO: Handle concurrency before uploading the file as it will result in an orphaned file.
         if (content.FileReferences.Any()) await _fileReferenceService.UploadAsync(content, files.First(), _storageOptions.GetUploadPath());
         else await _fileReferenceService.UploadAsync(new ContentFileReference(content, files.First()), _storageOptions.GetUploadPath());
+
+        // Send notification to user who requested the content.
+        if (content.OwnerId.HasValue)
+            await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
 
         return new JsonResult(new ContentModel(content));
     }

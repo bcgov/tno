@@ -41,24 +41,24 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var result = this.Context.Ingests
             .AsNoTracking()
-            .Include(ds => ds.Product)
-            .Include(ds => ds.IngestType)
-            .Include(ds => ds.Source)
-            .Include(ds => ds.State)
-            .Include(ds => ds.SourceConnection)
-            .Include(ds => ds.DestinationConnection)
-            .OrderBy(ds => ds.Name)
-            .ThenBy(ds => ds.IngestTypeId)
+            .Include(i => i.Product)
+            .Include(i => i.IngestType)
+            .Include(i => i.Source)
+            .Include(i => i.State)
+            .Include(i => i.SourceConnection)
+            .Include(i => i.DestinationConnection)
+            .OrderBy(i => i.Name)
+            .ThenBy(i => i.IngestTypeId)
             .ToArray();
 
         /// TODO: Only allow admin to include connection information.
         return includeConnection ? result : result
-            .Select(ds =>
+            .Select(i =>
             {
-                ds.Configuration = JsonDocument.Parse("{}");
-                ds.SourceConnection!.Configuration = JsonDocument.Parse("{}");
-                ds.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
-                return ds;
+                i.Configuration = JsonDocument.Parse("{}");
+                i.SourceConnection!.Configuration = JsonDocument.Parse("{}");
+                i.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
+                return i;
             });
     }
 
@@ -72,47 +72,51 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var query = this.Context.Ingests
             .AsNoTracking()
-            .Include(ds => ds.Product)
-            .Include(ds => ds.IngestType)
-            .Include(ds => ds.Source)
-            .Include(ds => ds.State)
-            .Include(ds => ds.SourceConnection)
-            .Include(ds => ds.DestinationConnection)
+            .Include(i => i.Product)
+            .Include(i => i.IngestType)
+            .Include(i => i.Source)
+            .Include(i => i.State)
+            .Include(i => i.SourceConnection)
+            .Include(i => i.DestinationConnection)
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
-            query = query.Where(ds => EF.Functions.Like(ds.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
+            query = query.Where(i => EF.Functions.Like(i.Name.ToLower(), $"%{filter.Name.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Topic))
-            query = query.Where(ds => EF.Functions.Like(ds.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
+            query = query.Where(i => EF.Functions.Like(i.Topic.ToLower(), $"%{filter.Topic.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.ServiceType))
+            query = query.Where(c => EF.Functions.JsonContains(c.Configuration, $"{{\"serviceType\":\"{filter.ServiceType}\"}}"));
 
-        if (filter.IngestTypeId.HasValue)
-            query = query.Where(ds => ds.IngestTypeId == filter.IngestTypeId);
+        if (filter.IngestTypeId?.Any() == true)
+            query = query.Where(i => filter.IngestTypeId.Contains(i.IngestTypeId));
         if (filter.SourceId.HasValue)
-            query = query.Where(ds => ds.SourceId == filter.SourceId);
+            query = query.Where(i => i.SourceId == filter.SourceId);
         if (filter.ProductId.HasValue)
-            query = query.Where(ds => ds.ProductId == filter.ProductId);
+            query = query.Where(i => i.ProductId == filter.ProductId);
         if (filter.SourceConnectionId.HasValue)
-            query = query.Where(ds => ds.SourceConnectionId == filter.SourceConnectionId);
+            query = query.Where(i => i.SourceConnectionId == filter.SourceConnectionId);
         if (filter.DestinationConnectionId.HasValue)
-            query = query.Where(ds => ds.DestinationConnectionId == filter.DestinationConnectionId);
+            query = query.Where(i => i.DestinationConnectionId == filter.DestinationConnectionId);
+        if (filter.IsEnabled.HasValue)
+            query = query.Where(i => i.IsEnabled == filter.IsEnabled);
 
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)
             query = query.OrderByProperty(filter.Sort);
         else
-            query = query.OrderBy(ds => ds.Name).ThenBy(ds => ds.IngestTypeId).ThenBy(ds => ds.IsEnabled);
+            query = query.OrderBy(i => i.Name).ThenBy(i => i.IngestTypeId).ThenBy(i => i.IsEnabled);
 
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);
 
         var items = query?.ToArray()
-            .Select(ds =>
+            .Select(i =>
             {
-                ds.Configuration = JsonDocument.Parse("{}");
-                ds.SourceConnection!.Configuration = JsonDocument.Parse("{}");
-                ds.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
-                return ds;
+                i.Configuration = JsonDocument.Parse("{}");
+                i.SourceConnection!.Configuration = JsonDocument.Parse("{}");
+                i.DestinationConnection!.Configuration = JsonDocument.Parse("{}");
+                return i;
             }) ?? Array.Empty<Ingest>();
         return new Paged<Ingest>(items, filter.Page, filter.Quantity, total);
     }
@@ -159,23 +163,23 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     {
         var result = this.Context.Ingests
             .AsNoTracking()
-            .Include(ds => ds.Product)
-            .Include(ds => ds.IngestType)
-            .Include(ds => ds.Source)
-            .Include(ds => ds.State)
-            .Include(ds => ds.SourceConnection)
-            .Include(ds => ds.DestinationConnection)
-            .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .Include(i => i.Product)
+            .Include(i => i.IngestType)
+            .Include(i => i.Source)
+            .Include(i => i.State)
+            .Include(i => i.SourceConnection)
+            .Include(i => i.DestinationConnection)
+            .Include(i => i.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
             .Include(i => i.DataLocationsManyToMany).ThenInclude(i => i.DataLocation)
-            .Where(ds => ds.Topic.ToLower() == topic.ToLower())
+            .Where(i => i.Topic.ToLower() == topic.ToLower())
             .ToArray();
 
         /// TODO: Only allow admin to include connection information.
         return includeConnection ? result : result
-            .Select(ds =>
+            .Select(i =>
             {
-                ds.Configuration = JsonDocument.Parse("{}");
-                return ds;
+                i.Configuration = JsonDocument.Parse("{}");
+                return i;
             });
     }
 
@@ -188,13 +192,13 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     public override Ingest? FindById(int id)
     {
         return this.Context.Ingests
-            .Include(ds => ds.Product)
-            .Include(ds => ds.IngestType)
-            .Include(ds => ds.Source)
-            .Include(ds => ds.State)
-            .Include(ds => ds.SourceConnection)
-            .Include(ds => ds.DestinationConnection)
-            .Include(ds => ds.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
+            .Include(i => i.Product)
+            .Include(i => i.IngestType)
+            .Include(i => i.Source)
+            .Include(i => i.State)
+            .Include(i => i.SourceConnection)
+            .Include(i => i.DestinationConnection)
+            .Include(i => i.SchedulesManyToMany).ThenInclude(ct => ct.Schedule)
             .Include(i => i.DataLocationsManyToMany).ThenInclude(i => i.DataLocation)
             .FirstOrDefault(c => c.Id == id);
     }

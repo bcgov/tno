@@ -19,4 +19,9 @@ export const Text = styled(Col)`
   & > label {
     white-space: nowrap;
   }
+
+  input[disabled] {
+    color: hsl(0, 0%, 50%);
+    background-color: hsl(0, 0%, 95%);
+  }
 `;

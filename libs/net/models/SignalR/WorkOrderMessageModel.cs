@@ -1,13 +1,12 @@
 using System.Text.Json;
-using TNO.API.Models;
 using TNO.Entities;
 
-namespace TNO.API.Areas.Editor.Models.WorkOrder;
+namespace TNO.API.Models.SignalR;
 
 /// <summary>
-/// WorkOrderModel class, provides a model that represents a work order.
+/// WorkOrderMessageModel class, provides a model that represents a work order.
 /// </summary>
-public class WorkOrderModel : AuditColumnsModel
+public class WorkOrderMessageModel : AuditColumnsModel
 {
     #region Properties
     /// <summary>
@@ -53,16 +52,16 @@ public class WorkOrderModel : AuditColumnsModel
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of an WorkOrderModel.
+    /// Creates a new instance of an WorkOrderMessageModel.
     /// </summary>
-    public WorkOrderModel() { }
+    public WorkOrderMessageModel() { }
 
     /// <summary>
-    /// Creates a new instance of an WorkOrderModel, initializes with specified parameter.
+    /// Creates a new instance of an WorkOrderMessageModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
     /// <param name="options"></param>
-    public WorkOrderModel(Entities.WorkOrder entity, JsonSerializerOptions options) : base(entity)
+    public WorkOrderMessageModel(Entities.WorkOrder entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
         this.WorkType = entity.WorkType;

@@ -3,6 +3,8 @@ export * from './useApiCache';
 export * from './useApiCategories';
 export * from './useApiContents';
 export * from './useApiDataLocations';
+export * from './useApiIngests';
+export * from './useApiIngestSchedules';
 export * from './useApiIngestTypes';
 export * from './useApiLicenses';
 export * from './useApiLookups';

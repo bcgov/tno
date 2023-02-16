@@ -22,4 +22,9 @@ export const TextArea = styled(Col)`
     filter: grayscale(100%) brightness(65%) sepia(25%) hue-rotate(-50deg) saturate(600%)
       contrast(0.8);
   }
+
+  textarea[disabled] {
+    color: hsl(0, 0%, 50%);
+    background-color: hsl(0, 0%, 95%);
+  }
 `;

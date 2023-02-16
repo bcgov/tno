@@ -1782,6 +1782,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("repeat");
 
+                    b.Property<int?>("RequestedById")
+                        .HasColumnType("integer")
+                        .HasColumnName("requested_by_id");
+
                     b.Property<DateTime?>("RunOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("run_on");
@@ -1793,6 +1797,10 @@ namespace TNO.DAL.Migrations
                     b.Property<int>("RunOnWeekDays")
                         .HasColumnType("integer")
                         .HasColumnName("run_on_week_days");
+
+                    b.Property<bool>("RunOnlyOnce")
+                        .HasColumnType("boolean")
+                        .HasColumnName("run_only_once");
 
                     b.Property<int>("ScheduleType")
                         .HasColumnType("integer")
@@ -1826,6 +1834,8 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RequestedById");
 
                     b.HasIndex(new[] { "Name", "IsEnabled", "ScheduleType" }, "IX_schedule");
 
@@ -2963,6 +2973,16 @@ namespace TNO.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Ingest");
+                });
+
+            modelBuilder.Entity("TNO.Entities.Schedule", b =>
+                {
+                    b.HasOne("TNO.Entities.User", "RequestedBy")
+                        .WithMany()
+                        .HasForeignKey("RequestedById")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("RequestedBy");
                 });
 
             modelBuilder.Entity("TNO.Entities.Source", b =>

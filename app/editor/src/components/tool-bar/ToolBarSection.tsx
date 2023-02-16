@@ -2,7 +2,7 @@ import { Row, Show } from 'tno-core';
 
 import * as styled from './styled';
 
-export interface IToolBarSectionProps {
+export interface IToolBarSectionProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   label?: string;
   icon?: React.ReactNode;
@@ -20,9 +20,11 @@ export const ToolBarSection: React.FC<IToolBarSectionProps> = ({
   label,
   icon,
   title,
+  className,
+  ...rest
 }) => {
   return (
-    <styled.ToolBarSection className="section">
+    <styled.ToolBarSection className={`className${className ? ` ${className}` : ''}`} {...rest}>
       <Show visible={!!title}>
         <Row className="title-container">{title}</Row>
       </Show>

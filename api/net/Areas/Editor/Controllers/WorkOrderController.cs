@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Editor.Models.WorkOrder;
 using TNO.API.Config;
 using TNO.API.Helpers;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
@@ -97,14 +97,14 @@ public class WorkOrderController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<WorkOrderModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IPaged<WorkOrderMessageModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "WorkOrder" })]
     public IActionResult Find()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _workOrderService.Find(new WorkOrderFilter(query));
-        var page = new Paged<WorkOrderModel>(result.Items.Select(i => new WorkOrderModel(i, _serializerOptions)), result.Page, result.Quantity, result.Total);
+        var page = new Paged<WorkOrderMessageModel>(result.Items.Select(i => new WorkOrderMessageModel(i, _serializerOptions)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 
@@ -116,7 +116,7 @@ public class WorkOrderController : ControllerBase
     /// <returns></returns>
     [HttpPost("transcribe/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
@@ -129,7 +129,7 @@ public class WorkOrderController : ControllerBase
         // TODO: Handle blocked work orders stuck in progress.
         var workOrders = _workOrderService.FindByContentId(contentId);
         if (workOrders.Any(o => o.WorkType == WorkOrderType.Transcription && _workLimiterStatus.Contains(o.Status)))
-            return new JsonResult(new WorkOrderModel(workOrders.First(o => o.WorkType == WorkOrderType.Transcription && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
+            return new JsonResult(new WorkOrderMessageModel(workOrders.First(o => o.WorkType == WorkOrderType.Transcription && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
             {
                 StatusCode = (int)HttpStatusCode.AlreadyReported
             };
@@ -144,10 +144,10 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderModel(workOrder, _serializerOptions));
+            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
             throw new BadRequestException("Transcription request failed");
         }
-        return new JsonResult(new WorkOrderModel(workOrder, _serializerOptions));
+        return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public class WorkOrderController : ControllerBase
     /// <returns></returns>
     [HttpPost("nlp/{contentId}")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(WorkOrderModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(WorkOrderMessageModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NoContent)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
@@ -171,7 +171,7 @@ public class WorkOrderController : ControllerBase
         // TODO: Handle blocked work orders stuck in progress.
         var workOrders = _workOrderService.FindByContentId(contentId);
         if (workOrders.Any(o => o.WorkType == WorkOrderType.NaturalLanguageProcess && _workLimiterStatus.Contains(o.Status)))
-            return new JsonResult(new WorkOrderModel(workOrders.First(o => o.WorkType == WorkOrderType.NaturalLanguageProcess && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
+            return new JsonResult(new WorkOrderMessageModel(workOrders.First(o => o.WorkType == WorkOrderType.NaturalLanguageProcess && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
             {
                 StatusCode = (int)HttpStatusCode.AlreadyReported
             };
@@ -186,10 +186,10 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderModel(workOrder, _serializerOptions));
+            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
             throw new BadRequestException("Natural Language Processing request failed");
         }
-        return new JsonResult(new WorkOrderModel(workOrder, _serializerOptions));
+        return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ public class WorkOrderController : ControllerBase
                     // TODO: Handle blocked work orders stuck in progress.
                     var workOrders = _workOrderService.FindByFile(locationId, path);
                     if (workOrders.Any(o => o.WorkType == WorkOrderType.FileRequest && _workLimiterStatus.Contains(o.Status)))
-                        return new JsonResult(new WorkOrderModel(workOrders.First(o => o.WorkType == WorkOrderType.FileRequest && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
+                        return new JsonResult(new WorkOrderMessageModel(workOrders.First(o => o.WorkType == WorkOrderType.FileRequest && _workLimiterStatus.Contains(o.Status)), _serializerOptions))
                         {
                             StatusCode = (int)HttpStatusCode.AlreadyReported
                         };
@@ -243,10 +243,10 @@ public class WorkOrderController : ControllerBase
                         workOrder.Status = WorkOrderStatus.Failed;
                         workOrder.Note = "Remote file request to Kafka failed";
                         workOrder = _workOrderService.UpdateAndSave(workOrder);
-                        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderModel(workOrder, _serializerOptions));
+                        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
                         throw new BadRequestException("Remote file request failed");
                     }
-                    return new JsonResult(new WorkOrderModel(workOrder, _serializerOptions));
+                    return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
                 }
                 finally
                 {

@@ -13,6 +13,11 @@ textarea {
     -moz-osx-font-smoothing: grayscale;
 }
 
+input[disabled] {
+  color: hsl(0, 0%, 50%);
+  background-color: hsl(0, 0%, 95%);
+}
+
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

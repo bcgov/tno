@@ -90,9 +90,13 @@ public class ClipAction : CommandAction<ClipOptions>
 
                     if (reference != null)
                     {
-                        // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.  However it is pretty quick at creating clips.
+                        // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
                         await RunProcessAsync(process, cancellationToken);
                         await this.ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
+
+                        // Delete any schedule marked with RunOnlyOnce
+                        if (schedule.RunOnlyOnce)
+                            await this.DeleteSchedule(new IngestScheduleModel(manager.Ingest.Id, schedule));
                     }
                 }
                 else if (name == "stop")
@@ -109,6 +113,16 @@ public class ClipAction : CommandAction<ClipOptions>
                 throw;
             }
         }
+    }
+
+    /// <summary>
+    /// Make a request to delete the specified schedule.
+    /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    protected virtual async Task DeleteSchedule(IngestScheduleModel schedule)
+    {
+        await this.Api.DeleteIngestSchedule(schedule);
     }
 
     /// <summary>
@@ -196,7 +210,8 @@ public class ClipAction : CommandAction<ClipOptions>
         {
             StreamUrl = ingest.GetConfigurationValue("url") ?? "",
             FilePath = path?.MakeRelativePath() ?? "",
-            Language = ingest.GetConfigurationValue("language") ?? ""
+            Language = ingest.GetConfigurationValue("language") ?? "",
+            RequestedById = schedule.RequestedById,
         };
         return content;
     }

@@ -30,6 +30,7 @@ public class IngestController : ControllerBase
     #region Variables
     private readonly IIngestStateService _serviceIngestState;
     private readonly IIngestService _serviceIngest;
+    private readonly IScheduleService _serviceSchedule;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -39,11 +40,13 @@ public class IngestController : ControllerBase
     /// </summary>
     /// <param name="serviceIngestState"></param>
     /// <param name="serviceIngest"></param>
+    /// <param name="serviceSchedule"></param>
     /// <param name="serializerOptions"></param>
-    public IngestController(IIngestStateService serviceIngestState, IIngestService serviceIngest, IOptions<JsonSerializerOptions> serializerOptions)
+    public IngestController(IIngestStateService serviceIngestState, IIngestService serviceIngest, IScheduleService serviceSchedule, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _serviceIngestState = serviceIngestState;
         _serviceIngest = serviceIngest;
+        _serviceSchedule = serviceSchedule;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -125,6 +128,22 @@ public class IngestController : ControllerBase
         var result = _serviceIngest.FindById(model.Id);
         if (result == null) return new NoContentResult();
         return new JsonResult(new IngestModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Delete specified schedule from database.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpDelete("schedules/{id:int}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ScheduleModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Ingest" })]
+    public IActionResult DeleteSchedule(ScheduleModel model)
+    {
+        _serviceSchedule.DeleteAndSave(model.ToEntity());
+        return new JsonResult(model);
     }
     #endregion
 }

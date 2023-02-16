@@ -58,6 +58,11 @@ public class ScheduleModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public bool RunOnlyOnce { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public int Repeat { get; set; }
 
     /// <summary>
@@ -74,6 +79,11 @@ public class ScheduleModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public int DayOfMonth { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
+    public int? RequestedById { get; set; }
     #endregion
 
     #region Constructors
@@ -99,15 +109,27 @@ public class ScheduleModel : AuditColumnsModel
             this.RunOn = entity.RunOn;
             this.StartAt = entity.StartAt;
             this.StopAt = entity.StopAt;
+            this.RunOnlyOnce = entity.RunOnlyOnce;
             this.Repeat = entity.Repeat;
             this.RunOnWeekDays = entity.RunOnWeekDays.GetFlagValues();
             this.RunOnMonths = entity.RunOnMonths.GetFlagValues();
             this.DayOfMonth = entity.DayOfMonth;
+            this.RequestedById = entity.RequestedById;
         }
     }
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Creates a new instance of a Ingest object.
+    /// </summary>
+    /// <returns></returns>
+    public Entities.Schedule ToEntity()
+    {
+        var entity = (Entities.Schedule)this;
+        return entity;
+    }
+
     /// <summary>
     /// Explicit cast to entity.
     /// </summary>
@@ -121,6 +143,7 @@ public class ScheduleModel : AuditColumnsModel
             Id = model.Id,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
+            RunOnlyOnce = model.RunOnlyOnce,
             Repeat = model.Repeat,
             RunOn = model.RunOn,
             StartAt = model.StartAt,
@@ -128,6 +151,7 @@ public class ScheduleModel : AuditColumnsModel
             RunOnWeekDays = model.RunOnWeekDays.ToFlagEnum<ScheduleWeekDay>(),
             RunOnMonths = model.RunOnMonths.ToFlagEnum<ScheduleMonth>(),
             DayOfMonth = model.DayOfMonth,
+            RequestedById = model.RequestedById,
             Version = model.Version ?? 0,
         };
     }

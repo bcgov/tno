@@ -38,18 +38,30 @@ public class IngestScheduleModel
         this.ScheduleId = entity.ScheduleId;
         this.Schedule = entity.Schedule != null ? new ScheduleModel(entity.Schedule) : null;
     }
+
+    /// <summary>
+    /// Creates a new instance of an IngestScheduleModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="ingestId"></param>
+    /// <param name="model"></param>
+    public IngestScheduleModel(int ingestId, ScheduleModel model)
+    {
+        this.IngestId = ingestId;
+        this.ScheduleId = model.Id;
+        this.Schedule = model;
+    }
     #endregion
 
     #region Methods
     /// <summary>
     /// Creates a new instance of a IngestSchedule object.
     /// </summary>
-    /// <param name="dataIngestId"></param>
+    /// <param name="ingestId"></param>
     /// <returns></returns>
-    public Entities.IngestSchedule ToEntity(int dataIngestId)
+    public Entities.IngestSchedule ToEntity(int ingestId)
     {
         var entity = (Entities.IngestSchedule)this;
-        entity.IngestId = dataIngestId;
+        entity.IngestId = ingestId;
         return entity;
     }
 
