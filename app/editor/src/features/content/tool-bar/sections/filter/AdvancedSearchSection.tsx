@@ -57,17 +57,15 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
                   const optionItem = filterEnabled(sourceOptions, newValue.value).find(
                     (ds) => ds.value === newValue.value,
                   );
-                  const newSearchTerm =
-                    optionItem?.label
-                      .substring(optionItem.label.indexOf('(') + 1)
-                      .replace(')', '') ?? '';
-                  onChange({ ...filterAdvanced, searchTerm: newSearchTerm });
+                  onChange({ ...filterAdvanced, searchTerm: optionItem.value });
                 }
               }}
               options={[new OptionItem('', 0) as IOptionItem].concat([
                 ...filterEnabled(sourceOptions, filterAdvanced.searchTerm),
               ])}
-              value={sourceOptions.find((s) => s.label === filterAdvanced.searchTerm)}
+              value={sourceOptions.find(
+                (s) => String(s.value) === String(filterAdvanced.searchTerm),
+              )}
             />
           </Show>
           <Show visible={filterAdvanced.fieldType !== 'otherSource'}>
