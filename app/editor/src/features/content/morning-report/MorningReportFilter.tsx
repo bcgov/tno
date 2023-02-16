@@ -16,6 +16,7 @@ import {
 
 import { timeFrames } from '../list-view/constants';
 import { queryToFilter } from '../list-view/utils';
+import { InputOption } from '../tool-bar/sections/filter';
 import { IMorningReportFilter } from './interfaces';
 import * as styled from './styled';
 
@@ -67,18 +68,27 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
     <styled.MorningReportFilter>
       <Row>
         <Select
-          name="productId"
-          label="Product Designation"
-          width={FieldSize.Medium}
-          options={filterEnabled(productOptions, filter.productId)}
-          value={productOptions.find((mt) => mt.value === filter.productId)}
+          className="select"
+          name="productIds"
+          placeholder="Designation"
+          isMulti
+          closeMenuOnSelect={false}
+          hideSelectedOptions={false}
+          options={filterEnabled(productOptions)}
+          value={
+            filter.productIds?.map((id) => productOptions.find((opt) => opt.value === id)) ?? ''
+          }
+          width={FieldSize.Big}
           defaultValue={productOptions[0]}
-          onChange={(newValue: any) => {
-            var productId = !!newValue ? (newValue as IOptionItem).value ?? 0 : 0;
+          components={{
+            Option: InputOption,
+          }}
+          onChange={(newValues) => {
+            const productIds = Array.isArray(newValues) ? newValues.map((opt) => opt.value) : [0];
             onFilterChange({
               ...filter,
               pageIndex: 0,
-              productId: productId as number,
+              productIds: productIds,
             });
           }}
         />
@@ -116,12 +126,12 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = () => {
               label="Front Page"
               value="Front Page"
               tooltip="Front page content"
-              checked={filter.productId === 11}
+              checked={filter.productIds.includes(11)}
               onChange={(e) => {
                 onFilterChange({
                   ...filter,
                   pageIndex: 0,
-                  productId: e.target.checked ? 11 : 0,
+                  productIds: e.target.checked && !filter.productIds.includes(11) ? [11] : [0],
                 });
               }}
             />

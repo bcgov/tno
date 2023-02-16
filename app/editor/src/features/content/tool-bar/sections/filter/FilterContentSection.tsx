@@ -19,6 +19,7 @@ export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
   onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
   onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
+  productIds?: number[];
 }
 
 /**
@@ -32,6 +33,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   onChange,
   onAdvancedFilterChange,
   onSearch,
+  productIds,
 }) => {
   const [{ filter, filterAdvanced }] = useContent();
   const [{ productOptions: pOptions, users }] = useLookupOptions();

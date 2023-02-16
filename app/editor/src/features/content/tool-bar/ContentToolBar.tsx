@@ -32,7 +32,7 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
   };
 
   React.useEffect(() => {
-    if (!!search.productIds) extractProductIds(window.location.search);
+    if (!!search.productIds) extractProductIds(search.productIds);
     Object.keys(search).forEach(function (key) {
       if (key in filterAdvanced && search[key] !== undefined) {
         storeFilterAdvanced({ ...filterAdvanced, [key]: search[key] });
@@ -46,7 +46,7 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
     storeFilter(filter);
     replaceQueryParams({ ...filter, ...filterAdvanced }, { includeEmpty: false });
   };
-  // pass filter and filter advanced so we dont lose the advanced filter when we change the filter
+  // pass filter and filter advanced so we don't lose the advanced filter when we change the filter
   const onAdvancedFilterChange = (advancedFilter: IContentListAdvancedFilter) => {
     storeFilterAdvanced(advancedFilter);
     replaceQueryParams(

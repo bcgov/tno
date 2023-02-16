@@ -3,7 +3,6 @@ import { ISortPageFilter } from '.';
 
 export interface IContentFilter extends ISortPageFilter {
   contentType?: ContentTypeName;
-  productId?: number;
   otherSource?: string;
   sourceId?: number;
   ownerId?: number;

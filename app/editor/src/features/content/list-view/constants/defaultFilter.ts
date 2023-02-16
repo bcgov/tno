@@ -8,7 +8,7 @@ export const defaultFilter: IContentListFilter = {
   includeHidden: false,
   sourceId: 0,
   otherSource: '',
-  productId: 0,
+  productIds: [0],
   ownerId: 0,
   userId: '',
   timeFrame: 0,
