@@ -7,7 +7,7 @@ import { Col, FormikSelect, FormikText, FormikTextArea, Row, Section } from 'tno
 import { Languages, LoggingLevels, TimeZones } from './constants';
 import * as styled from './styled';
 
-export const VideoRPi: React.FC = (props) => {
+export const VideoHDMI: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
   const { applyPlaceholder } = useFormikHelpers();
 

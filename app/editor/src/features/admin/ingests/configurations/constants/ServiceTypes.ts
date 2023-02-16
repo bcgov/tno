@@ -7,7 +7,9 @@ export const serviceTypes = (ingestType?: string) => {
     new OptionItem('Tuner', 'tuner'),
   ];
 
-  if (ingestType === 'Video') values.push(new OptionItem('Raspberry Pi', 'RPi'));
-
+  if (ingestType === 'Video') {
+    values.push(new OptionItem('Raspberry Pi', 'RPi'));
+    values.push(new OptionItem('HDMI', 'HDMI'));
+  }
   return values;
 };

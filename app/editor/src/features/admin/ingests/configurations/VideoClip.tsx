@@ -40,7 +40,7 @@ export const VideoClip: React.FC = (props) => {
         label="Capture Filename Filter"
         name="configuration.sourceFile"
         value={values.configuration.sourceFile}
-        tooltip="If more than one ingest is capturing files for a source, then filter by the filename.  Generally the schedule name and file extension (i.e. Morning.mpg)."
+        tooltip="If more than one ingest is capturing files for a source, then filter by the filename.  Generally the schedule name and file extension (i.e. Morning.mkv)."
       />
       <p>Use "{'{schedule.Name}'}.mp4" to name the file with the schedule name.</p>
       <FormikText

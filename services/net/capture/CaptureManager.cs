@@ -30,18 +30,18 @@ public class CaptureManager : IngestManager<CaptureIngestActionManager, CaptureO
     }
 
     /// <summary>
-    /// Get the data sources for the capture services.
-    /// Only data sources of serviceType=stream.
+    /// Get the ingest configurations for the capture services.
+    /// Filter out ingests based on configuration.
     /// </summary>
     /// <returns></returns>
     public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
         var ingests = await base.GetIngestsAsync();
-        var serviceType = !String.IsNullOrWhiteSpace(this.Options.ServiceType) ? this.Options.ServiceType : "stream";
         var hostname = System.Environment.GetEnvironmentVariable("HOSTNAME");
+        var serviceTypes = this.Options.GetServiceTypes();
 
         return ingests.Where(i =>
-            i.GetConfigurationValue("serviceType") == serviceType &&
+            (!serviceTypes.Any() || serviceTypes.Any(st => st == i.GetConfigurationValue("serviceType"))) &&
             (String.IsNullOrWhiteSpace(i.GetConfigurationValue("hostname")) ||
                 i.GetConfigurationValue("hostname") == hostname) &&
             (String.IsNullOrWhiteSpace(this.Options.DataLocation) ||
