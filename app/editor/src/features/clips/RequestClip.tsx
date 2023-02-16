@@ -111,13 +111,7 @@ export const RequestClip: React.FC<IRequestClipProps> = () => {
                     resetForm();
                   }}
                 />
-                <FormikText
-                  name="name"
-                  label="Name"
-                  disabled={!ingest}
-                  // value={schedule ? schedule.name : ''}
-                  // onChange={(e) => setSchedule({ ...schedule!, name: e.currentTarget.value })}
-                />
+                <FormikText name="name" label="Name" disabled={!ingest} />
                 <Row alignItems="flex-end">
                   <FormikTimeInput
                     label="Start At"
@@ -125,14 +119,6 @@ export const RequestClip: React.FC<IRequestClipProps> = () => {
                     width="7em"
                     placeholder="HH:MM:SS"
                     disabled={!ingest}
-                    // value={schedule ? schedule.startAt : ''}
-                    // onChange={(e) => {
-                    //   const value = e.currentTarget.value;
-                    //   // Had to do this because react-text-mask has bugs.
-                    //   if (value === '') setSchedule({ ...schedule!, startAt: undefined });
-                    //   else if (value !== undefined)
-                    //     setSchedule({ ...schedule!, startAt: e.currentTarget.value });
-                    // }}
                   />
                   <FormikTimeInput
                     label="Stop At"
@@ -140,14 +126,6 @@ export const RequestClip: React.FC<IRequestClipProps> = () => {
                     width="7em"
                     placeholder="HH:MM:SS"
                     disabled={!ingest}
-                    // value={schedule ? schedule.stopAt : ''}
-                    // onChange={(e) => {
-                    //   const value = e.currentTarget.value;
-                    //   // Had to do this because react-text-mask has bugs.
-                    //   if (value === '') setSchedule({ ...schedule!, stopAt: undefined });
-                    //   else if (value !== undefined)
-                    //     setSchedule({ ...schedule!, stopAt: e.currentTarget.value });
-                    // }}
                   />
                   <Button
                     type="submit"

@@ -30,7 +30,7 @@ public class IngestService : BaseService<Ingest, int>, IIngestService
     }
     #endregion
 
-    #region Methoi
+    #region Methods
     /// <summary>
     /// Find and return all the data sources.
     /// Removes connection information with possible secrets by default.
