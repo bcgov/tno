@@ -242,84 +242,77 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Col>
         </Show>
       </Row>
-      <Show visible={contentType !== ContentTypeName.Image}>
-        <Col flex="1 1 0">
-          <Show visible={contentType === ContentTypeName.Snippet}>
-            <Wysiwyg
-              label="Summary"
-              required
-              fieldName="summary"
-              expandModal={setShowExpandModal}
-            />
-          </Show>
-          <Show
-            visible={
-              contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
-            }
-          >
-            <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
-          </Show>
-        </Col>
-      </Show>
-      <Show visible={contentType !== ContentTypeName.Image}>
-        <Row className="multi-section">
+      <Col flex="1 1 0">
+        <Show
+          visible={contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image}
+        >
+          <Wysiwyg label="Summary" required fieldName="summary" expandModal={setShowExpandModal} />
+        </Show>
+        <Show
+          visible={contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image}
+        >
+          <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
+        </Show>
+      </Col>
+      <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
+        <Show visible={contentType !== ContentTypeName.Image}>
           <div className="multi-group">
             <ToningGroup fieldName="tonePools" />
           </div>
-          <Tags fieldName="summary" />
+        </Show>
+        <Tags fieldName="summary" />
 
-          <Show visible={contentType === ContentTypeName.Snippet}>
-            <Row className="multi-group">
-              <TimeLogSection
-                toggle={toggle}
-                content={content}
-                setContent={setContent}
-                effort={effort}
-                setEffort={setEffort}
-                userId={userId!}
-              />
-              <Modal
-                body={
-                  <Wysiwyg
-                    label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
-                    required
-                    fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
-                  />
-                }
-                isShowing={showExpandModal}
-                hide={() => setShowExpandModal(!showExpandModal)}
-                customButtons={
-                  <Button
-                    variant={ButtonVariant.secondary}
-                    onClick={() => setShowExpandModal(!showExpandModal)}
-                  >
-                    Close
-                  </Button>
-                }
-              />
+        <Show visible={contentType === ContentTypeName.Snippet}>
+          <Row className="multi-group">
+            <TimeLogSection
+              toggle={toggle}
+              content={content}
+              setContent={setContent}
+              effort={effort}
+              setEffort={setEffort}
+              userId={userId!}
+            />
+            <Modal
+              body={
+                <Wysiwyg
+                  label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
+                  required
+                  fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
+                />
+              }
+              isShowing={showExpandModal}
+              hide={() => setShowExpandModal(!showExpandModal)}
+              customButtons={
+                <Button
+                  variant={ButtonVariant.secondary}
+                  onClick={() => setShowExpandModal(!showExpandModal)}
+                >
+                  Close
+                </Button>
+              }
+            />
 
-              <Modal
-                hide={toggle}
-                isShowing={isShowing}
-                headerText="Prep Time Log"
-                body={
-                  <TimeLogTable
-                    setTotalEffort={setEffort}
-                    totalEffort={effort}
-                    data={values.timeTrackings}
-                  />
-                }
-                customButtons={
-                  <Button variant={ButtonVariant.secondary} onClick={toggle}>
-                    Close
-                  </Button>
-                }
-              />
-            </Row>
-          </Show>
-        </Row>
-        <Row className="row-margins"></Row>
-      </Show>
+            <Modal
+              hide={toggle}
+              isShowing={isShowing}
+              headerText="Prep Time Log"
+              body={
+                <TimeLogTable
+                  setTotalEffort={setEffort}
+                  totalEffort={effort}
+                  data={values.timeTrackings}
+                />
+              }
+              customButtons={
+                <Button variant={ButtonVariant.secondary} onClick={toggle}>
+                  Close
+                </Button>
+              }
+            />
+          </Row>
+        </Show>
+      </Row>
+      <Row className="row-margins"></Row>
       <Show
         visible={contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image}
       >
