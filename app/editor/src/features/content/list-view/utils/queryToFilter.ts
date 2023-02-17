@@ -27,7 +27,6 @@ export const queryToFilter = (
       contentType: convertTo(search.contentType, 'string', filter.contentType),
       sourceId: convertTo(search.sourceId, 'number', filter.sourceId),
       otherSource: convertTo(search.otherSource, 'string', filter.otherSource),
-      productId: convertTo(search.productId, 'number', filter.productId),
       ownerId: convertTo(search.ownerId, 'number', filter.ownerId),
       userId: convertTo(search.userId, 'number', filter.userId),
       timeFrame: convertTo(search.timeFrame, 'number', filter.timeFrame),

@@ -19,6 +19,7 @@ export interface IFilterContentSectionProps {
   onChange: (filter: IContentListFilter) => void;
   onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
   onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
+  productIds?: number[];
 }
 
 /**
@@ -32,13 +33,13 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   onChange,
   onAdvancedFilterChange,
   onSearch,
+  productIds,
 }) => {
   const [{ filter, filterAdvanced }] = useContent();
   const [{ productOptions: pOptions, users }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [{ userInfo }] = useApp();
-
   const search = fromQueryString(window.location.search);
 
   const timeFrames = [
@@ -147,7 +148,10 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}
                 options={filterEnabled(productOptions)}
-                // value={productOptions.find((mt) => mt.value === filter.productId)}
+                value={
+                  filter.productIds?.map((id) => productOptions.find((opt) => opt.value === id)) ??
+                  ''
+                }
                 width={FieldSize.Big}
                 defaultValue={productOptions[0]}
                 components={{

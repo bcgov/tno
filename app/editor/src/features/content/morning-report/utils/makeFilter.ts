@@ -14,7 +14,6 @@ export const makeFilter = (filter: IMorningReportFilter): IContentFilter => {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
     sourceId: filter.sourceId !== 0 ? filter.sourceId : undefined,
-    productId: filter.productId !== 0 ? filter.productId : undefined,
     contentType: filter.contentType,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
