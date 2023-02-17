@@ -26,9 +26,10 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
   // extract every value from window.location.search that is productIds
   // and put into an array
   const extractProductIds = (search: string) => {
-    const productIds = search.split('&').filter((item) => item.includes('productIds'));
-    const productIdsArray = productIds.map((item) => Number(item.split('=')[1]));
-    storeFilter({ ...filter, productIds: productIdsArray });
+    let params = new URLSearchParams(search);
+    const productIds = params.getAll('productIds');
+    const productIdsIntArray = productIds.map((item) => parseInt(item));
+    storeFilter({ ...filter, productIds: productIdsIntArray });
   };
 
   React.useEffect(() => {
