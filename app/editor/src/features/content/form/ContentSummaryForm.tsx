@@ -151,7 +151,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
               />
               <FormikText
                 name="otherSeries"
-                label="Other Series"
+                label="Other Show/Program"
                 width={FieldSize.Medium}
                 onChange={(e) => {
                   const value = e.currentTarget.value;

@@ -31,11 +31,12 @@ export const SeriesList: React.FC = () => {
       <FormPage>
         <Row className="add-media" justifyContent="flex-end">
           <Col flex="1 1 0">
-            Series provide a way to identify the author, byline or the television series of content.
+            Show/Program provides a way to identify the author, byline or the television series of
+            content.
           </Col>
           <IconButton
             iconType="plus"
-            label={`Add new series`}
+            label={`Add new show/program`}
             onClick={() => navigate(`/admin/series/0`)}
           />
         </Row>
