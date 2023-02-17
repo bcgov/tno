@@ -3,7 +3,7 @@ import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { FormikSelect } from 'tno-core';
 
-import { VideoClip, VideoRPi, VideoStream, VideoTuner } from '.';
+import { VideoClip, VideoHDMI, VideoRPi, VideoStream, VideoTuner } from '.';
 import { serviceTypes } from './constants';
 import * as styled from './styled';
 
@@ -21,6 +21,8 @@ export const Video: React.FC = (props) => {
         return <VideoTuner />;
       case 'RPi':
         return <VideoRPi />;
+      case 'HDMI':
+        return <VideoHDMI />;
       default:
         return null;
     }
