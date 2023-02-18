@@ -1,6 +1,9 @@
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Nest;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -13,6 +16,9 @@ namespace TNO.DAL.Services;
 /// </summary>
 public class ContentService : BaseService<Content, long>, IContentService
 {
+    private readonly string _unpublishedIndex;
+    private readonly IElasticClient _client;
+
     #region Properties
     #endregion
     /// <summary>
@@ -26,8 +32,12 @@ public class ContentService : BaseService<Content, long>, IContentService
     public ContentService(TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
+        IConfiguration config,
+        IElasticClient client,
         ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
+        _client = client;
+        _unpublishedIndex = config["ElasticSearch:UnpublishedIndex"] ?? "unpublished_content";
     }
     #endregion
 
@@ -148,6 +158,249 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var items = query?.ToArray() ?? Array.Empty<Content>();
         return new Paged<Content>(items, filter.Page, filter.Quantity, total);
+    }
+
+    /// <summary>
+    /// Find content that matches the specified 'filter'.
+    /// </summary>
+    /// <param name="filter">Filter to apply to the query.</param>
+    /// <returns>A page of content items that match the filter.</returns>
+    public async Task<IPaged<Content>> FindAsync(ContentFilter filter)
+    {
+        var shouldQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+
+        foreach (var productId in filter.ProductIds)
+        {
+            shouldQueries.Add(s => s.Term(t => t.ProductId, productId));
+        }
+
+        foreach (var contentId in filter.ContentIds)
+        {
+            shouldQueries.Add(s => s.Term(t => t.Id, contentId));
+        }
+
+        var filterQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+
+        if (!string.IsNullOrWhiteSpace(filter.OtherSource))
+        {
+            filterQueries.Add(s => s.Term(t => t.OtherSource, filter.OtherSource.ToLower()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Headline))
+        {
+            filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.PageName))
+        {
+            filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Page).Value($"*{filter.PageName.ToLower()}*")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Section))
+        {
+            filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Section).Value($"*{filter.Section.ToLower()}*")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Edition))
+        {
+            filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Edition).Value($"*{filter.Edition.ToLower()}*")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Product))
+        {
+            filterQueries.Add(s => s.Term(t => t.ProductId, filter.Product) || (
+                s.Exists(e => e.Field(p => p.Product)) &&
+                s.Wildcard(m => m.Field(p => p.Product!.Name).Value($"*{filter.Product.ToLower()}*"))
+                ));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Byline))
+        {
+            filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Byline).Value($"*{filter.Byline.ToLower()}*")));
+        }
+
+        if (filter.ContentType.HasValue)
+        {
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(filter.ContentType.Value.ToString())));
+        }
+
+        if (!filter.IncludeHidden.HasValue)
+        {
+            filterQueries.Add(s => !s.Exists(e => e.Field(p => p.IsHidden)) || s.Term(t => t.IsHidden, false));
+        }
+        else
+        {
+            filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IncludeHidden.Value));
+        }
+
+        if (filter.ProductId.HasValue)
+        {
+            filterQueries.Add(s => s.Term(t => t.ProductId, filter.ProductId.Value));
+        }
+
+        if (filter.SourceId.HasValue)
+        {
+            filterQueries.Add(s => s.Term(t => t.SourceId, filter.SourceId.Value));
+        }
+
+        if (filter.OwnerId.HasValue)
+        {
+            filterQueries.Add(s => s.Term(t => t.OwnerId, filter.OwnerId.Value));
+        }
+
+        if (filter.IncludedInCategory.HasValue)
+        {
+            filterQueries.Add(s => s.Exists(e => e.Field(p => p.Categories.Any())));
+        }
+
+        foreach (var action in filter.Actions)
+        {
+            filterQueries.Add(s => s.Exists(e => e.Field(p => p.Actions.Any()))
+                && s.Match(m => m.Field("actions.name").Query(action))
+                && ((
+                    s.Match(m => m.Field("actions.valueType").Query("Boolean")) &&
+                    s.Match(m => m.Field("actions.value").Query("true"))) ||
+                    (!s.Match(m => m.Field("actions.valueType").Query("Boolean")) &&
+                    s.Exists(m => m.Field("actions.value")))));
+        }
+
+        if (filter.CreatedOn.HasValue)
+        {
+            var createdOn = filter.CreatedOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.CreatedOn).Query(createdOn)));
+        }
+
+        if (filter.CreatedStartOn.HasValue && filter.CreatedEndOn.HasValue)
+        {
+            var startOn = filter.CreatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
+            var endOn = filter.CreatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.CreatedOn)
+                .GreaterThanOrEquals(startOn)
+                .LessThanOrEquals(endOn)));
+        }
+        else if (filter.CreatedStartOn.HasValue)
+        {
+            var startOn = filter.CreatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.CreatedOn)
+                .GreaterThanOrEquals(startOn)));
+        }
+        else if (filter.CreatedEndOn.HasValue)
+        {
+            var endOn = filter.CreatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.CreatedOn)
+                .LessThanOrEquals(endOn)));
+        }
+
+        if (filter.UpdatedOn.HasValue)
+        {
+            var updatedOn = filter.UpdatedOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.UpdatedOn).Query(updatedOn)));
+        }
+
+        if (filter.UpdatedStartOn.HasValue && filter.UpdatedEndOn.HasValue)
+        {
+            var startOn = filter.UpdatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
+            var endOn = filter.UpdatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.UpdatedOn)
+                .GreaterThanOrEquals(startOn)
+                .LessThanOrEquals(endOn)));
+        }
+        else if (filter.UpdatedStartOn.HasValue)
+        {
+            var startOn = filter.UpdatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.UpdatedOn)
+                .GreaterThanOrEquals(startOn)));
+        }
+        else if (filter.UpdatedEndOn.HasValue)
+        {
+            var endOn = filter.UpdatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.UpdatedOn)
+                .LessThanOrEquals(endOn)));
+        }
+
+        if (filter.PublishedOn.HasValue)
+        {
+            var publishedOn = filter.PublishedOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.PublishedOn).Query(publishedOn)));
+        }
+
+        if (filter.PublishedStartOn.HasValue && filter.PublishedEndOn.HasValue)
+        {
+            var publishedStartOn = filter.PublishedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
+            var publishedEndOn = filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.PublishedOn)
+                .GreaterThanOrEquals(publishedStartOn)
+                .LessThanOrEquals(publishedEndOn)));
+        }
+        else if (filter.PublishedStartOn.HasValue)
+        {
+            var publishedStartOn = filter.PublishedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.PublishedOn)
+                .GreaterThanOrEquals(publishedStartOn)));
+        }
+        else if (filter.PublishedEndOn.HasValue)
+        {
+            var publishedEndOn = filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.PublishedOn)
+                .LessThanOrEquals(publishedEndOn)));
+        }
+
+        if (filter.UserId.HasValue)
+        {
+            filterQueries.Add(s => s.Term(t => t.OwnerId, filter.UserId.Value));
+        }
+
+        if (filter.Status.HasValue)
+        {
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.Status).Query(filter.Status.Value.ToString())));
+        }
+
+        var response = await _client.SearchAsync<Content>(s => {
+            var result = s
+                .Pretty()
+                .Index(_unpublishedIndex)
+                .From((filter.Page - 1) * filter.Quantity)
+                .Size(filter.Quantity)
+                .Query(q => q.Bool(b => b
+                    .Filter(filterQueries)
+                    .Should(shouldQueries)))
+                ;
+
+            if (filter.Sort.Any())
+            {
+                Expression<Func<Content, dynamic>>? objPath = null;
+                var sorts = filter.Sort[0];
+                var sort = sorts.Split(' ')[0];
+
+                if (sort == "id") objPath = p => p.Id;
+                if (sort == "productId") objPath = p => p.ProductId;
+                if (sort == "ownerId") objPath = p => p.OwnerId!;
+                if (sort == "publishedOn") objPath = p => p.PublishedOn!;
+                if (sort == "otherSource") objPath = p => p.OtherSource.Suffix("keyword");
+                if (sort == "page") objPath = p => p.Page.Suffix("keyword");
+                if (sort == "status") objPath = p => p.Status.Suffix("keyword");
+
+                if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
+            }
+            else
+            {
+                result = result.Sort(s => s.Descending(p => p.PublishedOn).Descending(p => p.Id));
+            }
+
+            return result;
+        });
+
+        var items = response.IsValid ? response.Documents : Array.Empty<Content>();
+        return new Paged<Content>(items, filter.Page, filter.Quantity, items.Count);
     }
 
     public override Content? FindById(long id)

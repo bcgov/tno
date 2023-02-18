@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Authorization;
 using TNO.API.CSS;
 using TNO.API.SignalR;
 using TNO.API.Helpers;
+using TNO.API.Elasticsearch;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -258,6 +259,8 @@ builder.Services.AddSignalR(options =>
         options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
     });
+
+builder.Services.AddElasticSearch(config);
 
 var app = builder.Build();
 

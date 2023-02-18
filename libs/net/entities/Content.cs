@@ -252,9 +252,9 @@ public class Content : AuditColumns
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Headline = headline;
         this.ContentType = contentType;
-        this.LicenseId = license?.Id ?? throw new ArgumentNullException(nameof(license));
+        if (license != null) this.LicenseId = license.Id;
         this.License = license;
-        this.ProductId = product?.Id ?? throw new ArgumentNullException(nameof(product));
+        if (product != null) this.ProductId = product.Id;
         this.Product = product;
         this.OwnerId = owner?.Id;
         this.Owner = owner;
@@ -359,7 +359,7 @@ public class Content : AuditColumns
     public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null)
         : this(uid, headline, otherSource, contentType, license, product, owner)
     {
-        this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
+        if (source != null) this.SourceId = source.Id;
         this.Source = source;
     }
 

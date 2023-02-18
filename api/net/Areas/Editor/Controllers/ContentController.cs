@@ -97,7 +97,7 @@ public class ContentController : ControllerBase
     /// Find a page of content for the specified query filter.
     /// </summary>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("db")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
@@ -107,6 +107,29 @@ public class ContentController : ControllerBase
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _contentService.Find(new ContentFilter(query));
         var page = new Paged<ContentModel>(result.Items.Select(i => new ContentModel(i)), result.Page, result.Quantity, result.Total);
+        return new JsonResult(page);
+    }
+
+    /// <summary>
+    /// Find a page of content for the specified query filter.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IPaged<ContentModel>), (int)HttpStatusCode.OK)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> FindWithElasticsearch()
+    {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        var filter = new ContentFilter(query);
+        var result = await _contentService.FindAsync(filter);
+        var items = result.Items.Select(i => new ContentModel(i));
+        var page = new Paged<ContentModel>(
+            items,
+            result.Page,
+            result.Quantity,
+            result.Total);
         return new JsonResult(page);
     }
 

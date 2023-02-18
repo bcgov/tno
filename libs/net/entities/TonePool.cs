@@ -27,7 +27,7 @@ public class TonePool : BaseType<int>
 
     public TonePool(string name, User owner) : base(name)
     {
-        this.OwnerId = owner?.Id ?? throw new ArgumentNullException(nameof(owner));
+        if (owner != null) this.OwnerId = owner.Id;
         this.Owner = owner;
     }
 
