@@ -3,16 +3,19 @@
 namespace TNO.API.Elasticsearch
 {
     /// <summary>
-    /// The ElasticSearchExtension class
+    /// The TNOElasticClient class
     /// </summary>
-    public static class ElasticSearchExtension
+    public class TNOElasticClient: ElasticClient
     {
         /// <summary>
-        /// Add a log message for the request.
+        /// Creates a new instance of a TNOElasticClient object, initializes with specified parameters.
         /// </summary>
-        /// <param name="services"></param>
         /// <param name="config"></param> 
-        public static void AddElasticSearch(this IServiceCollection services, IConfiguration config)
+        public TNOElasticClient(IConfiguration config): base(GetConnectionSettings(config))
+        {
+        }
+
+        private static ConnectionSettings GetConnectionSettings(IConfiguration config)
         {
             var elasticSearchUrl = config["ElasticSearch:Url"];
             if (string.IsNullOrEmpty(elasticSearchUrl)) throw new ArgumentNullException(nameof(elasticSearchUrl));
@@ -20,12 +23,10 @@ namespace TNO.API.Elasticsearch
             var defaultIndex = config["ElasticSearch:UnpublishedIndex"];
             if (string.IsNullOrEmpty(defaultIndex)) throw new ArgumentNullException(nameof(defaultIndex));
 
-            var settings = new ConnectionSettings(new Uri(elasticSearchUrl))
+            return new ConnectionSettings(new Uri(elasticSearchUrl))
                 .BasicAuthentication(config["ELASTIC_USERNAME"]!, config["ELASTIC_PASSWORD"]!)
-                .DefaultIndex(defaultIndex);
-
-            var client = new ElasticClient(settings);
-            services.AddSingleton<IElasticClient>(client);
+                .DefaultIndex(defaultIndex)
+                .ThrowExceptions();
         }
     }
 }

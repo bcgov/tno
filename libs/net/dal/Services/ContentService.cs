@@ -16,7 +16,6 @@ namespace TNO.DAL.Services;
 /// </summary>
 public class ContentService : BaseService<Content, long>, IContentService
 {
-    private readonly string _unpublishedIndex;
     private readonly IElasticClient _client;
 
     #region Properties
@@ -37,7 +36,6 @@ public class ContentService : BaseService<Content, long>, IContentService
         ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _client = client;
-        _unpublishedIndex = config["ElasticSearch:UnpublishedIndex"] ?? "unpublished_content";
     }
     #endregion
 
@@ -165,7 +163,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of content items that match the filter.</returns>
-    public async Task<IPaged<Content>> FindAsync(ContentFilter filter)
+    public async Task<IPaged<Content>> FindWithElasticsearchAsync(ContentFilter filter)
     {
         var shouldQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
 
@@ -231,11 +229,6 @@ public class ContentService : BaseService<Content, long>, IContentService
         else
         {
             filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IncludeHidden.Value));
-        }
-
-        if (filter.ProductId.HasValue)
-        {
-            filterQueries.Add(s => s.Term(t => t.ProductId, filter.ProductId.Value));
         }
 
         if (filter.SourceId.HasValue)
@@ -367,7 +360,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var response = await _client.SearchAsync<Content>(s => {
             var result = s
                 .Pretty()
-                .Index(_unpublishedIndex)
+                .Index(_client.ConnectionSettings.DefaultIndex)
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity)
                 .Query(q => q.Bool(b => b
@@ -399,7 +392,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             return result;
         });
 
-        var items = response.IsValid ? response.Documents : Array.Empty<Content>();
+        var items = response.IsValid ?
+            response.Documents :
+            throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
         return new Paged<Content>(items, filter.Page, filter.Quantity, items.Count);
     }
 

@@ -118,12 +118,12 @@ public class ContentController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> FindWithElasticsearch()
+    public async Task<IActionResult> FindWithElasticsearchAsync()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
-        var result = await _contentService.FindAsync(filter);
+        var result = await _contentService.FindWithElasticsearchAsync(filter);
         var items = result.Items.Select(i => new ContentModel(i));
         var page = new Paged<ContentModel>(
             items,
