@@ -55,7 +55,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     { label: 'MY CONTENT', value: userInfo?.id ?? 0 },
   ];
   const usersSelected =
-    usersSelections.find((i) => (i.value === search.userId ? +search.userId : 0))?.label ??
+    usersSelections.find((i) => (+i.value === +search.userId ? +search.userId : 0))?.label ??
     'ALL CONTENT';
 
   React.useEffect(() => {

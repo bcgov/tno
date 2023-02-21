@@ -37,7 +37,7 @@ export const SeriesList: React.FC = () => {
           <IconButton
             iconType="plus"
             label={`Add new show/program`}
-            onClick={() => navigate(`/admin/series/0`)}
+            onClick={() => navigate(`/admin/programs/0`)}
           />
         </Row>
         <GridTable

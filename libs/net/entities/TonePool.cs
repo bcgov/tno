@@ -25,15 +25,16 @@ public class TonePool : BaseType<int>
     #region Constructors
     protected TonePool() { }
 
+    // The constructor order here could make a difference for Elasticsearch!
+    public TonePool(string name, int ownerId) : base(name)
+    {
+        this.OwnerId = ownerId;
+    }
+
     public TonePool(string name, User owner) : base(name)
     {
         this.OwnerId = owner?.Id ?? throw new ArgumentNullException(nameof(owner));
         this.Owner = owner;
-    }
-
-    public TonePool(string name, int ownerId) : base(name)
-    {
-        this.OwnerId = ownerId;
     }
     #endregion
 }

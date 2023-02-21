@@ -49,8 +49,8 @@ export const AdminRouter: React.FC = () => {
       <Route path="tags" element={<TagList />} />
       <Route path="tags/:id" element={<TagsForm />} />
 
-      <Route path="series" element={<SeriesList />} />
-      <Route path="series/:id" element={<SeriesForm />} />
+      <Route path="programs" element={<SeriesList />} />
+      <Route path="programs/:id" element={<SeriesForm />} />
 
       <Route path="products" element={<ProductList />} />
       <Route path="products/:id" element={<ProductForm />} />
