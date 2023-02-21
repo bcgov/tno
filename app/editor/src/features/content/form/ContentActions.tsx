@@ -85,73 +85,75 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
     });
   }, [formActions]);
 
-  const options = actions.filter(filter).map((a) => {
-    const index = formActions.findIndex((ca) => ca.id === a.id);
-    const found = formActions[index];
-    return (
-      <React.Fragment key={a.id}>
-        {a.valueType === ValueType.Boolean && (
-          <FormikCheckbox
-            label={a.name}
-            name={field('value', index)}
-            value="true"
-            checked={found?.value === 'true'}
-            onChange={(e) => {
-              const checked = e.currentTarget.checked;
-              setFieldValue(field('value', index), checked ? 'true' : 'false');
-            }}
-          />
-        )}
-        {a.valueType !== ValueType.Boolean && (
-          <Checkbox
-            label={a.name}
-            name={field('placeholder', index)}
-            value={true}
-            checked={!!hidden.find((h) => h.id === a.id)?.value}
-            onChange={(e) => {
-              const checked = e.currentTarget.checked;
-              if (!checked) setFieldValue(field('value', index), '');
-              setHidden(
-                hidden.map((h) => {
-                  if (h.id === a.id) return { ...h, value: checked };
-                  return h;
-                }),
-              );
-            }}
-          />
-        )}
-        {a.valueType === ValueType.String && (
-          <Row>
-            {a.name === 'Commentary' && <FaHourglassHalf className="icon-indicator" />}
-            <FormikText
+  const options = actions
+    .filter((x) => x.isEnabled && filter)
+    .map((a) => {
+      const index = formActions.findIndex((ca) => ca.id === a.id);
+      const found = formActions[index];
+      return (
+        <React.Fragment key={a.id}>
+          {a.valueType === ValueType.Boolean && (
+            <FormikCheckbox
+              label={a.name}
               name={field('value', index)}
+              value="true"
+              checked={found?.value === 'true'}
+              onChange={(e) => {
+                const checked = e.currentTarget.checked;
+                setFieldValue(field('value', index), checked ? 'true' : 'false');
+              }}
+            />
+          )}
+          {a.valueType !== ValueType.Boolean && (
+            <Checkbox
+              label={a.name}
+              name={field('placeholder', index)}
+              value={true}
+              checked={!!hidden.find((h) => h.id === a.id)?.value}
+              onChange={(e) => {
+                const checked = e.currentTarget.checked;
+                if (!checked) setFieldValue(field('value', index), '');
+                setHidden(
+                  hidden.map((h) => {
+                    if (h.id === a.id) return { ...h, value: checked };
+                    return h;
+                  }),
+                );
+              }}
+            />
+          )}
+          {a.valueType === ValueType.String && (
+            <Row>
+              {a.name === 'Commentary' && <FaHourglassHalf className="icon-indicator" />}
+              <FormikText
+                name={field('value', index)}
+                disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+                required={!!hidden.find((h) => h.id === a.id)?.value}
+                width={FieldSize.Tiny}
+                className="small-txt"
+              />
+            </Row>
+          )}
+          {a.valueType === ValueType.Text && (
+            <FormikTextArea
+              name={field('value', index)}
+              label={a.valueLabel}
               disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
               required={!!hidden.find((h) => h.id === a.id)?.value}
-              width={FieldSize.Tiny}
-              className="small-txt"
             />
-          </Row>
-        )}
-        {a.valueType === ValueType.Text && (
-          <FormikTextArea
-            name={field('value', index)}
-            label={a.valueLabel}
-            disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
-            required={!!hidden.find((h) => h.id === a.id)?.value}
-          />
-        )}
-        {a.valueType === ValueType.Numeric && (
-          <FormikText
-            name={field('value', index)}
-            label={a.valueLabel}
-            type="number"
-            disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
-            required={!!hidden.find((h) => h.id === a.id)?.value}
-          />
-        )}
-      </React.Fragment>
-    );
-  });
+          )}
+          {a.valueType === ValueType.Numeric && (
+            <FormikText
+              name={field('value', index)}
+              label={a.valueLabel}
+              type="number"
+              disabled={!hidden.find((h) => h.id === a.id)?.value ?? true}
+              required={!!hidden.find((h) => h.id === a.id)?.value}
+            />
+          )}
+        </React.Fragment>
+      );
+    });
 
   return <>{options}</>;
 };
