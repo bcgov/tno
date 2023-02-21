@@ -25,15 +25,15 @@ public class TonePool : BaseType<int>
     #region Constructors
     protected TonePool() { }
 
-    public TonePool(string name, User owner) : base(name)
-    {
-        if (owner != null) this.OwnerId = owner.Id;
-        this.Owner = owner;
-    }
-
     public TonePool(string name, int ownerId) : base(name)
     {
         this.OwnerId = ownerId;
+    }
+
+    public TonePool(string name, User owner) : base(name)
+    {
+        this.OwnerId = owner?.Id ?? throw new ArgumentNullException(nameof(owner));
+        this.Owner = owner;
     }
     #endregion
 }

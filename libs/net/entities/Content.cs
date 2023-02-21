@@ -252,9 +252,9 @@ public class Content : AuditColumns
         this.Uid = uid ?? throw new ArgumentNullException(nameof(uid));
         this.Headline = headline;
         this.ContentType = contentType;
-        if (license != null) this.LicenseId = license.Id;
+        this.LicenseId = license?.Id ?? throw new ArgumentNullException(nameof(license));
         this.License = license;
-        if (product != null) this.ProductId = product.Id;
+        this.ProductId = product?.Id ?? throw new ArgumentNullException(nameof(product));
         this.Product = product;
         this.OwnerId = owner?.Id;
         this.Owner = owner;
@@ -342,25 +342,6 @@ public class Content : AuditColumns
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
         this.OtherSource = source.Code;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a Content object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="uid"></param>
-    /// <param name="headline"></param>
-    /// <param name="otherSource"></param>
-    /// <param name="source"></param>
-    /// <param name="contentType"></param>
-    /// <param name="license"></param>
-    /// <param name="product"></param>
-    /// <param name="owner"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null)
-        : this(uid, headline, otherSource, contentType, license, product, owner)
-    {
-        if (source != null) this.SourceId = source.Id;
-        this.Source = source;
     }
 
     /// <summary>
