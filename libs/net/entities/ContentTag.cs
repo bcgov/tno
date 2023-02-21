@@ -35,18 +35,18 @@ public class ContentTag : AuditColumns, IEquatable<ContentTag>
     #region Constructors
     protected ContentTag() { }
 
+    public ContentTag(long contentId, string tagId)
+    {
+        this.ContentId = contentId;
+        this.TagId = tagId;
+    }
+
     public ContentTag(Content content, Tag tag)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.TagId = tag?.Id ?? throw new ArgumentNullException(nameof(tag));
         this.Tag = tag;
-    }
-
-    public ContentTag(long contentId, string tagId)
-    {
-        this.ContentId = contentId;
-        this.TagId = tagId;
     }
     #endregion
 

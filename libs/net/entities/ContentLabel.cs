@@ -49,6 +49,20 @@ public class ContentLabel : AuditColumns, IEquatable<ContentLabel>
     /// <summary>
     /// Creates a new instance of a ContentLabel object, initializes with specified parameters.
     /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ContentLabel(long contentId, string key, string value)
+    {
+        this.ContentId = contentId;
+        this.Key = key ?? throw new ArgumentNullException(nameof(key));
+        this.Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ContentLabel object, initializes with specified parameters.
+    /// </summary>
     /// <param name="content"></param>
     /// <param name="key"></param>
     /// <param name="value"></param>
@@ -57,20 +71,6 @@ public class ContentLabel : AuditColumns, IEquatable<ContentLabel>
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
-        this.Key = key ?? throw new ArgumentNullException(nameof(key));
-        this.Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    /// <summary>
-    /// Creates a new instance of a ContentLabel object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="contentId"></param>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public ContentLabel(long contentId, string key, string value)
-    {
-        this.ContentId = contentId;
         this.Key = key ?? throw new ArgumentNullException(nameof(key));
         this.Value = value ?? throw new ArgumentNullException(nameof(value));
     }

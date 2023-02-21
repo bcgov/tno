@@ -108,6 +108,15 @@ public class Source : BaseType<int>
     #region Constructors
     protected Source() { }
 
+    public Source(string name, string code, int licenseId) : base(name)
+    {
+        if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
+        if (String.IsNullOrWhiteSpace(code)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(code));
+
+        this.Code = code;
+        this.LicenseId = licenseId;
+    }
+
     public Source(string name, string code, License license) : base(name)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
@@ -116,15 +125,6 @@ public class Source : BaseType<int>
         this.Code = code;
         this.LicenseId = license?.Id ?? throw new ArgumentNullException(nameof(license));
         this.License = license;
-    }
-
-    public Source(string name, string code, int licenseId) : base(name)
-    {
-        if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
-        if (String.IsNullOrWhiteSpace(code)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(code));
-
-        this.Code = code;
-        this.LicenseId = licenseId;
     }
     #endregion
 }

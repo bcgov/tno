@@ -41,19 +41,19 @@ public class ContentAction : AuditColumns, IEquatable<ContentAction>
     #region Constructors
     protected ContentAction() { }
 
+    public ContentAction(long contentId, int actionId, string value)
+    {
+        this.ContentId = contentId;
+        this.ActionId = actionId;
+        this.Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
     public ContentAction(Content content, Action action, string value)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.ActionId = action?.Id ?? throw new ArgumentNullException(nameof(action));
         this.Action = action;
-        this.Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public ContentAction(long contentId, int actionId, string value)
-    {
-        this.ContentId = contentId;
-        this.ActionId = actionId;
         this.Value = value ?? throw new ArgumentNullException(nameof(value));
     }
     #endregion

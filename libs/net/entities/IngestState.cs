@@ -39,15 +39,15 @@ public class IngestState
     #region Constructors
     protected IngestState() { }
 
+    public IngestState(int ingestId)
+    {
+        this.IngestId = ingestId;
+    }
+
     public IngestState(Ingest ingest)
     {
         this.IngestId = ingest?.Id ?? throw new ArgumentNullException(nameof(ingest));
         this.Ingest = ingest;
-    }
-
-    public IngestState(int ingestId)
-    {
-        this.IngestId = ingestId;
     }
     #endregion
 }

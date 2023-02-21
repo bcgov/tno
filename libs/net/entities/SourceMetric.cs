@@ -53,21 +53,21 @@ public class SourceMetric : AuditColumns, IEquatable<SourceMetric>
     #region Constructors
     protected SourceMetric() { }
 
+    public SourceMetric(int sourceId, int metricId, float reach, float earned, float impression)
+    {
+        this.SourceId = sourceId;
+        this.MetricId = metricId;
+        this.Reach = reach;
+        this.Earned = earned;
+        this.Impression = impression;
+    }
+
     public SourceMetric(Source source, Metric metric, float reach, float earned, float impression)
     {
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
         this.MetricId = metric?.Id ?? throw new ArgumentNullException(nameof(metric));
         this.Metric = metric;
-        this.Reach = reach;
-        this.Earned = earned;
-        this.Impression = impression;
-    }
-
-    public SourceMetric(int sourceId, int metricId, float reach, float earned, float impression)
-    {
-        this.SourceId = sourceId;
-        this.MetricId = metricId;
         this.Reach = reach;
         this.Earned = earned;
         this.Impression = impression;

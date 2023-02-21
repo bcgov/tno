@@ -31,17 +31,17 @@ public class ContentTypeAction : AuditColumns
     #region Constructors
     protected ContentTypeAction() { }
 
+    public ContentTypeAction(ContentType contentType, int actionId)
+    {
+        this.ContentType = contentType;
+        this.ActionId = actionId;
+    }
+
     public ContentTypeAction(ContentType contentType, Action action)
     {
         this.ContentType = contentType;
         this.ActionId = action?.Id ?? throw new ArgumentNullException(nameof(action));
         this.Action = action;
-    }
-
-    public ContentTypeAction(ContentType contentType, int actionId)
-    {
-        this.ContentType = contentType;
-        this.ActionId = actionId;
     }
     #endregion
 }

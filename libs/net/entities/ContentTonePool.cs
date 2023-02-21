@@ -41,19 +41,19 @@ public class ContentTonePool : AuditColumns, IEquatable<ContentTonePool>
     #region Constructors
     protected ContentTonePool() { }
 
+    public ContentTonePool(long contentId, int tonePoolId, int value)
+    {
+        this.ContentId = contentId;
+        this.TonePoolId = tonePoolId;
+        this.Value = value;
+    }
+
     public ContentTonePool(Content content, TonePool tonePool, int value)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.TonePoolId = tonePool?.Id ?? throw new ArgumentNullException(nameof(tonePool));
         this.TonePool = tonePool;
-        this.Value = value;
-    }
-
-    public ContentTonePool(long contentId, int tonePoolId, int value)
-    {
-        this.ContentId = contentId;
-        this.TonePoolId = tonePoolId;
         this.Value = value;
     }
     #endregion

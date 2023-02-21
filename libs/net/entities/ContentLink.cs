@@ -41,18 +41,18 @@ public class ContentLink : AuditColumns, IEquatable<ContentLink>
     #region Constructors
     protected ContentLink() { }
 
+    public ContentLink(long contentId, long linkId)
+    {
+        this.ContentId = contentId;
+        this.LinkId = linkId;
+    }
+
     public ContentLink(Content content, Content link)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.LinkId = link?.Id ?? throw new ArgumentNullException(nameof(link));
         this.Link = link;
-    }
-
-    public ContentLink(long contentId, long linkId)
-    {
-        this.ContentId = contentId;
-        this.LinkId = linkId;
     }
     #endregion
 
