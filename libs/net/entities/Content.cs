@@ -361,5 +361,25 @@ public class Content : AuditColumns
     {
         this.SourceId = sourceId;
     }
+
+    // The constructor order here could make a difference for Elasticsearch!
+    /// <summary>
+    /// Creates a new instance of a Content object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="headline"></param>
+    /// <param name="otherSource"></param>
+    /// <param name="source"></param>
+    /// <param name="contentType"></param>
+    /// <param name="license"></param>
+    /// <param name="product"></param>
+    /// <param name="owner"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, string otherSource, Source source, ContentType contentType, License license, Product product, User? owner = null)
+        : this(uid, headline, otherSource, contentType, license, product, owner)
+    {
+        this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
+        this.Source = source;
+    }
     #endregion
 }
