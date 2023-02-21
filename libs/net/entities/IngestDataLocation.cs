@@ -41,6 +41,17 @@ public class IngestDataLocation : AuditColumns, IEquatable<IngestDataLocation>
     /// <summary>
     /// Creates a new instance of an IngestDataLocation, initializes with specified parameters.
     /// </summary>
+    /// <param name="ingestId"></param>
+    /// <param name="dataLocationId"></param>
+    public IngestDataLocation(int ingestId, int dataLocationId)
+    {
+        this.IngestId = ingestId;
+        this.DataLocationId = dataLocationId;
+    }
+
+    /// <summary>
+    /// Creates a new instance of an IngestDataLocation, initializes with specified parameters.
+    /// </summary>
     /// <param name="ingest"></param>
     /// <param name="dataLocation"></param>
     /// <exception cref="ArgumentNullException"></exception>
@@ -50,17 +61,6 @@ public class IngestDataLocation : AuditColumns, IEquatable<IngestDataLocation>
         this.Ingest = ingest;
         this.DataLocationId = dataLocation?.Id ?? throw new ArgumentNullException(nameof(dataLocation));
         this.DataLocation = dataLocation;
-    }
-
-    /// <summary>
-    /// Creates a new instance of an IngestDataLocation, initializes with specified parameters.
-    /// </summary>
-    /// <param name="ingestId"></param>
-    /// <param name="dataLocationId"></param>
-    public IngestDataLocation(int ingestId, int dataLocationId)
-    {
-        this.IngestId = ingestId;
-        this.DataLocationId = dataLocationId;
     }
     #endregion
 

@@ -41,19 +41,19 @@ public class SourceSourceAction : AuditColumns, IEquatable<SourceSourceAction>
     #region Constructors
     protected SourceSourceAction() { }
 
+    public SourceSourceAction(int dataSource, int actionId, string value)
+    {
+        this.SourceId = dataSource;
+        this.SourceActionId = actionId;
+        this.Value = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
     public SourceSourceAction(Source dataSource, SourceAction action, string value)
     {
         this.SourceId = dataSource?.Id ?? throw new ArgumentNullException(nameof(dataSource));
         this.Source = dataSource;
         this.SourceActionId = action?.Id ?? throw new ArgumentNullException(nameof(action));
         this.SourceAction = action;
-        this.Value = value ?? throw new ArgumentNullException(nameof(value));
-    }
-
-    public SourceSourceAction(int dataSource, int actionId, string value)
-    {
-        this.SourceId = dataSource;
-        this.SourceActionId = actionId;
         this.Value = value ?? throw new ArgumentNullException(nameof(value));
     }
     #endregion

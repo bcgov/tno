@@ -41,19 +41,19 @@ public class ContentCategory : AuditColumns, IEquatable<ContentCategory>
     #region Constructors
     protected ContentCategory() { }
 
+    public ContentCategory(long contentId, int categoryId, int score)
+    {
+        this.ContentId = contentId;
+        this.CategoryId = categoryId;
+        this.Score = score;
+    }
+
     public ContentCategory(Content content, Category category, int score)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.CategoryId = category?.Id ?? throw new ArgumentNullException(nameof(category));
         this.Category = category;
-        this.Score = score;
-    }
-
-    public ContentCategory(long contentId, int categoryId, int score)
-    {
-        this.ContentId = contentId;
-        this.CategoryId = categoryId;
         this.Score = score;
     }
     #endregion

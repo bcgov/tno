@@ -35,18 +35,18 @@ public class IngestSchedule : AuditColumns, IEquatable<IngestSchedule>
     #region Constructors
     protected IngestSchedule() { }
 
+    public IngestSchedule(int ingestId, int scheduleId)
+    {
+        this.IngestId = ingestId;
+        this.ScheduleId = scheduleId;
+    }
+
     public IngestSchedule(Ingest ingest, Schedule schedule)
     {
         this.IngestId = ingest?.Id ?? throw new ArgumentNullException(nameof(ingest));
         this.Ingest = ingest;
         this.ScheduleId = schedule?.Id ?? throw new ArgumentNullException(nameof(schedule));
         this.Schedule = schedule;
-    }
-
-    public IngestSchedule(int ingestId, int scheduleId)
-    {
-        this.IngestId = ingestId;
-        this.ScheduleId = scheduleId;
     }
     #endregion
 

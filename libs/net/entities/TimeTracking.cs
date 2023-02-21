@@ -29,20 +29,20 @@ public class TimeTracking : AuditColumns, IEquatable<TimeTracking>
     #region Constructors
     protected TimeTracking() { }
 
+    public TimeTracking(long contentId, int userId, float effort, string? activity = null)
+    {
+        this.ContentId = contentId;
+        this.UserId = userId;
+        this.Effort = effort;
+        this.Activity = activity ?? "";
+    }
+
     public TimeTracking(Content content, User user, float effort, string? activity = null)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
         this.Content = content;
         this.UserId = user?.Id ?? throw new ArgumentNullException(nameof(user));
         this.User = user;
-        this.Effort = effort;
-        this.Activity = activity ?? "";
-    }
-
-    public TimeTracking(long contentId, int userId, float effort, string? activity = null)
-    {
-        this.ContentId = contentId;
-        this.UserId = userId;
         this.Effort = effort;
         this.Activity = activity ?? "";
     }
