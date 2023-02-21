@@ -59,9 +59,9 @@ export const SeriesForm: React.FC = () => {
     <styled.SeriesForm>
       <IconButton
         iconType="back"
-        label="Back to Series"
+        label="Back to Show/Programs"
         className="back-button"
-        onClick={() => navigate('/admin/series')}
+        onClick={() => navigate('/admin/programs')}
       />
       <FormikForm
         initialValues={series}
@@ -145,7 +145,7 @@ export const SeriesForm: React.FC = () => {
                 try {
                   await api.deleteSeries(series);
                   toast.success(`${series.name} has successfully been deleted.`);
-                  navigate('/admin/series');
+                  navigate('/admin/programs');
                 } finally {
                   toggle();
                 }
