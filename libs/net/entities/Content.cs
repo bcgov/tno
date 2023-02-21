@@ -350,6 +350,25 @@ public class Content : AuditColumns
     /// <param name="uid"></param>
     /// <param name="headline"></param>
     /// <param name="otherSource"></param>
+    /// <param name="sourceId"></param>
+    /// <param name="contentType"></param>
+    /// <param name="licenseId"></param>
+    /// <param name="productId"></param>
+    /// <param name="ownerId"></param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int productId, int? ownerId = null)
+        : this(uid, headline, otherSource, contentType, licenseId, productId, ownerId)
+    {
+        this.SourceId = sourceId;
+    }
+
+    // The constructor order here could make a difference for Elasticsearch!
+    /// <summary>
+    /// Creates a new instance of a Content object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <param name="headline"></param>
+    /// <param name="otherSource"></param>
     /// <param name="source"></param>
     /// <param name="contentType"></param>
     /// <param name="license"></param>
@@ -361,24 +380,6 @@ public class Content : AuditColumns
     {
         this.SourceId = source?.Id ?? throw new ArgumentNullException(nameof(source));
         this.Source = source;
-    }
-
-    /// <summary>
-    /// Creates a new instance of a Content object, initializes with specified parameters.
-    /// </summary>
-    /// <param name="uid"></param>
-    /// <param name="headline"></param>
-    /// <param name="otherSource"></param>
-    /// <param name="sourceId"></param>
-    /// <param name="contentType"></param>
-    /// <param name="licenseId"></param>
-    /// <param name="productId"></param>
-    /// <param name="ownerId"></param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public Content(string uid, string headline, string otherSource, int? sourceId, ContentType contentType, int licenseId, int productId, int? ownerId = null)
-        : this(uid, headline, otherSource, contentType, licenseId, productId, ownerId)
-    {
-        this.SourceId = sourceId;
     }
     #endregion
 }
