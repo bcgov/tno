@@ -86,27 +86,6 @@ public class FileReference : AuditColumns, IReadonlyFileReference, IEquatable<Fi
     /// <summary>
     /// Creates a new instance of a FileReference object, initializes with specified parameters.
     /// </summary>
-    /// <param name="content"></param>
-    /// <param name="contentType"></param>
-    /// <param name="fileName"></param>
-    /// <param name="path"></param>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="ArgumentNullException"></exception>
-    public FileReference(Content content, string contentType, string fileName, string path)
-    {
-        if (String.IsNullOrWhiteSpace(contentType)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace.", nameof(contentType));
-        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace.", nameof(fileName));
-
-        this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
-        this.Content = content;
-        this.ContentType = contentType;
-        this.FileName = fileName;
-        this.Path = path ?? throw new ArgumentNullException(nameof(path));
-    }
-
-    /// <summary>
-    /// Creates a new instance of a FileReference object, initializes with specified parameters.
-    /// </summary>
     /// <param name="contentId"></param>
     /// <param name="contentType"></param>
     /// <param name="fileName"></param>
@@ -132,6 +111,28 @@ public class FileReference : AuditColumns, IReadonlyFileReference, IEquatable<Fi
     /// <exception cref="ArgumentException"></exception>
     public FileReference(long contentId, string contentType, string fileName) : this(contentId, contentType, fileName, String.Empty)
     {
+    }
+
+    // The constructor order here might make a difference for Elasticsearch!
+    /// <summary>
+    /// Creates a new instance of a FileReference object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="contentType"></param>
+    /// <param name="fileName"></param>
+    /// <param name="path"></param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    public FileReference(Content content, string contentType, string fileName, string path)
+    {
+        if (String.IsNullOrWhiteSpace(contentType)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace.", nameof(contentType));
+        if (String.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace.", nameof(fileName));
+
+        this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
+        this.Content = content;
+        this.ContentType = contentType;
+        this.FileName = fileName;
+        this.Path = path ?? throw new ArgumentNullException(nameof(path));
     }
     #endregion
 
