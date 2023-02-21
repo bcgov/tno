@@ -40,5 +40,29 @@ public static class IEnumerableExtensions
         return items;
     }
 
+    /// <summary>
+    /// Removes all null values from enumerable.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="items"></param>
+    /// <returns></returns>
+    public static IEnumerable<T> WhereIsNotNull<T>(this IEnumerable<T> items)
+    {
+        return items.Where(i => i != null);
+    }
 
+    /// <summary>
+    /// Append the 'add' items to a copy of the specified 'list'.
+    /// This method does not change the original list.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="add"></param>
+    /// <returns></returns>
+    public static IList<T> AppendRange<T>(this IEnumerable<T> list, IEnumerable<T> add)
+    {
+        var result = new List<T>(list);
+        result.AddRange(add);
+        return result;
+    }
 }

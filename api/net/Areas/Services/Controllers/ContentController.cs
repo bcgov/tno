@@ -35,6 +35,7 @@ public class ContentController : ControllerBase
     #region Variables
     private readonly IContentService _contentService;
     private readonly IFileReferenceService _fileReferenceService;
+    private readonly IUserService _userService;
     private readonly StorageOptions _storageOptions;
     private readonly IHubContext<WorkOrderHub> _hub;
     #endregion
@@ -45,16 +46,19 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
+    /// <param name="userService"></param>
     /// <param name="hub"></param>
     /// <param name="storageOptions"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
+        IUserService userService,
         IHubContext<WorkOrderHub> hub,
         IOptions<StorageOptions> storageOptions)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
+        _userService = userService;
         _hub = hub;
         _storageOptions = storageOptions.Value;
     }
@@ -149,7 +153,13 @@ public class ContentController : ControllerBase
 
         // Send notification to user who requested the content.
         if (content.OwnerId.HasValue)
-            await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
+        {
+            var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
+            if (owner != null)
+                await _hub.Clients.User(owner.Username).SendAsync("Content", new ContentMessageModel(content));
+            if (owner != null)
+                await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
+        }
 
         return new JsonResult(new ContentModel(content));
     }

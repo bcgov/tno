@@ -31,6 +31,7 @@ using TNO.API.SignalR;
 using TNO.API.Helpers;
 using TNO.API.Elasticsearch;
 using Nest;
+using TNO.Kafka.SignalR;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -167,6 +168,8 @@ builder.Services.AddAuthentication(options =>
             }
         };
     });
+
+builder.Services.AddKafkaHubBackplane(config);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, TNO.API.Config.Swagger.ConfigureSwaggerOptions>();

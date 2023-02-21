@@ -1,12 +1,11 @@
 ---
-# How the app will be deployed to the pod.
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   name: api
   namespace: default
   annotations:
-    description: Defines how to deploy api
+    description: Deploy API
   labels:
     name: api
     part-of: tno
@@ -14,20 +13,19 @@ metadata:
     component: api
     managed-by: kustomize
     created-by: jeremy.foster
+    cluster: api-cluster
 spec:
+  serviceName: api
   replicas: 3
-  test: false
-  selector:
-    part-of: tno
-    component: api
-  strategy:
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
     rollingParams:
       intervalSeconds: 1
       maxSurge: 25%
       maxUnavailable: 25%
       timeoutSeconds: 600
       updatePeriodSeconds: 1
-    type: Rolling
   triggers:
     - type: ConfigChange
     - type: ImageChange
@@ -39,17 +37,32 @@ spec:
           kind: ImageStreamTag
           namespace: 9b301c-tools
           name: api:dev
+  selector:
+    matchLabels:
+      statefulset: api-cluster
   template:
     metadata:
-      name: api
       labels:
         part-of: tno
         component: api
+        statefulset: api-cluster
     spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
+      schedulerName: default-scheduler
       securityContext: {}
-      terminationGracePeriodSeconds: 30
+      serviceAccountName: tno
+      terminationGracePeriodSeconds: 0
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: statefulset
+                    operator: In
+                    values:
+                      - api-cluster
+              topologyKey: "kubernetes.io/hostname"
       volumes:
         - name: file-storage
           persistentVolumeClaim:
@@ -134,11 +147,10 @@ spec:
                   name: api
                   key: CSS_SECRET
 
-            - name: KAFKA_BOOTSTRAP_SERVERS
+            - name: Kafka__Consumer__GroupId
               valueFrom:
-                configMapKeyRef:
-                  name: api
-                  key: KAFKA_BOOTSTRAP_SERVERS
+                fieldRef:
+                  fieldPath: metadata.name
 
             - name: ConnectionStrings__TNO
               valueFrom:

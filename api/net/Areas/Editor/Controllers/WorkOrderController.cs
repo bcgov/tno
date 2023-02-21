@@ -243,7 +243,6 @@ public class WorkOrderController : ControllerBase
                         workOrder.Status = WorkOrderStatus.Failed;
                         workOrder.Note = "Remote file request to Kafka failed";
                         workOrder = _workOrderService.UpdateAndSave(workOrder);
-                        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
                         throw new BadRequestException("Remote file request failed");
                     }
                     return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));

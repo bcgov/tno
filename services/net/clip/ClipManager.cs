@@ -37,11 +37,11 @@ public class ClipManager : IngestManager<ClipIngestActionManager, ClipOptions>
     public override async Task<IEnumerable<IngestModel>> GetIngestsAsync()
     {
         var ingests = await base.GetIngestsAsync();
-        var serviceType = !String.IsNullOrWhiteSpace(this.Options.ServiceType) ? this.Options.ServiceType : "clip";
         var hostname = System.Environment.GetEnvironmentVariable("HOSTNAME");
+        var serviceTypes = this.Options.GetServiceTypes();
 
         return ingests.Where(i =>
-            i.GetConfigurationValue("serviceType") == serviceType &&
+            (!serviceTypes.Any() || serviceTypes.Any(st => st == i.GetConfigurationValue("serviceType"))) &&
             (String.IsNullOrWhiteSpace(i.GetConfigurationValue("hostname")) ||
                 i.GetConfigurationValue("hostname") == hostname) &&
             (String.IsNullOrWhiteSpace(this.Options.DataLocation) ||
