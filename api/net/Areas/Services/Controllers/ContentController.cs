@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -224,10 +225,13 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> ReindexAsync()
     {
+        var uri = new Uri(this.Request.GetDisplayUrl());
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
             var index = true;
-            var filter = new ContentFilter()
+            var filter = new ContentFilter(query)
             {
                 Page = 0,
                 Quantity = 500,
@@ -236,7 +240,7 @@ public class ContentController : ControllerBase
             while (index)
             {
                 filter.Page++;
-                var results = _contentService.Find(filter, true);
+                var results = _contentService.FindWithDatabase(filter, true);
                 foreach (var content in results.Items)
                 {
                     if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)

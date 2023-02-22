@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nest;
 using TNO.DAL.Extensions;
@@ -31,7 +30,6 @@ public class ContentService : BaseService<Content, long>, IContentService
     public ContentService(TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
-        IConfiguration config,
         IElasticClient client,
         ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
@@ -46,7 +44,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="filter">Filter to apply to the query.</param>
     /// <param name="asNoTracking">Whether to load into context or not</param>
     /// <returns>A page of content items that match the filter.</returns>
-    public IPaged<Content> Find(ContentFilter filter, bool asNoTracking = true)
+    public IPaged<Content> FindWithDatabase(ContentFilter filter, bool asNoTracking = true)
     {
         var query = this.Context.Contents
             .Include(c => c.Product)
@@ -357,7 +355,8 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.Match(m => m.Field(p => p.Status).Query(filter.Status.Value.ToString())));
         }
 
-        var response = await _client.SearchAsync<Content>(s => {
+        var response = await _client.SearchAsync<Content>(s =>
+        {
             var result = s
                 .Pretty()
                 .Index(_client.ConnectionSettings.DefaultIndex)

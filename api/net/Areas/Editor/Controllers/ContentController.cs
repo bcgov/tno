@@ -101,11 +101,11 @@ public class ContentController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(IPaged<ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Find()
+    public IActionResult FindWithDatabase()
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _contentService.Find(new ContentFilter(query));
+        var result = _contentService.FindWithDatabase(new ContentFilter(query));
         var page = new Paged<ContentModel>(result.Items.Select(i => new ContentModel(i)), result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }

@@ -72,7 +72,7 @@ public class CBRAReport
             UpdatedStartOn = utcFrom,
             UpdatedEndOn = utcTo
         };
-        var page = contentService.Find(filter); // TODO: Asking for a page isn't ideal.
+        var page = contentService.FindWithDatabase(filter); // TODO: Asking for a page isn't ideal.
 
         // TODO: This is horrible, but hibernate is a mess. Need to make this more
         // performant.
