@@ -2,20 +2,20 @@
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: editor
+  name: api-subscriber
   namespace: default
   annotations:
-    description: Route for editor application.
+    haproxy.router.openshift.io/rewrite-target: /
   labels:
-    name: editor-app
+    name: api-subscriber
     part-of: tno
     version: 1.0.0
-    component: editor
+    component: api
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: tno-dev.apps.silver.devops.gov.bc.ca
-  path: ""
+  host: mmia-dev.apps.silver.devops.gov.bc.ca
+  path: /api
   port:
     targetPort: 8080-tcp
   tls:
@@ -26,26 +26,26 @@ spec:
     # key: ""
   to:
     kind: Service
-    name: editor
+    name: api
     weight: 100
 ---
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: editor-0
+  name: api-subscriber-0
   namespace: default
   annotations:
-    description: Route for editor application.
+    haproxy.router.openshift.io/rewrite-target: /
   labels:
-    name: editor-0
+    name: api-subscriber-0
     part-of: tno
     version: 1.0.0
-    component: editor
+    component: api
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: tno-dev-0.apps.silver.devops.gov.bc.ca
-  path: ""
+  host: mmia-dev-0.apps.silver.devops.gov.bc.ca
+  path: /api
   port:
     targetPort: 8080-tcp
   tls:
@@ -56,26 +56,26 @@ spec:
     # key: ""
   to:
     kind: Service
-    name: editor
+    name: api-0
     weight: 100
 ---
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: editor-1
+  name: api-subscriber-1
   namespace: default
   annotations:
-    description: Route for editor application.
+    haproxy.router.openshift.io/rewrite-target: /
   labels:
-    name: editor-1
+    name: api-subscriber-1
     part-of: tno
     version: 1.0.0
-    component: editor
+    component: api
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: tno-dev-1.apps.silver.devops.gov.bc.ca
-  path: ""
+  host: mmia-dev-1.apps.silver.devops.gov.bc.ca
+  path: /api
   port:
     targetPort: 8080-tcp
   tls:
@@ -86,26 +86,26 @@ spec:
     # key: ""
   to:
     kind: Service
-    name: editor
+    name: api-1
     weight: 100
 ---
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: editor-2
+  name: api-subscriber-2
   namespace: default
   annotations:
-    description: Route for editor application.
+    haproxy.router.openshift.io/rewrite-target: /
   labels:
-    name: editor-2
+    name: api-subscriber-2
     part-of: tno
     version: 1.0.0
-    component: editor
+    component: api
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  host: tno-dev-2.apps.silver.devops.gov.bc.ca
-  path: ""
+  host: mmia-dev-2.apps.silver.devops.gov.bc.ca
+  path: /api
   port:
     targetPort: 8080-tcp
   tls:
@@ -116,5 +116,5 @@ spec:
     # key: ""
   to:
     kind: Service
-    name: editor
+    name: api-2
     weight: 100

@@ -29,6 +29,27 @@ patches:
         path: /spec/host
         value: mmia-test.apps.silver.devops.gov.bc.ca
   - target:
+      kind: Route
+      name: subscriber-0
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: mmia-test-0.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: subscriber-1
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: mmia-test-1.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: subscriber-2
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: mmia-test-2.apps.silver.devops.gov.bc.ca
+  - target:
       kind: DeploymentConfig
       name: subscriber
     patch: |-

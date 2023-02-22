@@ -72,7 +72,7 @@ spec:
             claimName: av-storage
       containers:
         - name: api
-          image: ""
+          image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:dev
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -84,16 +84,19 @@ spec:
               mountPath: /av
           resources:
             requests:
-              cpu: 20m
-              memory: 250Mi
-            limits:
               cpu: 100m
-              memory: 500Mi
+              memory: 150Mi
+            limits:
+              cpu: 300m
+              memory: 300Mi
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: HubPath
-              value: /workOrderHub
+              value: /hub
+
+            - name: Logging__LogLevel__TNO
+              value: Information
 
             - name: Storage__UploadPath
               value: /data

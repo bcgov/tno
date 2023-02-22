@@ -80,7 +80,10 @@ spec:
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: HubPath
-              value: /workOrderHub
+              value: /hub
+
+            - name: Logging__LogLevel__TNO
+              value: Information
 
             - name: Storage__UploadPath
               value: /data
