@@ -212,5 +212,48 @@ public class ContentController : ControllerBase
         var stream = _fileReferenceService.Download(fileReference, _storageOptions.GetUploadPath());
         return File(stream, fileReference.ContentType);
     }
+
+    /// <summary>
+    /// Re-index all content in the database.
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("reindex")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> ReindexAsync()
+    {
+        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        {
+            var index = true;
+            var filter = new ContentFilter()
+            {
+                Page = 0,
+                Quantity = 500,
+            };
+
+            while (index)
+            {
+                filter.Page++;
+                var results = _contentService.Find(filter, true);
+                foreach (var content in results.Items)
+                {
+                    if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+                    else
+                        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+                }
+
+                index = results.Items.Count > 0;
+            }
+
+            return new OkResult();
+        }
+        else
+            _logger.LogWarning("Kafka indexing topic not configured.");
+
+        return new BadRequestResult();
+    }
     #endregion
 }
