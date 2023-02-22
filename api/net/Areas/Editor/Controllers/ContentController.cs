@@ -170,9 +170,8 @@ public class ContentController : ControllerBase
         {
             if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
-
-            // Always index the content.
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -200,13 +199,10 @@ public class ContentController : ControllerBase
             // If a request is submitted to unpublish we do it regardless of the current state of the content.
             if (content.Status == ContentStatus.Unpublish)
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Unpublish));
-
-            // Any request to publish, or if content is already published, we will republish.
-            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+            else if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
-
-            // Always index the content.
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
