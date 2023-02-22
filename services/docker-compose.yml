@@ -173,6 +173,7 @@ services:
     profiles:
       - all
       - service
+      - main
     restart: "no"
     container_name: tno-indexing
     build:

@@ -16,7 +16,7 @@ public class DefaultJsonSerializer<T> : ISerializer<T>, IDeserializer<T>
 
     #region Constructors
     /// <summary>
-    /// Creates a new instandce of a DefaultJsonSerializer object, initializes with specified parameters.
+    /// Creates a new instance of a DefaultJsonSerializer object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
     public DefaultJsonSerializer(IOptions<JsonSerializerOptions> options)
@@ -25,7 +25,7 @@ public class DefaultJsonSerializer<T> : ISerializer<T>, IDeserializer<T>
     }
 
     /// <summary>
-    /// Creates a new instandce of a DefaultJsonSerializer object, initializes with specified parameters.
+    /// Creates a new instance of a DefaultJsonSerializer object, initializes with specified parameters.
     /// </summary>
     /// <param name="options"></param>
     public DefaultJsonSerializer(JsonSerializerOptions options)

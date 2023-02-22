@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   - pvc.yaml
   - config-map.yaml
-  - deploy.yaml
+  - statefulset.yaml
   - service.yaml
   - route.yaml
 
