@@ -218,7 +218,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     {
         try
         {
-            this.Logger.LogInformation("Importing content from Topic: {Topic}, Uid: {Key}", result.Topic, result.Message.Key);
+            this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
 
             // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
 
@@ -228,9 +228,11 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 switch (result.Message.Value.Action)
                 {
                     case IndexAction.Publish:
+                        await IndexContentAsync(content);
                         await PublishContentAsync(content);
                         break;
                     case IndexAction.Unpublish:
+                        await IndexContentAsync(content);
                         await UnpublishContentAsync(content);
                         break;
                     case IndexAction.Delete:
@@ -268,12 +270,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content indexed.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to index.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogError(response.OriginalException, "Content failed to index.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
         }
     }
 
@@ -301,14 +303,14 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 content.Status = ContentStatus.Published;
                 await this.Api.UpdateContentAsync(content);
             }
-            this.Logger.LogInformation("Content published.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
 
             await SendNotifications(content!);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -331,14 +333,14 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 content.Status = ContentStatus.Unpublished;
                 await this.Api.UpdateContentAsync(content);
             }
-            this.Logger.LogInformation("Content unpublished.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
 
             await SendNotifications(content!);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {Id}, Index: {PublishedIndex}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -349,7 +351,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task DeleteContentAsync(ContentModel content)
     {
-        if (content.Status == ContentStatus.Published)
+        if (content.Status == ContentStatus.Published || content.Status == ContentStatus.Unpublish)
         {
             await DeleteContentAsync(content, this.Options.PublishedIndex);
         }
@@ -368,12 +370,12 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content removed.  Content ID: {Id}, Index: {index}", content.Id, index);
+            this.Logger.LogInformation("Content removed.  Content ID: {id}, Index: {index}", content.Id, index);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to be removed.  Content ID: {Id}, Index: {index}", content.Id, index);
+            this.Logger.LogError(response.OriginalException, "Content failed to be removed.  Content ID: {id}, Index: {index}", content.Id, index);
         }
     }
 
@@ -392,7 +394,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             // TODO: Generate appropriate notification request.
             var notification = new NotificationRequestModel(0, content.Id, 0, 0);
             var result = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, content.Uid, notification);
-            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting a notification request.  ContentId: {content.Id}");
+            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting a notification request.  Content ID: {content.Id}");
         }
     }
     #endregion
