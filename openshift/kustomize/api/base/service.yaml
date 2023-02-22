@@ -1,12 +1,11 @@
 ---
-# Open up ports to communicate with the app.
 kind: Service
 apiVersion: v1
 metadata:
   name: api
   namespace: default
   annotations:
-    description: Exposes and load balances the application pods.
+    description: Exposes and load balances the api pods.
   labels:
     name: api
     part-of: tno
@@ -23,5 +22,86 @@ spec:
   selector:
     part-of: tno
     component: api
+  sessionAffinity: None
+  type: ClusterIP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: api-0
+  namespace: default
+  annotations:
+    description: Provide a way to connect to a specific pod
+  labels:
+    name: api-0
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: api
+    statefulset.kubernetes.io/pod-name: api-0
+  sessionAffinity: None
+  type: ClusterIP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: api-1
+  namespace: default
+  annotations:
+    description: Provide a way to connect to a specific pod
+  labels:
+    name: api-1
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: api
+    statefulset.kubernetes.io/pod-name: api-1
+  sessionAffinity: None
+  type: ClusterIP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: api-2
+  namespace: default
+  annotations:
+    description: Provide a way to connect to a specific pod
+  labels:
+    name: api-2
+    part-of: tno
+    version: 1.0.0
+    component: api
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    part-of: tno
+    component: api
+    statefulset.kubernetes.io/pod-name: api-2
   sessionAffinity: None
   type: ClusterIP

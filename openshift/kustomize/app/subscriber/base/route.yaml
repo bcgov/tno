@@ -1,11 +1,13 @@
-# The route for the app.
+---
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: subscriber
   namespace: default
+  annotations:
+    description: Route for subscriber application.
   labels:
-    name: subscriber-app
+    name: subscriber
     part-of: tno
     version: 1.0.0
     component: subscriber
@@ -13,6 +15,96 @@ metadata:
     created-by: jeremy.foster
 spec:
   host: mmia-dev.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: subscriber
+    weight: 100
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: subscriber-0
+  namespace: default
+  annotations:
+    description: Route for subscriber application.
+  labels:
+    name: subscriber-0
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: mmia-dev-0.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: subscriber
+    weight: 100
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: subscriber-1
+  namespace: default
+  annotations:
+    description: Route for subscriber application.
+  labels:
+    name: subscriber-1
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: mmia-dev-1.apps.silver.devops.gov.bc.ca
+  path: ""
+  port:
+    targetPort: 8080-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+    # caCertificate: ""
+    # certificate: ""
+    # key: ""
+  to:
+    kind: Service
+    name: subscriber
+    weight: 100
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: subscriber-2
+  namespace: default
+  annotations:
+    description: Route for subscriber application.
+  labels:
+    name: subscriber-2
+    part-of: tno
+    version: 1.0.0
+    component: subscriber
+    managed-by: kustomize
+    created-by: jeremy.foster
+spec:
+  host: mmia-dev-2.apps.silver.devops.gov.bc.ca
   path: ""
   port:
     targetPort: 8080-tcp

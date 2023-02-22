@@ -7,7 +7,8 @@ resources:
   - config-map.yaml
   - statefulset.yaml
   - service.yaml
-  - route.yaml
+  - route-editor.yaml
+  - route-subscriber.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

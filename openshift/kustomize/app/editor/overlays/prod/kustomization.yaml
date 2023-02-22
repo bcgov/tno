@@ -29,6 +29,27 @@ patches:
         path: /spec/host
         value: tno.apps.silver.devops.gov.bc.ca
   - target:
+      kind: Route
+      name: editor-0
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: tno-0.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: editor-1
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: tno-1.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: editor-2
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: tno-2.apps.silver.devops.gov.bc.ca
+  - target:
       kind: DeploymentConfig
       name: editor
     patch: |-

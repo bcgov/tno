@@ -36,13 +36,77 @@ patches:
         value: tno.apps.silver.devops.gov.bc.ca
   - target:
       kind: Route
+      name: api-editor-0
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: tno-0.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: api-editor-1
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: tno-1.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: api-editor-2
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: tno-2.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
       name: api-subscriber
     patch: |-
       - op: replace
         path: /spec/host
         value: mmia.apps.silver.devops.gov.bc.ca
   - target:
-      kind: DeploymentConfig
+      kind: Route
+      name: api-subscriber-0
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: mmia-0.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: api-subscriber-1
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: mmia-1.apps.silver.devops.gov.bc.ca
+  - target:
+      kind: Route
+      name: api-subscriber-2
+    patch: |-
+      - op: replace
+        path: /spec/host
+        value: mmia-2.apps.silver.devops.gov.bc.ca
+  # - target:
+  #     kind: DeploymentConfig
+  #     name: api
+  #   patch: |-
+  #     - op: replace
+  #       path: /spec/replicas
+  #       value: 3
+  #     - op: replace
+  #       path: /spec/template/spec/containers/0/resources/requests/cpu
+  #       value: 100m
+  #     - op: replace
+  #       path: /spec/template/spec/containers/0/resources/requests/memory
+  #       value: 150Mi
+  #     - op: replace
+  #       path: /spec/template/spec/containers/0/resources/limits/cpu
+  #       value: 300m
+  #     - op: replace
+  #       path: /spec/template/spec/containers/0/resources/limits/memory
+  #       value: 300Mi
+  #     - op: replace
+  #       path: /spec/triggers/1/imageChangeParams/from/name
+  #       value: api:prod
+  - target:
+      kind: StatefulSet
       name: api
     patch: |-
       - op: replace
@@ -60,6 +124,9 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
         value: 300Mi
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:prod
       - op: replace
         path: /spec/triggers/1/imageChangeParams/from/name
         value: api:prod
