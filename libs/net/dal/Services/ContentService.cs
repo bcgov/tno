@@ -378,9 +378,9 @@ public class ContentService : BaseService<Content, long>, IContentService
                 if (sort == "productId") objPath = p => p.ProductId;
                 if (sort == "ownerId") objPath = p => p.OwnerId!;
                 if (sort == "publishedOn") objPath = p => p.PublishedOn!;
-                if (sort == "otherSource") objPath = p => p.OtherSource.Suffix("keyword");
-                if (sort == "page") objPath = p => p.Page.Suffix("keyword");
-                if (sort == "status") objPath = p => p.Status.Suffix("keyword");
+                if (sort == "otherSource") objPath = p => p.OtherSource;
+                if (sort == "page") objPath = p => p.Page;
+                if (sort == "status") objPath = p => p.Status;
 
                 if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
             }
