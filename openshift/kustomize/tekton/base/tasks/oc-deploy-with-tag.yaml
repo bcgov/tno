@@ -34,7 +34,11 @@ spec:
     - name: TIMEOUT
       description: The timeout before it will stop waiting for the pod to become available.
       type: string
-      default: "60s"
+      default: "600s"
+    - name: OBJECT
+      description: The kubernetes object that will be deployed [dc|sts]
+      type: string
+      default: dc
 
   steps:
     - name: deploy
@@ -46,7 +50,12 @@ spec:
         oc tag $(params.IMAGE):$(params.IMAGE_TAG) $(params.IMAGE):$(params.ENV)
 
         echo "Waiting for deployment to roll out"
-        oc wait --for=condition=available --timeout=$(params.TIMEOUT) dc/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+        if [ "$(params.OBJECT)" = "sts" ]; then
+          oc rollout restart $(params.OBJECT)/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+        fi
+
+        # oc wait --for=condition=available --timeout=$(params.TIMEOUT) $(params.OBJECT)/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
+        oc rollout status --watch --timeout=$(params.TIMEOUT) $(params.OBJECT)/$(params.IMAGE) -n $(params.PROJECT_SHORTNAME)-$(params.ENV)
 
         # timeout(10) {
         # dc.rollout().status('--watch=true')

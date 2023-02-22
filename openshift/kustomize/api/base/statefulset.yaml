@@ -6,6 +6,18 @@ metadata:
   namespace: default
   annotations:
     description: Deploy API
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from": {
+            "kind": "ImageStreamTag",
+            "namespace": " 9b301c-tools",
+            "name": "api:dev"
+          },
+          "fieldPath": "spec.template.spec.containers[?(@.name==\"api\")].image",
+          "paused": false
+        },
+      ]
   labels:
     name: api
     part-of: tno
@@ -26,17 +38,6 @@ spec:
       maxUnavailable: 25%
       timeoutSeconds: 600
       updatePeriodSeconds: 1
-  triggers:
-    - type: ConfigChange
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-          - api
-        from:
-          kind: ImageStreamTag
-          namespace: 9b301c-tools
-          name: api:dev
   selector:
     matchLabels:
       statefulset: api-cluster

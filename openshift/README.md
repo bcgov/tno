@@ -209,3 +209,9 @@ oc rsh <pod>
 ```bash
 for pod in $(oc get pods | grep Error | awk '{print $1}'); do oc delete pod --grace-period=1 ${pod}; done
 ```
+
+## Get Image Hash for Pod
+
+```bash
+oc get pods api-0 -o jsonpath="{..imageID}"
+```
