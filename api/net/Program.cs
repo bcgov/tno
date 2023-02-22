@@ -272,20 +272,21 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger(options =>
-    {
-        options.RouteTemplate = config.GetValue<string>("Swagger:RouteTemplate");
-    });
-    app.UseSwaggerUI(options =>
-    {
-        var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        foreach (var description in apiVersionProvider.ApiVersionDescriptions)
-        {
-            options.SwaggerEndpoint(String.Format(config.GetValue<string>("Swagger:EndpointPath") ?? "", description.GroupName), description.GroupName);
-        }
-        options.RoutePrefix = config.GetValue<string>("Swagger:RoutePrefix");
-    });
 }
+
+app.UseSwagger(options =>
+{
+    options.RouteTemplate = config.GetValue<string>("Swagger:RouteTemplate");
+});
+app.UseSwaggerUI(options =>
+{
+    var apiVersionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+    foreach (var description in apiVersionProvider.ApiVersionDescriptions)
+    {
+        options.SwaggerEndpoint(String.Format(config.GetValue<string>("Swagger:EndpointPath") ?? "", description.GroupName), description.GroupName);
+    }
+    options.RoutePrefix = config.GetValue<string>("Swagger:RoutePrefix");
+});
 
 app.UsePathBase(config.GetValue<string>("BaseUrl"));
 app.UseForwardedHeaders();

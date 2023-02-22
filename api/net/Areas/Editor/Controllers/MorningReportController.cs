@@ -80,7 +80,7 @@ public class MorningReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Morning-Report" })]
     public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
     {
-        var items = _contentService.Find(new ContentFilter()
+        var items = _contentService.FindWithDatabase(new ContentFilter()
         {
             Quantity = model.ContentIds.Count(),
             ContentIds = model.ContentIds.ToArray()

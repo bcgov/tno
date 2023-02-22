@@ -302,6 +302,7 @@ spec:
       runAfter:
         - deploy-api
         - deploy-editor
+        - deploy-subscriber
       taskRef:
         name: oc-patch-route
         kind: Task
@@ -316,6 +317,7 @@ spec:
     - name: maintenance-off-subscriber
       runAfter:
         - deploy-api
+        - deploy-editor
         - deploy-subscriber
       taskRef:
         name: oc-patch-route
