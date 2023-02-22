@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Content;
+using TNO.API.Config;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
@@ -13,6 +14,8 @@ using TNO.DAL.Config;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 
 namespace TNO.API.Areas.Services.Controllers;
 
@@ -37,7 +40,10 @@ public class ContentController : ControllerBase
     private readonly IFileReferenceService _fileReferenceService;
     private readonly IUserService _userService;
     private readonly StorageOptions _storageOptions;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly IHubContext<WorkOrderHub> _hub;
+    private readonly ILogger _logger;
     #endregion
 
     #region Constructors
@@ -48,19 +54,28 @@ public class ContentController : ControllerBase
     /// <param name="fileReferenceService"></param>
     /// <param name="userService"></param>
     /// <param name="hub"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaOptions"></param>
     /// <param name="storageOptions"></param>
+    /// <param name="logger"></param>
     public ContentController(
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IUserService userService,
         IHubContext<WorkOrderHub> hub,
-        IOptions<StorageOptions> storageOptions)
+        IKafkaMessenger kafkaMessenger,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<StorageOptions> storageOptions,
+        ILogger<ContentController> logger)
     {
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
         _userService = userService;
         _hub = hub;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaOptions = kafkaOptions.Value;
         _storageOptions = storageOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -101,7 +116,7 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Add new content to the database.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -110,14 +125,25 @@ public class ContentController : ControllerBase
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Add(ContentModel model)
+    public async Task<IActionResult> AddAsync(ContentModel model)
     {
-        var result = _contentService.AddAndSave((Content)model);
-        return new JsonResult(new ContentModel(result));
+        var content = _contentService.AddAndSave((Content)model);
+
+        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        {
+            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+        }
+        else
+            _logger.LogWarning("Kafka indexing topic not configured.");
+
+        return new JsonResult(new ContentModel(content));
 
         // TODO: Figure out how to return a 201 for a route in a different controller.
-        // return CreatedAtRoute("EditorContentFindById", new { id = result.Id }, new ContentModel(result));
-        // return CreatedAtRoute("EditorContentFindById", new { id = result.Id }, new ContentModel(result));
+        // return CreatedAtRoute("EditorContentFindById", new { id = content.Id }, new ContentModel(content));
+        // return CreatedAtRoute("EditorContentFindById", new { id = content.Id }, new ContentModel(content));
     }
 
     /// <summary>
