@@ -86,7 +86,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   }, [formActions]);
 
   const options = actions
-    .filter((x) => x.isEnabled && filter)
+    .filter((x) => x.isEnabled && filter(x))
     .map((a) => {
       const index = formActions.findIndex((ca) => ca.id === a.id);
       const found = formActions[index];
