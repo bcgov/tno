@@ -263,6 +263,8 @@ spec:
           value: $(params.IMAGE_TAG)
         - name: ENV
           value: $(params.DEPLOY_TO)
+        - name: OBJECT
+          value: sts
 
     - name: deploy-editor
       runAfter:
