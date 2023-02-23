@@ -42,6 +42,19 @@ export const ContentSummaryForm = styled.div`
     justify-content: space-evenly;
   }
 
+  .video {
+    align-self: center;
+    max-width: fit-content;
+  }
+
+  .media {
+    margin-top: 5%;
+    align-items: center;
+    justify-content: center;
+    padding-left: 0.5em;
+    height: fit-content;
+  }
+
   .toning {
     height: 0.5em;
     margin-top: 1.5em;
