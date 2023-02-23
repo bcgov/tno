@@ -43,8 +43,8 @@ export const AdminRouter: React.FC = () => {
       <Route path="users" element={<UserList />} />
       <Route path="users/:id" element={<UserForm />} />
 
-      <Route path="categories" element={<CategoryList />} />
-      <Route path="categories/:id" element={<CategoryForm />} />
+      <Route path="topics" element={<CategoryList />} />
+      <Route path="topics/:id" element={<CategoryForm />} />
 
       <Route path="tags" element={<TagList />} />
       <Route path="tags/:id" element={<TagsForm />} />
