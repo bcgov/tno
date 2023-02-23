@@ -162,9 +162,9 @@ db-nuke: ## Stop and delete the database container and volume, then rebuild and 
 # Elasticsearch Commands
 ##############################################################################
 
-elastic-update: ## Run the elasticsearch migration (n=migration name, r=rollback, i=ignore errors, u=username, p=password, h=URL).
-	$(info Run the elasticsearch migration (n=$(n)))
-	@./db/elasticsearch/scripts/migration.sh $(if $(n),-n $(n),) $(if $(r),-r,) $(if $(i),-i,) $(if $(u),-u $(u),) $(if $(p),-p $(p),) $(if $(h),-h $(h),)
+elastic-update: ## Run the elasticsearch migration (v=migration version, r=rollback, i=ignore errors, u=username, p=password, h=URL, s=step).
+	$(info Run the elasticsearch migration (n=$(v)))
+	@./db/elasticsearch/scripts/migration.sh $(if $(v),-v $(v),) $(if $(r),-r,) $(if $(i),-i,) $(if $(u),-u $(u),) $(if $(p),-p $(p),) $(if $(h),-h $(h),) $(if $(s),-s $(s),)
 
 ##############################################################################
 # Kafka Commands
