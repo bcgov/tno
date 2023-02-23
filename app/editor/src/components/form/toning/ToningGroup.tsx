@@ -12,7 +12,6 @@ export interface IToningGroupProps {
 export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
   const toningOptions = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
   const { values, setFieldValue, touched, errors } = useFormikContext<IContentModel>();
-  console.log(values.tonePools);
   const [active, setActive] = React.useState<number>();
   React.useEffect(() => {
     if (values.tonePools?.length && values.tonePools[0].value) setActive(values.tonePools[0].value);
