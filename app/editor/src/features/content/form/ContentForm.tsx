@@ -239,7 +239,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   };
 
   const handleUnpublish = async (props: FormikProps<IContentForm>) => {
-    if (props.values.status === ContentStatusName.Publish)
+    if (props.values.status === ContentStatusName.Publish || props.values.status === ContentStatusName.Published)
       props.values.status = ContentStatusName.Unpublish;
     triggerFormikValidate(props);
     if (props.isValid) {
