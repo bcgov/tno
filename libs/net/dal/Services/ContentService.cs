@@ -229,7 +229,7 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.IncludedInCategory.HasValue)
         {
-            filterQueries.Add(s => s.Exists(e => e.Field(p => p.Categories.Any())));
+            filterQueries.Add(s => s.Nested(n => n.Path(p => p.Categories).Query(q => q.MatchAll())));
         }
 
         foreach (var action in filter.Actions)
