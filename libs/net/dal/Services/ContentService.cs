@@ -220,11 +220,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(filter.ContentType.Value.ToString())));
         }
 
-        if (!filter.IncludeHidden.HasValue)
-        {
-            filterQueries.Add(s => !s.Exists(e => e.Field(p => p.IsHidden)) || s.Term(t => t.IsHidden, false));
-        }
-        else
+        if (filter.IncludeHidden.HasValue)
         {
             filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IncludeHidden.Value));
         }
@@ -362,10 +358,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                 .Index(_client.ConnectionSettings.DefaultIndex)
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity)
-                .Query(q => q.Bool(b => b
-                    .Filter(filterQueries)
-                    .Should(shouldQueries)))
-                ;
+                .Query(q => q.Bool(b => b.Filter(filterQueries).Should(shouldQueries)));
 
             if (filter.Sort.Any())
             {
@@ -380,7 +373,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                 if (sort == "otherSource") objPath = p => p.OtherSource;
                 if (sort == "page") objPath = p => p.Page;
                 if (sort == "status") objPath = p => p.Status;
-
+                
                 if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
             }
             else
@@ -394,7 +387,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var items = response.IsValid ?
             response.Documents :
             throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
-        return new Paged<Content>(items, filter.Page, filter.Quantity, items.Count);
+        return new Paged<Content>(items, filter.Page, filter.Quantity, response.Total);
     }
 
     public override Content? FindById(long id)
