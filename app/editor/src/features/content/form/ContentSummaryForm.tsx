@@ -242,18 +242,51 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Col>
         </Show>
       </Row>
-      <Col flex="1 1 0">
-        <Show
-          visible={contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image}
-        >
-          <Wysiwyg label="Summary" required fieldName="summary" expandModal={setShowExpandModal} />
+      <Row>
+        <Col flex="1 1 0">
+          <Show
+            visible={
+              contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image
+            }
+          >
+            <Wysiwyg
+              label="Summary"
+              required
+              fieldName="summary"
+              expandModal={setShowExpandModal}
+            />
+          </Show>
+          <Show
+            visible={
+              contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
+            }
+          >
+            <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
+          </Show>
+        </Col>
+        <Show visible={!!file}>
+          <Col className="media" flex="1 1 0">
+            <Show visible={contentType === ContentTypeName.Image && !!stream}>
+              <Col>
+                <img height="360" width="640" alt="" className="object-fit" src={stream?.url}></img>
+              </Col>
+            </Show>
+            <Show visible={contentType !== ContentTypeName.Image}>
+              <Col className="video" alignItems="stretch">
+                <video
+                  height="360"
+                  width="640"
+                  ref={videoRef}
+                  className={!stream ? 'hidden' : ''}
+                  controls
+                >
+                  HTML5 Video is required for this example
+                </video>
+              </Col>
+            </Show>
+          </Col>
         </Show>
-        <Show
-          visible={contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image}
-        >
-          <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
-        </Show>
-      </Col>
+      </Row>
       <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
         <Show visible={contentType !== ContentTypeName.Image}>
           <div className="multi-group">
@@ -352,18 +385,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Button>
           </Show>
         </Row>
-        <Show visible={contentType === ContentTypeName.Image && !!stream}>
-          <Col>
-            <img alt="" className="object-fit" src={stream?.url}></img>
-          </Col>
-        </Show>
-        <Show visible={contentType !== ContentTypeName.Image}>
-          <Col className="video" alignItems="stretch">
-            <video ref={videoRef} className={!stream ? 'hidden' : ''} controls>
-              HTML5 Video is required for this example
-            </video>
-          </Col>
-        </Show>
       </Show>
     </styled.ContentSummaryForm>
   );
