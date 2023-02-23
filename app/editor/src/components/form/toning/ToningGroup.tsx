@@ -57,7 +57,7 @@ export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
           </Col>
         ))}
       </Row>
-      <Error error={!!fieldName && touched[fieldName] ? (errors[fieldName] as string) : ''} />
+      <Error error={!!fieldName && touched[fieldName] ? errors[fieldName] : ''} />
     </styled.ToningGroup>
   );
 };
