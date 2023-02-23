@@ -22,7 +22,7 @@ export const ContentFormSchema = object().shape({
   headline: string().required('Headline is a required field.'),
   tonePools: number().when('contentType', {
     is: (value: ContentTypeName) => value !== ContentTypeName.Image,
-    then: number().required('Tone is a required field.').typeError('Tone is a required field.'),
+    then: number().required('Tone is a required field.').typeError('A numeric tone value is required.'),
   }),
   // TODO: validation for print content.
 });
