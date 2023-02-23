@@ -635,50 +635,36 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   >
                     Save without publishing
                   </Button>
-                  <Show
-                    visible={
-                      props.values.status !== ContentStatusName.Publish &&
-                      props.values.status !== ContentStatusName.Published
+                  <Button
+                    variant={ButtonVariant.success}
+                    disabled={
+                      props.isSubmitting ||
+                      (contentType === ContentTypeName.Snippet &&
+                        props.values.fileReferences.length === 0 &&
+                        !props.values.file)
                     }
+                    onClick={() => {
+                      setSavePressed(true);
+                      handlePublish(props);
+                    }}
                   >
-                    <Button
-                      variant={ButtonVariant.success}
-                      disabled={
-                        props.isSubmitting ||
-                        (contentType === ContentTypeName.Snippet &&
-                          props.values.fileReferences.length === 0 &&
-                          !props.values.file)
-                      }
-                      onClick={() => {
-                        setSavePressed(true);
-                        handlePublish(props);
-                      }}
-                    >
-                      Publish
-                    </Button>
-                  </Show>
-                  <Show
-                    visible={
-                      props.values.status === ContentStatusName.Publish ||
-                      props.values.status === ContentStatusName.Published
+                    Publish
+                  </Button>
+                  <Button
+                    variant={ButtonVariant.success}
+                    disabled={
+                      props.isSubmitting ||
+                      (contentType === ContentTypeName.Snippet &&
+                        props.values.fileReferences.length === 0 &&
+                        !props.values.file)
                     }
+                    onClick={() => {
+                      setSavePressed(true);
+                      handleUnpublish(props);
+                    }}
                   >
-                    <Button
-                      variant={ButtonVariant.success}
-                      disabled={
-                        props.isSubmitting ||
-                        (contentType === ContentTypeName.Snippet &&
-                          props.values.fileReferences.length === 0 &&
-                          !props.values.file)
-                      }
-                      onClick={() => {
-                        setSavePressed(true);
-                        handleUnpublish(props);
-                      }}
-                    >
-                      Unpublish
-                    </Button>
-                  </Show>
+                    Unpublish
+                  </Button>
                   <Show visible={!!props.values.id}>
                     <Show
                       visible={
