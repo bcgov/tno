@@ -163,16 +163,16 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <returns>A page of content items that match the filter.</returns>
     public async Task<IPaged<Content>> FindWithElasticsearchAsync(ContentFilter filter)
     {
-        var shouldQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
-
+        var productQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
         foreach (var productId in filter.ProductIds)
         {
-            shouldQueries.Add(s => s.Term(t => t.ProductId, productId));
+            productQueries.Add(s => s.Term(t => t.ProductId, productId));
         }
 
+        var contentQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
         foreach (var contentId in filter.ContentIds)
         {
-            shouldQueries.Add(s => s.Term(t => t.Id, contentId));
+            contentQueries.Add(s => s.Term(t => t.Id, contentId));
         }
 
         var filterQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
@@ -200,14 +200,6 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!string.IsNullOrWhiteSpace(filter.Edition))
         {
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Edition).Value($"*{filter.Edition.ToLower()}*")));
-        }
-
-        if (!string.IsNullOrWhiteSpace(filter.Product))
-        {
-            filterQueries.Add(s => s.Term(t => t.ProductId, filter.Product) || (
-                s.Exists(e => e.Field(p => p.Product)) &&
-                s.Wildcard(m => m.Field(p => p.Product!.Name).Value($"*{filter.Product.ToLower()}*"))
-                ));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Byline))
@@ -242,13 +234,20 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         foreach (var action in filter.Actions)
         {
-            filterQueries.Add(s => s.Exists(e => e.Field(p => p.Actions.Any()))
-                && s.Match(m => m.Field("actions.name").Query(action))
-                && ((
-                    s.Match(m => m.Field("actions.valueType").Query("Boolean")) &&
-                    s.Match(m => m.Field("actions.value").Query("true"))) ||
-                    (!s.Match(m => m.Field("actions.valueType").Query("Boolean")) &&
-                    s.Exists(m => m.Field("actions.value")))));
+            filterQueries.Add(s => s
+                .Nested(n => n
+                .Path(p => p.Actions)
+                .Query(y => y
+                .Match(m => m
+                .Field("actions.name")
+                .Query(action)) && ((y.Match(m => m
+                .Field("actions.valueType")
+                .Query("Boolean")) && y.Match(m => m
+                .Field("actions.value")
+                .Query("true"))) || (!y.Match(m => m
+                .Field("actions.valueType")
+                .Query("Boolean")) && y.Exists(m => m
+                .Field("actions.value")))))));
         }
 
         if (filter.CreatedOn.HasValue)
@@ -357,8 +356,45 @@ public class ContentService : BaseService<Content, long>, IContentService
                 .Pretty()
                 .Index(_client.ConnectionSettings.DefaultIndex)
                 .From((filter.Page - 1) * filter.Quantity)
-                .Size(filter.Quantity)
-                .Query(q => q.Bool(b => b.Filter(filterQueries).Should(shouldQueries)));
+                .Size(filter.Quantity);
+
+            if (filterQueries.Any() && productQueries.Any() && contentQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Must(m =>
+                    m.Bool(a => a.Must(filterQueries)) &&
+                    m.Bool(a => a.Should(productQueries)) &&
+                    m.Bool(a => a.Should(contentQueries)))));
+            }
+            else if (filterQueries.Any() && productQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Must(m =>
+                    m.Bool(a => a.Must(filterQueries)) &&
+                    m.Bool(a => a.Should(productQueries)))));
+            }
+            else if (filterQueries.Any() && contentQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Must(m =>
+                    m.Bool(a => a.Must(filterQueries)) &&
+                    m.Bool(a => a.Should(contentQueries)))));
+            }
+            else if (productQueries.Any() && contentQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Must(m =>
+                    m.Bool(a => a.Should(productQueries)) &&
+                    m.Bool(a => a.Should(contentQueries)))));
+            }
+            else if (filterQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Must(filterQueries)));
+            }
+            else if (productQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Should(productQueries)));
+            }
+            else if (contentQueries.Any())
+            {
+                result = result.Query(q => q.Bool(b => b.Should(contentQueries)));
+            }
 
             if (filter.Sort.Any())
             {
@@ -373,7 +409,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                 if (sort == "otherSource") objPath = p => p.OtherSource;
                 if (sort == "page") objPath = p => p.Page;
                 if (sort == "status") objPath = p => p.Status;
-                
+
                 if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
             }
             else
