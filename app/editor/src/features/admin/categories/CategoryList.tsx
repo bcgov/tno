@@ -31,12 +31,12 @@ export const CategoryList: React.FC = () => {
       <FormPage>
         <Row className="add-media" justifyContent="flex-end">
           <Col flex="1 1 0">
-            Categories provide a way to group related content and identify content for reports.
+            Topics provide a way to group related content and identify content for reports.
           </Col>
           <IconButton
             iconType="plus"
             label={`Add new category`}
-            onClick={() => navigate(`/admin/categories/0`)}
+            onClick={() => navigate(`/admin/topics/0`)}
           />
         </Row>
         <GridTable

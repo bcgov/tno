@@ -58,7 +58,7 @@ export const CategoryForm: React.FC = () => {
         : await api.updateCategory(values);
       setCategory(result);
       toast.success(`${result.name} has successfully been saved.`);
-      if (!originalId) navigate(`/admin/categories/${result.id}`);
+      if (!originalId) navigate(`/admin/topics/${result.id}`);
     } catch {}
   };
 
@@ -66,9 +66,9 @@ export const CategoryForm: React.FC = () => {
     <styled.CategoryForm>
       <IconButton
         iconType="back"
-        label="Back to Categories"
+        label="Back to Topics"
         className="back-button"
-        onClick={() => navigate('/admin/categories')}
+        onClick={() => navigate('/admin/topics')}
       />
       <FormikForm
         initialValues={category}
@@ -164,7 +164,7 @@ export const CategoryForm: React.FC = () => {
                 try {
                   await api.deleteCategory(category);
                   toast.success(`${category.name} has successfully been deleted.`);
-                  navigate('/admin/categories');
+                  navigate('/admin/topics');
                 } finally {
                   toggle();
                 }

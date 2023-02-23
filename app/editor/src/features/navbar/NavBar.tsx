@@ -73,11 +73,7 @@ export const NavBar: React.FC = () => {
 
           {/* Admin */}
           <Show visible={activeHover === 'admin'}>
-            <NavBarItem
-              navigateTo="/admin/categories"
-              label="Categories"
-              claim={Claim.administrator}
-            />
+            <NavBarItem navigateTo="/admin/topics" label="Topics" claim={Claim.administrator} />
             <NavBarItem navigateTo="/admin/tags" label="Tags" claim={Claim.administrator} />
             <NavBarItem
               navigateTo="/admin/programs"
