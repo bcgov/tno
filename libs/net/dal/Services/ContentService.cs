@@ -209,9 +209,6 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.ContentType.HasValue)
         {
-            //var content = filter.ContentType.Value.ToString();
-            //var query = Enum.TryParse(content, out ContentType ct) ? content : "10";
-            //filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(query)));
             filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(filter.ContentType.Value.ToString())));
         }
 
@@ -404,20 +401,9 @@ public class ContentService : BaseService<Content, long>, IContentService
                 if (sort == "productId") objPath = p => p.ProductId;
                 if (sort == "ownerId") objPath = p => p.OwnerId!;
                 if (sort == "publishedOn") objPath = p => p.PublishedOn!;
-
-                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                if (environment == "Development" && false)
-                {
-                    if (sort == "otherSource") objPath = p => p.OtherSource.Suffix("keyword");
-                    if (sort == "page") objPath = p => p.Page.Suffix("keyword");
-                    if (sort == "status") objPath = p => p.Status.Suffix("keyword");
-                }
-                else
-                {
-                    if (sort == "otherSource") objPath = p => p.OtherSource;
-                    if (sort == "page") objPath = p => p.Page;
-                    if (sort == "status") objPath = p => p.Status;
-                }
+                if (sort == "otherSource") objPath = p => p.OtherSource;
+                if (sort == "page") objPath = p => p.Page;
+                if (sort == "status") objPath = p => p.Status;
 
                 if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
             }
