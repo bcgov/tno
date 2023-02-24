@@ -54,7 +54,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
     if (!!id && !!fieldName) {
       setState({
         ...state,
-        html: (values[fieldName] as string).replace(/\n/g, '<br />'),
+        html: (values[fieldName] as string)?.replace(/\n/g, '<br />') ?? '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,7 +88,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
   const stripHtml = () => {
     // strip html from string
     if (!!fieldName) {
-      let doc = new DOMParser().parseFromString(values[fieldName] as string, 'text/html');
+      let doc = new DOMParser().parseFromString((values[fieldName] as string) ?? '', 'text/html');
       setFieldValue(fieldName, doc.body.textContent || '');
       setState({ ...state, html: doc.body.textContent || '' });
     }
@@ -155,7 +155,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
             formats={formats}
             onBlur={() => {
               if (!!fieldName) {
-                const value = values[fieldName];
+                const value = values[fieldName] ?? '';
                 if (!!value && typeof value === 'string') {
                   const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
                   const tagValues = stringValue?.split(', ') ?? [];

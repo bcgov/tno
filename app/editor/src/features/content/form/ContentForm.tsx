@@ -129,12 +129,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const fetchContent = React.useCallback(
     (id: number) => {
       getContent(id).then((content) => {
-        setForm(toForm(content));
-        findWorkOrders({ contentId: id }).then((res) => {
-          setForm({ ...toForm(content), workOrders: res.data.items });
-          // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
-        });
-        setContentType(content.contentType);
+        if (!!content) {
+          setForm(toForm(content));
+          findWorkOrders({ contentId: id }).then((res) => {
+            setForm({ ...toForm(content), workOrders: res.data.items });
+            // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
+          });
+          setContentType(content.contentType);
+        } else {
+          toast.error('Content requested could not be found.');
+        }
       });
     },
     [getContent, findWorkOrders],
