@@ -636,6 +636,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row className="submit-buttons">
                   <Button
+                    type="submit"
                     disabled={
                       props.isSubmitting ||
                       (contentType === ContentTypeName.Snippet &&
@@ -671,8 +672,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     </Button>
                   </Show>
                   <Button
-                    variant={ButtonVariant.success}
-                    type="submit"
+                    variant={ButtonVariant.secondary}
                     disabled={props.isSubmitting}
                     onClick={() => setSavePressed(true)}
                   >
