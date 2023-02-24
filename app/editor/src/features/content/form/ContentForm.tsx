@@ -138,10 +138,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           setContentType(content.contentType);
         } else {
           toast.error('Content requested could not be found.');
+          navigate('/contents');
         }
       });
     },
-    [getContent, findWorkOrders],
+    [getContent, findWorkOrders, navigate],
   );
 
   const onWorkOrder = React.useCallback(
