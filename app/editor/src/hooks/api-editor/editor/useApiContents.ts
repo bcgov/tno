@@ -29,7 +29,9 @@ export const useApiContents = (
       );
     },
     getContent: (id: number) => {
-      return api.get<IContentModel, AxiosResponse<IContentModel>, any>(`/editor/contents/${id}`);
+      return api.get<IContentModel | undefined, AxiosResponse<IContentModel | undefined>, any>(
+        `/editor/contents/${id}`,
+      );
     },
     addContent: (content: IContentModel) => {
       return api.post<IContentModel, AxiosResponse<IContentModel>, any>(
