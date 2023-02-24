@@ -638,13 +638,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 <Row className="submit-buttons">
                   <Button
                     type="submit"
-                    disabled={props.isSubmitting}
-                    onClick={() => setSavePressed(true)}
-                  >
-                    Save without publishing
-                  </Button>
-                  <Button
-                    variant={ButtonVariant.success}
                     disabled={
                       props.isSubmitting ||
                       (contentType === ContentTypeName.Snippet &&
@@ -665,7 +658,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     }
                   >
                     <Button
-                      variant={ButtonVariant.success}
                       disabled={
                         props.isSubmitting ||
                         (contentType === ContentTypeName.Snippet &&
@@ -680,6 +672,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       Unpublish
                     </Button>
                   </Show>
+                  <Button
+                    variant={ButtonVariant.secondary}
+                    disabled={props.isSubmitting}
+                    onClick={() => setSavePressed(true)}
+                  >
+                    Save without publishing
+                  </Button>
                   <Show visible={!!props.values.id}>
                     <Show
                       visible={
