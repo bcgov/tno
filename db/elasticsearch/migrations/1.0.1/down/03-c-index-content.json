@@ -9,7 +9,7 @@
     "properties": {
       "id": { "type": "long" },
       "uid": { "type": "text" },
-      "sourceId": { "type": "integer" },
+      "sourceId": { "type": "integer", "index": false },
       "otherSource": { "type": "keyword" },
       "status": { "type": "keyword" },
       "contentType": { "type": "keyword" },
