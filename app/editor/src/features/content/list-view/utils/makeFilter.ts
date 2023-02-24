@@ -35,10 +35,12 @@ export const makeFilter = (
     sort: applySortBy(filter.sort),
   };
 
-  if (!!filter.fieldType)
+  if (!!filter.fieldType) {
+    const searchTerm =
+      filter.fieldType === 'otherSource' ? filter.searchTerm : filter.searchTerm?.trim();
     (result as any)[(filter?.fieldType as string) ?? 'fake'] =
-      filter.searchTerm !== '' ? filter.searchTerm?.trim() : undefined;
-
+      filter.searchTerm !== '' ? searchTerm : undefined;
+  }
   return result;
 };
 

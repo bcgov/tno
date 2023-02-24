@@ -179,7 +179,7 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (!string.IsNullOrWhiteSpace(filter.OtherSource))
         {
-            filterQueries.Add(s => s.Term(t => t.OtherSource, filter.OtherSource.ToLower()));
+            filterQueries.Add(s => s.Term(t => t.SourceId, filter.OtherSource));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Headline))
@@ -209,17 +209,15 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         if (filter.ContentType.HasValue)
         {
+            //var content = filter.ContentType.Value.ToString();
+            //var query = Enum.TryParse(content, out ContentType ct) ? content : "10";
+            //filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(query)));
             filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(filter.ContentType.Value.ToString())));
         }
 
         if (filter.IncludeHidden.HasValue)
         {
             filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IncludeHidden.Value));
-        }
-
-        if (filter.SourceId.HasValue)
-        {
-            filterQueries.Add(s => s.Term(t => t.SourceId, filter.SourceId.Value));
         }
 
         if (filter.OwnerId.HasValue)
@@ -406,9 +404,20 @@ public class ContentService : BaseService<Content, long>, IContentService
                 if (sort == "productId") objPath = p => p.ProductId;
                 if (sort == "ownerId") objPath = p => p.OwnerId!;
                 if (sort == "publishedOn") objPath = p => p.PublishedOn!;
-                if (sort == "otherSource") objPath = p => p.OtherSource;
-                if (sort == "page") objPath = p => p.Page;
-                if (sort == "status") objPath = p => p.Status;
+
+                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (environment == "Development" && false)
+                {
+                    if (sort == "otherSource") objPath = p => p.OtherSource.Suffix("keyword");
+                    if (sort == "page") objPath = p => p.Page.Suffix("keyword");
+                    if (sort == "status") objPath = p => p.Status.Suffix("keyword");
+                }
+                else
+                {
+                    if (sort == "otherSource") objPath = p => p.OtherSource;
+                    if (sort == "page") objPath = p => p.Page;
+                    if (sort == "status") objPath = p => p.Status;
+                }
 
                 if (objPath != null) result = result.Sort(s => sorts.EndsWith(" desc") ? s.Descending(objPath) : s.Ascending(objPath));
             }
