@@ -37,6 +37,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
             options={fieldTypes}
             className="select"
             width={FieldSize.Medium}
+            isClearable={false}
             value={fieldTypes.find((ft) => ft.value === filterAdvanced.fieldType)}
             onChange={(newValue) => {
               const value =
