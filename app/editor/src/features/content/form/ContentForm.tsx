@@ -239,7 +239,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   };
 
   const handleUnpublish = async (props: FormikProps<IContentForm>) => {
-    if (props.values.status === ContentStatusName.Publish)
+    if (
+      props.values.status === ContentStatusName.Publish ||
+      props.values.status === ContentStatusName.Published
+    )
       props.values.status = ContentStatusName.Unpublish;
     triggerFormikValidate(props);
     if (props.isValid) {
@@ -635,28 +638,21 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   >
                     Save without publishing
                   </Button>
-                  <Show
-                    visible={
-                      props.values.status !== ContentStatusName.Publish &&
-                      props.values.status !== ContentStatusName.Published
+                  <Button
+                    variant={ButtonVariant.success}
+                    disabled={
+                      props.isSubmitting ||
+                      (contentType === ContentTypeName.Snippet &&
+                        props.values.fileReferences.length === 0 &&
+                        !props.values.file)
                     }
+                    onClick={() => {
+                      setSavePressed(true);
+                      handlePublish(props);
+                    }}
                   >
-                    <Button
-                      variant={ButtonVariant.success}
-                      disabled={
-                        props.isSubmitting ||
-                        (contentType === ContentTypeName.Snippet &&
-                          props.values.fileReferences.length === 0 &&
-                          !props.values.file)
-                      }
-                      onClick={() => {
-                        setSavePressed(true);
-                        handlePublish(props);
-                      }}
-                    >
-                      Publish
-                    </Button>
-                  </Show>
+                    Publish
+                  </Button>
                   <Show
                     visible={
                       props.values.status === ContentStatusName.Publish ||
