@@ -219,7 +219,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           <Col>
             <FormikSelect
               name="categories"
-              label="Event of Day Category"
+              label="Topics"
               width={FieldSize.Medium}
               options={filterEnabled(
                 categoryOptions,
