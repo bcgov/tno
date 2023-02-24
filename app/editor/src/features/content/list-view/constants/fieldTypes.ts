@@ -4,7 +4,7 @@ export const fieldTypes = [
   new OptionItem('Headline', 'headline'),
   new OptionItem('Page', 'pageName'),
   new OptionItem('Status', 'status'),
-  new OptionItem('Source', 'otherSource'),
+  new OptionItem('Source', 'sourceId'),
   new OptionItem('Section', 'section'),
   new OptionItem('Edition', 'edition'),
   new OptionItem('Product', 'product'),

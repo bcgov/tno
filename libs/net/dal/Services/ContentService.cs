@@ -177,9 +177,9 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var filterQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
 
-        if (!string.IsNullOrWhiteSpace(filter.OtherSource))
+        if (filter.SourceId.HasValue)
         {
-            filterQueries.Add(s => s.Term(t => t.OtherSource, filter.OtherSource.ToLower()));
+            filterQueries.Add(s => s.Term(t => t.SourceId, filter.SourceId));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Headline))
@@ -215,11 +215,6 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.IncludeHidden.HasValue)
         {
             filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IncludeHidden.Value));
-        }
-
-        if (filter.SourceId.HasValue)
-        {
-            filterQueries.Add(s => s.Term(t => t.SourceId, filter.SourceId.Value));
         }
 
         if (filter.OwnerId.HasValue)
