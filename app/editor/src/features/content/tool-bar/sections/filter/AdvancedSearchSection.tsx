@@ -45,7 +45,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
               onChange({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
-          <Show visible={filterAdvanced.fieldType === 'otherSource'}>
+          <Show visible={filterAdvanced.fieldType === 'sourceId'}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -69,7 +69,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
               )}
             />
           </Show>
-          <Show visible={filterAdvanced.fieldType !== 'otherSource'}>
+          <Show visible={filterAdvanced.fieldType !== 'sourceId'}>
             <Text
               name="searchTerm"
               width={FieldSize.Small}

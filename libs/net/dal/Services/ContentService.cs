@@ -177,9 +177,9 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var filterQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
 
-        if (!string.IsNullOrWhiteSpace(filter.OtherSource))
+        if (filter.SourceId.HasValue)
         {
-            filterQueries.Add(s => s.Term(t => t.SourceId, filter.OtherSource));
+            filterQueries.Add(s => s.Term(t => t.SourceId, filter.SourceId));
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Headline))

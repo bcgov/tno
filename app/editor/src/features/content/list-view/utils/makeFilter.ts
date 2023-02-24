@@ -37,7 +37,7 @@ export const makeFilter = (
 
   if (!!filter.fieldType) {
     const searchTerm =
-      filter.fieldType === 'otherSource' ? filter.searchTerm : filter.searchTerm?.trim();
+      filter.fieldType === 'sourceId' ? filter.searchTerm : filter.searchTerm?.trim();
     (result as any)[(filter?.fieldType as string) ?? 'fake'] =
       filter.searchTerm !== '' ? searchTerm : undefined;
   }
