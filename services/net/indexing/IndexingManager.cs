@@ -219,34 +219,28 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         try
         {
             this.Logger.LogInformation("Indexing content from Topic: {Topic}, Content ID: {Key}", result.Topic, result.Message.Key);
+            var model = result.Message.Value;
 
-            // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
-
-            var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
-            if (content != null)
+            if (model.Action == IndexAction.Delete)
             {
-                switch (result.Message.Value.Action)
-                {
-                    case IndexAction.Publish:
-                        await IndexContentAsync(content);
-                        await PublishContentAsync(content);
-                        break;
-                    case IndexAction.Unpublish:
-                        await IndexContentAsync(content);
-                        await UnpublishContentAsync(content);
-                        break;
-                    case IndexAction.Delete:
-                        await DeleteContentAsync(content);
-                        break;
-                    case IndexAction.Index:
-                    default:
-                        await IndexContentAsync(content);
-                        break;
-                }
+                await DeleteContentAsync(model.ContentId);
             }
             else
             {
-                this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
+                // TODO: Failures after receiving the message from Kafka will result in missing content.  Need to handle this scenario.
+                var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
+                if (content != null)
+                {
+                    await IndexContentAsync(content);
+                    if (model.Action == IndexAction.Publish)
+                        await PublishContentAsync(content);
+                    else if (model.Action == IndexAction.Unpublish)
+                        await UnpublishContentAsync(content);
+                }
+                else
+                {
+                    this.Logger.LogWarning("Content does not exists. Content ID: {ContentId}", result.Message.Value.ContentId);
+                }
             }
 
             // Successful run clears any errors.
@@ -266,7 +260,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task IndexContentAsync(ContentModel content)
     {
-        var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Uid);
+        var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
@@ -291,7 +285,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         // Remove the transcript body if it hasn't been approved.
         var body = content.Body;
         if (!content.IsApproved && content.ContentType == ContentType.Snippet) content.Body = "";
-        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
+        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
 
         var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
@@ -347,35 +341,32 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <summary>
     /// Remove content from both indexes.
     /// </summary>
-    /// <param name="content"></param>
+    /// <param name="contentId"></param>
     /// <returns></returns>
-    private async Task DeleteContentAsync(ContentModel content)
+    private async Task DeleteContentAsync(long contentId)
     {
-        if (content.Status == ContentStatus.Published || content.Status == ContentStatus.Unpublish)
-        {
-            await DeleteContentAsync(content, this.Options.PublishedIndex);
-        }
-        await DeleteContentAsync(content, this.Options.UnpublishedIndex);
+        await DeleteContentAsync(contentId, this.Options.PublishedIndex);
+        await DeleteContentAsync(contentId, this.Options.UnpublishedIndex);
     }
 
     /// <summary>
     /// Remove the content from the specified index.
     /// </summary>
-    /// <param name="content"></param>
+    /// <param name="contentId"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    private async Task DeleteContentAsync(ContentModel content, string index)
+    private async Task DeleteContentAsync(long contentId, string index)
     {
-        var document = new DeleteRequest<ContentModel>(content, index, content.Uid);
+        var document = new DeleteRequest<ContentModel>(index, contentId);
         var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content removed.  Content ID: {id}, Index: {index}", content.Id, index);
+            this.Logger.LogInformation("Content removed.  Content ID: {id}, Index: {index}", contentId, index);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to be removed.  Content ID: {id}, Index: {index}", content.Id, index);
+            this.Logger.LogError(response.OriginalException, "Content failed to be removed.  Content ID: {id}, Index: {index}", contentId, index);
         }
     }
 
