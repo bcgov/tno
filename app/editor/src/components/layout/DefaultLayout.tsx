@@ -133,12 +133,12 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
           </Button>
         </Header>
         <div className="main-window">
-          <NavBar />
-          <main>
-            <LayoutErrorBoundary>
+          <LayoutErrorBoundary>
+            <NavBar />
+            <main>
               <Outlet />
-            </LayoutErrorBoundary>
-          </main>
+            </main>
+          </LayoutErrorBoundary>
         </div>
       </Show>
       <Show visible={!keycloak.authenticated}>

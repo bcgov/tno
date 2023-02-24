@@ -36,4 +36,29 @@ export const Layout = styled.div`
       margin-left: 5em;
     }
   }
+
+  .error-boundary {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+
+    & > h1 {
+      color: ${(props) => props.theme.css.primaryColor};
+    }
+
+    & > div {
+      background-color: ${(props) => props.theme.css.darkerBackgroundColor};
+      padding: 5em;
+      border-radius: 1em;
+      box-shadow: 1em 1em 1em ${(props) => props.theme.css.lightVariantColor};
+    }
+
+    .error {
+      color: red;
+    }
+  }
 `;
