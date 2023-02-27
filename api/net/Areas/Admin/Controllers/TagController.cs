@@ -84,7 +84,7 @@ public class TagController : ControllerBase
     [ProducesResponseType(typeof(TagModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Tag" })]
-    public IActionResult FindById(string id)
+    public IActionResult FindById(int id)
     {
         var result = _service.FindById(id);
 

@@ -5,9 +5,15 @@ namespace TNO.API.Areas.Editor.Models.Tag;
 /// <summary>
 /// TagModel class, provides a model that represents an tag.
 /// </summary>
-public class TagModel : BaseTypeModel<string>
+public class TagModel : BaseTypeModel<int>
 {
     #region Properties
+
+    /// <summary>
+    /// get/set - Unique name to identify the entity.
+    /// </summary>
+    public string Code { get; set; } = "";
+
     #endregion
 
     #region Constructors
@@ -22,7 +28,7 @@ public class TagModel : BaseTypeModel<string>
     /// <param name="entity"></param>
     public TagModel(Entities.Tag entity) : base(entity)
     {
-
+        this.Code = entity.Code;
     }
     #endregion
 }

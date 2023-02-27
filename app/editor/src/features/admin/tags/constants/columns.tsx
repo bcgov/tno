@@ -6,9 +6,9 @@ export const columns: (Column<ITagModel> &
   UseSortByColumnOptions<ITagModel> &
   UseFiltersColumnOptions<ITagModel>)[] = [
   {
-    id: 'id',
+    id: 'code',
     Header: 'Code',
-    accessor: 'id',
+    accessor: 'code',
     width: 1,
   },
   {

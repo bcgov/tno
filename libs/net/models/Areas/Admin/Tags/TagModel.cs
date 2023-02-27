@@ -11,7 +11,12 @@ public class TagModel : AuditColumnsModel
     /// <summary>
     /// get/set - The primary key of the type model.
     /// </summary>
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
+    
+    /// <summary>
+    /// get/set - Unique name to identify the entity.
+    /// </summary>
+    public string Code { get; set; } = "";
 
     /// <summary>
     /// get/set - The unique name of the model.
@@ -38,7 +43,7 @@ public class TagModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an TagModel.
     /// </summary>
-    public TagModel() { }
+    public TagModel() {}
 
     /// <summary>
     /// Creates a new instance of an TagModel, initializes with specified parameter.
@@ -48,6 +53,7 @@ public class TagModel : AuditColumnsModel
     {
         this.Id = entity.Id;
         this.Name = entity.Name;
+        this.Code = entity.Code;
         this.Description = entity.Description;
         this.SortOrder = entity.SortOrder;
         this.IsEnabled = entity.IsEnabled;
@@ -61,10 +67,11 @@ public class TagModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Tag(TagModel model)
     {
-        var entity = new Entities.Tag(model.Id, model.Name)
+        var entity = new Entities.Tag(model.Id, model.Name, model.Code)
         {
             Id = model.Id,
             Name = model.Name,
+            Code = model.Code,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
