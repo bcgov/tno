@@ -91,11 +91,6 @@ public static class Fields
     public const string ImportDir = "importDir";
 
     /// <summary>
-    /// Key to the "selfPublished" configuration string value.
-    /// </summary>
-    public const string SelfPublished = "selfPublished";
-
-    /// <summary>
     /// Key to the "sources" configuration string value.
     /// </summary>
     public const string Sources = "sources";
@@ -103,15 +98,10 @@ public static class Fields
     /// <summary>
     /// FMS story delimiter string.
     /// </summary>
-    public const string FmsStoryDelim = "</story><story>";
+    public const string FmsEntryStart = "<story>";
 
     /// <summary>
     /// FMS story delimiter string.
     /// </summary>
-    public const string FmsEofFlag = "</story>";
-
-    /// <summary>
-    /// FMS field delimiter string.
-    /// </summary>
-    public const string FmsFieldDelim = "<break>";
+    public const string FmsEntryEnd = "</story>";
 }

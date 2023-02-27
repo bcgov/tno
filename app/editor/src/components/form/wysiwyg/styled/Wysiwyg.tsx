@@ -6,9 +6,11 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
   margin-bottom: 1rem;
   margin-top: 1rem;
   width: 100%;
+
   label {
     font-weight: bold;
   }
+
   .required:after {
     content: ' *';
     color: ${(props) => props.theme.css.dangerColor};
@@ -29,6 +31,7 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
     font-family: ${(props) => props.theme.css?.bcSans};
     font-size: 1rem;
   }
+
   .raw-editor {
     margin: 0;
     padding: 12px 15px;
@@ -44,7 +47,11 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
     display: ${(props) => (props.viewRaw ? 'block' : 'none')};
   }
 
-  svg: hover {
+  svg:hover {
     color: #3498db;
+  }
+
+  p {
+    margin-bottom: 1em;
   }
 `;
