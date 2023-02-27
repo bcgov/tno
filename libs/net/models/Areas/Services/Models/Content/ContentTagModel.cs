@@ -46,7 +46,7 @@ public class ContentTagModel : AuditColumnsModel
     {
         this.ContentId = entity.ContentId;
         this.Id = entity.TagId;
-        this.Code = entity.Tag.Code;
+        this.Code = entity.Tag?.Code ?? "";
         this.Name = entity.Tag?.Name ?? "";
     }
     #endregion
