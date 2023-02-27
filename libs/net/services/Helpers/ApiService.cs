@@ -414,7 +414,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> UpdateContentAsync(ContentModel content)
     {
-        var url = this.Options.ApiUrl.Append($"editor/contents/{content.Id}");
+        var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}");
         return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentModel>(url, JsonContent.Create(content)));
     }
     #endregion

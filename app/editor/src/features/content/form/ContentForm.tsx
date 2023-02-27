@@ -157,6 +157,18 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
   }, [hub, onWorkOrder]);
 
+  const onContentUpdated = React.useCallback(
+    (content: IContentModel) => {
+      // TODO: Don't overwrite the user's edits.
+      if (!!id && +id === content.id) fetchContent(content.id);
+    },
+    [fetchContent, id],
+  );
+
+  React.useEffect(() => {
+    return hub.listen(HubMethodName.Content, onContentUpdated);
+  }, [hub, onContentUpdated]);
+
   React.useEffect(() => {
     if (!!id && +id > 0) {
       fetchContent(+id);
@@ -165,7 +177,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   const { setShowValidationToast } = useTabValidationToasts();
 
-  const handleSave = async (values: IContentForm): Promise<IContentForm> => {
+  const handleSubmit = async (values: IContentForm): Promise<IContentForm> => {
     let contentResult: IContentModel | null = null;
     const originalId = values.id;
     let result = form;
@@ -226,32 +238,36 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     return result;
   };
 
-  const handlePublish = async (props: FormikProps<IContentForm>) => {
-    // Change the status to publish if required.
+  const handlePublish = async (values: IContentForm): Promise<IContentForm> => {
     if (
       [
         ContentStatusName.Draft,
         ContentStatusName.Unpublish,
         ContentStatusName.Unpublished,
-      ].includes(props.values.status)
+      ].includes(values.status)
     )
-      props.values.status = ContentStatusName.Publish;
+      values.status = ContentStatusName.Publish;
 
-    triggerFormikValidate(props);
-    if (props.isValid) {
-      await handleSave(props.values);
-    }
+    return await handleSubmit(values);
   };
 
   const handleUnpublish = async (props: FormikProps<IContentForm>) => {
     if (
       props.values.status === ContentStatusName.Publish ||
       props.values.status === ContentStatusName.Published
-    )
-      props.values.status = ContentStatusName.Unpublish;
+    ) {
+      triggerFormikValidate(props);
+      if (props.isValid) {
+        props.values.status = ContentStatusName.Unpublish;
+        await handleSubmit(props.values);
+      }
+    }
+  };
+
+  const handleSave = async (props: FormikProps<IContentForm>) => {
     triggerFormikValidate(props);
     if (props.isValid) {
-      await handleSave(props.values);
+      await handleSubmit(props.values);
     }
   };
 
@@ -259,7 +275,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     try {
       // TODO: Only save when required.
       // Save before submitting request.
-      const content = await handleSave(values);
+      const content = await handleSubmit(values);
       const response = await transcribe(toModel(values));
       setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
@@ -278,7 +294,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     try {
       // TODO: Only save when required.
       // Save before submitting request.
-      const content = await handleSave(values);
+      const content = await handleSubmit(values);
       const response = await nlp(toModel(values));
       setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
@@ -366,7 +382,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             </Row>
           </Row>
           <FormikForm
-            onSubmit={handleSave}
+            onSubmit={handlePublish}
             validationSchema={ContentFormSchema}
             initialValues={form}
             loading={(request: IAjaxRequest) =>
@@ -646,7 +662,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     }
                     onClick={() => {
                       setSavePressed(true);
-                      handlePublish(props);
                     }}
                   >
                     Publish
@@ -658,6 +673,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     }
                   >
                     <Button
+                      variant={ButtonVariant.secondary}
                       disabled={
                         props.isSubmitting ||
                         (contentType === ContentTypeName.Snippet &&
@@ -672,13 +688,24 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       Unpublish
                     </Button>
                   </Show>
-                  <Button
-                    variant={ButtonVariant.secondary}
-                    disabled={props.isSubmitting}
-                    onClick={() => setSavePressed(true)}
+                  <Show
+                    visible={
+                      ![ContentStatusName.Publish, ContentStatusName.Published].some(
+                        (s) => s === props.values.status,
+                      )
+                    }
                   >
-                    Save without publishing
-                  </Button>
+                    <Button
+                      variant={ButtonVariant.warning}
+                      disabled={props.isSubmitting}
+                      onClick={() => {
+                        setSavePressed(true);
+                        handleSave(props);
+                      }}
+                    >
+                      Save without publishing
+                    </Button>
+                  </Show>
                   <Show visible={!!props.values.id}>
                     <Show
                       visible={
