@@ -676,6 +676,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     variant={ButtonVariant.secondary}
                     disabled={props.isSubmitting}
                     onClick={() => setSavePressed(true)}
+                    type="submit"
                   >
                     Save without publishing
                   </Button>
