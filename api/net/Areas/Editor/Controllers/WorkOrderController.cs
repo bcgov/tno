@@ -46,7 +46,7 @@ public class WorkOrderController : ControllerBase
     private readonly IUserService _userService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
-    private readonly IHubContext<WorkOrderHub> _hub;
+    private readonly MessageHub _hub;
     private readonly ApiOptions _apiOptions;
     private readonly JsonSerializerOptions _serializerOptions;
 
@@ -73,7 +73,7 @@ public class WorkOrderController : ControllerBase
         IUserService userService,
         IConnectionHelper connection,
         IKafkaMessenger kafkaMessenger,
-        IHubContext<WorkOrderHub> hub,
+        MessageHub hub,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<ApiOptions> apiOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
@@ -144,7 +144,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
+            await _hub.WorkOrderUpdatedAsync(workOrder);
             throw new BadRequestException("Transcription request failed");
         }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
@@ -186,7 +186,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
+            await _hub.WorkOrderUpdatedAsync(workOrder);
             throw new BadRequestException("Natural Language Processing request failed");
         }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));

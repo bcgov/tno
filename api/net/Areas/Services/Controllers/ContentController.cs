@@ -43,7 +43,7 @@ public class ContentController : ControllerBase
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
-    private readonly IHubContext<WorkOrderHub> _hub;
+    private readonly MessageHub _hub;
     private readonly ILogger _logger;
     #endregion
 
@@ -63,7 +63,7 @@ public class ContentController : ControllerBase
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IUserService userService,
-        IHubContext<WorkOrderHub> hub,
+        MessageHub hub,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<StorageOptions> storageOptions,
@@ -148,6 +148,39 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Update content for the specified 'id'.
+    /// Publish message to kafka to index content in elasticsearch.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public async Task<IActionResult> UpdateAsync(ContentModel model)
+    {
+        var content = _contentService.UpdateAndSave((Content)model);
+
+        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        {
+            // If a request is submitted to unpublish we do it regardless of the current state of the content.
+            if (content.Status == ContentStatus.Unpublish)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Unpublish));
+            else if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+
+            await _hub.ContentUpdatedAsync(content);
+        }
+        else
+            _logger.LogWarning("Kafka indexing topic not configured.");
+
+        return new JsonResult(new ContentModel(content));
+    }
+
+    /// <summary>
     /// Upload a file and link it to the specified content.
     /// Only a single file can be linked to content, each upload will overwrite.
     /// </summary>
@@ -182,10 +215,7 @@ public class ContentController : ControllerBase
         if (content.OwnerId.HasValue)
         {
             var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
-            if (owner != null)
-                await _hub.Clients.User(owner.Username).SendAsync("Content", new ContentMessageModel(content));
-            if (owner != null)
-                await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
+            await _hub.ContentUpdatedAsync(content, owner?.Username);
         }
 
         return new JsonResult(new ContentModel(content));

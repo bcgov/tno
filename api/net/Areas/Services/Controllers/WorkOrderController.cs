@@ -31,7 +31,7 @@ public class WorkOrderController : ControllerBase
 {
     #region Variables
     private readonly IWorkOrderService _service;
-    private readonly IHubContext<WorkOrderHub> _hub;
+    private readonly MessageHub _hub;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -42,7 +42,7 @@ public class WorkOrderController : ControllerBase
     /// <param name="service"></param>
     /// <param name="hub"></param>
     /// <param name="serializerOptions"></param>
-    public WorkOrderController(IWorkOrderService service, IHubContext<WorkOrderHub> hub, IOptions<JsonSerializerOptions> serializerOptions)
+    public WorkOrderController(IWorkOrderService service, MessageHub hub, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
         _hub = hub;
@@ -86,7 +86,7 @@ public class WorkOrderController : ControllerBase
         if (entity == null) throw new InvalidOperationException("Work order does not exist");
 
         var result = _service.UpdateAndSave(workOrder.CopyTo(entity, _serializerOptions));
-        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderModel(result, _serializerOptions));
+        await _hub.WorkOrderUpdatedAsync(result);
         return new JsonResult(new WorkOrderModel(entity, _serializerOptions));
     }
     #endregion
