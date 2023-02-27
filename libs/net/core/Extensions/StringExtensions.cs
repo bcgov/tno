@@ -175,19 +175,35 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Replace the first found occurance of the 'search' with 'replace' value.
+    /// Replace the first found occurrence of the 'search' with 'replace' value.
     /// </summary>
     /// <param name="text"></param>
     /// <param name="search"></param>
     /// <param name="replace"></param>
     /// <returns></returns>
-    public static string? ReplaceFirst(this string? text, string search, string replace)
+    public static string ReplaceFirst(this string text, string search, string replace)
     {
         if (String.IsNullOrEmpty(text) || String.IsNullOrEmpty(search)) return text;
 
         var pos = text.IndexOf(search);
         if (pos < 0) return text;
         return $"{replace}{text[(pos + search.Length)..]}";
+    }
+
+    /// <summary>
+    /// Replace the last found occurrence of the 'search' with 'replace' value.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="search"></param>
+    /// <param name="replace"></param>
+    /// <returns></returns>
+    public static string ReplaceLast(this string text, string search, string replace)
+    {
+        int place = text.LastIndexOf(search);
+        if (place == -1)
+            return text;
+
+        return text.Remove(place, search.Length).Insert(place, replace);
     }
 
     /// <summary>

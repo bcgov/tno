@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Globalization;
@@ -62,8 +63,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
 
         await FetchFilesFromRemoteAsync(manager);
         var format = manager.Ingest.GetConfigurationValue(Fields.FileFormat);
-        var selfPublished = manager.Ingest.GetConfigurationValue<bool>(Fields.SelfPublished);
-        var sources = selfPublished ? new Dictionary<string, string>() : GetSourcesForIngest(manager.Ingest);
+        var sources = GetSourcesForIngest(manager.Ingest);
 
         format = !String.IsNullOrEmpty(format) ? format : "xml";
 
@@ -362,25 +362,34 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="story"></param>
     /// <param name="key"></param>
     /// <param name="ingest"></param>
+    /// <param name="endOfData">The regex value that indicates the end of the data being searched for.</param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private static string GetFmsData(string story, string key, IngestModel ingest)
+    private static string GetFmsData(string story, string key, IngestModel ingest, string endOfData = "\n\n")
     {
-        var value = ingest.GetConfigurationValue(key);
+        var find = ingest.GetConfigurationValue(key);
 
-        if (String.IsNullOrEmpty(value))
+        if (String.IsNullOrEmpty(find))
         {
             throw new InvalidOperationException($"Ingest configuration value '{key}' is not defined for {ingest.Name}.");
         }
         else
         {
-            var matchStr = value + "(.+?)<break>";
-            var matches = Regex.Matches(story, matchStr, RegexOptions.Singleline);
+            var matches = Regex.Matches(story, $"{find}(.+?){endOfData}", RegexOptions.Singleline);
 
             // Make sure each paragraph of a story is on a single line and that paragraphs are delimited by "<p>".
             if (matches.Count > 0 && matches[0].Groups.Count > 0)
             {
-                return matches[0].Groups[1].Value.Replace("\n", " ").Replace("\r", "").Replace("|", "<p>").Trim();
+                var cleaned = matches[0].Groups[1].Value
+                    .ReplaceLast("&nbsp;", "")
+                    .Replace("\r", "");
+                var paragraphs = cleaned.Split("\n\n|").Where(t => !String.IsNullOrWhiteSpace(t)).ToArray();
+                cleaned = String.Join("", (paragraphs.Length > 1) ? paragraphs.Select(t => $"<p>{t}</p>") : paragraphs);
+
+                paragraphs = cleaned.Split("\n\n").Where(t => !String.IsNullOrWhiteSpace(t)).ToArray();
+                cleaned = String.Join("", (paragraphs.Length > 1) ? paragraphs.Select(t => t.StartsWith("<p>") ? t : $"<p>{t}</p>") : paragraphs);
+
+                return cleaned.Replace("\n", " ").Trim();
             }
             else
             {
@@ -403,50 +412,51 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var ingest = manager.Ingest;
         var fileList = Directory.GetFiles(dir);
 
-        foreach (string path in fileList)
+        foreach (var path in fileList)
         {
             try
             {
                 // Extract a list of stories from the current document.
-                XmlDocument? document = GetValidXmlDocument(path, ingest);
+                var document = GetValidXmlDocument(path, ingest);
                 if (document != null)
                 {
-                    XmlNodeList elementList = document.GetElementsByTagName(ingest.GetConfigurationValue(Fields.Item));
+                    var elementList = document.GetElementsByTagName(ingest.GetConfigurationValue(Fields.Item));
 
                     // Iterate over the list of stories and add a new item to the articles list for each story.
                     foreach (XmlElement story in elementList)
                     {
                         var paperName = GetXmlData(story, Fields.PaperName, ingest);
                         var code = GetItemSourceCode(ingest, paperName, sources);
-
-                        if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
+                        var productId = await GetProductIdAsync(ingest, code, sources);
+                        var item = new SourceContent(
+                            this.Options.DataLocation,
+                            code,
+                            ContentType.PrintContent,
+                            productId,
+                            GetXmlData(story, Fields.Id, ingest),
+                            GetXmlData(story, Fields.Headline, ingest),
+                            GetXmlData(story, Fields.Summary, ingest),
+                            GetXmlData(story, Fields.Story, ingest),
+                            GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options))
                         {
-                            var productId = await GetProductIdAsync(ingest, code, sources);
-                            var item = new SourceContent(
-                                this.Options.DataLocation,
-                                GetItemSourceCode(ingest, paperName, sources),
-                                ContentType.PrintContent,
-                                productId,
-                                GetXmlData(story, Fields.Id, ingest),
-                                GetXmlData(story, Fields.Headline, ingest),
-                                GetXmlData(story, Fields.Summary, ingest),
-                                GetXmlData(story, Fields.Story, ingest),
-                                GetPublishedOn(GetXmlData(story, Fields.Date, ingest), ingest, this.Options))
-                            {
-                                Page = GetXmlData(story, Fields.Page, ingest),
-                                Section = GetXmlData(story, Fields.Section, ingest),
-                                Language = ingest.GetConfigurationValue("language"),
-                                Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest)),
-                            };
+                            Page = GetXmlData(story, Fields.Page, ingest),
+                            Section = GetXmlData(story, Fields.Section, ingest),
+                            Language = ingest.GetConfigurationValue("language"),
+                            Authors = GetAuthorList(GetXmlData(story, Fields.Author, ingest)),
+                        };
 
-                            await ImportArticleAsync(manager, item);
-                        }
+                        await ImportArticleAsync(manager, item);
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new FormatException($"File contents at '{path}' is invalid.", ex);
+                // Reached limit return to ingest manager.
+                if (ingest.FailedAttempts + 1 >= ingest.RetryLimit)
+                    throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
+
+                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
+                await manager.RecordFailureAsync();
             }
         }
     }
@@ -468,28 +478,23 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var fileList = Directory.GetFiles(dir);
 
         // Iterate over the files in the list and process the stories they contain.
-        foreach (string path in fileList)
+        foreach (var path in fileList)
         {
             try
             {
                 // Extract a list of stories from the current document. Replace the story delimiter with a string that
                 // facilitates the extraction of stories using regular expressions in single-line mode.
-                string? document = ReadFileContents(path, ingest);
-                if (document != null)
+                var text = ReadFileContents(path, ingest);
+                if (text != null)
                 {
-                    var doc = document.Replace(ingest.GetConfigurationValue(Fields.Item), Fields.FmsStoryDelim) + Fields.FmsEofFlag;
-                    var matches = Regex.Matches(doc, "<story>(.+?)</story>", RegexOptions.Singleline);
+                    var entries = text.Split(ingest.GetConfigurationValue(Fields.Item)).Where(t => !String.IsNullOrWhiteSpace(t)).Select(t => t.Trim());
                     var code = "";
 
                     // Iterate over the list of stories and add a new item to the articles list for each story.
-                    foreach (Match story in matches.Cast<Match>())
+                    foreach (var entry in entries)
                     {
-                        var preFiltered = story.Groups[1].Value;
-
                         // Single line mode prevents matching on "\n\n", so replace this with a meaningful field delimiter.
-                        var filtered = preFiltered.Replace("\n\n", Fields.FmsFieldDelim);
-
-                        var papername = GetFmsData(filtered, Fields.PaperName, ingest);
+                        var papername = GetFmsData(entry, Fields.PaperName, ingest);
                         code = string.IsNullOrEmpty(code) ? GetItemSourceCode(ingest, papername, sources) : code;
 
                         if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
@@ -500,18 +505,18 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                                 code,
                                 ContentType.PrintContent,
                                 productId,
-                                GetFmsData(filtered, Fields.Id, ingest),
-                                GetFmsData(filtered, Fields.Headline, ingest),
-                                GetFmsData(filtered, Fields.Summary, ingest),
-                                GetFmsData(preFiltered + "<break>", Fields.Story, ingest),
-                                GetPublishedOn(GetFmsData(filtered, Fields.Date, ingest), ingest, this.Options))
+                                GetFmsData(entry, Fields.Id, ingest),
+                                GetFmsData(entry, Fields.Headline, ingest),
+                                GetFmsData(entry, Fields.Summary, ingest),
+                                GetFmsData(entry, Fields.Story, ingest, "$"),
+                                GetPublishedOn(GetFmsData(entry, Fields.Date, ingest), ingest, this.Options))
                             {
-                                Page = GetFmsData(filtered, Fields.Page, ingest),
-                                Section = GetFmsData(filtered, Fields.Section, ingest),
+                                Page = GetFmsData(entry, Fields.Page, ingest),
+                                Section = GetFmsData(entry, Fields.Section, ingest),
                                 Language = ingest.GetConfigurationValue("language"),
 
-                                Tags = GetTagList(filtered, ingest),
-                                Authors = GetAuthorList(GetFmsData(filtered, Fields.Author, ingest))
+                                Tags = GetTagList(entry, ingest),
+                                Authors = GetAuthorList(GetFmsData(entry, Fields.Author, ingest))
                             };
 
                             await ImportArticleAsync(manager, item);
@@ -521,7 +526,12 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
             }
             catch (Exception ex)
             {
-                throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
+                // Reached limit return to ingest manager.
+                if (ingest.FailedAttempts + 1 >= ingest.RetryLimit)
+                    throw new FormatException($"File contents for ingest '{ingest.Name}' is invalid.", ex);
+
+                this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}', File: {file}", ingest.Name, path);
+                await manager.RecordFailureAsync();
             }
         }
     }
@@ -566,7 +576,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <param name="sources"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private string GetItemSourceCode(IngestModel ingest, string paperName, Dictionary<string, string> sources)
+    private static string GetItemSourceCode(IngestModel ingest, string paperName, Dictionary<string, string> sources)
     {
         if (sources.Count == 0) // Self published
         {
@@ -576,16 +586,16 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         {
             if (sources.TryGetValue(paperName, out string? code))
             {
-                return code ?? "";
+                if (String.IsNullOrWhiteSpace(code))
+                    return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+                return code;
             }
             else
             {
-                var defaultSource = ingest.GetConfigurationValue("defaultSource");
-                if (string.IsNullOrEmpty(defaultSource))
-                {
-                    this.Logger.LogWarning("Paper '{paperName}' not in configuration string for ingest, and there is no default source for '{ingest.Name}'.", paperName, ingest.Name);
-                }
-                return defaultSource;
+                var source = ingest.GetConfigurationValue("defaultSource");
+                if (String.IsNullOrWhiteSpace(source))
+                    return ingest.Source?.Code ?? throw new InvalidOperationException($"Ingest '{ingest.Name}' is missing source code.");
+                return source;
             }
         }
     }
@@ -606,7 +616,6 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         foreach (var source in sourcesArr)
         {
             var pair = source.Split('=');
-
             if (pair.Length == 2)
             {
                 sources.Add(pair[0], pair[1]);
@@ -636,10 +645,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private XmlDocument? GetValidXmlDocument(string filePath, IngestModel ingest)
     {
-        var xmlTxt = ReadFileContents(filePath, ingest);
-
         try
         {
+            var xmlTxt = ReadFileContents(filePath, ingest);
             if (xmlTxt != null)
             {
                 // BCNG files have multiple top-level objects which need to be wrapped in a single pair of tags.
@@ -681,18 +689,24 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private string? ReadFileContents(string filePath, IngestModel ingest)
     {
         this.Logger.LogDebug("Reading file '{file}' for ingest '{name}'", filePath, ingest.Name);
-        var sr = new System.IO.StreamReader(filePath);
-        var contents = sr.ReadToEnd();
-        sr.Close();
-
-        if (String.IsNullOrWhiteSpace(contents))
+        using var sr = new System.IO.StreamReader(filePath);
+        try
         {
-            this.Logger.LogWarning("Missing file contents at '{path}'", filePath);
-            return null;
+            var contents = sr.ReadToEnd();
+            if (String.IsNullOrWhiteSpace(contents))
+            {
+                this.Logger.LogWarning("Missing file contents at '{path}'", filePath);
+                return null;
+            }
+            else
+            {
+                return contents;
+            }
         }
-        else
+        catch
         {
-            return contents;
+            sr.Close();
+            throw;
         }
     }
 

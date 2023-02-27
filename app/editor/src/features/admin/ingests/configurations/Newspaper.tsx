@@ -32,7 +32,6 @@ export const Newspaper: React.FC = (props) => {
     <styled.IngestType>
       <Row>
         <Col flex="1 1 0">
-          <FormikCheckbox label="Self Published" name="configuration.selfPublished" />
           <FormikCheckbox label="Escape Content" name="configuration.escapeContent" />
           <FormikCheckbox label="Add Parent" name="configuration.addParent" />
         </Col>
