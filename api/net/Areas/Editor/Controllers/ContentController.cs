@@ -23,14 +23,14 @@ using System.Web;
 using System.Text.Json;
 using TNO.API.SignalR;
 using Microsoft.AspNetCore.SignalR;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// ContentController class, provides Content endpoints for the api.
 /// </summary>
-// [ClientRoleAuthorize(ClientRole.Editor)]
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
 [Area("editor")]
 [ApiVersion("1.0")]

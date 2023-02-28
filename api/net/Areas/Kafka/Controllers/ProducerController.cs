@@ -1,20 +1,19 @@
 using System.Net;
 using System.Net.Mime;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Kafka.Models;
 using TNO.API.Models;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
 /// ProducerController class, provides Kafka producer endpoints for the api.
 /// </summary>
-// [ClientRoleAuthorize(ClientRole.Administrator)]
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("kafka")]
 [ApiVersion("1.0")]

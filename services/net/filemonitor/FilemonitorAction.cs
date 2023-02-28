@@ -488,16 +488,15 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
                 if (text != null)
                 {
                     var entries = text.Split(ingest.GetConfigurationValue(Fields.Item)).Where(t => !String.IsNullOrWhiteSpace(t)).Select(t => t.Trim());
-                    var code = "";
 
                     // Iterate over the list of stories and add a new item to the articles list for each story.
                     foreach (var entry in entries)
                     {
                         // Single line mode prevents matching on "\n\n", so replace this with a meaningful field delimiter.
                         var papername = GetFmsData(entry, Fields.PaperName, ingest);
-                        code = string.IsNullOrEmpty(code) ? GetItemSourceCode(ingest, papername, sources) : code;
+                        var code = GetItemSourceCode(ingest, papername, sources);
 
-                        if (!string.IsNullOrEmpty(code)) // This is a valid newspaper source
+                        if (!String.IsNullOrEmpty(code)) // This is a valid newspaper source
                         {
                             var productId = await GetProductIdAsync(ingest, code, sources);
                             var item = new SourceContent(

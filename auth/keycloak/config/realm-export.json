@@ -271,6 +271,27 @@
       "security-admin-console" : [ ],
       "admin-cli" : [ ],
       "tno-service-account" : [ {
+        "id" : "66489a9d-ea44-408e-b3c8-d1b4568640af",
+        "name" : "admin",
+        "composite" : false,
+        "clientRole" : true,
+        "containerId" : "c8c6977e-55e0-4146-a38c-8420c5761b6c",
+        "attributes" : { }
+      }, {
+        "id" : "87db2286-ff9d-4660-aff2-fe94e1edf2da",
+        "name" : "editor",
+        "composite" : false,
+        "clientRole" : true,
+        "containerId" : "c8c6977e-55e0-4146-a38c-8420c5761b6c",
+        "attributes" : { }
+      }, {
+        "id" : "cfbc592c-b7ab-4b10-bbb7-d2add53ee263",
+        "name" : "subscriber",
+        "composite" : false,
+        "clientRole" : true,
+        "containerId" : "c8c6977e-55e0-4146-a38c-8420c5761b6c",
+        "attributes" : { }
+      }, {
         "id" : "741d1896-609e-4e60-88d4-f9ede9773865",
         "name" : "uma_protection",
         "composite" : false,
@@ -475,7 +496,7 @@
     "clientRoles" : {
       "realm-management" : [ "realm-admin" ],
       "tno-app" : [ "editor", "administrator" ],
-      "tno-service-account" : [ "uma_protection" ]
+      "tno-service-account" : [ "admin", "editor", "subscriber", "uma_protection" ]
     },
     "notBefore" : 0,
     "groups" : [ ]
@@ -748,7 +769,7 @@
     "frontchannelLogout" : false,
     "protocol" : "openid-connect",
     "attributes" : {
-      "access.token.lifespan" : "3600",
+      "access.token.lifespan" : "300",
       "saml.force.post.binding" : "false",
       "saml.multivalued.roles" : "false",
       "oauth2.device.authorization.grant.enabled" : "false",
@@ -976,6 +997,21 @@
     "fullScopeAllowed" : true,
     "nodeReRegistrationTimeout" : -1,
     "protocolMappers" : [ {
+      "id" : "bc8272a0-17a5-4048-bbe0-80f30dfd94c3",
+      "name" : "client-roles",
+      "protocol" : "openid-connect",
+      "protocolMapper" : "oidc-usermodel-client-role-mapper",
+      "consentRequired" : false,
+      "config" : {
+        "multivalued" : "true",
+        "userinfo.token.claim" : "true",
+        "id.token.claim" : "true",
+        "access.token.claim" : "true",
+        "claim.name" : "client-roles",
+        "jsonType.label" : "String",
+        "usermodel.clientRoleMapping.clientId" : "tno-service-account"
+      }
+    }, {
       "id" : "bbd4d7dd-5a2f-4ca5-ac08-9f3241b6fa2c",
       "name" : "Client ID",
       "protocol" : "openid-connect",
