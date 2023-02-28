@@ -87,8 +87,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
-  const [{ sources, tonePools, series, sourceOptions, productOptions }, { getSeries }] =
-    useLookupOptions();
+  const [{ sources, series, sourceOptions, productOptions }, { getSeries }] = useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
   const hub = useApiHub();
   useTooltips();
@@ -187,9 +186,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
         values.contentType = contentType;
         values.ownerId = userId;
       }
-
-      const defaultTonePool = tonePools.find((t) => t.name === 'Default');
-      values.tonePools = !!defaultTonePool ? [{ ...defaultTonePool, value: +values.tone }] : [];
 
       const model = toModel(values);
       contentResult = !form.id ? await addContent(model) : await updateContent(model);
@@ -474,6 +470,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 ''
                               }
                               label="Product"
+                              width={FieldSize.Small}
                               options={productOptions}
                               required
                             />

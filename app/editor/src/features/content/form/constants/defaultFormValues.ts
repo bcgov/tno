@@ -29,7 +29,6 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     categories: [],
     tags: [],
     labels: [],
-    tone: '',
     tonePools: [],
     timeTrackings: [],
     fileReferences: [],

@@ -1,28 +1,43 @@
 import { ContentTypeName } from 'hooks';
-import { date, number, object, string } from 'yup';
+import { array, date, number, object, string } from 'yup';
 
-export const ContentFormSchema = object().shape({
-  // TODO: Either 'otherSource' or 'sourceId' is required.
-  otherSource: string().required('Source is a required field.'),
-  // TODO: sourceId: number().required('Source is a required field.'),
-  productId: number().required('Product designation is a required field.'),
-  publishedOn: date().required('Published On is a required field.'),
-  // TODO: Summary should not be empty.
-  // summary: string().required('Summary is a required field.'),
-  summary: string().when('contentType', {
-    is: ContentTypeName.Snippet,
-    then: string().trim().required('Summary is a required field.'),
-  }),
-  body: string().when('contentType', {
-    is: (value: ContentTypeName) =>
-      value !== ContentTypeName.Snippet && value !== ContentTypeName.Image,
-    then: string().trim().required('Summary is a required field.'),
-  }),
-  // TODO: Headline should not be empty.
-  headline: string().required('Headline is a required field.'),
-  tone: number().when('contentType', {
-    is: (value: ContentTypeName) => value !== ContentTypeName.Image,
-    then: number().required('Tone is a required field.'),
-  }),
-  // TODO: validation for print content.
-});
+export const ContentFormSchema = object().shape(
+  {
+    productId: number().required('Product is required.').notOneOf([0], 'Product is required.'),
+    sourceId: number().when('tempSource', {
+      is: undefined,
+      then: number().required('Either source or other source is required.'),
+    }),
+    tempSource: string().when('sourceId', {
+      is: undefined,
+      then: string().trim().required('Either source or other source is required.'),
+    }),
+    publishedOn: date().required('Published On is a required field.'),
+    // TODO: Summary should not be empty.
+    summary: string().when('contentType', {
+      is: ContentTypeName.Snippet,
+      then: string().trim().required('Summary is a required field.'),
+    }),
+    body: string().when('contentType', {
+      is: (value: ContentTypeName) =>
+        value !== ContentTypeName.Snippet && value !== ContentTypeName.Image,
+      then: string().trim().required('Summary is a required field.'),
+    }),
+    // TODO: Headline should not be empty.
+    headline: string().required('Headline is a required field.'),
+    tonePools: array().when('contentType', {
+      is: (value: ContentTypeName) => value !== ContentTypeName.Image,
+      then: array().min(1, 'Tone is a required field.'),
+    }),
+    // TODO: validation for print content.
+    section: string().when('contentType', {
+      is: (value: ContentTypeName) => value === ContentTypeName.PrintContent,
+      then: string().trim().required('Section is a required field.'),
+    }),
+    byline: string().when('contentType', {
+      is: (value: ContentTypeName) => value === ContentTypeName.PrintContent,
+      then: string().trim().required('Byline is a required field.'),
+    }),
+  },
+  [['sourceId', 'tempSource']],
+);

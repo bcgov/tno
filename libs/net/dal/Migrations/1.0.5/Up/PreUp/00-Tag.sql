@@ -30,6 +30,12 @@ CREATE TABLE "public"."tag" (
     "sort_order" int4 NOT NULL DEFAULT 0
 );
 
+-- Adjust foreign keys to correct values
+UPDATE public.content_tag
+SET "tag_id" = _tag.new_id
+FROM _tag
+WHERE _tag.id = public.content_tag.tag_id;
+
 ALTER TABLE public.tag ALTER COLUMN "id" TYPE integer USING ("id"::integer);
 ALTER TABLE public.content_tag ALTER COLUMN "tag_id" TYPE integer USING ("tag_id"::integer);
 
