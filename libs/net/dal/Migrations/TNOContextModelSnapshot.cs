@@ -2307,6 +2307,10 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex(new[] { "Code" }, "IX_code")
+                        .IsUnique()
+                        .HasDatabaseName("IX_code1");
+
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
                         .HasDatabaseName("IX_name12");
