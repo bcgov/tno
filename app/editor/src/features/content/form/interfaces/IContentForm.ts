@@ -11,7 +11,6 @@ import {
   ITimeTrackingModel,
   IWorkOrderModel,
 } from 'hooks/api-editor';
-import { IOptionItem } from 'tno-core';
 
 export interface IContentForm {
   id: number;
