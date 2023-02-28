@@ -22,6 +22,7 @@ using TNO.Models.Extensions;
 using System.Web;
 using System.Text.Json;
 using TNO.API.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -48,7 +49,7 @@ public class ContentController : ControllerBase
     private readonly IUserService _userService;
     private readonly StorageOptions _storageOptions;
     private readonly IConnectionHelper _connection;
-    private readonly MessageHub _hub;
+    private readonly IHubContext<MessageHub> _hub;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -75,7 +76,7 @@ public class ContentController : ControllerBase
         IFileReferenceService fileReferenceService,
         IWorkOrderService workOrderService,
         IUserService userService,
-        MessageHub hub,
+        IHubContext<MessageHub> hub,
         IConnectionHelper connection,
         IOptions<StorageOptions> storageOptions,
         IKafkaMessenger kafkaMessenger,

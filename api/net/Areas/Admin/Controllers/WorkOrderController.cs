@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
 using TNO.API.Models;
+using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -33,7 +34,7 @@ public class WorkOrderController : ControllerBase
 {
     #region Variables
     private readonly IWorkOrderService _workOrderService;
-    private readonly MessageHub _hub;
+    private readonly IHubContext<MessageHub> _hub;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -44,7 +45,7 @@ public class WorkOrderController : ControllerBase
     /// <param name="workOrderService"></param>
     /// <param name="hub"></param>
     /// <param name="serializerOptions"></param>
-    public WorkOrderController(IWorkOrderService workOrderService, MessageHub hub, IOptions<JsonSerializerOptions> serializerOptions)
+    public WorkOrderController(IWorkOrderService workOrderService, IHubContext<MessageHub> hub, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _workOrderService = workOrderService;
         _hub = hub;
@@ -121,7 +122,7 @@ public class WorkOrderController : ControllerBase
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");
         var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
-        await _hub.WorkOrderUpdatedAsync(result);
+        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(result, _serializerOptions));
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 

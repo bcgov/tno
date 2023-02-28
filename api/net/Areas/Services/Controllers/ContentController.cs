@@ -43,7 +43,7 @@ public class ContentController : ControllerBase
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
-    private readonly MessageHub _hub;
+    private readonly IHubContext<MessageHub> _hub;
     private readonly ILogger _logger;
     #endregion
 
@@ -63,7 +63,7 @@ public class ContentController : ControllerBase
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IUserService userService,
-        MessageHub hub,
+        IHubContext<MessageHub> hub,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<StorageOptions> storageOptions,
@@ -172,7 +172,7 @@ public class ContentController : ControllerBase
             else
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
 
-            await _hub.ContentUpdatedAsync(content);
+            await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -215,7 +215,10 @@ public class ContentController : ControllerBase
         if (content.OwnerId.HasValue)
         {
             var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
-            await _hub.ContentUpdatedAsync(content, owner?.Username);
+            if (!String.IsNullOrWhiteSpace(owner?.Username))
+                await _hub.Clients.User(owner.Username).SendAsync("Content", new ContentMessageModel(content));
+            else
+                await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
         }
 
         return new JsonResult(new ContentModel(content));
