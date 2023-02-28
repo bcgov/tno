@@ -142,9 +142,6 @@ export const ContentListView: React.FC = () => {
   const handleRowClick = (row: TRow<IContentModel>) => {
     setContentType(row.original.contentType);
     navigate(`/contents/combined/${row.original.id}`);
-    document.getElementById('bottom-pane')?.scrollIntoView({
-      behavior: 'smooth',
-    });
   };
 
   return (
