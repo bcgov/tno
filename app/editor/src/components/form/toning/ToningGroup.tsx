@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { IContentModel } from 'hooks';
+import { IContentModel, useLookupOptions } from 'hooks';
 import React from 'react';
 import { Col, Error, Row } from 'tno-core';
 
@@ -11,7 +11,9 @@ export interface IToningGroupProps {
 
 export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
   const toningOptions = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
-  const { values, setFieldValue, touched } = useFormikContext<IContentModel>();
+  const [{ tonePools }] = useLookupOptions();
+  const defaultTonePool = tonePools.find((t) => t.name === 'Default');
+  const { values, setFieldValue, touched, errors } = useFormikContext<IContentModel>();
   const [active, setActive] = React.useState<number>();
   React.useEffect(() => {
     if (values.tonePools?.length && values.tonePools[0].value) setActive(values.tonePools[0].value);
@@ -47,8 +49,10 @@ export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
               key={option}
               onClick={() => {
                 setActive(option);
-                setFieldValue('tonePool', option);
-                setFieldValue('tone', option);
+                setFieldValue(
+                  fieldName,
+                  !!defaultTonePool ? [{ ...defaultTonePool, value: option }] : [],
+                );
               }}
             >
               {option}
@@ -56,7 +60,7 @@ export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
           </Col>
         ))}
       </Row>
-      <Error error={!active && active !== 0 && touched[fieldName] ? 'Toning is required' : ''} />
+      <Error error={!!fieldName && touched[fieldName] ? errors[fieldName] : ''} />
     </styled.ToningGroup>
   );
 };

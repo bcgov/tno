@@ -1,6 +1,5 @@
 import { IContentModel } from 'hooks/api-editor';
 import moment from 'moment';
-import { OptionItem } from 'tno-core';
 
 import { IContentForm } from '../interfaces';
 
@@ -12,7 +11,6 @@ import { IContentForm } from '../interfaces';
 export function toForm(model: IContentModel): IContentForm {
   // return form values in valid API format on submit of ContentForm
   // not utilized properly right now - update coming
-  const defaultTonePool = model.tonePools?.find((t) => t.name === 'Default');
   return {
     id: model.id,
     uid: model.uid ?? '',
@@ -40,10 +38,6 @@ export function toForm(model: IContentModel): IContentForm {
     categories: model.categories ?? [],
     tags: model.tags ?? [],
     labels: model.labels ?? [],
-    tone: defaultTonePool?.value ?? '',
-    tonePool: defaultTonePool
-      ? new OptionItem(`${defaultTonePool.value}`, defaultTonePool.value)
-      : undefined,
     tonePools: model.tonePools ?? [],
     timeTrackings: model.timeTrackings ?? [],
     fileReferences: model.fileReferences ?? [],

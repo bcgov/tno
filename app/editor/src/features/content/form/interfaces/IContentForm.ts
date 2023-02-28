@@ -11,7 +11,6 @@ import {
   ITimeTrackingModel,
   IWorkOrderModel,
 } from 'hooks/api-editor';
-import { IOptionItem } from 'tno-core';
 
 export interface IContentForm {
   id: number;
@@ -37,8 +36,6 @@ export interface IContentForm {
   categories: IContentCategoryModel[];
   tags: IContentTagModel[];
   labels: IContentLabelModel[];
-  tone: number | '';
-  tonePool?: IOptionItem;
   tonePools: IContentTonePoolModel[];
   timeTrackings: ITimeTrackingModel[];
   fileReferences: IFileReferenceModel[];
