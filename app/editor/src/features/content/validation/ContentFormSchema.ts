@@ -3,7 +3,7 @@ import { array, date, number, object, string } from 'yup';
 
 export const ContentFormSchema = object().shape(
   {
-    productId: number().required('Product is a required field.').notOneOf([0]),
+    productId: number().required('Product is required.').notOneOf([0], 'Product is required.'),
     sourceId: number().when('tempSource', {
       is: undefined,
       then: number().required('Either source or other source is required.'),
