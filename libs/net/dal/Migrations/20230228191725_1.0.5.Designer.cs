@@ -13,7 +13,7 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20230227201343_1.0.5")]
+    [Migration("20230228191725_1.0.5")]
     partial class _105
     {
         /// <inheritdoc />
@@ -2309,6 +2309,10 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Code" }, "IX_code")
+                        .IsUnique()
+                        .HasDatabaseName("IX_code1");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()

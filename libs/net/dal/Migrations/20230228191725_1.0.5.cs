@@ -38,6 +38,12 @@ namespace TNO.DAL.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "character varying(6)");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_code1",
+                table: "tag",
+                column: "code",
+                unique: true);
             PostUp(migrationBuilder);
         }
 
@@ -45,6 +51,10 @@ namespace TNO.DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             PreDown(migrationBuilder);
+            migrationBuilder.DropIndex(
+                name: "IX_code1",
+                table: "tag");
+
             migrationBuilder.DropColumn(
                 name: "code",
                 table: "tag");
@@ -57,7 +67,7 @@ namespace TNO.DAL.Migrations
                 nullable: false,
                 oldClrType: typeof(int),
                 oldType: "integer")
-                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.None);
 
             migrationBuilder.AlterColumn<string>(
                 name: "tag_id",
