@@ -40,10 +40,6 @@ export function toForm(model: IContentModel): IContentForm {
     categories: model.categories ?? [],
     tags: model.tags ?? [],
     labels: model.labels ?? [],
-    tone: defaultTonePool?.value ?? '',
-    tonePool: defaultTonePool
-      ? new OptionItem(`${defaultTonePool.value}`, defaultTonePool.value)
-      : undefined,
     tonePools: model.tonePools ?? [],
     timeTrackings: model.timeTrackings ?? [],
     fileReferences: model.fileReferences ?? [],

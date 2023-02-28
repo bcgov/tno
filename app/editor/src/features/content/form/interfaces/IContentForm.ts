@@ -37,8 +37,6 @@ export interface IContentForm {
   categories: IContentCategoryModel[];
   tags: IContentTagModel[];
   labels: IContentLabelModel[];
-  tone: number | '';
-  tonePool?: IOptionItem;
   tonePools: IContentTonePoolModel[];
   timeTrackings: ITimeTrackingModel[];
   fileReferences: IFileReferenceModel[];
