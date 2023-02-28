@@ -30,12 +30,6 @@ FROM _tag;
 
 ALTER TABLE public.tag ADD PRIMARY KEY ("id");
 
--- Adjust foreign keys to correct values
-UPDATE public.content_tag
-SET "tag_id" = _tag.new_id
-FROM _tag
-WHERE _tag.id = public.content_tag.tag_id::varchar;
-
 ALTER TABLE public.content_tag ADD CONSTRAINT "FK_content_tag_tag_tag_id" FOREIGN KEY ("tag_id") REFERENCES public.tag ("id") ON DELETE CASCADE;
 
 DROP TABLE _tag;
