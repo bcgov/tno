@@ -1,5 +1,5 @@
 import { ContentStatusName, ContentTypeName, IContentModel } from 'hooks/api-editor';
-import { FaFeather } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaFeather, FaInfoCircle } from 'react-icons/fa';
 import { Column, UseSortByColumnOptions } from 'react-table';
 import { CellCheckbox, CellDate, CellEllipsis, Show } from 'tno-core';
 import { formatIdirUsername } from 'utils/formatIdir';
@@ -11,7 +11,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     id: 'id',
     Header: 'Headline',
     accessor: 'headline',
-    width: 5,
+    width: 4,
     Cell: (cell) => (
       <CellEllipsis data-for="main-tooltip" data-tip={cell.value} className="headline">
         <Show
@@ -85,6 +85,16 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
           <CellCheckbox checked={value} />
         </div>
       );
+    },
+  },
+  {
+    id: 'newTab',
+    Header: () => <FaInfoCircle data-for="main-tooltip" data-tip="Open snippet in new tab" />,
+    disableSortBy: true,
+    width: 1,
+    accessor: (row) => row.id,
+    Cell: ({ value }: { value: number }) => {
+      return <FaExternalLinkAlt onClick={() => window.open(`/contents/${value}`, '_blank')} />;
     },
   },
 ];
