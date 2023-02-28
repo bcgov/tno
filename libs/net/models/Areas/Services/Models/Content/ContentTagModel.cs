@@ -11,7 +11,12 @@ public class ContentTagModel : AuditColumnsModel
     /// <summary>
     /// get/set - The primary key of the type model.
     /// </summary>
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
+
+    /// <summary>
+    /// get/set - Unique name to identify the entity.
+    /// </summary>
+    public string Code { get; set; }
 
     /// <summary>
     /// get/set - The unique name of the model.
@@ -29,7 +34,9 @@ public class ContentTagModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an ContentTagModel.
     /// </summary>
-    public ContentTagModel() { }
+    public ContentTagModel(string code) {
+        this.Code = code;
+     }
 
     /// <summary>
     /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
@@ -39,6 +46,7 @@ public class ContentTagModel : AuditColumnsModel
     {
         this.ContentId = entity.ContentId;
         this.Id = entity.TagId;
+        this.Code = entity.Tag?.Code ?? "";
         this.Name = entity.Tag?.Name ?? "";
     }
     #endregion

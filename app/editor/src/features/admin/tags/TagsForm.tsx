@@ -40,7 +40,7 @@ export const TagsForm: React.FC = () => {
   const { toggle, isShowing } = useModal();
 
   React.useEffect(() => {
-    if (!!id && tag?.id !== id && id !== '***') {
+    if (!!id && tag?.id !== +id && id !== '***') {
       api.getTag(id).then((data) => {
         setTag(data);
       });
@@ -75,13 +75,7 @@ export const TagsForm: React.FC = () => {
         {({ isSubmitting, values, errors }) => (
           <div className="form-container">
             <Col className="form-inputs">
-              <FormikText
-                width={FieldSize.Large}
-                name="id"
-                label="Code"
-                disabled={id !== '***'}
-                tooltip="Cannot change the tag code after it has been created"
-              />
+              <FormikText width={FieldSize.Large} name="code" label="Code" required />
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <FormikText

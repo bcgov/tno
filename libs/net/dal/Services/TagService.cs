@@ -8,7 +8,7 @@ using TNO.Entities.Models;
 
 namespace TNO.DAL.Services;
 
-public class TagService : BaseService<Tag, string>, ITagService
+public class TagService : BaseService<Tag, int>, ITagService
 {
     #region Properties
     #endregion

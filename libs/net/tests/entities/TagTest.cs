@@ -12,10 +12,10 @@ public class TagTest
     {
         // Arrange
         // Act
-        var item = new TNO.Entities.Tag("test", "test");
+        var item = new TNO.Entities.Tag(1, "test", "code");
 
         // Assert
-        Assert.Equal("test", item.Id);
+        Assert.Equal(1, item.Id);
         Assert.Equal("test", item.Name);
         Assert.Equal("", item.Description);
         Assert.True(item.IsEnabled);

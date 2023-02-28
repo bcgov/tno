@@ -85,7 +85,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
 
   // Ensure tag order does not change
   React.useEffect(() => {
-    const sortedTags = _.orderBy(values.tags, [(tag) => tag.id.toLowerCase()], ['asc']);
+    const sortedTags = _.orderBy(values.tags, [(tag) => tag.code.toLowerCase()], ['asc']);
     if (!_.isEqual(sortedTags, values.tags)) {
       setFieldValue('tags', sortedTags);
     }

@@ -24,7 +24,7 @@ public class ContentTag : AuditColumns, IEquatable<ContentTag>
     /// get/set - Primary key and foreign key to the tag.
     /// </summary>
     [Column("tag_id")]
-    public string TagId { get; set; } = "";
+    public int TagId { get; set; }
 
     /// <summary>
     /// get/set - The tag.
@@ -35,7 +35,7 @@ public class ContentTag : AuditColumns, IEquatable<ContentTag>
     #region Constructors
     protected ContentTag() { }
 
-    public ContentTag(long contentId, string tagId)
+    public ContentTag(long contentId, int tagId)
     {
         this.ContentId = contentId;
         this.TagId = tagId;

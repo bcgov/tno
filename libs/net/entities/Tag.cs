@@ -8,9 +8,15 @@ namespace TNO.Entities;
 /// </summary>
 [Cache("tags", "lookups")]
 [Table("tag")]
-public class Tag : BaseType<string>
+public class Tag : BaseType<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Unique code to identify the entity.
+    /// </summary>
+    [Column("code")]
+    public string Code { get; set; }
+    
     /// <summary>
     /// get - List of content with this tag.
     /// </summary>
@@ -23,10 +29,13 @@ public class Tag : BaseType<string>
     #endregion
 
     #region Constructors
-    protected Tag() { }
+    protected Tag(string code) { 
+        this.Code = code;
+    }
 
-    public Tag(string id, string name) : base(id, name)
+    public Tag(int id, string name, string code) : base(id, name)
     {
+        this.Code = code;
     }
     #endregion
 }
