@@ -168,7 +168,6 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddSingleton<MessageHub>();
 builder.Services.AddKafkaHubBackplane(config);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
