@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -11,14 +10,14 @@ using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
 using TNO.DAL.Services;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
 
 /// <summary>
 /// WorkOrderController class, provides WorkOrder endpoints for the api.
 /// </summary>
-// [ClientRoleAuthorize(ClientRole.Administrator)]
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("services")]
 [ApiVersion("1.0")]

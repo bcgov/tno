@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Mime;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -17,14 +16,14 @@ using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
 
 /// <summary>
 /// ContentController class, provides Content endpoints for the api.
 /// </summary>
-// [ClientRoleAuthorize(ClientRole.Administrator)]
-[Authorize]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
 [Area("services")]
 [ApiVersion("1.0")]

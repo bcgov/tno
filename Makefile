@@ -125,15 +125,26 @@ refresh: ## Stop, build, and start all containers or the one specified (args: n=
 	@make build $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 	@make up $(if $(n),n=$(n),) $(if $(p),p=$(p),)
 
+refresh-keycloak: ## Stop, build, drop DB and recreate
+	$(info Stop, build, drop DB and recreate)
+	@make stop n=keycloak
+	@./tools/scripts/docker-remove.sh keycloak
+	@./tools/scripts/refresh-keycloak.sh
+	@make build n=keycloak
+	@make up n=keycloak
+
 remove: ## Remove all containers
 	$(info Remove all containers)
 	@docker-compose rm -sv
 
 renew: ## Refresh all relevant services that were impacted by prior Pull Request.
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
+	@make refresh-keycloak
 	@make db-update
 	@make refresh n=api
-	@make refresh n=editor
+	@make refresh n=indexing
+	@make build n=content
+	@make build n=syndication
 
 ##############################################################################
 # Database Commands
