@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using TNO.API.Areas.Editor.Models.Content;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -182,13 +181,7 @@ public class ContentModel : AuditColumnsModel
         this.SourceId = entity.SourceId;
         this.OtherSource = entity.OtherSource;
         this.ProductId = entity.ProductId;
-        this.Product = new ProductModel {
-            Id = entity.ProductId,
-            Name = entity.Product!.Name,
-            Description = entity.Product.Description,
-            IsEnabled = entity.Product.IsEnabled,
-            SortOrder = entity.Product.SortOrder,
-        };
+        this.Product = new ProductModel(entity.Product);
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.OwnerId = entity.OwnerId;
