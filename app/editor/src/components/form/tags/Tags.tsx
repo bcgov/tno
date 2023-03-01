@@ -34,7 +34,7 @@ export const Tags: React.FC<ITagsProps> = ({ fieldName }) => {
         label="Tags"
         disabled
         width={combined ? FieldSize.Big : FieldSize.Large}
-        value={values.tags.map((t) => t.id).join(', ')}
+        value={values.tags.map((t) => t.code).join(', ')}
       />
       <Button
         variant={ButtonVariant.danger}
