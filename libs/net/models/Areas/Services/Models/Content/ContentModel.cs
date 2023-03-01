@@ -122,6 +122,11 @@ public class ContentModel : AuditColumnsModel
     public bool IsApproved { get; set; }
 
     /// <summary>
+    /// get/set - The product.
+    /// </summary>
+    public ProductModel? Product { get; set; } 
+
+    /// <summary>
     /// get/set - Upload files with content.
     /// </summary>
     [DataType(DataType.Upload)]
@@ -176,6 +181,7 @@ public class ContentModel : AuditColumnsModel
         this.SourceId = entity.SourceId;
         this.OtherSource = entity.OtherSource;
         this.ProductId = entity.ProductId;
+        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.OwnerId = entity.OwnerId;

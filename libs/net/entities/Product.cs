@@ -36,8 +36,8 @@ public class Product : BaseType<int>
     /// <summary>
     /// Creates a new instance of a Product object, initializes with specified parameter.
     /// </summary>
-    /// <param name="name"></param>
-    public Product(string name) : base(name)
+    /// <param name="productName"></param>
+    public Product(string productName) : base(productName)
     {
     }
     #endregion
