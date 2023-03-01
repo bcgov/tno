@@ -62,7 +62,7 @@ export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = (props) 
       <InfoPanel backgroundColor="#F5F5F5">
         <InfoText />
       </InfoPanel>
-      <InfoPanel backgroundColor="#FFFFFF" roundedEdges>
+      <InfoPanel roundedEdges>
         <LoginPanel />
       </InfoPanel>
     </styled.UnauthenticatedHome>

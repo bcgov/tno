@@ -1,6 +1,5 @@
 import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
-import { useCombinedView } from 'hooks';
 import _ from 'lodash';
 import React from 'react';
 import { Button, ButtonVariant, FieldSize, FormikText } from 'tno-core';
@@ -18,7 +17,6 @@ export interface ITagsProps {
 export const Tags: React.FC<ITagsProps> = ({ fieldName }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const tagMatch = /\[.*?\]/g;
-  const combined = useCombinedView();
 
   // Ensure tag order does not change
   React.useEffect(() => {
@@ -33,7 +31,7 @@ export const Tags: React.FC<ITagsProps> = ({ fieldName }) => {
         name="tags"
         label="Tags"
         disabled
-        width={combined ? FieldSize.Big : FieldSize.Large}
+        width={FieldSize.Medium}
         value={values.tags.map((t) => t.code).join(', ')}
       />
       <Button
@@ -44,7 +42,7 @@ export const Tags: React.FC<ITagsProps> = ({ fieldName }) => {
           setFieldValue('tags', []);
         }}
       >
-        Clear Tags
+        X
       </Button>
     </styled.Tags>
   );

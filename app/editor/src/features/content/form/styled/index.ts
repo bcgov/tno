@@ -3,4 +3,5 @@ export * from './ContentForm';
 export * from './ContentLabelsForm';
 export * from './ContentSummaryForm';
 export * from './ContentTranscriptForm';
+export * from './MediaSummary';
 export * from './TimeLogTable';

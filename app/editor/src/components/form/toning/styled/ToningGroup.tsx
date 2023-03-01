@@ -37,6 +37,7 @@ export const ToningGroup = styled(Col)`
   }
 
   label {
+    align-self: flex-start;
     font-weight: 600;
     :after {
       content: ' *';

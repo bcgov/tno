@@ -36,7 +36,7 @@ export const ToningGroup: React.FC<IToningGroupProps> = ({ fieldName }) => {
   };
 
   return (
-    <styled.ToningGroup>
+    <styled.ToningGroup className="multi-group">
       <label>Toning</label>
       <Row>
         {' '}

@@ -37,22 +37,16 @@ export const ContentSummaryForm = styled.div`
     padding: 0 0.5em 0 0.5em;
   }
 
-  .multi-section {
-    align-items: center;
-    justify-content: space-evenly;
-  }
-
   .video {
     align-self: center;
     max-width: fit-content;
   }
 
   .media {
-    margin-top: 5%;
+    margin-top: 1%;
     align-items: center;
     justify-content: center;
-    padding-left: 0.5em;
-    height: fit-content;
+    padding-right: 0.5em;
   }
 
   .toning {

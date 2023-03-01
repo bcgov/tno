@@ -25,17 +25,15 @@ export const ContentFormSchema = object().shape(
     }),
     // TODO: Headline should not be empty.
     headline: string().required('Headline is a required field.'),
-    tonePools: array().when('contentType', {
-      is: (value: ContentTypeName) => value !== ContentTypeName.Image,
-      then: array().min(1, 'Tone is a required field.'),
-    }),
+    tonePools: array().min(1, 'Tone is a required field.'),
     // TODO: validation for print content.
     section: string().when('contentType', {
       is: (value: ContentTypeName) => value === ContentTypeName.PrintContent,
       then: string().trim().required('Section is a required field.'),
     }),
     byline: string().when('contentType', {
-      is: (value: ContentTypeName) => value === ContentTypeName.PrintContent,
+      is: (value: ContentTypeName) =>
+        value === ContentTypeName.PrintContent || value === ContentTypeName.Image,
       then: string().trim().required('Byline is a required field.'),
     }),
   },
