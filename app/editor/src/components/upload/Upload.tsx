@@ -47,7 +47,6 @@ export const Upload: React.FC<IUploadProps> = ({
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [file, setFile] = React.useState<IFile>();
   const fileName = generateName(file) ?? generateName(initFile);
-  console.error(contentType === ContentTypeName.Snippet, 'contentType');
   React.useEffect(() => {
     if (!!initFile) {
       setFile(undefined);
