@@ -17,7 +17,7 @@ export const CreateNewSection: React.FC = () => {
         <Col className="create-new">
           <Row>
             <FaFileAudio
-              data-tip="Snippet"
+              data-tip="Radio/TV"
               data-for="main-tooltip"
               onClick={() => navigate('/snippets/0')}
               className="action-button"
@@ -45,7 +45,7 @@ export const CreateNewSection: React.FC = () => {
           </Row>
         </Col>
       }
-      label="CREATE NEW"
+      label="CREATE SNIPPET"
       icon={<GiFairyWand />}
     />
   );

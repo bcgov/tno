@@ -4,7 +4,6 @@ import { IWysiwygProps } from '../Wysiwyg';
 
 export const Wysiwyg = styled.div<IWysiwygProps>`
   margin-bottom: 1rem;
-  margin-top: 1rem;
   width: 100%;
 
   label {
