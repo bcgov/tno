@@ -1,0 +1,168 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  annotations:
+    description: Run the elastic migration.
+  name: elastic-migration
+  namespace: 9b301c-tools
+spec:
+  params:
+    - default: dev
+      description: The git revision reference to build.
+      name: GIT_REF
+      type: string
+    - default: tno
+      description: The root path to the git repo.
+      name: CONTEXT
+      type: string
+    - default: latest
+      description: The tag given to the built images. Use this to create versioned images.
+      name: IMAGE_TAG
+      type: string
+    - default: 9b301c
+      description: >-
+        The project namespace shortname. The part before the "-" (i.e.
+        9b301c-dev = 9b301c).
+      name: PROJECT_SHORTNAME
+      type: string
+    - default: dev
+      description: >-
+        Identify the environment to deploy the solution to
+        [dev,test,prod,tools].
+      name: DEPLOY_TO
+      type: string
+  workspaces:
+    - description: |
+        Git repo source code.
+      name: source
+    - description: |
+        Pipeline configuration file.
+      name: conditions
+    - name: build
+      description: |
+        Pipeline build volume
+
+  tasks:
+    - name: wait
+      params:
+        - name: PIPELINE_NAME
+          value: $(context.pipelineRun.name)
+      taskRef:
+        kind: Task
+        name: pipeline-wait
+    - name: git
+      params:
+        - name: GIT_REF
+          value: $(params.GIT_REF)
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+      runAfter:
+        - wait
+      taskRef:
+        kind: Task
+        name: git-conditions
+      workspaces:
+        - name: source
+          workspace: source
+        - name: output
+          workspace: conditions
+
+    - name: build-elastic-migration
+      params:
+        - name: COMPONENT
+          value: elastic-migration
+        - name: CONTEXT
+          value: $(params.CONTEXT)
+        - name: IMAGE
+          value: elastic-migration
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+      runAfter:
+        - git
+      taskRef:
+        kind: Task
+        name: build-component
+      workspaces:
+        - name: source
+          workspace: source
+        - name: conditions
+          workspace: conditions
+        - name: build
+          workspace: build
+
+    - name: maintenance-on-editor
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: editor
+        - name: SERVICE
+          value: nginx
+      runAfter:
+        - build-elastic-migration
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: maintenance-on-subscriber
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: nginx
+      runAfter:
+        - build-elastic-migration
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: elastic-migration
+      params:
+        - name: DB_SECRET_NAME
+          value: crunchy-pguser-admin
+        - name: ELASTIC_SECRET_NAME
+          value: elastic
+        - name: API_NAME
+          value: api
+        - name: IMAGE
+          value: elastic-migration
+        - name: IMAGE_TAG
+          value: $(params.IMAGE_TAG)
+        - name: DEPLOY_TO
+          value: $(params.DEPLOY_TO)
+      runAfter:
+        - maintenance-on-editor
+        - maintenance-on-subscriber
+      taskRef:
+        kind: Task
+        name: elastic-migration
+
+    - name: maintenance-off-editor
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: editor
+        - name: SERVICE
+          value: editor
+      runAfter:
+        - elastic-migration
+      taskRef:
+        kind: Task
+        name: oc-patch-route
+
+    - name: maintenance-off-subscriber
+      params:
+        - name: PROJECT
+          value: $(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        - name: ROUTE
+          value: subscriber
+        - name: SERVICE
+          value: subscriber
+      runAfter:
+        - elastic-migration
+      taskRef:
+        kind: Task
+        name: oc-patch-route

@@ -1,0 +1,7 @@
+{
+  "action": "createAlias",
+  "settings": {
+    "indexName": "unpublished_content_v1.0.1",
+    "aliasName": "unpublished_content"
+  }
+}

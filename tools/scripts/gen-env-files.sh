@@ -198,7 +198,7 @@ ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;
 DB_POSTGRES_USERNAME=$dbUser
 DB_POSTGRES_PASSWORD=$password
 
-ELASTIC_URIS=host.docker.internal:$portElastic
+Elastic__Url=host.docker.internal:$portElastic
 ELASTIC_USERNAME=$elasticUser
 ELASTIC_PASSWORD=$password
 
@@ -641,4 +641,28 @@ Service__ApiUrl=http://host.docker.internal:$portApi/api
 
 Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/filecopy/.env
     echo "./services/net/filecopy/.env created"
+fi
+
+
+###########################################################################
+# .NET Tools
+###########################################################################
+
+## Elastic Migration Tool
+if test -f "./tools/elastic/migration/.env"; then
+    echo "./tools/elastic/migration/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+
+ConnectionStrings__TNO=Host=host.docker.internal:$portDatabase;Database=$dbName;Include Error Detail=true;Log Parameters=true;
+
+DB_POSTGRES_USERNAME=$dbUser
+DB_POSTGRES_PASSWORD=$password
+
+ELASTIC_USERNAME=$elasticUser
+ELASTIC_PASSWORD=$password
+Elastic__Url=http://host.docker.internal:$portElastic
+# Elastic__MigrationVersion=1.0.1" >> ./tools/elastic/migration/.env
+    echo "./tools/elastic/migration/.env created"
 fi

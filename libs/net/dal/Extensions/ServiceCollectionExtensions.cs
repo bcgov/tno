@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Nest;
 using Npgsql;
 using TNO.DAL.Config;
+using TNO.DAL.Elasticsearch;
 using TNO.DAL.Services;
 
 namespace TNO.DAL;
@@ -24,7 +26,7 @@ public static class ServiceCollectionExtensions
     /// <param name="env"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public static IServiceCollection AddTNOContext(this IServiceCollection services, string connectionString, IWebHostEnvironment env)
+    public static IServiceCollection AddTNOContext(this IServiceCollection services, string connectionString, IHostEnvironment env)
     {
         if (String.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(connectionString));
 
@@ -38,10 +40,17 @@ public static class ServiceCollectionExtensions
             options.EnableDetailedErrors(env.IsDevelopment());
             if (env.IsDevelopment())
             {
-                var debugLoggerFactory = LoggerFactory.Create(builder => { builder.AddConsole().AddDebug(); });
+                var debugLoggerFactory = LoggerFactory
+                    .Create(builder =>
+                    {
+                        builder
+                            .AddConsole()
+                            .AddDebug();
+                    });
                 db.UseLoggerFactory(debugLoggerFactory);
             }
-        });
+        })
+            .AddSingleton<IElasticClient, TNOElasticClient>();
 
         return services;
     }
@@ -53,7 +62,7 @@ public static class ServiceCollectionExtensions
     /// <param name="config"></param>
     /// <param name="env"></param>
     /// <returns></returns>
-    public static IServiceCollection AddTNOContext(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env)
+    public static IServiceCollection AddTNOContext(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
         var postgresBuilder = new NpgsqlConnectionStringBuilder(config["ConnectionStrings:TNO"])
         {
@@ -72,11 +81,13 @@ public static class ServiceCollectionExtensions
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    public static IServiceCollection AddTNOServices(this IServiceCollection services, IConfiguration config, IWebHostEnvironment env)
+    public static IServiceCollection AddTNOServices(this IServiceCollection services, IConfiguration config, IHostEnvironment env)
     {
         if (config == null) throw new ArgumentNullException(nameof(config));
 
-        services.AddTNOContext(config, env);
+        services.AddTNOContext(config, env)
+            .AddStorageConfig(config)
+            .AddElasticConfig(config);
 
         // Find all the configuration classes.
         var assembly = typeof(BaseService).Assembly;
@@ -103,6 +114,24 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<StorageOptions>>().Value);
         services.AddOptions<StorageOptions>()
             .Bind(config.GetSection("Storage"))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Add the elastic configuration to the service collection.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="config"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddElasticConfig(this IServiceCollection services, IConfiguration config)
+    {
+        services.Configure<ElasticOptions>(config.GetSection("Elastic"));
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<ElasticOptions>>().Value);
+        services.AddOptions<ElasticOptions>()
+            .Bind(config.GetSection("Elastic"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
