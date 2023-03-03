@@ -248,19 +248,13 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           >
             <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
             <Row>
-              <Tags fieldName="summary" />
+              <Tags />
               <ToningGroup fieldName="tonePools" />
             </Row>
           </Show>
         </Col>
       </Row>
       <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
-        <Show visible={contentType !== ContentTypeName.Image}>
-          <div className="multi-group">
-            <ToningGroup fieldName="tonePools" />
-          </div>
-        </Show>
-        <Tags />
         <Show visible={contentType === ContentTypeName.Snippet}>
           <Row className="multi-group">
             <TimeLogSection

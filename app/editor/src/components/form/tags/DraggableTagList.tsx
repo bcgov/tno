@@ -22,7 +22,7 @@ export const DraggableTagList: React.FC<IDraggableTagListProps> = ({ showList, s
     <Draggable>
       <div>
         <Show visible={showList}>
-          <Col className="tag-list">
+          <Col className="tag-list" id="tag-list">
             <Row className="tag-list-header">
               <h2>Available Tags</h2>
               <h2 className="close" onClick={() => setShowList(false)}>

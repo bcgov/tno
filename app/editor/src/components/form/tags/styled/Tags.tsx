@@ -3,6 +3,7 @@ import { Row } from 'tno-core';
 
 export const Tags = styled(Row)`
   align-items: center;
+  position: relative;
   label {
     font-weight: bold;
   }
@@ -13,7 +14,7 @@ export const Tags = styled(Row)`
     z-index: 999;
     position: absolute;
     left: 80%;
-    bottom: 5%;
+    bottom: 10%;
   }
   .tags-icon {
     color: ${(props) => props.theme.css.lightVariantColor};

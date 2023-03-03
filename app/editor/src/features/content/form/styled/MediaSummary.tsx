@@ -9,7 +9,7 @@ export const MediaSummary = styled(Row)`
     height: 0.05em;
   }
   .summary {
-    width: 60%;
+    width: 65%;
     .ql-editor {
       min-height: 18rem;
     }

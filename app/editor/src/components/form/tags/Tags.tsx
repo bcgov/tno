@@ -20,6 +20,13 @@ export const Tags: React.FC<ITagsProps> = ({}) => {
   const [{ tags }] = useLookup();
   const [showList, setShowList] = React.useState(false);
 
+  /** ensure table is in view depending on where user has scrolled to. */
+  React.useEffect(() => {
+    if (document.getElementById('tag-list')) {
+      document.getElementById('tag-list')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [showList]);
+
   /** convert tags to IOptionItem format */
   const tagOptions: IOptionItem[] = tags.map((tag) => {
     return {
@@ -55,7 +62,11 @@ export const Tags: React.FC<ITagsProps> = ({}) => {
               setFieldValue('tags', convertTags(selectedTags as IOptionItem[]));
             }}
           />
-          <Button onClick={() => setShowList(!showList)}>
+          <Button
+            onClick={() => {
+              setShowList(!showList);
+            }}
+          >
             <FaListAlt />
             SHOW LIST
           </Button>
