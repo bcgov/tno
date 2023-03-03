@@ -164,7 +164,7 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
                   const tags = extractTags(tagValues);
                   if (!_.isEqual(tags, values.tags))
                     setFieldValue('tags', values.tags?.concat(tags));
-                  setFieldValue(fieldName, values.summary.replace(tagMatch, ''));
+                  setFieldValue(fieldName, value.replace(tagMatch, ''));
                 }
               }
             }}
