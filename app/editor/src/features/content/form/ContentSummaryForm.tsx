@@ -60,7 +60,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [{ series, categories, users }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
-
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
@@ -82,14 +81,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
   }, [values.timeTrackings]);
-
-  // Ensure tag order does not change
-  React.useEffect(() => {
-    const sortedTags = _.orderBy(values.tags, [(tag) => tag.code.toLowerCase()], ['asc']);
-    if (!_.isEqual(sortedTags, values.tags)) {
-      setFieldValue('tags', sortedTags);
-    }
-  }, [setFieldValue, values.tags]);
 
   React.useEffect(() => {
     setFieldValue(
@@ -264,6 +255,12 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
         </Col>
       </Row>
       <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
+        <Show visible={contentType !== ContentTypeName.Image}>
+          <div className="multi-group">
+            <ToningGroup fieldName="tonePools" />
+          </div>
+        </Show>
+        <Tags />
         <Show visible={contentType === ContentTypeName.Snippet}>
           <Row className="multi-group">
             <TimeLogSection

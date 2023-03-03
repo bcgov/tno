@@ -2,48 +2,65 @@ import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import _ from 'lodash';
 import React from 'react';
-import { Button, ButtonVariant, FieldSize, FormikText } from 'tno-core';
+import { FaListAlt, FaTags } from 'react-icons/fa';
+import { useLookup } from 'store/hooks';
+import { Button, Col, FieldSize, IOptionItem, Row, Select, Show } from 'tno-core';
 
+import { DraggableTagList } from './DraggableTagList';
 import * as styled from './styled';
 
-export interface ITagsProps {
-  fieldName: string;
-}
+export interface ITagsProps {}
 
 /**
  * The component that renders tags for a given text field
  * @returns the Tags component
  */
-export const Tags: React.FC<ITagsProps> = ({ fieldName }) => {
+export const Tags: React.FC<ITagsProps> = ({}) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const tagMatch = /\[.*?\]/g;
+  const [{ tags }] = useLookup();
+  const [showList, setShowList] = React.useState(false);
 
-  // Ensure tag order does not change
-  React.useEffect(() => {
-    const sortedTags = _.orderBy(values.tags, [(tag) => tag.code.toLowerCase()], ['asc']);
-    if (!_.isEqual(sortedTags, values.tags)) {
-      setFieldValue('tags', sortedTags);
-    }
-  }, [setFieldValue, values.tags]);
+  /** convert tags to IOptionItem format */
+  const tagOptions: IOptionItem[] = tags.map((tag) => {
+    return {
+      label: tag.code,
+      value: tag.id,
+    } as IOptionItem;
+  });
+
+  /** prepare tags to proper format for the API */
+  const convertTags = (selectedTags: IOptionItem[]) => {
+    return tags
+      .filter((tag) => selectedTags.some((t: IOptionItem) => t.value === tag.id))
+      .map((tag) => tag);
+  };
   return (
     <styled.Tags className="multi-group">
-      <FormikText
-        name="tags"
-        label="Tags"
-        disabled
-        width={FieldSize.Medium}
-        value={values.tags.map((t) => t.code).join(', ')}
-      />
-      <Button
-        variant={ButtonVariant.danger}
-        className="clear-tags"
-        onClick={() => {
-          setFieldValue(fieldName, values.summary.replace(tagMatch, ''));
-          setFieldValue('tags', []);
-        }}
-      >
-        X
-      </Button>
+      <DraggableTagList showList={showList} setShowList={setShowList} />
+      <Col>
+        <Row>
+          <label>Tags</label>
+        </Row>
+        <Row>
+          <FaTags className="tags-icon" />
+          <Select
+            isMulti
+            width={FieldSize.Big}
+            name="tags"
+            options={tagOptions}
+            value={tagOptions.filter((option) =>
+              values.tags.find((tag) => tag.id === option.value),
+            )}
+            onChange={(selectedTags) => {
+              setFieldValue('tags', convertTags(selectedTags as IOptionItem[]));
+            }}
+          />
+          <Button onClick={() => setShowList(!showList)}>
+            <FaListAlt />
+            SHOW LIST
+          </Button>
+        </Row>
+      </Col>
     </styled.Tags>
   );
 };

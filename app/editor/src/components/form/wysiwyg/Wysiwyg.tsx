@@ -162,7 +162,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
                   const stringValue = value.match(tagMatch)?.pop()?.toString().slice(1, -1);
                   const tagValues = stringValue?.split(', ') ?? [];
                   const tags = extractTags(tagValues);
-                  if (!_.isEqual(tags, values.tags)) setFieldValue('tags', tags);
+                  if (!_.isEqual(tags, values.tags))
+                    setFieldValue('tags', values.tags?.concat(tags));
+                  setFieldValue(fieldName, values.summary.replace(tagMatch, ''));
                 }
               }
             }}
