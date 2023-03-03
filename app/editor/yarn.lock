@@ -10160,7 +10160,7 @@ __metadata:
     react-datepicker: 4.10.0
     react-dom: 18.2.0
     react-drag-drop-files: 2.3.9
-    react-draggable: ^4.4.5
+    react-draggable: 4.4.5
     react-error-boundary: 3.1.4
     react-icons: 4.7.1
     react-quill: 2.0.0
@@ -12161,7 +12161,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-draggable@npm:^4.4.5":
+"react-draggable@npm:4.4.5":
   version: 4.4.5
   resolution: "react-draggable@npm:4.4.5"
   dependencies:
