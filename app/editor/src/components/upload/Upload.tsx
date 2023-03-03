@@ -1,16 +1,16 @@
 import { Modal } from 'components/modal';
+import { IContentForm } from 'features/content/form/interfaces';
+import { useFormikContext } from 'formik';
+import { ContentTypeName } from 'hooks';
 import { useModal } from 'hooks/modal';
 import React, { ButtonHTMLAttributes } from 'react';
-import { Button, ButtonVariant, Col, Show } from 'tno-core';
+import { FileUploader } from 'react-drag-drop-files';
+import { FaTrash, FaUpload } from 'react-icons/fa';
+import { Button, ButtonVariant, Col, Row, Show } from 'tno-core';
 
 import { IFile } from '.';
 import * as styled from './styled';
 import { generateName } from './utils';
-
-const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-  window.HTMLInputElement.prototype,
-  'value',
-)?.set;
 
 export interface IUploadProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect' | 'value'> {
@@ -20,6 +20,8 @@ export interface IUploadProps
   file?: IFile;
   verifyDelete?: boolean;
   downloadable?: boolean;
+  stream: any;
+  contentType?: ContentTypeName;
 }
 
 /**
@@ -37,18 +39,14 @@ export const Upload: React.FC<IUploadProps> = ({
   onSelect,
   onDownload,
   onDelete,
+  contentType,
+  stream,
   ...rest
 }) => {
   const { isShowing, toggle } = useModal();
-  const fileRef = React.useRef<HTMLInputElement>(null);
-
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [file, setFile] = React.useState<IFile>();
-
-  /** Duration / metadata WIP */
-  // const [duration, setDuration] = useState(0);
-  const reader = new FileReader();
   const fileName = generateName(file) ?? generateName(initFile);
-
   React.useEffect(() => {
     if (!!initFile) {
       setFile(undefined);
@@ -56,69 +54,77 @@ export const Upload: React.FC<IUploadProps> = ({
   }, [initFile]);
 
   const handleDelete = () => {
-    if (!!fileRef.current) {
-      nativeInputValueSetter?.call(fileRef.current, '');
-      const event = new Event('change', { bubbles: true });
-      fileRef.current.dispatchEvent(event);
+    if (!!file || values.fileReferences.length > 0) {
+      setFile(undefined);
+      setFieldValue('fileReferences', []);
+      setFieldValue('file', undefined);
       onDelete?.();
     }
-    setFile(undefined);
   };
 
   return (
     <styled.Upload className={className ?? ''}>
-      <Button
-        variant={ButtonVariant.secondary}
-        {...rest}
-        onClick={(e) => {
-          onClick?.(e);
-          if (!onClick) fileRef.current?.click();
-        }}
-      >
-        Attach File
-      </Button>
-      <input
-        id={id}
-        type="file"
-        name={name}
-        ref={fileRef}
-        hidden
-        onChange={(e) => {
-          onSelect?.(e);
-          const files = e?.target?.files ?? [];
-          if (files.length) {
-            const file = files[0];
-            setFile(file);
-            reader.readAsDataURL(file);
-            var media = new Audio(reader.result as any);
-            media.onloadedmetadata = function () {
-              // setDuration(media.duration);
-            };
-          }
-        }}
-      />
-      <Col className="file">
-        <Show visible={!!fileName}>
+      <Col>
+        <div className="file-action">
           <Button
             variant={ButtonVariant.link}
             onClick={() => onDownload?.()}
-            disabled={!onDownload || !!file || !downloadable}
+            disabled={!onDownload || !!file || !downloadable || !fileName}
+            className="file-name"
+            tooltip={`Download ${!!fileName ? fileName : 'not available'}`}
           >
-            {fileName}
+            {fileName ?? 'No file attached'}
           </Button>
+          <Button
+            disabled={!fileName}
+            variant={ButtonVariant.danger}
+            className="delete"
+            onClick={() => {
+              if (verifyDelete) toggle();
+              else handleDelete();
+            }}
+          >
+            <FaTrash className="indicator" /> Remove file
+          </Button>
+        </div>
+
+        <Show visible={!stream}>
+          <Row className="drop-box">
+            <FileUploader
+              children={
+                <div className="upload-box">
+                  <Col className="body">
+                    <FaUpload className="upload-image" />
+                    <Row className="text">Drag and drop file here</Row>
+                    <Row className="text">OR</Row>
+                    <Row className="text">
+                      <Button>Browse Files</Button>
+                    </Row>
+                  </Col>
+                </div>
+              }
+              handleChange={(e: any) => {
+                onSelect?.(e);
+                const file = e as IFile;
+                if (!!file) {
+                  setFile(file);
+                }
+              }}
+            />
+          </Row>
+        </Show>
+        <Show visible={!!stream && contentType === ContentTypeName.Image}>
+          <Col>
+            <img height="400" width="500" alt="" className="object-fit" src={stream?.url}></img>
+          </Col>
+        </Show>
+
+        <Show visible={!!stream && contentType === ContentTypeName.Snippet}>
+          <video height="400" width="500" src={stream?.url} controls>
+            HTML5 Video is required for this example
+          </video>
         </Show>
       </Col>
-      <Show visible={!!fileName}>
-        <Button
-          variant={ButtonVariant.danger}
-          onClick={() => {
-            if (verifyDelete) toggle();
-            else handleDelete();
-          }}
-        >
-          Remove File
-        </Button>
-      </Show>
       {/* Modal to appear when removing a file */}
       <Modal
         isShowing={isShowing}

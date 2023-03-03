@@ -10159,6 +10159,7 @@ __metadata:
     react: 18.2.0
     react-datepicker: 4.10.0
     react-dom: 18.2.0
+    react-drag-drop-files: 2.3.9
     react-error-boundary: 3.1.4
     react-icons: 4.7.1
     react-quill: 2.0.0
@@ -12146,6 +12147,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-drag-drop-files@npm:2.3.9":
+  version: 2.3.9
+  resolution: "react-drag-drop-files@npm:2.3.9"
+  dependencies:
+    prop-types: ^15.7.2
+    styled-components: ^5.3.0
+  peerDependencies:
+    react: ^18.0.0
+    react-dom: ^18.0.0
+  checksum: 7831b91e4a93cdd7d66ffa1f85702076d51f0c566386019c10816704e0e39eaeb7b8ef028e63f050490912d60aa99ab4a9bddfff200048ea4b96ddf4987869b9
+  languageName: node
+  linkType: hard
+
 "react-error-boundary@npm:3.1.4":
   version: 3.1.4
   resolution: "react-error-boundary@npm:3.1.4"
@@ -13724,7 +13738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"styled-components@npm:5.3.6, styled-components@npm:^5.3.6":
+"styled-components@npm:5.3.6, styled-components@npm:^5.3.0, styled-components@npm:^5.3.6":
   version: 5.3.6
   resolution: "styled-components@npm:5.3.6"
   dependencies:

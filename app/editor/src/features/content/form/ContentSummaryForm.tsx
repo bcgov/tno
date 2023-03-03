@@ -5,7 +5,7 @@ import { Tags } from 'components/form/tags';
 import { TimeLogSection } from 'components/form/time-log/TimeLogSection';
 import { ToningGroup } from 'components/form/toning/ToningGroup';
 import { Modal } from 'components/modal/Modal';
-import { IFile, Upload } from 'components/upload';
+import { IFile } from 'components/upload';
 import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
@@ -13,7 +13,7 @@ import { useModal } from 'hooks/modal';
 import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useLookup } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
@@ -33,6 +33,7 @@ import {
 import { getSortableOptions } from 'utils';
 
 import { IContentForm } from './interfaces';
+import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
 import { getTotalTime } from './utils';
@@ -59,7 +60,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [{ series, categories, users }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
-  const [, { download }] = useContent();
 
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
@@ -126,12 +126,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
     }
   }, [stream, videoRef]);
 
-  const setMedia = () => {
-    setStream(
-      !!stream ? undefined : { url: `/api/editor/contents/stream?path=${path}`, type: 'video/mp4' },
-    );
-  };
-
   return (
     <styled.ContentSummaryForm className="content-properties">
       <Row>
@@ -171,27 +165,27 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Row>
           </Show>
           <Row alignContent="flex-start" alignItems="flex-start">
-            <FormikDatePicker
-              name="publishedOn"
-              label="Published On"
-              required
-              autoComplete="false"
-              width={FieldSize.Medium}
-              selectedDate={
-                !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
-              }
-              value={!!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
-              onChange={(date) => {
-                if (!!values.publishedOnTime) {
-                  const hours = values.publishedOnTime?.split(':');
-                  if (!!hours && !!date) {
-                    date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
-                  }
-                }
-                setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
-              }}
-            />
             <Show visible={contentType !== ContentTypeName.Image}>
+              <FormikDatePicker
+                name="publishedOn"
+                label="Published On"
+                required
+                autoComplete="false"
+                width={FieldSize.Medium}
+                selectedDate={
+                  !!values.publishedOn ? moment(values.publishedOn).toString() : undefined
+                }
+                value={!!values.publishedOn ? moment(values.publishedOn).format('MMM D, yyyy') : ''}
+                onChange={(date) => {
+                  if (!!values.publishedOnTime) {
+                    const hours = values.publishedOnTime?.split(':');
+                    if (!!hours && !!date) {
+                      date.setHours(Number(hours[0]), Number(hours[1]), Number(hours[2]));
+                    }
+                  }
+                  setFieldValue('publishedOn', moment(date).format('MMM D, yyyy HH:mm:ss'));
+                }}
+              />
               <TimeInput
                 name="publishedOnTime"
                 label="Time"
@@ -242,59 +236,34 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Col>
         </Show>
       </Row>
+      <Show
+        visible={contentType === ContentTypeName.Image || contentType === ContentTypeName.Snippet}
+      >
+        <MediaSummary
+          file={file}
+          fileReference={fileReference}
+          setStream={setStream}
+          stream={stream}
+          contentType={contentType}
+          setShowExpandModal={setShowExpandModal}
+        />
+      </Show>
       <Row>
         <Col flex="1 1 0">
-          <Show
-            visible={
-              contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image
-            }
-          >
-            <Wysiwyg
-              label="Summary"
-              required
-              fieldName="summary"
-              expandModal={setShowExpandModal}
-            />
-          </Show>
           <Show
             visible={
               contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
             }
           >
             <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
+            <Row>
+              <Tags fieldName="summary" />
+              <ToningGroup fieldName="tonePools" />
+            </Row>
           </Show>
         </Col>
-        <Show visible={!!file}>
-          <Col className="media" flex="1 1 0">
-            <Show visible={contentType === ContentTypeName.Image && !!stream}>
-              <Col>
-                <img height="360" width="640" alt="" className="object-fit" src={stream?.url}></img>
-              </Col>
-            </Show>
-            <Show visible={contentType !== ContentTypeName.Image}>
-              <Col className="video" alignItems="stretch">
-                <video
-                  height="360"
-                  width="640"
-                  ref={videoRef}
-                  className={!stream ? 'hidden' : ''}
-                  controls
-                >
-                  HTML5 Video is required for this example
-                </video>
-              </Col>
-            </Show>
-          </Col>
-        </Show>
       </Row>
       <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
-        <Show visible={contentType !== ContentTypeName.Image}>
-          <div className="multi-group">
-            <ToningGroup fieldName="tonePools" />
-          </div>
-        </Show>
-        <Tags fieldName="summary" />
-
         <Show visible={contentType === ContentTypeName.Snippet}>
           <Row className="multi-group">
             <TimeLogSection
@@ -345,47 +314,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Row>
         </Show>
       </Row>
-      <Row className="row-margins"></Row>
-      <Show
-        visible={contentType === ContentTypeName.Snippet || contentType === ContentTypeName.Image}
-      >
-        <Row className="row-margins">
-          <Upload
-            id="upload"
-            name="file"
-            file={file}
-            downloadable={fileReference?.isUploaded}
-            onSelect={(e) => {
-              const file = !!e.target?.files?.length ? e.target.files[0] : undefined;
-              setFieldValue('file', file);
-              // Remove file reference.
-              setFieldValue('fileReferences', []);
-            }}
-            onDownload={() => {
-              download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
-            }}
-            onDelete={() => {
-              setStream(undefined);
-              if (!!videoRef.current) {
-                videoRef.current.src = '';
-              }
-            }}
-          />
-          <Show
-            visible={(fileReference?.isUploaded && contentType !== ContentTypeName.Image) ?? false}
-          >
-            <Button
-              onClick={() => {
-                setMedia();
-              }}
-              variant={ButtonVariant.secondary}
-              className={!file ? 'hidden' : 'show-player'}
-            >
-              {!!stream ? 'Hide Player' : 'Show Player'}
-            </Button>
-          </Show>
-        </Row>
-      </Show>
     </styled.ContentSummaryForm>
   );
 };

@@ -58,6 +58,7 @@ import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentSummaryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
+import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
 import { getContentPath, toForm, toModel, triggerFormikValidate } from './utils';
@@ -428,67 +429,83 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                             label="Headline"
                             value={props.values.headline}
                           />
+                          {/* Image form layout */}
+                          <Show visible={contentType === ContentTypeName.Image}>
+                            <ImageSection
+                              sourceOptions={sourceOptions}
+                              sources={sources}
+                              productOptions={productOptions}
+                            />
+                          </Show>
                         </Col>
                         <Col>
-                          <Row>
-                            <FormikSelect
-                              name="sourceId"
-                              label="Source"
-                              width={FieldSize.Big}
-                              value={
-                                sourceOptions.find((mt) => mt.value === props.values.sourceId) ?? ''
-                              }
-                              onChange={(newValue: any) => {
-                                if (!!newValue) {
-                                  const source = sources.find((ds) => ds.id === newValue.value);
-                                  props.setFieldValue('sourceId', newValue.value);
-                                  props.setFieldValue('otherSource', source?.code ?? '');
-                                  if (!!source?.licenseId)
-                                    props.setFieldValue('licenseId', source.licenseId);
-                                  if (!!source?.productId)
-                                    props.setFieldValue('productId', source.productId);
+                          <Show visible={contentType === ContentTypeName.Image}>
+                            <FormikText name="byline" label="Byline" required />
+                          </Show>
+                          {/* Snippet form */}
+                          <Show visible={contentType !== ContentTypeName.Image}>
+                            <Row>
+                              <FormikSelect
+                                name="sourceId"
+                                label="Source"
+                                width={FieldSize.Big}
+                                value={
+                                  sourceOptions.find((mt) => mt.value === props.values.sourceId) ??
+                                  ''
                                 }
-                              }}
-                              options={filterEnabled(sourceOptions, props.values.sourceId).filter(
-                                (x) =>
-                                  contentType !== ContentTypeName.Image ||
-                                  x.label.includes('(TC)') ||
-                                  x.label.includes('(PROVINCE)') ||
-                                  x.label.includes('(GLOBE)') ||
-                                  x.label.includes('(POST)') ||
-                                  x.label.includes('(SUN)'),
-                              )}
-                              required={
-                                !props.values.otherSource || props.values.otherSource !== ''
-                              }
-                              isDisabled={!!props.values.tempSource}
-                            />
-                            <FormikSelect
-                              name="productId"
-                              value={
-                                productOptions.find((mt) => mt.value === props.values.productId) ??
-                                ''
-                              }
-                              label="Product"
-                              width={FieldSize.Small}
-                              options={productOptions}
-                              required
-                            />
-                            <FormikHidden name="otherSource" />
-                            <FormikText
-                              name="tempSource"
-                              label="Other Source"
-                              onChange={(e) => {
-                                const value = e.currentTarget.value;
-                                props.setFieldValue('tempSource', value);
-                                props.setFieldValue('otherSource', value);
-                                if (!!value) {
-                                  props.setFieldValue('sourceId', undefined);
+                                onChange={(newValue: any) => {
+                                  if (!!newValue) {
+                                    const source = sources.find((ds) => ds.id === newValue.value);
+                                    props.setFieldValue('sourceId', newValue.value);
+                                    props.setFieldValue('otherSource', source?.code ?? '');
+                                    if (!!source?.licenseId)
+                                      props.setFieldValue('licenseId', source.licenseId);
+                                    if (!!source?.productId)
+                                      props.setFieldValue('productId', source.productId);
+                                  }
+                                }}
+                                options={filterEnabled(sourceOptions, props.values.sourceId).filter(
+                                  (x) =>
+                                    contentType !== ContentTypeName.Image ||
+                                    x.label.includes('(TC)') ||
+                                    x.label.includes('(PROVINCE)') ||
+                                    x.label.includes('(GLOBE)') ||
+                                    x.label.includes('(POST)') ||
+                                    x.label.includes('(SUN)'),
+                                )}
+                                required={
+                                  !props.values.otherSource || props.values.otherSource !== ''
                                 }
-                              }}
-                              required={!!props.values.tempSource}
-                            />
-                          </Row>
+                                isDisabled={!!props.values.tempSource}
+                              />
+                              <FormikSelect
+                                name="productId"
+                                value={
+                                  productOptions.find(
+                                    (mt) => mt.value === props.values.productId,
+                                  ) ?? ''
+                                }
+                                label="Product"
+                                width={FieldSize.Small}
+                                options={productOptions}
+                                required
+                              />
+                              <FormikHidden name="otherSource" />
+                              <FormikText
+                                name="tempSource"
+                                label="Other Source"
+                                onChange={(e) => {
+                                  const value = e.currentTarget.value;
+                                  props.setFieldValue('tempSource', value);
+                                  props.setFieldValue('otherSource', value);
+                                  if (!!value) {
+                                    props.setFieldValue('sourceId', undefined);
+                                  }
+                                }}
+                                required={!!props.values.tempSource}
+                              />
+                            </Row>
+                          </Show>
                         </Col>
                       </Row>
                       <Row>
@@ -555,8 +572,23 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     </Col>
                   </Show>
                 </Row>
-                <Row>
-                  <Show visible={contentType !== ContentTypeName.PrintContent}>
+                <Row flex="1 1 100%" wrap="nowrap">
+                  <Show visible={contentType === ContentTypeName.Image}>
+                    <ContentSummaryForm
+                      content={form}
+                      setContent={setForm}
+                      contentType={ContentTypeName.Image}
+                      savePressed={savePressed}
+                    />
+                  </Show>
+                </Row>
+                <Row className="tab-section">
+                  <Show
+                    visible={
+                      contentType !== ContentTypeName.PrintContent &&
+                      contentType !== ContentTypeName.Image
+                    }
+                  >
                     <Tabs
                       className={`'expand'} ${size === 1 ? 'small' : 'large'}`}
                       tabs={
