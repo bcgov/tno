@@ -10,7 +10,6 @@ import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
-import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLookup } from 'store/hooks';

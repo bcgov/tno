@@ -1,10 +1,9 @@
 import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
-import _ from 'lodash';
 import React from 'react';
 import { FaListAlt, FaTags } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Button, Col, FieldSize, IOptionItem, Row, Select, Show } from 'tno-core';
+import { Button, Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
 
 import { DraggableTagList } from './DraggableTagList';
 import * as styled from './styled';
@@ -15,7 +14,7 @@ export interface ITagsProps {}
  * The component that renders tags for a given text field
  * @returns the Tags component
  */
-export const Tags: React.FC<ITagsProps> = ({}) => {
+export const Tags: React.FC<ITagsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ tags }] = useLookup();
   const [showList, setShowList] = React.useState(false);
