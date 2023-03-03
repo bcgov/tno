@@ -334,9 +334,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         }
 
         var data = await response.Content.ReadAsStringAsync();
-        var xmlr = XmlReader.Create(new StringReader(data));
         try
         {
+            var xmlr = XmlReader.Create(new StringReader(data));
             return SyndicationFeed.Load(xmlr);
         }
         catch (Exception ex)
@@ -348,7 +348,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 IgnoreComments = false,
                 IgnoreWhitespace = true,
             };
-            xmlr = XmlReader.Create(new StringReader(data), settings);
+            var xmlr = XmlReader.Create(new StringReader(data), settings);
             var document = XDocument.Load(xmlr);
             var isRss = RssFeed.IsRssFeed(document);
             return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
