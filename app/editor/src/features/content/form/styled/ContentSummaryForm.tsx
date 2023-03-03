@@ -85,4 +85,13 @@ export const ContentSummaryForm = styled.div`
   .object-fit {
     object-fit: contain;
   }
+
+  .quill {
+    max-height: 20em;
+    overflow: scroll;
+
+    .ql-container {
+      height: 100%;
+    }
+  }
 `;

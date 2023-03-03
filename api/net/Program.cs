@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
@@ -29,8 +28,7 @@ using Microsoft.AspNetCore.Authorization;
 using TNO.API.CSS;
 using TNO.API.SignalR;
 using TNO.API.Helpers;
-using TNO.API.Elasticsearch;
-using Nest;
+using TNO.Core.Extensions;
 
 DotNetEnv.Env.Load();
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -49,29 +47,8 @@ var config = builder.Configuration;
 var env = builder.Environment;
 
 // Add services to the container.
-
-builder.Services.AddStorageConfig(config);
-
-var defaultIgnoreCondition = config.GetValue<JsonIgnoreCondition>("Serialization:Json:DefaultIgnoreCondition", JsonIgnoreCondition.WhenWritingNull);
-var propertyNameCaseInsensitive = config.GetValue<bool>("Serialization:Json:PropertyNameCaseInsensitive", false);
-var propertyNamingPolicy = config.GetValue<string>("Serialization:Json:PropertyNamingPolicy");
-var writeIndented = config.GetValue<bool>("Serialization:Json:WriteIndented", false);
-var jsonSerializerOptions = new JsonSerializerOptions()
-{
-    DefaultIgnoreCondition = defaultIgnoreCondition,
-    PropertyNameCaseInsensitive = propertyNameCaseInsensitive,
-    PropertyNamingPolicy = propertyNamingPolicy == "CamelCase" ? JsonNamingPolicy.CamelCase : null,
-    WriteIndented = writeIndented
-};
-builder.Services.Configure<JsonSerializerOptions>(options =>
-{
-    options.DefaultIgnoreCondition = jsonSerializerOptions.DefaultIgnoreCondition;
-    options.PropertyNameCaseInsensitive = jsonSerializerOptions.PropertyNameCaseInsensitive;
-    options.PropertyNamingPolicy = jsonSerializerOptions.PropertyNamingPolicy;
-    options.WriteIndented = jsonSerializerOptions.WriteIndented;
-    options.Converters.Add(new JsonStringEnumConverter());
-    options.Converters.Add(new Int32ToStringJsonConverter());
-});
+var jsonSerializerOptions = config.GetSerializerOptions();
+builder.Services.AddSerializerOptions(config);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<ClaimsPrincipal>(s => s.GetService<IHttpContextAccessor>()?.HttpContext?.User ?? new ClaimsPrincipal());
@@ -262,8 +239,6 @@ builder.Services.AddSignalR(options =>
         options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         options.PayloadSerializerOptions.Converters.Add(new Int32ToStringJsonConverter());
     });
-
-builder.Services.AddSingleton<IElasticClient, TNOElasticClient>();
 
 var app = builder.Build();
 

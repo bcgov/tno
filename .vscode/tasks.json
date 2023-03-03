@@ -396,6 +396,42 @@
         "${workspaceFolder}/services/net/image/TNO.Services.Image.csproj"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-elastic-migration",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-elastic-migration",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-elastic-migration",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

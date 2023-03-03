@@ -139,12 +139,14 @@ remove: ## Remove all containers
 
 renew: ## Refresh all relevant services that were impacted by prior Pull Request.
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
-	@make refresh-keycloak
-	@make db-update
-	@make refresh n=api
+	@make setup
+	@make stop n=indexing
+	@make stop n=elastic
+	@docker rm -f -v tno-elastic
+	@docker volume rm -f tno-elastic-data
+	@make refresh n=elastic
+	@make elastic-update
 	@make refresh n=indexing
-	@make build n=content
-	@make build n=syndication
 
 ##############################################################################
 # Database Commands
@@ -173,9 +175,9 @@ db-nuke: ## Stop and delete the database container and volume, then rebuild and 
 # Elasticsearch Commands
 ##############################################################################
 
-elastic-update: ## Run the elasticsearch migration (v=migration version, r=rollback, i=ignore errors, u=username, p=password, h=URL, s=step).
-	$(info Run the elasticsearch migration (n=$(v)))
-	@./db/elasticsearch/scripts/migration.sh $(if $(v),-v $(v),) $(if $(r),-r,) $(if $(i),-i,) $(if $(u),-u $(u),) $(if $(p),-p $(p),) $(if $(h),-h $(h),) $(if $(s),-s $(s),)
+elastic-update: ## Run the elasticsearch migration.
+	$(info Run the elasticsearch migration)
+	@./tools/scripts/elastic-update.sh
 
 ##############################################################################
 # Kafka Commands

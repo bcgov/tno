@@ -105,6 +105,11 @@ spec:
                 configMapKeyRef:
                   name: api
                   key: KEYCLOAK_ISSUER
+            - name: Keycloak__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: services
+                  key: KEYCLOAK_SECRET
 
             - name: CSS__IntegrationId
               valueFrom:
@@ -159,7 +164,7 @@ spec:
                   name: crunchy-pguser-admin
                   key: password
 
-            - name: ELASTIC_URIS
+            - name: Elastic__Url
               valueFrom:
                 configMapKeyRef:
                   name: api

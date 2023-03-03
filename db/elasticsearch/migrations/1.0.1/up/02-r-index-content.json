@@ -1,8 +1,0 @@
-{
-  "source": {
-    "index": "content"
-  },
-  "dest": {
-    "index": "content_v1.0.1"
-  }
-}

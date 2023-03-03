@@ -1,0 +1,12 @@
+{
+  "action": "reindex",
+  "settings": {
+    "sourceIndexName": "content_v1.0.5",
+    "destIndexName": "content_v1.0.1"
+  },
+  "data": {
+    "script": {
+      "source": "ctx._source.id = ctx._source.code; ctx._source.remove('code');"
+    }
+  }
+}

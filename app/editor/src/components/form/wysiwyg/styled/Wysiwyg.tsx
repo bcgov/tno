@@ -31,6 +31,14 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
     font-size: 1rem;
   }
 
+  .quill {
+    border: 1px solid #ccc;
+  }
+
+  .ql-container {
+    border: none;
+  }
+
   .raw-editor {
     margin: 0;
     padding: 12px 15px;
