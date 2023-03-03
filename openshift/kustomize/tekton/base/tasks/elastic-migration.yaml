@@ -1,0 +1,82 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: elastic-migration
+  description: >-
+    This task runs the elastic migration.
+  annotations:
+    tekton.dev/displayName: Run Database Migration
+    tekton.dev/pipelines.minVersion: 0.12.1
+    tekton.dev/tags: docker
+  labels:
+    name: elastic-migration
+    part-of: tno
+    version: 1.0.0
+    component: task
+    managed-by: kustomize
+spec:
+  params:
+    - name: IMAGE
+      description: The name of the elastic migration image.
+      type: string
+      default: elastic-migration
+    - name: DB_SECRET_NAME
+      description: The name of the database secrets.
+      type: string
+      default: crunchy-pguser-admin
+    - name: ELASTIC_SECRET_NAME
+      description: The name of the elastic secrets.
+      type: string
+      default: elastic
+    - name: API_NAME
+      description: The name of the api.
+      type: string
+      default: api
+
+    - name: PROJECT_SHORTNAME
+      description: The shortname of the project namespace.
+      type: string
+      default: 9b301c
+
+    - name: IMAGE_TAG
+      description: The tag given to the built image.
+      type: string
+      default: latest
+
+    - name: DEPLOY_TO
+      description: Which environment to deploy to
+      type: string
+      default: dev
+
+  steps:
+    - name: run
+      image: "image-registry.openshift-image-registry.svc:5000/openshift/cli:latest"
+      resources: {}
+      script: |
+        #!/usr/bin/env bash
+        set -xe
+        echo "Fetching connection information"
+
+        PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
+        IMAGE=image-registry.apps.silver.devops.gov.bc.ca/$(params.PROJECT_SHORTNAME)-tools/$(params.IMAGE):$(params.IMAGE_TAG)
+        CONNECTION_STRING=$(oc -n $PROJECT get configmap $(params.API_NAME) -o jsonpath='{.data.CONNECTION_STRING}')
+        DB_USERNAME=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.user}' | base64 -d)
+        DB_PASSWORD=$(oc -n $PROJECT get secret $(params.DB_SECRET_NAME) -o jsonpath='{.data.password}' | base64 -d)
+        ELASTIC_USERNAME=$(oc -n $PROJECT get secret $(params.ELASTIC_SECRET_NAME) -o jsonpath='{.data.username}' | base64 -d)
+        ELASTIC_PASSWORD=$(oc -n $PROJECT get secret $(params.ELASTIC_SECRET_NAME) -o jsonpath='{.data.password}' | base64 -d)
+
+        echo "Running elastic migration in $PROJECT"
+        oc run $(params.IMAGE) \
+          -n $PROJECT \
+          --image=$IMAGE \
+          --image-pull-policy=Always \
+          --attach \
+          --rm \
+          --labels='role=migration,part-of=tno,component=elastic' \
+          --restart=Never \
+          --env=ConnectionStrings__TNO="$CONNECTION_STRING" \
+          --env=DB_POSTGRES_USERNAME="$DB_USERNAME" \
+          --env=DB_POSTGRES_PASSWORD="$DB_PASSWORD" \
+          --env=ELASTIC_USERNAME="$ELASTIC_USERNAME" \
+          --env=ELASTIC_PASSWORD="$ELASTIC_PASSWORD" \
+          --timeout=10m

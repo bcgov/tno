@@ -1,0 +1,8 @@
+{
+  "action": "reindex",
+  "settings": {
+    "sourceIndexName": "content",
+    "destIndexName": "content_v1.0.1"
+  },
+  "data": {}
+}

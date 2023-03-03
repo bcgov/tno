@@ -1,0 +1,8 @@
+{
+  "action": "reindex",
+  "settings": {
+    "sourceIndexName": "unpublished_content",
+    "destIndexName": "unpublished_content_v1.0.1"
+  },
+  "data": {}
+}
