@@ -10159,6 +10159,7 @@ __metadata:
     react: 18.2.0
     react-datepicker: 4.10.0
     react-dom: 18.2.0
+    react-drag-drop-files: 2.3.9
     react-draggable: ^4.4.5
     react-error-boundary: 3.1.4
     react-icons: 4.7.1
@@ -12144,6 +12145,19 @@ __metadata:
   peerDependencies:
     react: ^18.2.0
   checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+  languageName: node
+  linkType: hard
+
+"react-drag-drop-files@npm:2.3.9":
+  version: 2.3.9
+  resolution: "react-drag-drop-files@npm:2.3.9"
+  dependencies:
+    prop-types: ^15.7.2
+    styled-components: ^5.3.0
+  peerDependencies:
+    react: ^18.0.0
+    react-dom: ^18.0.0
+  checksum: 7831b91e4a93cdd7d66ffa1f85702076d51f0c566386019c10816704e0e39eaeb7b8ef028e63f050490912d60aa99ab4a9bddfff200048ea4b96ddf4987869b9
   languageName: node
   linkType: hard
 
