@@ -143,11 +143,19 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
             {
                 var html = await this.GetContentAsync(link);
-                if (item.PublishDate == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, ingest);
+                if (item.PublishDate.Date == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, ingest);
                 var text = StringExtensions.SanitizeContent(html);
+                if (text.StartsWith("By "))
+                {
+                    var separator = "\n\n";
+                    var authorName = text.Split(separator)[0];
+                    item.Authors.Add(new SyndicationPerson { Name = authorName?.Trim() });
+                    text = text.ReplaceFirst(authorName + separator, string.Empty);
+                }
+                var content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
                 // Only update the summary if it's empty.
-                if (String.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
-                item.Content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
+                if (string.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = content;
+                item.Content = content;
             }
             else
             {
@@ -318,8 +326,6 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     private async Task<SyndicationFeed> GetFeedAsync(Uri url, IIngestServiceActionManager manager)
     {
         var response = await _httpClient.GetAsync(url);
-        var data = await response.Content.ReadAsStringAsync();
-
         if (!response.IsSuccessStatusCode)
         {
             var ex = new HttpRequestException(response.ReasonPhrase, null, response.StatusCode);
@@ -327,18 +333,11 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             throw ex;
         }
 
+        var data = await response.Content.ReadAsStringAsync();
+        var xmlr = XmlReader.Create(new StringReader(data));
         try
         {
-            // Reformat dates because timezone abbreviations don't work...
-
-            var xmlr = XmlReader.Create(new StringReader(data));
-            var feed = SyndicationFeed.Load(xmlr);
-
-            // Need to manually test if `pubDate` is valid.  Microsoft didn't bother providing a way to work with valid dates...
-            // Essentially timezone values are context sensitive.
-            var pubDate = feed.Items.FirstOrDefault()?.PublishDate;
-
-            return feed;
+            return SyndicationFeed.Load(xmlr);
         }
         catch (Exception ex)
         {
@@ -349,7 +348,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 IgnoreComments = false,
                 IgnoreWhitespace = true,
             };
-            var xmlr = XmlReader.Create(new StringReader(data), settings);
+            xmlr = XmlReader.Create(new StringReader(data), settings);
             var document = XDocument.Load(xmlr);
             var isRss = RssFeed.IsRssFeed(document);
             return isRss ? RssFeed.Load(document, false) : AtomFeed.Load(document);
