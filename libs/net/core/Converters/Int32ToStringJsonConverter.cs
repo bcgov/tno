@@ -6,12 +6,6 @@ namespace TNO.Core.Converters
     public class Int32ToStringJsonConverter : JsonConverter<string>
     {
         #region Methods
-        public override bool CanConvert(Type typeToConvert)
-        {
-            return typeToConvert == typeof(string)
-                   || typeToConvert == typeof(int);
-        }
-
         public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var value = reader.TokenType switch
