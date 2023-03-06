@@ -24,4 +24,9 @@ export const Text = styled(Col)`
     color: hsl(0, 0%, 50%);
     background-color: hsl(0, 0%, 95%);
   }
+
+  .required:after {
+    content: ' *';
+    color: ${(props) => props.theme.css.dangerColor};
+  }
 `;

@@ -33,8 +33,10 @@ export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.s
       return Yup.string().optional().default(undefined);
     }
   }),
+  runOnlyOnce: Yup.boolean().defined(),
   repeat: Yup.number().defined(),
   runOnWeekDays: Yup.string().defined(),
   runOnMonths: Yup.string().defined(),
   dayOfMonth: Yup.number().defined(),
+  requestedById: Yup.number().optional(),
 });

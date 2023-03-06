@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { FieldSize, TextVariant } from '../..';
+import { TextVariant } from '../..';
 import { ITextAreaProps } from '..';
 
 export const TextAreaField = styled.textarea<ITextAreaProps>`
@@ -9,7 +9,6 @@ export const TextAreaField = styled.textarea<ITextAreaProps>`
   text-decoration: ${(props) => (props.variant === TextVariant.link ? 'underline' : 'none')};
   display: inline-block;
   width: ${(props) => props.width};
-  min-width: ${FieldSize.Tiny};
   font-weight: 400;
   text-align: left;
   vertical-align: middle;

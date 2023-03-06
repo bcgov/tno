@@ -7,7 +7,7 @@ import { IOptionItem } from 'tno-core';
 export const getSelectedOptions = (filter: IContentListFilter) => {
   const selectedOptions: IOptionItem[] = [];
   if (filter.contentType === ContentTypeName.PrintContent) selectedOptions.push(showOnlyOptions[0]);
-  if (filter.includedInCategory) selectedOptions.push(showOnlyOptions[1]);
+  if (filter.includedInTopic) selectedOptions.push(showOnlyOptions[1]);
   if (filter.onTicker) selectedOptions.push(showOnlyOptions[2]);
   if (filter.commentary) selectedOptions.push(showOnlyOptions[3]);
   if (filter.topStory) selectedOptions.push(showOnlyOptions[4]);

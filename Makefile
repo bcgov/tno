@@ -139,12 +139,10 @@ remove: ## Remove all containers
 
 renew: ## Refresh all relevant services that were impacted by prior Pull Request.
 	$(info Refresh all relevant services that were impacted by prior Pull Request.)
-	@make setup
-	@make stop n=indexing
-	@make stop n=elastic
-	@docker rm -f -v tno-elastic
-	@docker volume rm -f tno-elastic-data
-	@make refresh n=elastic
+	@make refresh n=api
+	@make refresh n=editor
+	@make refresh n=subscriber
+	@make db-update
 	@make elastic-update
 	@make refresh n=indexing
 

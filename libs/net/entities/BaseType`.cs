@@ -44,8 +44,16 @@ public abstract class BaseType<TKey> : AuditColumns
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a BaseType object.
+    /// </summary>
     protected BaseType() { }
 
+    /// <summary>
+    /// Creates a new instance of a BaseType object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <exception cref="ArgumentException"></exception>
     public BaseType(string name)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required and cannot be null, empty, or whitespace", nameof(name));
@@ -53,6 +61,12 @@ public abstract class BaseType<TKey> : AuditColumns
         this.Name = name;
     }
 
+    /// <summary>
+    /// Creates a new instance of a BaseType object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="name"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public BaseType(TKey id, string name) : this(name)
     {
         if (id == null) throw new ArgumentNullException(nameof(id));

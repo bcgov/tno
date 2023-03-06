@@ -51,7 +51,7 @@ export const SeriesForm: React.FC = () => {
       const result = !series.id ? await api.addSeries(values) : await api.updateSeries(values);
       setSeries(result);
       toast.success(`${result.name} has successfully been saved.`);
-      if (!originalId) navigate(`/admin/series/${result.id}`);
+      if (!originalId) navigate(`/admin/programs/${result.id}`);
     } catch {}
   };
 
@@ -86,6 +86,11 @@ export const SeriesForm: React.FC = () => {
                 labelPosition={LabelPosition.Top}
                 label="Is Enabled"
                 name="isEnabled"
+              />
+              <FormikCheckbox
+                labelPosition={LabelPosition.Top}
+                label="Use in Topics"
+                name="useInTopics"
               />
               <Show visible={!!values.id}>
                 <Row>

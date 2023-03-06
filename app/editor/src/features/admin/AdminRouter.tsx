@@ -4,8 +4,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import {
   ActionForm,
   ActionList,
-  CategoryForm,
-  CategoryList,
   ConnectionForm,
   ConnectionList,
   ContentReferenceList,
@@ -30,6 +28,8 @@ import {
   SourceList,
   TagList,
   TagsForm,
+  TopicList,
+  TopicScoreRuleList,
   UserForm,
   UserList,
   WorkOrderForm,
@@ -43,8 +43,10 @@ export const AdminRouter: React.FC = () => {
       <Route path="users" element={<UserList />} />
       <Route path="users/:id" element={<UserForm />} />
 
-      <Route path="topics" element={<CategoryList />} />
-      <Route path="topics/:id" element={<CategoryForm />} />
+      <Route path="topics" element={<TopicList />} />
+      <Route path="topics/:id" element={<TopicList />} />
+
+      <Route path="topic-scores" element={<TopicScoreRuleList />} />
 
       <Route path="tags" element={<TagList />} />
       <Route path="tags/:id" element={<TagsForm />} />

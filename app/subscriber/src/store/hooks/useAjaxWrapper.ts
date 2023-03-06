@@ -39,7 +39,7 @@ export const useAjaxWrapper = () => {
           else if (typeof data === 'string' && !!data) message = data;
           else if (!!data?.error) {
             message = `${data?.error}`;
-            detail = data?.details;
+            detail = message.trim() !== data?.details?.trim() ? data?.details : undefined;
           } else if (!!data?.errors) {
             message = Object.entries(data.errors)
               .map((p) => p.toString())

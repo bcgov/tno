@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   IActionModel,
   ICacheModel,
-  ICategoryModel,
   IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -14,6 +13,8 @@ import {
   ISourceModel,
   ITagModel,
   ITonePoolModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
 } from 'hooks/api-editor';
 
@@ -22,7 +23,8 @@ import { ILookupState } from './interfaces';
 export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
-  categories: [],
+  topics: [],
+  rules: [],
   products: [],
   licenses: [],
   ingestTypes: [],
@@ -58,8 +60,11 @@ export const lookupSlice = createSlice({
     storeActions(state: ILookupState, action: PayloadAction<IActionModel[]>) {
       state.actions = action.payload;
     },
-    storeCategories(state: ILookupState, action: PayloadAction<ICategoryModel[]>) {
-      state.categories = action.payload;
+    storeTopics(state: ILookupState, action: PayloadAction<ITopicModel[]>) {
+      state.topics = action.payload;
+    },
+    storeTopicScoreRules(state: ILookupState, action: PayloadAction<ITopicScoreRuleModel[]>) {
+      state.rules = action.payload;
     },
     storeProducts(state: ILookupState, action: PayloadAction<IProductModel[]>) {
       state.products = action.payload;
@@ -104,7 +109,8 @@ export const {
   storeCache,
   updateCache,
   storeActions,
-  storeCategories,
+  storeTopics,
+  storeTopicScoreRules,
   storeProducts,
   storeLicenses,
   storeIngestTypes,

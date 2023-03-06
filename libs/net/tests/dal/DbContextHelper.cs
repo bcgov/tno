@@ -10,7 +10,7 @@ public static class DbContextHelper
     #region Methods
     /// <summary>
     /// Create and configure a new instance of a TNOContext object.
-    /// Creates an inmemory database with the specified 'name'.
+    /// Creates an in-memory database with the specified 'name'.
     /// </summary>
     /// <param name="dbName"></param>
     /// <returns></returns>
@@ -25,7 +25,7 @@ public static class DbContextHelper
 
     /// <summary>
     /// Create and configure a new instance of a TNOContext object.
-    /// Creates an inmemory database with the specified 'name'.
+    /// Creates an in-memory database with the specified 'name'.
     /// Adds a singleton to the service collection.
     /// </summary>
     /// <param name="services"></param>

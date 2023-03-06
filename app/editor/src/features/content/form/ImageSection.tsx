@@ -1,33 +1,42 @@
 import { useFormikContext } from 'formik';
-import { ISourceModel } from 'hooks';
+import { useLookupOptions } from 'hooks';
 import moment from 'moment';
 import * as React from 'react';
-import { useLookup } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import { FieldSize, FormikDatePicker, FormikSelect, IOptionItem, Row, TimeInput } from 'tno-core';
-import { getSortableOptions } from 'utils';
+import {
+  FieldSize,
+  FormikDatePicker,
+  FormikSelect,
+  IOptionItem,
+  Row,
+  Show,
+  TimeInput,
+} from 'tno-core';
+import { getSourceOptions } from 'utils';
 
 import { IContentForm } from './interfaces';
+import { TopicForm } from './TopicForm';
 
-interface IImageSectionProps {
-  sourceOptions: IOptionItem[];
-  sources: ISourceModel[];
-  productOptions: IOptionItem[];
-}
+// TODO: This is horrible to hardcode these sources, the image form is for any type of image and shouldn't be limited to a few sources.
+const validSources = ['TC', 'PROVINCE', 'GLOBE', 'POST', 'SUN'];
+
+interface IImageSectionProps {}
 
 /** Contains form field in a layout specific to the image snippet. */
-export const ImageSection: React.FunctionComponent<IImageSectionProps> = ({
-  sourceOptions,
-  sources,
-  productOptions,
-}) => {
-  const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
-  const [{ categories }] = useLookup();
+export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
+  const [{ sources, series, productOptions }] = useLookupOptions();
+
+  const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
+
+  const source = sources.find((s) => s.id === values.sourceId);
+  const program = series.find((s) => s.id === values.seriesId);
 
   React.useEffect(() => {
-    setCategoryOptions(getSortableOptions(categories));
-  }, [categories]);
+    setSourceOptions(
+      getSourceOptions(sources.filter((s) => validSources.some((v) => v === s.code))),
+    );
+  }, [sources]);
 
   return (
     <Row>
@@ -45,14 +54,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = ({
             if (!!source?.productId) setFieldValue('productId', source.productId);
           }
         }}
-        options={filterEnabled(sourceOptions, values.sourceId).filter(
-          (x) =>
-            x.label.includes('(TC)') ||
-            x.label.includes('(PROVINCE)') ||
-            x.label.includes('(GLOBE)') ||
-            x.label.includes('(POST)') ||
-            x.label.includes('(SUN)'),
-        )}
+        options={filterEnabled(sourceOptions, values.sourceId)}
         required={!values.otherSource || values.otherSource !== ''}
         isDisabled={!!values.tempSource}
       />
@@ -98,28 +100,9 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = ({
           }
         }}
       />
-      <FormikSelect
-        name="categories"
-        label="Topic"
-        width={FieldSize.Medium}
-        options={filterEnabled(
-          categoryOptions,
-          !!values.categories?.length ? values.categories[0].id : null,
-        )}
-        value={
-          !!values.categories?.length
-            ? categoryOptions.find((c) => c.value === values.categories[0].id)
-            : []
-        }
-        onChange={(e: any) => {
-          // only supports one at a time right now
-          let value;
-          if (!!e?.value) {
-            value = categories.find((c) => c.id === e.value);
-          }
-          setFieldValue('categories', !!value ? [value] : []);
-        }}
-      />
+      <Show visible={source?.useInTopics || program?.useInTopics}>
+        <TopicForm />
+      </Show>
     </Row>
   );
 };

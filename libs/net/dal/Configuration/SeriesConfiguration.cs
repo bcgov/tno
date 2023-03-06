@@ -9,6 +9,9 @@ public class SeriesConfiguration : BaseTypeConfiguration<Series, int>
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.AutoTranscribe).IsRequired();
+        builder.Property(m => m.UseInTopics).IsRequired();
+
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
 
         base.Configure(builder);
     }

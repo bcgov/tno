@@ -1,6 +1,4 @@
 export * from './ActionName';
-export * from './CategoryType';
-export * from './CategoryTypeName';
 export * from './ConnectionType';
 export * from './ConnectionTypeName';
 export * from './ContentListAction';
@@ -17,6 +15,8 @@ export * from './ScheduleTypeName';
 export * from './ScheduleWeekDay';
 export * from './ScheduleWeekDayName';
 export * from './Settings';
+export * from './TopicType';
+export * from './TopicTypeName';
 export * from './UserStatus';
 export * from './UserStatusName';
 export * from './ValueType';

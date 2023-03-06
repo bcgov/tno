@@ -3,7 +3,6 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
-  ICategoryModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -14,6 +13,8 @@ import {
   ISeriesModel,
   ISourceModel,
   ITagModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
   IWorkOrderModel,
 } from 'hooks/api-editor';
@@ -33,7 +34,8 @@ export const initialAdminState: IAdminState = {
     sort: [],
   },
   users: { page: 1, quantity: 20, items: [], total: 0 },
-  categories: [],
+  topics: [],
+  rules: [],
   tags: [],
   actions: [],
   series: [],
@@ -41,6 +43,9 @@ export const initialAdminState: IAdminState = {
   workOrderFilter: {
     pageIndex: 0,
     pageSize: 10,
+    status: '',
+    workType: '',
+    keyword: '',
     sort: [],
   },
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },
@@ -77,8 +82,11 @@ export const adminSlice = createSlice({
     storeUsers(state: IAdminState, action: PayloadAction<IPaged<IUserModel>>) {
       state.users = action.payload;
     },
-    storeCategories(state: IAdminState, action: PayloadAction<ICategoryModel[]>) {
-      state.categories = action.payload;
+    storeTopics(state: IAdminState, action: PayloadAction<ITopicModel[]>) {
+      state.topics = action.payload;
+    },
+    storeTopicScoreRules(state: IAdminState, action: PayloadAction<ITopicScoreRuleModel[]>) {
+      state.rules = action.payload;
     },
     storeTags(state: IAdminState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
@@ -108,7 +116,8 @@ export const {
   storeIngestTypes: storeAdminIngestTypes,
   storeUserFilter: storeAdminUserFilter,
   storeUsers: storeAdminUsers,
-  storeCategories: storeAdminCategories,
+  storeTopics: storeAdminTopics,
+  storeTopicScoreRules: storeAdminTopicScoreRules,
   storeTags: storeAdminTags,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,

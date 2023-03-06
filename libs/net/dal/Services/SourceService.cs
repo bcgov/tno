@@ -68,9 +68,6 @@ public class SourceService : BaseService<Source, int>, ISourceService
         if (filter.OwnerId.HasValue)
             query = query.Where(s => s.OwnerId == filter.OwnerId);
 
-        if (filter.Actions.Any() == true)
-            query = query.Where(s => s.Actions.Any(a => filter.Actions.Contains(a.Name)));
-
         var total = query.Count();
 
         if (filter.Sort?.Any() == true)
@@ -93,7 +90,6 @@ public class SourceService : BaseService<Source, int>, ISourceService
     {
         return this.Context.Sources
             .Include(s => s.License)
-            .Include(s => s.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
             .Include(s => s.MetricsManyToMany).ThenInclude(cc => cc.Metric)
             .FirstOrDefault(c => c.Id == id);
     }
@@ -107,7 +103,6 @@ public class SourceService : BaseService<Source, int>, ISourceService
     {
         return this.Context.Sources
             .Include(s => s.License)
-            .Include(s => s.ActionsManyToMany).ThenInclude(ca => ca.SourceAction)
             .Include(s => s.MetricsManyToMany).ThenInclude(cc => cc.Metric)
             .FirstOrDefault(c => c.Code.ToLower() == code.ToLower());
     }

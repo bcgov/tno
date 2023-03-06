@@ -7,7 +7,7 @@ export const defaultReportFilter: IMorningReportFilter = {
   pageIndex: defaultPage.pageIndex,
   pageSize: defaultPage.pageSize,
   contentType: ContentTypeName.PrintContent,
-  includedInCategory: false,
+  includedInTopic: false,
   includeHidden: false,
   sourceId: 0,
   otherSource: '',

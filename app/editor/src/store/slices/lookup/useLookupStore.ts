@@ -1,7 +1,6 @@
 import {
   IActionModel,
   ICacheModel,
-  ICategoryModel,
   IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -13,6 +12,8 @@ import {
   ISourceModel,
   ITagModel,
   ITonePoolModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
 } from 'hooks/api-editor';
 import React from 'react';
@@ -21,7 +22,6 @@ import { useAppDispatch, useAppSelector } from 'store';
 import {
   storeActions,
   storeCache,
-  storeCategories,
   storeDataLocations,
   storeIngestTypes,
   storeLicenses,
@@ -33,6 +33,8 @@ import {
   storeSources,
   storeTags,
   storeTonePools,
+  storeTopics,
+  storeTopicScoreRules,
   storeUsers,
   updateCache,
 } from '.';
@@ -42,7 +44,8 @@ export interface ILookupStore {
   storeCache: (cache: ICacheModel[]) => void;
   updateCache: (cache: ICacheModel) => void;
   storeActions: (actions: IActionModel[]) => void;
-  storeCategories: (categories: ICategoryModel[]) => void;
+  storeTopics: (topics: ITopicModel[]) => void;
+  storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => void;
   storeProducts: (contentTypes: IProductModel[]) => void;
   storeSources: (sources: ISourceModel[]) => void;
   storeLicenses: (licenses: ILicenseModel[]) => void;
@@ -72,8 +75,11 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       storeActions: (actions: IActionModel[]) => {
         dispatch(storeActions(actions));
       },
-      storeCategories: (categories: ICategoryModel[]) => {
-        dispatch(storeCategories(categories));
+      storeTopics: (topics: ITopicModel[]) => {
+        dispatch(storeTopics(topics));
+      },
+      storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
+        dispatch(storeTopicScoreRules(rules));
       },
       storeProducts: (contentTypes: IProductModel[]) => {
         dispatch(storeProducts(contentTypes));

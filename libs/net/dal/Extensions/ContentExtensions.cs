@@ -49,7 +49,7 @@ public static class ContentExtensions
     public static Content AddToContext(this Content updated, TNOContext context)
     {
         updated.ActionsManyToMany.SetEntityState(context);
-        updated.CategoriesManyToMany.SetEntityState(context);
+        updated.TopicsManyToMany.SetEntityState(context);
         updated.TagsManyToMany.SetEntityState(context);
         updated.Labels.SetEntityState(context);
         updated.TonePoolsManyToMany.SetEntityState(context);
@@ -74,7 +74,7 @@ public static class ContentExtensions
     public static TNOContext UpdateContext(this TNOContext context, Content original, Content updated)
     {
         var oactions = context.ContentActions.Where(a => a.ContentId == updated.Id).ToArray();
-        var ocategories = context.ContentCategories.Where(a => a.ContentId == updated.Id).ToArray();
+        var ocategories = context.ContentTopics.Where(a => a.ContentId == updated.Id).ToArray();
         var otags = context.ContentTags.Where(a => a.ContentId == updated.Id).ToArray();
         var otonepools = context.ContentTonePools.Where(a => a.ContentId == updated.Id).ToArray();
         var otimetrackings = context.TimeTrackings.Where(a => a.ContentId == updated.Id).ToArray();
@@ -98,15 +98,15 @@ public static class ContentExtensions
             }
         });
 
-        ocategories.Except(updated.CategoriesManyToMany).ForEach(a =>
+        ocategories.Except(updated.TopicsManyToMany).ForEach(a =>
         {
             context.Entry(a).State = EntityState.Deleted;
         });
-        updated.CategoriesManyToMany.ForEach(a =>
+        updated.TopicsManyToMany.ForEach(a =>
         {
-            var current = a.CategoryId != 0 ? ocategories.FirstOrDefault(o => o.CategoryId == a.CategoryId) : null;
+            var current = a.TopicId != 0 ? ocategories.FirstOrDefault(o => o.TopicId == a.TopicId) : null;
             if (current == null)
-                original.CategoriesManyToMany.Add(a);
+                original.TopicsManyToMany.Add(a);
             else if (current.Score != a.Score)
             {
                 current.Score = a.Score;

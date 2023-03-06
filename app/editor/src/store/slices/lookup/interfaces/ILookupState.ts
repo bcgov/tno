@@ -1,7 +1,6 @@
 import {
   IActionModel,
   ICacheModel,
-  ICategoryModel,
   IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -13,13 +12,16 @@ import {
   ISourceModel,
   ITagModel,
   ITonePoolModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
 } from 'hooks/api-editor';
 
 export interface ILookupState {
   cache: ICacheModel[];
   actions: IActionModel[];
-  categories: ICategoryModel[];
+  topics: ITopicModel[];
+  rules: ITopicScoreRuleModel[];
   products: IProductModel[];
   licenses: ILicenseModel[];
   ingestTypes: IIngestTypeModel[];

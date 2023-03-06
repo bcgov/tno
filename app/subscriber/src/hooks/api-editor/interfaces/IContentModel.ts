@@ -9,20 +9,17 @@ import {
 } from '..';
 import {
   IContentActionModel,
-  IContentCategoryModel,
   IContentLabelModel,
   IContentLinkModel,
   IContentTagModel,
   IContentTonePoolModel,
+  IContentTopicModel,
   IFileReferenceModel,
-  IPrintContentModel,
   ITimeTrackingModel,
-  IWorkOrderModel,
 } from '.';
 
 export interface IContentModel extends IAuditColumnsModel {
   id: number;
-  printContent?: IPrintContentModel;
   status: ContentStatusName;
   contentType: ContentTypeName;
   licenseId: number;
@@ -38,21 +35,25 @@ export interface IContentModel extends IAuditColumnsModel {
   ownerId?: number;
   owner?: IUserModel;
   headline: string;
+  byline: string;
   uid?: string;
+  edition: string;
+  section: string;
   page: string;
   publishedOn: string;
   summary: string;
   body?: string;
   sourceUrl?: string;
+  isHidden: boolean;
+  isApproved: boolean;
   actions?: IContentActionModel[];
   tags?: IContentTagModel[];
   labels?: IContentLabelModel[];
-  categories?: IContentCategoryModel[];
+  topics?: IContentTopicModel[];
   tonePools?: IContentTonePoolModel[];
   timeTrackings?: ITimeTrackingModel[];
   fileReferences?: IFileReferenceModel[];
   links?: IContentLinkModel[];
-  workOrders?: IWorkOrderModel[];
 
   // React-Table Properties
   isSelected?: boolean;

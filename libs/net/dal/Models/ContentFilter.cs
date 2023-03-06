@@ -126,9 +126,9 @@ public class ContentFilter : PageFilter
     public string? Byline { get; set; }
 
     /// <summary>
-    /// get/set - Only include content with a category.
+    /// get/set - Only include content with a topic.
     /// </summary>
-    public bool? IncludedInCategory { get; set; }
+    public bool? IncludedInTopic { get; set; }
 
     /// <summary>
     /// get/set - Whether to include hidden content.
@@ -174,7 +174,7 @@ public class ContentFilter : PageFilter
         this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));
         this.ContentType = filter.GetEnumNullValue<ContentType>(nameof(this.ContentType));
 
-        this.IncludedInCategory = filter.GetBoolNullValue(nameof(this.IncludedInCategory));
+        this.IncludedInTopic = filter.GetBoolNullValue(nameof(this.IncludedInTopic));
         this.IncludeHidden = filter.GetBoolNullValue(nameof(this.IncludeHidden));
 
         this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));

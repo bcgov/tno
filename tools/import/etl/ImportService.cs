@@ -21,7 +21,7 @@ public class ImportService
     private List<IngestType> _ingestTypes = new();
     private List<DataSource> _dataSources = new();
     private List<License> _licenses = new();
-    private List<Category> _categories = new();
+    private List<Topic> _topics = new();
     private List<Entities.Action> _actions = new();
     private List<User> _users = new();
     private List<Series> _series = new();
@@ -64,7 +64,7 @@ public class ImportService
         _ingestTypes = _destinationContext.IngestTypes.ToList();
         _dataSources = _destinationContext.DataSources.ToList();
         _licenses = _destinationContext.Licenses.OrderBy(l => l.Id).ToList();
-        _categories = _destinationContext.Categories.ToList();
+        _topics = _destinationContext.Topics.ToList();
         _series = _destinationContext.Series.ToList();
         _actions = _destinationContext.Actions.ToList();
         _tags = _destinationContext.Tags.ToList();
@@ -140,19 +140,19 @@ public class ImportService
             var action = _actions.First(a => a.Name == "Alert");
             content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (!String.IsNullOrWhiteSpace(newsItem.EodCategory))
+        if (!String.IsNullOrWhiteSpace(newsItem.EodTopic))
         {
-            var category = _categories.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodCategory.ToLower());
-            if (category != null)
+            var topic = _topics.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodTopic.ToLower());
+            if (topic != null)
             {
-                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
+                content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
             }
             else
             {
-                category = new Category(newsItem.EodCategory);
-                _destinationContext.Add(category);
-                _categories.Add(category);
-                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
+                topic = new Topic(newsItem.EodTopic);
+                _destinationContext.Add(topic);
+                _topics.Add(topic);
+                content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
             }
         }
 
@@ -210,19 +210,19 @@ public class ImportService
             var action = _actions.First(a => a.Name == "Alert");
             content.ActionsManyToMany.Add(new ContentAction(content, action, "true"));
         }
-        if (!String.IsNullOrWhiteSpace(newsItem.EodCategory) && !content.CategoriesManyToMany.Any(a => a.Category?.Name == newsItem.EodCategory))
+        if (!String.IsNullOrWhiteSpace(newsItem.EodTopic) && !content.TopicsManyToMany.Any(a => a.Topic?.Name == newsItem.EodTopic))
         {
-            var category = _categories.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodCategory.ToLower());
-            if (category != null)
+            var topic = _topics.FirstOrDefault(a => a.Name.ToLower() == newsItem.EodTopic.ToLower());
+            if (topic != null)
             {
-                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
+                content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
             }
             else
             {
-                category = new Category(newsItem.EodCategory);
-                _destinationContext.Add(category);
-                _categories.Add(category);
-                content.CategoriesManyToMany.Add(new ContentCategory(content, category, 0));
+                topic = new Topic(newsItem.EodTopic);
+                _destinationContext.Add(topic);
+                _topics.Add(topic);
+                content.TopicsManyToMany.Add(new ContentTopic(content, topic, 0));
             }
         }
 
@@ -260,7 +260,7 @@ public class ImportService
                     // Detect if content has already been imported.
                     var content = _destinationContext.Contents
                           .Include(c => c.Actions)
-                          .Include(c => c.Categories)
+                          .Include(c => c.Topics)
                           .Include(c => c.DataSource)
                           .Include(c => c.FileReferences)
                           .Include(c => c.TonePools)

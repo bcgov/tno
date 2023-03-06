@@ -11,6 +11,7 @@ public class TagConfiguration : BaseTypeConfiguration<Tag, int>
         builder.Property(m => m.Code).IsRequired().HasMaxLength(15);
 
         builder.HasIndex(m => new { m.Code }, "IX_code").IsUnique();
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
 
         base.Configure(builder);
     }

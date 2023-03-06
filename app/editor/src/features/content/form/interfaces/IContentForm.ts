@@ -2,11 +2,11 @@ import {
   ContentStatusName,
   ContentTypeName,
   IContentActionModel,
-  IContentCategoryModel,
   IContentLabelModel,
   IContentLinkModel,
   IContentTagModel,
   IContentTonePoolModel,
+  IContentTopicModel,
   IFileReferenceModel,
   ITimeTrackingModel,
   IWorkOrderModel,
@@ -33,7 +33,7 @@ export interface IContentForm {
   isHidden: boolean;
   isApproved: boolean;
   actions: IContentActionModel[];
-  categories: IContentCategoryModel[];
+  topics: IContentTopicModel[];
   tags: IContentTagModel[];
   labels: IContentLabelModel[];
   tonePools: IContentTonePoolModel[];

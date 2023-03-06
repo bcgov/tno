@@ -11,8 +11,10 @@ export interface IScheduleModel extends IAuditColumnsModel {
   runOn?: Date;
   startAt?: string;
   stopAt?: string;
+  runOnlyOnce: boolean;
   repeat: number;
   runOnWeekDays: string;
   runOnMonths: string;
   dayOfMonth: number;
+  requestedById?: number;
 }

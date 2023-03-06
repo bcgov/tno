@@ -10,6 +10,8 @@ public class LicenseConfiguration : BaseTypeConfiguration<License, int>
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
         builder.Property(m => m.TTL).IsRequired();
 
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
+
         base.Configure(builder);
     }
 }

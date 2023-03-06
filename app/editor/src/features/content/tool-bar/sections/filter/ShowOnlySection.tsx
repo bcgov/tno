@@ -71,7 +71,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
                     onTicker: '',
                     commentary: '',
                     topStory: '',
-                    includedInCategory: false,
+                    includedInTopic: false,
                     contentType: undefined,
                   });
                 else {
@@ -97,16 +97,16 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
               />
               <Checkbox
                 className="spaced"
-                name="includedInCategory"
+                name="includedInTopic"
                 label="Included in EoD"
                 tooltip="Content included in Event of the Day"
-                value={filter.includedInCategory}
-                checked={filter.includedInCategory}
+                value={filter.includedInTopic}
+                checked={filter.includedInTopic}
                 onChange={(e) => {
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    includedInCategory: e.target.checked,
+                    includedInTopic: e.target.checked,
                   });
                 }}
               />

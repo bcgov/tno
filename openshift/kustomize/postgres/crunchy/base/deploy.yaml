@@ -45,7 +45,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 2Gi
+            storage: 5Gi
         storageClassName: netapp-block-standard
       affinity:
         podAntiAffinity:
