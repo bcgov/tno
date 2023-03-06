@@ -10,7 +10,6 @@ import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import { ContentTypeName, IUserModel } from 'hooks/api-editor';
 import { useModal } from 'hooks/modal';
-import _ from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -60,7 +59,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   const [{ series, categories, users }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
-
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
@@ -82,14 +80,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   React.useEffect(() => {
     setEffort(getTotalTime(values.timeTrackings));
   }, [values.timeTrackings]);
-
-  // Ensure tag order does not change
-  React.useEffect(() => {
-    const sortedTags = _.orderBy(values.tags, [(tag) => tag.code.toLowerCase()], ['asc']);
-    if (!_.isEqual(sortedTags, values.tags)) {
-      setFieldValue('tags', sortedTags);
-    }
-  }, [setFieldValue, values.tags]);
 
   React.useEffect(() => {
     setFieldValue(
@@ -257,7 +247,7 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           >
             <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
             <Row>
-              <Tags fieldName="summary" />
+              <Tags />
               <ToningGroup fieldName="tonePools" />
             </Row>
           </Show>

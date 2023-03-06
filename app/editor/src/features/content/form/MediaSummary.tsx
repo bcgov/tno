@@ -66,7 +66,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
       <Col className="summary">
         <Wysiwyg label="Summary" required fieldName="summary" expandModal={setShowExpandModal} />
         <Row>
-          <Tags fieldName="summary" />
+          <Tags />
           <ToningGroup fieldName="tonePools" />
         </Row>
       </Col>
