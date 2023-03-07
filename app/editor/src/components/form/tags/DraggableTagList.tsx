@@ -16,10 +16,11 @@ export interface IDraggableTagListProps {
  */
 export const DraggableTagList: React.FC<IDraggableTagListProps> = ({ showList, setShowList }) => {
   const [{ tags }] = useLookup();
+  const nodeRef = React.useRef(null);
 
   return (
-    <Draggable>
-      <div>
+    <Draggable nodeRef={nodeRef}>
+      <div ref={nodeRef}>
         <Show visible={showList}>
           <Col className="tag-list" id="tag-list">
             <Row className="tag-list-header">
