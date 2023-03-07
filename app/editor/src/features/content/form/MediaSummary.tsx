@@ -37,7 +37,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   const [, { download }] = useContent();
 
   return (
-    <styled.MediaSummary className="test">
+    <styled.MediaSummary>
       <Col className="media">
         <Upload
           contentType={contentType}
@@ -65,7 +65,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
       </Col>
       <Col className="summary">
         <Wysiwyg label="Summary" required fieldName="summary" expandModal={setShowExpandModal} />
-        <Row>
+        <Row wrap="nowrap">
           <Tags />
           <ToningGroup fieldName="tonePools" />
         </Row>
