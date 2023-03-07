@@ -37,7 +37,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   const [, { download }] = useContent();
 
   return (
-    <styled.MediaSummary className="test">
+    <styled.MediaSummary>
       <Col className="media">
         <Upload
           contentType={contentType}
