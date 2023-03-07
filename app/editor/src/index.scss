@@ -103,6 +103,10 @@ h4 {
             cursor: pointer;
         }
     }
+    &.chk.allow-no-file {
+        display: flex;
+        align-items: center;
+    }
     &.chg {
         padding-bottom: 0;
         label:not(:first-child) {
