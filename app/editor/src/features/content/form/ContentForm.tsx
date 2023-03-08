@@ -97,6 +97,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [size, setSize] = React.useState(1);
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
+  const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
   const [clipErrors, setClipErrors] = React.useState<string>('');
   const [textDecorationStyle, setTextDecorationStyle] = React.useState('none');
   const [cursorStyle, setCursorStyle] = React.useState('text');
@@ -681,11 +682,30 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                 </Row>
                 <Row className="submit-buttons">
+                  <Show
+                    visible={
+                      contentType === ContentTypeName.Snippet &&
+                      props.values.fileReferences.length === 0 &&
+                      !props.values.file
+                    }
+                  >
+                    <FormikCheckbox
+                      name="allowPublishWithoutFile"
+                      label="Allow publish without file"
+                      className="allow-no-file"
+                      value={allowPublishWithoutFile}
+                      checked={allowPublishWithoutFile}
+                      onChange={(e: any) => {
+                        setAllowPublishWithoutFile(e.target.checked);
+                      }}
+                    />
+                  </Show>
                   <Button
                     type="submit"
                     disabled={
                       props.isSubmitting ||
                       (contentType === ContentTypeName.Snippet &&
+                        !allowPublishWithoutFile &&
                         props.values.fileReferences.length === 0 &&
                         !props.values.file)
                     }
