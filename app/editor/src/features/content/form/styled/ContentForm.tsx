@@ -125,4 +125,9 @@ export const ContentForm = styled.div`
   .approve-transcript {
     padding-left: 1em;
   }
+
+  .allow-no-file {
+    display: flex;
+    align-items: center;
+  }
 `;
