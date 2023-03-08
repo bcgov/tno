@@ -1,20 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { AxiosError } from 'axios';
-import {
-  ContentListActionName,
-  ContentTypeName,
-  IContentListModel,
-  IContentModel,
-  useApiMorningReports,
-  useCombinedView,
-} from 'hooks';
+import { ContentTypeName, IContentModel, useCombinedView } from 'hooks';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { SortingRule } from 'react-table';
 import { Row as TRow } from 'react-table';
 import { useContent } from 'store/hooks';
-import { useContentStore } from 'store/slices';
-import { Button, ButtonVariant, Col, FieldSize, Page, PagedTable, Row, Show, Text } from 'tno-core';
+import { Col, Page, PagedTable, Row, Show } from 'tno-core';
 
 import { ContentForm } from '../form';
 import { defaultPage } from '../list-view/constants';
@@ -38,7 +28,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
 
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const { combined, formType } = useCombinedView();
+  const { combined } = useCombinedView();
   const selectedRowIds = !!contentId
     ? ({ [contentId]: true } as Record<string, boolean>)
     : undefined;

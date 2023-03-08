@@ -9,7 +9,6 @@ import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import { storeMorningReportFilter } from 'store/slices';
 import { Col, FieldSize, fromQueryString, IOptionItem, OptionItem, Row, Select } from 'tno-core';
 import { getUserOptions } from 'utils';
 

@@ -4,7 +4,7 @@ import { Col } from 'tno-core';
 
 export interface ITitleSectionProps {}
 
-export const TitleSection: React.FC<ITitleSectionProps> = ({}) => {
+export const TitleSection: React.FC<ITitleSectionProps> = () => {
   return (
     <ToolBarSection
       className="morning-report-title"

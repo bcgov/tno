@@ -1,6 +1,6 @@
 import { ContentTypeName } from 'hooks';
 
-import { IContentListAdvancedFilter, ISortBy } from '../../list-view/interfaces';
+import { ISortBy } from '../../list-view/interfaces';
 
 export interface IMorningReportFilter {
   pageIndex: number;

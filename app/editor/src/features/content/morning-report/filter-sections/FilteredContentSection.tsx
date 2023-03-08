@@ -5,8 +5,7 @@ import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper } from 'react-icons/fa';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import { storeMorningReportFilter } from 'store/slices';
-import { Col, FieldSize, fromQueryString, IOptionItem, OptionItem, Row, Select } from 'tno-core';
+import { Col, FieldSize, IOptionItem, OptionItem, Row, Select } from 'tno-core';
 
 import { defaultReportFilter } from '../constants/defaultReportFilter';
 import { IMorningReportFilter } from '../interfaces';
@@ -23,9 +22,8 @@ export const FilteredContentSection: React.FC<IFilteredContentSection> = ({
   filter,
   onSearch,
 }) => {
-  const [{ productOptions: pOptions, sources, sourceOptions }] = useLookupOptions();
+  const [{ productOptions: pOptions, sourceOptions }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
-  const search = fromQueryString(window.location.search);
 
   /** TODO: Filter needs to apply the query string to the filter when reloading - same issue exists on content list view **/
   /** Extracts variables that have multiple instances from the query */
@@ -35,7 +33,7 @@ export const FilteredContentSection: React.FC<IFilteredContentSection> = ({
     var vars = query.split('&');
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split('=');
-      if (decodeURIComponent(pair[0]) == variable) {
+      if (decodeURIComponent(pair[0]) === variable) {
         multiSelect.push(decodeURIComponent(pair[1]));
       }
     }

@@ -1,15 +1,9 @@
 import { ToolBarSection } from 'components/tool-bar';
 import { fieldTypes } from 'features/content/list-view/constants';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
-import { useLookupOptions } from 'hooks';
+import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
-import { store } from 'store';
 import { useContent } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   FieldSize,
   fromQueryString,
@@ -19,7 +13,6 @@ import {
   replaceQueryParams,
   Row,
   Select,
-  Show,
   Text,
 } from 'tno-core';
 
@@ -44,6 +37,7 @@ export const AdvancedMorningReport: React.FC<IAdvancedSearchSectionProps> = ({ o
       fieldType: search.fieldType ?? fieldTypes[0].value,
       searchTerm: search.searchTerm ?? '',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <ToolBarSection
