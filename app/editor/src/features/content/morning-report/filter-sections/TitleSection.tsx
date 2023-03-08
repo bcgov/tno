@@ -8,7 +8,6 @@ export const TitleSection: React.FC<ITitleSectionProps> = ({}) => {
   return (
     <ToolBarSection
       className="morning-report-title"
-      // title="Morning Report"
       children={
         <Col>
           <p className="report-title">Morning Report</p>
