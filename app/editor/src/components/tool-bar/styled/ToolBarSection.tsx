@@ -6,6 +6,19 @@ export const ToolBarSection = styled(Col)`
     padding: 0.2em;
   }
 
+  .title-icon {
+    color: ${(props) => props.theme.css.primaryColor};
+    margin-left: auto;
+    margin-right: auto;
+    height: 1.5em;
+    width: 1.5em;
+  }
+
+  .report-title {
+    font-size: 1.25em;
+    font-weight: 600;
+  }
+
   @media screen and (min-width: 1847px) {
     padding: 0.5em;
   }
@@ -14,7 +27,6 @@ export const ToolBarSection = styled(Col)`
   .title-container {
     font-weight: 600;
     font-size: 1.25em;
-    margin-top: 1em;
   }
   .white-bg {
     background-color: ${(props) => props.theme.css.backgroundColor};
@@ -78,6 +90,7 @@ export const ToolBarSection = styled(Col)`
   .label-container {
     svg {
       padding-right: 0.25em;
+      align-self: center;
     }
     color: ${(props) => props.theme.css.lightLabelColor};
     font-size: 0.75em;

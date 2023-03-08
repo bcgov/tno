@@ -14,7 +14,6 @@ export const queryToFilterAdvanced = (
   queryString: string,
 ): IContentListAdvancedFilter => {
   const search = fromQueryString(queryString);
-
   if (!!Object.keys(search).length) {
     return {
       fieldType: !!search.fieldType

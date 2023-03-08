@@ -7,7 +7,6 @@ export const ToolBarSection = styled(Col)`
   .title-container {
     font-weight: 600;
     font-size: 1.25em;
-    margin-top: 1em;
   }
     .white-bg {
       background-color: ${(props) => props.theme.css.backgroundColor};

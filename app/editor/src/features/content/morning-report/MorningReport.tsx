@@ -2,23 +2,27 @@
 import { AxiosError } from 'axios';
 import {
   ContentListActionName,
+  ContentTypeName,
   IContentListModel,
   IContentModel,
   useApiMorningReports,
+  useCombinedView,
 } from 'hooks';
 import React from 'react';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { SortingRule } from 'react-table';
 import { Row as TRow } from 'react-table';
-import { toast } from 'react-toastify';
 import { useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
-import { Button, ButtonVariant, Col, FieldSize, Page, PagedTable, Row, Text } from 'tno-core';
+import { Button, ButtonVariant, Col, FieldSize, Page, PagedTable, Row, Show, Text } from 'tno-core';
 
+import { ContentForm } from '../form';
 import { defaultPage } from '../list-view/constants';
+import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { columns } from './constants';
 import { IMorningReportFilter } from './interfaces';
 import { MorningReportFilter } from './MorningReportFilter';
+import { ReportActions } from './ReportActions';
 import * as styled from './styled';
 import { makeFilter } from './utils';
 
@@ -26,15 +30,15 @@ export interface IMorningReportProps extends React.HTMLAttributes<HTMLDivElement
 
 export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   const { id: contentId = '' } = useParams();
-  const [{ morningReportFilter: filter, content }, { findContent, storeMorningReportFilter }] =
-    useContent();
-  const [, { updateContent, removeContent }] = useContentStore();
-  const morningReports = useApiMorningReports();
+  const navigate = useNavigate();
+  const [
+    { morningReportFilter: filter, filterAdvanced, content },
+    { findContent, storeMorningReportFilter },
+  ] = useContent();
 
   const [loading, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-  const [commentary, setCommentary] = React.useState('1');
-
+  const { combined, formType } = useCombinedView();
   const selectedRowIds = !!contentId
     ? ({ [contentId]: true } as Record<string, boolean>)
     : undefined;
@@ -48,7 +52,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   );
 
   const fetch = React.useCallback(
-    async (filter: IMorningReportFilter) => {
+    async (filter: IMorningReportFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setLoading(true);
         const data = await findContent(
@@ -56,7 +60,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
             ...filter,
           }),
         );
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
+        return new Page(data.page - 1, data.quantity, [], data.total);
       } catch (error) {
         // TODO: Handle error
         throw error;
@@ -68,11 +72,15 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   );
 
   React.useEffect(() => {
-    fetch(filter);
-  }, [fetch, filter]);
+    fetch({ ...filter, ...filterAdvanced });
+    // Do not want to fetch when the advanced filter changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, fetch]);
 
   const handleRowClick = (row: TRow<IContentModel>) => {
     // TODO: Open up ContentForm
+    navigate(`/morning/reports/combined/${row.original.id}`);
+
     // setContentType(content.contentType);
     // navigate(`/morning/reports/${content.id}`);
   };
@@ -104,42 +112,10 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
     }
   };
 
-  const handleAction = async (action: ContentListActionName, name?: string, value?: string) => {
-    try {
-      setLoading(true);
-      const model: IContentListModel = {
-        action,
-        actionName: name,
-        actionValue: value,
-        contentIds: selected.map((s) => s.id),
-      };
-      const res = await morningReports.updateContent(model);
-      switch (action) {
-        case ContentListActionName.Publish:
-        case ContentListActionName.Unpublish:
-        case ContentListActionName.Action:
-          updateContent(
-            res.data.map((i) => {
-              i.isSelected = true;
-              return i;
-            }),
-          );
-          break;
-        case ContentListActionName.Remove:
-          removeContent(res.data);
-          break;
-      }
-    } catch (ex: any | AxiosError) {
-      toast.error(ex.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <styled.MorningReport>
-      <Col>
-        <MorningReportFilter />
+    <styled.MorningReport maxWidth={''}>
+      <Col wrap="nowrap">
+        <MorningReportFilter onSearch={fetch} />
         <Row className="content-list">
           <PagedTable
             columns={columns}
@@ -157,58 +133,13 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
             onChangeSort={handleChangeSort}
           />
         </Row>
-        <Row>
-          <Button
-            variant={ButtonVariant.warning}
-            disabled={!selected.length}
-            onClick={() => handleAction(ContentListActionName.Remove)}
-          >
-            Remove
-          </Button>
-          <Button
-            variant={ButtonVariant.primary}
-            disabled={!selected.length}
-            onClick={() => handleAction(ContentListActionName.Action, 'Front Page', 'true')}
-          >
-            Front Page
-          </Button>
-          <Button
-            variant={ButtonVariant.primary}
-            disabled={!selected.length}
-            onClick={() => handleAction(ContentListActionName.Action, 'Top Story', 'true')}
-          >
-            Top Story
-          </Button>
-          <Text
-            name="commentary"
-            width={FieldSize.Tiny}
-            type="number"
-            value={commentary}
-            onChange={(e) => setCommentary(e.currentTarget.value)}
-          >
-            <Button
-              variant={ButtonVariant.primary}
-              disabled={!selected.length}
-              onClick={() => handleAction(ContentListActionName.Action, 'Commentary', commentary)}
-            >
-              Commentary
-            </Button>
-          </Text>
-          <Button
-            variant={ButtonVariant.success}
-            disabled={!selected.length}
-            onClick={() => handleAction(ContentListActionName.Publish)}
-          >
-            Publish
-          </Button>
-          <Button
-            variant={ButtonVariant.secondary}
-            disabled={!selected.length}
-            onClick={() => handleAction(ContentListActionName.Unpublish)}
-          >
-            Unpublish
-          </Button>
-        </Row>
+        <ReportActions setLoading={setLoading} selected={selected} />
+        <Show visible={combined}>
+          <hr />
+          <Row className="bottom-pane" id="bottom-pane">
+            <ContentForm contentType={ContentTypeName.PrintContent} />
+          </Row>
+        </Show>
       </Col>
     </styled.MorningReport>
   );

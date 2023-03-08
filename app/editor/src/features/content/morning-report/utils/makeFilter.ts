@@ -1,3 +1,4 @@
+import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import { applySortBy, setTimeFrame } from 'features/content/list-view/utils';
 import { IContentFilter } from 'hooks/api-editor';
 
@@ -9,8 +10,10 @@ import { IMorningReportFilter } from '../interfaces';
  * @param filter Filter object
  * @returns new IContentFilter object.
  */
-export const makeFilter = (filter: IMorningReportFilter): IContentFilter => {
-  return {
+export const makeFilter = (
+  filter: IMorningReportFilter & Partial<IContentListAdvancedFilter>,
+): IContentFilter => {
+  const result: IContentFilter = {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
     sourceId: filter.sourceId !== 0 ? filter.sourceId : undefined,
@@ -19,10 +22,22 @@ export const makeFilter = (filter: IMorningReportFilter): IContentFilter => {
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
     includedInCategory: filter.includedInCategory ? true : undefined,
     includeHidden: filter.includeHidden ? true : undefined,
+    productIds: filter.productIds ?? undefined,
+    sourceIds: filter.sourceIds ?? undefined,
     publishedStartOn: setTimeFrame(filter.timeFrame as number)?.toISOString(),
     actions: applyActions(filter),
     sort: applySortBy(filter.sort),
+    logicalOperator:
+      filter.searchTerm !== '' && filter.logicalOperator !== ''
+        ? filter.logicalOperator
+        : undefined,
   };
+  if (!!filter.fieldType) {
+    const searchTerm = filter.searchTerm?.trim();
+    (result as any)[(filter?.fieldType as string) ?? 'fake'] =
+      filter.searchTerm !== '' ? searchTerm : undefined;
+  }
+  return result;
 };
 
 /**

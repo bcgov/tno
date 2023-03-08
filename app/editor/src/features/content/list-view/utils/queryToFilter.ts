@@ -31,6 +31,7 @@ export const queryToFilter = (
       userId: convertTo(search.userId, 'number', filter.userId),
       timeFrame: convertTo(search.timeFrame, 'number', filter.timeFrame),
       productIds: filter.productIds,
+      sourceIds: filter.sourceIds,
       // Actions
       onTicker: convertTo(search.onTicker, 'string', filter.onTicker),
       commentary: convertTo(search.commentary, 'string', filter.commentary),

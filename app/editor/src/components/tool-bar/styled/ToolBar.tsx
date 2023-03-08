@@ -8,10 +8,11 @@ export const ToolBar = styled(Row)<IToolBarProps>`
     props.variant === 'dark'
       ? props.theme.css.darkerBackgroundColor
       : props.theme.css.backgroundColor};
-  max-height: 8.95em;
+  max-height: 10.95em;
   align-items: center;
   border-radius: 4px;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+  justify-content: center;
 
   .section {
     border-right: 1px solid #a8aab3;

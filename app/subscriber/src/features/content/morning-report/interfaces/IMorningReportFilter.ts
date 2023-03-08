@@ -1,8 +1,8 @@
 import { ContentTypeName } from 'hooks';
 
-import { ISortBy } from '../../list-view/interfaces';
+import { IContentListAdvancedFilter, ISortBy } from '../../list-view/interfaces';
 
-export interface IMorningReportFilter {
+export interface IMorningReportFilter extends IContentListAdvancedFilter {
   pageIndex: number;
   pageSize: number;
   includedInCategory: boolean;
@@ -10,7 +10,7 @@ export interface IMorningReportFilter {
   contentType?: ContentTypeName;
   sourceId: number;
   otherSource: string;
-  productId: number;
+  productIds: number[];
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';
