@@ -1,5 +1,4 @@
 import { getIn, useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
@@ -31,7 +30,6 @@ export const IngestDetails: React.FC<IIngestDetailsProps> = () => {
   const { values, setFieldValue, setErrors, errors } = useFormikContext<IIngestModel>();
   const [lookups] = useLookup();
   const [{ dataLocations }, { findAllDataLocations }] = useDataLocations();
-  useTooltips();
 
   const [loading, setLoading] = React.useState(true);
   const dataLocationOptions = getSortableOptions(dataLocations);

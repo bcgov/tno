@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { ISourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -18,7 +17,6 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
   const { values, setFieldValue } = useFormikContext<ISourceModel>();
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const [lookups] = useLookup();
-  useTooltips();
 
   const users = getUserOptions(lookups.users);
   const licenses = getSortableOptions(lookups.licenses);

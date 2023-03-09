@@ -28,8 +28,8 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
   return (
     <styled.DateRangeSection>
       <FaCalendarAlt
-        data-for="main-tooltip"
-        data-tip="Date range"
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content="Date range"
         className="action-icon calendar"
       />
       <SelectDate

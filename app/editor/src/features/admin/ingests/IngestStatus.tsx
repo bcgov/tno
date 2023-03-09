@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
@@ -27,7 +26,6 @@ export interface IIngestStatusProps extends IColProps {}
  */
 export const IngestStatus: React.FC<IIngestStatusProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
-  useTooltips();
 
   const getStatus = () => {
     if (!values.schedules.length) return 'No Service Schedule';

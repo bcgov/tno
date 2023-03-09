@@ -1,4 +1,5 @@
 import 'react-toastify/dist/ReactToastify.css';
+import 'react-tooltip/dist/react-tooltip.css';
 
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { LayoutAnonymous } from 'components/layout';
@@ -8,7 +9,7 @@ import Keycloak from 'keycloak-js';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 import { createKeycloakInstance, Loading, Show, useKeycloakEventHandler } from 'tno-core';
 
 const appName = 'Media Monitoring Insights & Analysis';
@@ -48,8 +49,14 @@ function App() {
         </LayoutAnonymous>
       </Show>
       <ToastContainer />
-      <ReactTooltip id="main-tooltip" effect="float" type="light" place="top" />
-      <ReactTooltip id="main-tooltip-right" effect="solid" type="light" place="right" />
+      <Tooltip style={{ zIndex: '999' }} variant="info" id="main-tooltip" place="top" float />
+      <Tooltip
+        style={{ zIndex: '999' }}
+        variant="info"
+        id="main-tooltip-right"
+        place="right"
+        float
+      />
     </BrowserRouter>
   );
 }

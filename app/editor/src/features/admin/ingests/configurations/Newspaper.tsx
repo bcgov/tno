@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -19,7 +18,6 @@ import * as styled from './styled';
 
 export const Newspaper: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
-  useTooltips();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);

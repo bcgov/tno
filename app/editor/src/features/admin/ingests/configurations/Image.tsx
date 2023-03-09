@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { FormikText } from 'tno-core';
@@ -8,7 +7,6 @@ import * as styled from './styled';
 
 export const Image: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
-  useTooltips();
 
   return (
     <styled.IngestType>

@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { useModal, useTooltips } from 'hooks';
+import { useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -38,7 +38,6 @@ export const DataLocationForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
-  useTooltips();
 
   const [loading, setLoading] = React.useState(true);
   const [dataLocation, setDataLocation] = React.useState<IDataLocationForm>(

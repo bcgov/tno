@@ -13,7 +13,11 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: 'headline',
     width: 4,
     Cell: (cell) => (
-      <CellEllipsis data-for="main-tooltip" data-tip={cell.value} className="headline">
+      <CellEllipsis
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content={cell.value}
+        className="headline"
+      >
         <Show
           visible={
             cell.row.original.contentType === ContentTypeName.Snippet && !!cell.row.original.body
@@ -89,7 +93,9 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   },
   {
     id: 'newTab',
-    Header: () => <FaInfoCircle data-for="main-tooltip" data-tip="Open snippet in new tab" />,
+    Header: () => (
+      <FaInfoCircle data-tooltip-id="main-tooltip" data-tooltip-content="Open snippet in new tab" />
+    ),
     disableSortBy: true,
     width: 1,
     accessor: (row) => row.id,

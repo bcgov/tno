@@ -32,7 +32,7 @@ exports[`renders correctly... 1`] = `
               </div>
               <div
                 class="sc-iBkjds hlCHXr"
-                data-for="select-tooltip"
+                data-tooltip-id="select-tooltip"
                 direction="row"
               >
                 <div
@@ -137,7 +137,7 @@ exports[`renders correctly... 1`] = `
               </div>
               <div
                 class="sc-iBkjds hlCHXr"
-                data-for="select-tooltip"
+                data-tooltip-id="select-tooltip"
                 direction="row"
               >
                 <div
@@ -239,7 +239,7 @@ exports[`renders correctly... 1`] = `
                 >
                   <label
                     class=""
-                    data-for="main-tooltip"
+                    data-tooltip-id="main-tooltip"
                   >
                     Time Frame
                   </label>
@@ -264,7 +264,7 @@ exports[`renders correctly... 1`] = `
                 >
                   <input
                     class="sc-himrzO eYGWXq rad "
-                    data-for="main-tooltip"
+                    data-tooltip-id="main-tooltip"
                     id="rad-timeFrame-0"
                     name="timeFrame"
                     type="radio"
@@ -281,7 +281,7 @@ exports[`renders correctly... 1`] = `
                 >
                   <input
                     class="sc-himrzO eYGWXq rad "
-                    data-for="main-tooltip"
+                    data-tooltip-id="main-tooltip"
                     id="rad-timeFrame-1"
                     name="timeFrame"
                     type="radio"
@@ -298,7 +298,7 @@ exports[`renders correctly... 1`] = `
                 >
                   <input
                     class="sc-himrzO eYGWXq rad "
-                    data-for="main-tooltip"
+                    data-tooltip-id="main-tooltip"
                     id="rad-timeFrame-2"
                     name="timeFrame"
                     type="radio"
@@ -315,7 +315,7 @@ exports[`renders correctly... 1`] = `
                 >
                   <input
                     class="sc-himrzO eYGWXq rad "
-                    data-for="main-tooltip"
+                    data-tooltip-id="main-tooltip"
                     id="rad-timeFrame-3"
                     name="timeFrame"
                     type="radio"
@@ -341,8 +341,8 @@ exports[`renders correctly... 1`] = `
                 <div>
                   <div
                     class="sc-ezWOiH cSknoo frm-in chk"
-                    data-for="main-tooltip"
-                    data-tip="Newspaper content without audio/video"
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content="Newspaper content without audio/video"
                   >
                     <div>
                       <input
@@ -362,8 +362,8 @@ exports[`renders correctly... 1`] = `
                   </div>
                   <div
                     class="sc-ezWOiH cSknoo frm-in chk"
-                    data-for="main-tooltip"
-                    data-tip="Content included in Event of the Day"
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content="Content included in Event of the Day"
                   >
                     <div>
                       <input
@@ -383,8 +383,8 @@ exports[`renders correctly... 1`] = `
                   </div>
                   <div
                     class="sc-ezWOiH cSknoo frm-in chk"
-                    data-for="main-tooltip"
-                    data-tip="Content identified as on ticker"
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content="Content identified as on ticker"
                   >
                     <div>
                       <input
@@ -407,8 +407,8 @@ exports[`renders correctly... 1`] = `
                 <div>
                   <div
                     class="sc-ezWOiH cSknoo frm-in chk"
-                    data-for="main-tooltip"
-                    data-tip="Content identified as commentary"
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content="Content identified as commentary"
                   >
                     <div>
                       <input
@@ -429,8 +429,8 @@ exports[`renders correctly... 1`] = `
                   </div>
                   <div
                     class="sc-ezWOiH cSknoo frm-in chk"
-                    data-for="main-tooltip"
-                    data-tip="Content identified as a top story"
+                    data-tooltip-id="main-tooltip"
+                    data-tooltip-content="Content identified as a top story"
                   >
                     <div>
                       <input
@@ -478,7 +478,7 @@ exports[`renders correctly... 1`] = `
                 </div>
                 <div
                   class="sc-iBkjds hlCHXr"
-                  data-for="select-tooltip"
+                  data-tooltip-id="select-tooltip"
                   direction="row"
                 >
                   <div
@@ -587,7 +587,7 @@ exports[`renders correctly... 1`] = `
                 >
                   <input
                     class="sc-jqUVSM leDEwi txt test"
-                    data-for="main-tooltip"
+                    data-tooltip-id="main-tooltip"
                     name="searchTerm"
                     role="none"
                     type="text"
@@ -602,8 +602,8 @@ exports[`renders correctly... 1`] = `
               direction="column"
             >
               <label
-                data-for="main-tooltip"
-                data-tip="Date created"
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content="Date created"
               >
                 Date Range
               </label>
@@ -657,7 +657,7 @@ exports[`renders correctly... 1`] = `
             </div>
             <button
               class="sc-eCYdqJ GWhWw btn "
-              data-for="main-tooltip"
+              data-tooltip-id="main-tooltip"
               name="search"
               type="button"
             >
@@ -667,7 +667,7 @@ exports[`renders correctly... 1`] = `
             </button>
             <button
               class="sc-eCYdqJ jrZZUV btn "
-              data-for="main-tooltip"
+              data-tooltip-id="main-tooltip"
               name="clear"
               type="button"
             >
@@ -865,7 +865,7 @@ exports[`renders correctly... 1`] = `
               >
                 <button
                   class="sc-eCYdqJ jGzYem btn "
-                  data-for="main-tooltip"
+                  data-tooltip-id="main-tooltip"
                   disabled=""
                   name="firstPage"
                   type="button"
@@ -888,7 +888,7 @@ exports[`renders correctly... 1`] = `
                 </button>
                 <button
                   class="sc-eCYdqJ jGzYem btn active"
-                  data-for="main-tooltip"
+                  data-tooltip-id="main-tooltip"
                   disabled=""
                   type="button"
                 >
@@ -898,7 +898,7 @@ exports[`renders correctly... 1`] = `
                 </button>
                 <button
                   class="sc-eCYdqJ jGzYem btn "
-                  data-for="main-tooltip"
+                  data-tooltip-id="main-tooltip"
                   disabled=""
                   name="lastPage"
                   type="button"
@@ -929,7 +929,7 @@ exports[`renders correctly... 1`] = `
         >
           <button
             class="sc-eCYdqJ jrZZUV btn "
-            data-for="main-tooltip"
+            data-tooltip-id="main-tooltip"
             name="create"
             type="button"
           >
@@ -939,7 +939,7 @@ exports[`renders correctly... 1`] = `
           </button>
           <button
             class="sc-eCYdqJ jrZZUV btn "
-            data-for="main-tooltip"
+            data-tooltip-id="main-tooltip"
             name="create"
             type="button"
           >

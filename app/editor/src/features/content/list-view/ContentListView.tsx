@@ -4,7 +4,6 @@ import {
   IWorkOrderModel,
   useApiHub,
   useCombinedView,
-  useTooltips,
   WorkOrderTypeName,
 } from 'hooks';
 import { IContentModel } from 'hooks/api-editor';
@@ -38,7 +37,6 @@ export const ContentListView: React.FC = () => {
   ] = useContent();
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
-  useTooltips();
   var hub = useApiHub();
 
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
@@ -148,7 +146,6 @@ export const ContentListView: React.FC = () => {
     <styled.ContentListView maxWidth={''}>
       <Col wrap="nowrap">
         <ContentToolBar onSearch={fetch} />
-
         <Row className="top-pane">
           <Row className="content-list">
             <PagedTable

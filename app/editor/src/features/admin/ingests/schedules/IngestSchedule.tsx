@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel, ScheduleTypeName } from 'hooks/api-editor';
 import React from 'react';
 import { Col, FieldSize, FormikSelect, Row, Show } from 'tno-core';
@@ -12,7 +11,6 @@ interface IIngestScheduleProps {}
 
 export const IngestSchedule: React.FC<IIngestScheduleProps> = () => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
-  useTooltips();
 
   const scheduleTypeOptions = getEnumStringOptions(ScheduleTypeName);
 

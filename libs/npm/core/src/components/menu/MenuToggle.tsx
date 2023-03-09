@@ -49,8 +49,8 @@ export const MenuToggle: React.FC<IMenuToggleProps> = ({ width = '45px', height 
     <styled.MenuToggle
       width={width}
       height={height}
-      data-for="main-tooltip-right"
-      data-tip={tip}
+      data-tooltip-id="main-tooltip-right"
+      data-tooltip-content={tip}
       className="toggle-icon"
       onClick={() => {
         switch (status) {

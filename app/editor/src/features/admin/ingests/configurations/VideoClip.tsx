@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
@@ -11,7 +10,6 @@ import * as styled from './styled';
 export const VideoClip: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
   const { applyPlaceholder } = useFormikHelpers();
-  useTooltips();
 
   React.useEffect(() => {
     if (!values.configuration.fileName) {

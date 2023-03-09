@@ -1,4 +1,4 @@
-import { IWorkOrderModel, useTooltips, WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
+import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
 import { FaCheckCircle, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
 import { Spinner, SpinnerVariant } from 'tno-core';
 
@@ -18,25 +18,32 @@ export interface ITranscriptionStatusProps {
  */
 export const WorkOrderStatus: React.FC<ITranscriptionStatusProps> = ({ workOrders, type }) => {
   const workOrder = findWorkOrder(workOrders, type);
-  useTooltips();
 
   if (!workOrder) return <></>;
 
   switch (workOrder?.status) {
     case WorkOrderStatusName.Cancelled:
       return (
-        <FaTimesCircle className="spinner" data-for="main-tooltip" data-tip={workOrder.status} />
+        <FaTimesCircle
+          className="spinner"
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={workOrder.status}
+        />
       );
     case WorkOrderStatusName.Completed:
       return (
-        <FaCheckCircle className="spinner" data-for="main-tooltip" data-tip={workOrder.status} />
+        <FaCheckCircle
+          className="spinner"
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={workOrder.status}
+        />
       );
     case WorkOrderStatusName.Failed:
       return (
         <FaExclamationCircle
           className="spinner"
-          data-for="main-tooltip"
-          data-tip={workOrder.status}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={workOrder.status}
         />
       );
     default:
@@ -44,8 +51,8 @@ export const WorkOrderStatus: React.FC<ITranscriptionStatusProps> = ({ workOrder
         <Spinner
           variant={SpinnerVariant.light}
           size="0.5em"
-          data-for="main-tooltip"
-          data-tip={workOrder.status}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={workOrder.status}
         />
       );
   }

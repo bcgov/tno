@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { useModal, useTooltips } from 'hooks';
+import { useModal } from 'hooks';
 import { IUserModel, UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
@@ -38,7 +38,6 @@ export const UserForm: React.FC = () => {
   const userId = Number(id);
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
-  useTooltips();
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [roleOptions, setRoleOptions] = React.useState(

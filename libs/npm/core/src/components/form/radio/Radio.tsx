@@ -36,8 +36,8 @@ export const Radio: React.FC<IRadioProps> = ({
       error={error}
       variant={variant}
       className={`rad ${className ?? ''}`}
-      data-for="main-tooltip"
-      data-tip={tooltip}
+      data-tooltip-id="main-tooltip"
+      data-tooltip-content={tooltip}
       {...rest}
     >
       {children}

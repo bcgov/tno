@@ -72,7 +72,10 @@ export const MenuGroup: React.FC<IMenuGroupProps> = ({
     <HMenu>
       <styled.MenuGroup>
         <HMenu.Button>
-          <div data-for="main-tooltip-right" data-tip={status === MenuStatus.narrow ? label : ''}>
+          <div
+            data-tooltip-id="main-tooltip-right"
+            data-tooltip-content={status === MenuStatus.narrow ? label : ''}
+          >
             {showIcon && Icon && <Icon />}
             {status === MenuStatus.full && label}
           </div>

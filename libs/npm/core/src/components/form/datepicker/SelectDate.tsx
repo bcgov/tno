@@ -82,8 +82,8 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
               if (onChange) onChange(date, event);
             }}
             className={`dpk${className ? ` ${className}` : ''}`}
-            data-for="main-tooltip"
-            data-tip={tooltip}
+            data-tooltip-id="main-tooltip"
+            data-tooltip-content={tooltip}
             disabled={rest.disabled}
             required={required}
             {...rest}
@@ -96,8 +96,8 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
             name={name}
             id={id}
             className={`dpk${className ? ` ${className}` : ''}`}
-            data-for="main-tooltip"
-            data-tip={tooltip}
+            data-tooltip-id="main-tooltip"
+            data-tooltip-content={tooltip}
             disabled={rest.disabled}
             required={required}
             onChange={onChange}

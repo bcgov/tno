@@ -46,8 +46,8 @@ export const Button: React.FC<IButtonProps> = ({
       variant={variant}
       onClick={onClickHandler}
       className={`btn ${className ?? ''}`}
-      data-for="button-tooltip"
-      data-tip={tooltip}
+      data-tooltip-id="button-tooltip"
+      data-tooltip-content={tooltip}
       {...rest}
     >
       <div>

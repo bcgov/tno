@@ -11,7 +11,11 @@ import * as styled from './styled';
 export const LogoutButton: React.FC<IconBaseProps> = (props) => {
   return (
     <>
-      <styled.LogoutButton data-for="main-tooltip" data-tip="Logout" {...props} />
+      <styled.LogoutButton
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content="Logout"
+        {...props}
+      />
     </>
   );
 };

@@ -65,8 +65,8 @@ export const Checkbox: React.FC<ICheckboxProps> = ({
   return (
     <styled.Checkbox
       className={`frm-in chk${className ? ` ${className}` : ''}`}
-      data-for="main-tooltip"
-      data-tip={tooltip}
+      data-tooltip-id="main-tooltip"
+      data-tooltip-content={tooltip}
       labelPosition={labelPosition}
     >
       <div>

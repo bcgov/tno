@@ -11,7 +11,6 @@ import {
   IWorkOrderModel,
   useCombinedView,
   useLookupOptions,
-  useTooltips,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'hooks';
@@ -91,7 +90,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [{ sources, series, sourceOptions, productOptions }, { getSeries }] = useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
   const hub = useApiHub();
-  useTooltips();
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1);
