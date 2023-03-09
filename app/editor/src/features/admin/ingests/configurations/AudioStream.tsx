@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import { useFormikHelpers } from 'hooks/formik';
 import React from 'react';
@@ -11,7 +10,6 @@ import * as styled from './styled';
 export const AudioStream: React.FC = (props) => {
   const { values } = useFormikContext<IIngestModel>();
   const { applyPlaceholder } = useFormikHelpers();
-  useTooltips();
 
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
   const language = Languages.find((t) => t.value === values.configuration.language);

@@ -94,8 +94,8 @@ export const fileExplorerColumns = (
           <Col>
             <Show visible={isVideoOrAudioFile(row.values.name) && row.original.isLocal}>
               <FaPlay
-                data-for="main-tooltip"
-                data-tip="Play"
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content="Play"
                 onClick={() => options?.onPlay?.(row.original)}
                 className={`${row.original.isDirectory && 'hidden'}`}
               />
@@ -107,8 +107,8 @@ export const fileExplorerColumns = (
             <Show visible={row.original.isLocal}>
               <FaFileDownload
                 className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
-                data-for="main-tooltip"
-                data-tip="Download"
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content="Download"
                 onClick={() => {
                   options?.onDownload?.(row.original);
                 }}
@@ -117,8 +117,8 @@ export const fileExplorerColumns = (
             <Show visible={!row.original.isLocal}>
               <FaCopy
                 className={`fa-lg ${row.original.isDirectory && 'hidden'}`}
-                data-for="main-tooltip"
-                data-tip="Request Copy"
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content="Request Copy"
                 onClick={() => {
                   options?.onDownload?.(row.original);
                 }}
@@ -131,8 +131,8 @@ export const fileExplorerColumns = (
             <Show visible={row.original.isLocal}>
               <FaPaperclip
                 className={`fa-lg ${(row.original.isDirectory || options?.isStorage) && 'hidden'}`}
-                data-for="main-tooltip"
-                data-tip="Attach to snippet"
+                data-tooltip-id="main-tooltip"
+                data-tooltip-content="Attach to snippet"
                 onClick={() => {
                   options?.onAttach?.(row.original);
                 }}
@@ -144,8 +144,8 @@ export const fileExplorerColumns = (
           <Col>
             <FaTrash
               className="delete fa-lg"
-              data-for="main-tooltip"
-              data-tip="Delete"
+              data-tooltip-id="main-tooltip"
+              data-tooltip-content="Delete"
               onClick={() => {
                 options?.onDelete?.(row.original);
               }}

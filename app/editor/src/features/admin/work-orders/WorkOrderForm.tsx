@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { useModal, useTooltips } from 'hooks';
+import { useModal } from 'hooks';
 import { IWorkOrderModel, WorkOrderStatusName } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
@@ -39,7 +39,6 @@ export const WorkOrderForm: React.FC = () => {
   const workOrderId = Number(id);
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
-  useTooltips();
 
   const [workOrder, setWorkOrder] = React.useState<IWorkOrderModel>(defaultWorkOrder);
   const statusOptions = getEnumStringOptions(WorkOrderStatusName);

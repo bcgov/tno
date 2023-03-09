@@ -11,7 +11,7 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
     accessor: 'headline',
     width: 5,
     Cell: ({ value }) => (
-      <CellEllipsis data-for="main-tooltip" data-tip={value}>
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
         {value}
       </CellEllipsis>
     ),

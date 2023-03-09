@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { ConnectionTypeName, useTooltips } from 'hooks';
+import { ConnectionTypeName } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -20,7 +20,6 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
   const [{ connections }, { findAllConnections }] = useConnections();
   const [lookups] = useLookup();
-  useTooltips();
 
   const [loading, setLoading] = React.useState(true);
 

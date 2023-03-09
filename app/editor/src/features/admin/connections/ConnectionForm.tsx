@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { ConnectionTypeName, IConnectionModel, useModal, useTooltips } from 'hooks';
+import { ConnectionTypeName, IConnectionModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -38,7 +38,6 @@ export const ConnectionForm: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toggle, isShowing } = useModal();
-  useTooltips();
 
   const connectionId = Number(id);
   const [connection, setConnection] = React.useState<IConnectionModel>(

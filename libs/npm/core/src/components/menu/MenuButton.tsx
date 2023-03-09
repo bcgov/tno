@@ -68,8 +68,8 @@ export const MenuButton: React.FC<IMenuButtonProps> = ({
     <HMenu>
       <HMenu.Button>
         <div
-          data-for="main-tooltip-right"
-          data-tip={status === MenuStatus.narrow ? label : ''}
+          data-tooltip-id="main-tooltip-right"
+          data-tooltip-content={status === MenuStatus.narrow ? label : ''}
           onClick={() => !!onClick && onClick()}
         >
           {showIcon && Icon && <Icon />}

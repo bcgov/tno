@@ -65,8 +65,8 @@ export const Text: React.FC<ITextProps> = ({
     <styled.Text className="frm-in">
       {label && (
         <label
-          data-for="main-tooltip"
-          data-tip={tooltip}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={tooltip}
           className={rest.required ? 'required' : ''}
           htmlFor={id ?? `txt-${name}`}
         >
@@ -80,7 +80,7 @@ export const Text: React.FC<ITextProps> = ({
           type={type}
           variant={variant}
           className={`txt ${className ?? ''}`}
-          data-for="main-tooltip"
+          data-tooltip-id="main-tooltip"
           width={width}
           role={error ? 'alert' : 'none'}
           value={formatter(value)}

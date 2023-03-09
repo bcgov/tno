@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { ILicenseModel, useModal, useTooltips } from 'hooks';
+import { ILicenseModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -31,7 +31,6 @@ export const LicenseForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  useTooltips();
 
   const [license, setLicense] = React.useState<ILicenseModel>(
     (state as any)?.license ?? defaultLicense,

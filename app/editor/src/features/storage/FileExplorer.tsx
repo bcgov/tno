@@ -1,7 +1,7 @@
 import { Breadcrumb } from 'components/breadcrumb';
 import { Modal } from 'components/modal';
 import { ToggleGroup } from 'components/toggle-group';
-import { IFolderModel, useModal, useTooltips } from 'hooks';
+import { IFolderModel, useModal } from 'hooks';
 import { IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
@@ -55,7 +55,6 @@ export const FileExplorer: React.FC<IFileExplorerProps> = ({
 }) => {
   const [{ dataLocations }] = useLookup();
   const { toggle, isShowing } = useModal();
-  useTooltips();
 
   const [item, setItem] = React.useState<IItemModel>();
 

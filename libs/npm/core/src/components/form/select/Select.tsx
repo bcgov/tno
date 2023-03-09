@@ -104,8 +104,8 @@ export const Select = <OptionType extends IOptionItem>({
     <styled.Select className="frm-in">
       {label && (
         <label
-          data-for="main-tooltip"
-          data-tip={tooltip}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={tooltip}
           className={required ? 'required' : ''}
           htmlFor={`sel-${name}`}
         >
@@ -124,7 +124,7 @@ export const Select = <OptionType extends IOptionItem>({
               if (!!selectRef.current) selectRef.current.select.clearValue();
             }
           }}
-          data-for="select-tooltip"
+          data-tooltip-id="select-tooltip"
         >
           <styled.SelectField
             ref={selectRef}

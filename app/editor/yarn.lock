@@ -1881,6 +1881,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/core@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "@floating-ui/core@npm:1.2.2"
+  checksum: 0728efcb3f57c0bbeaf940e3ca8dfbecb659afec8943dff79169b8191b8c4aa14b54a33dc66599e624dfa791920010ebd9f860cfa7f47df94ad75b32c1e44883
+  languageName: node
+  linkType: hard
+
+"@floating-ui/dom@npm:1.2.3":
+  version: 1.2.3
+  resolution: "@floating-ui/dom@npm:1.2.3"
+  dependencies:
+    "@floating-ui/core": ^1.2.2
+  checksum: b2428e1fda01d5cba59960bb8c04d7a5f2400200855f206267589533a67303a62fbdf85dc7747fe83c21bb15f4eda67feaaf51ef4a41bb132fd2b785612f1bb4
+  languageName: node
+  linkType: hard
+
 "@floating-ui/dom@npm:^1.0.1":
   version: 1.0.6
   resolution: "@floating-ui/dom@npm:1.0.6"
@@ -5076,7 +5092,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.6":
+"classnames@npm:^2.2.6, classnames@npm:^2.3.2":
   version: 2.3.2
   resolution: "classnames@npm:2.3.2"
   checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
@@ -10173,7 +10189,7 @@ __metadata:
     react-table: 7.8.0
     react-text-mask: 5.5.0
     react-toastify: 9.1.1
-    react-tooltip: 4.5.0
+    react-tooltip: 5.9.0
     redux-logger: 3.0.6
     sass: 1.58.0
     sass-extract: 2.1.0
@@ -12528,16 +12544,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-tooltip@npm:4.5.0":
-  version: 4.5.0
-  resolution: "react-tooltip@npm:4.5.0"
+"react-tooltip@npm:5.9.0":
+  version: 5.9.0
+  resolution: "react-tooltip@npm:5.9.0"
   dependencies:
-    prop-types: ^15.8.1
-    uuid: ^7.0.3
+    "@floating-ui/dom": 1.2.3
+    classnames: ^2.3.2
   peerDependencies:
-    react: ">=16.0.0"
-    react-dom: ">=16.0.0"
-  checksum: 94b22b73332fc6b1b4889a3e4103d431b2f067bf2891d76effb54f3ad7fb8d8934f134a3dca50332415d9536ce9b98bdb460732dfa68d046adccca088ee723f7
+    react: ">=16.14.0"
+    react-dom: ">=16.14.0"
+  checksum: 14e3c09f036ebce81d2013011870ec6dd37aca82f09184671de6f105f3d2eadb18b883081bd296ea1ae1a4ae0e3abcaa389389a9dc71c01916ad075b38c4d4d1
   languageName: node
   linkType: hard
 

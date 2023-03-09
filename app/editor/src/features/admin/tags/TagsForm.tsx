@@ -23,7 +23,6 @@ import {
   Show,
 } from 'tno-core';
 
-import { useTooltips } from './../../../hooks/useTooltips';
 import { defaultTag } from './constants';
 import * as styled from './styled';
 
@@ -33,7 +32,6 @@ export const TagsForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  useTooltips();
 
   const [tag, setTag] = React.useState<ITagModel>((state as any)?.tag ?? defaultTag);
 

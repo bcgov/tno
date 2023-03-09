@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { useTooltips } from 'hooks';
 import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { FormikCheckbox, FormikSelect, FormikText } from 'tno-core';
@@ -10,7 +9,6 @@ import * as styled from './styled';
 export const Syndication: React.FC = (props) => {
   const { values, setFieldValue } = useFormikContext<IIngestModel>();
   const timeZone = TimeZones.find((t) => t.value === values.configuration.timeZone);
-  useTooltips();
 
   return (
     <styled.IngestType>

@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { useModal, useTooltips } from 'hooks';
+import { useModal } from 'hooks';
 import { IIngestTypeModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
@@ -33,7 +33,6 @@ export const IngestTypeForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  useTooltips();
 
   const ingestTypeId = Number(id);
   const [ingestType, setIngestType] = React.useState<IIngestTypeModel>(

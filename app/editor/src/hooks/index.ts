@@ -6,4 +6,3 @@ export * from './useLookupSync';
 export * from './useNamespace';
 export * from './useNavState';
 export * from './useQuery';
-export * from './useTooltips';

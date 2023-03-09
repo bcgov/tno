@@ -52,8 +52,8 @@ export const TextArea: React.FC<ITextAreaProps> = ({
     <styled.TextArea className="frm-in">
       <Show visible={!!label}>
         <label
-          data-for="main-tooltip"
-          data-tip={tooltip}
+          data-tooltip-id="main-tooltip"
+          data-tooltip-content={tooltip}
           className={rest.required ? 'required' : ''}
           htmlFor={id ?? `txa-${name}`}
         >
@@ -66,7 +66,7 @@ export const TextArea: React.FC<ITextAreaProps> = ({
         name={name}
         variant={variant}
         className={`txa ${className ?? ''}`}
-        data-for="main-tooltip"
+        data-tooltip-id="main-tooltip"
         width={width}
         role={error ? 'alert' : 'none'}
         onInput={(e) => {
