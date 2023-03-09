@@ -50,7 +50,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
             ...filter,
           }),
         );
-        return new Page(data.page - 1, data.quantity, [], data.total);
+        return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
         throw error;
@@ -68,11 +68,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   }, [filter, fetch]);
 
   const handleRowClick = (row: TRow<IContentModel>) => {
-    // TODO: Open up ContentForm
     navigate(`/morning/reports/combined/${row.original.id}`);
-
-    // setContentType(content.contentType);
-    // navigate(`/morning/reports/${content.id}`);
   };
 
   const handleChangePage = React.useCallback(

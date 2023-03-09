@@ -81,9 +81,6 @@ export const FilteredContentSection: React.FC<IFilteredContentSection> = ({
               closeMenuOnSelect={false}
               hideSelectedOptions={false}
               options={filterEnabled(productOptions)}
-              // value={sourceOptions.filter((opt) =>
-              //   getQueryVariable('productIds').includes(opt.value?.toString() ?? ''),
-              // )}
               width={FieldSize.Big}
               defaultValue={productOptions[0]}
               components={{
