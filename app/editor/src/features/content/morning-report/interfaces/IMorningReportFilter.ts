@@ -9,6 +9,7 @@ export interface IMorningReportFilter {
   includeHidden: boolean;
   contentType?: ContentTypeName;
   sourceId: number;
+  sourceIds: number[];
   otherSource: string;
   productIds: number[];
   ownerId: number | '';

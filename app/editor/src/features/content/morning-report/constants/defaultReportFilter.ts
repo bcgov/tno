@@ -1,9 +1,12 @@
-import { IContentListFilter } from '../interfaces';
-import { defaultPage } from './defaultPage';
+import { defaultPage } from 'features/content/list-view/constants';
+import { ContentTypeName } from 'hooks';
 
-export const defaultFilter: IContentListFilter = {
+import { IMorningReportFilter } from '../interfaces';
+
+export const defaultReportFilter: IMorningReportFilter = {
   pageIndex: defaultPage.pageIndex,
   pageSize: defaultPage.pageSize,
+  contentType: ContentTypeName.PrintContent,
   includedInCategory: false,
   includeHidden: false,
   sourceId: 0,

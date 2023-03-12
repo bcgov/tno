@@ -33,6 +33,7 @@ export const Wysiwyg = styled.div<IWysiwygProps>`
 
   .quill {
     border: 1px solid #ccc;
+    overflow-x: hidden;
   }
 
   .ql-container {

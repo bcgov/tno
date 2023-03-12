@@ -10,7 +10,8 @@ export interface IMorningReportFilter {
   contentType?: ContentTypeName;
   sourceId: number;
   otherSource: string;
-  productId: number;
+  productIds: number[];
+  sourceIds: number[];
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';

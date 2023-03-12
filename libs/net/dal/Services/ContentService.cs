@@ -131,6 +131,9 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.ProductIds?.Any() == true)
             query = query.Where(c => filter.ProductIds.Contains(c.ProductId));
 
+        if(filter.SourceIds?.Any() == true)
+            query = query.Where(c => filter.SourceIds.Contains((int)c.SourceId!));
+
         if (filter.Actions.Any() == true)
             query = query.Where(c => c.ActionsManyToMany.Any(ca => filter.Actions.Contains(ca.Action!.Name)
                 && ((ca.Action.ValueType == Entities.ValueType.Boolean && ca.Value == "true")

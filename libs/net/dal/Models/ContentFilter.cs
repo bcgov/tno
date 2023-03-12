@@ -46,6 +46,11 @@ public class ContentFilter : PageFilter
     public int? SourceId { get; set; }
 
     /// <summary>
+    /// get/set - An array of source IDs.
+    /// </summary>
+    public long[] SourceIds { get; set; } = Array.Empty<long>();
+
+    /// <summary>
     /// get/set - Only include content with this other source.
     /// </summary>
     public string? OtherSource { get; set; }
@@ -189,6 +194,7 @@ public class ContentFilter : PageFilter
 
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
         this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
+        this.SourceIds = filter.GetLongArrayValue(nameof(this.SourceIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }

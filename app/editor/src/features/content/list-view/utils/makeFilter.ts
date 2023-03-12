@@ -18,6 +18,7 @@ export const makeFilter = (
     quantity: filter.pageSize,
     sourceId: filter.sourceId !== 0 ? filter.sourceId : undefined,
     productIds: filter.productIds ?? undefined,
+    sourceIds: filter.sourceIds ?? undefined,
     contentType: filter.contentType,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
@@ -34,7 +35,6 @@ export const makeFilter = (
     actions: applyActions(filter),
     sort: applySortBy(filter.sort),
   };
-
   if (!!filter.fieldType) {
     const searchTerm =
       filter.fieldType === 'sourceId' ? filter.searchTerm : filter.searchTerm?.trim();
