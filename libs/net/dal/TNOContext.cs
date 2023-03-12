@@ -16,6 +16,8 @@ public class TNOContext : DbContext
     private readonly ILogger? _logger;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly JsonSerializerOptions? _serializerOptions;
+    private static readonly SemaphoreSlim _saveChangesLock = new(1);
+    private static readonly int _maxRetry = 3;
     #endregion
 
     #region Properties
@@ -143,18 +145,39 @@ public class TNOContext : DbContext
     public int CommitTransaction()
     {
         var result = 0;
-        using (var transaction = this.Database.BeginTransaction())
+        var retry = 0;
+        _saveChangesLock.Wait();
+        try
         {
-            try
+            using var transaction = Database.BeginTransaction();
+            while (result == 0 && retry < _maxRetry)
             {
-                result = this.SaveChanges();
-                transaction.Commit();
+                try
+                {
+                    result = SaveChanges();
+                    transaction.Commit();
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    retry++;
+                    _logger?.LogError(ex, $"{nameof(TNOContext)} caught {nameof(DbUpdateConcurrencyException)} {retry}");
+                    if (retry == _maxRetry) throw;
+                    foreach (var entry in ex.Entries)
+                    {
+                        var propertyValues = entry.GetDatabaseValues() ?? throw new InvalidOperationException($"The entity of {entry.Metadata.Name} does not exist");
+                        entry.OriginalValues.SetValues(propertyValues);
+                    }
+                }
+                catch (DbUpdateException)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
-            catch (DbUpdateException)
-            {
-                transaction.Rollback();
-                throw;
-            }
+        }
+        finally
+        {
+            _saveChangesLock.Release();
         }
         return result;
     }
