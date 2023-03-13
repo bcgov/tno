@@ -39,8 +39,17 @@ public class ContentTopic : AuditColumns, IEquatable<ContentTopic>
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a ContentTopic object.
+    /// </summary>
     protected ContentTopic() { }
 
+    /// <summary>
+    /// Creates a new instance of a ContentTopic object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <param name="topicId"></param>
+    /// <param name="score"></param>
     public ContentTopic(long contentId, int topicId, int score)
     {
         this.ContentId = contentId;
@@ -48,6 +57,13 @@ public class ContentTopic : AuditColumns, IEquatable<ContentTopic>
         this.Score = score;
     }
 
+    /// <summary>
+    /// Creates a new instance of a ContentTopic object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="topic"></param>
+    /// <param name="score"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public ContentTopic(Content content, Topic topic, int score)
     {
         this.ContentId = content?.Id ?? throw new ArgumentNullException(nameof(content));
@@ -59,6 +75,11 @@ public class ContentTopic : AuditColumns, IEquatable<ContentTopic>
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Determine if equal based on primary keys.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
     public bool Equals(ContentTopic? other)
     {
         if (other == null) return false;

@@ -16,7 +16,7 @@ COPY services/net/capture services/net/capture
 COPY libs/net libs/net
 
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
-    fix_permissions "/app" "/tmp"
+    fix_permissions "/tmp"
 
 WORKDIR /src/services/net/capture
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build

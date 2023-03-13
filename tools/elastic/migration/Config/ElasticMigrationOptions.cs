@@ -32,5 +32,15 @@ public class ElasticMigrationOptions : ElasticOptions
     /// get/set - The path to the folder containing the migration files.
     /// </summary>
     public string MigrationsPath { get; set; } = $".{Path.DirectorySeparatorChar}Migrations";
+
+    /// <summary>
+    /// get/set - The number of milliseconds to wait after each reindex loop.
+    /// </summary>
+    public int ReindexDelay { get; set; } = 5000;
+
+    /// <summary>
+    /// get/set - Maximum number of failures before exiting the reindex process.
+    /// </summary>
+    public int ReindexFailureLimit { get; set; } = 5;
     #endregion
 }

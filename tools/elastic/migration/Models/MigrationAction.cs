@@ -36,5 +36,9 @@ public enum MigrationAction
     /// <summary>
     /// Deletes an existing alias.
     /// </summary>
-    DeleteAlias
+    DeleteAlias,
+    /// <summary>
+    /// Create a pipeline.
+    /// </summary>
+    CreatePipeline,
 }

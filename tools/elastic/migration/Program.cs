@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Elastic.Clients.Elasticsearch;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -70,6 +71,7 @@ class Program
                     .Configure<ElasticMigrationOptions>(context.Configuration.GetSection("Elastic"))
                     .AddTNOServices(context.Configuration, context.HostingEnvironment)
                     .AddElasticMigration(context.Configuration)
+                    .AddSingleton<ElasticsearchClient, TNOElasticClient>()
                     .AddSingleton<MigrationService>();
             });
     }

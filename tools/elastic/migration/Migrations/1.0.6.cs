@@ -36,9 +36,9 @@ public class Migration_106 : TNOMigration
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    protected override async Task DownAsync(MigrationBuilder builder)
+    protected override Task DownAsync(MigrationBuilder builder)
     {
-        await ReindexAsync(builder, new ContentFilter());
+        return Task.CompletedTask;
     }
     #endregion
 }
