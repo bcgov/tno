@@ -65,24 +65,24 @@ public class SourceModel : AuditColumnsModel
     public int? ProductId { get; set; }
 
     /// <summary>
-    /// get/set - Whether content with this category should be automatically transcribed.
+    /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
-    /// get/set - Whether content with this category not be allowed to be requested for transcription.
+    /// get/set - Whether content should not be allowed to be requested for transcription.
     /// </summary>
     public bool DisableTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to show the topics on the content form.
+    /// </summary>
+    public bool UseInTopics { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public IEnumerable<SourceSourceActionModel> Actions { get; set; } = Array.Empty<SourceSourceActionModel>();
 
     /// <summary>
     /// get/set -
@@ -116,9 +116,9 @@ public class SourceModel : AuditColumnsModel
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
+        this.UseInTopics = entity.UseInTopics;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
 
-        this.Actions = entity.ActionsManyToMany.Select(a => new SourceSourceActionModel(a));
         this.Metrics = entity.MetricsManyToMany.Select(m => new SourceMetricModel(m));
     }
     #endregion
@@ -151,11 +151,11 @@ public class SourceModel : AuditColumnsModel
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
+            UseInTopics = model.UseInTopics,
             Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration)),
             Version = model.Version ?? 0
         };
 
-        entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
         entity.MetricsManyToMany.AddRange(model.Metrics.Select(m => m.ToEntity(entity.Id)));
 
         return entity;

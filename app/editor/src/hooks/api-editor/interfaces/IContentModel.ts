@@ -9,11 +9,11 @@ import {
 } from '..';
 import {
   IContentActionModel,
-  IContentCategoryModel,
   IContentLabelModel,
   IContentLinkModel,
   IContentTagModel,
   IContentTonePoolModel,
+  IContentTopicModel,
   IFileReferenceModel,
   ITimeTrackingModel,
 } from '.';
@@ -49,7 +49,7 @@ export interface IContentModel extends IAuditColumnsModel {
   actions?: IContentActionModel[];
   tags?: IContentTagModel[];
   labels?: IContentLabelModel[];
-  categories?: IContentCategoryModel[];
+  topics?: IContentTopicModel[];
   tonePools?: IContentTonePoolModel[];
   timeTrackings?: ITimeTrackingModel[];
   fileReferences?: IFileReferenceModel[];

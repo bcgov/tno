@@ -30,7 +30,7 @@ export interface ITextProps extends InputHTMLAttributes<HTMLInputElement> {
   /**
    * Form field size.
    */
-  width?: FieldSize;
+  width?: FieldSize | string;
   /**
    * Function to format the value.
    */

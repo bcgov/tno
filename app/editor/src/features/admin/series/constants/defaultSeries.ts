@@ -7,4 +7,5 @@ export const defaultSeries: ISeriesModel = {
   isEnabled: true,
   sortOrder: 0,
   autoTranscribe: false,
+  useInTopics: false,
 };

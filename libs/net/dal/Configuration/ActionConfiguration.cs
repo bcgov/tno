@@ -13,6 +13,7 @@ public class ActionConfiguration : BaseTypeConfiguration<Action, int>
         builder.Property(m => m.ValueLabel).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");
         builder.Property(m => m.DefaultValue).IsRequired().HasMaxLength(100).HasDefaultValueSql("''");
 
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
         builder.HasIndex(m => new { m.ValueType, m.ValueLabel }, "IX_action");
 
         base.Configure(builder);

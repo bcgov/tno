@@ -123,4 +123,4 @@ spec:
         storageClassName: netapp-block-standard
         resources:
           requests:
-            storage: 2Gi
+            storage: 10Gi

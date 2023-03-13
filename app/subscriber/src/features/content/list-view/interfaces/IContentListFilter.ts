@@ -5,17 +5,18 @@ import { ISortBy } from '.';
 export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
-  includedInCategory: boolean;
+  includedInTopic: boolean;
   includeHidden: boolean;
   contentType?: ContentTypeName;
   sourceId: number;
   otherSource: string;
-  productId: number;
-  productIds?: number[];
+  productIds: number[];
+  sourceIds: number[];
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';
   // Actions
+  showOnly?: string;
   onTicker: string;
   commentary: string;
   topStory: string;

@@ -1,7 +1,6 @@
 import {
   IActionModel,
   ICacheModel,
-  ICategoryModel,
   IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -14,10 +13,11 @@ import {
   ISourceModel,
   ITagModel,
   ITonePoolModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
   useApiActions,
   useApiCache,
-  useApiCategories,
   useApiDataLocations,
   useApiIngestTypes,
   useApiLicenses,
@@ -30,6 +30,8 @@ import {
   useApiSources,
   useApiTags,
   useApiTonePools,
+  useApiTopics,
+  useApiTopicScoreRules,
   useApiUsers,
 } from 'hooks/api-editor';
 import React from 'react';
@@ -46,7 +48,8 @@ export interface ILookupController {
   getActions: (refresh?: boolean) => Promise<IActionModel[]>;
   getSourceActions: (refresh?: boolean) => Promise<ISourceActionModel[]>;
   getMetrics: (refresh?: boolean) => Promise<IMetricModel[]>;
-  getCategories: (refresh?: boolean) => Promise<ICategoryModel[]>;
+  getTopics: (refresh?: boolean) => Promise<ITopicModel[]>;
+  getTopicScoreRules: (refresh?: boolean) => Promise<ITopicScoreRuleModel[]>;
   getProducts: (refresh?: boolean) => Promise<IProductModel[]>;
   getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
   getIngestTypes: (refresh?: boolean) => Promise<IIngestTypeModel[]>;
@@ -65,7 +68,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const cache = useApiCache();
   const lookups = useApiLookups();
   const actions = useApiActions();
-  const categories = useApiCategories();
+  const topics = useApiTopics();
+  const rules = useApiTopicScoreRules();
   const products = useApiProducts();
   const sources = useApiSources();
   const licenses = useApiLicenses();
@@ -94,7 +98,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           (results) => {
             if (!!results) {
               saveToLocalStorage('actions', results.actions, store.storeActions);
-              saveToLocalStorage('categories', results.categories, store.storeCategories);
+              saveToLocalStorage('topics', results.topics, store.storeTopics);
+              saveToLocalStorage('rules', results.rules, store.storeTopicScoreRules);
               saveToLocalStorage('products', results.products, store.storeProducts);
               saveToLocalStorage('sources', results.sources, store.storeSources);
               saveToLocalStorage('ingest_types', results.ingestTypes, store.storeIngestTypes);
@@ -111,7 +116,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
             } else {
               const lookups = {
                 actions: getFromLocalStorage<IActionModel[]>('actions', []),
-                categories: getFromLocalStorage<ICategoryModel[]>('categories', []),
+                topics: getFromLocalStorage<ITopicModel[]>('topics', []),
+                rules: getFromLocalStorage<ITopicScoreRuleModel[]>('rules', []),
                 products: getFromLocalStorage<IProductModel[]>('products', []),
                 sources: getFromLocalStorage<ISourceModel[]>('sources', []),
                 ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
@@ -126,7 +132,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 dataLocations: getFromLocalStorage<IDataLocationModel[]>('dataLocations', []),
               };
               store.storeActions(lookups.actions);
-              store.storeCategories(lookups.categories);
+              store.storeTopics(lookups.topics);
+              store.storeTopicScoreRules(lookups.rules);
               store.storeProducts(lookups.products);
               store.storeSources(lookups.sources);
               store.storeIngestTypes(lookups.ingestTypes);
@@ -160,14 +167,28 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
-      getCategories: async () => {
-        return await fetchIfNoneMatch<ICategoryModel[]>(
-          'categories',
+      getTopics: async () => {
+        return await fetchIfNoneMatch<ITopicModel[]>(
+          'topics',
           dispatch,
-          (etag) => categories.getCategories(etag),
+          (etag) => topics.getTopics(etag),
           (results) => {
             const values = results ?? [];
-            store.storeCategories(values);
+            store.storeTopics(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
+      getTopicScoreRules: async () => {
+        return await fetchIfNoneMatch<ITopicScoreRuleModel[]>(
+          'rules',
+          dispatch,
+          (etag) => rules.getTopicScoreRules(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeTopicScoreRules(values);
             return values;
           },
           true,
@@ -350,7 +371,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
     [
       actions,
       cache,
-      categories,
+      topics,
+      rules,
       products,
       sources,
       dispatch,

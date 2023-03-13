@@ -1,6 +1,5 @@
 export * from './actions';
 export * from './AdminRouter';
-export * from './categories';
 export * from './connections';
 export * from './data-locations';
 export * from './ingest-types';
@@ -10,5 +9,7 @@ export * from './products';
 export * from './series';
 export * from './sources';
 export * from './tags';
+export * from './topic-score-rules';
+export * from './topics';
 export * from './users';
 export * from './work-orders';

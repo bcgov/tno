@@ -40,12 +40,12 @@ public class IngestTypeModel : AuditColumnsModel
     public ContentType ContentType { get; set; } = ContentType.Snippet;
 
     /// <summary>
-    /// get/set - Whether content with this category should be automatically transcribed.
+    /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
-    /// get/set - Whether content with this category not be allowed to be requested for transcription.
+    /// get/set - Whether content should not be allowed to be requested for transcription.
     /// </summary>
     public bool DisableTranscribe { get; set; }
     #endregion

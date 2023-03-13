@@ -38,7 +38,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasOne(m => m.Owner).WithMany(m => m.Contents).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(m => m.Actions).WithMany(m => m.Contents).UsingEntity<ContentAction>();
-        builder.HasMany(m => m.Categories).WithMany(m => m.Contents).UsingEntity<ContentCategory>();
+        builder.HasMany(m => m.Topics).WithMany(m => m.Contents).UsingEntity<ContentTopic>();
         builder.HasMany(m => m.Tags).WithMany(m => m.Contents).UsingEntity<ContentTag>();
         builder.HasMany(m => m.TonePools).WithMany(m => m.Contents).UsingEntity<ContentTonePool>();
 

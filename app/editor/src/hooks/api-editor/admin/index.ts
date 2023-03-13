@@ -1,5 +1,4 @@
 export * from './useApiAdminActions';
-export * from './useApiAdminCategories';
 export * from './useApiAdminConnections';
 export * from './useApiAdminContentReferences';
 export * from './useApiAdminDataLocations';
@@ -10,5 +9,7 @@ export * from './useApiAdminProducts';
 export * from './useApiAdminSeries';
 export * from './useApiAdminSources';
 export * from './useApiAdminTags';
+export * from './useApiAdminTopics';
+export * from './useApiAdminTopicScoreRules';
 export * from './useApiAdminUsers';
 export * from './useApiAdminWorkOrders';

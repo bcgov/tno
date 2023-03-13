@@ -36,6 +36,10 @@ export interface INavBarItemProps extends React.HTMLProps<HTMLButtonElement>, IN
    * Identify which tab is currently being hovered
    */
   activeHoverTab?: string;
+  /**
+   * The level of the navigation item (0 = main menu).
+   */
+  level?: number;
 }
 
 export interface INavBarItemPropsAndEvents extends Omit<INavBarItemProps, 'onClick'> {
@@ -57,6 +61,7 @@ export const NavBarItem: React.FC<INavBarItemPropsAndEvents> = ({
   claim,
   exact = false,
   activeHoverTab,
+  level = 0,
   onClick = () => true,
 }) => {
   const location = useLocation();
@@ -71,6 +76,7 @@ export const NavBarItem: React.FC<INavBarItemPropsAndEvents> = ({
         if (nav) navigate(navigateTo!!);
       }}
       active={isActive(location.pathname, navigateTo, exact, activeHoverTab, label)}
+      level={level}
     >
       {label}
     </styled.NavBarItem>

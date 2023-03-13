@@ -60,46 +60,107 @@ export const NavBar: React.FC = () => {
         <Row hidden={!activeHover}>
           {/* Editor */}
           <Show visible={activeHover === 'editor'}>
-            <NavBarItem navigateTo="/contents" label="Content" claim={Claim.editor} />
-            <NavBarItem navigateTo="/morning/reports" label="Morning Report" claim={Claim.editor} />
+            <NavBarItem navigateTo="/contents" label="Content" claim={Claim.editor} level={1} />
+            <NavBarItem
+              navigateTo="/morning/reports"
+              label="Morning Report"
+              claim={Claim.editor}
+              level={1}
+            />
             <NavBarItem
               navigateTo="/storage/locations/1"
               label="File Explorer"
               claim={Claim.editor}
+              level={1}
             />
-            <NavBarItem navigateTo="/clips" label="Request Clip" claim={Claim.editor} />
-            <NavBarItem navigateTo="/work/orders" label="Work Orders" claim={Claim.editor} />
+            <NavBarItem navigateTo="/clips" label="Request Clip" claim={Claim.editor} level={1} />
+            <NavBarItem
+              navigateTo="/work/orders"
+              label="Work Orders"
+              claim={Claim.editor}
+              level={1}
+            />
           </Show>
 
           {/* Admin */}
           <Show visible={activeHover === 'admin'}>
-            <NavBarItem navigateTo="/admin/topics" label="Topics" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/tags" label="Tags" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/topics"
+              label="Topics"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/topic-scores"
+              label="Topic Scores"
+              claim={Claim.administrator}
+              level={1}
+            />
             <NavBarItem
               navigateTo="/admin/programs"
               label="Show/Program"
               claim={Claim.administrator}
+              level={1}
             />
-            <NavBarItem navigateTo="/admin/users" label="Users" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/sources" label="Sources" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/products" label="Products" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/licences" label="Licences" claim={Claim.administrator} />
-            <NavBarItem navigateTo="/admin/actions" label="Actions" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/sources"
+              label="Sources"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/products"
+              label="Products"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/tags"
+              label="Tags"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/users"
+              label="Users"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/licences"
+              label="Licences"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/actions"
+              label="Actions"
+              claim={Claim.administrator}
+              level={1}
+            />
             <NavBarItem
               navigateTo="/admin/connections"
               label="Connections"
               claim={Claim.administrator}
+              level={1}
             />
             <NavBarItem
               navigateTo="/admin/data/locations"
               label="Data Locations"
               claim={Claim.administrator}
+              level={1}
             />
-            <NavBarItem navigateTo="/admin/ingests" label="Ingest" claim={Claim.administrator} />
+            <NavBarItem
+              navigateTo="/admin/ingests"
+              label="Ingest"
+              claim={Claim.administrator}
+              level={1}
+            />
             <NavBarItem
               navigateTo="/admin/ingest/types"
               label="Ingest Types"
               claim={Claim.administrator}
+              level={1}
             />
           </Show>
 
@@ -109,6 +170,7 @@ export const NavBar: React.FC = () => {
               navigateTo="/reports/cbra"
               label="CBRA Report"
               claim={Claim.administrator}
+              level={1}
             />
           </Show>
         </Row>

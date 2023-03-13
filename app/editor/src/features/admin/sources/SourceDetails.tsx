@@ -8,7 +8,6 @@ import { Col } from 'tno-core/dist/components/flex';
 import { getSortableOptions, getUserOptions } from 'utils';
 
 import { TimeZones } from '../ingests/configurations/constants';
-import { SourceActions } from '.';
 import * as styled from './styled';
 
 interface ISourceDetailsProps {}
@@ -82,7 +81,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
       </Col>
       <Col>
         <FormikCheckbox label="Enabled" name="isEnabled" />
-        <SourceActions />
+        <FormikCheckbox label="Use in Topics" name="useInTopics" />
         <FormikCheckbox label="Transcribe when Published" name="autoTranscribe" />
         <FormikCheckbox label="Disable transcript requests" name="disableTranscribe" />
       </Col>

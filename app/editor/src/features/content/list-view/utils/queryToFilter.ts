@@ -18,11 +18,7 @@ export const queryToFilter = (
     return {
       pageIndex: convertTo(search.pageIndex, 'number', filter.pageIndex),
       pageSize: convertTo(search.pageSize, 'number', filter.pageSize),
-      includedInCategory: convertTo(
-        search.includedInCategory,
-        'boolean',
-        filter.includedInCategory,
-      ),
+      includedInTopic: convertTo(search.includedInTopic, 'boolean', filter.includedInTopic),
       includeHidden: convertTo(search.includeHidden, 'boolean', filter.includeHidden),
       contentType: convertTo(search.contentType, 'string', filter.contentType),
       sourceId: convertTo(search.sourceId, 'number', filter.sourceId),

@@ -18,6 +18,12 @@ public class Series : BaseType<int>
     public bool AutoTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - Whether to show topics on the content form.
+    /// </summary>
+    [Column("use_in_topics")]
+    public bool UseInTopics { get; set; }
+
+    /// <summary>
     /// get - List of content linked to this series.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();

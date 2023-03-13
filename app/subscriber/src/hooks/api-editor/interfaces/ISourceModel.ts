@@ -10,6 +10,8 @@ export interface ISourceModel extends ISortableModel<number> {
   owner?: IUserModel;
   autoTranscribe: boolean;
   disableTranscribe: boolean;
+  useInTopics: boolean;
+  configuration: any;
   actions: ISourceActionModel[];
   metrics: IMetricModel[];
 }

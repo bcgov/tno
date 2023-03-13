@@ -26,6 +26,12 @@ export const columns: (Column<ISourceModel> &
     Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
+    Header: 'Topics',
+    accessor: 'useInTopics',
+    width: 1,
+    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+  },
+  {
     Header: 'Enabled',
     accessor: 'isEnabled',
     width: 1,

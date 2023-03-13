@@ -13,7 +13,7 @@ export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
     pageSize: 100,
-    includedInCategory: false,
+    includedInTopic: false,
     includeHidden: false,
     sourceId: 0,
     otherSource: '',
@@ -35,7 +35,7 @@ export const initialContentState: IContentState = {
   morningReportFilter: {
     pageIndex: 0,
     pageSize: 100,
-    includedInCategory: false,
+    includedInTopic: false,
     includeHidden: false,
     sourceId: 0,
     otherSource: '',

@@ -32,7 +32,7 @@ export function toModel(values: IContentForm): IContentModel {
     isHidden: values.isHidden,
     isApproved: values.isApproved,
     actions: values.actions,
-    categories: values.categories,
+    topics: values.topics,
     tags: values.tags,
     labels: values.labels,
     timeTrackings: values.timeTrackings.map((x) => {

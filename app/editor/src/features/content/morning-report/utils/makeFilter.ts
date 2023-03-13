@@ -20,7 +20,7 @@ export const makeFilter = (
     contentType: filter.contentType,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
-    includedInCategory: filter.includedInCategory ? true : undefined,
+    includedInTopic: filter.includedInTopic ? true : undefined,
     includeHidden: filter.includeHidden ? true : undefined,
     productIds: filter.productIds ?? undefined,
     sourceIds: filter.sourceIds ?? undefined,

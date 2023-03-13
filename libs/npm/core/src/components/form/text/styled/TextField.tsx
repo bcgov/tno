@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-import { FieldSize } from '../../constants';
 import { ITextProps, TextVariant } from '..';
 
 export const TextField = styled.input<ITextProps>`
@@ -9,7 +8,6 @@ export const TextField = styled.input<ITextProps>`
   text-decoration: ${(props) => (props.variant === TextVariant.link ? 'underline' : 'none')};
   display: inline-block;
   width: ${(props) => props.width};
-  min-width: ${FieldSize.Tiny};
   font-weight: 400;
   text-align: left;
   vertical-align: middle;

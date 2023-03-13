@@ -59,6 +59,11 @@ public class TnoTestContext : TNOContext
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Report>().Property(p => p.Filter)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
     }
 
     /// <summary>

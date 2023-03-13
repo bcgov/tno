@@ -5,7 +5,7 @@ import { ISortBy } from '.';
 export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
-  includedInCategory: boolean;
+  includedInTopic: boolean;
   includeHidden: boolean;
   contentType?: ContentTypeName;
   sourceId: number;

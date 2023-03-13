@@ -14,7 +14,7 @@ using TNO.Keycloak;
 namespace TNO.API.Areas.Admin.Controllers;
 
 /// <summary>
-/// TagController class, provides category endpoints for the admin api.
+/// TagController class, provides tag endpoints for the admin api.
 /// </summary>
 [ClientRoleAuthorize(ClientRole.Administrator)]
 [ApiController]
@@ -45,7 +45,7 @@ public class TagController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of category for the specified query filter.
+    /// Find a page of tag for the specified query filter.
     /// </summary>
     /// <returns></returns>
     [HttpGet("all")]
@@ -58,7 +58,7 @@ public class TagController : ControllerBase
     }
 
     /// <summary>
-    /// Find a page of category for the specified query filter.
+    /// Find a page of tag for the specified query filter.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -75,7 +75,7 @@ public class TagController : ControllerBase
     }
 
     /// <summary>
-    /// Find category for the specified 'id'.
+    /// Find tag for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -93,7 +93,7 @@ public class TagController : ControllerBase
     }
 
     /// <summary>
-    /// Add category for the specified 'id'.
+    /// Add tag for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -109,7 +109,7 @@ public class TagController : ControllerBase
     }
 
     /// <summary>
-    /// Update category for the specified 'id'.
+    /// Update tag for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -125,7 +125,7 @@ public class TagController : ControllerBase
     }
 
     /// <summary>
-    /// Delete category for the specified 'id'.
+    /// Delete tag for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>

@@ -168,14 +168,14 @@ public class Content : AuditColumns
     public virtual List<ContentLog> Logs { get; } = new List<ContentLog>();
 
     /// <summary>
-    /// get - Collection of categories associated with this content.
+    /// get - Collection of topics associated with this content.
     /// </summary>
-    public virtual List<Category> Categories { get; } = new List<Category>();
+    public virtual List<Topic> Topics { get; } = new List<Topic>();
 
     /// <summary>
-    /// get - Collection of categories, the many-to-many relationship.
+    /// get - Collection of topics, the many-to-many relationship.
     /// </summary>
-    public virtual List<ContentCategory> CategoriesManyToMany { get; } = new List<ContentCategory>();
+    public virtual List<ContentTopic> TopicsManyToMany { get; } = new List<ContentTopic>();
 
     /// <summary>
     /// get - Collection of tone pools associated with this content.
@@ -226,6 +226,16 @@ public class Content : AuditColumns
     /// get - Collection of links to related content.
     /// </summary>
     public virtual List<ContentLink> Links { get; } = new List<ContentLink>();
+
+    /// <summary>
+    /// get - Collection of report instances associated with this content.
+    /// </summary>
+    public virtual List<ReportInstance> Reports { get; } = new List<ReportInstance>();
+
+    /// <summary>
+    /// get - Collection of report instances associated with this content.
+    /// </summary>
+    public virtual List<ReportInstanceContent> ReportsManyToMany { get; } = new List<ReportInstanceContent>();
     #endregion
 
     #region Constructors

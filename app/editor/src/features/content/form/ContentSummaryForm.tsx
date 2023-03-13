@@ -29,12 +29,12 @@ import {
   TimeInput,
   useKeycloakWrapper,
 } from 'tno-core';
-import { getSortableOptions } from 'utils';
 
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
+import { TopicForm } from './TopicForm';
 import { getTotalTime } from './utils';
 
 export interface IContentSummaryFormProps {
@@ -56,15 +56,16 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   savePressed,
 }) => {
   const keycloak = useKeycloakWrapper();
-  const [{ series, categories, users }] = useLookup();
+  const [{ series, users, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
-  const [categoryOptions, setCategoryOptions] = React.useState<IOptionItem[]>([]);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [effort, setEffort] = React.useState(0);
 
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
+  const source = sources.find((s) => s.id === values.sourceId);
+  const program = series.find((s) => s.id === values.seriesId);
 
   const fileReference = values.fileReferences.length ? values.fileReferences[0] : undefined;
   const path = fileReference?.path;
@@ -94,10 +95,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
       setFieldValue('publishedOn', moment().format('MMM D, yyyy HH:mm:ss'));
     }
   }, [setFieldValue, values.publishedOn]);
-
-  React.useEffect(() => {
-    setCategoryOptions(getSortableOptions(categories));
-  }, [categories]);
 
   React.useEffect(() => {
     setSeriesOptions(series.map((m: any) => new OptionItem(m.name, m.id, m.isEnabled)));
@@ -198,32 +195,13 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             </Show>
           </Row>
         </Col>
-        <Show visible={contentType !== ContentTypeName.Image}>
+        <Show
+          visible={
+            contentType !== ContentTypeName.Image && (source?.useInTopics || program?.useInTopics)
+          }
+        >
           <div className="vl" />
-          <Col>
-            <FormikSelect
-              name="categories"
-              label="Topic"
-              width={FieldSize.Medium}
-              options={filterEnabled(
-                categoryOptions,
-                !!values.categories?.length ? values.categories[0].id : null,
-              )}
-              value={
-                !!values.categories?.length
-                  ? categoryOptions.find((c) => c.value === values.categories[0].id)
-                  : []
-              }
-              onChange={(e: any) => {
-                // only supports one at a time right now
-                let value;
-                if (!!e?.value) {
-                  value = categories.find((c) => c.id === e.value);
-                }
-                setFieldValue('categories', !!value ? [value] : []);
-              }}
-            />
-          </Col>
+          <TopicForm />
         </Show>
       </Row>
       <Show

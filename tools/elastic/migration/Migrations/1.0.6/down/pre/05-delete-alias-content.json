@@ -1,0 +1,7 @@
+{
+  "action": "deleteAlias",
+  "settings": {
+    "indexName": "content_v1.0.6",
+    "aliasName": "content"
+  }
+}

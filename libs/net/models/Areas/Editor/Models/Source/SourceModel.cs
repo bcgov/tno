@@ -74,14 +74,14 @@ public class SourceModel
     public bool DisableTranscribe { get; set; }
 
     /// <summary>
-    /// get/set -
+    /// get/set - Whether to show the topics on the content form.
     /// </summary>
-    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
+    public bool UseInTopics { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public IEnumerable<SourceSourceActionModel> Actions { get; } = Array.Empty<SourceSourceActionModel>();
+    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -110,9 +110,8 @@ public class SourceModel
         this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
+        this.UseInTopics = entity.UseInTopics;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
-
-        this.Actions = entity.ActionsManyToMany.Select(a => new SourceSourceActionModel(a));
     }
     #endregion
 }

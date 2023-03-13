@@ -27,7 +27,7 @@ export const checkLatestShowOnlyEntry = (
       onChange({
         ...filter,
         pageIndex: 0,
-        includedInCategory: true,
+        includedInTopic: true,
       });
       break;
     case ShowOnlyValues.Commentary:

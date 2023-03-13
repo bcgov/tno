@@ -70,6 +70,12 @@ public class Source : BaseType<int>
     public bool DisableTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - Whether to show topics on the content form.
+    /// </summary>
+    [Column("use_in_topics")]
+    public bool UseInTopics { get; set; }
+
+    /// <summary>
     /// get/set - Configuration settings.
     /// </summary>
     [Column("configuration")]
@@ -84,15 +90,6 @@ public class Source : BaseType<int>
     /// get - List of ingests linked to this source.
     /// </summary>
     public virtual List<Ingest> Ingests { get; } = new List<Ingest>();
-
-    /// <summary>
-    /// get - List of actions linked to this source.
-    /// </summary>
-    public virtual List<SourceAction> Actions { get; } = new List<SourceAction>();
-    /// <summary>
-    /// get - List of actions (many-to-many) linked to this source.
-    /// </summary>
-    public virtual List<SourceSourceAction> ActionsManyToMany { get; } = new List<SourceSourceAction>();
 
     /// <summary>
     /// get - List of metrics linked to this source.
