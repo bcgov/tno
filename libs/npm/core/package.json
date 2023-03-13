@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.217",
+  "version": "0.0.218",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -41,7 +41,7 @@
     "react-table": "^7.8.0",
     "react-text-mask": "^5.5.0",
     "react-toastify": "^9.1.1",
-    "react-tooltip": "^4.5.1",
+    "react-tooltip": "^5.9.0",
     "styled-components": "^5.3.6"
   },
   "devDependencies": {
