@@ -430,9 +430,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           />
                         </Col>
                         <Col>
-                          <Show visible={contentType === ContentTypeName.Image}>
-                            <FormikText name="byline" label="Byline" required />
-                          </Show>
                           {/* Snippet form */}
                           <Show visible={contentType !== ContentTypeName.Image}>
                             <Row>
