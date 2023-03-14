@@ -1,9 +1,6 @@
 import { Wysiwyg } from 'components/form';
-import { useFormikContext } from 'formik';
-import { useCombinedView } from 'hooks';
-import { FieldSize, FormikText } from 'tno-core';
+import { Tags } from 'components/form/tags';
 
-import { IContentForm } from './interfaces';
 import * as styled from './styled';
 
 /**
@@ -11,19 +8,10 @@ import * as styled from './styled';
  * @returns the ContentTranscriptForm
  */
 export const ContentTranscriptForm: React.FC = () => {
-  const { values } = useFormikContext<IContentForm>();
-  const combined = useCombinedView();
-
   return (
     <styled.ContentTranscriptForm>
       <Wysiwyg fieldName="body" />
-      <FormikText
-        name="tags"
-        label="Tags"
-        disabled
-        width={combined ? FieldSize.Big : FieldSize.Large}
-        value={values.tags.map((t) => t.id).join(', ')}
-      />
+      <Tags />
     </styled.ContentTranscriptForm>
   );
 };
