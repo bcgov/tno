@@ -83,7 +83,7 @@ public class TopicScoreRuleModel
         this.SourceId = entity.SourceId;
         this.Section = entity.Section;
         this.PageMin = entity.PageMin;
-        this.PageMin = entity.PageMin;
+        this.PageMax = entity.PageMax;
         this.HasImage = entity.HasImage;
         this.CharacterMin = entity.CharacterMin;
         this.CharacterMax = entity.CharacterMax;

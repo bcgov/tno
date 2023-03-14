@@ -37,7 +37,7 @@ import { TimeLogTable } from './TimeLogTable';
 import { TopicForm } from './TopicForm';
 import { getTotalTime } from './utils';
 
-export interface IContentSummaryFormProps {
+export interface IContentStoryFormProps {
   setContent: (content: IContentForm) => void;
   content: IContentForm;
   contentType: ContentTypeName;
@@ -45,11 +45,11 @@ export interface IContentSummaryFormProps {
 }
 
 /**
- * ContentSummaryForm component provides a form for content summary details.
+ * ContentStoryForm component provides a form for content summary details.
  * @param param0 Component properties
  * @returns A new instance of a component.
  */
-export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
+export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   setContent,
   content,
   contentType,
@@ -114,43 +114,9 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
   }, [stream, videoRef]);
 
   return (
-    <styled.ContentSummaryForm className="content-properties">
+    <styled.ContentStoryForm className="content-properties">
       <Row>
         <Col>
-          <Show visible={contentType !== ContentTypeName.Image}>
-            <Row>
-              <FormikSelect
-                name="seriesId"
-                label="Show/Program"
-                width={FieldSize.Medium}
-                value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={filterEnabled(seriesOptions, values.seriesId)}
-                isDisabled={!!values.otherSeries}
-                onChange={(e) => {
-                  setFieldValue('otherSeries', '');
-                }}
-              />
-              <FormikText
-                name="otherSeries"
-                label="Other Show/Program"
-                width={FieldSize.Medium}
-                onChange={(e) => {
-                  const value = e.currentTarget.value;
-                  setFieldValue('otherSeries', value);
-                  if (!!value) setFieldValue('seriesId', undefined);
-                }}
-                onBlur={() => {
-                  const found = series.find(
-                    (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
-                  );
-                  if (!!found) {
-                    setFieldValue('seriesId', found.id);
-                    setFieldValue('otherSeries', '');
-                  }
-                }}
-              />
-            </Row>
-          </Show>
           <Row alignContent="flex-start" alignItems="flex-start">
             <Show visible={contentType !== ContentTypeName.Image}>
               <FormikDatePicker
@@ -193,6 +159,38 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
                 }}
               />
             </Show>
+            <Show visible={contentType !== ContentTypeName.Image}>
+              <FormikSelect
+                name="seriesId"
+                label="Show/Program"
+                width={FieldSize.Medium}
+                value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
+                options={filterEnabled(seriesOptions, values.seriesId)}
+                isDisabled={!!values.otherSeries}
+                onChange={(e) => {
+                  setFieldValue('otherSeries', '');
+                }}
+              />
+              <FormikText
+                name="otherSeries"
+                label="Other Show/Program"
+                width={FieldSize.Medium}
+                onChange={(e) => {
+                  const value = e.currentTarget.value;
+                  setFieldValue('otherSeries', value);
+                  if (!!value) setFieldValue('seriesId', undefined);
+                }}
+                onBlur={() => {
+                  const found = series.find(
+                    (s) => s.name.toLocaleLowerCase() === values.otherSeries.toLocaleLowerCase(),
+                  );
+                  if (!!found) {
+                    setFieldValue('seriesId', found.id);
+                    setFieldValue('otherSeries', '');
+                  }
+                }}
+              />
+            </Show>
           </Row>
         </Col>
         <Show
@@ -200,8 +198,10 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
             contentType !== ContentTypeName.Image && (source?.useInTopics || program?.useInTopics)
           }
         >
-          <div className="vl" />
-          <TopicForm />
+          <Row>
+            <div className="vl" />
+            <TopicForm />
+          </Row>
         </Show>
       </Row>
       <Show
@@ -282,6 +282,6 @@ export const ContentSummaryForm: React.FC<IContentSummaryFormProps> = ({
           </Row>
         </Show>
       </Row>
-    </styled.ContentSummaryForm>
+    </styled.ContentStoryForm>
   );
 };
