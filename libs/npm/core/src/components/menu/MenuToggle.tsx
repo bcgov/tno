@@ -1,6 +1,5 @@
 import React from 'react';
 import SVG from 'react-inlinesvg';
-import ReactTooltip from 'react-tooltip';
 
 import IconToggle from '../../assets/navbar-toggle-icon.svg';
 import { useKeycloakWrapper } from '../../hooks';
@@ -39,11 +38,6 @@ export const MenuToggle: React.FC<IMenuToggleProps> = ({ width = '45px', height 
       tip = 'Show Menu';
       break;
   }
-
-  React.useEffect(() => {
-    ReactTooltip.hide();
-    ReactTooltip.rebuild();
-  }, [status]);
 
   return keycloak.authenticated ? (
     <styled.MenuToggle
