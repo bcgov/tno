@@ -26,6 +26,7 @@ import { getEnumStringOptions } from 'utils';
 
 import { defaultTopic } from './constants';
 import * as styled from './styled';
+import { TopicSchema } from './validation';
 
 /** The page used to view and edit tags in the administrative section. */
 export const TopicForm: React.FC = () => {
@@ -68,6 +69,7 @@ export const TopicForm: React.FC = () => {
       />
       <FormikForm
         initialValues={topic}
+        validationSchema={TopicSchema}
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);

@@ -23,6 +23,7 @@ import { getEnumStringOptions } from 'utils';
 
 import { columns, defaultTopic } from './constants';
 import * as styled from './styled';
+import { TopicSchema } from './validation/TopicSchema';
 
 /**
  * Provides a list of all topics.
@@ -94,6 +95,7 @@ export const TopicList: React.FC = () => {
         <Col flex="1 1 0">
           <FormikForm
             loading={false}
+            validationSchema={TopicSchema}
             initialValues={topic}
             onSubmit={async (values, { setSubmitting }) => {
               await handleSubmit(values);

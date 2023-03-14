@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { FormikHelpers } from 'formik';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
@@ -24,6 +25,7 @@ import { defaultTopicScoreRule } from './constants';
 import { ITopicScoreRuleForm } from './interfaces';
 import * as styled from './styled';
 import { toForm, toModel } from './utils';
+import { TopicScoreRulesSchema } from './validation';
 
 /**
  * Component to display a list of rules.
@@ -50,7 +52,10 @@ export const TopicScoreRuleList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSave = async (values: ITopicScoreRuleForm[]) => {
+  const handleSave = async (
+    values: ITopicScoreRuleForm[],
+    formikHelpers: FormikHelpers<ITopicScoreRuleForm[]>,
+  ) => {
     if (!isSaving) {
       try {
         setIsSaving(true);
@@ -64,10 +69,18 @@ export const TopicScoreRuleList: React.FC = () => {
     }
   };
 
-  const addTopicScoreRule = (index: number) => {
-    var values = [...items];
-    values.splice(index, 0, { ...defaultTopicScoreRule, sortOrder: index });
-    setItems(values);
+  const addTopicScoreRule = (index: number, values: ITopicScoreRuleForm[]) => {
+    var items = [...values];
+    var newItem = { ...defaultTopicScoreRule, sortOrder: index };
+    if (
+      index > 0 &&
+      index < values.length &&
+      values[index - 1].sourceId === values[index].sourceId
+    ) {
+      newItem.sourceId = values[index].sourceId;
+    }
+    items.splice(index, 0, newItem);
+    setItems(items);
   };
 
   return (
@@ -75,8 +88,9 @@ export const TopicScoreRuleList: React.FC = () => {
       <FormPage>
         <Loader visible={isSaving}></Loader>
         <FormikForm
-          onSubmit={(values) => handleSave(values)}
+          onSubmit={handleSave}
           initialValues={items}
+          validationSchema={TopicScoreRulesSchema}
           loading={(request: IAjaxRequest) =>
             !request.isSilent && request.group.some((g) => g === 'content' || g === 'lookup')
           }
@@ -104,7 +118,10 @@ export const TopicScoreRuleList: React.FC = () => {
                   {values.map((item, index) => (
                     <Show key={`${item}-${index}`} visible={!item.remove}>
                       <Show visible={index === 0 && !!rules.length}>
-                        <Row className="add-row" onClick={() => addTopicScoreRule(index)}></Row>
+                        <Row
+                          className="add-row"
+                          onClick={() => addTopicScoreRule(index, values)}
+                        ></Row>
                       </Show>
                       <Row className={`row${item.id === 0 ? ' adding' : ''}`}>
                         <Col
@@ -126,7 +143,7 @@ export const TopicScoreRuleList: React.FC = () => {
                               const value = (newValue as IOptionItem).value;
                               if (!!value) {
                                 setItems(
-                                  items.map((t, i) =>
+                                  values.map((t, i) =>
                                     i === index ? { ...item, sourceId: value as number } : t,
                                   ),
                                 );
@@ -173,50 +190,50 @@ export const TopicScoreRuleList: React.FC = () => {
                         </Col>
                         <Col flex="1 1 0" alignContent="flex-end" className="actions">
                           <Row>
-                            <Show visible={!!item.id}>
-                              <Col>
-                                <Button
-                                  variant={ButtonVariant.link}
-                                  className="move"
-                                  disabled={
-                                    index < 1 || items[index - 1].sourceId !== item.sourceId
-                                  }
-                                  onClick={() => {
-                                    var results = [...values];
-                                    var above = results[index - 1];
-                                    results.splice(index, 1);
-                                    results.splice(index - 1, 0, {
-                                      ...item,
-                                      sortOrder: above.sortOrder,
-                                    });
-                                    setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
-                                  }}
-                                >
-                                  <FaArrowUp />
-                                </Button>
-                                <Button
-                                  variant={ButtonVariant.link}
-                                  className="move"
-                                  disabled={
-                                    index >= items.length - 1 ||
-                                    items[index + 1].sourceId !== item.sourceId
-                                  }
-                                  onClick={async () => {
-                                    var results = [...values];
-                                    var below = results[index + 1];
-                                    results.splice(index, 1);
-                                    results.splice(index + 1, 0, {
-                                      ...item,
-                                      sortOrder: below.sortOrder,
-                                    });
-                                    below.sortOrder--;
-                                    setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
-                                  }}
-                                >
-                                  <FaArrowDown />
-                                </Button>
-                              </Col>
-                            </Show>
+                            <Col>
+                              <Button
+                                variant={ButtonVariant.link}
+                                className="move"
+                                disabled={
+                                  index < 1 ||
+                                  items.length < index ||
+                                  items[index - 1].sourceId !== item.sourceId
+                                }
+                                onClick={() => {
+                                  var results = [...values];
+                                  var above = results[index - 1];
+                                  results.splice(index, 1);
+                                  results.splice(index - 1, 0, {
+                                    ...item,
+                                    sortOrder: above.sortOrder,
+                                  });
+                                  setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
+                                }}
+                              >
+                                <FaArrowUp />
+                              </Button>
+                              <Button
+                                variant={ButtonVariant.link}
+                                className="move"
+                                disabled={
+                                  index >= items.length - 1 ||
+                                  items[index + 1].sourceId !== item.sourceId
+                                }
+                                onClick={async () => {
+                                  var results = [...values];
+                                  var below = results[index + 1];
+                                  results.splice(index, 1);
+                                  results.splice(index + 1, 0, {
+                                    ...item,
+                                    sortOrder: below.sortOrder,
+                                  });
+                                  below.sortOrder--;
+                                  setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
+                                }}
+                              >
+                                <FaArrowDown />
+                              </Button>
+                            </Col>
                             <Button
                               variant={ButtonVariant.danger}
                               disabled={!rules.length}
@@ -230,7 +247,10 @@ export const TopicScoreRuleList: React.FC = () => {
                         </Col>
                       </Row>
                       <Show visible={!!rules.length}>
-                        <Row className="add-row" onClick={() => addTopicScoreRule(index + 1)}></Row>
+                        <Row
+                          className="add-row"
+                          onClick={() => addTopicScoreRule(index + 1, values)}
+                        ></Row>
                       </Show>
                     </Show>
                   ))}
