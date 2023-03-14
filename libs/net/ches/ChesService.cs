@@ -75,6 +75,7 @@ namespace TNO.Ches
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
+            headers.Add("User-Agent", nameof(ChesService));
             try
             {
                 var response = await this.Client.SendAsync(url, method, headers);

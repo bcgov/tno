@@ -296,7 +296,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (content.Status != ContentStatus.Published)
             {
                 content.Status = ContentStatus.Published;
-                await this.Api.UpdateContentAsync(content);
+                await this.Api.UpdateContentAsync(content, Headers);
             }
             this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
 
@@ -327,7 +327,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             if (content.Status != ContentStatus.Unpublished)
             {
                 content.Status = ContentStatus.Unpublished;
-                await this.Api.UpdateContentAsync(content);
+                await this.Api.UpdateContentAsync(content, Headers);
             }
             this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
 

@@ -272,7 +272,7 @@ public class NlpManager : ServiceManager<NLPOptions>
                     }
                     content.Labels = originalLabels.ToArray();
 
-                    await this.Api.UpdateContentAsync(content); // TODO: This can result in an editor getting a optimistic concurrency error.
+                    await this.Api.UpdateContentAsync(content, Headers); // TODO: This can result in an editor getting a optimistic concurrency error.
                     this.Logger.LogInformation("Labels updated.  Content ID: {Id}", request.ContentId);
 
                     await UpdateWorkOrderAsync(request, WorkOrderStatus.Completed);
@@ -310,7 +310,7 @@ public class NlpManager : ServiceManager<NLPOptions>
             if (workOrder != null && !_ignoreWorkOrders.Contains(workOrder.Status))
             {
                 workOrder.Status = status;
-                await this.Api.UpdateWorkOrderAsync(workOrder);
+                await this.Api.UpdateWorkOrderAsync(workOrder, Headers);
                 return true;
             }
         }

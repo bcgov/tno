@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using TNO.DAL.Extensions;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace TNO.DAL;
 
@@ -16,8 +17,6 @@ public class TNOContext : DbContext
     private readonly ILogger? _logger;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     private readonly JsonSerializerOptions? _serializerOptions;
-    private static readonly SemaphoreSlim _saveChangesLock = new(1);
-    private static readonly int _maxRetry = 3;
     #endregion
 
     #region Properties
@@ -146,42 +145,46 @@ public class TNOContext : DbContext
     /// <returns></returns>
     public int CommitTransaction()
     {
-        var result = 0;
-        var retry = 0;
-        _saveChangesLock.Wait();
+        using var transaction = Database.BeginTransaction();
         try
         {
-            using var transaction = Database.BeginTransaction();
-            while (result == 0 && retry < _maxRetry)
+            var result = SaveChanges();
+            transaction.Commit();
+            return result;
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            var message = new StringBuilder();
+            foreach (var entry in ex.Entries)
             {
-                try
+                var sb = new StringBuilder();
+
+                var dbValues = entry.GetDatabaseValues();
+                var currentValues = entry.CurrentValues;
+                var originalValues = entry.OriginalValues;
+
+                foreach (var property in currentValues.Properties)
                 {
-                    result = SaveChanges();
-                    transaction.Commit();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    retry++;
-                    _logger?.LogError(ex, $"{nameof(TNOContext)} caught {nameof(DbUpdateConcurrencyException)} {retry}");
-                    if (retry == _maxRetry) throw;
-                    foreach (var entry in ex.Entries)
+                    var dbValue = dbValues?[property];
+                    var currentValue = currentValues[property];
+                    var originalValue = originalValues[property];
+
+                    if (dbValue != currentValue)
                     {
-                        var propertyValues = entry.GetDatabaseValues() ?? throw new InvalidOperationException($"The entity of {entry.Metadata.Name} does not exist");
-                        entry.OriginalValues.SetValues(propertyValues);
+                        sb.Append($"[{property.Name} - Current: {currentValue}; DB: {dbValue}; Original: {originalValue}]");
                     }
                 }
-                catch (DbUpdateException)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
+
+                message.Append($"{entry.Metadata.Name}: {sb}");
             }
+            _logger?.LogError(message.ToString());
+            throw;
         }
-        finally
+        catch (DbUpdateException)
         {
-            _saveChangesLock.Release();
+            transaction.Rollback();
+            throw;
         }
-        return result;
     }
 
     /// <summary>

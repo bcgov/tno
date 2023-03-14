@@ -274,10 +274,12 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="ingest"></param>
     /// <returns></returns>
-    public async Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest)
+    public async Task<IngestModels.IngestModel?> UpdateIngestAsync(
+        IngestModels.IngestModel ingest,
+        HttpRequestHeaders headers)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<IngestModels.IngestModel>(url, JsonContent.Create(ingest)));
+        return await RetryRequestAsync(async () => await Client.SendAsync<IngestModels.IngestModel>(url, HttpMethod.Put, headers, JsonContent.Create(ingest)));
     }
     #endregion
 
@@ -331,11 +333,13 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="contentReference"></param>
     /// <returns></returns>
-    public async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference)
+    public async Task<ContentReferenceModel?> UpdateContentReferenceAsync(
+        ContentReferenceModel contentReference,
+        HttpRequestHeaders headers)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentReferenceModel>(url, content));
+        return await RetryRequestAsync(async () => await Client.SendAsync<ContentReferenceModel>(url, HttpMethod.Put, headers, content));
     }
 
     /// <summary>
@@ -343,11 +347,13 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="contentReference"></param>
     /// <returns></returns>
-    public async Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference)
+    public async Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(
+        ContentReferenceModel contentReference,
+        HttpRequestHeaders headers)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}/kafka?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentReferenceModel>(url, content));
+        return await RetryRequestAsync(async () => await Client.SendAsync<ContentReferenceModel>(url, HttpMethod.Put, headers, content));
     }
     #endregion
 
@@ -412,10 +418,12 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    public async Task<ContentModel?> UpdateContentAsync(ContentModel content)
+    public async Task<ContentModel?> UpdateContentAsync(
+        ContentModel content,
+        HttpRequestHeaders headers)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<ContentModel>(url, JsonContent.Create(content)));
+        return await RetryRequestAsync(async () => await Client.SendAsync<ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
     }
     #endregion
 
@@ -448,10 +456,12 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="workOrder"></param>
     /// <returns></returns>
-    public async Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder)
+    public async Task<WorkOrderModel?> UpdateWorkOrderAsync(
+        WorkOrderModel workOrder,
+        HttpRequestHeaders headers)
     {
         var url = this.Options.ApiUrl.Append($"services/work/orders/{workOrder.Id}");
-        return await RetryRequestAsync(async () => await this.Client.PutAsync<WorkOrderModel>(url, JsonContent.Create(workOrder)));
+        return await RetryRequestAsync(async () => await Client.SendAsync<WorkOrderModel>(url, HttpMethod.Put, headers, JsonContent.Create(workOrder)));
     }
     #endregion
 

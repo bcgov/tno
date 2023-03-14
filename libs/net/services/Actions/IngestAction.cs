@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using TNO.API.Areas.Services.Models.ContentReference;
 using TNO.API.Areas.Services.Models.Ingest;
 using TNO.Core.Extensions;
@@ -22,6 +23,15 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     #endregion
 
     #region Properties
+    private HttpRequestHeaders Headers
+    {
+        get
+        {
+            var headers = new HttpRequestMessage().Headers;
+            headers.Add("User-Agent", GetType().Name);
+            return headers;
+        }
+    }
     #endregion
 
     #region Constructors
@@ -83,7 +93,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
         if (reference != null)
         {
             reference.Status = (int)status;
-            reference = await this.Api.UpdateContentReferenceAsync(reference);
+            reference = await this.Api.UpdateContentReferenceAsync(reference, Headers);
         }
         return reference;
     }
@@ -106,7 +116,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
                 var result = await this.Api.SendMessageAsync(manager.Ingest.Topic, content) ?? throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
                 reference.Offset = result.Offset;
                 reference.Partition = result.Partition;
-                reference = await this.Api.UpdateContentReferenceKafkaAsync(reference);
+                reference = await Api.UpdateContentReferenceKafkaAsync(reference, Headers);
             }
         }
         return reference;

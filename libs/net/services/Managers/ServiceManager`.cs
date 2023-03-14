@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using TNO.Services.Config;
 
 namespace TNO.Services.Managers;
@@ -34,6 +35,16 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// get - Api service controller.
     /// </summary>
     protected IApiService Api { get; private set; }
+
+    protected HttpRequestHeaders Headers
+    {
+        get
+        {
+            var headers = new HttpRequestMessage().Headers;
+            headers.Add("User-Agent", GetType().Name);
+            return headers;
+        }
+    }
     #endregion
 
     #region Constructors
