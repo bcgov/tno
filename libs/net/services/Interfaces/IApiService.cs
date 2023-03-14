@@ -5,6 +5,7 @@ using DataLocationModels = TNO.API.Areas.Services.Models.DataLocation;
 using IngestModels = TNO.API.Areas.Services.Models.Ingest;
 using TNO.API.Areas.Services.Models.WorkOrder;
 using TNO.API.Areas.Kafka.Models;
+using System.Net.Http.Headers;
 
 namespace TNO.Services;
 
@@ -108,15 +109,17 @@ public interface IApiService
     /// Make an AJAX request to the api to update the content for the specified ContentModel.
     /// </summary>
     /// <param name="content"></param>
+    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentModel?> UpdateContentAsync(ContentModel content);
+    public Task<ContentModel?> UpdateContentAsync(ContentModel content, HttpRequestHeaders? headers);
 
     /// <summary>
     /// Make an AJAX request to the api to update the ingest.
     /// </summary>
     /// <param name="ingest"></param>
+    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest);
+    public Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest, HttpRequestHeaders? headers);
 
     /// <summary>
     /// Make an AJAX request to the api to find the content reference for the specified key.
@@ -137,15 +140,17 @@ public interface IApiService
     /// Make an AJAX request to the api to update the specified content reference.
     /// </summary>
     /// <param name="contentReference"></param>
+    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference);
+    public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers);
 
     /// <summary>
     /// Make an AJAX request to the api to update the specified content reference with Kafka information.
     /// </summary>
     /// <param name="contentReference"></param>
+    /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference);
+    public Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers);
 
     /// <summary>
     /// Make an AJAX request to the api to add the specified content.
@@ -192,8 +197,9 @@ public interface IApiService
     /// Make an AJAX request to the aip and update the specified 'workOrder'.
     /// </summary>
     /// <param name="workOrder"></param>
-    /// <returns></returns>
-    Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder);
+    /// <param name="headers"></param>  
+    /// <returns></returns> 
+    Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder, HttpRequestHeaders? headers);
     #endregion
 
     #region Kafka

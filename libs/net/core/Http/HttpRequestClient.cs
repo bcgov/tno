@@ -153,9 +153,10 @@ namespace TNO.Core.Http
 
             if (method == null) method = HttpMethod.Get;
 
-            var message = new HttpRequestMessage(method, url);
-            message.Headers.Add("User-Agent", "TNO.Api");
-            message.Content = content;
+            var message = new HttpRequestMessage(method, url)
+            {
+                Content = content
+            };
 
             if (headers != null)
             {
@@ -163,6 +164,11 @@ namespace TNO.Core.Http
                 {
                     message.Headers.Add(header.Key, header.Value);
                 }
+            }
+
+            if (message.Headers.UserAgent == null)
+            {
+                message.Headers.Add("User-Agent", "TNO.Api");
             }
 
             _logger.LogDebug("HTTP request made: {method}:{uri}", message.Method, message.RequestUri);
@@ -353,7 +359,7 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<HttpResponseMessage> PutAsync(Uri uri, HttpContent? content = null)
         {
-            return await SendAsync(uri, HttpMethod.Put, content);
+           return await SendAsync(uri, HttpMethod.Put, content);
         }
 
         /// <summary>
@@ -525,7 +531,7 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<TModel?> PutAsync<TModel>(string url, HttpContent? content = null)
         {
-            return await SendAsync<TModel>(url, HttpMethod.Put, content);
+           return await SendAsync<TModel>(url, HttpMethod.Put, content);
         }
 
         /// <summary>
@@ -671,7 +677,7 @@ namespace TNO.Core.Http
         /// <returns></returns>
         public async Task<TModel?> PutAsync<TModel>(Uri uri, HttpContent? content = null)
         {
-            return await SendAsync<TModel>(uri, HttpMethod.Put, content);
+           return await SendAsync<TModel>(uri, HttpMethod.Put, content);
         }
 
         /// <summary>

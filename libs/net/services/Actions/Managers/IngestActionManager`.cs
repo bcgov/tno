@@ -99,7 +99,9 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     {
         this.Ingest.LastRanOn = DateTime.UtcNow;
         this.Ingest.FailedAttempts = failedAttempts;
-        return await this.Api.UpdateIngestAsync(this.Ingest) ?? this.Ingest;
+        var headers = new HttpRequestMessage().Headers;
+        headers.Add("User-Agent", GetType().Name);
+        return await this.Api.UpdateIngestAsync(Ingest, headers) ?? Ingest;
     }
 
     /// <summary>

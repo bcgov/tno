@@ -306,7 +306,7 @@ public class ContentManager : ServiceManager<ContentOptions>
             if (reference != null)
             {
                 reference.Status = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
-                await this.Api.UpdateContentReferenceAsync(reference);
+                await this.Api.UpdateContentReferenceAsync(reference, Headers);
             }
             else
                 this.Logger.LogWarning("Content reference is missing {source}:{uid}", content.OtherSource, content.Uid);

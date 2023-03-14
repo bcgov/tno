@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using TNO.DAL.Extensions;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace TNO.DAL;
 
@@ -144,21 +145,46 @@ public class TNOContext : DbContext
     /// <returns></returns>
     public int CommitTransaction()
     {
-        var result = 0;
-        using (var transaction = this.Database.BeginTransaction())
+        using var transaction = Database.BeginTransaction();
+        try
         {
-            try
-            {
-                result = this.SaveChanges();
-                transaction.Commit();
-            }
-            catch (DbUpdateException)
-            {
-                transaction.Rollback();
-                throw;
-            }
+            var result = SaveChanges();
+            transaction.Commit();
+            return result;
         }
-        return result;
+        catch (DbUpdateConcurrencyException ex)
+        {
+            var message = new StringBuilder();
+            foreach (var entry in ex.Entries)
+            {
+                var sb = new StringBuilder();
+
+                var dbValues = entry.GetDatabaseValues();
+                var currentValues = entry.CurrentValues;
+                var originalValues = entry.OriginalValues;
+
+                foreach (var property in currentValues.Properties)
+                {
+                    var dbValue = dbValues?[property];
+                    var currentValue = currentValues[property];
+                    var originalValue = originalValues[property];
+
+                    if (dbValue != currentValue)
+                    {
+                        sb.Append($"[{property.Name} - Current: {currentValue}; DB: {dbValue}; Original: {originalValue}]");
+                    }
+                }
+
+                message.Append($"{entry.Metadata.Name}: {sb}");
+            }
+            _logger?.LogError(message.ToString());
+            throw;
+        }
+        catch (DbUpdateException)
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     /// <summary>
