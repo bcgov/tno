@@ -26,7 +26,7 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     isHidden: false,
     isApproved: contentType !== ContentTypeName.Snippet,
     actions: [],
-    categories: [],
+    topics: [],
     tags: [],
     labels: [],
     tonePools: [],

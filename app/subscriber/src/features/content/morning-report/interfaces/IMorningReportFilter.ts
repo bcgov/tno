@@ -5,13 +5,13 @@ import { ISortBy } from '../../list-view/interfaces';
 export interface IMorningReportFilter {
   pageIndex: number;
   pageSize: number;
-  includedInCategory: boolean;
+  includedInTopic: boolean;
   includeHidden: boolean;
   contentType?: ContentTypeName;
   sourceId: number;
+  sourceIds: number[];
   otherSource: string;
   productIds: number[];
-  sourceIds: number[];
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';

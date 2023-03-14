@@ -36,8 +36,9 @@ public class TNOContext : DbContext
     public DbSet<ContentLabel> ContentLabels => Set<ContentLabel>();
     public DbSet<ContentTonePool> ContentTonePools => Set<ContentTonePool>();
     public DbSet<TonePool> TonePools => Set<TonePool>();
-    public DbSet<ContentCategory> ContentCategories => Set<ContentCategory>();
-    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<ContentTopic> ContentTopics => Set<ContentTopic>();
+    public DbSet<Topic> Topics => Set<Topic>();
+    public DbSet<TopicScoreRule> TopicScoreRules => Set<TopicScoreRule>();
     public DbSet<ContentTag> ContentTags => Set<ContentTag>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<IngestType> IngestTypes => Set<IngestType>();
@@ -51,11 +52,12 @@ public class TNOContext : DbContext
     public DbSet<Source> Sources => Set<Source>();
     public DbSet<SourceMetric> SourceMetrics => Set<SourceMetric>();
     public DbSet<Metric> Metrics => Set<Metric>();
-    public DbSet<SourceSourceAction> SourceSourceActions => Set<SourceSourceAction>();
-    public DbSet<SourceAction> SourceActions => Set<SourceAction>();
     public DbSet<Cache> Cache => Set<Cache>();
     public DbSet<User> Users => Set<User>();
     public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
+    public DbSet<Report> Reports => Set<Report>();
+    public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
+    public DbSet<ReportInstanceContent> ReportInstanceContent => Set<ReportInstanceContent>();
     #endregion
 
     #region Constructors

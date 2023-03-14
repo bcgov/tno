@@ -78,8 +78,8 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.Status.HasValue)
             query = query.Where(c => c.Status == filter.Status);
 
-        if (filter.IncludedInCategory.HasValue)
-            query = query.Where(c => c.CategoriesManyToMany.Any());
+        if (filter.IncludedInTopic.HasValue)
+            query = query.Where(c => c.TopicsManyToMany.Any());
         if (!filter.IncludeHidden.HasValue)
             query = query.Where(c => !c.IsHidden);
         else
@@ -131,7 +131,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (filter.ProductIds?.Any() == true)
             query = query.Where(c => filter.ProductIds.Contains(c.ProductId));
 
-        if(filter.SourceIds?.Any() == true)
+        if (filter.SourceIds?.Any() == true)
             query = query.Where(c => filter.SourceIds.Contains((int)c.SourceId!));
 
         if (filter.Actions.Any() == true)
@@ -225,9 +225,9 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.OwnerId.Value));
         }
 
-        if (filter.IncludedInCategory.HasValue)
+        if (filter.IncludedInTopic.HasValue)
         {
-            filterQueries.Add(s => s.Nested(n => n.Path(p => p.Categories).Query(q => q.MatchAll())));
+            filterQueries.Add(s => s.Nested(n => n.Path(p => p.Topics).Query(q => q.MatchAll())));
         }
 
         foreach (var action in filter.Actions)
@@ -433,7 +433,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Source)
             .Include(c => c.Owner)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
-            .Include(c => c.CategoriesManyToMany).ThenInclude(cc => cc.Category)
+            .Include(c => c.TopicsManyToMany).ThenInclude(cc => cc.Topic)
             .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
             .Include(c => c.TagsManyToMany).ThenInclude(ct => ct.Tag)
             .Include(c => c.Labels)
@@ -452,7 +452,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Source)
             .Include(c => c.Owner)
             .Include(c => c.ActionsManyToMany).ThenInclude(ca => ca.Action)
-            .Include(c => c.CategoriesManyToMany).ThenInclude(cc => cc.Category)
+            .Include(c => c.TopicsManyToMany).ThenInclude(cc => cc.Topic)
             .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
             .Include(c => c.TagsManyToMany).ThenInclude(ct => ct.Tag)
             .Include(c => c.Labels)

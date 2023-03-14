@@ -39,7 +39,7 @@ public class ActionServiceTest : IDisposable
         var context = helper.Provider.GetRequiredService<TNOContext>();
 
         var action = new Entities.Action("test", Entities.ValueType.Boolean);
-        var keys = typeof(Action).GetCacheKeys() ?? Array.Empty<string>();
+        var keys = typeof(Entities.Action).GetCacheKeys() ?? Array.Empty<string>();
         var originalCache = context.Cache.Where(c => keys.Contains(c.Key)).ToArray();
 
         // Act

@@ -9,6 +9,8 @@ public class MetricConfiguration : BaseTypeConfiguration<Metric, int>
     {
         builder.Property(m => m.Id).IsRequired().ValueGeneratedOnAdd();
 
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
+
         base.Configure(builder);
     }
 }

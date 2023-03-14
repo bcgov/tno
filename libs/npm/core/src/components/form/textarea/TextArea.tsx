@@ -27,7 +27,7 @@ export interface ITextAreaProps extends InputHTMLAttributes<HTMLTextAreaElement>
   /**
    * Form field size.
    */
-  width?: FieldSize;
+  width?: FieldSize | string;
   /**
    * Error message.
    */

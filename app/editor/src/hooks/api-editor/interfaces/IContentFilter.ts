@@ -10,7 +10,7 @@ export interface IContentFilter extends ISortPageFilter {
   pageName?: string;
   section?: string;
   status?: ContentStatus;
-  includedInCategory?: boolean;
+  includedInTopic?: boolean;
   includeHidden?: boolean;
   createdOn?: string;
   createdStartOn?: string;

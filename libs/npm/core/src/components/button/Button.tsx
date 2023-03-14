@@ -1,7 +1,6 @@
 import React, { ButtonHTMLAttributes } from 'react';
-import ReactTooltip from 'react-tooltip';
+import { Tooltip } from 'react-tooltip';
 
-import { hideTooltipOnClick } from '../../utils';
 import { BouncingSpinner } from '../spinners';
 import { ButtonVariant } from '.';
 import * as styled from './styled';
@@ -35,18 +34,18 @@ export const Button: React.FC<IButtonProps> = ({
   loading = false,
   ...rest
 }) => {
-  const tip = React.useRef(null);
   const onClickHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
-    tooltip && hideTooltipOnClick(tip.current);
     rest.onClick && rest.onClick(event);
   };
+  // Generate a unique id for the tooltip - needed for cases of multiple button usage on the same page
+  const [uniqueId] = React.useState(new Date().getTime().toString(36));
   return (
     <styled.Button
       type={type}
       variant={variant}
       onClick={onClickHandler}
       className={`btn ${className ?? ''}`}
-      data-tooltip-id="button-tooltip"
+      data-tooltip-id={`btn-tip-${uniqueId}`}
       data-tooltip-content={tooltip}
       {...rest}
     >
@@ -54,7 +53,13 @@ export const Button: React.FC<IButtonProps> = ({
         {children}
         {loading && <BouncingSpinner />}
       </div>
-      <ReactTooltip ref={tip} id="button-tooltip" effect="float" type="light" place="top" />
+      <Tooltip
+        style={{ zIndex: '999' }}
+        variant="info"
+        id={`btn-tip-${uniqueId}`}
+        place="top"
+        float
+      />
     </styled.Button>
   );
 };

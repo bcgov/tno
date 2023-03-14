@@ -17,7 +17,6 @@ public static class SourceExtensions
     /// <returns></returns>
     public static Source AddToContext(this Source updated, TNOContext context)
     {
-        updated.ActionsManyToMany.SetEntityState(context);
         updated.MetricsManyToMany.SetEntityState(context);
         return updated;
     }
@@ -35,24 +34,8 @@ public static class SourceExtensions
     {
         if (updateChildren == true)
         {
-            var oactions = context.SourceSourceActions.Where(a => a.SourceId == updated.Id).ToArray();
             var ometrics = context.SourceMetrics.Where(m => m.SourceId == updated.Id).ToArray();
 
-            oactions.Except(updated.ActionsManyToMany).ForEach(a =>
-            {
-                context.Entry(a).State = EntityState.Deleted;
-            });
-            updated.ActionsManyToMany.ForEach(a =>
-            {
-                var current = oactions.FirstOrDefault(o => o.SourceActionId == a.SourceActionId);
-                if (current == null)
-                    original.ActionsManyToMany.Add(a);
-                else if (current.Value != a.Value)
-                {
-                    current.Value = a.Value;
-                    current.Version = a.Version;
-                }
-            });
 
             ometrics.Except(updated.MetricsManyToMany).ForEach(a =>
             {

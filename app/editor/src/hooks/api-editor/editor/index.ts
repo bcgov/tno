@@ -1,6 +1,5 @@
 export * from './useApiActions';
 export * from './useApiCache';
-export * from './useApiCategories';
 export * from './useApiContents';
 export * from './useApiDataLocations';
 export * from './useApiIngests';
@@ -18,5 +17,7 @@ export * from './useApiSources';
 export * from './useApiStorage';
 export * from './useApiTags';
 export * from './useApiTonePools';
+export * from './useApiTopics';
+export * from './useApiTopicScoreRules';
 export * from './useApiUsers';
 export * from './useApiWorkOrders';

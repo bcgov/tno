@@ -1,0 +1,33 @@
+{
+  "action": "createPipeline",
+  "settings": {
+    "pipelineName": "content"
+  },
+  "data": {
+    "description": "Convert category to topic",
+    "processors": [
+      {
+        "foreach": {
+          "field": "categories",
+          "ignore_missing": true,
+          "processor": {
+            "rename": {
+              "field": "_ingest._value.categoryType",
+              "target_field": "_ingest._value.topicType",
+              "ignore_missing": true,
+              "description": "categoryType -> topicType"
+            }
+          }
+        }
+      },
+      {
+        "rename": {
+          "field": "categories",
+          "target_field": "topics",
+          "ignore_missing": true,
+          "description": "categories -> topics"
+        }
+      }
+    ]
+  }
+}

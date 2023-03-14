@@ -34,13 +34,13 @@ public class LookupController : ControllerBase
     #region Variables
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IActionService _actionService;
-    private readonly ICategoryService _categoryService;
+    private readonly ITopicService _topicService;
+    private readonly ITopicScoreRuleService _topicScoreRuleService;
     private readonly IProductService _productService;
     private readonly ISourceService _sourceService;
     private readonly ILicenseService _licenseService;
     private readonly IIngestTypeService _ingestTypeService;
     private readonly ISeriesService _seriesService;
-    private readonly ISourceActionService _sourceActionService;
     private readonly IMetricService _metricService;
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
@@ -55,13 +55,13 @@ public class LookupController : ControllerBase
     /// Creates a new instance of a LookupController object, initializes with specified parameters.
     /// </summary>
     /// <param name="actionService"></param>
-    /// <param name="categoryService"></param>
+    /// <param name="topicService"></param>
+    /// <param name="topicScoreRuleService"></param>
     /// <param name="productService"></param>
     /// <param name="sourceService"></param>
     /// <param name="licenseService"></param>
     /// <param name="ingestTypeService"></param>
     /// <param name="seriesService"></param>
-    /// <param name="sourceActionService"></param>
     /// <param name="metricService"></param>
     /// <param name="tagService"></param>
     /// <param name="tonePoolService"></param>
@@ -72,13 +72,13 @@ public class LookupController : ControllerBase
     /// <param name="serializerOptions"></param>
     public LookupController(
         IActionService actionService,
-        ICategoryService categoryService,
+        ITopicService topicService,
+        ITopicScoreRuleService topicScoreRuleService,
         IProductService productService,
         ISourceService sourceService,
         ILicenseService licenseService,
         IIngestTypeService ingestTypeService,
         ISeriesService seriesService,
-        ISourceActionService sourceActionService,
         IMetricService metricService,
         ITagService tagService,
         ITonePoolService tonePoolService,
@@ -89,13 +89,13 @@ public class LookupController : ControllerBase
         IOptions<JsonSerializerOptions> serializerOptions)
     {
         _actionService = actionService;
-        _categoryService = categoryService;
+        _topicService = topicService;
+        _topicScoreRuleService = topicScoreRuleService;
         _productService = productService;
         _sourceService = sourceService;
         _licenseService = licenseService;
         _ingestTypeService = ingestTypeService;
         _seriesService = seriesService;
-        _sourceActionService = sourceActionService;
         _metricService = metricService;
         _tagService = tagService;
         _tonePoolService = tonePoolService;
@@ -125,14 +125,14 @@ public class LookupController : ControllerBase
         if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");
 
         var actions = _actionService.FindAll();
-        var categories = _categoryService.FindAll();
+        var topics = _topicService.FindAll();
+        var rules = _topicScoreRuleService.FindAll();
         var products = _productService.FindAll();
         var sources = _sourceService.FindAll();
         var license = _licenseService.FindAll();
         var ingestTypes = _ingestTypeService.FindAll();
         var roles = (await _CssService.GetRolesAsync()).Select(r => r.Name!);
         var series = _seriesService.FindAll();
-        var sourceActions = _sourceActionService.FindAll();
         var metrics = _metricService.FindAll();
         var tagServices = _tagService.FindAll();
         var tonePools = _tonePoolService.FindAll();
@@ -140,14 +140,14 @@ public class LookupController : ControllerBase
         var dataLocations = _dataLocationService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
-            categories,
+            topics,
+            rules,
             products,
             sources,
             license,
             ingestTypes,
             roles,
             series,
-            sourceActions,
             metrics,
             tagServices,
             tonePools,

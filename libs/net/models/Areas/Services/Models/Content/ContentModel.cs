@@ -124,7 +124,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The product.
     /// </summary>
-    public ProductModel? Product { get; set; } 
+    public ProductModel? Product { get; set; }
 
     /// <summary>
     /// get/set - Upload files with content.
@@ -140,7 +140,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get - An array of categories.
     /// </summary>
-    public IEnumerable<ContentCategoryModel> Categories { get; set; } = Array.Empty<ContentCategoryModel>();
+    public IEnumerable<ContentTopicModel> Topics { get; set; } = Array.Empty<ContentTopicModel>();
 
     /// <summary>
     /// get - An array of tags.
@@ -199,7 +199,7 @@ public class ContentModel : AuditColumnsModel
         this.IsApproved = entity.IsApproved;
 
         this.Actions = entity.ActionsManyToMany.Select(e => new ContentActionModel(e));
-        this.Categories = entity.CategoriesManyToMany.Select(e => new ContentCategoryModel(e));
+        this.Topics = entity.TopicsManyToMany.Select(e => new ContentTopicModel(e));
         this.Tags = entity.TagsManyToMany.Select(e => new ContentTagModel(e));
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
@@ -238,7 +238,7 @@ public class ContentModel : AuditColumnsModel
         }
 
         entity.ActionsManyToMany.AddRange(model.Actions.Select(a => a.ToEntity(entity.Id)));
-        entity.CategoriesManyToMany.AddRange(model.Categories.Select(c => c.ToEntity(entity.Id)));
+        entity.TopicsManyToMany.AddRange(model.Topics.Select(c => c.ToEntity(entity.Id)));
         entity.TagsManyToMany.AddRange(model.Tags.Select(t => t.ToEntity(entity.Id)));
         entity.Labels.AddRange(model.Labels.Select(f => f.ToEntity(entity.Id)));
         entity.TonePoolsManyToMany.AddRange(model.TonePools.Select(tp => tp.ToEntity(entity.Id)));

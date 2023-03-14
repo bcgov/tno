@@ -25,13 +25,18 @@ export const useApiWorkOrders = (
       );
     },
     transcribe: (content: IContentModel) => {
-      return api.put<never, AxiosResponse<IWorkOrderModel>, any>(
+      return api.post<never, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/work/orders/transcribe/${content.id}`,
       );
     },
     nlp: (content: IContentModel) => {
-      return api.put<never, AxiosResponse<IWorkOrderModel>, any>(
+      return api.post<never, AxiosResponse<IWorkOrderModel>, any>(
         `/editor/work/orders/nlp/${content.id}`,
+      );
+    },
+    requestFile: (locationId: number, path: string) => {
+      return api.post<never, AxiosResponse<IWorkOrderModel>, any>(
+        `/editor/work/orders/request/file/${locationId}?path=${encodeURIComponent(path)}`,
       );
     },
   }).current;

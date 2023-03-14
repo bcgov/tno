@@ -34,9 +34,14 @@ public class SeriesModel : AuditColumnsModel
     public int SortOrder { get; set; }
 
     /// <summary>
-    /// get/set - Whether content with this category should be automatically transcribed.
+    /// get/set - Whether content should be automatically transcribed.
     /// </summary>
     public bool AutoTranscribe { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to show the topics on the content form.
+    /// </summary>
+    public bool UseInTopics { get; set; }
     #endregion
 
     #region Constructors
@@ -57,6 +62,7 @@ public class SeriesModel : AuditColumnsModel
         this.SortOrder = entity.SortOrder;
         this.IsEnabled = entity.IsEnabled;
         this.AutoTranscribe = entity.AutoTranscribe;
+        this.UseInTopics = entity.UseInTopics;
     }
     #endregion
 
@@ -75,6 +81,7 @@ public class SeriesModel : AuditColumnsModel
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,
             AutoTranscribe = model.AutoTranscribe,
+            UseInTopics = model.UseInTopics,
             Version = model.Version ?? 0,
         };
         return entity;

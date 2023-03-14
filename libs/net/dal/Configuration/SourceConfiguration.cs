@@ -19,11 +19,11 @@ public class SourceConfiguration : BaseTypeConfiguration<Source, int>
         builder.Property(m => m.LicenseId).IsRequired();
         builder.Property(m => m.AutoTranscribe).IsRequired();
         builder.Property(m => m.DisableTranscribe).IsRequired();
+        builder.Property(m => m.UseInTopics).IsRequired();
         builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
         builder.HasOne(m => m.Owner).WithMany().HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(m => m.License).WithMany(m => m.Sources).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasMany(m => m.Actions).WithMany(m => m.Sources).UsingEntity<SourceSourceAction>();
         builder.HasMany(m => m.Metrics).WithMany(m => m.Sources).UsingEntity<SourceMetric>();
         builder.HasOne(m => m.Product).WithMany(m => m.Sources).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Restrict);
 

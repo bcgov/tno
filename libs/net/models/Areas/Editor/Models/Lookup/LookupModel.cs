@@ -14,9 +14,14 @@ public class LookupModel
     public IEnumerable<Action.ActionModel> Actions { get; set; } = Array.Empty<Action.ActionModel>();
 
     /// <summary>
-    /// get/set - An array of all categories.
+    /// get/set - An array of all topics.
     /// </summary>
-    public IEnumerable<Category.CategoryModel> Categories { get; set; } = Array.Empty<Category.CategoryModel>();
+    public IEnumerable<Topic.TopicModel> Topics { get; set; } = Array.Empty<Topic.TopicModel>();
+
+    /// <summary>
+    /// get/set - An array of all topics score rules.
+    /// </summary>
+    public IEnumerable<TopicScoreRule.TopicScoreRuleModel> Rules { get; set; } = Array.Empty<TopicScoreRule.TopicScoreRuleModel>();
 
     /// <summary>
     /// get/set - An array of all products.
@@ -47,11 +52,6 @@ public class LookupModel
     /// get/set - An array of all series.
     /// </summary>
     public IEnumerable<Series.SeriesModel> Series { get; set; } = Array.Empty<Series.SeriesModel>();
-
-    /// <summary>
-    /// get/set - An array of all source actions.
-    /// </summary>
-    public IEnumerable<SourceAction.SourceActionModel> SourceActions { get; set; } = Array.Empty<SourceAction.SourceActionModel>();
 
     /// <summary>
     /// get/set - An array of all source metrics.
@@ -89,7 +89,8 @@ public class LookupModel
     /// Creates a new instance of a LookupModel, initialize with specified parameters.
     /// </summary>
     /// <param name="actions"></param>
-    /// <param name="categories"></param>
+    /// <param name="topics"></param>
+    /// <param name="rules"></param>
     /// <param name="claims"></param>
     /// <param name="products"></param>
     /// <param name="sources"></param>
@@ -97,7 +98,6 @@ public class LookupModel
     /// <param name="ingestTypes"></param>
     /// <param name="roles"></param>
     /// <param name="series"></param>
-    /// <param name="sourceActions"></param>
     /// <param name="sourceMetrics"></param>
     /// <param name="tagServices"></param>
     /// <param name="tonePools"></param>
@@ -106,14 +106,14 @@ public class LookupModel
     /// <param name="options"></param>
     public LookupModel(
         IEnumerable<Entities.Action> actions,
-        IEnumerable<Entities.Category> categories,
+        IEnumerable<Entities.Topic> topics,
+        IEnumerable<Entities.TopicScoreRule> rules,
         IEnumerable<Entities.Product> products,
         IEnumerable<Entities.Source> sources,
         IEnumerable<Entities.License> license,
         IEnumerable<Entities.IngestType> ingestTypes,
         IEnumerable<string> roles,
         IEnumerable<Entities.Series> series,
-        IEnumerable<Entities.SourceAction> sourceActions,
         IEnumerable<Entities.Metric> metrics,
         IEnumerable<Entities.Tag> tagServices,
         IEnumerable<Entities.TonePool> tonePools,
@@ -122,14 +122,14 @@ public class LookupModel
         JsonSerializerOptions options)
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
-        this.Categories = categories.Select(a => new Category.CategoryModel(a));
+        this.Topics = topics.Select(a => new Topic.TopicModel(a));
+        this.Rules = rules.Select(a => new TopicScoreRule.TopicScoreRuleModel(a));
         this.Products = products.Select(a => new Product.ProductModel(a));
         this.Sources = sources.Select(a => new Source.SourceModel(a, options));
         this.Licenses = license.Select(a => new License.LicenseModel(a));
         this.IngestTypes = ingestTypes.Select(a => new IngestType.IngestTypeModel(a));
         this.Roles = roles.Select(a => new Role.RoleModel(a));
         this.Series = series.Select(a => new Series.SeriesModel(a));
-        this.SourceActions = sourceActions.Select(a => new SourceAction.SourceActionModel(a));
         this.Metrics = metrics.Select(a => new Metric.MetricModel(a));
         this.Tags = tagServices.Select(a => new Tag.TagModel(a));
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));

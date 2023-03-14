@@ -47,6 +47,11 @@ public class SourceModel : BaseTypeModel<int>
     public bool DisableTranscribe { get; set; }
 
     /// <summary>
+    /// get/set - Whether to show the topics on the content form.
+    /// </summary>
+    public bool UseInTopics { get; set; }
+
+    /// <summary>
     /// get/set -
     /// </summary>
     public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
@@ -76,6 +81,7 @@ public class SourceModel : BaseTypeModel<int>
         this.ProductId = entity.ProductId;
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
+        this.UseInTopics = entity.UseInTopics;
         this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration) ?? new Dictionary<string, object>();
     }
     #endregion
@@ -98,6 +104,7 @@ public class SourceModel : BaseTypeModel<int>
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,
+            UseInTopics = model.UseInTopics,
             Configuration = JsonDocument.Parse(JsonSerializer.Serialize(model.Configuration))
         };
     }

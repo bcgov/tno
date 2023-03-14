@@ -11,6 +11,7 @@ export const defaultSource: ISourceModel = {
   licenseId: 0,
   autoTranscribe: false,
   disableTranscribe: false,
+  useInTopics: false,
   configuration: '',
   actions: [],
   metrics: [],

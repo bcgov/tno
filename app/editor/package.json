@@ -51,7 +51,7 @@
     "react-tooltip": "5.9.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.6",
-    "tno-core": "0.0.214",
+    "tno-core": "0.0.218",
     "yup": "0.32.11"
   },
   "devDependencies": {

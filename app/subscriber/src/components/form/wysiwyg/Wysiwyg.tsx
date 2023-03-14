@@ -81,7 +81,9 @@ export const Wysiwyg: React.FC<IWysiwygProps> = ({
 
   const extractTags = (values: string[]) => {
     return tags
-      .filter((tag) => values.some((value: string) => value.toLowerCase() === tag.id.toLowerCase()))
+      .filter((tag) =>
+        values.some((value: string) => value.toLowerCase() === tag.code.toLowerCase()),
+      )
       .map((tag) => tag);
   };
 

@@ -1,6 +1,5 @@
 import {
   IActionModel,
-  ICategoryModel,
   IDataLocationModel,
   IIngestTypeModel,
   ILicenseModel,
@@ -12,12 +11,15 @@ import {
   ISourceModel,
   ITagModel,
   ITonePoolModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
 } from '.';
 
 export interface ILookupModel {
   actions: IActionModel[];
-  categories: ICategoryModel[];
+  topics: ITopicModel[];
+  rules: ITopicScoreRuleModel[];
   products: IProductModel[];
   sources: ISourceModel[];
   licenses: ILicenseModel[];

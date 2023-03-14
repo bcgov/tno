@@ -35,7 +35,7 @@ export function toForm(model: IContentModel): IContentForm {
     isHidden: model.isHidden,
     isApproved: model.isApproved,
     actions: model.actions ?? [],
-    categories: model.categories ?? [],
+    topics: model.topics ?? [],
     tags: model.tags ?? [],
     labels: model.labels ?? [],
     tonePools: model.tonePools ?? [],

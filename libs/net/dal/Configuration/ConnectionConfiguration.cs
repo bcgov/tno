@@ -13,6 +13,8 @@ public class ConnectionConfiguration : BaseTypeConfiguration<Connection, int>
         builder.Property(m => m.Configuration).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
         builder.Property(m => m.IsReadOnly).IsRequired();
 
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
+
         base.Configure(builder);
     }
 }

@@ -13,7 +13,7 @@ import { useAjaxWrapper } from '..';
 
 interface IContentController {
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
-  getContent: (id: number) => Promise<IContentModel>;
+  getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
@@ -40,7 +40,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         return response.data;
       },
       getContent: async (id: number) => {
-        return (await dispatch('get-content', () => api.getContent(id), 'content')).data;
+        const response = await dispatch('get-content', () => api.getContent(id), 'content');
+        return response.status === 204 ? undefined : response.data;
       },
       addContent: async (content: IContentModel) => {
         const response = await dispatch('add-content', () => api.addContent(content), 'content');

@@ -4,7 +4,7 @@ using TNO.Entities;
 namespace TNO.API.Areas.Services.Models.ContentReference;
 
 /// <summary>
-/// ContentReferenceModel class, provides a model that represents an category.
+/// ContentReferenceModel class, provides a model that represents an content reference.
 /// </summary>
 public class ContentReferenceModel : AuditColumnsModel
 {

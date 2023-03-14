@@ -2,7 +2,6 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
-  ICategoryModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -13,6 +12,8 @@ import {
   ISeriesModel,
   ISourceModel,
   ITagModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
   IWorkOrderModel,
 } from 'hooks/api-editor';
@@ -21,7 +22,6 @@ import { useAppDispatch, useAppSelector } from 'store';
 
 import {
   storeAdminActions,
-  storeAdminCategories,
   storeAdminConnections,
   storeAdminDataLocations,
   storeAdminIngests,
@@ -31,6 +31,8 @@ import {
   storeAdminSeries,
   storeAdminSources,
   storeAdminTags,
+  storeAdminTopics,
+  storeAdminTopicScoreRules,
   storeAdminUserFilter,
   storeAdminUsers,
   storeAdminWorkOrderFilter,
@@ -48,7 +50,8 @@ export interface IAdminStore {
   storeLicenses: (licenses: ILicenseModel[]) => void;
   storeIngests: (ingests: IIngestModel[]) => void;
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
-  storeCategories: (categories: ICategoryModel[]) => void;
+  storeTopics: (topics: ITopicModel[]) => void;
+  storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => void;
   storeUserFilter: (filter: IUserListFilter) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
   storeTags: (tags: ITagModel[]) => void;
@@ -91,8 +94,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       storeUsers: (users: IPaged<IUserModel>) => {
         dispatch(storeAdminUsers(users));
       },
-      storeCategories: (categories: ICategoryModel[]) => {
-        dispatch(storeAdminCategories(categories));
+      storeTopics: (topics: ITopicModel[]) => {
+        dispatch(storeAdminTopics(topics));
+      },
+      storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
+        dispatch(storeAdminTopicScoreRules(rules));
       },
       storeTags: (tags: ITagModel[]) => {
         dispatch(storeAdminTags(tags));

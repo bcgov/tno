@@ -8,6 +8,11 @@ namespace TNO.API.Areas.Editor.Models.Series;
 public class SeriesModel : BaseTypeModel<int>
 {
     #region Properties
+
+    /// <summary>
+    /// get/set - Whether to show the topics on the content form.
+    /// </summary>
+    public bool UseInTopics { get; set; }
     #endregion
 
     #region Constructors
@@ -22,7 +27,7 @@ public class SeriesModel : BaseTypeModel<int>
     /// <param name="entity"></param>
     public SeriesModel(Entities.Series entity) : base(entity)
     {
-
+        this.UseInTopics = entity.UseInTopics;
     }
     #endregion
 }

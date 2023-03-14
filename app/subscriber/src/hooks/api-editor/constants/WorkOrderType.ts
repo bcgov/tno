@@ -8,4 +8,9 @@ export enum WorkOrderType {
   /// A request for content to be sent for natural language processing.
   /// </summary>
   NaturalLanguageProcess = 1,
+
+  /// <summary>
+  /// A request for a remote file.
+  /// </summary>
+  FileRequest = 2,
 }

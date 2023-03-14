@@ -36,6 +36,8 @@ namespace TNO.DAL.Elasticsearch
             return new ConnectionSettings(options.Url)
                 .BasicAuthentication(username, password)
                 .DefaultIndex(options.UnpublishedIndex)
+                .EnableApiVersioningHeader()
+                .RequestTimeout(new TimeSpan(0, 30, 0))
                 .ThrowExceptions();
         }
         #endregion

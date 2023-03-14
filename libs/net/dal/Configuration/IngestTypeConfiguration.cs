@@ -11,6 +11,8 @@ public class IngestTypeConfiguration : BaseTypeConfiguration<IngestType, int>
         builder.Property(m => m.AutoTranscribe).IsRequired();
         builder.Property(m => m.DisableTranscribe).IsRequired();
 
+        builder.HasIndex(m => m.Name, "IX_name").IsUnique();
+
         base.Configure(builder);
     }
 }

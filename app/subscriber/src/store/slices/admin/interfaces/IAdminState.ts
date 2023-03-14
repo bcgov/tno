@@ -2,7 +2,6 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
-  ICategoryModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -13,6 +12,8 @@ import {
   ISeriesModel,
   ISourceModel,
   ITagModel,
+  ITopicModel,
+  ITopicScoreRuleModel,
   IUserModel,
   IWorkOrderModel,
 } from 'hooks/api-editor';
@@ -26,7 +27,8 @@ export interface IAdminState {
   ingestTypes: IIngestTypeModel[];
   userFilter: IUserListFilter;
   users: IPaged<IUserModel>;
-  categories: ICategoryModel[];
+  topics: ITopicModel[];
+  rules: ITopicScoreRuleModel[];
   tags: ITagModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
