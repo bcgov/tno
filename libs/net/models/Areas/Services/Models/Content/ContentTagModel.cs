@@ -16,7 +16,7 @@ public class ContentTagModel : AuditColumnsModel
     /// <summary>
     /// get/set - Unique name to identify the entity.
     /// </summary>
-    public string Code { get; set; }
+    public string Code { get; set; } = "";
 
     /// <summary>
     /// get/set - The unique name of the model.
@@ -34,9 +34,18 @@ public class ContentTagModel : AuditColumnsModel
     /// <summary>
     /// Creates a new instance of an ContentTagModel.
     /// </summary>
-    public ContentTagModel(string code) {
+    public ContentTagModel()
+    {
+    }
+
+    /// <summary>
+    /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="code"></param>
+    public ContentTagModel(string code)
+    {
         this.Code = code;
-     }
+    }
 
     /// <summary>
     /// Creates a new instance of an ContentTagModel, initializes with specified parameter.
