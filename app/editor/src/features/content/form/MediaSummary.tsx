@@ -6,7 +6,7 @@ import { useFormikContext } from 'formik';
 import { ContentTypeName, IFileReferenceModel } from 'hooks';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Col, Row } from 'tno-core';
+import { Col, Row, Show } from 'tno-core';
 
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
@@ -65,10 +65,12 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
       </Col>
       <Col className="summary">
         <Wysiwyg label="Summary" required fieldName="summary" expandModal={setShowExpandModal} />
-        <Row wrap="nowrap">
-          <Tags />
-          <ToningGroup fieldName="tonePools" />
-        </Row>
+        <Show visible={contentType !== ContentTypeName.Image}>
+          <Row wrap="nowrap">
+            <Tags />
+            <ToningGroup fieldName="tonePools" />
+          </Row>
+        </Show>
       </Col>
     </styled.MediaSummary>
   );
