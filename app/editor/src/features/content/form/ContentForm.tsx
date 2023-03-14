@@ -55,7 +55,7 @@ import { getStatusText } from '../list-view/utils';
 import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
-import { ContentClipForm, ContentLabelsForm, ContentSummaryForm, ContentTranscriptForm } from '.';
+import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
 import { defaultFormValues } from './constants';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -563,7 +563,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 </Row>
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
-                    <ContentSummaryForm
+                    <ContentStoryForm
                       content={form}
                       setContent={setForm}
                       contentType={ContentTypeName.Image}
@@ -639,7 +639,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       }
                     >
                       <Show visible={active === 'properties'}>
-                        <ContentSummaryForm
+                        <ContentStoryForm
                           content={form}
                           setContent={setForm}
                           contentType={contentType}
@@ -662,7 +662,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     </Tabs>
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
-                    <ContentSummaryForm
+                    <ContentStoryForm
                       content={form}
                       setContent={setForm}
                       contentType={contentType}

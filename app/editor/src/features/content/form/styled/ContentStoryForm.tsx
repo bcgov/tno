@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const ContentSummaryForm = styled.div`
+export const ContentStoryForm = styled.div`
   height: 90%;
 
   .row-margins {
@@ -33,7 +33,6 @@ export const ContentSummaryForm = styled.div`
 
   .vl {
     border-left: 1px solid;
-    height: 10em;
     padding: 0 0.5em 0 0.5em;
   }
 

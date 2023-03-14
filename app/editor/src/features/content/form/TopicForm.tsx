@@ -37,7 +37,6 @@ export const TopicForm: React.FC<ITopicFormProps> = () => {
           !!values.topics?.length ? topicOptions.find((c) => c.value === values.topics[0].id) : []
         }
         onChange={(e: any) => {
-          // only supports one at a time right now
           let value;
           if (!!e?.value) {
             value = topics.find((c) => c.id === e.value);
