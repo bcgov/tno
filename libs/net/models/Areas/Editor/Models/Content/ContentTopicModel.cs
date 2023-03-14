@@ -33,7 +33,6 @@ public class ContentTopicModel : AuditColumnsModel
     /// get/set - The type of topic (issue, proactive).
     /// </summary>
     public TopicType TopicType { get; set; }
-    public bool AutoTranscribe { get; set; }
     #endregion
 
     #region Constructors

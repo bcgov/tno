@@ -1,5 +1,7 @@
+using Elastic.Clients.Elasticsearch;
+using Elastic.Transport;
+using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
-using Nest;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -30,6 +32,10 @@ public abstract class TNOMigration : Migration
     #region Methods
     /// <summary>
     /// Iterate through database and reindex content that matches the specified 'filter'.
+    /// TODO: NEST does not use System.Text.Json, and as such most of the serialization cannot be controlled through configuration.
+    /// Additionally, it uses a version of Newtonsoft that has a few challenges if you want to write your own serializer.
+    /// For some reason we can't get version 8 of NEST which resolves these issues.
+    /// This means that for now we cannot index documents with this method as it will corrupt the data because it does not have the correct serialization.
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="filter"></param>
@@ -50,20 +56,50 @@ public abstract class TNOMigration : Migration
 
             foreach (var item in page.Items)
             {
-                var model = new ContentModel(item);
-                var unpublishedIndex = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.UnpublishedIndex}_v{this.Version}", model.Id);
-                var response = await builder.Client.IndexAsync(unpublishedIndex, cancellationToken);
-                if (!response.IsValid) builder.Logger.LogError(response.OriginalException, "Failed to index Content:{id} in Index:{index}.  Error:{error}", model.Id, unpublishedIndex, response.ServerError);
-
-                if (item.Status == Entities.ContentStatus.Published)
+                // Try the same item until it is successful.
+                var indexed = false;
+                while (!indexed)
                 {
-                    var publishedIndex = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.PublishedIndex}_v{this.Version}", model.Id);
-                    response = await builder.Client.IndexAsync(publishedIndex, cancellationToken);
-                    if (!response.IsValid) builder.Logger.LogError(response.OriginalException, "Failed to index Content:{id} in Index:{index}.  Error:{error}", model.Id, publishedIndex, response.ServerError);
-                }
+                    try
+                    {
+                        var model = new ContentModel(item);
+                        var unpublishedRequest = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.UnpublishedIndex}_v{this.Version}", model.Id);
+                        var response = await builder.IndexingClient.IndexAsync(unpublishedRequest, cancellationToken);
+                        if (!response.IsValidResponse)
+                        {
+                            if (response.TryGetOriginalException(out Exception? ex))
+                                throw ex!;
+                            throw new Exception($"Failed to index. Error {response.ElasticsearchServerError.Error.Reason}");
+                        }
 
-                builder.Logger.LogDebug("Content reindexed {index} of {total}, ID: {id}", index++, page.Total, model.Id);
+                        if (item.Status == Entities.ContentStatus.Published)
+                        {
+                            var publishedRequest = new IndexRequest<ContentModel>(model, $"{builder.MigrationOptions.PublishedIndex}_v{this.Version}", model.Id);
+                            response = await builder.IndexingClient.IndexAsync(publishedRequest, cancellationToken);
+                            if (!response.IsValidResponse)
+                            {
+                                if (response.TryGetOriginalException(out Exception? ex))
+                                    throw ex!;
+                                throw new Exception($"Failed to index. Error {response.ElasticsearchServerError.Error.Reason}");
+                            }
+                        }
+
+                        builder.Logger.LogDebug("Content reindexed {index} of {total}, ID: {id}", index++, page.Total, model.Id);
+                        this.Failures = 0;
+                        indexed = true;
+                    }
+                    catch (TransportException ex)
+                    {
+                        builder.Logger.LogError(ex, "Failed to index content ID: {id}", item.Id);
+                        // Ignore 502 gateway error, for some reason our cluster has intermittent issues.
+                        if (ex.ApiCallDetails.HttpStatusCode != 502)
+                        {
+                            if (++this.Failures >= builder.MigrationOptions.ReindexFailureLimit) throw;
+                        }
+                    }
+                }
             }
+            Thread.Sleep(builder.MigrationOptions.ReindexDelay);
             reindex = page.Items.Count == filter.Quantity;
         }
     }

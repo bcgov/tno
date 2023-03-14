@@ -28,6 +28,11 @@ public class ContentTopicModel : AuditColumnsModel
     /// get/set - The value of the topic.
     /// </summary>
     public int Score { get; set; }
+
+    /// <summary>
+    /// get/set - The type of topic (issue, proactive).
+    /// </summary>
+    public TopicType TopicType { get; set; }
     #endregion
 
     #region Constructors
@@ -45,6 +50,7 @@ public class ContentTopicModel : AuditColumnsModel
         this.ContentId = entity.ContentId;
         this.Id = entity.TopicId;
         this.Name = entity.Topic?.Name ?? "";
+        this.TopicType = entity.Topic?.TopicType ?? TopicType.Issues;
         this.Score = entity.Score;
     }
     #endregion

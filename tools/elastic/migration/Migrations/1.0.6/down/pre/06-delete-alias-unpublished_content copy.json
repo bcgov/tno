@@ -1,7 +1,0 @@
-{
-  "action": "deleteAlias",
-  "settings": {
-    "indexName": "unpublished_content_v1.0.6",
-    "aliasName": "unpublished_content"
-  }
-}

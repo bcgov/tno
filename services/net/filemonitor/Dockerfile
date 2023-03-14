@@ -16,7 +16,7 @@ COPY libs/net libs/net
 RUN if [ ! -d services/net/filemonitor/keys ]; then mkdir services/net/filemonitor/keys; fi
 
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
-    fix_permissions "/app" "/tmp"
+    fix_permissions "/tmp"
 
 WORKDIR /src/services/net/filemonitor
 RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build

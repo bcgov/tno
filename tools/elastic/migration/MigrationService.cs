@@ -1,4 +1,5 @@
 using System.Reflection;
+using Elasticsearch.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -77,28 +78,42 @@ public class MigrationService
     private async Task CreateMigrationIndexAsync(CancellationToken cancellationToken)
     {
         // Check if migration index exists.
-        var exists = await _elasticClient.Indices.ExistsAsync(Indices.Index(_options.MigrationIndex), null, cancellationToken);
-
-        // If the index does not exist, create it.
-        if (!exists.Exists)
+        try
         {
-            var model = new MigrationVersion();
-            var descriptor = new CreateIndexDescriptor(_options.MigrationIndex)
-                .Map(tmd => tmd.AutoMap());
+            var exists = await _elasticClient.Indices.ExistsAsync(Indices.Index(_options.MigrationIndex), ied => ied.ErrorTrace(true), cancellationToken);
 
-            var createResponse = await _elasticClient.Indices.CreateAsync(
-                _options.MigrationIndex,
-                cir => cir.Map<MigrationVersion>(m => m.AutoMap())
-                    .Settings(s => s
-                        .NumberOfReplicas(_options.NumberOfReplicas)
-                        .NumberOfShards(_options.NumberOfShards)),
-                cancellationToken);
-
-            if (!createResponse.IsValid)
+            // If the index does not exist, create it.
+            if (!exists.Exists)
             {
-                _logger.LogError(createResponse.OriginalException, "Failed to create migration index.");
-                throw createResponse.OriginalException;
+                var model = new MigrationVersion();
+                var descriptor = new CreateIndexDescriptor(_options.MigrationIndex)
+                    .Map(tmd => tmd.AutoMap());
+
+                var createResponse = await _elasticClient.Indices.CreateAsync(
+                    _options.MigrationIndex,
+                    cir => cir.Map<MigrationVersion>(m => m.AutoMap())
+                        .Settings(s => s
+                            .NumberOfReplicas(_options.NumberOfReplicas)
+                            .NumberOfShards(_options.NumberOfShards)),
+                    cancellationToken);
+
+                if (!createResponse.IsValid)
+                {
+                    _logger.LogError(createResponse.OriginalException, "Failed to create migration index.");
+                    throw createResponse.OriginalException;
+                }
             }
+        }
+        catch (ElasticsearchClientException ex)
+        {
+            _logger.LogError(ex, "Failure to create index");
+            if (ex.Response.HttpStatusCode == 502)
+            {
+                Thread.Sleep(5000);
+                await CreateMigrationIndexAsync(cancellationToken);
+            }
+            else
+                throw;
         }
     }
 

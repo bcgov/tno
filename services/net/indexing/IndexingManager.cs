@@ -260,8 +260,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task IndexContentAsync(ContentModel content)
     {
-        var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
-        var response = await this.Client.IndexAsync(document);
+        var request = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
+        var response = await this.Client.IndexAsync(request);
         if (response.IsSuccess())
         {
             this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
@@ -269,7 +269,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to index.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
+            if (response.TryGetOriginalException(out Exception? ex))
+                this.Logger.LogError(ex, "Content failed to index.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
         }
     }
 
@@ -285,9 +286,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         // Remove the transcript body if it hasn't been approved.
         var body = content.Body;
         if (!content.IsApproved && content.ContentType == ContentType.Snippet) content.Body = "";
-        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
+        var request = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
 
-        var response = await this.Client.IndexAsync(document);
+        var response = await this.Client.IndexAsync(request);
         if (response.IsSuccess())
         {
             content.Body = body;
@@ -304,7 +305,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
+            if (response.TryGetOriginalException(out Exception? ex))
+                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -317,8 +319,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task UnpublishContentAsync(ContentModel content)
     {
-        var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
-        var response = await this.Client.DeleteAsync(document);
+        var request = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
+        var response = await this.Client.DeleteAsync(request);
         if (response.IsSuccess())
         {
             // Update the status of the content to indicate it has been unpublished.
@@ -334,7 +336,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
+            if (response.TryGetOriginalException(out Exception? ex))
+                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -357,16 +360,17 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task DeleteContentAsync(long contentId, string index)
     {
-        var document = new DeleteRequest<ContentModel>(index, contentId);
-        var response = await this.Client.DeleteAsync(document);
+        var request = new DeleteRequest<ContentModel>(index, contentId);
+        var response = await this.Client.DeleteAsync(request);
         if (response.IsSuccess())
         {
-            this.Logger.LogInformation("Content removed.  Content ID: {id}, Index: {index}", contentId, index);
+            this.Logger.LogInformation("Content deleted.  Content ID: {id}, Index: {index}", contentId, index);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
-            this.Logger.LogError(response.OriginalException, "Content failed to be removed.  Content ID: {id}, Index: {index}", contentId, index);
+            if (response.TryGetOriginalException(out Exception? ex))
+                this.Logger.LogError(ex, "Content failed to delete.  Content ID: {id}, Index: {index}", contentId, index);
         }
     }
 
