@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using TNO.Entities;
 
 namespace TNO.Kafka.Models;
