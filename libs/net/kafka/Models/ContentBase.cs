@@ -82,7 +82,6 @@ public abstract class ContentBase
     /// <summary>
     /// get/set - The page number containing the content.
     /// </summary>
-    [MaxLength(10, ErrorMessage = $"{nameof(Page)} only allow up to 10 characters.")]
     public string Page { get; set; } = "";
 
     /// <summary>

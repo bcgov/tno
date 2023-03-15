@@ -166,7 +166,7 @@ namespace TNO.Core.Http
                 }
             }
 
-            if (message.Headers.UserAgent == null)
+            if (string.IsNullOrEmpty(message.Headers.UserAgent.ToString()))
             {
                 message.Headers.Add("User-Agent", "TNO.Api");
             }

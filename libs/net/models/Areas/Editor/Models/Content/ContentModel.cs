@@ -114,7 +114,6 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The print content page.
     /// </summary>
-    [MaxLength(10, ErrorMessage = $"{nameof(Page)} only allow up to 10 characters.")]
     public string Page { get; set; } = "";
 
     /// <summary>
