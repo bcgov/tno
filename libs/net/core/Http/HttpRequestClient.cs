@@ -166,12 +166,14 @@ namespace TNO.Core.Http
                 }
             }
 
-            if (message.Headers.UserAgent == null)
+            var userAgent = message.Headers.UserAgent;
+            if (string.IsNullOrEmpty(userAgent.ToString()))
             {
                 message.Headers.Add("User-Agent", "TNO.Api");
             }
 
-            _logger.LogDebug("HTTP request made: {method}:{uri}", message.Method, message.RequestUri);
+            _logger.LogDebug("HTTP request made: {method}:{uri} (User-Agent: {userAgent})",
+                message.Method, message.RequestUri, userAgent);
             return await this.Client.SendAsync(message);
         }
 
