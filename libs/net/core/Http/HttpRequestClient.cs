@@ -171,7 +171,7 @@ namespace TNO.Core.Http
                 message.Headers.Add("User-Agent", "TNO.Api");
             }
 
-            _logger.LogDebug("HTTP request made: {method}:{uri}", message.Method, message.RequestUri);
+            _logger.LogDebug($"HTTP request made: {message.Method}:{message.RequestUri} (User-Agent: {message.Headers.UserAgent?.ToString()})");
             return await this.Client.SendAsync(message);
         }
 
