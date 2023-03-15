@@ -29,16 +29,22 @@ export interface IAdvancedSearchSectionProps {
  */
 export const AdvancedMorningReport: React.FC<IAdvancedSearchSectionProps> = ({ onSearch }) => {
   const [{ morningReportFilter, filterAdvanced, filter }, { storeFilterAdvanced }] = useContent();
+
   const search = fromQueryString(window.location.search);
+
   /** initialize advanced search section with query values or new */
   React.useEffect(() => {
-    storeFilterAdvanced({
-      ...filterAdvanced,
-      fieldType: search.fieldType ?? fieldTypes[0].value,
-      searchTerm: search.searchTerm ?? '',
-    });
+    if (!!window.location.search) {
+      storeFilterAdvanced({
+        ...filterAdvanced,
+        fieldType: search.fieldType ?? fieldTypes[0].value,
+        searchTerm: search.searchTerm ?? '',
+      });
+    }
+    // Only load the URL parameters the first time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <ToolBarSection
       children={

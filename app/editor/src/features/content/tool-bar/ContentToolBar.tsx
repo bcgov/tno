@@ -23,6 +23,7 @@ export interface IContentToolBarProps {
 export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => {
   const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
   const search = fromQueryString(window.location.search);
+
   // extract every value from window.location.search that is productIds
   // and put into an array
   const extractProductIds = (search: string) => {
@@ -33,12 +34,14 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
   };
 
   React.useEffect(() => {
-    if (!!search.productIds) extractProductIds(search.productIds);
-    Object.keys(search).forEach(function (key) {
-      if (key in filterAdvanced && search[key] !== undefined) {
-        storeFilterAdvanced({ ...filterAdvanced, [key]: search[key] });
-      }
-    });
+    if (!!window.location.search) {
+      if (!!search.productIds) extractProductIds(search.productIds);
+      Object.keys(search).forEach(function (key) {
+        if (key in filterAdvanced && search[key] !== undefined) {
+          storeFilterAdvanced({ ...filterAdvanced, [key]: search[key] });
+        }
+      });
+    }
     // parse productIds for each one and put into array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -47,6 +50,7 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
     storeFilter(filter);
     replaceQueryParams({ ...filter, ...filterAdvanced }, { includeEmpty: false });
   };
+
   // pass filter and filter advanced so we don't lose the advanced filter when we change the filter
   const onAdvancedFilterChange = (advancedFilter: IContentListAdvancedFilter) => {
     storeFilterAdvanced(advancedFilter);
