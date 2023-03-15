@@ -2,7 +2,7 @@ import { faTableColumns, faUpRightFromSquare } from '@fortawesome/free-solid-svg
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { FormikProps } from 'formik';
+import { FormikHelpers, FormikProps } from 'formik';
 import {
   ActionName,
   ContentTypeName,
@@ -234,7 +234,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     return result;
   };
 
-  const handlePublish = async (values: IContentForm): Promise<IContentForm> => {
+  const handlePublish = async (
+    values: IContentForm,
+    formikHelpers: FormikHelpers<IContentForm>,
+  ): Promise<IContentForm> => {
     if (
       [
         ContentStatusName.Draft,
@@ -385,7 +388,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
               !request.isSilent && request.group.some((g) => g === 'content' || g === 'lookup')
             }
           >
-            {(props) => (
+            {(props: FormikProps<IContentForm>) => (
               <Col>
                 <ContentFormToolBar
                   contentType={contentType}
