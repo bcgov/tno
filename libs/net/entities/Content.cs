@@ -124,7 +124,6 @@ public class Content : AuditColumns
     /// get/set - The page this story was found one.
     /// </summary>
     [Column("page")]
-    [MaxLength(10, ErrorMessage = $"{nameof(Page)} only allow up to 10 characters.")]
     public string Page { get; set; } = "";
 
     /// <summary>
