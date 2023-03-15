@@ -40,23 +40,23 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [{ userInfo }] = useApp();
-  const search = fromQueryString(window.location.search);
 
+  const search = fromQueryString(window.location.search);
   const timeFrames = [
     { label: 'TODAY', value: 0 },
     { label: '24 HRS', value: 1 },
     { label: '48 HRS', value: 2 },
     { label: 'ALL', value: 3 },
   ];
-  const timeFrameSelected = timeFrames[search.timeFrame ?? 0].label;
+  const timeFrameSelected = timeFrames[search.timeFrame ?? filter.timeFrame].label;
 
   const usersSelections = [
     { label: 'ALL CONTENT', value: 0 },
     { label: 'MY CONTENT', value: userInfo?.id ?? 0 },
   ];
   const usersSelected =
-    usersSelections.find((i) => (+i.value === +search.userId ? +search.userId : 0))?.label ??
-    'ALL CONTENT';
+    usersSelections.find((i) => (+i.value === +search.userId ? +search.userId : filter.userId))
+      ?.label ?? 'ALL CONTENT';
 
   React.useEffect(() => {
     setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));

@@ -48,8 +48,10 @@ export const ContentListView: React.FC = () => {
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
-    storeFilter(queryToFilter(filter, window.location.search));
-    storeFilterAdvanced(queryToFilterAdvanced(filterAdvanced, window.location.search));
+    if (!!window.location.search) {
+      storeFilter(queryToFilter(filter, window.location.search));
+      storeFilterAdvanced(queryToFilterAdvanced(filterAdvanced, window.location.search));
+    }
     // Only want this to run on the first load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -85,6 +87,14 @@ export const ContentListView: React.FC = () => {
     return hub.listen(HubMethodName.WorkOrder, onWorkOrder);
   }, [onWorkOrder, hub]);
 
+  React.useEffect(() => {
+    // Required because the first time this page is loaded directly the user has not been set.
+    // Don't make a request until the user has been set.
+    if (userId !== '' && filter.userId === '') {
+      storeFilter({ ...filter, userId });
+    }
+  }, [userId, filter, storeFilter]);
+
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
@@ -104,14 +114,6 @@ export const ContentListView: React.FC = () => {
     },
     [findContent],
   );
-
-  React.useEffect(() => {
-    // Required because the first time this page is loaded directly the user has not been set.
-    // Don't make a request until the user has been set.
-    if (userId !== '' && filter.userId === '') {
-      storeFilter({ ...filter, userId });
-    }
-  }, [userId, filter, storeFilter]);
 
   React.useEffect(() => {
     if (isReady) {
