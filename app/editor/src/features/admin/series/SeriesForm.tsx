@@ -1,12 +1,12 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
 import { useModal } from 'hooks';
-import { ISeriesModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useLookup } from 'store/hooks';
 import { useSeries } from 'store/hooks/admin';
 import {
   Button,
@@ -15,40 +15,55 @@ import {
   FieldSize,
   FormikCheckbox,
   FormikDatePicker,
+  FormikSelect,
   FormikText,
   FormikTextArea,
   IconButton,
+  IOptionItem,
   LabelPosition,
+  OptionItem,
   Row,
   Show,
 } from 'tno-core';
+import { getSourceOptions } from 'utils';
 
 import { defaultSeries } from './constants';
+import { ISeriesForm } from './interfaces';
 import * as styled from './styled';
+import { toForm, toModel } from './utils';
 
 /** The page used to view and edit series the administrative section. */
 export const SeriesForm: React.FC = () => {
+  const { id } = useParams();
   const [, api] = useSeries();
   const { state } = useLocation();
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const seriesId = Number(id);
-  const [series, setSeries] = React.useState<ISeriesModel>((state as any)?.series ?? defaultSeries);
-
   const { toggle, isShowing } = useModal();
+  const [{ sources }] = useLookup();
+  const navigate = useNavigate();
+
+  const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
+  const [series, setSeries] = React.useState<ISeriesForm>((state as any)?.series ?? defaultSeries);
+
+  const seriesId = Number(id);
 
   React.useEffect(() => {
     if (!!seriesId && series?.id !== seriesId) {
       api.getSeries(seriesId).then((data) => {
-        setSeries(data);
+        setSeries(toForm(data));
       });
     }
   }, [api, series?.id, seriesId]);
 
-  const handleSubmit = async (values: ISeriesModel) => {
+  React.useEffect(() => {
+    setSourceOptions(getSourceOptions(sources, [new OptionItem('Any Source', '')]));
+  }, [sources]);
+
+  const handleSubmit = async (values: ISeriesForm) => {
     try {
       const originalId = values.id;
-      const result = !series.id ? await api.addSeries(values) : await api.updateSeries(values);
+      const result = !series.id
+        ? await api.addSeries(toModel(values))
+        : await api.updateSeries(toModel(values));
       setSeries(result);
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/programs/${result.id}`);
@@ -70,10 +85,21 @@ export const SeriesForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <div className="form-container">
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
+
+              <FormikSelect
+                label="Source"
+                name="sourceId"
+                options={sourceOptions}
+                onChange={(newValue: any) => {
+                  // Use the source.code to set the Kafka topic.
+                  setFieldValue('sourceId', newValue.value ?? '');
+                }}
+                clearValue=""
+              />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
               <FormikText
                 width={FieldSize.Tiny}
@@ -135,9 +161,11 @@ export const SeriesForm: React.FC = () => {
               <Button type="submit" disabled={isSubmitting}>
                 Save
               </Button>
-              <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                Delete
-              </Button>
+              <Show visible={!!values.id}>
+                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                  Delete
+                </Button>
+              </Show>
             </Row>
             <Modal
               headerText="Confirm Removal"
@@ -148,7 +176,7 @@ export const SeriesForm: React.FC = () => {
               confirmText="Yes, Remove It"
               onConfirm={async () => {
                 try {
-                  await api.deleteSeries(series);
+                  await api.deleteSeries(toModel(series));
                   toast.success(`${series.name} has successfully been deleted.`);
                   navigate('/admin/programs');
                 } finally {

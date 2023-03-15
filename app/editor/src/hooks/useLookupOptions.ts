@@ -9,6 +9,7 @@ export interface ILookupOptionsState extends ILookupState {
   ingestTypeOptions: IOptionItem[];
   productOptions: IOptionItem[];
   sourceOptions: IOptionItem[];
+  seriesOptions: IOptionItem[];
   userOptions: IOptionItem[];
 }
 
@@ -21,6 +22,7 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
   const [state, controller] = useLookup();
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
+  const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [ingestTypeOptions, setIngestTypeOptions] = React.useState<IOptionItem[]>([]);
@@ -31,6 +33,10 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
   React.useEffect(() => {
     setSourceOptions(getSourceOptions(state.sources));
   }, [state.sources]);
+
+  React.useEffect(() => {
+    setSeriesOptions(getSortableOptions(state.series));
+  }, [state.series]);
 
   React.useEffect(() => {
     setProductOptions(getSortableOptions(state.products));
@@ -48,5 +54,8 @@ export const useLookupOptions = (): [ILookupOptionsState, ILookupController] => 
     setUserOptions(state.users.map((u) => new OptionItem(u.displayName, u.id)));
   }, [controller, userId, state.users]);
 
-  return [{ ...state, ingestTypeOptions, productOptions, sourceOptions, userOptions }, controller];
+  return [
+    { ...state, ingestTypeOptions, productOptions, sourceOptions, seriesOptions, userOptions },
+    controller,
+  ];
 };

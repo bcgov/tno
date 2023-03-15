@@ -17,6 +17,8 @@ export const calcTopicScore = (values: IContentForm, rules: ITopicScoreRuleModel
       // Eliminate any rule that doesn't match the content values.
       if (r.section !== undefined && values.section !== r.section) return true;
 
+      if (r.seriesId !== undefined && values.seriesId !== r.seriesId) return true;
+
       if (
         r.pageMin !== undefined &&
         r.pageMax !== undefined &&

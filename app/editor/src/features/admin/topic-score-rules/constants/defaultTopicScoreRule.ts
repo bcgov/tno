@@ -3,6 +3,7 @@ import { ITopicScoreRuleForm } from '../interfaces';
 export const defaultTopicScoreRule: ITopicScoreRuleForm = {
   id: 0,
   sourceId: 0,
+  seriesId: '',
   section: '',
   pageMin: '',
   pageMax: '',

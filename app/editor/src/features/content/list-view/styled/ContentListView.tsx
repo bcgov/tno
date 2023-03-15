@@ -4,6 +4,10 @@ import { FormPage } from 'tno-core';
 export const ContentListView = styled(FormPage)`
   min-height: fit-content;
 
+  .form-page {
+    max-width: none;
+  }
+
   hr {
     width: 100%;
     height: 0.75em;

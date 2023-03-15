@@ -1,8 +1,8 @@
 import { FormikForm } from 'components/formik';
-import { FormikHelpers } from 'formik';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
+import { useLookup } from 'store/hooks';
 import { useTopicScoreRules } from 'store/hooks/admin';
 import { IAjaxRequest } from 'store/slices';
 import {
@@ -20,6 +20,7 @@ import {
   Row,
   Show,
 } from 'tno-core';
+import { getSortableOptions } from 'utils';
 
 import { defaultTopicScoreRule } from './constants';
 import { ITopicScoreRuleForm } from './interfaces';
@@ -34,7 +35,8 @@ import { TopicScoreRulesSchema } from './validation';
  */
 export const TopicScoreRuleList: React.FC = () => {
   const [{ rules }, api] = useTopicScoreRules();
-  const [{ sourceOptions }] = useLookupOptions();
+  const [{ series }] = useLookup();
+  const [{ sourceOptions, seriesOptions }] = useLookupOptions();
 
   const [items, setItems] = React.useState<ITopicScoreRuleForm[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -52,10 +54,18 @@ export const TopicScoreRuleList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSave = async (
-    values: ITopicScoreRuleForm[],
-    formikHelpers: FormikHelpers<ITopicScoreRuleForm[]>,
-  ) => {
+  // Filter out series that don't belong to the selected source.
+  const getSeriesOptions = React.useCallback(
+    (sourceId: number | string) => {
+      const id = +sourceId;
+      return getSortableOptions(
+        series.filter((s) => s.sourceId === undefined || s.sourceId === id),
+      );
+    },
+    [series],
+  );
+
+  const handleSave = async (values: ITopicScoreRuleForm[]) => {
     if (!isSaving) {
       try {
         setIsSaving(true);
@@ -100,167 +110,189 @@ export const TopicScoreRuleList: React.FC = () => {
               <Row className="add-media">
                 <h2>Scoring by source</h2>
               </Row>
-              <Col>
-                <Row className="row-header">
-                  <Col flex="2 2 0">Source</Col>
-                  <Col flex="2 2 0">Section</Col>
-                  <Col flex="1 1 0">Page min</Col>
-                  <Col flex="1 1 0">Page max</Col>
-                  <Col flex="1 1 0">Image</Col>
-                  <Col flex="1 1 0">Char min</Col>
-                  <Col flex="1 1 0">Char max</Col>
-                  <Col flex="1 1 0">Time min</Col>
-                  <Col flex="1 1 0">Time max</Col>
-                  <Col flex="1 1 0">Score</Col>
-                  <Col flex="1 1 0">&nbsp;</Col>
-                </Row>
-                <Col className="rows">
-                  {values.map((item, index) => (
-                    <Show key={`${item}-${index}`} visible={!item.remove}>
-                      <Show visible={index === 0 && !!rules.length}>
-                        <Row
-                          className="add-row"
-                          onClick={() => addTopicScoreRule(index, values)}
-                        ></Row>
-                      </Show>
-                      <Row className={`row${item.id === 0 ? ' adding' : ''}`}>
-                        <Col
-                          flex="2 2 0"
-                          data-tooltip-content={
-                            sourceOptions.find((o) => o.value === item.sourceId)?.label ?? ''
+              <Row className="row-header">
+                <Col className="f3">Source</Col>
+                <Col className="f3">Program/Show</Col>
+                <Col className="f3">Section</Col>
+                <Col>Page min</Col>
+                <Col>Page max</Col>
+                <Col>Has Image</Col>
+                <Col className="f2">Text min</Col>
+                <Col className="f2">Text max</Col>
+                <Col className="f2">Time min</Col>
+                <Col className="f2">Time max</Col>
+                <Col>Score</Col>
+                <Col>&nbsp;</Col>
+              </Row>
+              {values.map((item, index) => (
+                <Show key={`${item}-${index}`} visible={!item.remove}>
+                  <Show visible={index === 0 && !!rules.length}>
+                    <Row className="add-row" onClick={() => addTopicScoreRule(index, values)}></Row>
+                  </Show>
+                  <Row className={`row${item.id === 0 ? ' adding' : ''}`}>
+                    <Col
+                      className="f3"
+                      data-tooltip-content={
+                        sourceOptions.find((o) => o.value === item.sourceId)?.label ?? ''
+                      }
+                      data-tooltip-id="main-tooltip"
+                    >
+                      <FormikSelect
+                        name={`${index}.sourceId`}
+                        options={sourceOptions}
+                        value={sourceOptions.find((o) => o.value === item.sourceId) ?? ''}
+                        width={FieldSize.Small}
+                        isClearable={false}
+                        menuPortalTarget={document.body}
+                        styles={{ menuPortal: (base) => ({ ...base, zIndex: 2 }) }}
+                        onChange={(newValue) => {
+                          const value = (newValue as IOptionItem).value;
+                          if (!!value) {
+                            setItems(
+                              values.map((t, i) =>
+                                i === index ? { ...item, sourceId: value as number } : t,
+                              ),
+                            );
                           }
-                          data-tooltip-id="main-tooltip"
-                        >
-                          <FormikSelect
-                            name={`${index}.sourceId`}
-                            options={sourceOptions}
-                            value={sourceOptions.find((o) => o.value === item.sourceId) ?? ''}
-                            width={FieldSize.Small}
-                            isClearable={false}
-                            menuPortalTarget={document.body}
-                            styles={{ menuPortal: (base) => ({ ...base, zIndex: 2 }) }}
-                            onChange={(newValue) => {
-                              const value = (newValue as IOptionItem).value;
-                              if (!!value) {
-                                setItems(
-                                  values.map((t, i) =>
-                                    i === index ? { ...item, sourceId: value as number } : t,
-                                  ),
-                                );
-                              }
+                        }}
+                      />
+                    </Col>
+                    <Col
+                      className="f3"
+                      data-tooltip-content={
+                        seriesOptions.find((o) => o.value === item.seriesId)?.label ?? ''
+                      }
+                      data-tooltip-id="main-tooltip"
+                    >
+                      <FormikSelect
+                        name={`${index}.seriesId`}
+                        options={getSeriesOptions(values[index].sourceId)}
+                        value={seriesOptions.find((o) => o.value === item.seriesId) ?? ''}
+                        width={FieldSize.Small}
+                        menuPortalTarget={document.body}
+                        styles={{ menuPortal: (base) => ({ ...base, zIndex: 2 }) }}
+                        clearValue=""
+                        isDisabled={!values[index].sourceId}
+                        onChange={(newValue) => {
+                          const value = (newValue as IOptionItem).value;
+                          if (!!value) {
+                            setItems(
+                              values.map((t, i) =>
+                                i === index ? { ...item, seriesId: value as number } : t,
+                              ),
+                            );
+                          }
+                        }}
+                      />
+                    </Col>
+                    <Col className="f3">
+                      <FormikText name={`${index}.section`} width={FieldSize.Small} />
+                    </Col>
+                    <Col>
+                      <FormikText name={`${index}.pageMin`} width="3em" />
+                    </Col>
+                    <Col>
+                      <FormikText name={`${index}.pageMax`} width="3em" />
+                    </Col>
+                    <Col>
+                      <FormikCheckbox name={`${index}.hasImage`} value={true} />
+                    </Col>
+                    <Col>
+                      <FormikText name={`${index}.characterMin`} className="f2" width="4em" />
+                    </Col>
+                    <Col>
+                      <FormikText name={`${index}.characterMax`} className="f2" width="4em" />
+                    </Col>
+                    <Col className="f2">
+                      <FormikTimeInput
+                        name={`${index}.timeMin`}
+                        width="7em"
+                        value={!!item.timeMin ? item.timeMin : ''}
+                        placeholder={!!item.timeMin ? item.timeMin : 'HH:MM:SS'}
+                      />
+                    </Col>
+                    <Col className="f2">
+                      <FormikTimeInput
+                        name={`${index}.timeMax`}
+                        width="7em"
+                        value={!!item.timeMax ? item.timeMax : ''}
+                        placeholder={!!item.timeMax ? item.timeMax : 'HH:MM:SS'}
+                      />
+                    </Col>
+                    <Col>
+                      <FormikText name={`${index}.score`} width="3.5em" />
+                    </Col>
+                    <Col alignContent="flex-end" className="actions">
+                      <Row nowrap>
+                        <Col>
+                          <Button
+                            variant={ButtonVariant.link}
+                            className="move"
+                            disabled={
+                              index < 1 ||
+                              items.length < index ||
+                              items[index - 1].sourceId !== item.sourceId
+                            }
+                            onClick={() => {
+                              var results = [...values];
+                              var above = results[index - 1];
+                              results.splice(index, 1);
+                              results.splice(index - 1, 0, {
+                                ...item,
+                                sortOrder: above.sortOrder,
+                              });
+                              setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
                             }}
-                          />
+                          >
+                            <FaArrowUp />
+                          </Button>
+                          <Button
+                            variant={ButtonVariant.link}
+                            className="move"
+                            disabled={
+                              index >= items.length - 1 ||
+                              items[index + 1].sourceId !== item.sourceId
+                            }
+                            onClick={async () => {
+                              var results = [...values];
+                              var below = results[index + 1];
+                              results.splice(index, 1);
+                              results.splice(index + 1, 0, {
+                                ...item,
+                                sortOrder: below.sortOrder,
+                              });
+                              below.sortOrder--;
+                              setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
+                            }}
+                          >
+                            <FaArrowDown />
+                          </Button>
                         </Col>
-                        <Col flex="2 2 0">
-                          <FormikText name={`${index}.section`} width={FieldSize.Small} />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikText name={`${index}.pageMin`} width={FieldSize.Tiny} />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikText name={`${index}.pageMax`} width={FieldSize.Tiny} />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikCheckbox name={`${index}.hasImage`} value={true} />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikText name={`${index}.characterMin`} width={FieldSize.Tiny} />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikText name={`${index}.characterMax`} width={FieldSize.Tiny} />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikTimeInput
-                            name={`${index}.timeMin`}
-                            width="7em"
-                            value={!!item.timeMin ? item.timeMin : ''}
-                            placeholder={!!item.timeMin ? item.timeMin : 'HH:MM:SS'}
-                          />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikTimeInput
-                            name={`${index}.timeMax`}
-                            width="7em"
-                            value={!!item.timeMax ? item.timeMax : ''}
-                            placeholder={!!item.timeMax ? item.timeMax : 'HH:MM:SS'}
-                          />
-                        </Col>
-                        <Col flex="1 1 0">
-                          <FormikText name={`${index}.score`} width={FieldSize.Tiny} />
-                        </Col>
-                        <Col flex="1 1 0" alignContent="flex-end" className="actions">
-                          <Row>
-                            <Col>
-                              <Button
-                                variant={ButtonVariant.link}
-                                className="move"
-                                disabled={
-                                  index < 1 ||
-                                  items.length < index ||
-                                  items[index - 1].sourceId !== item.sourceId
-                                }
-                                onClick={() => {
-                                  var results = [...values];
-                                  var above = results[index - 1];
-                                  results.splice(index, 1);
-                                  results.splice(index - 1, 0, {
-                                    ...item,
-                                    sortOrder: above.sortOrder,
-                                  });
-                                  setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
-                                }}
-                              >
-                                <FaArrowUp />
-                              </Button>
-                              <Button
-                                variant={ButtonVariant.link}
-                                className="move"
-                                disabled={
-                                  index >= items.length - 1 ||
-                                  items[index + 1].sourceId !== item.sourceId
-                                }
-                                onClick={async () => {
-                                  var results = [...values];
-                                  var below = results[index + 1];
-                                  results.splice(index, 1);
-                                  results.splice(index + 1, 0, {
-                                    ...item,
-                                    sortOrder: below.sortOrder,
-                                  });
-                                  below.sortOrder--;
-                                  setItems(results.map((r, i) => ({ ...r, sortOrder: i })));
-                                }}
-                              >
-                                <FaArrowDown />
-                              </Button>
-                            </Col>
-                            <Button
-                              variant={ButtonVariant.danger}
-                              disabled={!rules.length}
-                              onClick={async (e) => {
-                                setFieldValue(`${index}.remove`, true);
-                              }}
-                            >
-                              <FaTrash />
-                            </Button>
-                          </Row>
-                        </Col>
+                        <Button
+                          variant={ButtonVariant.danger}
+                          disabled={!rules.length}
+                          onClick={async (e) => {
+                            setFieldValue(`${index}.remove`, true);
+                          }}
+                        >
+                          <FaTrash />
+                        </Button>
                       </Row>
-                      <Show visible={!!rules.length}>
-                        <Row
-                          className="add-row"
-                          onClick={() => addTopicScoreRule(index + 1, values)}
-                        ></Row>
-                      </Show>
-                    </Show>
-                  ))}
-                </Col>
-                <Row className="form-footer" justifyContent="flex-end">
-                  <Button type="submit" variant={ButtonVariant.primary}>
-                    Save Changes
-                  </Button>
-                </Row>
-              </Col>
+                    </Col>
+                  </Row>
+                  <Show visible={!!rules.length}>
+                    <Row
+                      className="add-row"
+                      onClick={() => addTopicScoreRule(index + 1, values)}
+                    ></Row>
+                  </Show>
+                </Show>
+              ))}
+              <Row className="form-footer" justifyContent="flex-end">
+                <Button type="submit" variant={ButtonVariant.primary}>
+                  Save Changes
+                </Button>
+              </Row>
             </>
           )}
         </FormikForm>

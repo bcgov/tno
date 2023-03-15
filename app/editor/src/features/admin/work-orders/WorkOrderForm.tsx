@@ -164,9 +164,11 @@ export const WorkOrderForm: React.FC = () => {
               <Button type="submit" disabled={isSubmitting}>
                 Save
               </Button>
-              <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
-                Delete
-              </Button>
+              <Show visible={!!values.id}>
+                <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
+                  Delete
+                </Button>
+              </Show>
             </Row>
             <Modal
               headerText="Confirm Removal"

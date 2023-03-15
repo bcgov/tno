@@ -14,6 +14,16 @@ public class SeriesModel : AuditColumnsModel
     public int Id { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to source.
+    /// </summary>
+    public int? SourceId { get; set; }
+
+    /// <summary>
+    /// get/set - The source.
+    /// </summary>
+    public SourceModel? Source { get; set; }
+
+    /// <summary>
     /// get/set - The unique name of the model.
     /// </summary>
     public string Name { get; set; } = "";
@@ -57,6 +67,8 @@ public class SeriesModel : AuditColumnsModel
     public SeriesModel(Entities.Series entity) : base(entity)
     {
         this.Id = entity.Id;
+        this.SourceId = entity.SourceId;
+        this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.Name = entity.Name;
         this.Description = entity.Description;
         this.SortOrder = entity.SortOrder;
@@ -73,10 +85,9 @@ public class SeriesModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.Series(SeriesModel model)
     {
-        var entity = new Entities.Series(model.Name)
+        var entity = new Entities.Series(model.Name, model.SourceId)
         {
             Id = model.Id,
-            Name = model.Name,
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             SortOrder = model.SortOrder,

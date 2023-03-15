@@ -8,6 +8,10 @@ namespace TNO.API.Areas.Editor.Models.Content;
 public class SeriesModel : BaseTypeModel<int>
 {
     #region Properties
+    /// <summary>
+    /// get/set - Foreign key to source.
+    /// </summary>
+    public int? SourceId { get; set; }
 
     /// <summary>
     /// get/set - Whether to show the topics on the content form.
@@ -27,6 +31,7 @@ public class SeriesModel : BaseTypeModel<int>
     /// <param name="entity"></param>
     public SeriesModel(Entities.Series entity) : base(entity)
     {
+        this.SourceId = entity.SourceId;
         this.UseInTopics = entity.UseInTopics;
     }
     #endregion

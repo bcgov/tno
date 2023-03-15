@@ -19,6 +19,7 @@ public class SeriesTest
         Assert.Equal("test", item.Name);
         Assert.Equal("", item.Description);
         Assert.True(item.IsEnabled);
+        Assert.True(item.SourceId == null);
         Assert.Equal(0, item.SortOrder);
 
         Assert.Equal("", item.CreatedBy);

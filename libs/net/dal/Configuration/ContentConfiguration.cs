@@ -31,10 +31,10 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.Summary).IsRequired().HasColumnType("text");
         builder.Property(m => m.Body).IsRequired().HasColumnType("text");
 
-        builder.HasOne(m => m.Source).WithMany(m => m.Contents).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(m => m.Product).WithMany(m => m.Contents).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(m => m.License).WithMany(m => m.Contents).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(m => m.Series).WithMany(m => m.Contents).HasForeignKey(m => m.SeriesId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(m => m.Source).WithMany(m => m.Contents).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Product).WithMany(m => m.Contents).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.License).WithMany(m => m.Contents).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Series).WithMany(m => m.Contents).HasForeignKey(m => m.SeriesId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Owner).WithMany(m => m.Contents).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(m => m.Actions).WithMany(m => m.Contents).UsingEntity<ContentAction>();

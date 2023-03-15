@@ -3,6 +3,7 @@ import { IAuditColumnsModel } from 'hooks/api-editor';
 export interface ITopicScoreRuleForm extends IAuditColumnsModel {
   id: number;
   sourceId: number | '';
+  seriesId: number | '';
   section: string;
   pageMin: number | '';
   pageMax: number | '';
