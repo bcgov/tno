@@ -35,6 +35,17 @@ public class TopicScoreRule : AuditColumns
     public Source? Source { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the series this score will be applied to.
+    /// </summary>
+    [Column("series_id")]
+    public int? SeriesId { get; set; }
+
+    /// <summary>
+    /// get/set - The series.
+    /// </summary>
+    public Series? Series { get; set; }
+
+    /// <summary>
     /// get/set - The section this score will be applied to.
     /// </summary>
     [Column("section")]
@@ -232,14 +243,17 @@ public class TopicScoreRule : AuditColumns
     /// Creates a new instance of a TopicScoreRule object, initializes with specified parameters.
     /// </summary>
     /// <param name="source"></param>
+    /// <param name="series"></param>
     /// <param name="timeMin"></param>
     /// <param name="timeMax"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(Source source, TimeSpan? timeMin, TimeSpan? timeMax, int score, int sortOrder)
+    public TopicScoreRule(Source source, Series? series, TimeSpan? timeMin, TimeSpan? timeMax, int score, int sortOrder)
     {
         this.Source = source ?? throw new ArgumentNullException(nameof(source));
         this.SourceId = source.Id;
+        this.Series = series;
+        this.SeriesId = series?.Id;
         this.TimeMin = timeMin;
         this.TimeMax = timeMax;
         this.Score = score;
@@ -250,13 +264,15 @@ public class TopicScoreRule : AuditColumns
     /// Creates a new instance of a TopicScoreRule object, initializes with specified parameters.
     /// </summary>
     /// <param name="sourceId"></param>
+    /// <param name="seriesId"></param>
     /// <param name="timeMin"></param>
     /// <param name="timeMax"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(int sourceId, TimeSpan? timeMin, TimeSpan? timeMax, int score, int sortOrder)
+    public TopicScoreRule(int sourceId, int? seriesId, TimeSpan? timeMin, TimeSpan? timeMax, int score, int sortOrder)
     {
         this.SourceId = sourceId;
+        this.SeriesId = seriesId;
         this.TimeMin = timeMin;
         this.TimeMax = timeMax;
         this.Score = score;
@@ -268,12 +284,13 @@ public class TopicScoreRule : AuditColumns
     /// </summary>
     /// <param name="id"></param>
     /// <param name="sourceId"></param>
+    /// <param name="seriesId"></param>
     /// <param name="timeMin"></param>
     /// <param name="timeMax"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(int id, int sourceId, TimeSpan? timeMin, TimeSpan? timeMax, int score, int sortOrder)
-        : this(sourceId, timeMin, timeMax, score, sortOrder)
+    public TopicScoreRule(int id, int sourceId, int? seriesId, TimeSpan? timeMin, TimeSpan? timeMax, int score, int sortOrder)
+        : this(sourceId, seriesId, timeMin, timeMax, score, sortOrder)
     {
         this.Id = id;
     }

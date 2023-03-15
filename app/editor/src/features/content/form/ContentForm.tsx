@@ -310,7 +310,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
   return (
     <styled.ContentForm className="content-form">
-      <FormPage minWidth={'1200px'} maxWidth="" className={combined ? 'no-padding' : ''}>
+      <FormPage className={combined ? 'no-padding' : ''}>
         <Area>
           <Row>
             <Show visible={!combined}>

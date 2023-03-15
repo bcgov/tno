@@ -6,6 +6,11 @@ export const TopicScoreRuleList = styled.div`
   display: flex;
   justify-content: center;
 
+  .form-page {
+    max-width: none;
+    width: 95vw;
+  }
+
   .filter-bar {
     display: flex;
     align-items: center;
@@ -23,17 +28,30 @@ export const TopicScoreRuleList = styled.div`
     padding: 0.25em 0.5em 0.25em 0.5em;
     border-top: solid 2px black;
     border-bottom: solid 2px black;
-    max-height: 1.5em;
-  }
 
-  .rows {
-    overflow-y: auto;
-    height: calc(100vh + 48px);
-    flex-wrap: nowrap;
+    .f2 {
+      flex: 2 2 0;
+    }
+    .f3 {
+      flex: 3 2 0;
+    }
+    & > div {
+      flex: 1 1 0;
+    }
   }
 
   .row {
     padding: 0.5em 0.5em 0 0.5em;
+
+    .f2 {
+      flex: 2 2 0;
+    }
+    .f3 {
+      flex: 3 2 0;
+    }
+    & > div {
+      flex: 1 1 0;
+    }
 
     &:nth-child(4n) {
       background-color: #f5f5f5;
@@ -49,8 +67,6 @@ export const TopicScoreRuleList = styled.div`
     }
 
     .actions {
-      width: 78px;
-      overflow: hidden;
       flex-wrap: nowrap;
     }
 

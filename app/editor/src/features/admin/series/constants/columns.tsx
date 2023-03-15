@@ -13,9 +13,15 @@ export const columns: (Column<ISeriesModel> &
     Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
+    Header: 'Source',
+    width: 1,
+    accessor: (row) => row.source?.code,
+    Cell: ({ value }: any) => value,
+  },
+  {
     Header: 'Description',
     accessor: 'description',
-    width: 6,
+    width: 4,
     Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {

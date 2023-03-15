@@ -4,6 +4,10 @@ export const ContentForm = styled.div`
   height: 100%;
   z-index: 1;
 
+  .form-page {
+    max-width: none;
+  }
+
   .minimize-details {
     margin: 1em 0 0 0;
     padding: 0;
@@ -39,7 +43,8 @@ export const ContentForm = styled.div`
     height: 1.5em;
     width: 1.5em;
     padding: 0.45em;
-    :not(.disabled): hover {
+
+    :not(.disabled):hover {
       cursor: pointer;
       color: ${(props) => props.theme.css.lightAccentColor};
     }

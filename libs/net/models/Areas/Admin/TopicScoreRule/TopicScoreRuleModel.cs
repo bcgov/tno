@@ -21,6 +21,11 @@ public class TopicScoreRuleModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
+    public int? SeriesId { get; set; }
+
+    /// <summary>
+    /// get/set -
+    /// </summary>
     public string? Section { get; set; }
 
     /// <summary>
@@ -88,6 +93,7 @@ public class TopicScoreRuleModel : AuditColumnsModel
     {
         this.Id = entity.Id;
         this.SourceId = entity.SourceId;
+        this.SeriesId = entity.SeriesId;
         this.Section = entity.Section;
         this.PageMin = entity.PageMin;
         this.PageMax = entity.PageMax;
@@ -110,6 +116,7 @@ public class TopicScoreRuleModel : AuditColumnsModel
     {
         var entity = new Entities.TopicScoreRule(model.Id, model.SourceId, model.Section, model.PageMin, model.PageMax, model.HasImage, model.CharacterMin, model.CharacterMax, model.Score, model.SortOrder)
         {
+            SeriesId = model.SeriesId,
             TimeMin = model.TimeMin,
             TimeMax = model.TimeMax,
             Version = model.Version ?? 0,

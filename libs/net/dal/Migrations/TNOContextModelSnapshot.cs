@@ -2020,6 +2020,10 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("sort_order");
 
+                    b.Property<int?>("SourceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_id");
+
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -2045,12 +2049,10 @@ namespace TNO.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SourceId");
+
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
                         .HasDatabaseName("IX_is_enabled8");
-
-                    b.HasIndex(new[] { "Name" }, "IX_name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_name9");
 
                     b.ToTable("series");
                 });
@@ -2180,7 +2182,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
-                        .HasDatabaseName("IX_name10");
+                        .HasDatabaseName("IX_name9");
 
                     b.ToTable("source");
                 });
@@ -2332,7 +2334,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
-                        .HasDatabaseName("IX_name11");
+                        .HasDatabaseName("IX_name10");
 
                     b.ToTable("tag");
                 });
@@ -2483,7 +2485,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "OwnerId", "Name" }, "IX_name")
                         .IsUnique()
-                        .HasDatabaseName("IX_name12");
+                        .HasDatabaseName("IX_name11");
 
                     b.ToTable("tone_pool");
                 });
@@ -2563,7 +2565,7 @@ namespace TNO.DAL.Migrations
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
-                        .HasDatabaseName("IX_name13");
+                        .HasDatabaseName("IX_name12");
 
                     b.ToTable("topic");
                 });
@@ -2587,12 +2589,15 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("created_by");
 
                     b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<bool?>("HasImage")
                         .HasColumnType("boolean")
@@ -2611,8 +2616,13 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("score");
 
                     b.Property<string>("Section")
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("section");
+
+                    b.Property<int?>("SeriesId")
+                        .HasColumnType("integer")
+                        .HasColumnName("series_id");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer")
@@ -2632,20 +2642,28 @@ namespace TNO.DAL.Migrations
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("updated_by");
 
                     b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasColumnName("version");
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId");
+                    b.HasIndex("SeriesId");
+
+                    b.HasIndex(new[] { "SourceId", "SeriesId", "Section" }, "IX_source_id_series_id_section");
 
                     b.ToTable("topic_score_rule");
                 });
@@ -2893,7 +2911,7 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.License", "License")
                         .WithMany("Contents")
                         .HasForeignKey("LicenseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TNO.Entities.User", "Owner")
@@ -2904,18 +2922,18 @@ namespace TNO.DAL.Migrations
                     b.HasOne("TNO.Entities.Product", "Product")
                         .WithMany("Contents")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TNO.Entities.Series", "Series")
                         .WithMany("Contents")
                         .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("TNO.Entities.Source", "Source")
                         .WithMany("Contents")
                         .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("License");
 
@@ -3209,6 +3227,16 @@ namespace TNO.DAL.Migrations
                     b.Navigation("RequestedBy");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Series", b =>
+                {
+                    b.HasOne("TNO.Entities.Source", "Source")
+                        .WithMany("Series")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Source");
+                });
+
             modelBuilder.Entity("TNO.Entities.Source", b =>
                 {
                     b.HasOne("TNO.Entities.License", "License")
@@ -3285,11 +3313,18 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.TopicScoreRule", b =>
                 {
+                    b.HasOne("TNO.Entities.Series", "Series")
+                        .WithMany("ScoreRules")
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.Source", "Source")
-                        .WithMany()
+                        .WithMany("ScoreRules")
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Series");
 
                     b.Navigation("Source");
                 });
@@ -3410,6 +3445,8 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.Series", b =>
                 {
                     b.Navigation("Contents");
+
+                    b.Navigation("ScoreRules");
                 });
 
             modelBuilder.Entity("TNO.Entities.Source", b =>
@@ -3419,6 +3456,10 @@ namespace TNO.DAL.Migrations
                     b.Navigation("Ingests");
 
                     b.Navigation("MetricsManyToMany");
+
+                    b.Navigation("ScoreRules");
+
+                    b.Navigation("Series");
                 });
 
             modelBuilder.Entity("TNO.Entities.Tag", b =>

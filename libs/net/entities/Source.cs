@@ -92,6 +92,16 @@ public class Source : BaseType<int>
     public virtual List<Ingest> Ingests { get; } = new List<Ingest>();
 
     /// <summary>
+    /// get - List of series linked to this source.
+    /// </summary>
+    public virtual List<Series> Series { get; } = new List<Series>();
+
+    /// <summary>
+    /// get - List of topic score rules linked to this source.
+    /// </summary>
+    public virtual List<TopicScoreRule> ScoreRules { get; } = new List<TopicScoreRule>();
+
+    /// <summary>
     /// get - List of metrics linked to this source.
     /// </summary>
     public virtual List<Metric> Metrics { get; } = new List<Metric>();
@@ -103,8 +113,18 @@ public class Source : BaseType<int>
     #endregion
 
     #region Constructors
+    /// <summary>
+    /// Creates a new instance of a Source object.
+    /// </summary>
     protected Source() { }
 
+    /// <summary>
+    /// Creates a new instance of a Source object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="code"></param>
+    /// <param name="licenseId"></param>
+    /// <exception cref="ArgumentException"></exception>
     public Source(string name, string code, int licenseId) : base(name)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));
@@ -114,6 +134,14 @@ public class Source : BaseType<int>
         this.LicenseId = licenseId;
     }
 
+    /// <summary>
+    /// Creates a new instance of a Source object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="code"></param>
+    /// <param name="license"></param>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
     public Source(string name, string code, License license) : base(name)
     {
         if (String.IsNullOrWhiteSpace(name)) throw new ArgumentException("Parameter is required, cannot be null, empty, or whitespace", nameof(name));

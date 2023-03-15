@@ -3,12 +3,6 @@ import { InputHTMLAttributes } from 'react';
 import * as styled from './styled';
 
 export interface IFormPageProps extends InputHTMLAttributes<HTMLDivElement> {
-  /** bypass the default min width */
-  minWidth?: string;
-  /** bypass the default max width */
-  maxWidth?: string;
-  /** remove padding from the FormPage */
-  noPadding?: boolean;
   /** include contents of form page */
   children: React.ReactNode;
 }

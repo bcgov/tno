@@ -3,9 +3,15 @@ import { FormPage } from 'tno-core';
 
 export const MorningReport = styled(FormPage)`
   min-height: fit-content;
+
+  .form-page {
+    max-width: none;
+  }
+
   .filter-select {
     margin-top: 0.25em;
   }
+
   hr {
     width: 100%;
     height: 0.75em;

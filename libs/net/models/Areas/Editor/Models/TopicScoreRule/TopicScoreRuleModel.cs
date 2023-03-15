@@ -17,6 +17,11 @@ public class TopicScoreRuleModel
     public int SourceId { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to series.
+    /// </summary>
+    public int? SeriesId { get; set; }
+
+    /// <summary>
     /// get/set - The story section.
     /// </summary>
     public string? Section { get; set; }
@@ -81,6 +86,7 @@ public class TopicScoreRuleModel
     {
         this.Id = entity.Id;
         this.SourceId = entity.SourceId;
+        this.SeriesId = entity.SeriesId;
         this.Section = entity.Section;
         this.PageMin = entity.PageMin;
         this.PageMax = entity.PageMax;

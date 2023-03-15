@@ -6,6 +6,7 @@ export const toModel = (values: ITopicScoreRuleForm): ITopicScoreRuleModel => {
   return {
     id: values.id,
     sourceId: values.sourceId !== '' ? values.sourceId : 0,
+    seriesId: values.seriesId !== '' ? values.seriesId : undefined,
     section: values.section !== '' ? values.section : undefined,
     pageMin: values.pageMin !== '' ? values.pageMin : undefined,
     pageMax: values.pageMax !== '' ? values.pageMax : undefined,

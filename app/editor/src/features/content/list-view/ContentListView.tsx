@@ -145,7 +145,7 @@ export const ContentListView: React.FC = () => {
   };
 
   return (
-    <styled.ContentListView maxWidth={''}>
+    <styled.ContentListView>
       <Col wrap="nowrap">
         <ContentToolBar onSearch={fetch} />
         <Row className="top-pane">

@@ -105,6 +105,7 @@ public class SeriesController : ControllerBase
     public IActionResult Add(SeriesModel model)
     {
         var result = _service.AddAndSave((Series)model);
+        result = _service.FindById(result.Id) ?? throw new KeyNotFoundException();
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new SeriesModel(result));
     }
 
@@ -121,6 +122,7 @@ public class SeriesController : ControllerBase
     public IActionResult Update(SeriesModel model)
     {
         var result = _service.UpdateAndSave((Series)model);
+        result = _service.FindById(result.Id) ?? throw new KeyNotFoundException();
         return new JsonResult(new SeriesModel(result));
     }
 

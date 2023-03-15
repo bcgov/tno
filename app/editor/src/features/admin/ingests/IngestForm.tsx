@@ -90,7 +90,7 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
         validateOnChange={false}
         validateOnMount={false}
       >
-        {({ isSubmitting, errors }) => (
+        {({ isSubmitting, errors, values }) => (
           <Row>
             <Col flex="2 1">
               <Show visible={showStatus}>
@@ -126,11 +126,11 @@ export const IngestForm: React.FC<IIngestProps> = (props) => {
                   <Button type="submit" disabled={isSubmitting}>
                     Save
                   </Button>
-                  {!!ingestId && (
+                  <Show visible={!!values.id}>
                     <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
                       Delete
                     </Button>
-                  )}
+                  </Show>
                 </Row>
                 <Modal
                   headerText="Confirm Removal"

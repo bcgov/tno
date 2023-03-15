@@ -8,7 +8,7 @@ import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, IconButton, Row, Tab, Tabs } from 'tno-core';
+import { Button, ButtonVariant, Col, IconButton, Row, Show, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
 
 import { defaultSource } from './constants';
@@ -74,7 +74,7 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
         validateOnChange={false}
         validateOnMount={false}
       >
-        {({ isSubmitting, errors }) => (
+        {({ isSubmitting, errors, values }) => (
           <Row>
             <Col flex="2 1">
               <Tabs
@@ -96,11 +96,11 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
                   <Button type="submit" disabled={isSubmitting}>
                     Save
                   </Button>
-                  {!!sourceId && (
+                  <Show visible={!!values.id}>
                     <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>
                       Delete
                     </Button>
-                  )}
+                  </Show>
                 </Row>
                 <Modal
                   headerText="Confirm Removal"
