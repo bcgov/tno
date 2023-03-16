@@ -99,7 +99,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   };
 
   return (
-    <styled.MorningReport>
+    <styled.MorningReport maxWidth="1200px">
       <Col wrap="nowrap">
         <MorningReportFilter onSearch={fetch} />
         <Row className="content-list">
