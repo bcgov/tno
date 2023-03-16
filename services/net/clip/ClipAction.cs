@@ -320,30 +320,34 @@ public class ClipAction : CommandAction<ClipOptions>
     private async Task<string> GetInputFileAsync(IngestModel ingest, ScheduleModel schedule)
     {
         // TODO: Handle issue where capture failed and has multiple files.
-        var path = this.Options.VolumePath.CombineWith(ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "", $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
-        var clipStart = schedule.StartAt;
-        var filter = ingest.GetConfigurationValue("sourceFile");
-
-        // Review each file that was captured to determine which one is valid for this clip schedule.
-        foreach (var file in Directory.GetFiles(path)
-            .Where(f => String.IsNullOrWhiteSpace(filter) || f.EndsWith(filter))
-            .Where(f => ParseTimeFromFileName(Path.GetFileName(f)) <= clipStart))
+        var path = Options.VolumePath.CombineWith(
+            ingest.SourceConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "",
+            $"{ingest.Source?.Code}/{GetDateTimeForTimeZone(ingest):yyyy-MM-dd}");
+        if (Directory.Exists(path))
         {
-            // The offset is before the source file, so we can't use it.
-            var offset = CalcStartOffset(ingest, schedule, file);
-            if (offset.TotalMinutes < -1)
+            var clipStart = schedule.StartAt;
+            var filter = ingest.GetConfigurationValue("sourceFile");
+            var files = Directory.GetFiles(path);
+            // Review each file that was captured to determine which one is valid for this clip schedule.
+            foreach (var file in files
+                .Where(f => String.IsNullOrWhiteSpace(filter) || f.EndsWith(filter))
+                .Where(f => ParseTimeFromFileName(Path.GetFileName(f)) <= clipStart))
             {
-                this.Logger.LogWarning("Ingest '{name}' schedule '{id}.{name}' capture file start is after the requested 'StartAt'.  Missing {TotalSeconds:n0} seconds.", ingest.Name, schedule.Id, schedule.Name, offset.Duration().TotalSeconds);
-                continue;
+                // The offset is before the source file, so we can't use it.
+                var offset = CalcStartOffset(ingest, schedule, file);
+                if (offset.TotalMinutes < -1)
+                {
+                    this.Logger.LogWarning("Ingest '{name}' schedule '{id}.{name}' capture file start is after the requested 'StartAt'.  Missing {TotalSeconds:n0} seconds.", ingest.Name, schedule.Id, schedule.Name, offset.Duration().TotalSeconds);
+                    continue;
+                }
+
+                // Return the first file that is long enough.
+                var fileDuration = await ParseDurationAsync(file);
+                if (fileDuration >= schedule.CalcDuration().TotalSeconds) return file;
+
+                this.Logger.LogWarning("Ingest '{name}' schedule '{id}:{name}' capture file duration is less than the requested duration", ingest.Name, schedule.Id, schedule.Name);
             }
-
-            // Return the first file that is long enough.
-            var fileDuration = await ParseDurationAsync(file);
-            if (fileDuration >= schedule.CalcDuration().TotalSeconds) return file;
-
-            this.Logger.LogWarning("Ingest '{name}' schedule '{id}:{name}' capture file duration is less than the requested duration", ingest.Name, schedule.Id, schedule.Name);
         }
-
         throw new MissingFileException($"Ingest '{ingest.Name}' schedule '{schedule.Id}:{schedule.Name}' ingest.Name, capture file not found or duration not long enough'");
     }
 
