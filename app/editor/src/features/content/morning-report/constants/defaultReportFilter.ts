@@ -12,7 +12,7 @@ export const defaultReportFilter: IMorningReportFilter = {
   sourceId: 0,
   otherSource: '',
   productIds: [],
-  sourceIds: [],
+  sourceIds: [91, 248, 249, 246, 247],
   ownerId: 0,
   userId: '',
   timeFrame: 0,

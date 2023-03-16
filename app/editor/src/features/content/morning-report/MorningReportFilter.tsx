@@ -9,6 +9,7 @@ import { fieldTypes } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { CreateNewSection } from '../tool-bar/sections/filter';
 import { AdvancedMorningReport } from './AdvancedMorningReport';
+import { defaultReportFilter } from './constants/defaultReportFilter';
 import { FilteredContentSection, TitleSection } from './filter-sections';
 import { IMorningReportFilter } from './interfaces';
 import * as styled from './styled';
@@ -26,9 +27,14 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = ({ onSea
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
+    if (!window.location.search) {
+      replaceQueryParams(defaultReportFilter, { includeEmpty: false });
+    }
     storeMorningReportFilter(
       queryToFilter(
-        { ...filter, contentType: ContentTypeName.PrintContent },
+        {
+          ...defaultReportFilter,
+        },
         window.location.search,
       ),
     );
@@ -38,7 +44,6 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = ({ onSea
         window.location.search,
       ),
     );
-
     // Only want this to run on the first load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

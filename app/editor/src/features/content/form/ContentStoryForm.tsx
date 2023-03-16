@@ -159,7 +159,13 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 }}
               />
             </Show>
-            <Show visible={contentType !== ContentTypeName.Image}>
+            <Show
+              visible={
+                contentType !== ContentTypeName.Image &&
+                contentType !== ContentTypeName.PrintContent &&
+                contentType !== ContentTypeName.Story
+              }
+            >
               <FormikSelect
                 name="seriesId"
                 label="Show/Program"
