@@ -22,7 +22,7 @@ export const MorningReport: React.FC<IMorningReportProps> = (props) => {
   const { id: contentId = '' } = useParams();
   const navigate = useNavigate();
   const [
-    { morningReportFilter: filter, filterAdvanced, content },
+    { filterMorningReport: filter, filterAdvanced, content },
     { findContent, storeMorningReportFilter },
   ] = useContent();
 

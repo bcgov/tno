@@ -48,6 +48,7 @@ export const SeriesForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!seriesId && series?.id !== seriesId) {
+      setSeries({ ...defaultSeries, id: seriesId }); // Do this to stop double fetch.
       api.getSeries(seriesId).then((data) => {
         setSeries(toForm(data));
       });

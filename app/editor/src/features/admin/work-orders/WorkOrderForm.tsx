@@ -36,16 +36,18 @@ export const WorkOrderForm: React.FC = () => {
   const [, api] = useWorkOrders();
   const { id } = useParams();
   const navigate = useNavigate();
-  const workOrderId = Number(id);
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
 
   const [workOrder, setWorkOrder] = React.useState<IWorkOrderModel>(defaultWorkOrder);
+
+  const workOrderId = Number(id);
   const statusOptions = getEnumStringOptions(WorkOrderStatusName);
   const userOptions = getUserOptions(lookups.users, [new OptionItem('None', undefined)]);
 
   React.useEffect(() => {
     if (!!workOrderId && workOrder?.id !== workOrderId) {
+      setWorkOrder({ ...defaultWorkOrder, id: workOrderId }); // Do this to stop double fetch.
       api.getWorkOrder(workOrderId).then((data) => {
         setWorkOrder(data);
       });

@@ -43,6 +43,7 @@ export const TopicForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!topicId && topic?.id !== topicId) {
+      setTopic({ ...defaultTopic, id: topicId }); // Do this to stop double fetch.
       api.getTopic(topicId).then((data) => {
         setTopic(data);
       });

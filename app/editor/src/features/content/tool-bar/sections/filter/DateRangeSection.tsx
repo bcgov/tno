@@ -1,29 +1,19 @@
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
 import React from 'react';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
-import { SelectDate } from 'tno-core';
+import { replaceQueryParams, SelectDate } from 'tno-core';
 
 import * as styled from './styled';
 
-export interface IDateRangeSectionProps {
-  onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
-  onChange: (filter: IContentListFilter) => void;
-  onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
-}
-export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
-  onAdvancedFilterChange,
-  onSearch,
-  onChange,
-}) => {
-  const [{ filter, filterAdvanced }] = useContent();
-  /** retrigger fetch on change of date or clear*/
-  React.useEffect(() => {
-    onSearch({ ...filter, ...filterAdvanced });
-  }, [filter, filterAdvanced, onSearch]);
+export interface IDateRangeSectionProps {}
+
+/**
+ * Provides a component to set the date range.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
+  const [{ filter, filterAdvanced }, { storeFilter, storeFilterAdvanced }] = useContent();
 
   return (
     <styled.DateRangeSection>
@@ -38,7 +28,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
         selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
         width="8em"
         onChange={(date) =>
-          onAdvancedFilterChange({
+          storeFilterAdvanced({
             ...filterAdvanced,
             startDate: !!date ? date.toString() : undefined,
           })
@@ -52,21 +42,23 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = ({
         width="8em"
         onChange={(date) => {
           date?.setHours(23, 59, 59);
-          onAdvancedFilterChange({
-            ...filterAdvanced,
+          storeFilterAdvanced((filter) => ({
+            ...filter,
             endDate: !!date ? date.toString() : undefined,
-          });
+          }));
         }}
       />
       <span
         className="clear"
         onClick={() => {
-          onAdvancedFilterChange({
+          const values = {
             ...filterAdvanced,
             startDate: undefined,
             endDate: undefined,
-          });
-          onChange({ ...filter, timeFrame: 0 });
+          };
+          storeFilterAdvanced(values);
+          storeFilter((filter) => ({ ...filter, timeFrame: 0 }));
+          replaceQueryParams({ ...filter, ...values, timeFrame: 0 }, { includeEmpty: false });
         }}
       >
         X

@@ -41,6 +41,7 @@ export const LicenseForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!licenseId && license?.id !== licenseId) {
+      setLicense({ ...defaultLicense, id: licenseId }); // Do this to stop double fetch.
       api.getLicense(licenseId).then((data) => {
         setLicense(data);
       });

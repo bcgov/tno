@@ -31,52 +31,50 @@ export const useWorkOrders = (): [IAdminState, IWorkOrderController] => {
         const response = await dispatch<IWorkOrderModel>('get-work-order', () =>
           api.getWorkOrder(id),
         );
-        store.storeWorkOrders({
-          ...state.workOrders,
-          items: state.workOrders.items.map((ds) => {
+        store.storeWorkOrders((workOrders) => ({
+          ...workOrders,
+          items: workOrders.items.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
-        });
+        }));
         return response.data;
       },
       addWorkOrder: async (model: IWorkOrderModel) => {
         const response = await dispatch<IWorkOrderModel>('add-work-order', () =>
           api.addWorkOrder(model),
         );
-        store.storeWorkOrders({
-          ...state.workOrders,
-          items: [response.data, ...state.workOrders.items],
-        });
+        store.storeWorkOrders((workOrders) => ({
+          ...workOrders,
+          items: [response.data, ...workOrders.items],
+        }));
         return response.data;
       },
       updateWorkOrder: async (model: IWorkOrderModel) => {
         const response = await dispatch<IWorkOrderModel>('update-work-order', () =>
           api.updateWorkOrder(model),
         );
-        store.storeWorkOrders({
-          ...state.workOrders,
-          items: state.workOrders.items.map((ds) => {
+        store.storeWorkOrders((workOrders) => ({
+          ...workOrders,
+          items: workOrders.items.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
-        });
+        }));
         return response.data;
       },
       deleteWorkOrder: async (model: IWorkOrderModel) => {
         const response = await dispatch<IWorkOrderModel>('delete-work-order', () =>
           api.deleteWorkOrder(model),
         );
-        store.storeWorkOrders({
-          ...state.workOrders,
-          items: state.workOrders.items.filter((ds) => ds.id !== response.data.id),
-        });
+        store.storeWorkOrders((workOrders) => ({
+          ...workOrders,
+          items: workOrders.items.filter((ds) => ds.id !== response.data.id),
+        }));
         return response.data;
       },
       storeFilter: store.storeWorkOrderFilter,
     }),
-    // The state.workOrders will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [api, dispatch, store],
   );
 

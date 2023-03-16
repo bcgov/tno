@@ -8,6 +8,6 @@ import { IContentModel, IPaged } from 'hooks/api-editor';
 export interface IContentState {
   filter: IContentListFilter;
   filterAdvanced: IContentListAdvancedFilter;
-  morningReportFilter: IMorningReportFilter;
+  filterMorningReport: IMorningReportFilter;
   content?: IPaged<IContentModel>;
 }

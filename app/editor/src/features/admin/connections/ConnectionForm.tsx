@@ -47,6 +47,7 @@ export const ConnectionForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!connectionId && connection?.id !== connectionId) {
+      setConnection({ ...defaultConnection, id: connectionId }); // Do this to stop double fetch.
       api.getConnection(connectionId).then((data) => {
         setConnection(data);
       });

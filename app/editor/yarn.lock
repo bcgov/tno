@@ -2631,6 +2631,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@simbathesailor/use-what-changed@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@simbathesailor/use-what-changed@npm:2.0.0"
+  peerDependencies:
+    react: ">=16"
+  checksum: a90e5b7388584749d19b138e0ab50fc69d9af69bee7beaa7616fa287122577f027877e0bd622ec1149057adb2f5bd3f27691dae5723c6a7c93d044bfb96e77ec
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.24.1":
   version: 0.24.51
   resolution: "@sinclair/typebox@npm:0.24.51"
@@ -10173,6 +10182,7 @@ __metadata:
     "@microsoft/signalr": 7.0.4
     "@react-keycloak/web": 3.4.0
     "@reduxjs/toolkit": 1.9.3
+    "@simbathesailor/use-what-changed": 2.0.0
     "@testing-library/jest-dom": 5.16.5
     "@testing-library/react": 14.0.0
     "@testing-library/user-event": 14.4.3

@@ -6,6 +6,7 @@ import { IMorningReportFilter } from 'features/content/morning-report/interfaces
 import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
 import { useApiContents } from 'hooks/api-editor';
 import React from 'react';
+import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
 
@@ -22,9 +23,13 @@ interface IContentController {
   upload: (content: IContentModel, file: File) => Promise<IContentModel>;
   download: (id: number, fileName: string) => Promise<unknown>;
   attach: (contentId: number, locationId: number, path: string) => Promise<IContentModel>;
-  storeFilter: (filter: IContentListFilter) => void;
-  storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
-  storeMorningReportFilter: (filter: IMorningReportFilter) => void;
+  storeFilter: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => void;
+  storeFilterAdvanced: (
+    filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
+  ) => void;
+  storeMorningReportFilter: (
+    filter: IMorningReportFilter | ActionDelegate<IMorningReportFilter>,
+  ) => void;
 }
 
 export const useContent = (props?: IContentProps): [IContentState, IContentController] => {

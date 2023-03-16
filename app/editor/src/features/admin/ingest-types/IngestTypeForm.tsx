@@ -43,6 +43,7 @@ export const IngestTypeForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!ingestTypeId && ingestType?.id !== ingestTypeId) {
+      setIngestType({ ...defaultIngestType, id: ingestTypeId }); // Do this to stop double fetch.
       api.getIngestType(ingestTypeId).then((data) => {
         setIngestType(data);
       });

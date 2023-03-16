@@ -5,7 +5,7 @@ import {
   useApiAdminIngestTypes,
 } from 'hooks/api-editor';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IIngestTypeController {
@@ -21,6 +21,7 @@ export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
   const api = useApiAdminIngestTypes();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -41,8 +42,8 @@ export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
         const response = await dispatch<IIngestTypeModel>('get-ingest-type', () =>
           api.getIngestType(id),
         );
-        store.storeIngestTypes(
-          state.ingestTypes.map((ds) => {
+        store.storeIngestTypes((ingestTypes) =>
+          ingestTypes.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -53,32 +54,35 @@ export const useIngestTypes = (): [IAdminState, IIngestTypeController] => {
         const response = await dispatch<IIngestTypeModel>('add-ingest-type', () =>
           api.addIngestType(model),
         );
-        store.storeIngestTypes([...state.ingestTypes, response.data]);
+        store.storeIngestTypes((ingestTypes) => [...ingestTypes, response.data]);
+        await lookup.getLookups();
         return response.data;
       },
       updateIngestType: async (model: IIngestTypeModel) => {
         const response = await dispatch<IIngestTypeModel>('update-ingest-type', () =>
           api.updateIngestType(model),
         );
-        store.storeIngestTypes(
-          state.ingestTypes.map((ds) => {
+        store.storeIngestTypes((ingestTypes) =>
+          ingestTypes.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       deleteIngestType: async (model: IIngestTypeModel) => {
         const response = await dispatch<IIngestTypeModel>('delete-ingest-type', () =>
           api.deleteIngestType(model),
         );
-        store.storeIngestTypes(state.ingestTypes.filter((ds) => ds.id !== response.data.id));
+        store.storeIngestTypes((ingestTypes) =>
+          ingestTypes.filter((ds) => ds.id !== response.data.id),
+        );
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    // The state.ingestTypes will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api, dispatch, store],
+    [api, dispatch, lookup, store],
   );
 
   return [state, controller];

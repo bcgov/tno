@@ -5,6 +5,7 @@ import logger from 'redux-logger';
 
 import { reducer } from './rootReducer';
 
+export type ActionDelegate<T> = T | ((values: T) => T);
 export const store = configureStore({
   reducer: reducer,
   middleware: (getDefaultMiddleware: () => any[]) =>

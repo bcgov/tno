@@ -18,7 +18,7 @@ export interface IMorningReportFilterProps {
 }
 
 export const MorningReportFilter: React.FC<IMorningReportFilterProps> = ({ onSearch }) => {
-  const [{ morningReportFilter: filter, filterAdvanced }, { storeMorningReportFilter }] =
+  const [{ filterMorningReport: filter, filterAdvanced }, { storeMorningReportFilter }] =
     useContent();
   const [{ productOptions: pOptions }] = useLookupOptions();
 

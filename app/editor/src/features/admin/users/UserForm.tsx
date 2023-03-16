@@ -35,7 +35,6 @@ export const UserForm: React.FC = () => {
   const [, api] = useUsers();
   const { id } = useParams();
   const navigate = useNavigate();
-  const userId = Number(id);
   const { toggle, isShowing } = useModal();
   const [lookups] = useLookup();
 
@@ -44,11 +43,12 @@ export const UserForm: React.FC = () => {
     lookups.roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
   );
 
-  // const isLinkedToKeycloak = user.key !== '00000000-0000-0000-0000-000000000000';
+  const userId = Number(id);
   const statusOptions = getEnumStringOptions(UserStatusName);
 
   React.useEffect(() => {
     if (!!userId && user?.id !== userId) {
+      setUser({ ...defaultUser, id: userId }); // Do this to stop double fetch.
       api.getUser(userId).then((data) => {
         setUser(data);
       });

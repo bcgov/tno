@@ -2,7 +2,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IPaged, IUserModel, useApiAdminUsers } from 'hooks/api-editor';
 import { IUserFilter } from 'hooks/api-editor/interfaces/IUserFilter';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IUserController {
@@ -18,6 +18,7 @@ export const useUsers = (): [IAdminState, IUserController] => {
   const api = useApiAdminUsers();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -30,44 +31,45 @@ export const useUsers = (): [IAdminState, IUserController] => {
       },
       getUser: async (id: number) => {
         const response = await dispatch<IUserModel>('get-user', () => api.getUser(id));
-        store.storeUsers({
-          ...state.users,
-          items: state.users.items.map((ds) => {
+        store.storeUsers((users) => ({
+          ...users,
+          items: users.items.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
-        });
+        }));
         return response.data;
       },
       addUser: async (model: IUserModel) => {
         const response = await dispatch<IUserModel>('add-user', () => api.addUser(model));
-        store.storeUsers({ ...state.users, items: [response.data, ...state.users.items] });
+        store.storeUsers((users) => ({ ...users, items: [response.data, ...users.items] }));
+        await lookup.getLookups();
         return response.data;
       },
       updateUser: async (model: IUserModel) => {
         const response = await dispatch<IUserModel>('update-user', () => api.updateUser(model));
-        store.storeUsers({
-          ...state.users,
-          items: state.users.items.map((ds) => {
+        store.storeUsers((users) => ({
+          ...users,
+          items: users.items.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
-        });
+        }));
+        await lookup.getLookups();
         return response.data;
       },
       deleteUser: async (model: IUserModel) => {
         const response = await dispatch<IUserModel>('delete-user', () => api.deleteUser(model));
-        store.storeUsers({
-          ...state.users,
-          items: state.users.items.filter((ds) => ds.id !== response.data.id),
-        });
+        store.storeUsers((users) => ({
+          ...users,
+          items: users.items.filter((ds) => ds.id !== response.data.id),
+        }));
+        await lookup.getLookups();
         return response.data;
       },
       storeFilter: store.storeUserFilter,
     }),
-    // The state.users will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api, dispatch, store],
+    [api, dispatch, lookup, store],
   );
 
   return [state, controller];

@@ -1,41 +1,35 @@
 import { ToggleGroup } from 'components/toggle-group';
 import { ToolBarSection } from 'components/tool-bar';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
+import { IContentListFilter } from 'features/content/list-view/interfaces';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
 import { useApp, useContent } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import { Col, FieldSize, fromQueryString, IOptionItem, OptionItem, Row, Select } from 'tno-core';
+import {
+  Col,
+  FieldSize,
+  fromQueryString,
+  IOptionItem,
+  OptionItem,
+  replaceQueryParams,
+  Row,
+  Select,
+} from 'tno-core';
 import { getUserOptions } from 'utils';
 
 import { DateRangeSection } from '.';
 import { InputOption } from './InputOption';
 
-export interface IFilterContentSectionProps {
-  onChange: (filter: IContentListFilter) => void;
-  onAdvancedFilterChange: (filter: IContentListAdvancedFilter) => void;
-  onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
-  productIds?: number[];
-}
+export interface IFilterContentSectionProps {}
 
 /**
  * Component containing the filter section of the content tool bar
  * @param onChange determine what happens when filter changes are applied
- * @param onAdvancedFilterChange determine what happens when advanced filter changes are applied
- * @param onSearch determine what happens when the search button is clicked
  * @returns The filter content section
  */
-export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
-  onChange,
-  onAdvancedFilterChange,
-  onSearch,
-  productIds,
-}) => {
-  const [{ filter, filterAdvanced }] = useContent();
+export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => {
+  const [{ filter, filterAdvanced }, { storeFilter }] = useContent();
   const [{ productOptions: pOptions, users }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
@@ -48,7 +42,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     { label: '48 HRS', value: 2 },
     { label: 'ALL', value: 3 },
   ];
-  const timeFrameSelected = timeFrames[search.timeFrame ?? filter.timeFrame].label;
+  const timeFrameSelected = timeFrames[search.timeFrame ?? filter.timeFrame]?.label ?? '';
 
   const usersSelections = [
     { label: 'ALL CONTENT', value: 0 },
@@ -66,10 +60,13 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
     setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
   }, [pOptions]);
 
-  // Change userId filter with value of dropdown
-  const onOtherClick = (value?: number) => {
-    value && onChange({ ...filter, userId: value });
-  };
+  const onChange = React.useCallback(
+    (filter: IContentListFilter) => {
+      storeFilter(filter);
+      replaceQueryParams(filter, { includeEmpty: false });
+    },
+    [storeFilter],
+  );
 
   /** clear time frame when start end date is selected */
   React.useEffect(() => {
@@ -77,6 +74,14 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
       onChange({ ...filter, timeFrame: '' });
     }
   }, [filterAdvanced.startDate, filterAdvanced.endDate, filter, onChange]);
+
+  // Change userId filter with value of dropdown
+  const onOtherClick = React.useCallback(
+    (filter: IContentListFilter, value?: number) => {
+      value && onChange({ ...filter, userId: value });
+    },
+    [onChange],
+  );
 
   return (
     <ToolBarSection
@@ -126,18 +131,14 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = ({
                   {
                     label: 'OTHER',
                     dropDownOptions: filterEnabled(userOptions),
-                    onClick: onOtherClick,
+                    onClick: (value) => onOtherClick(filter, value),
                   },
                 ]}
               />
             </Row>
           </Col>
           <Col>
-            <DateRangeSection
-              onChange={onChange}
-              onAdvancedFilterChange={onAdvancedFilterChange}
-              onSearch={onSearch}
-            />
+            <DateRangeSection />
             <Row>
               <FaIcons className="icon-indicator" height="2em" width="2em" />
               <Select

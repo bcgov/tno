@@ -1,6 +1,5 @@
 export * from './IActionFilter';
 export * from './IActionModel';
-export * from './IAdminActionModel';
 export * from './IAuditColumnsModel';
 export * from './ICacheModel';
 export * from './IClipModel';

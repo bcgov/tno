@@ -213,11 +213,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
       if (!originalId)
-        navigate(
-          `${getContentPath(contentResult?.contentType)}${combined ? 'combined/' : ''}${
-            contentResult.id
-          }`,
-        );
+        navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
       if (!!contentResult?.seriesId) {
         // A dynamically added series has been added, fetch the latests series.
         const newSeries = series.find((s) => s.id === contentResult?.seriesId);
@@ -228,7 +224,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       if (!!contentResult) {
         result = toForm(contentResult);
         setForm({ ...result, workOrders: form.workOrders });
-        if (!originalId) navigate(`/contents/${combined ? 'combined/' : ''}${contentResult.id}`);
+        if (!originalId)
+          navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
       }
     }
     return result;
@@ -332,7 +329,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 variant={ButtonVariant.secondary}
                 tooltip="Full Page View"
                 onClick={() => {
-                  navigate(`${getContentPath(contentType)}${id}`);
+                  navigate(getContentPath(combined, id, contentType));
                 }}
               >
                 <FontAwesomeIcon icon={faUpRightFromSquare} />
@@ -345,8 +342,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 onClick={() => {
                   const id = page?.items[indexPosition - 1]?.id;
                   if (!!id) {
-                    if (!!combined) navigate(`/contents/combined/${id}`);
-                    else navigate(`${getContentPath(contentType)}${id}`);
+                    navigate(getContentPath(combined, id, contentType));
                   }
                 }}
                 disabled={!enablePrev}
@@ -358,8 +354,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 tooltip="Next"
                 onClick={() => {
                   const id = page?.items[indexPosition + 1]?.id;
-                  if (combined) navigate(`/contents/combined/${id}`);
-                  else navigate(`${getContentPath(contentType)}${id}`);
+                  navigate(getContentPath(combined, id, contentType));
                 }}
                 disabled={!enableNext}
               >

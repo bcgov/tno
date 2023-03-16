@@ -28,7 +28,7 @@ export interface IAdvancedSearchSectionProps {
  * @returns Filter section containing the advanced filter
  */
 export const AdvancedMorningReport: React.FC<IAdvancedSearchSectionProps> = ({ onSearch }) => {
-  const [{ morningReportFilter, filterAdvanced, filter }, { storeFilterAdvanced }] = useContent();
+  const [{ filterMorningReport, filterAdvanced, filter }, { storeFilterAdvanced }] = useContent();
 
   const search = fromQueryString(window.location.search);
 
@@ -68,7 +68,7 @@ export const AdvancedMorningReport: React.FC<IAdvancedSearchSectionProps> = ({ o
             value={filterAdvanced.searchTerm}
             onKeyUpCapture={(e) => {
               if (e.key === 'Enter')
-                onSearch({ ...morningReportFilter, pageIndex: 0, ...filterAdvanced });
+                onSearch({ ...filterMorningReport, pageIndex: 0, ...filterAdvanced });
             }}
             onChange={(e) => {
               storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
@@ -76,7 +76,7 @@ export const AdvancedMorningReport: React.FC<IAdvancedSearchSectionProps> = ({ o
           />
           <FaArrowAltCircleRight
             onClick={() => {
-              onSearch({ ...morningReportFilter, pageIndex: 0, ...filterAdvanced });
+              onSearch({ ...filterMorningReport, pageIndex: 0, ...filterAdvanced });
               replaceQueryParams(
                 { ...filter, ...filterAdvanced },
                 {

@@ -1,7 +1,7 @@
 import { ToolBar } from 'components/tool-bar/ToolBar';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { fromQueryString, instanceOfIOption, replaceQueryParams } from 'tno-core';
+import { fromQueryString } from 'tno-core';
 
 import { IContentListAdvancedFilter, IContentListFilter } from '../list-view/interfaces';
 import {
@@ -46,40 +46,16 @@ export const ContentToolBar: React.FC<IContentToolBarProps> = ({ onSearch }) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onFilterChange = (filter: IContentListFilter) => {
-    storeFilter(filter);
-    replaceQueryParams({ ...filter, ...filterAdvanced }, { includeEmpty: false });
-  };
-
-  // pass filter and filter advanced so we don't lose the advanced filter when we change the filter
-  const onAdvancedFilterChange = (advancedFilter: IContentListAdvancedFilter) => {
-    storeFilterAdvanced(advancedFilter);
-    replaceQueryParams(
-      { ...filter, ...advancedFilter },
-      {
-        includeEmpty: false,
-        convertObject: (value) => {
-          if (instanceOfIOption(value)) return value.value;
-          return value.toString();
-        },
-      },
-    );
-  };
-
   return (
     <ToolBar>
       {/* first section */}
       <CreateNewSection />
       {/* second section */}
-      <FilterContentSection
-        onChange={onFilterChange}
-        onAdvancedFilterChange={onAdvancedFilterChange}
-        onSearch={onSearch}
-      />
+      <FilterContentSection />
       {/* third section */}
-      <ShowOnlySection onChange={onFilterChange} />
+      <ShowOnlySection />
       {/* fourth section */}
-      <AdvancedSearchSection onSearch={onSearch} onChange={onAdvancedFilterChange} />
+      <AdvancedSearchSection />
     </ToolBar>
   );
 };

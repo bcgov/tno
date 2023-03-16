@@ -1,7 +1,7 @@
 import { ITopicScoreRuleModel } from 'hooks';
 import { useApiAdminTopicScoreRules } from 'hooks/api-editor';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface ITopicScoreRuleController {
@@ -17,6 +17,7 @@ export const useTopicScoreRules = (): [IAdminState, ITopicScoreRuleController] =
   const api = useApiAdminTopicScoreRules();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -31,8 +32,8 @@ export const useTopicScoreRules = (): [IAdminState, ITopicScoreRuleController] =
         const response = await dispatch<ITopicScoreRuleModel>('get-topic-score-rule', () =>
           api.getTopicScoreRule(id),
         );
-        store.storeTopicScoreRules(
-          state.rules.map((t) => {
+        store.storeTopicScoreRules((rules) =>
+          rules.map((t) => {
             if (t.id === response.data.id) return response.data;
             return t;
           }),
@@ -43,21 +44,25 @@ export const useTopicScoreRules = (): [IAdminState, ITopicScoreRuleController] =
         const response = await dispatch<ITopicScoreRuleModel>('add-topic-score-rule', () =>
           api.addTopicScoreRule(model),
         );
-        var items = [...state.rules];
-        items.splice(model.sortOrder, 0, response.data);
-        store.storeTopicScoreRules(items);
+        store.storeTopicScoreRules((rules) => {
+          var items = [...rules];
+          items.splice(model.sortOrder, 0, response.data);
+          return items;
+        });
+        await lookup.getLookups();
         return response.data;
       },
       updateTopicScoreRule: async (model: ITopicScoreRuleModel) => {
         const response = await dispatch<ITopicScoreRuleModel>('update-topic-score-rule', () =>
           api.updateTopicScoreRule(model),
         );
-        store.storeTopicScoreRules(
-          state.rules.map((t) => {
+        store.storeTopicScoreRules((rules) =>
+          rules.map((t) => {
             if (t.id === response.data.id) return response.data;
             return t;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       updateTopicScoreRules: async (models: ITopicScoreRuleModel[]) => {
@@ -65,17 +70,19 @@ export const useTopicScoreRules = (): [IAdminState, ITopicScoreRuleController] =
           api.updateTopicScoreRules(models),
         );
         store.storeTopicScoreRules(response.data);
+        await lookup.getLookups();
         return response.data;
       },
       deleteTopicScoreRule: async (model: ITopicScoreRuleModel) => {
         const response = await dispatch<ITopicScoreRuleModel>('delete-topic-score-rule', () =>
           api.deleteTopicScoreRule(model),
         );
-        store.storeTopicScoreRules(state.rules.filter((t) => t.id !== response.data.id));
+        store.storeTopicScoreRules((rules) => rules.filter((t) => t.id !== response.data.id));
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    [api, dispatch, state.rules, store],
+    [api, dispatch, lookup, store],
   );
 
   return [state, controller];
