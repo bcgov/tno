@@ -1,6 +1,6 @@
 import { IPaged, ISeriesFilter, ISeriesModel, useApiAdminSeries } from 'hooks';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface ISeriesController {
@@ -16,6 +16,7 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
   const api = useApiAdminSeries();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -34,8 +35,8 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
       },
       getSeries: async (id: number) => {
         const response = await dispatch<ISeriesModel>('get-series', () => api.getSeries(id));
-        store.storeSeries(
-          state.series.map((ds) => {
+        store.storeSeries((series) =>
+          series.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -44,32 +45,33 @@ export const useSeries = (): [IAdminState, ISeriesController] => {
       },
       addSeries: async (model: ISeriesModel) => {
         const response = await dispatch<ISeriesModel>('add-series', () => api.addSeries(model));
-        store.storeSeries([...state.series, response.data]);
+        store.storeSeries((series) => [...series, response.data]);
+        await lookup.getLookups();
         return response.data;
       },
       updateSeries: async (model: ISeriesModel) => {
         const response = await dispatch<ISeriesModel>('update-series', () =>
           api.updateSeries(model),
         );
-        store.storeSeries(
-          state.series.map((ds) => {
+        store.storeSeries((series) =>
+          series.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       deleteSeries: async (model: ISeriesModel) => {
         const response = await dispatch<ISeriesModel>('delete-series', () =>
           api.deleteSeries(model),
         );
-        store.storeSeries(state.series.filter((ds) => ds.id !== response.data.id));
+        store.storeSeries((series) => series.filter((ds) => ds.id !== response.data.id));
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    // The state.mediaTypes will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api, dispatch, store],
+    [api, dispatch, lookup, store],
   );
 
   return [state, controller];

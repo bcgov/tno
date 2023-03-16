@@ -28,7 +28,7 @@ export const useApiAdminTags = (
         `/admin/tags?${toQueryString(filter)}`,
       );
     },
-    getTag: (id: string) => {
+    getTag: (id: number) => {
       return api.get<ITagModel, AxiosResponse<ITagModel>, any>(`/admin/tags/${id}`);
     },
     addTag: (model: ITagModel) => {

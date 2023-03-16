@@ -18,7 +18,7 @@ import {
   IWorkOrderModel,
 } from 'hooks/api-editor';
 import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
+import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 
 import {
   storeAdminActions,
@@ -43,22 +43,30 @@ import { IAdminState } from './interfaces';
 export interface IAdminProps {}
 
 export interface IAdminStore {
-  storeSources: (sources: ISourceModel[]) => void;
-  storeConnections: (connections: IConnectionModel[]) => void;
-  storeDataLocations: (dataLocations: IDataLocationModel[]) => void;
-  storeProducts: (products: IProductModel[]) => void;
-  storeLicenses: (licenses: ILicenseModel[]) => void;
-  storeIngests: (ingests: IIngestModel[]) => void;
-  storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
-  storeTopics: (topics: ITopicModel[]) => void;
-  storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => void;
-  storeUserFilter: (filter: IUserListFilter) => void;
-  storeUsers: (users: IPaged<IUserModel>) => void;
-  storeTags: (tags: ITagModel[]) => void;
-  storeActions: (actions: IActionModel[]) => void;
-  storeSeries: (series: ISeriesModel[]) => void;
-  storeWorkOrderFilter: (filter: IWorkOrderListFilter) => void;
-  storeWorkOrders: (users: IPaged<IWorkOrderModel>) => void;
+  storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => void;
+  storeConnections: (connections: IConnectionModel[] | ActionDelegate<IConnectionModel[]>) => void;
+  storeDataLocations: (
+    dataLocations: IDataLocationModel[] | ActionDelegate<IDataLocationModel[]>,
+  ) => void;
+  storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => void;
+  storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => void;
+  storeIngests: (ingests: IIngestModel[] | ActionDelegate<IIngestModel[]>) => void;
+  storeIngestTypes: (ingestTypes: IIngestTypeModel[] | ActionDelegate<IIngestTypeModel[]>) => void;
+  storeTopics: (topics: ITopicModel[] | ActionDelegate<ITopicModel[]>) => void;
+  storeTopicScoreRules: (
+    rules: ITopicScoreRuleModel[] | ActionDelegate<ITopicScoreRuleModel[]>,
+  ) => void;
+  storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => void;
+  storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => void;
+  storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => void;
+  storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
+  storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
+  storeWorkOrderFilter: (
+    filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
+  ) => void;
+  storeWorkOrders: (
+    users: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
+  ) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -67,56 +75,114 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
 
   const controller = React.useMemo(
     () => ({
-      storeSources: (sources: ISourceModel[]) => {
-        dispatch(storeAdminSources(sources));
+      storeSources: (sources: ISourceModel[] | ActionDelegate<ISourceModel[]>) => {
+        if (typeof sources === 'function') {
+          dispatch(storeAdminSources(sources(state.sources)));
+        } else dispatch(storeAdminSources(sources));
       },
-      storeConnections: (connections: IConnectionModel[]) => {
-        dispatch(storeAdminConnections(connections));
+      storeConnections: (connections: IConnectionModel[] | ActionDelegate<IConnectionModel[]>) => {
+        if (typeof connections === 'function') {
+          dispatch(storeAdminConnections(connections(state.connections)));
+        } else dispatch(storeAdminConnections(connections));
       },
-      storeDataLocations: (dataLocations: IDataLocationModel[]) => {
-        dispatch(storeAdminDataLocations(dataLocations));
+      storeDataLocations: (
+        dataLocations: IDataLocationModel[] | ActionDelegate<IDataLocationModel[]>,
+      ) => {
+        if (typeof dataLocations === 'function') {
+          dispatch(storeAdminDataLocations(dataLocations(state.dataLocations)));
+        } else dispatch(storeAdminDataLocations(dataLocations));
       },
-      storeProducts: (products: IProductModel[]) => {
-        dispatch(storeAdminProducts(products));
+      storeProducts: (products: IProductModel[] | ActionDelegate<IProductModel[]>) => {
+        if (typeof products === 'function') {
+          dispatch(storeAdminProducts(products(state.products)));
+        } else dispatch(storeAdminProducts(products));
       },
-      storeLicenses: (licenses: ILicenseModel[]) => {
-        dispatch(storeAdminLicenses(licenses));
+      storeLicenses: (licenses: ILicenseModel[] | ActionDelegate<ILicenseModel[]>) => {
+        if (typeof licenses === 'function') {
+          dispatch(storeAdminLicenses(licenses(state.licenses)));
+        } else dispatch(storeAdminLicenses(licenses));
       },
-      storeIngests: (ingests: IIngestModel[]) => {
-        dispatch(storeAdminIngests(ingests));
+      storeIngests: (ingests: IIngestModel[] | ActionDelegate<IIngestModel[]>) => {
+        if (typeof ingests === 'function') {
+          dispatch(storeAdminIngests(ingests(state.ingests)));
+        } else dispatch(storeAdminIngests(ingests));
       },
-      storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => {
-        dispatch(storeAdminIngestTypes(ingestTypes));
+      storeIngestTypes: (ingestTypes: IIngestTypeModel[] | ActionDelegate<IIngestTypeModel[]>) => {
+        if (typeof ingestTypes === 'function') {
+          dispatch(storeAdminIngestTypes(ingestTypes(state.ingestTypes)));
+        } else dispatch(storeAdminIngestTypes(ingestTypes));
       },
-      storeUserFilter: (filter: IUserListFilter) => {
-        dispatch(storeAdminUserFilter(filter));
+      storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => {
+        if (typeof filter === 'function') {
+          dispatch(storeAdminUserFilter(filter(state.userFilter)));
+        } else dispatch(storeAdminUserFilter(filter));
       },
-      storeUsers: (users: IPaged<IUserModel>) => {
-        dispatch(storeAdminUsers(users));
+      storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => {
+        if (typeof users === 'function') {
+          dispatch(storeAdminUsers(users(state.users)));
+        } else dispatch(storeAdminUsers(users));
       },
-      storeTopics: (topics: ITopicModel[]) => {
-        dispatch(storeAdminTopics(topics));
+      storeTopics: (topics: ITopicModel[] | ActionDelegate<ITopicModel[]>) => {
+        if (typeof topics === 'function') {
+          dispatch(storeAdminTopics(topics(state.topics)));
+        } else dispatch(storeAdminTopics(topics));
       },
-      storeTopicScoreRules: (rules: ITopicScoreRuleModel[]) => {
-        dispatch(storeAdminTopicScoreRules(rules));
+      storeTopicScoreRules: (
+        rules: ITopicScoreRuleModel[] | ActionDelegate<ITopicScoreRuleModel[]>,
+      ) => {
+        if (typeof rules === 'function') {
+          dispatch(storeAdminTopicScoreRules(rules(state.rules)));
+        } else dispatch(storeAdminTopicScoreRules(rules));
       },
-      storeTags: (tags: ITagModel[]) => {
-        dispatch(storeAdminTags(tags));
+      storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => {
+        if (typeof tags === 'function') {
+          dispatch(storeAdminTags(tags(state.tags)));
+        } else dispatch(storeAdminTags(tags));
       },
-      storeActions: (actions: IActionModel[]) => {
-        dispatch(storeAdminActions(actions));
+      storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => {
+        if (typeof actions === 'function') {
+          dispatch(storeAdminActions(actions(state.actions)));
+        } else dispatch(storeAdminActions(actions));
       },
-      storeSeries: (series: ISeriesModel[]) => {
-        dispatch(storeAdminSeries(series));
+      storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => {
+        if (typeof series === 'function') {
+          dispatch(storeAdminSeries(series(state.series)));
+        } else dispatch(storeAdminSeries(series));
       },
-      storeWorkOrderFilter: (filter: IWorkOrderListFilter) => {
-        dispatch(storeAdminWorkOrderFilter(filter));
+      storeWorkOrderFilter: (
+        filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
+      ) => {
+        if (typeof filter === 'function') {
+          dispatch(storeAdminWorkOrderFilter(filter(state.workOrderFilter)));
+        } else dispatch(storeAdminWorkOrderFilter(filter));
       },
-      storeWorkOrders: (workOrders: IPaged<IWorkOrderModel>) => {
-        dispatch(storeAdminWorkOrders(workOrders));
+      storeWorkOrders: (
+        workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
+      ) => {
+        if (typeof workOrders === 'function') {
+          dispatch(storeAdminWorkOrders(workOrders(state.workOrders)));
+        } else dispatch(storeAdminWorkOrders(workOrders));
       },
     }),
-    [dispatch],
+    [
+      dispatch,
+      state.actions,
+      state.connections,
+      state.dataLocations,
+      state.ingestTypes,
+      state.ingests,
+      state.licenses,
+      state.products,
+      state.rules,
+      state.series,
+      state.sources,
+      state.tags,
+      state.topics,
+      state.userFilter,
+      state.users,
+      state.workOrderFilter,
+      state.workOrders,
+    ],
   );
 
   return [state, controller];

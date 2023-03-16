@@ -6,6 +6,7 @@
  */
 export const getFromLocalStorage = <T>(name: string, defaultValue: T) => {
   const value = localStorage.getItem(name);
-  if (value === null) return defaultValue;
+  if (value === null || value === undefined || (!value.startsWith('{') && !value.startsWith('[')))
+    return defaultValue;
   return JSON.parse(value) as T;
 };

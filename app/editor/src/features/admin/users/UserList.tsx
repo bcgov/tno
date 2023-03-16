@@ -16,6 +16,8 @@ export const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [{ users, userFilter }, { findUsers, storeFilter }] = useUsers();
   const [{ requests }] = useApp();
+
+  const [filter, setFilter] = React.useState(userFilter);
   const [page, setPage] = React.useState(
     new Page(users.page - 1, users.quantity, users.items, users.total),
   );
@@ -59,8 +61,11 @@ export const UserList: React.FC = () => {
   );
 
   React.useEffect(() => {
-    fetch(userFilter);
-  }, [fetch, userFilter]);
+    if (filter !== userFilter) {
+      setFilter(userFilter); // Need this to stop infinite loop.
+      fetch(userFilter);
+    }
+  }, [fetch, filter, userFilter]);
 
   return (
     <styled.UserList>

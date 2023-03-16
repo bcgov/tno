@@ -1,6 +1,6 @@
 import { IPaged, ISourceModel, useApiAdminSources } from 'hooks/api-editor';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface ISourceController {
@@ -16,6 +16,7 @@ export const useSources = (): [IAdminState, ISourceController] => {
   const api = useApiAdminSources();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -34,8 +35,8 @@ export const useSources = (): [IAdminState, ISourceController] => {
       },
       getSource: async (id: number) => {
         const response = await dispatch<ISourceModel>('get-source', () => api.getSource(id));
-        store.storeSources(
-          state.sources.map((ds) => {
+        store.storeSources((sources) =>
+          sources.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -44,32 +45,33 @@ export const useSources = (): [IAdminState, ISourceController] => {
       },
       addSource: async (model: ISourceModel) => {
         const response = await dispatch<ISourceModel>('add-source', () => api.addSource(model));
-        store.storeSources([...state.sources, response.data]);
+        store.storeSources((sources) => [...sources, response.data]);
+        await lookup.getLookups();
         return response.data;
       },
       updateSource: async (model: ISourceModel) => {
         const response = await dispatch<ISourceModel>('update-source', () =>
           api.updateSource(model),
         );
-        store.storeSources(
-          state.sources.map((ds) => {
+        store.storeSources((sources) =>
+          sources.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       deleteSource: async (model: ISourceModel) => {
         const response = await dispatch<ISourceModel>('delete-source', () =>
           api.deleteSource(model),
         );
-        store.storeSources(state.sources.filter((ds) => ds.id !== response.data.id));
+        store.storeSources((sources) => sources.filter((ds) => ds.id !== response.data.id));
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    // The state.sources will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, store, api],
+    [dispatch, store, api, lookup],
   );
 
   return [state, controller];

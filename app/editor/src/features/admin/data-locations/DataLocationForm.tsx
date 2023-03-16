@@ -51,6 +51,7 @@ export const DataLocationForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!dataLocationId && dataLocation?.id !== dataLocationId) {
+      setDataLocation({ ...defaultDataLocation, id: dataLocationId }); // Do this to stop double fetch.
       api.getDataLocation(dataLocationId).then((data) => {
         setDataLocation(toForm(data));
       });

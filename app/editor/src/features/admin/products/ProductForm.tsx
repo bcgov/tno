@@ -1,6 +1,6 @@
 import { FormikForm } from 'components/formik';
 import { Modal } from 'components/modal';
-import { IProductModel, useLookupSync, useModal } from 'hooks';
+import { IProductModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -40,6 +40,7 @@ export const ProductForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!productId && product?.id !== productId) {
+      setProduct({ ...defaultProduct, id: productId }); // Do this to stop double fetch.
       api.getProduct(productId).then((data) => {
         setProduct(data);
       });
@@ -56,9 +57,6 @@ export const ProductForm: React.FC = () => {
       if (!originalId) navigate(`/admin/products/${result.id}`);
     } catch {}
   };
-
-  /** ensure admin products is synced with lookup products when an admin changes a product lookup */
-  useLookupSync(handleSubmit);
 
   return (
     <styled.ProductForm>

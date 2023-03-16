@@ -32,7 +32,7 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  morningReportFilter: {
+  filterMorningReport: {
     pageIndex: 0,
     pageSize: 100,
     includedInTopic: false,
@@ -62,7 +62,7 @@ export const contentSlice = createSlice({
       state.filterAdvanced = action.payload;
     },
     storeMorningReportFilter(state: IContentState, action: PayloadAction<IMorningReportFilter>) {
-      state.morningReportFilter = action.payload;
+      state.filterMorningReport = action.payload;
     },
     storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
       state.content = action.payload;

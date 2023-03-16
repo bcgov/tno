@@ -37,6 +37,7 @@ export const TopicList: React.FC = () => {
   const { toggle, isShowing } = useModal();
   const [, api] = useTopics();
 
+  const [loading, setLoading] = React.useState(false);
   const [items, setItems] = React.useState<ITopicModel[]>([]);
   const [topic, setTopic] = React.useState<ITopicModel>(defaultTopic);
 
@@ -44,12 +45,18 @@ export const TopicList: React.FC = () => {
   const topicTypeOptions = getEnumStringOptions(TopicTypeName);
 
   React.useEffect(() => {
-    if (!items.length) {
-      api.findAllTopics().then((data) => {
-        setItems(data.filter((t) => t.id !== 1));
-      });
+    if (!items.length && !loading) {
+      setLoading(true);
+      api
+        .findAllTopics()
+        .then((data) => {
+          setItems(data.filter((t) => t.id !== 1));
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
-  }, [api, items.length]);
+  }, [api, items.length, loading]);
 
   React.useEffect(() => {
     const topic = items.find((i) => i.id === topicId) ?? defaultTopic;

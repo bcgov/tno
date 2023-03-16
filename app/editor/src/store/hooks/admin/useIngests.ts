@@ -34,8 +34,8 @@ export const useIngests = (): [IAdminState, IIngestController] => {
       },
       getIngest: async (id: number) => {
         const response = await dispatch<IIngestModel>('get-ingest', () => api.getIngest(id));
-        store.storeIngests(
-          state.ingests.map((ds) => {
+        store.storeIngests((ingests) =>
+          ingests.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -44,15 +44,15 @@ export const useIngests = (): [IAdminState, IIngestController] => {
       },
       addIngest: async (model: IIngestModel) => {
         const response = await dispatch<IIngestModel>('add-ingest', () => api.addIngest(model));
-        store.storeIngests([...state.ingests, response.data]);
+        store.storeIngests((ingests) => [...ingests, response.data]);
         return response.data;
       },
       updateIngest: async (model: IIngestModel) => {
         const response = await dispatch<IIngestModel>('update-ingest', () =>
           api.updateIngest(model),
         );
-        store.storeIngests(
-          state.ingests.map((ds) => {
+        store.storeIngests((ingests) =>
+          ingests.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -63,12 +63,10 @@ export const useIngests = (): [IAdminState, IIngestController] => {
         const response = await dispatch<IIngestModel>('delete-ingest', () =>
           api.deleteIngest(model),
         );
-        store.storeIngests(state.ingests.filter((ds) => ds.id !== response.data.id));
+        store.storeIngests((ingests) => ingests.filter((ds) => ds.id !== response.data.id));
         return response.data;
       },
     }),
-    // The state.ingests will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, store, api],
   );
 

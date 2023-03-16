@@ -39,6 +39,7 @@ export const ActionForm: React.FC = () => {
 
   React.useEffect(() => {
     if (!!actionId && action?.id !== actionId) {
+      setAction({ ...defaultAction, id: actionId }); // Do this to stop double fetch.
       api.getAction(actionId).then((data) => {
         setAction(data);
       });

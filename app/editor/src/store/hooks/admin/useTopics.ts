@@ -2,7 +2,7 @@ import { IPaged, ITopicModel } from 'hooks';
 import { useApiAdminTopics } from 'hooks/api-editor/admin/useApiAdminTopics';
 import { ITopicFilter } from 'hooks/api-editor/interfaces/ITopicFilter';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface ITopicController {
@@ -18,6 +18,7 @@ export const useTopics = (): [IAdminState, ITopicController] => {
   const api = useApiAdminTopics();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -36,8 +37,8 @@ export const useTopics = (): [IAdminState, ITopicController] => {
       },
       getTopic: async (id: number) => {
         const response = await dispatch<ITopicModel>('get-topic', () => api.getTopic(id));
-        store.storeTopics(
-          state.topics.map((t) => {
+        store.storeTopics((topics) =>
+          topics.map((t) => {
             if (t.id === response.data.id) return response.data;
             return t;
           }),
@@ -46,28 +47,33 @@ export const useTopics = (): [IAdminState, ITopicController] => {
       },
       addTopic: async (model: ITopicModel) => {
         const response = await dispatch<ITopicModel>('add-topic', () => api.addTopic(model));
-        var items = [...state.topics];
-        items.splice(model.sortOrder, 0, response.data);
-        store.storeTopics(items);
+        store.storeTopics((topics) => {
+          var items = [...topics];
+          items.splice(model.sortOrder, 0, response.data);
+          return items;
+        });
+        await lookup.getLookups();
         return response.data;
       },
       updateTopic: async (model: ITopicModel) => {
         const response = await dispatch<ITopicModel>('update-topic', () => api.updateTopic(model));
-        store.storeTopics(
-          state.topics.map((t) => {
+        store.storeTopics((topics) =>
+          topics.map((t) => {
             if (t.id === response.data.id) return response.data;
             return t;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       deleteTopic: async (model: ITopicModel) => {
         const response = await dispatch<ITopicModel>('delete-topic', () => api.deleteTopic(model));
-        store.storeTopics(state.topics.filter((t) => t.id !== response.data.id));
+        store.storeTopics((topics) => topics.filter((t) => t.id !== response.data.id));
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    [api, dispatch, state.topics, store],
+    [api, dispatch, lookup, store],
   );
 
   return [state, controller];

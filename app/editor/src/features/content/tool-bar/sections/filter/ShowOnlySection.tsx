@@ -4,23 +4,25 @@ import { IContentListFilter } from 'features/content/list-view/interfaces';
 import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
+import { ActionDelegate } from 'store';
 import { useContent } from 'store/hooks';
-import { Checkbox, Col, FieldSize, Row, Select, Show } from 'tno-core';
+import { Checkbox, Col, FieldSize, replaceQueryParams, Row, Select, Show } from 'tno-core';
 
+import { useShowOnlyContentType } from './hooks';
 import { InputOption } from './InputOption';
-import { checkLatestShowOnlyEntry, getSelectedOptions } from './utils';
+import { getSelectedOptions } from './utils';
 
-export interface IShowOnlySectionProps {
-  onChange: (filter: IContentListFilter) => void;
-}
+export interface IShowOnlySectionProps {}
 
 /**
  * Show only section
  * @param onChange determines what happens when the checkbox is checked or unchecked
  * @returns A section with checkboxes to show only certain content types
  */
-export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) => {
-  const [{ filter }] = useContent();
+export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
+  const [{ filter, filterAdvanced }, { storeFilter }] = useContent();
+  const showContentType = useShowOnlyContentType();
+
   const [width, setWidth] = React.useState(window.innerWidth);
 
   // recalculates the width of the screen when the screen is resized
@@ -44,6 +46,17 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
     // Return a function to disconnect the event listener
     return () => window.removeEventListener('resize', calcWidth);
   }, []);
+
+  const onChange = React.useCallback(
+    (action: ActionDelegate<IContentListFilter>) => {
+      storeFilter((filter) => {
+        var result = typeof action === 'function' ? action(filter) : filter;
+        replaceQueryParams({ ...result, ...filterAdvanced }, { includeEmpty: false });
+        return result;
+      });
+    },
+    [filterAdvanced, storeFilter],
+  );
 
   return (
     <ToolBarSection
@@ -75,7 +88,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = ({ onChange }) =
                     contentType: undefined,
                   });
                 else {
-                  checkLatestShowOnlyEntry(newValues, onChange, filter);
+                  showContentType(newValues);
                 }
               }}
             />

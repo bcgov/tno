@@ -1,6 +1,6 @@
 import { IProductModel, useApiAdminProducts } from 'hooks/api-editor';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IProductController {
@@ -15,6 +15,7 @@ export const useProducts = (): [IAdminState, IProductController] => {
   const api = useApiAdminProducts();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -27,8 +28,8 @@ export const useProducts = (): [IAdminState, IProductController] => {
       },
       getProduct: async (id: number) => {
         const response = await dispatch<IProductModel>('get-product', () => api.getProduct(id));
-        store.storeProducts(
-          state.products.map((ds) => {
+        store.storeProducts((products) =>
+          products.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -37,32 +38,37 @@ export const useProducts = (): [IAdminState, IProductController] => {
       },
       addProduct: async (model: IProductModel) => {
         const response = await dispatch<IProductModel>('add-product', () => api.addProduct(model));
-        store.storeProducts([...state.products, response.data]);
+        store.storeProducts((products) => {
+          return [...products, response.data].sort((a, b) =>
+            a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+          );
+        });
+        await lookup.getLookups();
         return response.data;
       },
       updateProduct: async (model: IProductModel) => {
         const response = await dispatch<IProductModel>('update-product', () =>
           api.updateProduct(model),
         );
-        store.storeProducts(
-          state.products.map((ds) => {
+        store.storeProducts((products) =>
+          products.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       deleteProduct: async (model: IProductModel) => {
         const response = await dispatch<IProductModel>('delete-product', () =>
           api.deleteProduct(model),
         );
-        store.storeProducts(state.products.filter((ds) => ds.id !== response.data.id));
+        store.storeProducts((products) => products.filter((ds) => ds.id !== response.data.id));
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    // The state.products will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, store, api],
+    [dispatch, store, api, lookup],
   );
 
   return [state, controller];

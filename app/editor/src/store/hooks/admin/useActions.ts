@@ -1,6 +1,6 @@
 import { IActionFilter, IActionModel, IPaged, useApiAdminActions } from 'hooks';
 import React from 'react';
-import { useAjaxWrapper } from 'store/hooks';
+import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 
 interface IActionController {
@@ -16,6 +16,7 @@ export const useActions = (): [IAdminState, IActionController] => {
   const api = useApiAdminActions();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
+  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({
@@ -34,8 +35,8 @@ export const useActions = (): [IAdminState, IActionController] => {
       },
       getAction: async (id: number) => {
         const response = await dispatch<IActionModel>('get-tag', () => api.getAction(id));
-        store.storeActions(
-          state.actions.map((ds) => {
+        store.storeActions((actions) =>
+          actions.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
@@ -44,28 +45,29 @@ export const useActions = (): [IAdminState, IActionController] => {
       },
       addAction: async (model: IActionModel) => {
         const response = await dispatch<IActionModel>('add-tag', () => api.addAction(model));
-        store.storeActions([...state.actions, response.data]);
+        store.storeActions((actions) => [...actions, response.data]);
+        await lookup.getLookups();
         return response.data;
       },
       updateAction: async (model: IActionModel) => {
         const response = await dispatch<IActionModel>('update-tag', () => api.updateAction(model));
-        store.storeActions(
-          state.actions.map((ds) => {
+        store.storeActions((actions) =>
+          actions.map((ds) => {
             if (ds.id === response.data.id) return response.data;
             return ds;
           }),
         );
+        await lookup.getLookups();
         return response.data;
       },
       deleteAction: async (model: IActionModel) => {
         const response = await dispatch<IActionModel>('delete-tag', () => api.deleteAction(model));
-        store.storeActions(state.actions.filter((ds) => ds.id !== response.data.id));
+        store.storeActions((actions) => actions.filter((ds) => ds.id !== response.data.id));
+        await lookup.getLookups();
         return response.data;
       },
     }),
-    // The state.mediaTypes will cause it to fire twice!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [api, dispatch, store],
+    [api, dispatch, lookup, store],
   );
 
   return [state, controller];

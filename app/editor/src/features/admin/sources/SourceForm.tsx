@@ -6,7 +6,6 @@ import { SourceSchema } from 'hooks/api-editor/validation';
 import React from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useLookup } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
 import { Button, ButtonVariant, Col, IconButton, Row, Show, Tab, Tabs } from 'tno-core';
 import { hasErrors } from 'utils';
@@ -21,7 +20,6 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
   const { state } = useLocation();
   const { id } = useParams();
   const { isShowing, toggle } = useModal();
-  const [, { getSources }] = useLookup();
 
   const sourceId = Number(id);
   const [source, setSource] = React.useState<ISourceModel>((state as any)?.source ?? defaultSource);
@@ -29,6 +27,7 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
 
   React.useEffect(() => {
     if (!!sourceId && source?.id !== sourceId) {
+      setSource({ ...defaultSource, id: sourceId }); // Do this to stop double fetch.
       api.getSource(sourceId).then((data) => {
         setSource({ ...data });
       });
@@ -44,7 +43,6 @@ export const SourceForm: React.FC<ISourceProps> = (props) => {
       };
       const result = !values.id ? await api.addSource(model) : await api.updateSource(model);
       setSource({ ...result });
-      getSources();
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/sources/${result.id}`);
     } catch {}

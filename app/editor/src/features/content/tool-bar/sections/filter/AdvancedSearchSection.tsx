@@ -1,20 +1,22 @@
 import { ToolBarSection } from 'components/tool-bar';
 import { fieldTypes } from 'features/content/list-view/constants';
-import {
-  IContentListAdvancedFilter,
-  IContentListFilter,
-} from 'features/content/list-view/interfaces';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import { FieldSize, IOptionItem, OptionItem, Row, Select, Show, Text } from 'tno-core';
+import {
+  FieldSize,
+  IOptionItem,
+  OptionItem,
+  replaceQueryParams,
+  Row,
+  Select,
+  Show,
+  Text,
+} from 'tno-core';
 
-export interface IAdvancedSearchSectionProps {
-  onChange: (filter: IContentListAdvancedFilter) => void;
-  onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;
-}
+export interface IAdvancedSearchSectionProps {}
 
 /**
  *
@@ -22,12 +24,22 @@ export interface IAdvancedSearchSectionProps {
  * @param onChange determine what the filter does on change
  * @returns Filter section containing the advanced filter
  */
-export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
-  onChange,
-  onSearch,
-}) => {
+export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () => {
   const [{ sourceOptions }] = useLookupOptions();
-  const [{ filterAdvanced, filter }] = useContent();
+  const [
+    { filter: oFilter, filterAdvanced: oFilterAdvanced },
+    { storeFilter, storeFilterAdvanced },
+  ] = useContent();
+
+  const [filter, setFilter] = React.useState(oFilter);
+  const [filterAdvanced, setFilterAdvanced] = React.useState(oFilterAdvanced);
+
+  const onChange = React.useCallback(() => {
+    storeFilter({ ...filter, pageIndex: 0 });
+    storeFilterAdvanced(filterAdvanced);
+    replaceQueryParams({ ...filter, pageIndex: 0, ...filterAdvanced }, { includeEmpty: false });
+  }, [filter, filterAdvanced, storeFilter, storeFilterAdvanced]);
+
   return (
     <ToolBarSection
       children={
@@ -42,7 +54,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
-              onChange({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
+              setFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
           <Show visible={filterAdvanced.fieldType === 'sourceId'}>
@@ -50,15 +62,15 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
               name="searchTerm"
               width={FieldSize.Medium}
               onKeyUpCapture={(e) => {
-                if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
+                if (e.key === 'Enter') setFilter({ ...filter, pageIndex: 0 });
               }}
               onChange={(newValue: any) => {
-                if (!newValue) onChange({ ...filterAdvanced, searchTerm: '' });
+                if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
                 else {
                   const optionItem = filterEnabled(sourceOptions, newValue.value).find(
                     (ds) => ds.value === newValue.value,
                   );
-                  onChange({ ...filterAdvanced, searchTerm: optionItem.value });
+                  setFilterAdvanced({ ...filterAdvanced, searchTerm: optionItem.value });
                 }
               }}
               options={[new OptionItem('', 0) as IOptionItem].concat([
@@ -75,17 +87,16 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = ({
               width={FieldSize.Small}
               value={filterAdvanced.searchTerm}
               onKeyUpCapture={(e) => {
-                if (e.key === 'Enter') onSearch({ ...filter, pageIndex: 0, ...filterAdvanced });
+                if (e.key === 'Enter') {
+                  onChange();
+                }
               }}
               onChange={(e) => {
-                onChange({ ...filterAdvanced, searchTerm: e.target.value });
+                setFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
               }}
             />
           </Show>
-          <FaArrowAltCircleRight
-            onClick={() => onSearch({ ...filter, pageIndex: 0, ...filterAdvanced })}
-            className="action-button"
-          />
+          <FaArrowAltCircleRight onClick={onChange} className="action-button" />
         </Row>
       }
       label="ADVANCED SEARCH"

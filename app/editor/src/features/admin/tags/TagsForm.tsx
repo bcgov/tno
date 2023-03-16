@@ -32,23 +32,25 @@ export const TagsForm: React.FC = () => {
   const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toggle, isShowing } = useModal();
 
   const [tag, setTag] = React.useState<ITagModel>((state as any)?.tag ?? defaultTag);
 
-  const { toggle, isShowing } = useModal();
+  const tagId = Number(id);
 
   React.useEffect(() => {
-    if (!!id && tag?.id !== +id && id !== '***') {
-      api.getTag(id).then((data) => {
+    if (!!tagId && tag?.id !== tagId) {
+      setTag({ ...defaultTag, id: tagId }); // Do this to stop double fetch.
+      api.getTag(tagId).then((data) => {
         setTag(data);
       });
     }
-  }, [api, tag?.id, id]);
+  }, [api, tag?.id, tagId]);
 
   const handleSubmit = async (values: ITagModel) => {
     try {
       const originalId = values.id;
-      const result = id === '***' ? await api.addTag(values) : await api.updateTag(values);
+      const result = tagId === 0 ? await api.addTag(values) : await api.updateTag(values);
       setTag(result);
       toast.success(`${result.name} has successfully been saved.`);
       if (originalId !== values.id) navigate(`/admin/tags/${result.id}`);
