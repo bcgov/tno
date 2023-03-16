@@ -610,21 +610,22 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     {
         var sources = new Dictionary<string, string>();
         var sourcesStr = ingest.GetConfigurationValue(Fields.Sources);
-        var sourcesArr = sourcesStr.Split("&");
-
-        foreach (var source in sourcesArr)
+        if (!string.IsNullOrEmpty(sourcesStr))
         {
-            var pair = source.Split('=');
-            if (pair.Length == 2)
+            var sourcesArr = sourcesStr.Split("&");
+            foreach (var source in sourcesArr)
             {
-                sources.Add(pair[0], pair[1]);
-            }
-            else
-            {
-                throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                var pair = source.Split('=');
+                if (pair.Length == 2)
+                {
+                    sources.Add(pair[0], pair[1]);
+                }
+                else
+                {
+                    throw new ConfigurationException($"Invalid source value in ingest configuration. Source '{source}' for ingest '{ingest.Name}'");
+                }
             }
         }
-
         return sources;
     }
     #endregion
