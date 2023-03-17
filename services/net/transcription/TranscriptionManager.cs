@@ -12,6 +12,7 @@ using TNO.Core.Extensions;
 using TNO.Core.Exceptions;
 using TNO.Entities;
 using TNO.API.Areas.Services.Models.Content;
+using System.Text.RegularExpressions;
 
 namespace TNO.Services.Transcription;
 
@@ -275,7 +276,7 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
                         // The transcription may have been edited during this process and now those changes will be lost.
                         if (String.CompareOrdinal(original, content.Body) != 0) this.Logger.LogWarning("Transcription will be overwritten.  Content ID: {Id}", request.ContentId);
 
-                        content.Body = transcript;
+                        content.Body = GetFormattedTranscript(transcript);
                         await this.Api.UpdateContentAsync(content, Headers); // TODO: This can result in an editor getting a optimistic concurrency error.
                         this.Logger.LogInformation("Transcription updated.  Content ID: {Id}", request.ContentId);
 
@@ -304,6 +305,22 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             this.Logger.LogError("File does not exist for content. Content ID: {Id}, Path: {path}", request.ContentId, safePath);
             await UpdateWorkOrderAsync(request, WorkOrderStatus.Failed);
         }
+    }
+
+    private static string GetFormattedTranscript(string transcript)
+    {
+        var result = transcript;
+        if (!string.IsNullOrWhiteSpace(result))
+        {
+            var pattern = @"\.[A-Z0-9]";
+            var matches = Regex.Matches(result, pattern);
+            foreach (Match match in matches)
+            {
+                result = result.Replace(match.Value, match.Value[0] + " " + match.Value[1]);
+            }
+            result = result.Replace(". ", ".<br/>");
+        }
+        return result;
     }
 
     /// <summary>
