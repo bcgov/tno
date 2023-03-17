@@ -20,9 +20,11 @@ export const WorkOrderList = () => {
   const navigate = useNavigate();
   const [{ workOrders, workOrderFilter }, { findWorkOrders, storeFilter }] = useWorkOrders();
   const [{ requests }] = useApp();
+
   const [page, setPage] = React.useState(
     new Page(workOrders.page - 1, workOrders.quantity, workOrders.items, workOrders.total),
   );
+  const [filter, setFilter] = React.useState(workOrderFilter);
 
   const handleChangeSort = React.useCallback(
     (sortBy: SortingRule<IWorkOrderModel>[]) => {
@@ -68,8 +70,11 @@ export const WorkOrderList = () => {
   );
 
   React.useEffect(() => {
-    fetch(workOrderFilter);
-  }, [fetch, workOrderFilter]);
+    if (workOrderFilter !== filter) {
+      setFilter(workOrderFilter);
+      fetch(workOrderFilter);
+    }
+  }, [fetch, workOrderFilter, filter]);
 
   return (
     <styled.WorkOrderList>
