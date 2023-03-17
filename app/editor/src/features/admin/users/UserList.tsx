@@ -61,6 +61,12 @@ export const UserList: React.FC = () => {
   );
 
   React.useEffect(() => {
+    fetch(userFilter);
+    // First time make a request for users.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
     if (filter !== userFilter) {
       setFilter(userFilter); // Need this to stop infinite loop.
       fetch(userFilter);
