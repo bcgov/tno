@@ -15,7 +15,7 @@ export const useShowOnlyContentType = () => {
   const onChange = React.useCallback(
     (action: ActionDelegate<IContentListFilter>) => {
       storeFilter((filter) => {
-        var result = typeof action === 'function' ? action(filter) : filter;
+        var result = typeof action === 'function' ? action(filter) : action;
         replaceQueryParams({ ...result, ...filterAdvanced }, { includeEmpty: false });
         return result;
       });
