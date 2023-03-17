@@ -20,7 +20,7 @@ data:
   KEYCLOAK_AUDIENCE: media-monitoring-mmia-3671,mmia-service-account-3994
   KEYCLOAK_ISSUER: media-monitoring-mmia-3671,mmia-service-account-3994
 
-  CSS_INTEGRATION_ID: 3671
+  CSS_INTEGRATION_ID: "3671"
   CSS_ENVIRONMENT: dev
   CSS_API_URL: https://api.loginproxy.gov.bc.ca
   CSS_AUTHORITY: https://loginproxy.gov.bc.ca
