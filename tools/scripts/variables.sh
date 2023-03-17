@@ -163,7 +163,7 @@ export portFileCopy=40029
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101
-export portKafkaBorkerAdvertisedExternal=40102
+export portKafkaBrokerAdvertisedExternal=40102
 export portKafkaSchemaRegistry=40103
 export portKafkaRestProxy=40104
 export portKafkaConnect=40105

@@ -79,7 +79,7 @@ FILECOPY_PORT=$portFileCopy
 
 KAFKA_ZOOKEEPER_PORT=$portKafkaZookeeper
 KAFKA_BROKER_ADVERTISED_HOST_PORT=$portKafkaBrokerAdvertisedHost
-KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT=$portKafkaBorkerAdvertisedExternal
+KAFKA_BROKER_ADVERTISED_EXTERNAL_PORT=$portKafkaBrokerAdvertisedExternal
 KAFKA_SCHEMA_REGISTRY_PORT=$portKafkaSchemaRegistry
 KAFKA_REST_PROXY_PORT=$portKafkaRestProxy
 KAFKA_CONNECT_PORT=$portKafkaConnect
@@ -212,7 +212,7 @@ AZURE_VIDEO_ANALYZER_SUBSCRIPTION_KEY=$azureVideoAnalyzerKey
 AZURE_VIDEO_ANALYZER_ACCOUNT_ID=$azureVideoAccountId
 AZURE_VIDEO_ANALYZER_LOCATION=$azureVideoLocation
 
-KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:$portKafkaBrokerAdvertisedExternal
 
 ################################################
 # Only required when running in devcontainer for debugging.
@@ -305,7 +305,7 @@ echo \
 "KAFKA_BROKER_ID=1
 KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
 KAFKA_LISTENERS=INTERNAL://broker:29092,HOST://broker:9092,EXTERNAL://broker:29094
-KAFKA_ADVERTISED_LISTENERS=INTERNAL://broker:29092,HOST://localhost:$portKafkaBrokerAdvertisedHost,EXTERNAL://host.docker.internal:$portKafkaBorkerAdvertisedExternal
+KAFKA_ADVERTISED_LISTENERS=INTERNAL://broker:29092,HOST://localhost:$portKafkaBrokerAdvertisedHost,EXTERNAL://host.docker.internal:$portKafkaBrokerAdvertisedExternal
 KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,HOST:PLAINTEXT,EXTERNAL:PLAINTEXT
 KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
 KAFKA_AUTO_CREATE_TOPICS_ENABLE='true'
@@ -457,7 +457,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/syndication/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/syndication/.env
     echo "./services/net/syndication/.env created"
 fi
 
@@ -477,7 +477,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/capture/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/capture/.env
     echo "./services/net/capture/.env created"
 fi
 
@@ -497,7 +497,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/clip/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/clip/.env
     echo "./services/net/clip/.env created"
 fi
 
@@ -517,7 +517,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/image/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/image/.env
     echo "./services/net/image/.env created"
 fi
 
@@ -537,7 +537,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 # Service__VolumePath=../data
 
-Kafka__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal" >> ./services/net/filemonitor/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filemonitor/.env
     echo "./services/net/filemonitor/.env created"
 fi
 
