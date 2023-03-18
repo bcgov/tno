@@ -1,4 +1,4 @@
-import { IItemModel } from 'hooks';
+import { IItemModel } from 'tno-core';
 
 export interface IFileItem extends IItemModel {
   locationId: number;

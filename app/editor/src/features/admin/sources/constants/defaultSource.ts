@@ -1,4 +1,4 @@
-import { ISourceModel } from 'hooks/api-editor';
+import { ISourceModel } from 'tno-core';
 
 export const defaultSource: ISourceModel = {
   id: 0,

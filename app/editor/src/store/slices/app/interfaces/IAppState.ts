@@ -1,4 +1,4 @@
-import { IUserInfoModel } from 'hooks/api-editor';
+import { IUserInfoModel } from 'tno-core';
 
 import { IAjaxRequest, IErrorModel } from '.';
 

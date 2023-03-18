@@ -5,7 +5,7 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
-import { IContentModel, IPaged, LogicalOperator } from 'hooks/api-editor';
+import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
 

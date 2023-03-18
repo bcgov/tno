@@ -1,11 +1,19 @@
 import { useFormikContext } from 'formik';
-import { ISourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
-import { FormikCheckbox, FormikSelect, FormikText, FormikTextArea, OptionItem } from 'tno-core';
+import {} from 'store/hooks/lookup/utils';
+import {
+  filterEnabledOptions,
+  FormikCheckbox,
+  FormikSelect,
+  FormikText,
+  FormikTextArea,
+  getSortableOptions,
+  getUserOptions,
+  ISourceModel,
+  OptionItem,
+} from 'tno-core';
 import { Col } from 'tno-core/dist/components/flex';
-import { getSortableOptions, getUserOptions } from 'utils';
 
 import { TimeZones } from '../ingests/configurations/constants';
 import * as styled from './styled';
@@ -63,7 +71,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           label="Owner"
           name="ownerId"
           tooltip="The user that manages this content"
-          options={filterEnabled(users)}
+          options={filterEnabledOptions(users)}
         />
         <FormikSelect
           label="Product Designation Override"

@@ -1,6 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { IProductModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -17,9 +15,12 @@ import {
   FormikText,
   FormikTextArea,
   IconButton,
+  IProductModel,
   LabelPosition,
+  Modal,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
 import { defaultProduct } from './constants';

@@ -1,5 +1,4 @@
-import { LogicalOperator } from 'hooks/api-editor';
-import { OptionItem } from 'tno-core';
+import { LogicalOperator, OptionItem } from 'tno-core';
 
 export const logicalOperators = [
   new OptionItem('Contains', LogicalOperator.Contains),

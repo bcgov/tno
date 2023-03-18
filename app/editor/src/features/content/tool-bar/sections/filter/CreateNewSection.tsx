@@ -1,8 +1,7 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { FaFileAlt, FaFileAudio, FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { GiFairyWand } from 'react-icons/gi';
 import { useNavigate } from 'react-router-dom';
-import { Col, Row } from 'tno-core';
+import { Col, Row, ToolBarSection } from 'tno-core';
 /**
  * Section containing the create new content buttons
  * @returns Section with three separate create content buttons

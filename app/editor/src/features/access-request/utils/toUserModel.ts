@@ -1,4 +1,4 @@
-import { IUserInfoModel, IUserModel } from 'hooks/api-editor';
+import { IUserInfoModel, IUserModel } from 'tno-core';
 
 import { defaultUser } from '../constants';
 

@@ -1,9 +1,8 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
-import { IPaged, IUserModel, useApiAdminUsers } from 'hooks/api-editor';
-import { IUserFilter } from 'hooks/api-editor/interfaces/IUserFilter';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IPaged, IUserFilter, IUserModel, useApiAdminUsers } from 'tno-core';
 
 interface IUserController {
   findUsers: (filter: IUserFilter) => Promise<IPaged<IUserModel>>;

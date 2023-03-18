@@ -1,14 +1,14 @@
 import { useFormikContext } from 'formik';
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Col,
+  filterEnabledOptions,
   FormikCheckbox,
   FormikSelect,
   FormikText,
   FormikTextArea,
+  IIngestModel,
   OptionItem,
   Row,
 } from 'tno-core';
@@ -208,7 +208,7 @@ export const Newspaper: React.FC = (props) => {
         label="Default Source"
         name="configuration.defaultSource"
         tooltip="Source to use for publications missing from Sources list. If not set, articles will be discarded"
-        options={filterEnabled(sources, source)}
+        options={filterEnabledOptions(sources, source?.value)}
         value={source}
       />
     </styled.IngestType>

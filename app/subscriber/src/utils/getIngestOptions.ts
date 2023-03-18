@@ -1,5 +1,4 @@
-import { IIngestModel } from 'hooks/api-editor';
-import { IOptionItem, OptionItem } from 'tno-core';
+import { IIngestModel, IOptionItem, OptionItem } from 'tno-core';
 
 export const sortIngest = <T extends IIngestModel>(a: T, b: T) => {
   if (a.name < b.name) return -1;

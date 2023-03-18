@@ -1,5 +1,4 @@
 import { useFormikContext } from 'formik';
-import { IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
 import {
@@ -9,6 +8,7 @@ import {
   formatDate,
   FormikText,
   IColProps,
+  IIngestModel,
   Row,
   Text,
 } from 'tno-core';

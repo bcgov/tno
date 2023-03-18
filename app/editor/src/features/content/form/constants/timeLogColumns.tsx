@@ -1,7 +1,7 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IContentModel, ITimeTrackingModel } from 'hooks/api-editor';
 import { Column } from 'react-table';
+import { IContentModel, ITimeTrackingModel } from 'tno-core';
 
 import { getTotalTime } from '../utils';
 

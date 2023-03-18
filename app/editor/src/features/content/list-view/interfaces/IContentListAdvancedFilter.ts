@@ -1,4 +1,4 @@
-import { LogicalOperator } from 'hooks/api-editor';
+import { LogicalOperator } from 'tno-core';
 
 export interface IContentListAdvancedFilter {
   fieldType: string;

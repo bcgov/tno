@@ -1,11 +1,21 @@
 import { FileExplorer } from 'features/storage/FileExplorer';
-import { IFolderModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp, useStorage, useWorkOrders } from 'store/hooks';
-import { Button, ButtonVariant, Col, Error, FieldSize, Row, Show, Spinner, Text } from 'tno-core';
-import { getDirectoryName } from 'utils';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  Error,
+  FieldSize,
+  getDirectoryName,
+  IFolderModel,
+  Row,
+  Show,
+  Spinner,
+  Text,
+} from 'tno-core';
 
 import { defaultFolder } from './constants';
 import { IFileItem, IStream } from './interfaces';

@@ -1,6 +1,5 @@
-import { ISeriesModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellEllipsis, ISeriesModel } from 'tno-core';
 
 export const columns: (Column<ISeriesModel> &
   UseSortByColumnOptions<ISeriesModel> &

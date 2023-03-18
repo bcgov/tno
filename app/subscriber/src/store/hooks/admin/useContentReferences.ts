@@ -1,8 +1,12 @@
-import { IContentReferenceModel, IPaged, useApiAdminContentReferences } from 'hooks/api-editor';
-import { IContentReferenceFilter } from 'hooks/api-editor/interfaces/IContentReferenceFilter';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import {
+  IContentReferenceFilter,
+  IContentReferenceModel,
+  IPaged,
+  useApiAdminContentReferences,
+} from 'tno-core';
 
 interface IContentReferenceController {
   /**

@@ -1,4 +1,4 @@
-import { ScheduleWeekDay, ScheduleWeekDayName } from 'hooks/api-editor';
+import { ScheduleWeekDay, ScheduleWeekDayName } from 'tno-core';
 
 export const weekDayName = (value: ScheduleWeekDay | ScheduleWeekDay[]) => {
   var values = Array.isArray(value) ? value : [value];

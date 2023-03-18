@@ -1,5 +1,4 @@
-import { ToolBarSection } from 'components/tool-bar';
-import { Row } from 'tno-core';
+import { Row, ToolBarSection } from 'tno-core';
 
 export interface IStatusSectionProps {
   status?: string;

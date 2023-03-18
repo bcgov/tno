@@ -1,6 +1,5 @@
-import { ISourceModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellEllipsis, ISourceModel } from 'tno-core';
 
 export const columns: (Column<ISourceModel> &
   UseSortByColumnOptions<ISourceModel> &

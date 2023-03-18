@@ -1,4 +1,3 @@
-import { IItemModel } from 'hooks/api-editor';
 import moment from 'moment';
 import {
   FaCopy,
@@ -12,8 +11,7 @@ import {
   FaTrash,
 } from 'react-icons/fa';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { Col, Row, Show } from 'tno-core';
-import { isImageFile, isVideoOrAudioFile } from 'utils';
+import { Col, IItemModel, isImageFile, isVideoOrAudioFile, Row, Show } from 'tno-core';
 
 interface IColumnOptions {
   isStorage?: boolean;

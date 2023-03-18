@@ -1,8 +1,15 @@
 import { useFormikContext } from 'formik';
-import { IIngestModel, ScheduleTypeName } from 'hooks/api-editor';
 import React from 'react';
-import { Col, FieldSize, FormikSelect, Row, Show } from 'tno-core';
-import { getEnumStringOptions } from 'utils';
+import {
+  Col,
+  FieldSize,
+  FormikSelect,
+  getEnumStringOptions,
+  IIngestModel,
+  Row,
+  ScheduleTypeName,
+  Show,
+} from 'tno-core';
 
 import { ScheduleAdvanced, ScheduleContinuous, ScheduleDaily } from '.';
 import * as styled from './styled';

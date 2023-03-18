@@ -1,9 +1,8 @@
-import { IConnectionModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConnections } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, GridTable, IconButton, Row } from 'tno-core';
+import { Col, GridTable, IconButton, IConnectionModel, Row } from 'tno-core';
 
 import { ConnectionListFilter } from './ConnectionListFilter';
 import { columns } from './constants';

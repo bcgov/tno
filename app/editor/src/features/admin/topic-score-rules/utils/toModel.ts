@@ -1,4 +1,4 @@
-import { ITopicScoreRuleModel } from 'hooks/api-editor';
+import { ITopicScoreRuleModel } from 'tno-core';
 
 import { ITopicScoreRuleForm } from './../interfaces';
 

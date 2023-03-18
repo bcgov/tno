@@ -1,4 +1,4 @@
-import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
+import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'tno-core';
 
 export const defaultWorkOrder: IWorkOrderModel = {
   id: 0,

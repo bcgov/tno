@@ -15,7 +15,7 @@ import {
   ITopicModel,
   ITopicScoreRuleModel,
   IUserModel,
-} from 'hooks/api-editor';
+} from 'tno-core';
 
 export interface ILookupState {
   cache: ICacheModel[];

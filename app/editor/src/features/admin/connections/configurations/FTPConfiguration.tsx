@@ -1,6 +1,5 @@
 import { useFormikContext } from 'formik';
-import { IConnectionModel } from 'hooks';
-import { Col, FormikText, Row } from 'tno-core';
+import { Col, FormikText, IConnectionModel, Row } from 'tno-core';
 
 export const FTPConfiguration = () => {
   const { values } = useFormikContext<IConnectionModel>();

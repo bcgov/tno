@@ -1,6 +1,5 @@
-import { IUserModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellDate, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis, IUserModel } from 'tno-core';
 
 export const columns: (Column<IUserModel> &
   UseSortByColumnOptions<IUserModel> &

@@ -1,13 +1,11 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
-import { IIngestTypeModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useIngestTypes } from 'store/hooks/admin';
+import { IIngestTypeModel, useModal } from 'tno-core';
 import {
   Button,
   ButtonVariant,
@@ -20,6 +18,7 @@ import {
   FormikTextArea,
   IconButton,
   LabelPosition,
+  Modal,
   Row,
   Show,
 } from 'tno-core';

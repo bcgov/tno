@@ -1,4 +1,4 @@
-import { ITopicModel, TopicTypeName } from 'hooks';
+import { ITopicModel, TopicTypeName } from 'tno-core';
 
 export const defaultTopic: ITopicModel = {
   id: 0,

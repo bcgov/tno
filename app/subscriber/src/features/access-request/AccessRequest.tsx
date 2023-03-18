@@ -1,8 +1,7 @@
-import { UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Row, Show, useKeycloakWrapper } from 'tno-core';
+import { Row, Show, useKeycloakWrapper, UserStatusName } from 'tno-core';
 
 import { ApprovalDenied } from './ApprovalDenied';
 import { ApprovalStatus } from './ApprovalStatus';

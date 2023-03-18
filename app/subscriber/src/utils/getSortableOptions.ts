@@ -1,6 +1,5 @@
-import { ISortableModel } from 'hooks/api-editor';
 import { filterEnabled } from 'store/hooks/lookup/utils';
-import { IOptionItem, OptionItem } from 'tno-core';
+import { IOptionItem, ISortableModel, OptionItem } from 'tno-core';
 
 export const sortSortable = <T extends ISortableModel<any>>(a: T, b: T) => {
   if (a.sortOrder < b.sortOrder) return -1;

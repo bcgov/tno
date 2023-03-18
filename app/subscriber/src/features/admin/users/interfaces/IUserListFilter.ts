@@ -1,5 +1,5 @@
 import { ISortBy } from 'features/content/list-view/interfaces';
-import { UserStatusName } from 'hooks';
+import { UserStatusName } from 'tno-core';
 
 export interface IUserListFilter {
   username?: string;

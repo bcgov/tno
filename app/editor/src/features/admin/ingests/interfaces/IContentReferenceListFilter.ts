@@ -1,4 +1,4 @@
-import { WorkflowStatusName } from 'hooks/api-editor';
+import { WorkflowStatusName } from 'tno-core';
 
 import { ISortBy } from '.';
 

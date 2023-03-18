@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
-import { ContentStatusName, ContentTypeName } from 'hooks';
 import { mockContent, TestWrapper } from 'test/utils';
+import { ContentStatusName, ContentTypeName } from 'tno-core';
 
 import { ContentListView } from './ContentListView';
 

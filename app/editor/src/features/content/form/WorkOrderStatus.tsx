@@ -1,6 +1,11 @@
-import { IWorkOrderModel, WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
 import { FaCheckCircle, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
-import { Spinner, SpinnerVariant } from 'tno-core';
+import {
+  IWorkOrderModel,
+  Spinner,
+  SpinnerVariant,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
+} from 'tno-core';
 
 import { findWorkOrder } from '../utils';
 

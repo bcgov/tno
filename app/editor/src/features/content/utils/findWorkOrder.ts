@@ -1,4 +1,4 @@
-import { IWorkOrderModel, WorkOrderTypeName } from 'hooks';
+import { IWorkOrderModel, WorkOrderTypeName } from 'tno-core';
 
 /**
  * Find and return the work order of the specified type.

@@ -1,6 +1,4 @@
 import { getIn, useFormikContext } from 'formik';
-import { useNamespace } from 'hooks';
-import { IIngestModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
 import {
   Col,
@@ -10,8 +8,12 @@ import {
   FormikStringEnumCheckbox,
   FormikText,
   FormikTextArea,
+  IIngestModel,
   Row,
+  ScheduleTypeName,
+  ScheduleWeekDayName,
   Text,
+  useNamespace,
 } from 'tno-core';
 
 import { defaultSchedule } from '../constants';

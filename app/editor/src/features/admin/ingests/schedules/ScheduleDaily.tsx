@@ -1,6 +1,4 @@
 import { getIn, useFormikContext } from 'formik';
-import { useNamespace } from 'hooks';
-import { IIngestModel, ScheduleTypeName, ScheduleWeekDayName } from 'hooks/api-editor';
 import React from 'react';
 import {
   FieldSize,
@@ -10,6 +8,10 @@ import {
   FormikText,
   FormikTextArea,
   FormikTimeInput,
+  IIngestModel,
+  ScheduleTypeName,
+  ScheduleWeekDayName,
+  useNamespace,
 } from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 

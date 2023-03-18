@@ -1,6 +1,6 @@
-import { IUserModel, useApiUsers } from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
+import { IUserModel, useApiUsers } from 'tno-core';
 
 interface IUserController {
   getUser: (id: number) => Promise<IUserModel>;

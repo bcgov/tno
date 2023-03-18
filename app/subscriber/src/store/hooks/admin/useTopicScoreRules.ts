@@ -1,8 +1,7 @@
-import { ITopicScoreRuleModel } from 'hooks';
-import { useApiAdminTopicScoreRules } from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { ITopicScoreRuleModel, useApiAdminTopicScoreRules } from 'tno-core';
 
 interface ITopicScoreRuleController {
   findAllTopicScoreRules: () => Promise<ITopicScoreRuleModel[]>;

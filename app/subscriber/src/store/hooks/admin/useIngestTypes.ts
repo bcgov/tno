@@ -1,12 +1,7 @@
-import {
-  IIngestTypeFilter,
-  IIngestTypeModel,
-  IPaged,
-  useApiAdminIngestTypes,
-} from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IIngestTypeFilter, IIngestTypeModel, IPaged, useApiAdminIngestTypes } from 'tno-core';
 
 interface IIngestTypeController {
   findAllIngestTypes: () => Promise<IIngestTypeModel[]>;

@@ -1,7 +1,6 @@
 import { showOnlyOptions } from 'features/content/form/constants/showOnlyOptions';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
-import { ContentTypeName } from 'hooks';
-import { IOptionItem } from 'tno-core';
+import { ContentTypeName, IOptionItem } from 'tno-core';
 
 // the below function helps sync between the checkboxes and the select dropdown when the screen size is changed for the show only section of the content tool bar
 export const getSelectedOptions = (filter: IContentListFilter) => {

@@ -1,8 +1,8 @@
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
-import { IPaged, IWorkOrderFilter, IWorkOrderModel, useApiAdminWorkOrders } from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IPaged, IWorkOrderFilter, IWorkOrderModel, useApiAdminWorkOrders } from 'tno-core';
 
 interface IWorkOrderController {
   findWorkOrders: (filter: IWorkOrderFilter) => Promise<IPaged<IWorkOrderModel>>;

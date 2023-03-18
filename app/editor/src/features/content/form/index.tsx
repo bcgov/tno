@@ -1,3 +1,4 @@
+export * from './components';
 export * from './ContentActions';
 export * from './ContentClipForm';
 export * from './ContentForm';

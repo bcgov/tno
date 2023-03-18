@@ -1,4 +1,4 @@
-import { IUserModel, UserStatusName } from 'hooks/api-editor';
+import { IUserModel, UserStatusName } from 'tno-core';
 
 export const defaultUser: IUserModel = {
   id: 0,

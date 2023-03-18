@@ -1,4 +1,4 @@
-import { IFolderModel } from 'hooks/api-editor';
+import { IFolderModel } from 'tno-core';
 
 export const defaultFolder: IFolderModel = {
   path: '',

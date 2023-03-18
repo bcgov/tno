@@ -1,7 +1,6 @@
 import { useFormikContext } from 'formik';
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
-import { Col, FormikSelect, FormikText, Row } from 'tno-core';
+import { Col, FormikSelect, FormikText, IIngestModel, Row } from 'tno-core';
 
 import { Languages, LoggingLevels, TimeZones } from './constants';
 import * as styled from './styled';

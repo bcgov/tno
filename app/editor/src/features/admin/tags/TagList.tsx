@@ -1,9 +1,8 @@
-import { ITagModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTags } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, Row } from 'tno-core';
+import { Col, FormPage, GridTable, IconButton, ITagModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import * as styled from './styled';

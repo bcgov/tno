@@ -1,12 +1,10 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { fieldTypes } from 'features/content/list-view/constants';
-import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
-import { useContent } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
+import { useContent, useLookupOptions } from 'store/hooks';
 import {
   FieldSize,
+  filterEnabledOptions,
   IOptionItem,
   OptionItem,
   replaceQueryParams,
@@ -14,6 +12,7 @@ import {
   Select,
   Show,
   Text,
+  ToolBarSection,
 } from 'tno-core';
 
 export interface IAdvancedSearchSectionProps {}
@@ -67,14 +66,17 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
               onChange={(newValue: any) => {
                 if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
                 else {
-                  const optionItem = filterEnabled(sourceOptions, newValue.value).find(
+                  const optionItem = filterEnabledOptions(sourceOptions, newValue.value).find(
                     (ds) => ds.value === newValue.value,
                   );
-                  setFilterAdvanced({ ...filterAdvanced, searchTerm: optionItem.value });
+                  setFilterAdvanced({
+                    ...filterAdvanced,
+                    searchTerm: optionItem?.value?.toString() ?? '',
+                  });
                 }
               }}
               options={[new OptionItem('', 0) as IOptionItem].concat([
-                ...filterEnabled(sourceOptions, filterAdvanced.searchTerm),
+                ...filterEnabledOptions(sourceOptions, filterAdvanced.searchTerm),
               ])}
               value={sourceOptions.find(
                 (s) => String(s.value) === String(filterAdvanced.searchTerm),

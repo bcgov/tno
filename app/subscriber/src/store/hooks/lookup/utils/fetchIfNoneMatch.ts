@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import { ICacheModel } from 'hooks/api-editor';
+import { ICacheModel } from 'tno-core';
 import { addOrUpdateArray, getFromLocalStorage } from 'utils';
 
 import { initFromLocalStorage } from '.';

@@ -1,10 +1,18 @@
-import { ContentTypeName, IContentModel, useCombinedView } from 'hooks';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { SortingRule } from 'react-table';
 import { Row as TRow } from 'react-table';
 import { useContent } from 'store/hooks';
-import { Col, Page, PagedTable, Row, Show } from 'tno-core';
+import {
+  Col,
+  ContentTypeName,
+  IContentModel,
+  Page,
+  PagedTable,
+  Row,
+  Show,
+  useCombinedView,
+} from 'tno-core';
 
 import { ContentForm } from '../form';
 import { defaultPage } from '../list-view/constants';

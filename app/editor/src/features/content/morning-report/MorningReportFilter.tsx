@@ -1,9 +1,7 @@
-import { ToolBar } from 'components/tool-bar/ToolBar';
-import { useLookupOptions } from 'hooks';
 import React from 'react';
-import { useContent, useLookup } from 'store/hooks';
+import { useContent, useLookup, useLookupOptions } from 'store/hooks';
 import { storeFilterAdvanced } from 'store/slices';
-import { IOptionItem, OptionItem, replaceQueryParams } from 'tno-core';
+import { IOptionItem, OptionItem, replaceQueryParams, ToolBar } from 'tno-core';
 
 import { fieldTypes } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';

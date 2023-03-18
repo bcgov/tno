@@ -1,10 +1,21 @@
 import { getIn, useFormikContext } from 'formik';
-import { ActionName, ContentTypeName, useNamespace } from 'hooks';
-import { IActionModel, IContentActionModel, ValueType } from 'hooks/api-editor';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Checkbox, FieldSize, FormikCheckbox, FormikText, FormikTextArea, Row } from 'tno-core';
+import {
+  ActionName,
+  Checkbox,
+  ContentTypeName,
+  FieldSize,
+  FormikCheckbox,
+  FormikText,
+  FormikTextArea,
+  IActionModel,
+  IContentActionModel,
+  Row,
+  useNamespace,
+  ValueType,
+} from 'tno-core';
 
 import { IContentForm } from './interfaces';
 

@@ -1,12 +1,20 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { showOnlyOptions } from 'features/content/form/constants/showOnlyOptions';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
-import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { ActionDelegate } from 'store';
 import { useContent } from 'store/hooks';
-import { Checkbox, Col, FieldSize, replaceQueryParams, Row, Select, Show } from 'tno-core';
+import {
+  Checkbox,
+  Col,
+  ContentTypeName,
+  FieldSize,
+  replaceQueryParams,
+  Row,
+  Select,
+  Show,
+  ToolBarSection,
+} from 'tno-core';
 
 import { useShowOnlyContentType } from './hooks';
 import { InputOption } from './InputOption';

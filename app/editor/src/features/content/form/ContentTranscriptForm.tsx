@@ -1,6 +1,4 @@
-import { Wysiwyg } from 'components/form';
-import { Tags } from 'components/form/tags';
-
+import { Tags, Wysiwyg } from '.';
 import * as styled from './styled';
 
 /**

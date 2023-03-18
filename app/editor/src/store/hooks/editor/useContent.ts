@@ -3,12 +3,11 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
-import { IContentFilter, IContentModel, IPaged } from 'hooks/api-editor';
-import { useApiContents } from 'hooks/api-editor';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
+import { IContentFilter, IContentModel, IPaged, useApiContents } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 

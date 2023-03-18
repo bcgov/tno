@@ -1,4 +1,4 @@
-import { ContentStatusName, ContentTypeName } from 'hooks/api-editor';
+import { ContentStatusName, ContentTypeName } from 'tno-core';
 
 import { IContentForm } from '../interfaces';
 

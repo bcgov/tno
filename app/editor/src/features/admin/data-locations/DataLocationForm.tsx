@@ -1,6 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -17,13 +15,15 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getSortableOptions,
   IconButton,
   LabelPosition,
+  Modal,
   OptionItem,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
-import { getSortableOptions } from 'utils';
 
 import { defaultDataLocation } from './constants';
 import { IDataLocationForm } from './interfaces';

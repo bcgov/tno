@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'hooks';
+import { ContentTypeName } from 'tno-core';
 
 import { ISortBy } from '../../list-view/interfaces';
 

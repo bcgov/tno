@@ -1,9 +1,8 @@
-import { IProductModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, Row } from 'tno-core';
+import { Col, FormPage, GridTable, IconButton, IProductModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { ProductListFilter } from './ProductListFilter';

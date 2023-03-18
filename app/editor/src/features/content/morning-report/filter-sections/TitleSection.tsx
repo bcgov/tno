@@ -1,6 +1,5 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { FaEye, FaSun } from 'react-icons/fa';
-import { Col } from 'tno-core';
+import { Col, ToolBarSection } from 'tno-core';
 
 export interface ITitleSectionProps {}
 

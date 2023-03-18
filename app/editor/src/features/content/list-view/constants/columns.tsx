@@ -1,8 +1,15 @@
-import { ContentStatusName, ContentTypeName, IContentModel } from 'hooks/api-editor';
 import { FaExternalLinkAlt, FaFeather, FaInfoCircle } from 'react-icons/fa';
 import { Column, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellDate, CellEllipsis, Show } from 'tno-core';
-import { formatIdirUsername } from 'utils/formatIdir';
+import {
+  CellCheckbox,
+  CellDate,
+  CellEllipsis,
+  ContentStatusName,
+  ContentTypeName,
+  formatIdirUsername,
+  IContentModel,
+  Show,
+} from 'tno-core';
 
 import { getStatusText } from '../utils';
 

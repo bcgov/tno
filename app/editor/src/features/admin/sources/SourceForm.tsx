@@ -1,14 +1,23 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
-import { ISourceModel } from 'hooks/api-editor';
-import { SourceSchema } from 'hooks/api-editor/validation';
 import React from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useSources } from 'store/hooks/admin';
-import { Button, ButtonVariant, Col, IconButton, Row, Show, Tab, Tabs } from 'tno-core';
-import { hasErrors } from 'utils';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  hasErrors,
+  IconButton,
+  ISourceModel,
+  Modal,
+  Row,
+  Show,
+  SourceSchema,
+  Tab,
+  Tabs,
+  useModal,
+} from 'tno-core';
 
 import { defaultSource } from './constants';
 import * as styled from './styled';

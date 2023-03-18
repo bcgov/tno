@@ -1,6 +1,6 @@
-import { useQuery } from 'hooks';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from 'tno-core';
 
 import { FileManager } from '.';
 

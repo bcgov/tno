@@ -1,6 +1,6 @@
-import { ContentTypeName } from 'hooks';
+import { ContentTypeName } from 'tno-core';
 
-import { ISortBy } from '../../list-view/interfaces';
+import { ISortBy } from '../../list-view/interfaces'; // TODO: Move to central location
 
 export interface IMorningReportFilter {
   pageIndex: number;
