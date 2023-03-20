@@ -1,5 +1,5 @@
 import { ToolBar } from 'components/tool-bar/ToolBar';
-import { ContentTypeName, useLookupOptions } from 'hooks';
+import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { useContent, useLookup } from 'store/hooks';
 import { storeFilterAdvanced } from 'store/slices';
