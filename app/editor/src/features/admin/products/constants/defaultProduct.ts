@@ -1,4 +1,4 @@
-import { IProductModel } from 'hooks';
+import { IProductModel } from 'tno-core';
 
 export const defaultProduct: IProductModel = {
   id: 0,

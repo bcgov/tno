@@ -1,8 +1,13 @@
 import { FormikTouched, setIn, setNestedObjectValues, useFormikContext } from 'formik';
-import { useNamespace } from 'hooks';
-import { IIngestModel, IScheduleModel, ScheduleTypeName } from 'hooks/api-editor';
 import React from 'react';
-import { Button, ButtonVariant } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  IIngestModel,
+  IScheduleModel,
+  ScheduleTypeName,
+  useNamespace,
+} from 'tno-core';
 import { Col, Row } from 'tno-core/dist/components/flex';
 import { GridTable } from 'tno-core/dist/components/grid-table';
 import { ValidationError } from 'yup';

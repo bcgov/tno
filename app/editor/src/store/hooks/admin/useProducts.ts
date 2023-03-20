@@ -1,7 +1,7 @@
-import { IProductModel, useApiAdminProducts } from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IProductModel, useApiAdminProducts } from 'tno-core';
 
 interface IProductController {
   findAllProducts: () => Promise<IProductModel[]>;

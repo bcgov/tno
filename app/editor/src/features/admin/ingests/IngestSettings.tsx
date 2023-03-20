@@ -1,11 +1,19 @@
 import { useFormikContext } from 'formik';
-import { ConnectionTypeName } from 'hooks';
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
 import { useConnections } from 'store/hooks/admin';
-import { Col, FormikCheckbox, FormikSelect, FormikText, Row, Section, Show } from 'tno-core';
-import { getSortableOptions } from 'utils';
+import {
+  Col,
+  ConnectionTypeName,
+  FormikCheckbox,
+  FormikSelect,
+  FormikText,
+  getSortableOptions,
+  IIngestModel,
+  Row,
+  Section,
+  Show,
+} from 'tno-core';
 
 import { IngestConfiguration } from './configurations';
 import * as styled from './styled';

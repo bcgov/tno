@@ -1,8 +1,6 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { ContentActions } from 'features/content/form';
-import { ActionName } from 'hooks';
 import { FaPaperPlane } from 'react-icons/fa';
-import { Row } from 'tno-core';
+import { ActionName, Row, ToolBarSection } from 'tno-core';
 
 export interface IAlertSectionProps {}
 

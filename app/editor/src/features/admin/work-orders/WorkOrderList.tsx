@@ -1,10 +1,9 @@
-import { IWorkOrderModel } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useApp } from 'store/hooks';
 import { useWorkOrders } from 'store/hooks/admin/useWorkOrders';
-import { Col, Page, PagedTable, Row } from 'tno-core';
+import { Col, IWorkOrderModel, Page, PagedTable, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';

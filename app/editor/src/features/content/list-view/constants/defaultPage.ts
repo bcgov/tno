@@ -1,5 +1,4 @@
-import { IContentModel } from 'hooks/api-editor';
-import { IPage } from 'tno-core/dist/components/grid-table';
+import { IContentModel, IPage } from 'tno-core';
 
 export const defaultPage: IPage<IContentModel> = {
   pageIndex: 0,

@@ -1,9 +1,15 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
-import { FieldSize, FormikSelect, IOptionItem, Row, Text } from 'tno-core';
-import { getSortableOptions } from 'utils';
+import {
+  FieldSize,
+  filterEnabledOptions,
+  FormikSelect,
+  getSortableOptions,
+  IOptionItem,
+  Row,
+  Text,
+} from 'tno-core';
 
 import { IContentForm } from './interfaces';
 import { calcTopicScore } from './utils/calcTopicScore';
@@ -30,7 +36,10 @@ export const TopicForm: React.FC<ITopicFormProps> = () => {
         name="topics"
         label="Topic"
         width={FieldSize.Medium}
-        options={filterEnabled(topicOptions, !!values.topics?.length ? values.topics[0].id : null)}
+        options={filterEnabledOptions(
+          topicOptions,
+          !!values.topics?.length ? values.topics[0].id : undefined,
+        )}
         required
         isDisabled={!values.sourceId}
         value={

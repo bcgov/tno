@@ -1,12 +1,11 @@
 import { FileManager } from 'features/storage';
 import { IFileItem } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
-import { useQuery } from 'hooks';
-import { IFileReferenceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useContent } from 'store/hooks';
+import { IFileReferenceModel, useQuery } from 'tno-core';
 
 import { IContentForm } from './interfaces';
 import * as styled from './styled';

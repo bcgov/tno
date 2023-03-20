@@ -1,19 +1,20 @@
-import {
-  ContentTypeName,
-  HubMethodName,
-  IWorkOrderModel,
-  useApiHub,
-  useCombinedView,
-  WorkOrderTypeName,
-} from 'hooks';
-import { IContentModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { SortingRule } from 'react-table';
-import { Row as TRow } from 'react-table';
-import { useApp, useContent } from 'store/hooks';
+import { Row as TRow, SortingRule } from 'react-table';
+import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
-import { Col, Page, PagedTable, Row, Show } from 'tno-core';
+import {
+  Col,
+  ContentTypeName,
+  IContentModel,
+  IWorkOrderModel,
+  Page,
+  PagedTable,
+  Row,
+  Show,
+  useCombinedView,
+  WorkOrderTypeName,
+} from 'tno-core';
 
 import { ContentForm } from '../form';
 import { ContentToolBar } from '../tool-bar';

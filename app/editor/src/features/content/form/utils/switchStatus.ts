@@ -1,4 +1,4 @@
-import { ContentStatusName } from 'hooks/api-editor';
+import { ContentStatusName } from 'tno-core';
 
 /**
  * Changes the status based on the current status.

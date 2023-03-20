@@ -1,7 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
-import { IWorkOrderModel, WorkOrderStatusName } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -9,21 +6,26 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useWorkOrders } from 'store/hooks/admin';
-import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
   Col,
+  filterEnabledOptions,
   FormikDatePicker,
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getEnumStringOptions,
+  getUserOptions,
   IconButton,
+  IWorkOrderModel,
+  Modal,
   OptionItem,
+  Row,
   Show,
+  useModal,
+  WorkOrderStatusName,
 } from 'tno-core';
-import { Row } from 'tno-core';
-import { getEnumStringOptions, getUserOptions } from 'utils';
 
 import { defaultWorkOrder } from './constants';
 import * as styled from './styled';
@@ -91,7 +93,7 @@ export const WorkOrderForm: React.FC = () => {
               <Col flex="1 1 0">
                 <FormikText name="workType" label="Type" disabled />
                 <FormikSelect
-                  options={filterEnabled(userOptions, values.requestorId)}
+                  options={filterEnabledOptions(userOptions, values.requestorId)}
                   name="requestorId"
                   label="Requestor"
                   value={userOptions.find((s) => s.value === values.requestorId) || ''}

@@ -1,18 +1,19 @@
 import { useFormikContext } from 'formik';
-import { useLookupOptions } from 'hooks';
 import moment from 'moment';
 import * as React from 'react';
-import { filterEnabled } from 'store/hooks/lookup/utils';
+import { useLookupOptions } from 'store/hooks';
+import {} from 'store/hooks/lookup/utils';
 import {
   FieldSize,
+  filterEnabledOptions,
   FormikDatePicker,
   FormikSelect,
+  getSourceOptions,
   IOptionItem,
   Row,
   Show,
   TimeInput,
 } from 'tno-core';
-import { getSourceOptions } from 'utils';
 
 import { IContentForm } from './interfaces';
 import { TopicForm } from './TopicForm';
@@ -54,7 +55,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
             if (!!source?.productId) setFieldValue('productId', source.productId);
           }
         }}
-        options={filterEnabled(sourceOptions, values.sourceId)}
+        options={filterEnabledOptions(sourceOptions, values.sourceId)}
         required={!values.otherSource || values.otherSource !== ''}
         isDisabled={!!values.tempSource}
       />

@@ -1,5 +1,4 @@
-import { ISourceModel } from 'hooks/api-editor';
-import { IOptionItem, OptionItem } from 'tno-core';
+import { IOptionItem, ISourceModel, OptionItem } from 'tno-core';
 
 export const sortSource = <T extends ISourceModel>(a: T, b: T) => {
   if (a.name < b.name) return -1;

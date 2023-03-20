@@ -1,6 +1,5 @@
-import { IIngestTypeModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellEllipsis, IIngestTypeModel } from 'tno-core';
 
 export const columns: (Column<IIngestTypeModel> &
   UseSortByColumnOptions<IIngestTypeModel> &

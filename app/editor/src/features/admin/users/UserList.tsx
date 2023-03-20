@@ -1,11 +1,10 @@
 import { makeUserFilter } from 'features/admin/users/utils/makeUserFilter';
-import { IUserModel } from 'hooks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
 import { useUsers } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, IconButton, Page, PagedTable, Row } from 'tno-core';
+import { Col, IconButton, IUserModel, Page, PagedTable, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { IUserListFilter } from './interfaces/IUserListFilter';
@@ -17,7 +16,7 @@ export const UserList: React.FC = () => {
   const [{ users, userFilter }, { findUsers, storeFilter }] = useUsers();
   const [{ requests }] = useApp();
 
-  const [filter, setFilter] = React.useState(userFilter);
+  const [filter, setFilter] = React.useState<IUserListFilter>();
   const [page, setPage] = React.useState(
     new Page(users.page - 1, users.quantity, users.items, users.total),
   );
@@ -59,12 +58,6 @@ export const UserList: React.FC = () => {
     },
     [findUsers],
   );
-
-  React.useEffect(() => {
-    fetch(userFilter);
-    // First time make a request for users.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   React.useEffect(() => {
     if (filter !== userFilter) {

@@ -1,7 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
-import { IActionModel } from 'hooks/api-editor';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -17,10 +14,13 @@ import {
   FormikDatePicker,
   FormikText,
   FormikTextArea,
+  IActionModel,
   IconButton,
   LabelPosition,
+  Modal,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
 
 import { defaultAction } from './constants';

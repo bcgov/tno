@@ -1,5 +1,5 @@
-import { IContentFilter } from 'hooks/api-editor';
 import moment from 'moment';
+import { IContentFilter } from 'tno-core';
 
 import { IContentListAdvancedFilter, IContentListFilter } from '../interfaces';
 import { applySortBy, setTimeFrame } from '.';

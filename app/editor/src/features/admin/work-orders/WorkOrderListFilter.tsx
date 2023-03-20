@@ -1,9 +1,15 @@
-import { WorkOrderStatusName, WorkOrderTypeName } from 'hooks';
 import React, { useState } from 'react';
 import { useWorkOrders } from 'store/hooks/admin';
-import { FieldSize, IconButton, Select, Text } from 'tno-core';
-import { Row } from 'tno-core/dist/components/flex';
-import { getEnumStringOptions } from 'utils';
+import {
+  FieldSize,
+  getEnumStringOptions,
+  IconButton,
+  Row,
+  Select,
+  Text,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
+} from 'tno-core';
 
 import { IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';

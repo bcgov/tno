@@ -1,4 +1,4 @@
-import { IAuditColumnsModel } from 'hooks/api-editor';
+import { IAuditColumnsModel } from 'tno-core';
 
 export interface ITopicScoreRuleForm extends IAuditColumnsModel {
   id: number;

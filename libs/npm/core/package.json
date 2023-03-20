@@ -1,7 +1,7 @@
 {
   "name": "tno-core",
   "description": "TNO shared library",
-  "version": "0.0.221",
+  "version": "0.0.222",
   "homepage": "https://github.com/bcgov/tno",
   "license": "Apache-2.0",
   "files": [
@@ -42,7 +42,8 @@
     "react-text-mask": "^5.5.0",
     "react-toastify": "^9.1.1",
     "react-tooltip": "^5.10.0",
-    "styled-components": "^5.3.9"
+    "styled-components": "^5.3.9",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -87,7 +88,7 @@
     "prebuild": "rm -rf dist/",
     "build": "tsc --build",
     "prepack": "yarn run copy-files",
-    "copy-files": "cp -R ./src/assets ./dist; cp -R ./src/@types ./dist; cp -R ./src/css ./dist",
+    "copy-files": "cp -R ./src/assets ./dist; cp -R ./src/@types ./dist; cp -R ./src/css ./dist; cp ./src/components/dialog/*.scss ./dist/components/dialog;",
     "clean": "rm -rf dist/; find ./src -type f -name '*.d.ts' ! -path './src/@types/*' -delete;",
     "pretty-quick": "pretty-quick",
     "lint": "eslint src/ --ext .jsx,.js,.ts,.tsx --max-warnings 0",

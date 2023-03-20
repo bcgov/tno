@@ -1,6 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -18,14 +16,16 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getSourceOptions,
   IconButton,
   IOptionItem,
   LabelPosition,
+  Modal,
   OptionItem,
   Row,
   Show,
+  useModal,
 } from 'tno-core';
-import { getSourceOptions } from 'utils';
 
 import { defaultSeries } from './constants';
 import { ISeriesForm } from './interfaces';

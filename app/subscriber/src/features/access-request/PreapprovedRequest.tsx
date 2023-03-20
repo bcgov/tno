@@ -1,10 +1,18 @@
 import { FormikForm } from 'components/formik';
-import { IRegisterModel, UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
-import { Button, ButtonVariant, Col, FieldSize, FormikText, Row } from 'tno-core';
+import {
+  Button,
+  ButtonVariant,
+  Col,
+  FieldSize,
+  FormikText,
+  IRegisterModel,
+  Row,
+  UserStatusName,
+} from 'tno-core';
 
 export const PreapprovedRequest: React.FC = () => {
   const [, app] = useApp();

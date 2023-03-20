@@ -1,6 +1,5 @@
-import { ITopicModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellEllipsis } from 'tno-core';
+import { CellEllipsis, ITopicModel } from 'tno-core';
 
 export const columns: (Column<ITopicModel> &
   UseSortByColumnOptions<ITopicModel> &

@@ -1,22 +1,7 @@
 import { faTableColumns, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
 import { FormikHelpers, FormikProps } from 'formik';
-import {
-  ActionName,
-  ContentTypeName,
-  HubMethodName,
-  IActionModel,
-  IWorkOrderModel,
-  useCombinedView,
-  useLookupOptions,
-  WorkOrderStatusName,
-  WorkOrderTypeName,
-} from 'hooks';
-import { ContentStatusName, IContentModel, useApiHub, ValueType } from 'hooks/api-editor';
-import { useModal } from 'hooks/modal';
-import { useTabValidationToasts } from 'hooks/useTabValidationToasts';
 import React from 'react';
 import {
   FaBars,
@@ -28,28 +13,48 @@ import {
 } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useApp, useContent, useWorkOrders } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
+import {
+  HubMethodName,
+  useApiHub,
+  useApp,
+  useContent,
+  useLookupOptions,
+  useWorkOrders,
+} from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
+  ActionName,
   Area,
   Button,
   ButtonVariant,
   Col,
+  ContentStatusName,
+  ContentTypeName,
   FieldSize,
+  filterEnabledOptions,
   FormikCheckbox,
   FormikHidden,
   FormikSelect,
   FormikText,
   FormikTextArea,
   FormPage,
+  hasErrors,
+  IActionModel,
   IconButton,
+  IContentModel,
+  IWorkOrderModel,
+  Modal,
   Row,
   Show,
   Tab,
   Tabs,
+  useCombinedView,
+  useModal,
+  useTabValidationToasts,
+  ValueType,
+  WorkOrderStatusName,
+  WorkOrderTypeName,
 } from 'tno-core';
-import { hasErrors } from 'utils';
 
 import { getStatusText } from '../list-view/utils';
 import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
@@ -450,7 +455,10 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                       props.setFieldValue('productId', source.productId);
                                   }
                                 }}
-                                options={filterEnabled(sourceOptions, props.values.sourceId).filter(
+                                options={filterEnabledOptions(
+                                  sourceOptions,
+                                  props.values.sourceId,
+                                ).filter(
                                   (x) =>
                                     contentType !== ContentTypeName.Image ||
                                     x.label.includes('(TC)') ||

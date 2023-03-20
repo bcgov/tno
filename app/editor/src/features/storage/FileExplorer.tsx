@@ -1,12 +1,18 @@
-import { Breadcrumb } from 'components/breadcrumb';
-import { Modal } from 'components/modal';
-import { ToggleGroup } from 'components/toggle-group';
-import { IFolderModel, useModal } from 'hooks';
-import { IItemModel } from 'hooks/api-editor';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { Col, GridTable, Row, Show } from 'tno-core';
-import { getDirectoryName } from 'utils';
+import {
+  Breadcrumb,
+  Col,
+  getDirectoryName,
+  GridTable,
+  IFolderModel,
+  IItemModel,
+  Modal,
+  Row,
+  Show,
+  ToggleGroup,
+  useModal,
+} from 'tno-core';
 
 import { fileExplorerColumns } from './constants';
 import { FileExplorerFilter } from './FileExplorerFilter';

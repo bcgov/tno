@@ -1,12 +1,11 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { ConnectionTypeName, IConnectionModel, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useConnections } from 'store/hooks/admin';
+import { ConnectionTypeName, IConnectionModel, Modal, useModal } from 'tno-core';
 import {
   Button,
   ButtonVariant,

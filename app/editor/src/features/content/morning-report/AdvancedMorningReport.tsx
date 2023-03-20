@@ -1,4 +1,3 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { fieldTypes } from 'features/content/list-view/constants';
 import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
@@ -14,6 +13,7 @@ import {
   Row,
   Select,
   Text,
+  ToolBarSection,
 } from 'tno-core';
 
 import { IMorningReportFilter } from './interfaces';

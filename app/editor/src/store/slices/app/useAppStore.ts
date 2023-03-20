@@ -1,6 +1,6 @@
-import { IUserInfoModel } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
+import { IUserInfoModel } from 'tno-core';
 
 import {
   addError,

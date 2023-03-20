@@ -1,12 +1,16 @@
-import { ToggleGroup } from 'components/toggle-group';
-import { ToolBarSection } from 'components/tool-bar';
-import { ToolBar } from 'components/tool-bar/styled';
 import { useFormikContext } from 'formik';
-import { ContentTypeName, IActionModel } from 'hooks';
 import React from 'react';
 import { FaCalendarTimes } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Row, Show } from 'tno-core';
+import {
+  ContentTypeName,
+  IActionModel,
+  Row,
+  Show,
+  ToggleGroup,
+  ToolBar,
+  ToolBarSection,
+} from 'tno-core';
 
 import { IContentForm } from '../form/interfaces';
 import { ActionSection, AlertSection, StatusSection } from './sections/form';

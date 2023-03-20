@@ -1,7 +1,7 @@
-import { IActionFilter, IActionModel, IPaged, useApiAdminActions } from 'hooks';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IActionFilter, IActionModel, IPaged, useApiAdminActions } from 'tno-core';
 
 interface IActionController {
   findAllActions: () => Promise<IActionModel[]>;

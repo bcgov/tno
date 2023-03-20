@@ -1,4 +1,4 @@
-import { ISeriesModel } from 'hooks/api-editor';
+import { ISeriesModel } from 'tno-core';
 
 import { ISeriesForm } from '../interfaces';
 

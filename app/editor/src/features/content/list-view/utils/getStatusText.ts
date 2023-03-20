@@ -1,4 +1,4 @@
-import { ContentStatusName } from 'hooks';
+import { ContentStatusName } from 'tno-core';
 
 /**
  * Provides a different status text for some values.

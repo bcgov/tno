@@ -1,13 +1,13 @@
+import React from 'react';
+import { IAppState, IErrorModel, useAppStore } from 'store/slices';
 import {
   IRegisterModel,
   IUserInfoModel,
   IUserModel,
   useApiAuth,
+  useKeycloakWrapper,
   UserStatusName,
-} from 'hooks/api-editor';
-import React from 'react';
-import { IAppState, IErrorModel, useAppStore } from 'store/slices';
-import { useKeycloakWrapper } from 'tno-core';
+} from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 import { useLookup } from '../lookup';

@@ -1,12 +1,12 @@
 import { AxiosResponse } from 'axios';
+import React from 'react';
 import {
   IContentModel,
   IPaged,
   IWorkOrderFilter,
   IWorkOrderModel,
   useApiWorkOrders,
-} from 'hooks/api-editor';
-import React from 'react';
+} from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 

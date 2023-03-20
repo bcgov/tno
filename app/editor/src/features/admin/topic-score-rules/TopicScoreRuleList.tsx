@@ -1,8 +1,7 @@
 import { FormikForm } from 'components/formik';
-import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaArrowDown, FaArrowUp, FaTrash } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
+import { useLookup, useLookupOptions } from 'store/hooks';
 import { useTopicScoreRules } from 'store/hooks/admin';
 import { IAjaxRequest } from 'store/slices';
 import {
@@ -15,12 +14,12 @@ import {
   FormikText,
   FormikTimeInput,
   FormPage,
+  getSortableOptions,
   IOptionItem,
   Loader,
   Row,
   Show,
 } from 'tno-core';
-import { getSortableOptions } from 'utils';
 
 import { defaultTopicScoreRule } from './constants';
 import { ITopicScoreRuleForm } from './interfaces';

@@ -1,4 +1,4 @@
-import { ConnectionTypeName, IConnectionModel } from 'hooks';
+import { ConnectionTypeName, IConnectionModel } from 'tno-core';
 
 export const defaultConnection: IConnectionModel = {
   id: 0,

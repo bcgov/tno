@@ -1,6 +1,5 @@
-import { IContentReferenceModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellDate } from 'tno-core';
+import { CellDate, IContentReferenceModel } from 'tno-core';
 
 export const contentReferenceColumns: (Column<IContentReferenceModel> &
   UseSortByColumnOptions<IContentReferenceModel> &

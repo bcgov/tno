@@ -1,5 +1,4 @@
-import { IUserModel } from 'hooks/api-editor';
-import { IOptionItem, OptionItem } from 'tno-core';
+import { IOptionItem, IUserModel, OptionItem } from 'tno-core';
 
 export const sortUser = <T extends IUserModel>(a: T, b: T) => {
   if (a.username < b.username) return -1;

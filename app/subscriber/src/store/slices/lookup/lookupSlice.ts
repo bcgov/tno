@@ -16,7 +16,7 @@ import {
   ITopicModel,
   ITopicScoreRuleModel,
   IUserModel,
-} from 'hooks/api-editor';
+} from 'tno-core';
 
 import { ILookupState } from './interfaces';
 

@@ -1,8 +1,6 @@
-import { ToolBarSection } from 'components/tool-bar';
 import { ContentActions } from 'features/content/form';
-import { ContentTypeName, IActionModel, ValueType } from 'hooks';
 import { FaHighlighter } from 'react-icons/fa';
-import { Row } from 'tno-core';
+import { ContentTypeName, IActionModel, Row, ToolBarSection, ValueType } from 'tno-core';
 
 export interface IActionSectionProps {
   contentType: ContentTypeName;

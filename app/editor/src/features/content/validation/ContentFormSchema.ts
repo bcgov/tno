@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'hooks';
+import { ContentTypeName } from 'tno-core';
 import { array, date, number, object, string } from 'yup';
 
 export const ContentFormSchema = object().shape(

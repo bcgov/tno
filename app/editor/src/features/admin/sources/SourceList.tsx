@@ -1,10 +1,8 @@
-import { ISourceModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSources } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, IconButton, Row } from 'tno-core';
-import { GridTable } from 'tno-core/dist/components/grid-table';
+import { Col, GridTable, IconButton, ISourceModel, Row } from 'tno-core';
 
 import { SourceFilter } from '.';
 import { columns } from './constants';

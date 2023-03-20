@@ -1,4 +1,8 @@
+import React from 'react';
+import { useLookupStore } from 'store/slices';
+import { ILookupState } from 'store/slices/lookup';
 import {
+  getFromLocalStorage,
   IActionModel,
   ICacheModel,
   IDataLocationModel,
@@ -33,11 +37,7 @@ import {
   useApiTopics,
   useApiTopicScoreRules,
   useApiUsers,
-} from 'hooks/api-editor';
-import React from 'react';
-import { useLookupStore } from 'store/slices';
-import { ILookupState } from 'store/slices/lookup';
-import { getFromLocalStorage } from 'utils';
+} from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 import { fetchIfNoneMatch, saveToLocalStorage } from './utils';

@@ -1,9 +1,8 @@
-import { ILicenseModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLicenses } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, Row } from 'tno-core';
+import { Col, FormPage, GridTable, IconButton, ILicenseModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { LicenseListFilter } from './LicenseListFilter';

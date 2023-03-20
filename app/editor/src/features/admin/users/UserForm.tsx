@@ -1,28 +1,30 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
-import { IUserModel, UserStatusName } from 'hooks/api-editor';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
-import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
+  Col,
   FieldSize,
+  filterEnabledOptions,
   FormikCheckbox,
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getEnumStringOptions,
   IconButton,
+  IUserModel,
+  Modal,
   OptionItem,
+  Row,
   Show,
+  useModal,
+  UserStatusName,
 } from 'tno-core';
-import { Col, Row } from 'tno-core';
-import { getEnumStringOptions } from 'utils';
 
 import { defaultUser } from './constants';
 import * as styled from './styled';
@@ -141,7 +143,7 @@ export const UserForm: React.FC = () => {
                   <FormikSelect
                     label="Roles"
                     name="role"
-                    options={filterEnabled(roleOptions)}
+                    options={filterEnabledOptions(roleOptions)}
                     width={FieldSize.Big}
                     placeholder="Select Role"
                     tooltip="Add a role to the user"

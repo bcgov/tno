@@ -16,7 +16,7 @@ import {
   ITopicScoreRuleModel,
   IUserModel,
   IWorkOrderModel,
-} from 'hooks/api-editor';
+} from 'tno-core';
 
 export interface IAdminState {
   sources: ISourceModel[];

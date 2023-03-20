@@ -3,9 +3,9 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
-import { IContentModel, IPaged } from 'hooks/api-editor';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
+import { IContentModel, IPaged } from 'tno-core';
 
 import {
   addContent,

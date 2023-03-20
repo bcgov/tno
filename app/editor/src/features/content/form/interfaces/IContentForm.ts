@@ -10,7 +10,7 @@ import {
   IFileReferenceModel,
   ITimeTrackingModel,
   IWorkOrderModel,
-} from 'hooks/api-editor';
+} from 'tno-core';
 
 export interface IContentForm {
   id: number;

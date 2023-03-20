@@ -1,6 +1,6 @@
 import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import { applySortBy, setTimeFrame } from 'features/content/list-view/utils';
-import { IContentFilter } from 'hooks/api-editor';
+import { IContentFilter } from 'tno-core';
 
 import { IMorningReportFilter } from '../interfaces';
 

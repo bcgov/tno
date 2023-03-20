@@ -1,4 +1,4 @@
-import { ContentTypeName, IIngestTypeModel } from 'hooks';
+import { ContentTypeName, IIngestTypeModel } from 'tno-core';
 
 export const defaultIngestType: IIngestTypeModel = {
   id: 0,

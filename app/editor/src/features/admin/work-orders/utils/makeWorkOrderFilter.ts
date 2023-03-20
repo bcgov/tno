@@ -1,6 +1,6 @@
-import { IWorkOrderFilter } from 'hooks';
+import { IWorkOrderFilter } from 'tno-core';
 
-import { ISortBy } from '../../../content/list-view/interfaces';
+import { ISortBy } from '../../../content/list-view/interfaces'; // TODO: Move shared interface in better location.
 import { IWorkOrderListFilter } from '../interfaces/IWorkOrderListFilter';
 
 export const makeWorkOrderFilter = (filter: IWorkOrderListFilter): IWorkOrderFilter => {

@@ -17,7 +17,7 @@ import {
   ITopicScoreRuleModel,
   IUserModel,
   IWorkOrderModel,
-} from 'hooks/api-editor';
+} from 'tno-core';
 
 import { IAdminState } from './interfaces';
 

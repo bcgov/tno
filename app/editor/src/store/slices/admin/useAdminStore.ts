@@ -1,5 +1,7 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
+import React from 'react';
+import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
   IConnectionModel,
@@ -16,9 +18,7 @@ import {
   ITopicScoreRuleModel,
   IUserModel,
   IWorkOrderModel,
-} from 'hooks/api-editor';
-import React from 'react';
-import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
+} from 'tno-core';
 
 import {
   storeAdminActions,

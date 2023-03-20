@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'hooks';
+import { ContentTypeName } from 'tno-core';
 
 /**
  * Get the URL path for the specified `contentType`.

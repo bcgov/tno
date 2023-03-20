@@ -1,14 +1,13 @@
 import 'react-quill/dist/quill.snow.css';
 
 import { useFormikContext } from 'formik';
-import { IContentModel } from 'hooks';
 import { html_beautify } from 'js-beautify';
 import _ from 'lodash';
 import React from 'react';
 import ReactQuill from 'react-quill';
 import { useParams } from 'react-router-dom';
 import { useLookup } from 'store/hooks';
-import { Error } from 'tno-core';
+import { Error, IContentModel } from 'tno-core';
 
 import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';

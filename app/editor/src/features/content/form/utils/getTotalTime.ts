@@ -1,4 +1,4 @@
-import { ITimeTrackingModel } from 'hooks/api-editor';
+import { ITimeTrackingModel } from 'tno-core';
 
 /**
  * Function that sums the total time of the time tracking records.

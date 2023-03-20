@@ -1,6 +1,5 @@
-import { IDataLocationModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellEllipsis, IDataLocationModel } from 'tno-core';
 
 export const columns: (Column<IDataLocationModel> &
   UseSortByColumnOptions<IDataLocationModel> &

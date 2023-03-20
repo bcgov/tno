@@ -1,9 +1,8 @@
-import { IActionModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActions } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, Row } from 'tno-core';
+import { Col, FormPage, GridTable, IActionModel, IconButton, Row } from 'tno-core';
 
 import { ActionListFilter } from './ActionListFilter';
 import { columns } from './constants';

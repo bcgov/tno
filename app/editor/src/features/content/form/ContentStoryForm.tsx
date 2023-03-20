@@ -1,35 +1,32 @@
 import 'react-quill/dist/quill.snow.css';
 
-import { Wysiwyg } from 'components/form';
-import { Tags } from 'components/form/tags';
-import { TimeLogSection } from 'components/form/time-log/TimeLogSection';
-import { ToningGroup } from 'components/form/toning/ToningGroup';
-import { Modal } from 'components/modal/Modal';
-import { IFile } from 'components/upload';
 import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
-import { ContentTypeName, IUserModel } from 'hooks/api-editor';
-import { useModal } from 'hooks/modal';
 import moment from 'moment';
 import React from 'react';
 import { useLookup } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
 import {
   Button,
   ButtonVariant,
   Col,
+  ContentTypeName,
   FieldSize,
+  filterEnabledOptions,
   FormikDatePicker,
   FormikSelect,
   FormikText,
   IOptionItem,
+  IUserModel,
+  Modal,
   OptionItem,
   Row,
   Show,
   TimeInput,
   useKeycloakWrapper,
+  useModal,
 } from 'tno-core';
 
+import { IFile, Tags, TimeLogSection, ToningGroup, Wysiwyg } from '.';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
@@ -165,7 +162,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 label="Show/Program"
                 width={FieldSize.Medium}
                 value={seriesOptions.find((s: any) => s.value === values.seriesId) ?? ''}
-                options={filterEnabled(seriesOptions, values.seriesId)}
+                options={filterEnabledOptions(seriesOptions, values.seriesId)}
                 isDisabled={!!values.otherSeries}
                 onChange={(e) => {
                   setFieldValue('otherSeries', '');

@@ -6,11 +6,10 @@ import { ContentForm, ContentListView, MorningReport } from 'features/content';
 import { Login } from 'features/login';
 import { ReportsRouter } from 'features/reports';
 import { StorageListView } from 'features/storage';
-import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Claim, InternalServerError, NotFound } from 'tno-core';
+import { Claim, ContentTypeName, InternalServerError, NotFound } from 'tno-core';
 
 import { PrivateRoute } from '.';
 

@@ -1,4 +1,4 @@
-import { IIngestModel, ScheduleTypeName } from 'hooks/api-editor';
+import { IIngestModel, ScheduleTypeName } from 'tno-core';
 
 export const defaultIngest: IIngestModel = {
   id: 0,

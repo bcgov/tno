@@ -1,9 +1,7 @@
-import { IPaged, ITopicModel } from 'hooks';
-import { useApiAdminTopics } from 'hooks/api-editor/admin/useApiAdminTopics';
-import { ITopicFilter } from 'hooks/api-editor/interfaces/ITopicFilter';
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IPaged, ITopicFilter, ITopicModel, useApiAdminTopics } from 'tno-core';
 
 interface ITopicController {
   findAllTopics: () => Promise<ITopicModel[]>;

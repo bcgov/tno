@@ -1,5 +1,5 @@
-import { IContentModel } from 'hooks/api-editor';
 import moment from 'moment';
+import { IContentModel } from 'tno-core';
 
 import { IContentForm } from '../interfaces';
 

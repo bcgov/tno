@@ -1,5 +1,4 @@
 import { getIn, useFormikContext } from 'formik';
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
@@ -13,10 +12,11 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getSortableOptions,
+  IIngestModel,
   OptionItem,
   Row,
 } from 'tno-core';
-import { getSortableOptions } from 'utils';
 
 import * as styled from './styled';
 

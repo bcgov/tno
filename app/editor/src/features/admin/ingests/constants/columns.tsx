@@ -1,7 +1,6 @@
-import { IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellDate, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis, IIngestModel } from 'tno-core';
 
 export const columns: (Column<IIngestModel> &
   UseSortByColumnOptions<IIngestModel> &

@@ -1,5 +1,5 @@
 import { defaultPage } from 'features/content/list-view/constants';
-import { ContentTypeName, ISourceModel } from 'hooks';
+import { ContentTypeName, ISourceModel } from 'tno-core';
 
 import { IMorningReportFilter } from '../interfaces';
 

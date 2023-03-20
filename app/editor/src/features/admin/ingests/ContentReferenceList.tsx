@@ -1,12 +1,23 @@
 import { useFormikContext } from 'formik';
-import { IContentReferenceFilter, IContentReferenceModel, IIngestModel } from 'hooks/api-editor';
 import moment from 'moment';
 import React from 'react';
 import { Row as rtRow, SortingRule } from 'react-table';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useContentReferences } from 'store/hooks/admin';
-import { FieldSize, IconButton, IPage, Page, PagedTable, Row, SelectDate, Text } from 'tno-core';
+import {
+  FieldSize,
+  IconButton,
+  IContentReferenceFilter,
+  IContentReferenceModel,
+  IIngestModel,
+  IPage,
+  Page,
+  PagedTable,
+  Row,
+  SelectDate,
+  Text,
+} from 'tno-core';
 
 import {
   contentReferenceColumns,

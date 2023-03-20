@@ -1,4 +1,4 @@
-import { ScheduleWeekDayName } from 'hooks/api-editor';
+import { ScheduleWeekDayName } from 'tno-core';
 
 export const weekDayNameAbbrev = (
   value: string | string[] | ScheduleWeekDayName | ScheduleWeekDayName[],

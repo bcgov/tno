@@ -1,6 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { ITopicModel, TopicTypeName, useModal } from 'hooks';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -17,12 +15,16 @@ import {
   FormikSelect,
   FormikText,
   FormikTextArea,
+  getEnumStringOptions,
   IconButton,
+  ITopicModel,
   LabelPosition,
+  Modal,
   Row,
   Show,
+  TopicTypeName,
+  useModal,
 } from 'tno-core';
-import { getEnumStringOptions } from 'utils';
 
 import { defaultTopic } from './constants';
 import * as styled from './styled';

@@ -1,6 +1,5 @@
-import { ITagModel } from 'hooks/api-editor';
 import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis } from 'tno-core';
+import { CellCheckbox, CellEllipsis, ITagModel } from 'tno-core';
 
 export const columns: (Column<ITagModel> &
   UseSortByColumnOptions<ITagModel> &

@@ -1,7 +1,7 @@
-import { IConnectionModel, useApiAdminConnections } from 'hooks/api-editor';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IConnectionModel, useApiAdminConnections } from 'tno-core';
 
 interface IConnectionController {
   findAllConnections: () => Promise<IConnectionModel[]>;

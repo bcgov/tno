@@ -1,9 +1,8 @@
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngests } from 'store/hooks/admin';
 import { useApp } from 'store/hooks/app/useApp';
-import { Col, IconButton, Row } from 'tno-core';
+import { Col, IconButton, IIngestModel, Row } from 'tno-core';
 import { GridTable } from 'tno-core/dist/components/grid-table';
 
 import { IngestFilter } from '.';

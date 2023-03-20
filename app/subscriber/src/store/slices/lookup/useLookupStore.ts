@@ -1,3 +1,5 @@
+import React from 'react';
+import { useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
   ICacheModel,
@@ -15,9 +17,7 @@ import {
   ITopicModel,
   ITopicScoreRuleModel,
   IUserModel,
-} from 'hooks/api-editor';
-import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
+} from 'tno-core';
 
 import {
   storeActions,

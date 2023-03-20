@@ -1,5 +1,5 @@
-import { IFolderModel, IItemModel, useApiStorage } from 'hooks/api-editor';
 import React from 'react';
+import { IFolderModel, IItemModel, useApiStorage } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 

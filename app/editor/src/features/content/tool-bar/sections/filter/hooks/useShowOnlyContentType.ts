@@ -1,10 +1,9 @@
 import { ShowOnlyValues } from 'features/content/form/constants/ShowOnlyValues';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
-import { ContentTypeName } from 'hooks';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContent } from 'store/hooks';
-import { IOptionItem, replaceQueryParams } from 'tno-core';
+import { ContentTypeName, IOptionItem, replaceQueryParams } from 'tno-core';
 
 /**
  * Function that checks the latest entry in the array of selected options and sets the filter accordingly

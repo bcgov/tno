@@ -1,8 +1,7 @@
 import { useFormikContext } from 'formik';
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
 import { useConnections } from 'store/hooks/admin';
-import { Show } from 'tno-core';
+import { IIngestModel, Show } from 'tno-core';
 
 import { Audio, AVArchive, FrontPage, Image, Newspaper, Syndication, Video } from '.';
 import * as styled from './styled';

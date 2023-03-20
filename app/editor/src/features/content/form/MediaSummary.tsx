@@ -1,13 +1,9 @@
-import { Wysiwyg } from 'components/form';
-import { Tags } from 'components/form/tags';
-import { ToningGroup } from 'components/form/toning/ToningGroup';
-import { IFile, Upload } from 'components/upload';
 import { useFormikContext } from 'formik';
-import { ContentTypeName, IFileReferenceModel } from 'hooks';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Col, Row, Show } from 'tno-core';
+import { Col, ContentTypeName, IFileReferenceModel, Row, Show } from 'tno-core';
 
+import { IFile, Tags, ToningGroup, Upload, Wysiwyg } from '.';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
 

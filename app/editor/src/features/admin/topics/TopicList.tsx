@@ -1,7 +1,4 @@
 import { FormikForm } from 'components/formik';
-import { Modal } from 'components/modal';
-import { useModal } from 'hooks';
-import { ITopicModel, TopicTypeName } from 'hooks/api-editor';
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -16,10 +13,14 @@ import {
   FormikText,
   FormikTextArea,
   FormPage,
+  getEnumStringOptions,
   GridTable,
+  ITopicModel,
+  Modal,
   Row,
+  TopicTypeName,
+  useModal,
 } from 'tno-core';
-import { getEnumStringOptions } from 'utils';
 
 import { columns, defaultTopic } from './constants';
 import * as styled from './styled';

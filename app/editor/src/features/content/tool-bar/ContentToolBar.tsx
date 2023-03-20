@@ -1,7 +1,6 @@
-import { ToolBar } from 'components/tool-bar/ToolBar';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { fromQueryString } from 'tno-core';
+import { fromQueryString, ToolBar } from 'tno-core';
 
 import { IContentListAdvancedFilter, IContentListFilter } from '../list-view/interfaces';
 import {

@@ -1,7 +1,6 @@
 import { useFormikContext } from 'formik';
-import { IIngestModel } from 'hooks/api-editor';
 import React from 'react';
-import { FormikSelect } from 'tno-core';
+import { FormikSelect, IIngestModel } from 'tno-core';
 
 import { VideoClip, VideoHDMI, VideoRPi, VideoStream, VideoTuner } from '.';
 import { serviceTypes } from './constants';

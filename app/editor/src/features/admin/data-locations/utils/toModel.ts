@@ -1,4 +1,4 @@
-import { IDataLocationModel } from 'hooks';
+import { IDataLocationModel } from 'tno-core';
 
 import { IDataLocationForm } from '../interfaces';
 

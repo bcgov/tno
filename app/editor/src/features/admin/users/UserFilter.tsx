@@ -1,25 +1,37 @@
-import { UserStatusName } from 'hooks';
-import React, { useState } from 'react';
+import React from 'react';
 import { useLookup } from 'store/hooks';
 import { useUsers } from 'store/hooks/admin';
-import { filterEnabled } from 'store/hooks/lookup/utils';
-import { FieldSize, IconButton, OptionItem, Select, Text } from 'tno-core';
+import {
+  FieldSize,
+  filterEnabledOptions,
+  getEnumStringOptions,
+  IconButton,
+  OptionItem,
+  Select,
+  Text,
+  UserStatusName,
+} from 'tno-core';
 import { Row } from 'tno-core/dist/components/flex';
-import { getEnumStringOptions } from 'utils';
 
 import { IUserListFilter } from './interfaces/IUserListFilter';
 import * as styled from './styled';
 
 interface IUserFilterProps {}
 
+/**
+ * Provides a component to filter users.
+ * @returns Component
+ */
 export const UserFilter: React.FC<IUserFilterProps> = () => {
   const [{ userFilter }, { storeFilter }] = useUsers();
-  const [filter, setFilter] = useState<IUserListFilter>({ ...userFilter, keyword: '' });
-  const statusOptions = getEnumStringOptions(UserStatusName);
   const [lookups] = useLookup();
+
+  const [filter, setFilter] = React.useState<IUserListFilter>({ ...userFilter, keyword: '' });
   const [roleOptions, setRoleOptions] = React.useState(
     lookups.roles.map((r) => new OptionItem(r.name, r.id, r.isEnabled)),
   );
+
+  const statusOptions = getEnumStringOptions(UserStatusName);
 
   React.useEffect(() => {
     setRoleOptions(lookups.roles.map((r) => new OptionItem(r.name, r.id)));
@@ -67,7 +79,7 @@ export const UserFilter: React.FC<IUserFilterProps> = () => {
             setFilter({ ...filter, roleName: e.value });
           }}
           width={FieldSize.Medium}
-          options={filterEnabled(roleOptions, filter.roleName)}
+          options={filterEnabledOptions(roleOptions, filter.roleName)}
           name="role"
           placeholder="Search by role"
           value={roleOptions.find((s) => s.value === filter.roleName) || ''}

@@ -1,22 +1,21 @@
-import { ToggleGroup } from 'components/toggle-group';
-import { ToolBarSection } from 'components/tool-bar';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
-import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaClock, FaFilter, FaIcons, FaUsers } from 'react-icons/fa';
-import { useApp, useContent } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
+import { useApp, useContent, useLookupOptions } from 'store/hooks';
 import {
   Col,
   FieldSize,
+  filterEnabledOptions,
   fromQueryString,
+  getUserOptions,
   IOptionItem,
   OptionItem,
   replaceQueryParams,
   Row,
   Select,
+  ToggleGroup,
+  ToolBarSection,
 } from 'tno-core';
-import { getUserOptions } from 'utils';
 
 import { DateRangeSection } from '.';
 import { InputOption } from './InputOption';
@@ -130,7 +129,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
                   },
                   {
                     label: 'OTHER',
-                    dropDownOptions: filterEnabled(userOptions),
+                    dropDownOptions: filterEnabledOptions(userOptions),
                     onClick: (value) => onOtherClick(filter, value),
                   },
                 ]}
@@ -148,7 +147,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
                 isMulti
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}
-                options={filterEnabled(productOptions)}
+                options={filterEnabledOptions(productOptions)}
                 value={
                   filter.productIds?.map((id) => productOptions.find((opt) => opt.value === id)) ??
                   ''

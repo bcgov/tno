@@ -1,12 +1,18 @@
-import { ToggleGroup } from 'components/toggle-group';
-import { ToolBarSection } from 'components/tool-bar';
 import { InputOption } from 'features/content/tool-bar/sections/filter';
-import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper } from 'react-icons/fa';
-import { useLookup } from 'store/hooks';
-import { filterEnabled } from 'store/hooks/lookup/utils';
-import { Col, FieldSize, IOptionItem, OptionItem, Row, Select } from 'tno-core';
+import { useLookup, useLookupOptions } from 'store/hooks';
+import {
+  Col,
+  FieldSize,
+  filterEnabledOptions,
+  IOptionItem,
+  OptionItem,
+  Row,
+  Select,
+  ToggleGroup,
+  ToolBarSection,
+} from 'tno-core';
 
 import { defaultReportFilter } from '../constants/defaultReportFilter';
 import { IMorningReportFilter } from '../interfaces';
@@ -82,7 +88,7 @@ export const FilteredContentSection: React.FC<IFilteredContentSection> = ({
               isMulti
               closeMenuOnSelect={false}
               hideSelectedOptions={false}
-              options={filterEnabled(productOptions)}
+              options={filterEnabledOptions(productOptions)}
               width={FieldSize.Big}
               defaultValue={productOptions[0]}
               components={{

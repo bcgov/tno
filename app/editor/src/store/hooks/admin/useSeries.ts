@@ -1,7 +1,7 @@
-import { IPaged, ISeriesFilter, ISeriesModel, useApiAdminSeries } from 'hooks';
 import React from 'react';
 import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
+import { IPaged, ISeriesFilter, ISeriesModel, useApiAdminSeries } from 'tno-core';
 
 interface ISeriesController {
   findAllSeries: () => Promise<ISeriesModel[]>;
