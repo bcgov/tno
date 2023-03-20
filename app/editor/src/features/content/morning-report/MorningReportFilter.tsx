@@ -1,7 +1,7 @@
 import { ToolBar } from 'components/tool-bar/ToolBar';
 import { ContentTypeName, useLookupOptions } from 'hooks';
 import React from 'react';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { storeFilterAdvanced } from 'store/slices';
 import { IOptionItem, OptionItem, replaceQueryParams } from 'tno-core';
 
@@ -22,18 +22,19 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = ({ onSea
   const [{ filterMorningReport: filter, filterAdvanced }, { storeMorningReportFilter }] =
     useContent();
   const [{ productOptions: pOptions }] = useLookupOptions();
+  const [{ sources }] = useLookup();
 
   const [, setProductOptions] = React.useState<IOptionItem[]>([]);
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
     if (!window.location.search) {
-      replaceQueryParams(defaultReportFilter, { includeEmpty: false });
+      replaceQueryParams(defaultReportFilter(sources), { includeEmpty: false });
     }
     storeMorningReportFilter(
       queryToFilter(
         {
-          ...defaultReportFilter,
+          ...defaultReportFilter(sources),
         },
         window.location.search,
       ),
