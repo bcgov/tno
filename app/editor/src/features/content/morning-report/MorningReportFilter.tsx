@@ -1,7 +1,7 @@
 import { ToolBar } from 'components/tool-bar/ToolBar';
-import { ContentTypeName, useLookupOptions } from 'hooks';
+import { useLookupOptions } from 'hooks';
 import React from 'react';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import { storeFilterAdvanced } from 'store/slices';
 import { IOptionItem, OptionItem, replaceQueryParams } from 'tno-core';
 
@@ -9,6 +9,7 @@ import { fieldTypes } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { CreateNewSection } from '../tool-bar/sections/filter';
 import { AdvancedMorningReport } from './AdvancedMorningReport';
+import { defaultReportFilter } from './constants/defaultReportFilter';
 import { FilteredContentSection, TitleSection } from './filter-sections';
 import { IMorningReportFilter } from './interfaces';
 import * as styled from './styled';
@@ -21,14 +22,20 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = ({ onSea
   const [{ filterMorningReport: filter, filterAdvanced }, { storeMorningReportFilter }] =
     useContent();
   const [{ productOptions: pOptions }] = useLookupOptions();
+  const [{ sources }] = useLookup();
 
   const [, setProductOptions] = React.useState<IOptionItem[]>([]);
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
+    if (!window.location.search) {
+      replaceQueryParams(defaultReportFilter(sources), { includeEmpty: false });
+    }
     storeMorningReportFilter(
       queryToFilter(
-        { ...filter, contentType: ContentTypeName.PrintContent },
+        {
+          ...defaultReportFilter(sources),
+        },
         window.location.search,
       ),
     );
@@ -38,7 +45,6 @@ export const MorningReportFilter: React.FC<IMorningReportFilterProps> = ({ onSea
         window.location.search,
       ),
     );
-
     // Only want this to run on the first load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

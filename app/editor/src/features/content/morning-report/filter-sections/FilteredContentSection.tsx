@@ -4,6 +4,7 @@ import { InputOption } from 'features/content/tool-bar/sections/filter';
 import { useLookupOptions } from 'hooks';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper } from 'react-icons/fa';
+import { useLookup } from 'store/hooks';
 import { filterEnabled } from 'store/hooks/lookup/utils';
 import { Col, FieldSize, IOptionItem, OptionItem, Row, Select } from 'tno-core';
 
@@ -24,6 +25,7 @@ export const FilteredContentSection: React.FC<IFilteredContentSection> = ({
 }) => {
   const [{ productOptions: pOptions, sourceOptions }] = useLookupOptions();
   const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
+  const [{ sources }] = useLookup();
 
   /** TODO: Filter needs to apply the query string to the filter when reloading - same issue exists on content list view **/
   /** Extracts variables that have multiple instances from the query */
@@ -55,7 +57,7 @@ export const FilteredContentSection: React.FC<IFilteredContentSection> = ({
               options={[
                 {
                   label: 'ALL TODAYS CONTENT',
-                  onClick: () => onFilterChange(defaultReportFilter),
+                  onClick: () => onFilterChange(defaultReportFilter(sources)),
                 },
                 {
                   label: 'PREVIEW A.M. REPORT',
