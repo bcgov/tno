@@ -276,7 +276,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<IngestModels.IngestModel?> UpdateIngestAsync(
         IngestModels.IngestModel ingest,
-        HttpRequestHeaders? headers)
+        HttpRequestHeaders? headers = null)
     {
         var url = this.Options.ApiUrl.Append($"services/ingests/{ingest.Id}");
         return await RetryRequestAsync(async () => await Client.SendAsync<IngestModels.IngestModel>(url, HttpMethod.Put, headers, JsonContent.Create(ingest)));
@@ -335,7 +335,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentReferenceModel?> UpdateContentReferenceAsync(
         ContentReferenceModel contentReference,
-        HttpRequestHeaders? headers)
+        HttpRequestHeaders? headers = null)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
@@ -349,7 +349,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(
         ContentReferenceModel contentReference,
-        HttpRequestHeaders? headers)
+        HttpRequestHeaders? headers = null)
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}/kafka?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
@@ -420,7 +420,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<ContentModel?> UpdateContentAsync(
         ContentModel content,
-        HttpRequestHeaders? headers)
+        HttpRequestHeaders? headers = null)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}");
         return await RetryRequestAsync(async () => await Client.SendAsync<ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
@@ -458,7 +458,7 @@ public class ApiService : IApiService
     /// <returns></returns>
     public async Task<WorkOrderModel?> UpdateWorkOrderAsync(
         WorkOrderModel workOrder,
-        HttpRequestHeaders? headers)
+        HttpRequestHeaders? headers = null)
     {
         var url = this.Options.ApiUrl.Append($"services/work/orders/{workOrder.Id}");
         return await RetryRequestAsync(async () => await Client.SendAsync<WorkOrderModel>(url, HttpMethod.Put, headers, JsonContent.Create(workOrder)));
