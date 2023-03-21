@@ -83,7 +83,6 @@ services:
       - all
       - kafka
       - service
-      - main
     restart: "no"
     hostname: rest-proxy
     container_name: tno-rest-proxy

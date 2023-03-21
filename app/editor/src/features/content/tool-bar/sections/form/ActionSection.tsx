@@ -1,20 +1,54 @@
 import { ContentActions } from 'features/content/form';
+import { IContentForm } from 'features/content/form/interfaces';
+import React from 'react';
 import { FaHighlighter } from 'react-icons/fa';
-import { ContentTypeName, IActionModel, Row, ToolBarSection, ValueType } from 'tno-core';
+import {
+  ActionName,
+  ContentTypeName,
+  IActionModel,
+  Row,
+  ToolBarSection,
+  ValueType,
+} from 'tno-core';
 
 export interface IActionSectionProps {
-  contentType: ContentTypeName;
-  determineActions: (a: IActionModel) => boolean;
+  /** Form values. */
+  values: IContentForm;
 }
 
-export const ActionSection: React.FC<IActionSectionProps> = ({ contentType, determineActions }) => {
+/**
+ * Component to display actions for the specified content.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const ActionSection: React.FC<IActionSectionProps> = ({ values }) => {
+  const determineActions = React.useCallback((contentType: ContentTypeName) => {
+    switch (contentType) {
+      case ContentTypeName.PrintContent:
+        return (a: IActionModel) =>
+          a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
+      case ContentTypeName.Image:
+        return (a: IActionModel) => a.name === ActionName.FrontPage;
+      case ContentTypeName.Snippet:
+      // TODO: Determine actions for remaining content types
+      // eslint-disable-next-line no-fallthrough
+      default:
+        return (a: IActionModel) =>
+          a.valueType === ValueType.Boolean && a.name !== ActionName.Alert;
+    }
+  }, []);
+
   return (
     <ToolBarSection
       label="HIGHLIGHT STORY"
       icon={<FaHighlighter />}
       children={
         <Row>
-          <ContentActions init filter={determineActions} contentType={contentType} />
+          <ContentActions
+            init
+            filter={determineActions(values.contentType)}
+            contentType={values.contentType}
+          />
           <ContentActions filter={(a) => a.valueType !== ValueType.Boolean} />
         </Row>
       }

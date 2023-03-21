@@ -1,10 +1,14 @@
 import { ContentActions } from 'features/content/form';
+import { IContentForm } from 'features/content/form/interfaces';
 import { FaPaperPlane } from 'react-icons/fa';
 import { ActionName, Row, ToolBarSection } from 'tno-core';
 
-export interface IAlertSectionProps {}
+export interface IAlertSectionProps {
+  /** Form values. */
+  values: IContentForm;
+}
 
-export const AlertSection: React.FC<IAlertSectionProps> = () => {
+export const AlertSection: React.FC<IAlertSectionProps> = ({ values }) => {
   return (
     <ToolBarSection
       label="EMAIL ALERT"
