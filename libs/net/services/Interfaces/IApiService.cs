@@ -111,7 +111,7 @@ public interface IApiService
     /// <param name="content"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentModel?> UpdateContentAsync(ContentModel content, HttpRequestHeaders? headers);
+    public Task<ContentModel?> UpdateContentAsync(ContentModel content, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make an AJAX request to the api to update the ingest.
@@ -119,7 +119,7 @@ public interface IApiService
     /// <param name="ingest"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest, HttpRequestHeaders? headers);
+    public Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make an AJAX request to the api to find the content reference for the specified key.
@@ -142,7 +142,7 @@ public interface IApiService
     /// <param name="contentReference"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers);
+    public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make an AJAX request to the api to update the specified content reference with Kafka information.
@@ -150,7 +150,7 @@ public interface IApiService
     /// <param name="contentReference"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers);
+    public Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
 
     /// <summary>
     /// Make an AJAX request to the api to add the specified content.
@@ -197,9 +197,9 @@ public interface IApiService
     /// Make an AJAX request to the aip and update the specified 'workOrder'.
     /// </summary>
     /// <param name="workOrder"></param>
-    /// <param name="headers"></param>  
-    /// <returns></returns> 
-    Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder, HttpRequestHeaders? headers);
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder, HttpRequestHeaders? headers = null);
     #endregion
 
     #region Kafka
