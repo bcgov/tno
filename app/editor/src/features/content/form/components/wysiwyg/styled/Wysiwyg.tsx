@@ -5,6 +5,7 @@ import { IWysiwygProps } from '../Wysiwyg';
 export const Wysiwyg = styled.div<IWysiwygProps>`
   margin-bottom: 1rem;
   width: 100%;
+  max-width: 100vw;
 
   label {
     font-weight: bold;

@@ -2,30 +2,22 @@ import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaCalendarTimes } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import {
-  ContentTypeName,
-  IActionModel,
-  Row,
-  Show,
-  ToggleGroup,
-  ToolBar,
-  ToolBarSection,
-} from 'tno-core';
+import { Row, Show, ToggleGroup, ToolBar, ToolBarSection } from 'tno-core';
 
 import { IContentForm } from '../form/interfaces';
 import { ActionSection, AlertSection, StatusSection } from './sections/form';
 
 export interface IContentFormToolBarProps {
-  contentType: ContentTypeName;
-  determineActions: (a: IActionModel) => boolean;
-  status: string;
+  /** Function to fetch content. */
+  fetchContent: (id: number) => void;
 }
 
-export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
-  contentType,
-  determineActions,
-  status,
-}) => {
+/**
+ * Component that displays the content toolbar section.
+ * @param param0 Component properties.
+ * @returns Component.
+ */
+export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({ fetchContent }) => {
   const [{ licenses }] = useLookup();
   const { setFieldValue, values } = useFormikContext<IContentForm>();
   const [width, setWidth] = React.useState(window.innerWidth);
@@ -53,9 +45,9 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
   }, []);
   return (
     <ToolBar variant="dark">
-      <StatusSection status={status} />
-      <AlertSection />
-      <ActionSection contentType={contentType} determineActions={determineActions} />
+      <StatusSection values={values} fetchContent={fetchContent} />
+      <AlertSection values={values} />
+      <ActionSection values={values} />
       <Show visible={width > 1800}>
         <ToolBarSection
           children={

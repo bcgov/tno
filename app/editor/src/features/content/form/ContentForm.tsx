@@ -1,16 +1,7 @@
-import { faTableColumns, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormikForm } from 'components/formik';
 import { FormikHelpers, FormikProps } from 'formik';
 import React from 'react';
-import {
-  FaBars,
-  FaChevronLeft,
-  FaChevronRight,
-  FaCopy,
-  FaExternalLinkAlt,
-  FaSpinner,
-} from 'react-icons/fa';
+import { FaBars, FaCopy, FaExternalLinkAlt } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
@@ -23,7 +14,6 @@ import {
 } from 'store/hooks';
 import { IAjaxRequest } from 'store/slices';
 import {
-  ActionName,
   Area,
   Button,
   ButtonVariant,
@@ -39,8 +29,6 @@ import {
   FormikTextArea,
   FormPage,
   hasErrors,
-  IActionModel,
-  IconButton,
   IContentModel,
   IWorkOrderModel,
   Modal,
@@ -51,12 +39,10 @@ import {
   useCombinedView,
   useModal,
   useTabValidationToasts,
-  ValueType,
   WorkOrderStatusName,
   WorkOrderTypeName,
 } from 'tno-core';
 
-import { getStatusText } from '../list-view/utils';
 import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
@@ -84,10 +70,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
-  const [
-    { content: page },
-    { getContent, addContent, updateContent, deleteContent, upload, attach },
-  ] = useContent();
+  const [, { getContent, addContent, updateContent, deleteContent, upload, attach }] = useContent();
   const [, { findWorkOrders, transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
@@ -95,6 +78,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [{ sources, series, sourceOptions, productOptions }, { getSeries }] = useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
   const hub = useApiHub();
+  const { setShowValidationToast } = useTabValidationToasts();
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1);
@@ -110,25 +94,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   });
 
   const userId = userInfo?.id ?? '';
-  const indexPosition = !!id ? page?.items.findIndex((c) => c.id === +id) ?? -1 : -1;
-  const enablePrev = indexPosition > 0;
-  const enableNext = indexPosition < (page?.items.length ?? 0) - 1;
-
-  const determineActions = () => {
-    switch (contentType) {
-      case ContentTypeName.PrintContent:
-        return (a: IActionModel) =>
-          a.valueType === ValueType.Boolean && a.name !== ActionName.NonQualified;
-      case ContentTypeName.Image:
-        return (a: IActionModel) => a.name === ActionName.FrontPage;
-      case ContentTypeName.Snippet:
-      // TODO: Determine actions for remaining content types
-      // eslint-disable-next-line no-fallthrough
-      default:
-        return (a: IActionModel) =>
-          a.valueType === ValueType.Boolean && a.name !== ActionName.Alert;
-    }
-  };
 
   const fetchContent = React.useCallback(
     (id: number) => {
@@ -179,207 +144,169 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     }
   }, [id, fetchContent]);
 
-  const { setShowValidationToast } = useTabValidationToasts();
+  const handleSubmit = React.useCallback(
+    async (values: IContentForm): Promise<IContentForm> => {
+      let contentResult: IContentModel | null = null;
+      const originalId = values.id;
+      let result = form;
+      try {
+        if (!values.id) {
+          // Only new content is initialized.
+          values.contentType = contentType;
+          values.ownerId = userId;
+        }
 
-  const handleSubmit = async (values: IContentForm): Promise<IContentForm> => {
-    let contentResult: IContentModel | null = null;
-    const originalId = values.id;
-    let result = form;
-    try {
-      if (!values.id) {
-        // Only new content is initialized.
-        values.contentType = contentType;
-        values.ownerId = userId;
-      }
+        const model = toModel(values);
+        contentResult = !form.id ? await addContent(model) : await updateContent(model);
 
-      const model = toModel(values);
-      contentResult = !form.id ? await addContent(model) : await updateContent(model);
-
-      if (!!values.file) {
-        // TODO: Make it possible to upload on the initial save instead of a separate request.
-        // Upload the file if one has been added.
-        const content = await upload(contentResult, values.file);
-        result = toForm({ ...content, tonePools: values.tonePools });
-      } else if (
-        !originalId &&
-        !!values.fileReferences.length &&
-        !values.fileReferences[0].isUploaded
-      ) {
-        // TODO: Make it possible to upload on the initial save instead of a separate request.
-        // A file was attached but hasn't been uploaded to the API.
-        const fileReference = values.fileReferences[0];
-        const content = await attach(contentResult.id, 0, fileReference.path);
-        result = toForm({ ...content, tonePools: values.tonePools });
-      } else {
-        result = toForm({ ...contentResult, tonePools: values.tonePools });
-      }
-      setForm({ ...result, workOrders: form.workOrders });
-
-      toast.success(`"${contentResult.headline}" has successfully been saved.`);
-
-      if (!originalId)
-        navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
-      if (!!contentResult?.seriesId) {
-        // A dynamically added series has been added, fetch the latests series.
-        const newSeries = series.find((s) => s.id === contentResult?.seriesId);
-        if (!newSeries) getSeries();
-      }
-    } catch {
-      // If the upload fails, we still need to update the form from the original update.
-      if (!!contentResult) {
-        result = toForm(contentResult);
+        if (!!values.file) {
+          // TODO: Make it possible to upload on the initial save instead of a separate request.
+          // Upload the file if one has been added.
+          const content = await upload(contentResult, values.file);
+          result = toForm({ ...content, tonePools: values.tonePools });
+        } else if (
+          !originalId &&
+          !!values.fileReferences.length &&
+          !values.fileReferences[0].isUploaded
+        ) {
+          // TODO: Make it possible to upload on the initial save instead of a separate request.
+          // A file was attached but hasn't been uploaded to the API.
+          const fileReference = values.fileReferences[0];
+          const content = await attach(contentResult.id, 0, fileReference.path);
+          result = toForm({ ...content, tonePools: values.tonePools });
+        } else {
+          result = toForm({ ...contentResult, tonePools: values.tonePools });
+        }
         setForm({ ...result, workOrders: form.workOrders });
+
+        toast.success(`"${contentResult.headline}" has successfully been saved.`);
+
         if (!originalId)
           navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+        if (!!contentResult?.seriesId) {
+          // A dynamically added series has been added, fetch the latests series.
+          const newSeries = series.find((s) => s.id === contentResult?.seriesId);
+          if (!newSeries) getSeries();
+        }
+      } catch {
+        // If the upload fails, we still need to update the form from the original update.
+        if (!!contentResult) {
+          result = toForm(contentResult);
+          setForm({ ...result, workOrders: form.workOrders });
+          if (!originalId)
+            navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+        }
       }
-    }
-    return result;
-  };
+      return result;
+    },
+    [
+      addContent,
+      attach,
+      combined,
+      contentType,
+      form,
+      getSeries,
+      navigate,
+      series,
+      updateContent,
+      upload,
+      userId,
+    ],
+  );
 
-  const handlePublish = async (
-    values: IContentForm,
-    formikHelpers: FormikHelpers<IContentForm>,
-  ): Promise<IContentForm> => {
-    if (
-      [
-        ContentStatusName.Draft,
-        ContentStatusName.Unpublish,
-        ContentStatusName.Unpublished,
-      ].includes(values.status)
-    )
-      values.status = ContentStatusName.Publish;
+  const handlePublish = React.useCallback(
+    async (
+      values: IContentForm,
+      formikHelpers: FormikHelpers<IContentForm>,
+    ): Promise<IContentForm> => {
+      if (
+        [
+          ContentStatusName.Draft,
+          ContentStatusName.Unpublish,
+          ContentStatusName.Unpublished,
+        ].includes(values.status)
+      )
+        values.status = ContentStatusName.Publish;
 
-    return await handleSubmit(values);
-  };
+      return await handleSubmit(values);
+    },
+    [handleSubmit],
+  );
 
-  const handleUnpublish = async (props: FormikProps<IContentForm>) => {
-    if (
-      props.values.status === ContentStatusName.Publish ||
-      props.values.status === ContentStatusName.Published
-    ) {
+  const handleUnpublish = React.useCallback(
+    async (props: FormikProps<IContentForm>) => {
+      if (
+        props.values.status === ContentStatusName.Publish ||
+        props.values.status === ContentStatusName.Published
+      ) {
+        triggerFormikValidate(props);
+        if (props.isValid) {
+          props.values.status = ContentStatusName.Unpublish;
+          await handleSubmit(props.values);
+        }
+      }
+    },
+    [handleSubmit],
+  );
+
+  const handleSave = React.useCallback(
+    async (props: FormikProps<IContentForm>) => {
       triggerFormikValidate(props);
       if (props.isValid) {
-        props.values.status = ContentStatusName.Unpublish;
         await handleSubmit(props.values);
       }
-    }
-  };
+    },
+    [handleSubmit],
+  );
 
-  const handleSave = async (props: FormikProps<IContentForm>) => {
-    triggerFormikValidate(props);
-    if (props.isValid) {
-      await handleSubmit(props.values);
-    }
-  };
+  const handleTranscribe = React.useCallback(
+    async (values: IContentForm) => {
+      try {
+        // TODO: Only save when required.
+        // Save before submitting request.
+        const content = await handleSubmit(values);
+        const response = await transcribe(toModel(values));
+        setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
-  const handleTranscribe = async (values: IContentForm) => {
-    try {
-      // TODO: Only save when required.
-      // Save before submitting request.
-      const content = await handleSubmit(values);
-      const response = await transcribe(toModel(values));
-      setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
-
-      if (response.status === 200) toast.success('A transcript has been requested');
-      else if (response.status === 208) {
-        if (response.data.status === WorkOrderStatusName.Completed)
-          toast.warn('Content has already been transcribed');
-        else toast.warn(`An active request for transcription already exists`);
+        if (response.status === 200) toast.success('A transcript has been requested');
+        else if (response.status === 208) {
+          if (response.data.status === WorkOrderStatusName.Completed)
+            toast.warn('Content has already been transcribed');
+          else toast.warn(`An active request for transcription already exists`);
+        }
+      } catch {
+        // Ignore this failure it is handled by our global ajax requests.
       }
-    } catch {
-      // Ignore this failure it is handled by our global ajax requests.
-    }
-  };
+    },
+    [form.workOrders, handleSubmit, transcribe],
+  );
 
-  const handleNLP = async (values: IContentForm) => {
-    try {
-      // TODO: Only save when required.
-      // Save before submitting request.
-      const content = await handleSubmit(values);
-      const response = await nlp(toModel(values));
-      setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
+  const handleNLP = React.useCallback(
+    async (values: IContentForm) => {
+      try {
+        // TODO: Only save when required.
+        // Save before submitting request.
+        const content = await handleSubmit(values);
+        const response = await nlp(toModel(values));
+        setForm({ ...content, workOrders: [response.data, ...form.workOrders] });
 
-      if (response.status === 200) toast.success('An NLP has been requested');
-      else if (response.status === 208) {
-        if (response.data.status === WorkOrderStatusName.Completed)
-          toast.warn('Content has already been processed by NLP');
-        else toast.warn(`An active request for NLP already exists`);
+        if (response.status === 200) toast.success('An NLP has been requested');
+        else if (response.status === 208) {
+          if (response.data.status === WorkOrderStatusName.Completed)
+            toast.warn('Content has already been processed by NLP');
+          else toast.warn(`An active request for NLP already exists`);
+        }
+      } catch {
+        // Ignore this failure it is handled by our global ajax requests.
       }
-    } catch {
-      // Ignore this failure it is handled by our global ajax requests.
-    }
-  };
+    },
+    [form.workOrders, handleSubmit, nlp],
+  );
 
   return (
     <styled.ContentForm className="content-form">
       <FormPage className={combined ? 'no-padding' : ''}>
         <Area>
-          <Row>
-            <Show visible={!combined}>
-              <IconButton label="List View" onClick={() => navigate('/contents')} iconType="back" />
-            </Show>
-            <Show visible={!combined}>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Combined View"
-                onClick={() => {
-                  navigate(`/contents/combined/${id}?form=${contentType}`);
-                }}
-              >
-                <FontAwesomeIcon icon={faTableColumns} />
-              </Button>
-            </Show>
-            <Show visible={combined}>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Full Page View"
-                onClick={() => {
-                  navigate(getContentPath(combined, id, contentType));
-                }}
-              >
-                <FontAwesomeIcon icon={faUpRightFromSquare} />
-              </Button>
-            </Show>
-            <Show visible={!!id}>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Previous"
-                onClick={() => {
-                  const id = page?.items[indexPosition - 1]?.id;
-                  if (!!id) {
-                    navigate(getContentPath(combined, id, contentType));
-                  }
-                }}
-                disabled={!enablePrev}
-              >
-                <FaChevronLeft />
-              </Button>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Next"
-                onClick={() => {
-                  const id = page?.items[indexPosition + 1]?.id;
-                  navigate(getContentPath(combined, id, contentType));
-                }}
-                disabled={!enableNext}
-              >
-                <FaChevronRight />
-              </Button>
-              <Button
-                variant={ButtonVariant.secondary}
-                tooltip="Reload"
-                onClick={() => {
-                  fetchContent(form.id);
-                }}
-              >
-                <FaSpinner />
-              </Button>
-            </Show>
-            <Row className="frm-in content-status">
-              <label>Status:</label>
-              <span>{getStatusText(form.status)}</span>
-            </Row>
-          </Row>
           <FormikForm
             onSubmit={handlePublish}
             validationSchema={ContentFormSchema}
@@ -390,11 +317,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           >
             {(props: FormikProps<IContentForm>) => (
               <Col>
-                <ContentFormToolBar
-                  contentType={contentType}
-                  status={getStatusText(form.status)}
-                  determineActions={determineActions()}
-                />
+                <ContentFormToolBar fetchContent={fetchContent} />
 
                 <FormikHidden name="uid" />
                 <Row alignItems="flex-start" className="content-details">
