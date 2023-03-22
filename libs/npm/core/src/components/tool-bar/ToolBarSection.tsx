@@ -24,7 +24,7 @@ export const ToolBarSection: React.FC<IToolBarSectionProps> = ({
   ...rest
 }) => {
   return (
-    <styled.ToolBarSection className={`className${className ? ` ${className}` : ''}`} {...rest}>
+    <styled.ToolBarSection className={`tool-bar${className ? ` ${className}` : ''}`} {...rest}>
       <Show visible={!!title}>
         <Row className="title-container">{title}</Row>
       </Show>
