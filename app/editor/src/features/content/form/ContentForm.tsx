@@ -316,7 +316,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             }
           >
             {(props: FormikProps<IContentForm>) => (
-              <Col>
+              <Col style={{ display: 'block' }}>
                 <ContentFormToolBar fetchContent={fetchContent} />
 
                 <FormikHidden name="uid" />
