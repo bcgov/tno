@@ -9,7 +9,7 @@ export interface ICheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElemen
   /**
    * The label to include with the control.
    */
-  label?: string;
+  label?: string | React.ReactElement;
   /**
    * The styled variant.
    */

@@ -4,11 +4,11 @@ export class OptionItem<T extends string | number | undefined = string | number 
   implements IOptionItem<T>
 {
   discriminator: 'IOption';
-  label: string;
+  label: string | React.ReactElement;
   value: T;
   isEnabled: boolean;
 
-  constructor(label: string, value: T, isEnabled: boolean = true) {
+  constructor(label: string | React.ReactElement, value: T, isEnabled: boolean = true) {
     this.discriminator = 'IOption';
     this.label = label;
     this.value = value;
@@ -16,7 +16,7 @@ export class OptionItem<T extends string | number | undefined = string | number 
   }
 
   static create<T extends string | number>(
-    label: string,
+    label: string | React.ReactElement,
     value: T,
     isEnabled: boolean = true,
   ): IOptionItem<T> {

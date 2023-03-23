@@ -103,10 +103,9 @@ export const TopicScoreRuleList = styled.div`
 
   .form-footer {
     // It overlaps the bottom row and it's impossible to scroll further.
-    position: fixed;
+    /* position: fixed; */
     bottom: 0;
-    width: 100vw;
-    max-width: calc(1200px - 0.5em);
+    width: 100%;
     background-color: ${(props) => props.theme.css.backgroundColor};
     z-index: 2;
   }

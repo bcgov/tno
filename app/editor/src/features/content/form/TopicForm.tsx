@@ -7,8 +7,10 @@ import {
   FormikSelect,
   getSortableOptions,
   IOptionItem,
+  OptionItem,
   Row,
   Text,
+  TopicTypeName,
 } from 'tno-core';
 
 import { IContentForm } from './interfaces';
@@ -27,7 +29,33 @@ export const TopicForm: React.FC<ITopicFormProps> = () => {
   const [topicOptions, setTopicOptions] = React.useState<IOptionItem[]>([]);
 
   React.useEffect(() => {
-    setTopicOptions(getSortableOptions(topics));
+    setTopicOptions(
+      getSortableOptions(
+        topics,
+        [],
+        (item) =>
+          new OptionItem(
+            (
+              <div className={item.id > 1 ? `type-${item.topicType}` : 'type-none'}>
+                {item.topicType === TopicTypeName.Issues
+                  ? item.name
+                  : `${item.name} (${item.topicType})`}
+              </div>
+            ),
+            item.id,
+            item.isEnabled,
+          ),
+        (a, b) => {
+          if (a.topicType < b.topicType) return -1;
+          if (a.topicType > b.topicType) return 1;
+          if (a.sortOrder < b.sortOrder) return -1;
+          if (a.sortOrder > b.sortOrder) return 1;
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        },
+      ),
+    );
   }, [topics]);
 
   return (

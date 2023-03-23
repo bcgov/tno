@@ -384,11 +384,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                 ).filter(
                                   (x) =>
                                     contentType !== ContentTypeName.Image ||
-                                    x.label.includes('(TC)') ||
-                                    x.label.includes('(PROVINCE)') ||
-                                    x.label.includes('(GLOBE)') ||
-                                    x.label.includes('(POST)') ||
-                                    x.label.includes('(SUN)'),
+                                    (typeof x.label === 'string'
+                                      ? (x.label as string).includes('(TC)') ||
+                                        (x.label as string).includes('(PROVINCE)') ||
+                                        (x.label as string).includes('(GLOBE)') ||
+                                        (x.label as string).includes('(POST)') ||
+                                        (x.label as string).includes('(SUN)')
+                                      : false),
                                 )}
                                 required={
                                   !props.values.otherSource || props.values.otherSource !== ''

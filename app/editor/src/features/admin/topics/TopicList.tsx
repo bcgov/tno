@@ -82,6 +82,7 @@ export const TopicList: React.FC = () => {
             a.name.localeCompare(b.name),
         ),
       );
+      toast.success(`${values.name} has successfully been saved.`);
     } catch {
       // Ignore error as it's handled globally.
     }

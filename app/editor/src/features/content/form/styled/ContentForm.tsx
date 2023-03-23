@@ -139,4 +139,12 @@ export const ContentForm = styled.div`
     display: flex;
     align-items: center;
   }
+
+  .type-none {
+    color: red;
+  }
+
+  .type-Proactive {
+    color: green;
+  }
 `;
