@@ -24,8 +24,8 @@ public class TopicService : BaseService<Topic, int>, ITopicService
     {
         return this.Context.Topics
             .AsNoTracking()
-            .OrderBy(a => a.SortOrder)
-            .ThenBy(a => a.TopicType)
+            .OrderBy(a => a.TopicType)
+            .ThenBy(a => a.SortOrder)
             .ThenBy(a => a.Name).ToArray();
     }
 
@@ -53,7 +53,7 @@ public class TopicService : BaseService<Topic, int>, ITopicService
             }
         }
         else
-            query = query.OrderBy(c => c.SortOrder).ThenBy(c => c.Name);
+            query = query.OrderBy(a => a.TopicType).ThenBy(c => c.SortOrder).ThenBy(c => c.Name);
 
         var skip = (filter.Page - 1) * filter.Quantity;
         query = query.Skip(skip).Take(filter.Quantity);

@@ -13,10 +13,19 @@ const displayName = (source: ISourceModel) => {
   return source.name !== source.code ? `${source.name} (${source.code})` : source.name;
 };
 
+/**
+ * Sorts provided items into options.
+ * @param items An array of items to return as sorted options.
+ * @param prepend An array of options to prepend to array.
+ * @param map How to map the items to options.
+ * @param sort How to sort items.
+ * @returns An array of options.
+ */
 export const getSourceOptions = <T extends ISourceModel>(
   items: T[],
   prepend: IOptionItem[] = [],
   map: (item: T) => IOptionItem = (ds) => new OptionItem(displayName(ds), ds.id, ds.isEnabled),
+  sort: (a: T, b: T) => number = sortSource,
 ) => {
-  return prepend.concat([...items].sort(sortSource).map(map));
+  return prepend.concat([...items].sort(sort).map(map));
 };
