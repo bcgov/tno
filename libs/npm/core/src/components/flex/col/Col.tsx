@@ -4,6 +4,7 @@ import * as styled from './styled';
 
 export interface IColProps extends React.HTMLAttributes<HTMLDivElement> {
   flex?: string;
+  display?: string;
   grow?: number;
   shrink?: number;
   basis?: string | 'auto';
