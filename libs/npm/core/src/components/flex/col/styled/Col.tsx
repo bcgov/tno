@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { IColProps } from '..';
 
 export const Col = styled.div<IColProps>`
-  display: ${(props) => props.display ?? 'flex'};
+  display: 'flex';
   flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : props.wrap ?? 'wrap')};
   ${(props) => props.direction !== undefined && `flex-direction: ${props.direction};`}
   ${(props) => props.grow !== undefined && `flex-grow: ${props.grow};`}

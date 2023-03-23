@@ -108,6 +108,10 @@ export const ContentForm = styled.div`
     color: #494949;
   }
 
+  .content-col {
+    display: block;
+  }
+
   .submit-buttons {
     justify-content: flex-end;
     padding-top: 4.5em;
