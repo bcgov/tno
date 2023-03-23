@@ -28,7 +28,10 @@ export const ContentFormSchema = object().shape(
     }),
     // TODO: Headline should not be empty.
     headline: string().required('Headline is a required field.'),
-    tonePools: array().min(1, 'Tone is a required field.'),
+    tonePools: string().when('contentType', (value: any) => {
+      if (value !== ContentTypeName.Image) return array().min(1, 'Tone is a required field.');
+      return array();
+    }),
     // TODO: validation for print content.
     section: string().when('contentType', (value: any) => {
       if (value === ContentTypeName.PrintContent)
@@ -36,7 +39,7 @@ export const ContentFormSchema = object().shape(
       return string();
     }),
     byline: string().when('contentType', (value: any) => {
-      if (value === ContentTypeName.PrintContent || value === ContentTypeName.Image)
+      if (value === ContentTypeName.PrintContent)
         return string().trim().required('Byline is a required field.');
       return string();
     }),
