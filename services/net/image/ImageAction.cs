@@ -105,6 +105,7 @@ public class ImageAction : IngestAction<ImageOptions>
                 else continue;
 
                 await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
+                reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
                 if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
             }
 

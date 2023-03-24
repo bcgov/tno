@@ -91,7 +91,7 @@ public class ClipAction : CommandAction<ClipOptions>
 
                     // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
                     await RunProcessAsync(process, cancellationToken);
-
+                    reference = await FindContentReferenceAsync(content.Source, content.Uid);
                     await ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
 
                     // Delete any schedule marked with RunOnlyOnce
