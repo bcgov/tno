@@ -109,7 +109,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     reference = await this.UpdateContentReferenceAsync(reference, item);
                     await FetchContent(manager.Ingest, item, link);
                 }
-                else reference = null;
+                else continue;
 
                 await ContentReceivedAsync(manager, reference, item);
             }

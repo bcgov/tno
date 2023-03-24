@@ -67,7 +67,6 @@ public class ClipAction : CommandAction<ClipOptions>
 
                 // Fetch content reference.
                 var content = CreateContentReference(manager.Ingest, schedule);
-                var reference = await this.FindContentReferenceAsync(content.Source, content.Uid);
 
                 // Override the original action name based on the schedule.
                 name = manager.VerifySchedule(schedule) ? "start" : "stop";
@@ -76,6 +75,8 @@ public class ClipAction : CommandAction<ClipOptions>
                 // TODO: Handle failures when a clip file was created but error'ed out.
                 if (name == "start" && !IsRunning(process) && !FileExists(manager, schedule))
                 {
+                    var reference = await FindContentReferenceAsync(content.Source, content.Uid);
+
                     if (reference == null)
                     {
                         reference = await this.Api.AddContentReferenceAsync(content);
@@ -86,18 +87,16 @@ public class ClipAction : CommandAction<ClipOptions>
                         // more than an 2 minutes old. Assumption is that it is stuck.
                         reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     }
-                    else reference = null;
+                    else continue;
 
-                    if (reference != null)
-                    {
-                        // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
-                        await RunProcessAsync(process, cancellationToken);
-                        await this.ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
+                    // TODO: Waiting for each clip to complete isn't ideal.  It needs to handle multiple processes.
+                    await RunProcessAsync(process, cancellationToken);
+                    reference = await FindContentReferenceAsync(content.Source, content.Uid);
+                    await ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
 
-                        // Delete any schedule marked with RunOnlyOnce
-                        if (schedule.RunOnlyOnce)
-                            await this.DeleteSchedule(new IngestScheduleModel(manager.Ingest.Id, schedule));
-                    }
+                    // Delete any schedule marked with RunOnlyOnce
+                    if (schedule.RunOnlyOnce)
+                        await this.DeleteSchedule(new IngestScheduleModel(manager.Ingest.Id, schedule));
                 }
                 else if (name == "stop")
                 {
@@ -189,7 +188,7 @@ public class ClipAction : CommandAction<ClipOptions>
     /// <param name="reference"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private SourceContent? CreateSourceContent(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel reference)
+    private SourceContent? CreateSourceContent(ICommandProcess process, IngestModel ingest, ScheduleModel schedule, ContentReferenceModel? reference)
     {
         if (reference == null) return null;
 
