@@ -8,6 +8,7 @@ import {
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
+
 import { MenuItemNames } from './MenuItemNames';
 
 export interface SidebarMenuItem {
