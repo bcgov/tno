@@ -21,7 +21,7 @@ export const MobileLogin: React.FC<IMobileLoginProps> = ({ login }) => {
     <styled.MobileLogin>
       <Col className="mobile-view">
         <Row className="mobile-title">
-          <img alt="MMIA Logo" src="/assets/mminsights_logo_black.svg" />
+          <img alt="MMIA Logo" src="/assets/MMinsights_logo_black.svg" />
         </Row>
         <Row>
           <p className="top-bar-box">
