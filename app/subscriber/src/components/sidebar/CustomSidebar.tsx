@@ -3,6 +3,7 @@ import React from 'react';
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
 import { Menu, useProSidebar } from 'react-pro-sidebar';
 import { Row, Show } from 'tno-core';
+
 import { SelectableMenuItems } from './SelectableMenuItems';
 import * as styled from './styled';
 

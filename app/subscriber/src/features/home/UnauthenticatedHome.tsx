@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Button, Col, Row, useKeycloakWrapper } from 'tno-core';
 import { BrowserView, MobileView } from 'react-device-detect';
-import * as styled from './styled';
+import { useKeycloakWrapper } from 'tno-core';
+
 import { BrowserLogin, MobileLogin } from './login';
+import * as styled from './styled';
 
 export interface IUnauthenticatedHomeProps {
   /**
@@ -38,10 +38,6 @@ export interface IUnauthenticatedHomeProps {
  */
 export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = (props) => {
   const keycloak = useKeycloakWrapper();
-  const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
-  const isLocal =
-    new URL(authority).host.startsWith('localhost') ||
-    new URL(authority).host.startsWith('host.docker.internal');
 
   const login = (hint?: string) => {
     const params = new URLSearchParams(window.location.search);

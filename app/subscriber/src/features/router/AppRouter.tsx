@@ -5,9 +5,7 @@ import { Login } from 'features/login';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Claim, InternalServerError, NotFound } from 'tno-core';
-
-import { PrivateRoute } from '.';
+import { InternalServerError, NotFound } from 'tno-core';
 
 export interface IAppRouter {
   name: string;

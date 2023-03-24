@@ -1,7 +1,8 @@
 import { MenuItemNames } from 'components/layout/constants/MenuItemNames';
-import { FaAngleLeft, FaAngleRight, FaCalendar, FaCalendarAlt, FaUserCircle } from 'react-icons/fa';
+import { FaAngleLeft, FaAngleRight, FaCalendarAlt, FaUserCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { Button, Col, FieldSize, GridTable, Row, Show, Text, useKeycloakWrapper } from 'tno-core';
+
 import * as styled from './styled';
 
 export const Landing: React.FC = () => {

@@ -10,9 +10,8 @@ import {
   FaUsers,
   FaUserTie,
 } from 'react-icons/fa';
-import { MenuItem, MenuItemProps } from 'react-pro-sidebar';
+import { MenuItem } from 'react-pro-sidebar';
 import { useNavigate } from 'react-router';
-import { replaceQueryParams } from 'tno-core';
 
 export interface ISelectableMenuItemProps {
   // array containing the names of the items to be placed in the sidebar

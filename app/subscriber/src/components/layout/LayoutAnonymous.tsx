@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Loading } from 'tno-core';
+import { Loading } from 'tno-core';
 
 import * as styled from './styled';
 

@@ -1,16 +1,13 @@
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
-import { SelectableMenuItems } from 'components/sidebar/SelectableMenuItems';
 import { UnauthenticatedHome } from 'features/home';
 import { SubscriberFooter } from 'features/home/SubscriberFooter';
 import React from 'react';
-import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
-import { Menu, Sidebar, useProSidebar } from 'react-pro-sidebar';
+import { useProSidebar } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
 import { useToastError } from 'store/hooks';
-import { Row, Show, SummonContext, useKeycloakWrapper } from 'tno-core';
+import { Show, SummonContext, useKeycloakWrapper } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
-import { MenuItemNames } from './constants/MenuItemNames';
 import * as styled from './styled';
 
 export interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {

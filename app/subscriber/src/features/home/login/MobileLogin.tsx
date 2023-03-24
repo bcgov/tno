@@ -1,17 +1,22 @@
-import { Button, Col, Row } from 'tno-core';
+import { Button, Col, Row, Show, useKeycloakWrapper } from 'tno-core';
+
 import * as styled from './styled';
 
 export interface IMobileLoginProps {
-  login: () => void;
+  login: (hint?: string) => void;
 }
 
 /**
- * TextBox provides a customizable container to place informative information in.
- * @param width Div width element attribute.
- * @param backgroundColor Div background-color element attribute.
- * @returns LogoPanel component.
+ * Mobile login is the component that will be viewed when an unauthenticated user visits the site from a mobile device.
+ * @param login The function to be called when the user clicks on the login button.
+ * @returns MobileLogin component.
  */
 export const MobileLogin: React.FC<IMobileLoginProps> = ({ login }) => {
+  const keycloak = useKeycloakWrapper();
+  const authority = keycloak.instance.authServerUrl?.replace(/\/$/, '') ?? window.location.href;
+  const isLocal =
+    new URL(authority).host.startsWith('localhost') ||
+    new URL(authority).host.startsWith('host.docker.internal');
   return (
     <styled.MobileLogin>
       <Col className="mobile-view">
@@ -38,10 +43,22 @@ export const MobileLogin: React.FC<IMobileLoginProps> = ({ login }) => {
               <b>If you have a subscription, login here: </b>
               <div className="login-content">
                 <div className="buttons">
-                  <Button className="red" onClick={() => login()}>
-                    IDIR
-                  </Button>
-                  <Button className="cyan">BCeID</Button>
+                  <Show visible={!isLocal}>
+                    <Button className="red" onClick={() => login(isLocal ? 'gcpe-oidc' : 'idir')}>
+                      IDIR
+                    </Button>
+                    <Button
+                      className="cyan"
+                      onClick={() => login(isLocal ? 'gcpe-oidc' : 'bceid-basic')}
+                    >
+                      BCeID
+                    </Button>
+                  </Show>
+                  <Show visible={isLocal}>
+                    <Button className="red" onClick={() => login()}>
+                      Local
+                    </Button>
+                  </Show>
                 </div>
                 <Row className="copyright">
                   <b>Copyright info:</b>

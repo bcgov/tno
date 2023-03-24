@@ -1,6 +1,6 @@
 import * as styled from './styled';
 
-export const SubscriberFooter: React.FC<any> = ({}) => {
+export const SubscriberFooter: React.FC<any> = () => {
   return (
     <styled.SubscriberFooter>
       <a
