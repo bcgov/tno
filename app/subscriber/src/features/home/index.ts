@@ -1,4 +1,4 @@
-export * from './Home';
+export * from './Landing';
 export * from './InfoPanel';
 export * from './InfoText';
 export * from './LogoPanel';

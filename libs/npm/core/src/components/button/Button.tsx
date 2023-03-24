@@ -18,6 +18,10 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    * Whether the button should show a loading indicator.
    */
   loading?: boolean;
+  /**
+   * Whether the button should contain rounded edges
+   */
+  rounded?: boolean;
 }
 
 /**

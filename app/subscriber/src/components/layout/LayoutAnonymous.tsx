@@ -19,7 +19,6 @@ export const LayoutAnonymous: React.FC<ILayoutAnonymousProps> = ({ name, childre
   const [isLoading] = React.useState(false);
   return (
     <styled.Layout {...rest}>
-      <Header name={name} />
       <div className="main-window">
         <main>
           {children}

@@ -1,6 +1,6 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
-import { Home } from 'features/home';
+import { Landing } from 'features/home';
 import { Login } from 'features/login';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
@@ -32,14 +32,11 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
   return (
     <Routes>
       <Route path="/" element={<DefaultLayout name={name} />}>
-        <Route path="/" element={<Navigate to="/contents" />} />
+        <Route path="/" element={<Navigate to="/landing/Home" />} />
         <Route path="login" element={<Login />} />
         <Route path="welcome" element={<AccessRequest />} />
         <Route path="access/request" element={<AccessRequest />} />
-        <Route
-          path="contents"
-          element={<PrivateRoute claims={Claim.editor} element={<Home />}></PrivateRoute>}
-        />
+        <Route path="/landing/:id" element={<Landing />} />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>

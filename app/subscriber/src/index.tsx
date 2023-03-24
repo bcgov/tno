@@ -11,6 +11,7 @@ import { SummonProvider } from 'tno-core';
 import App from './App';
 import css from './css/_variables.module.scss';
 import * as serviceWorker from './serviceWorker';
+import { ProSidebarProvider } from 'react-pro-sidebar';
 
 const Index = () => {
   return (
@@ -18,7 +19,9 @@ const Index = () => {
       <ThemeProvider theme={{ css }}>
         <Provider store={store}>
           <SummonProvider>
-            <App />
+            <ProSidebarProvider>
+              <App />
+            </ProSidebarProvider>
           </SummonProvider>
         </Provider>
       </ThemeProvider>

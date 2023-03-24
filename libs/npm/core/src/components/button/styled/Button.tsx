@@ -17,7 +17,7 @@ export const Button = styled.button<IButtonProps>`
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.6;
-  border-radius: 0.25rem;
+  border-radius: ${(props) => (props.rounded ? '1.25rem' : '0.25rem')};
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   overflow: visible;
@@ -46,6 +46,10 @@ export const Button = styled.button<IButtonProps>`
         return '#003366';
       case ButtonVariant.danger:
         return '#d93e45';
+      case ButtonVariant.red:
+        return '#BC202E';
+      case ButtonVariant.cyan:
+        return '#24B6D4';
       default:
         return '#fff';
     }
