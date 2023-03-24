@@ -157,14 +157,14 @@ public class TNOContext : DbContext
             foreach (var entry in ex.Entries)
             {
                 var metadataName = entry.Metadata.Name;
-                var dbValues = entry.GetDatabaseValues() ?? throw new InvalidOperationException($"The entity of {metadataName} does not exist");
+                var dbValues = entry.GetDatabaseValues();
                 var currentValues = entry.CurrentValues;
                 var originalValues = entry.OriginalValues;
                 var sb = new StringBuilder();
 
                 foreach (var property in currentValues.Properties)
                 {
-                    var dbValue = dbValues[property];
+                    var dbValue = dbValues?[property];
                     var currentValue = currentValues[property];
                     var originalValue = originalValues[property];
 

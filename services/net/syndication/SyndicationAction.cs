@@ -109,9 +109,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     reference = await this.UpdateContentReferenceAsync(reference, item);
                     await FetchContent(manager.Ingest, item, link);
                 }
-                else reference = null;
+                else continue;
 
-                if (reference != null) reference = await FindContentReferenceAsync(reference.Source, reference.Uid);
                 await ContentReceivedAsync(manager, reference, item);
             }
             catch (Exception ex)
