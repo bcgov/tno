@@ -154,30 +154,29 @@ public class TNOContext : DbContext
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            var message = new StringBuilder();
             foreach (var entry in ex.Entries)
             {
-                var sb = new StringBuilder();
-
-                var dbValues = entry.GetDatabaseValues();
+                var metadataName = entry.Metadata.Name;
+                var dbValues = entry.GetDatabaseValues() ?? throw new InvalidOperationException($"The entity of {metadataName} does not exist");
                 var currentValues = entry.CurrentValues;
                 var originalValues = entry.OriginalValues;
+                var sb = new StringBuilder();
 
                 foreach (var property in currentValues.Properties)
                 {
-                    var dbValue = dbValues?[property];
+                    var dbValue = dbValues[property];
                     var currentValue = currentValues[property];
                     var originalValue = originalValues[property];
 
-                    if (dbValue != currentValue)
+                    if (dbValue?.ToString() != originalValue?.ToString() ||
+                        dbValue?.ToString() != currentValue?.ToString())
                     {
                         sb.Append($"[{property.Name} - Current: {currentValue}; DB: {dbValue}; Original: {originalValue}]");
                     }
                 }
 
-                message.Append($"{entry.Metadata.Name}: {sb}");
+                _logger?.LogError("{metadataName}: {sb}", metadataName, sb);
             }
-            _logger?.LogError(message.ToString());
             throw;
         }
         catch (DbUpdateException)

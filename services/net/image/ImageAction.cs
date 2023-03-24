@@ -100,14 +100,15 @@ public class ImageAction : IngestAction<ImageOptions>
                 {
                     // If another process has it in progress only attempt to do an import if it's
                     // more than an 5 minutes old. Assumption is that it is stuck.
-                    await this.UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                 }
                 else reference = null;
 
                 if (reference != null)
                 {
                     await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
-                    await this.ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
+                    reference = await FindContentReferenceAsync(reference.Source, reference.Uid);
+                    await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference!));
                 }
             }
 

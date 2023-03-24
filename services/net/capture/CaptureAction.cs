@@ -56,13 +56,13 @@ public class CaptureAction : CommandAction<CaptureOptions>
             var process = await GetProcessAsync(manager, schedule);
 
             var content = CreateContentReference(manager.Ingest, schedule);
-            var reference = await this.FindContentReferenceAsync(content.Source, content.Uid);
 
             // Override the original action name based on the schedule.
             name = manager.VerifySchedule(schedule) ? "start" : "stop";
 
             if (name == "start" && !IsRunning(process))
             {
+                var reference = await FindContentReferenceAsync(content.Source, content.Uid);
                 if (reference == null)
                 {
                     await this.Api.AddContentReferenceAsync(content);
@@ -81,6 +81,7 @@ public class CaptureAction : CommandAction<CaptureOptions>
             {
                 await StopProcessAsync(process, cancellationToken);
                 RemoveProcess(manager, schedule);
+                var reference = await FindContentReferenceAsync(content.Source, content.Uid);
                 await this.ContentReceivedAsync(manager, reference, CreateSourceContent(process, manager.Ingest, schedule, reference));
             }
         }
