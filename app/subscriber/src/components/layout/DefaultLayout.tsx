@@ -12,10 +12,6 @@ import * as styled from './styled';
 
 export interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
-   * Site name to display in header.
-   */
-  name: string;
-  /**
    * Whether or not the sidebar is collapsed.
    */
   collapsed?: boolean;
@@ -26,7 +22,7 @@ export interface ILayoutProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param param0 Component properties.
  * @returns DefaultLayout component.
  */
-export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest }) => {
+export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => {
   const keycloak = useKeycloakWrapper();
   const { setToken } = React.useContext(SummonContext);
   useToastError();
