@@ -34,9 +34,15 @@ export const BrowserLogin = styled.div`
     color: white;
     &.red {
       background-color: #bc202e;
+      &:hover {
+        background-color: #a61c29;
+      }
     }
     &.cyan {
       background-color: #24b6d4;
+      &:hover {
+        background-color: #1d9dbf;
+      }
     }
   }
 `;
