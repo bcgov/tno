@@ -5,7 +5,7 @@ export const CustomSidebar = styled(Sidebar)`
   /* Side bar styling */
   height: 100vh;
   .ps-sidebar-container {
-    background-color: ${(props) => props.theme.css.subscriberHeaderColor};
+    background-color: ${(props) => props.theme.css.darkHeaderColor};
     img {
       max-width: 100%;
       max-height: 100%;
@@ -19,7 +19,7 @@ export const CustomSidebar = styled(Sidebar)`
   }
 
   .ps-sidebar-root {
-    background-color: ${(props) => props.theme.css.subscriberHeaderColor};
+    background-color: ${(props) => props.theme.css.darkHeaderColor};
     margin-right: 0px;
 
     min-height: 100vh;
@@ -28,13 +28,13 @@ export const CustomSidebar = styled(Sidebar)`
 
   .ps-menu-root {
     ul {
-      background-color: ${(props) => props.theme.css.subscriberHeaderColor};
+      background-color: ${(props) => props.theme.css.darkHeaderColor};
     }
   }
 
   .selected {
-    background-color: ${(props) => props.theme.css.subscriberSelectedMenuItemColor};
-    border-left: 3px solid ${(props) => props.theme.css.subscriberActiveColor};
+    background-color: ${(props) => props.theme.css.selectedMenuItemColor};
+    border-left: 3px solid ${(props) => props.theme.css.itemActiveColor};
   }
 
   .ps-menu-icon {
@@ -52,6 +52,6 @@ export const CustomSidebar = styled(Sidebar)`
   }
 
   .ps-menuitem-root:not(.selected) {
-    background-color: ${(props) => props.theme.css.subscriberMenuItemColor};
+    background-color: ${(props) => props.theme.css.menuItemColor};
   }
 `;

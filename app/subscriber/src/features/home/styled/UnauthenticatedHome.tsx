@@ -6,7 +6,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
   overflow: hidden;
   min-height: calc(100vh - 1.5em);
-  background-color: ${(props) => props.theme.css.subscriberBackgroundColor};
+  background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   width: 100%;
 
   .app-logo {
@@ -38,7 +38,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
     b {
       color: red;
     }
-    background-color: ${(props) => props.theme.css.subscriberStickyNoteColor};
+    background-color: ${(props) => props.theme.css.stickyNoteColor};
     border: 1px solid ${(props) => props.theme.css.lightBlue};
     align-self: center;
     max-width: fit-content;

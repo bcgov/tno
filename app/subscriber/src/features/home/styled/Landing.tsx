@@ -10,7 +10,7 @@ export const Landing = styled(Row)`
   .right-panel {
     margin-left: 1.5em;
     .title {
-      background-color: ${(props) => props.theme.css.subscriberHeaderColor};
+      background-color: ${(props) => props.theme.css.darkHeaderColor};
       padding: 0.5em;
       font-size: 1.25em;
       color: white;
@@ -45,7 +45,7 @@ export const Landing = styled(Row)`
         margin-right: 0.5em;
         margin-top: 0.25em;
       }
-      color: ${(props) => props.theme.css.subscriberRed};
+      color: ${(props) => props.theme.css.defaultRed};
     }
     min-width: 39%;
     background-color: #black;
@@ -70,7 +70,7 @@ export const Landing = styled(Row)`
     }
     margin-left: 0.5%;
     .title {
-      background-color: ${(props) => props.theme.css.subscriberHeaderColor};
+      background-color: ${(props) => props.theme.css.darkHeaderColor};
       padding: 0.5em;
       font-size: 1.75em;
       color: white;
@@ -104,11 +104,11 @@ export const Landing = styled(Row)`
       display: flex;
       justify-content: center;
       &.active {
-        background-color: ${(props) => props.theme.css.subscriberRed} !important;
+        background-color: ${(props) => props.theme.css.defaultRed} !important;
         color: white;
       }
       &.inactive {
-        background-color: ${(props) => props.theme.css.subscriberInactiveButton} !important;
+        background-color: ${(props) => props.theme.css.lightInactiveButton} !important;
         color: #7a7978;
       }
     }

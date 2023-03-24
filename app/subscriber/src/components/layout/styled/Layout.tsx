@@ -15,7 +15,7 @@ export const Layout = styled.div<ILayoutProps>`
 
   /* 2 column base grid, sidebar left column, main content right column */
   .grid-container {
-    background-color: ${(props) => props.theme.css.subscriberBackgroundColor};
+    background-color: ${(props) => props.theme.css.beigeBackgroundColor};
     display: grid;
     ${(props) =>
       props.collapsed
@@ -24,6 +24,6 @@ export const Layout = styled.div<ILayoutProps>`
   }
 
   .main-contents {
-    background-color: ${(props) => props.theme.css.subscriberBackgroundColor};
+    background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   }
 `;
