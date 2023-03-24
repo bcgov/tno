@@ -1,4 +1,6 @@
 import { MenuItemNames } from 'components/layout/constants/MenuItemNames';
+import { SidebarMenuItems } from 'components/layout/constants/SidebarMenuItems';
+import React from 'react';
 import { FaAngleLeft, FaAngleRight, FaCalendarAlt, FaUserCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import { Button, Col, FieldSize, GridTable, Row, Show, Text, useKeycloakWrapper } from 'tno-core';
@@ -8,13 +10,19 @@ import * as styled from './styled';
 export const Landing: React.FC = () => {
   const { id } = useParams();
   const keycloak = useKeycloakWrapper();
+  const [activeItem, setActiveItem] = React.useState<string>(MenuItemNames.Home);
+
+  React.useEffect(() => {
+    if (id)
+      setActiveItem(SidebarMenuItems.find((item) => item.path.includes(id ?? ''))?.label ?? '');
+  }, [id]);
 
   return (
     <styled.Landing>
       <Col className="main-panel">
-        <div className="title">{MenuItemNames[id?.toString() as keyof typeof MenuItemNames]}</div>
+        <div className="title">{activeItem}</div>
         <div className="content">
-          <Show visible={id === MenuItemNames.Home}>
+          <Show visible={activeItem === MenuItemNames.Home}>
             <Row>
               <div className="show-media-label">SHOW MEDIA TYPE:</div>
               <Row className="filter-buttons">

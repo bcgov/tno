@@ -30,7 +30,7 @@ export const AppRouter: React.FC<IAppRouter> = () => {
   return (
     <Routes>
       <Route path="/" element={<DefaultLayout />}>
-        <Route path="/" element={<Navigate to="/landing/Home" />} />
+        <Route path="/" element={<Navigate to="/landing/home" />} />
         <Route path="login" element={<Login />} />
         <Route path="welcome" element={<AccessRequest />} />
         <Route path="access/request" element={<AccessRequest />} />

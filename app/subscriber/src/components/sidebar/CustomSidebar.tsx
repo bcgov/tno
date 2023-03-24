@@ -1,4 +1,4 @@
-import { MenuItemNames } from 'components/layout/constants/MenuItemNames';
+import { SidebarMenuItems } from 'components/layout/constants/SidebarMenuItems';
 import React from 'react';
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from 'react-icons/fa';
 import { Menu, useProSidebar } from 'react-pro-sidebar';
@@ -22,7 +22,7 @@ export const CustomSidebar: React.FC = () => {
             src={!collapsed ? '/assets/mminsights_logo.svg' : '/assets/mm_logo.svg'}
           />
         </Row>
-        <SelectableMenuItems menuItems={Object.values(MenuItemNames)} />
+        <SelectableMenuItems menuItems={SidebarMenuItems} />
       </Menu>
       <Show visible={!collapsed}>
         <FaAngleDoubleLeft className="collapse" onClick={() => collapseSidebar()} />

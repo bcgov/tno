@@ -31,11 +31,12 @@ export const BrowserLogin = styled.div`
     border: none;
     display: flex;
     justify-content: center;
+    color: white;
     &.red {
-      background-color: #bc202e !important;
+      background-color: #bc202e;
     }
     &.cyan {
-      background-color: #24b6d4 !important;
+      background-color: #24b6d4;
     }
   }
 `;

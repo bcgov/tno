@@ -1,21 +1,11 @@
-import { MenuItemNames } from 'components/layout/constants/MenuItemNames';
+import { SidebarMenuItem } from 'components/layout/constants/SidebarMenuItems';
 import React from 'react';
-import {
-  FaClipboard,
-  FaComment,
-  FaFire,
-  FaHeart,
-  FaHome,
-  FaSlidersH,
-  FaUsers,
-  FaUserTie,
-} from 'react-icons/fa';
 import { MenuItem } from 'react-pro-sidebar';
 import { useNavigate } from 'react-router';
 
 export interface ISelectableMenuItemProps {
   // array containing the names of the items to be placed in the sidebar
-  menuItems: string[];
+  menuItems: SidebarMenuItem[];
 }
 
 /**
@@ -30,47 +20,20 @@ export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = ({ menuIt
   // controls route navigation
   const navigate = useNavigate();
 
-  const getKeyByValue = (object: any, value: any) => {
-    return Object.keys(object).find((key) => object[key] === value);
-  };
-
-  // when adding a new element for the menu first add the items name to MenuItemNames.ts and then add the icon here
-  const determineIcon = (item: string): React.ReactElement => {
-    switch (item) {
-      case MenuItemNames.Home:
-        return <FaHome />;
-      case MenuItemNames.TopStories:
-        return <FaFire />;
-      case MenuItemNames.MyMinister:
-        return <FaUserTie />;
-      case MenuItemNames.TodaysCommentary:
-        return <FaComment />;
-      case MenuItemNames.PressGallery:
-        return <FaUsers />;
-      case MenuItemNames.FilterMedia:
-        return <FaSlidersH />;
-      case MenuItemNames.MyCollections:
-        return <FaHeart />;
-      case MenuItemNames.MyReports:
-        return <FaClipboard />;
-      default:
-        return <FaHome />;
-    }
-  };
   return (
     <>
       {menuItems.map((item) => {
         return (
           <MenuItem
             onClick={() => {
-              navigate(`landing/${getKeyByValue(MenuItemNames, item)}` ?? '');
-              setSelected(item);
+              navigate(`landing/${item.path}` ?? '');
+              setSelected(item.label);
             }}
-            className={selected === item ? 'selected' : ''}
-            key={item}
-            icon={determineIcon(item)}
+            className={selected === item.label ? 'selected' : ''}
+            key={item.label}
+            icon={item.icon}
           >
-            {item}
+            {item.label}
           </MenuItem>
         );
       })}
