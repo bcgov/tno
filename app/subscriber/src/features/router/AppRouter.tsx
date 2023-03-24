@@ -16,7 +16,7 @@ export interface IAppRouter {
  * Renders router when the application has been initialized.
  * @returns AppRouter component.
  */
-export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
+export const AppRouter: React.FC<IAppRouter> = () => {
   const [, { authenticated }] = useApp();
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
 
   return (
     <Routes>
-      <Route path="/" element={<DefaultLayout name={name} />}>
+      <Route path="/" element={<DefaultLayout />}>
         <Route path="/" element={<Navigate to="/landing/Home" />} />
         <Route path="login" element={<Login />} />
         <Route path="welcome" element={<AccessRequest />} />

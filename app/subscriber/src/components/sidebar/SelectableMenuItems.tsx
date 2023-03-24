@@ -60,7 +60,6 @@ export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = ({ menuIt
   return (
     <>
       {menuItems.map((item) => {
-        console.log(item);
         return (
           <MenuItem
             onClick={() => {

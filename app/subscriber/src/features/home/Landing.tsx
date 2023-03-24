@@ -12,7 +12,7 @@ export const Landing: React.FC = () => {
   return (
     <styled.Landing>
       <Col className="main-panel">
-        <div className="title">{MenuItemNames[`${id as MenuItemNames}`]}</div>
+        <div className="title">{MenuItemNames[id?.toString() as keyof typeof MenuItemNames]}</div>
         <div className="content">
           <Show visible={id === MenuItemNames.Home}>
             <Row>
