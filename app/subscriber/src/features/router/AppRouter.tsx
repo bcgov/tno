@@ -1,13 +1,11 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
-import { Home } from 'features/home';
+import { Landing } from 'features/home';
 import { Login } from 'features/login';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useApp } from 'store/hooks';
-import { Claim, InternalServerError, NotFound } from 'tno-core';
-
-import { PrivateRoute } from '.';
+import { InternalServerError, NotFound } from 'tno-core';
 
 export interface IAppRouter {
   name: string;
@@ -18,7 +16,7 @@ export interface IAppRouter {
  * Renders router when the application has been initialized.
  * @returns AppRouter component.
  */
-export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
+export const AppRouter: React.FC<IAppRouter> = () => {
   const [, { authenticated }] = useApp();
   const navigate = useNavigate();
 
@@ -31,15 +29,12 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
 
   return (
     <Routes>
-      <Route path="/" element={<DefaultLayout name={name} />}>
-        <Route path="/" element={<Navigate to="/contents" />} />
+      <Route path="/" element={<DefaultLayout />}>
+        <Route path="/" element={<Navigate to="/landing/home" />} />
         <Route path="login" element={<Login />} />
         <Route path="welcome" element={<AccessRequest />} />
         <Route path="access/request" element={<AccessRequest />} />
-        <Route
-          path="contents"
-          element={<PrivateRoute claims={Claim.editor} element={<Home />}></PrivateRoute>}
-        />
+        <Route path="/landing/:id" element={<Landing />} />
         <Route path="error" element={<InternalServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>

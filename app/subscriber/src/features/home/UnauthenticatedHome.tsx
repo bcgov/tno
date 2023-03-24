@@ -1,7 +1,7 @@
-import { LoginPanel } from 'features/login';
-import { useEffect, useState } from 'react';
+import { BrowserView, MobileView } from 'react-device-detect';
+import { useKeycloakWrapper } from 'tno-core';
 
-import { InfoPanel, InfoText, LogoPanel } from '.';
+import { BrowserLogin, MobileLogin } from './login';
 import * as styled from './styled';
 
 export interface IUnauthenticatedHomeProps {
@@ -37,34 +37,30 @@ export interface IUnauthenticatedHomeProps {
  * @returns TextBox component.
  */
 export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = (props) => {
-  const [mobileMode, setMobileMode] = useState(false);
+  const keycloak = useKeycloakWrapper();
 
-  useEffect(() => {
-    const handleResize = () => {
-      const isMobile = window.navigator.maxTouchPoints === 1;
-      setMobileMode(isMobile);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  const login = (hint?: string) => {
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get('redirectTo');
+    params.delete('redirectTo');
+    const redirect = !redirectTo
+      ? encodeURI(window.location.href)
+      : encodeURI(
+          window.location.href.split('?')[0].replace(window.location.pathname, redirectTo) +
+            '?' +
+            params.toString(),
+        );
+    keycloak.instance.login({ idpHint: hint, redirectUri: redirect, scope: 'openid' });
+  };
 
   return (
-    <styled.UnauthenticatedHome
-      className="home"
-      height="618px"
-      width="1200px"
-      backgroundColor="#FFFFFF"
-      useMobileMode={mobileMode}
-    >
-      <LogoPanel backgroundColor="#003366" />
-      <InfoPanel backgroundColor="#F5F5F5">
-        <InfoText />
-      </InfoPanel>
-      <InfoPanel backgroundColor="#FFFFFF" roundedEdges>
-        <LoginPanel />
-      </InfoPanel>
+    <styled.UnauthenticatedHome>
+      <BrowserView>
+        <BrowserLogin login={login} />
+      </BrowserView>
+      <MobileView>
+        <MobileLogin login={login} />
+      </MobileView>
     </styled.UnauthenticatedHome>
   );
 };

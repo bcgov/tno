@@ -1,39 +1,29 @@
 import styled from 'styled-components';
 
-export const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  height: 100vh;
+import { ILayoutProps } from '..';
 
-  .main-window {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    flex-grow: 1;
-    overflow: hidden;
+export const Layout = styled.div<ILayoutProps>`
+  /* Control styling and width behaviour of sidebar when it is resized */
 
-    & > .navbar:first-child {
-      border-bottom: solid 1px #65799e;
+  .collapse {
+    color: white;
+    &:hover {
+      cursor: pointer;
     }
+    ${(props) => (props.collapsed ? 'margin-left: 60px;' : 'margin-left: 230px;')}}};
   }
 
-  main {
-    background-color: #f2f2f2;
-    flex-grow: 1;
-    padding: 10px;
-    position: relative;
-    overflow-y: auto;
-    height: calc(100% - 100px);
-    margin: 0px;
-    padding: 0;
-    display: flex;
-    justify-content: center;
+  /* 2 column base grid, sidebar left column, main content right column */
+  .grid-container {
+    background-color: ${(props) => props.theme.css.beigeBackgroundColor};
+    display: grid;
+    ${(props) =>
+      props.collapsed
+        ? 'grid-template-columns: 80px auto;'
+        : 'grid-template-columns: 250px auto;'}}};
   }
 
-  .navbar {
-    & > div {
-      margin-left: 5em;
-    }
+  .main-contents {
+    background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   }
 `;

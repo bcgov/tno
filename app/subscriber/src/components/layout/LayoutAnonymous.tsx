@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Loading } from 'tno-core';
+import { Loading } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -19,7 +19,6 @@ export const LayoutAnonymous: React.FC<ILayoutAnonymousProps> = ({ name, childre
   const [isLoading] = React.useState(false);
   return (
     <styled.Layout {...rest}>
-      <Header name={name} />
       <div className="main-window">
         <main>
           {children}
