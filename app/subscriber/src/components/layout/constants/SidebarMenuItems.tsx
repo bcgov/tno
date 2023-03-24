@@ -9,53 +9,54 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 
-import { MenuItemNames } from './MenuItemNames';
-
-export interface SidebarMenuItem {
-  label: MenuItemNames;
-  path: string;
-  icon: React.ReactNode;
+export interface ISideBarMenuItems {
+  [key: string]: { label: string; path: string; icon: JSX.Element };
 }
 
-export const SidebarMenuItems: SidebarMenuItem[] = [
-  {
-    label: MenuItemNames.Home,
+/** The below manages the items that will appear in the left navigation bar in sequential order. */
+export const SidebarMenuItems: ISideBarMenuItems = {
+  home: {
+    label: 'Home',
     path: 'home',
     icon: <FaHome />,
   },
-  {
-    label: MenuItemNames.TopStories,
+  topStories: {
+    label: 'Top Stories',
     path: 'topstories',
     icon: <FaFire />,
   },
-  {
-    label: MenuItemNames.MyMinister,
+  myMinister: {
+    label: 'My Minister',
     path: 'myminister',
     icon: <FaUserTie />,
   },
-  {
-    label: MenuItemNames.TodaysCommentary,
+  todaysCommentary: {
+    label: "Today's Commentary",
     path: 'todayscommentary',
     icon: <FaComment />,
   },
-  {
-    label: MenuItemNames.PressGallery,
+  pressGallery: {
+    label: 'Press Gallery',
     path: 'pressgallery',
     icon: <FaUsers />,
   },
-  {
-    label: MenuItemNames.FilterMedia,
+  filterMedia: {
+    label: 'Filter media type',
     path: 'filtermedia',
     icon: <FaSlidersH />,
   },
-  {
-    label: MenuItemNames.MyCollections,
+  myCollections: {
+    label: 'My Collections',
     path: 'mycollections',
     icon: <FaHeart />,
   },
-  {
-    label: MenuItemNames.MyReports,
+  myReports: {
+    label: 'My Reports',
     path: 'myreports',
     icon: <FaClipboard />,
   },
-];
+};
+
+export const sidebarMenuItemsArray = Object.keys(SidebarMenuItems).map(
+  (key) => SidebarMenuItems[key],
+);

@@ -1,12 +1,9 @@
-import { SidebarMenuItem } from 'components/layout/constants/SidebarMenuItems';
+import { sidebarMenuItemsArray } from 'components/layout/constants/SidebarMenuItems';
 import React from 'react';
 import { MenuItem } from 'react-pro-sidebar';
 import { useNavigate } from 'react-router';
 
-export interface ISelectableMenuItemProps {
-  // array containing the names of the items to be placed in the sidebar
-  menuItems: SidebarMenuItem[];
-}
+export interface ISelectableMenuItemProps {}
 
 /**
  * SelectableMenuItems returns MenuItems for react-pro-sidebar. These menu items will be state controlled and display a
@@ -14,7 +11,7 @@ export interface ISelectableMenuItemProps {
  * @param menuItems Array of strings containing the names of the menu items to be displayed.
  * @returns SelectableMenuItems component.
  */
-export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = ({ menuItems }) => {
+export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = () => {
   // state variable to tell if the menu item is selected
   const [selected, setSelected] = React.useState('Home');
   // controls route navigation
@@ -22,7 +19,7 @@ export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = ({ menuIt
 
   return (
     <>
-      {menuItems.map((item) => {
+      {sidebarMenuItemsArray.map((item) => {
         return (
           <MenuItem
             onClick={() => {

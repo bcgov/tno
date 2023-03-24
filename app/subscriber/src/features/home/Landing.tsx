@@ -1,5 +1,7 @@
-import { MenuItemNames } from 'components/layout/constants/MenuItemNames';
-import { SidebarMenuItems } from 'components/layout/constants/SidebarMenuItems';
+import {
+  SidebarMenuItems,
+  sidebarMenuItemsArray,
+} from 'components/layout/constants/SidebarMenuItems';
 import React from 'react';
 import { FaAngleLeft, FaAngleRight, FaCalendarAlt, FaUserCircle } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
@@ -10,11 +12,13 @@ import * as styled from './styled';
 export const Landing: React.FC = () => {
   const { id } = useParams();
   const keycloak = useKeycloakWrapper();
-  const [activeItem, setActiveItem] = React.useState<string>(MenuItemNames.Home);
+  const [activeItem, setActiveItem] = React.useState<string>(SidebarMenuItems.home.label);
 
   React.useEffect(() => {
     if (id)
-      setActiveItem(SidebarMenuItems.find((item) => item.path.includes(id ?? ''))?.label ?? '');
+      setActiveItem(
+        sidebarMenuItemsArray.find((item) => item.path.includes(id ?? ''))?.label ?? '',
+      );
   }, [id]);
 
   return (
@@ -22,7 +26,7 @@ export const Landing: React.FC = () => {
       <Col className="main-panel">
         <div className="title">{activeItem}</div>
         <div className="content">
-          <Show visible={activeItem === MenuItemNames.Home}>
+          <Show visible={activeItem === SidebarMenuItems.home.label}>
             <Row>
               <div className="show-media-label">SHOW MEDIA TYPE:</div>
               <Row className="filter-buttons">
