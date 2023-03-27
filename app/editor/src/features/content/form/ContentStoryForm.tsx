@@ -229,7 +229,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         </Col>
       </Row>
       <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
-        <Show visible={contentType === ContentTypeName.Snippet}>
+        <Show visible={contentType === ContentTypeName.Snippet || showExpandModal}>
           <Row className="multi-group">
             <TimeLogSection
               toggle={toggle}
