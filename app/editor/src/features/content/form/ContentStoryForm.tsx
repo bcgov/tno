@@ -229,8 +229,8 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         </Col>
       </Row>
       <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
-        <Show visible={contentType === ContentTypeName.Snippet || showExpandModal}>
-          <Row className="multi-group">
+        <Row className="multi-group">
+          <Show visible={contentType === ContentTypeName.Snippet}>
             <TimeLogSection
               toggle={toggle}
               content={content}
@@ -239,6 +239,25 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
               setEffort={setEffort}
               userId={userId!}
             />
+            <Modal
+              hide={toggle}
+              isShowing={isShowing}
+              headerText="Prep Time Log"
+              body={
+                <TimeLogTable
+                  setTotalEffort={setEffort}
+                  totalEffort={effort}
+                  data={values.timeTrackings}
+                />
+              }
+              customButtons={
+                <Button variant={ButtonVariant.secondary} onClick={toggle}>
+                  Close
+                </Button>
+              }
+            />
+          </Show>
+          <Show visible={contentType === ContentTypeName.Snippet || showExpandModal}>
             <Modal
               body={
                 <Wysiwyg
@@ -258,26 +277,8 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
                 </Button>
               }
             />
-
-            <Modal
-              hide={toggle}
-              isShowing={isShowing}
-              headerText="Prep Time Log"
-              body={
-                <TimeLogTable
-                  setTotalEffort={setEffort}
-                  totalEffort={effort}
-                  data={values.timeTrackings}
-                />
-              }
-              customButtons={
-                <Button variant={ButtonVariant.secondary} onClick={toggle}>
-                  Close
-                </Button>
-              }
-            />
-          </Row>
-        </Show>
+          </Show>
+        </Row>
       </Row>
     </styled.ContentStoryForm>
   );
