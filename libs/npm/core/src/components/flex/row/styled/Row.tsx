@@ -5,7 +5,7 @@ import { IRowProps } from '..';
 export const Row = styled.div<IRowProps>`
   display: flex;
   width: ${(props) => props.width ?? 'auto'};
-  flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : props.wrap ?? 'nowrap')};
+  flex-wrap: ${(props) => (props.nowrap ? 'nowrap' : props.wrap ?? 'wrap')};
   ${(props) => props.direction !== undefined && `flex-direction: ${props.direction};`}
   ${(props) => props.grow !== undefined && `flex-grow: ${props.grow};`}
   ${(props) => props.shrink !== undefined && `flex-shrink: ${props.shrink};`}
