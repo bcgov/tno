@@ -1,10 +1,10 @@
 import { OptionItem } from 'tno-core';
 
-import { ShowOnlyValues } from './ShowOnlyValues';
+import { ShowOnlyValues } from '.';
 
 export const showOnlyOptions = [
-  new OptionItem('Print Content', ShowOnlyValues.PrintContent),
-  new OptionItem('Included in EoD', ShowOnlyValues.IncludedInEod),
-  new OptionItem('Commentary', ShowOnlyValues.Commentary),
-  new OptionItem('Top Story', ShowOnlyValues.TopStory),
+  new OptionItem(ShowOnlyValues.PrintContent, ShowOnlyValues.PrintContent),
+  new OptionItem(ShowOnlyValues.HasTopic, ShowOnlyValues.HasTopic),
+  new OptionItem(ShowOnlyValues.Commentary, ShowOnlyValues.Commentary),
+  new OptionItem(ShowOnlyValues.TopStory, ShowOnlyValues.TopStory),
 ];

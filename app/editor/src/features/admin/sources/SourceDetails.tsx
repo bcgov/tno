@@ -74,7 +74,7 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           options={filterEnabledOptions(users)}
         />
         <FormikSelect
-          label="Product Designation Override"
+          label="Product Override"
           name="productId"
           tooltip="The product designation the source content will be assigned (overrides the value in the ingest)"
           options={products}

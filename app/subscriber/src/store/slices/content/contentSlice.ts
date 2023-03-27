@@ -4,7 +4,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
+import { IMorningReportFilter } from 'features/content/morning-reports/interfaces';
 import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
@@ -13,7 +13,7 @@ export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
     pageSize: 100,
-    includedInTopic: false,
+    hasTopic: false,
     includeHidden: false,
     sourceId: 0,
     otherSource: '',
@@ -35,7 +35,7 @@ export const initialContentState: IContentState = {
   morningReportFilter: {
     pageIndex: 0,
     pageSize: 100,
-    includedInTopic: false,
+    hasTopic: false,
     includeHidden: false,
     sourceId: 0,
     otherSource: '',

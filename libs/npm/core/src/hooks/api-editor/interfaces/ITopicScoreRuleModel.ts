@@ -6,8 +6,8 @@ export interface ITopicScoreRuleModel extends IAuditColumnsModel {
   source?: ISourceModel;
   seriesId?: number;
   section?: string;
-  pageMin?: number;
-  pageMax?: number;
+  pageMin?: string;
+  pageMax?: string;
   hasImage?: boolean;
   timeMin?: string;
   timeMax?: string;

@@ -4,7 +4,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
+import { IMorningReportsFilter } from 'features/content/morning-reports/interfaces';
 import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
 
 import { IContentState } from './interfaces';
@@ -13,18 +13,20 @@ export const initialContentState: IContentState = {
   filter: {
     pageIndex: 0,
     pageSize: 100,
-    includedInTopic: false,
+    hasTopic: false,
     includeHidden: false,
-    sourceId: 0,
+    onlyHidden: false,
+    onlyPublished: false,
     otherSource: '',
     ownerId: '',
     userId: 0,
+    contentTypes: [],
     productIds: [],
     sourceIds: [],
     timeFrame: 0,
-    onTicker: '',
-    commentary: '',
-    topStory: '',
+    onTicker: false,
+    commentary: false,
+    topStory: false,
     sort: [],
   },
   filterAdvanced: {
@@ -32,21 +34,23 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  filterMorningReport: {
+  filterMorningReports: {
     pageIndex: 0,
     pageSize: 100,
-    includedInTopic: false,
+    hasTopic: false,
     includeHidden: false,
-    sourceId: 0,
+    onlyHidden: false,
+    onlyPublished: false,
     otherSource: '',
+    contentTypes: [],
     productIds: [],
     sourceIds: [],
     ownerId: '',
     userId: '',
     timeFrame: 0,
-    onTicker: '',
-    commentary: '',
-    topStory: '',
+    onTicker: false,
+    commentary: false,
+    topStory: false,
     sort: [],
   },
 };
@@ -61,8 +65,8 @@ export const contentSlice = createSlice({
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
     },
-    storeMorningReportFilter(state: IContentState, action: PayloadAction<IMorningReportFilter>) {
-      state.filterMorningReport = action.payload;
+    storeMorningReportFilter(state: IContentState, action: PayloadAction<IMorningReportsFilter>) {
+      state.filterMorningReports = action.payload;
     },
     storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
       state.content = action.payload;

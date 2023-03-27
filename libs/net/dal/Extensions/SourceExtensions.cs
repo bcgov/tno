@@ -36,7 +36,6 @@ public static class SourceExtensions
         {
             var ometrics = context.SourceMetrics.Where(m => m.SourceId == updated.Id).ToArray();
 
-
             ometrics.Except(updated.MetricsManyToMany).ForEach(a =>
             {
                 context.Entry(a).State = EntityState.Deleted;

@@ -8,17 +8,16 @@ export const ToolBarSection = styled(Col)`
     font-weight: 600;
     font-size: 1.25em;
   }
-    .white-bg {
-      background-color: ${(props) => props.theme.css.backgroundColor};
-      padding: 0.25em;
-      border-radius: 4px;
-    }
-    .title-children {
-      border-radius: 4px;
-    }
+  .white-bg {
+    background-color: ${(props) => props.theme.css.backgroundColor};
+    padding: 0.25em;
+    border-radius: 4px;
+  }
+  .title-children {
+    border-radius: 4px;
+  }
 
   .children-container {
-
     .txt {
       background-color: ${(props) => props.theme.css.backgroundColor};
     }
@@ -55,7 +54,7 @@ export const ToolBarSection = styled(Col)`
       align-self: center;
       padding-left: 0.5em;
       padding-right: 0.25em;
-      color: ${(props) => props.theme.css.primaryColor}
+      color: ${(props) => props.theme.css.primaryColor};
       height: 100%;
       width: 1.25em;
       cursor: pointer;

@@ -5,10 +5,11 @@ import { ISortBy } from '.';
 export interface IContentListFilter {
   pageIndex: number;
   pageSize: number;
-  includedInTopic: boolean;
+  hasTopic: boolean;
   includeHidden: boolean;
-  contentType?: ContentTypeName;
-  sourceId: number;
+  onlyHidden: boolean;
+  onlyPublished: boolean;
+  contentTypes: ContentTypeName[];
   otherSource: string;
   productIds: number[];
   sourceIds: number[];
@@ -17,8 +18,8 @@ export interface IContentListFilter {
   timeFrame: number | '';
   // Actions
   showOnly?: string;
-  onTicker: string;
-  commentary: string;
-  topStory: string;
+  onTicker: boolean;
+  commentary: boolean;
+  topStory: boolean;
   sort: ISortBy[];
 }

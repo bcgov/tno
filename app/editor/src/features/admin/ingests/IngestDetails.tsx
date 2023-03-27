@@ -126,7 +126,7 @@ export const IngestDetails: React.FC<IIngestDetailsProps> = () => {
           required
         />
         <FormikSelect
-          label="Product Designation"
+          label="Product"
           name="productId"
           tooltip="The product designation the ingested content will be assigned"
           options={products}

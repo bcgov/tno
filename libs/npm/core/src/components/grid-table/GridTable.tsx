@@ -124,6 +124,8 @@ export interface IGridTableProps<T extends object = Record<string, unknown>> {
    * The initial selected rows.
    */
   selectedRowIds?: Record<IdType<T>, boolean>;
+  /** Event fires when active row changes. */
+  onActiveRowChange?: (row?: Row<T>) => void;
   /**
    * Event fires when selected rows changes.
    */
@@ -161,6 +163,7 @@ export const GridTable = <T extends object>({
   maintainSelectedRows = true,
   selectedRowIds: initSelectedRowIds,
   onSelectedRowsChange,
+  onActiveRowChange,
   getRowId,
   infiniteScroll,
   setAddToInfiniteItems,
@@ -234,6 +237,7 @@ export const GridTable = <T extends object>({
   };
 
   const [activeRow, setActiveRow] = React.useState<Row<T>>();
+  const [initialSelectedRowIds, setInitialSelectedRowIds] = React.useState(initSelectedRowIds);
 
   // for infinite scrolling
   const observer = React.useRef<IntersectionObserver>();
@@ -251,6 +255,16 @@ export const GridTable = <T extends object>({
       if (node) observer.current.observe(node);
     },
     [isLoading, canNextPage, setAddToInfiniteItems, nextPage],
+  );
+
+  const changeActiveRow = React.useCallback(
+    (row: Row<T> | undefined) => {
+      if (row?.id !== activeRow?.id) {
+        setActiveRow(row);
+        onActiveRowChange?.(row);
+      }
+    },
+    [activeRow, onActiveRowChange],
   );
 
   React.useEffect(() => {
@@ -287,32 +301,32 @@ export const GridTable = <T extends object>({
   }, [initialSortBy, instance, onChangeSort, sortBy]);
 
   React.useEffect(() => {
-    if (!!initSelectedRowIds) {
+    const initRowIds = Object.keys(
+      (initialSelectedRowIds ?? {}) as Record<string, boolean>,
+    ).toString();
+    const selectedRowIds = Object.keys((initSelectedRowIds ?? {}) as Record<string, boolean>);
+    if (initRowIds !== selectedRowIds.toString()) {
+      setInitialSelectedRowIds(initSelectedRowIds);
       // For each row toggle it if it needs to change based on the latest selected values.
-      const selectedRowIds = Object.keys(initSelectedRowIds as Record<string, boolean>);
-      var first = true;
       instance.rows.forEach((row) => {
-        const select = selectedRowIds.find((id) => id === row.id);
-        if (!select && row.isSelected) row.toggleRowSelected(false);
-        else if (!!select && row.id === select) {
-          row.toggleRowSelected(initSelectedRowIds[select]);
-          if (initSelectedRowIds[select] && first) {
-            // Set the first selected row as the active row.
-            setActiveRow(row);
-            first = false;
-          }
+        const selectId = selectedRowIds.find((id) => id === row.id);
+        if (selectId) {
+          row.toggleRowSelected(true);
+          changeActiveRow(row);
         }
       });
     }
-  }, [initSelectedRowIds, instance]);
+  }, [initSelectedRowIds, initialSelectedRowIds, instance, changeActiveRow]);
 
   React.useEffect(() => {
     if (!!selectedFlatRows) {
       onSelectedRowsChange?.(selectedFlatRows, instance);
-      if (selectedFlatRows.length === 0) setActiveRow(undefined);
+      if (selectedFlatRows.length === 0) {
+        changeActiveRow(undefined);
+      }
     }
     // For some reason 'onSelectedRowsChange' results in spam...
-  }, [selectedFlatRows, onSelectedRowsChange, instance]);
+  }, [selectedFlatRows, onSelectedRowsChange, instance, changeActiveRow]);
 
   const handleRowClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, row: Row<T>) => {
     // Deselect all selected rows on a normal click.
@@ -320,17 +334,17 @@ export const GridTable = <T extends object>({
     if (!row.isSelected) {
       // Make the row selected and active.
       row.toggleRowSelected(true);
-      setActiveRow(row);
+      changeActiveRow(row);
     } else if (activeRow?.id === row.id) {
       // Only change the active row if ctrl is pressed.
       if (e.ctrlKey && selectedFlatRows.length > 1) {
         const index = selectedFlatRows[0].index === row.index ? 1 : 0;
         row.toggleRowSelected(false);
-        setActiveRow(selectedFlatRows[index]);
+        changeActiveRow(selectedFlatRows[index]);
       }
     } else if (!e.ctrlKey) {
       // Selecting an active row when multiple are selected will just change the active row.
-      setActiveRow(row);
+      changeActiveRow(row);
     } else {
       // Remove selected item.
       row.toggleRowSelected(false);

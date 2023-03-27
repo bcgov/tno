@@ -1,5 +1,5 @@
 export * from './form';
 export * from './list-view';
 export * from './logs';
-export * from './morning-report';
+export * from './morning-reports';
 export * from './utils';

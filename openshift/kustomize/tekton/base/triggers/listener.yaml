@@ -28,6 +28,12 @@ spec:
                 || body.head_commit.modified.exists(m, m.startsWith('app/editor'))
                 || body.head_commit.removed.exists(m, m.startsWith('app/editor'))
 
+                || body.commits.exists(c, c.modified.exists(m, m.startsWith('app/subscriber')))
+                || body.commits.exists(c, c.removed.exists(m, m.startsWith('app/subscriber')))
+                || body.head_commit.added.exists(m, m.startsWith('app/subscriber'))
+                || body.head_commit.modified.exists(m, m.startsWith('app/subscriber'))
+                || body.head_commit.removed.exists(m, m.startsWith('app/subscriber'))
+
                 || body.commits.exists(c, c.added.exists(m, m.startsWith('api/net')))
                 || body.commits.exists(c, c.modified.exists(m, m.startsWith('api/net')))
                 || body.commits.exists(c, c.removed.exists(m, m.startsWith('api/net')))

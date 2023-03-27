@@ -143,7 +143,7 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
               <Select
                 className="select"
                 name="productIds"
-                placeholder="Designation"
+                placeholder="Product"
                 isMulti
                 closeMenuOnSelect={false}
                 hideSelectedOptions={false}

@@ -14,21 +14,27 @@ export const calcTopicScore = (values: IContentForm, rules: ITopicScoreRuleModel
   rules
     .filter((r) => r.sourceId === values.sourceId)
     .every((r) => {
-      // Eliminate any rule that doesn't match the content values.
+      // Eliminate any rule that doesn't match the content values by returning true.
       if (r.section !== undefined && values.section !== r.section) return true;
 
       if (r.seriesId !== undefined && values.seriesId !== r.seriesId) return true;
 
+      const riPageMin = r.pageMin !== undefined ? r.pageMin.search(/\d$/) : undefined;
+      const riPageMax = r.pageMax !== undefined ? r.pageMax.search(/\d$/) : undefined;
+      const rPageMin = riPageMin !== undefined ? Number(r.pageMin?.slice(riPageMin)) : undefined;
+      const rPageMax = riPageMax !== undefined ? Number(r.pageMax?.slice(riPageMax)) : undefined;
+
+      const viPage = values.page !== '' ? values.page.search(/\d$/) : undefined;
+      const vPage = viPage !== undefined ? Number(values.page?.slice(viPage)) : 0;
+
       if (
-        r.pageMin !== undefined &&
-        r.pageMax !== undefined &&
-        (+values.page === 0 || +values.page < r.pageMin || +values.page > r.pageMax)
+        rPageMin !== undefined &&
+        rPageMax !== undefined &&
+        (vPage === 0 || vPage < rPageMin || vPage > rPageMax)
       )
         return true;
-      else if (r.pageMin !== undefined && (+values.page === 0 || +values.page < r.pageMin))
-        return true;
-      else if (r.pageMax !== undefined && (+values.page === 0 || +values.page > r.pageMax))
-        return true;
+      else if (rPageMin !== undefined && (vPage === 0 || vPage < rPageMin)) return true;
+      else if (rPageMax !== undefined && (vPage === 0 || vPage > rPageMax)) return true;
 
       // if (r.hasImage !== undefined && values.hasImage) return true; // TODO: We need a way to identify a story has an image.
 
