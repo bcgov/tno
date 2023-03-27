@@ -27,11 +27,11 @@ import {
 } from 'tno-core';
 
 import { IFile, Tags, TimeLogSection, ToningGroup, Wysiwyg } from '.';
+import { Topic } from './components';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
 import { TimeLogTable } from './TimeLogTable';
-import { TopicForm } from './TopicForm';
 import { getTotalTime } from './utils';
 
 export interface IContentStoryFormProps {
@@ -197,7 +197,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
         >
           <Row>
             <div className="vl" />
-            <TopicForm />
+            <Topic />
           </Row>
         </Show>
       </Row>

@@ -15,8 +15,8 @@ import {
   TimeInput,
 } from 'tno-core';
 
+import { Topic } from './components';
 import { IContentForm } from './interfaces';
-import { TopicForm } from './TopicForm';
 
 // TODO: This is horrible to hardcode these sources, the image form is for any type of image and shouldn't be limited to a few sources.
 const validSources = ['TC', 'PROVINCE', 'GLOBE', 'POST', 'SUN'];
@@ -102,7 +102,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
         }}
       />
       <Show visible={source?.useInTopics || program?.useInTopics}>
-        <TopicForm />
+        <Topic />
       </Show>
     </Row>
   );
