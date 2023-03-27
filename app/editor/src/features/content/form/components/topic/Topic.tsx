@@ -13,16 +13,16 @@ import {
   TopicTypeName,
 } from 'tno-core';
 
-import { IContentForm } from './interfaces';
-import { calcTopicScore } from './utils/calcTopicScore';
+import { IContentForm } from '../../interfaces';
+import { calcTopicScore } from '../../utils/calcTopicScore';
 
-export interface ITopicFormProps {}
+export interface ITopicProps {}
 
 /**
  * A form component to enter the content topic.
  * @returns Form component for topic.
  */
-export const TopicForm: React.FC<ITopicFormProps> = () => {
+export const Topic: React.FC<ITopicProps> = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ topics, rules }] = useLookup();
 

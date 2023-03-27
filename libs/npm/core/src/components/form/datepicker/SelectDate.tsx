@@ -1,6 +1,6 @@
 import 'react-datepicker/dist/react-datepicker.css';
 
-import React, { useState } from 'react';
+import React from 'react';
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker';
 
 import { Error, FieldSize } from '../../form';
@@ -55,7 +55,16 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
   onChange,
   ...rest
 }) => {
-  const [startDate, setStartDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
+  const [startDate, setStartDate] = React.useState(
+    selectedDate ? new Date(selectedDate) : undefined,
+  );
+
+  React.useEffect(() => {
+    const selected = selectedDate ? new Date(selectedDate) : undefined;
+    if (selected && selected.getTime() !== startDate?.getTime()) {
+      setStartDate(selected);
+    }
+  }, [selectedDate, startDate]);
 
   return (
     <styled.SelectDate
@@ -71,41 +80,22 @@ export const SelectDate: React.FC<IDatePickerProps> = ({
           {label}
         </label>
       )}
-      {selectedDate ? (
-        <>
-          <DatePicker
-            name={name}
-            id={id}
-            selected={startDate}
-            onChange={(date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
-              setStartDate(date as Date);
-              if (onChange) onChange(date, event);
-            }}
-            className={`dpk${className ? ` ${className}` : ''}`}
-            data-tooltip-id="main-tooltip"
-            data-tooltip-content={tooltip}
-            disabled={rest.disabled}
-            required={required}
-            {...rest}
-          />
-          <Error error={error} />
-        </>
-      ) : (
-        <>
-          <DatePicker
-            name={name}
-            id={id}
-            className={`dpk${className ? ` ${className}` : ''}`}
-            data-tooltip-id="main-tooltip"
-            data-tooltip-content={tooltip}
-            disabled={rest.disabled}
-            required={required}
-            onChange={onChange}
-            {...rest}
-          />
-          <Error error={error} />
-        </>
-      )}
+      <DatePicker
+        name={name}
+        id={id}
+        selected={startDate}
+        onChange={(date: Date | null, event: React.SyntheticEvent<any, Event> | undefined) => {
+          setStartDate(date as Date);
+          if (onChange) onChange(date, event);
+        }}
+        className={`dpk${className ? ` ${className}` : ''}`}
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content={tooltip}
+        disabled={rest.disabled}
+        required={required}
+        {...rest}
+      />
+      <Error error={error} />
     </styled.SelectDate>
   );
 };
