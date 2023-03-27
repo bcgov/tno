@@ -17,6 +17,7 @@ import {
   Area,
   Button,
   ButtonVariant,
+  Claim,
   Col,
   ContentStatusName,
   ContentTypeName,
@@ -700,13 +701,20 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Button>
                     </Show>
 
-                    <Button
-                      onClick={toggleDelete}
-                      variant={ButtonVariant.danger}
-                      disabled={props.isSubmitting}
+                    <Show
+                      visible={
+                        props.values.status === ContentStatusName.Unpublished &&
+                        userInfo?.roles.includes(Claim.administrator)
+                      }
                     >
-                      Delete
-                    </Button>
+                      <Button
+                        onClick={toggleDelete}
+                        variant={ButtonVariant.danger}
+                        disabled={props.isSubmitting}
+                      >
+                        Delete
+                      </Button>
+                    </Show>
                   </Show>
                 </Row>
                 <Modal
