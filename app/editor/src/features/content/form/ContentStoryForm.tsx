@@ -212,6 +212,25 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
         />
+        <Modal
+          body={
+            <Wysiwyg
+              label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
+              required
+              fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
+            />
+          }
+          isShowing={showExpandModal}
+          hide={() => setShowExpandModal(!showExpandModal)}
+          customButtons={
+            <Button
+              variant={ButtonVariant.secondary}
+              onClick={() => setShowExpandModal(!showExpandModal)}
+            >
+              Close
+            </Button>
+          }
+        />
       </Show>
       <Row>
         <Col flex="1 1 0">
@@ -252,27 +271,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
               }
               customButtons={
                 <Button variant={ButtonVariant.secondary} onClick={toggle}>
-                  Close
-                </Button>
-              }
-            />
-          </Show>
-          <Show visible={contentType === ContentTypeName.Snippet || showExpandModal}>
-            <Modal
-              body={
-                <Wysiwyg
-                  label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
-                  required
-                  fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
-                />
-              }
-              isShowing={showExpandModal}
-              hide={() => setShowExpandModal(!showExpandModal)}
-              customButtons={
-                <Button
-                  variant={ButtonVariant.secondary}
-                  onClick={() => setShowExpandModal(!showExpandModal)}
-                >
                   Close
                 </Button>
               }
