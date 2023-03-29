@@ -9,7 +9,6 @@ import {
   fromQueryString,
   getUserOptions,
   IOptionItem,
-  OptionItem,
   replaceQueryParams,
   Row,
   Select,
@@ -29,8 +28,7 @@ export interface IFilterContentSectionProps {}
  */
 export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => {
   const [{ filter, filterAdvanced }, { storeFilter }] = useContent();
-  const [{ productOptions: pOptions, users }] = useLookupOptions();
-  const [productOptions, setProductOptions] = React.useState<IOptionItem[]>([]);
+  const [{ productOptions, users }] = useLookupOptions();
   const [userOptions, setUserOptions] = React.useState<IOptionItem[]>([]);
   const [{ userInfo }] = useApp();
 
@@ -54,10 +52,6 @@ export const FilterContentSection: React.FC<IFilterContentSectionProps> = () => 
   React.useEffect(() => {
     setUserOptions(getUserOptions(users.filter((u) => !u.isSystemAccount)));
   }, [users]);
-
-  React.useEffect(() => {
-    setProductOptions([new OptionItem<number>('Any', 0), ...pOptions]);
-  }, [pOptions]);
 
   const onChange = React.useCallback(
     (filter: IContentListFilter) => {
