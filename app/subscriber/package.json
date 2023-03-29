@@ -73,7 +73,6 @@
     "@types/react-text-mask": "5.4.11",
     "@types/redux-logger": "3.0.9",
     "@types/styled-components": "5.1.26",
-    "@types/yup": "0.32.0",
     "@typescript-eslint/eslint-plugin": "5.55.0",
     "@typescript-eslint/parser": "5.55.0",
     "compression-webpack-plugin": "10.0.0",
