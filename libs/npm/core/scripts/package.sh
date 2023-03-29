@@ -40,4 +40,6 @@ if [[ "$1" ]]; then
   yarn install
 
   echo "Run 'make refresh n=$1' in the root directory to rebuild the frontend app."
+else
+  echo "*Please provide either n=subscriber or n=editor*"
 fi
