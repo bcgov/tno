@@ -2,7 +2,7 @@ import { OptionItem } from 'tno-core';
 
 export const fieldTypes = [
   new OptionItem('Headline', 'headline'),
-  new OptionItem('Source', 'sourceId'),
+  new OptionItem('Source', 'sourceIds'),
   new OptionItem('Byline', 'byline'),
   new OptionItem('Section', 'section'),
   new OptionItem('Page', 'pageName'),
