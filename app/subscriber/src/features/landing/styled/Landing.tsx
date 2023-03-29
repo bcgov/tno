@@ -48,7 +48,6 @@ export const Landing = styled(Row)`
       color: ${(props) => props.theme.css.defaultRed};
     }
     min-width: 39%;
-    background-color: #black;
     input {
       min-height: 3em;
       border-radius: none;

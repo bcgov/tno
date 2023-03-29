@@ -1,6 +1,6 @@
 import { DefaultLayout } from 'components/layout';
 import { AccessRequest } from 'features/access-request';
-import { Landing } from 'features/home';
+import { Landing } from 'features/landing';
 import { Login } from 'features/login';
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';

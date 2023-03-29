@@ -1,6 +1,6 @@
+import { SubscriberFooter } from 'components/footer';
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
-import { UnauthenticatedHome } from 'features/home';
-import { SubscriberFooter } from 'features/home/SubscriberFooter';
+import { UnauthenticatedHome } from 'features/login';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
