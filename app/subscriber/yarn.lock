@@ -3645,15 +3645,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yup@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@types/yup@npm:0.32.0"
-  dependencies:
-    yup: "*"
-  checksum: 5b30f1118bca288d949bcd4c7e17d1425ffa320eddd751a78c895b158fae0b6cbf242ced45ad47e9e70643c9475da09a7ad004192fb6f2111791d37e6a627e73
-  languageName: node
-  linkType: hard
-
 "@typescript-eslint/eslint-plugin@npm:5.55.0":
   version: 5.55.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.55.0"
@@ -10253,7 +10244,6 @@ __metadata:
     "@types/react-text-mask": 5.4.11
     "@types/redux-logger": 3.0.9
     "@types/styled-components": 5.1.26
-    "@types/yup": 0.32.0
     "@typescript-eslint/eslint-plugin": 5.55.0
     "@typescript-eslint/parser": 5.55.0
     axios: 1.3.4
@@ -15348,7 +15338,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yup@npm:*, yup@npm:^0.32.11":
+"yup@npm:^0.32.11":
   version: 0.32.11
   resolution: "yup@npm:0.32.11"
   dependencies:
