@@ -33,6 +33,11 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
   const [filter, setFilter] = React.useState(oFilter);
   const [filterAdvanced, setFilterAdvanced] = React.useState(oFilterAdvanced);
 
+  // keep the filter in sync with the store
+  React.useEffect(() => {
+    setFilter(oFilter);
+  }, [oFilter]);
+
   const onChange = React.useCallback(() => {
     storeFilter({ ...filter, pageIndex: 0 });
     storeFilterAdvanced(filterAdvanced);
