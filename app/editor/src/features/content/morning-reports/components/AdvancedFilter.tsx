@@ -89,7 +89,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
             checked={
               !!frontPageProduct && filter.productIds?.includes(frontPageProduct.id) === true
             }
-            tooltip="Content identified as commentary"
+            tooltip="Content identified as a Front Page"
             onChange={(e) => {
               if (!!frontPageProduct)
                 onFilterChange({
