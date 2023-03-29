@@ -1,6 +1,6 @@
 export enum ShowOnlyValues {
-  PrintContent = 'PrintContent',
-  IncludedInEod = 'EoD',
+  PrintContent = 'Print Content',
+  HasTopic = 'Has Topic',
   Commentary = 'Commentary',
   TopStory = 'Top Story',
 }

@@ -47,6 +47,7 @@ public class ContentController : ControllerBase
     private readonly IFileReferenceService _fileReferenceService;
     private readonly IWorkOrderService _workOrderService;
     private readonly IUserService _userService;
+    private readonly IActionService _actionService;
     private readonly StorageOptions _storageOptions;
     private readonly IConnectionHelper _connection;
     private readonly IHubContext<MessageHub> _hub;
@@ -64,6 +65,7 @@ public class ContentController : ControllerBase
     /// <param name="fileReferenceService"></param>
     /// <param name="workOrderService"></param>
     /// <param name="userService"></param>
+    /// <param name="actionService"></param>
     /// <param name="hub"></param>
     /// <param name="connection"></param>
     /// <param name="storageOptions"></param>
@@ -76,6 +78,7 @@ public class ContentController : ControllerBase
         IFileReferenceService fileReferenceService,
         IWorkOrderService workOrderService,
         IUserService userService,
+        IActionService actionService,
         IHubContext<MessageHub> hub,
         IConnectionHelper connection,
         IOptions<StorageOptions> storageOptions,
@@ -88,6 +91,7 @@ public class ContentController : ControllerBase
         _fileReferenceService = fileReferenceService;
         _workOrderService = workOrderService;
         _userService = userService;
+        _actionService = actionService;
         _storageOptions = storageOptions.Value;
         _hub = hub;
         _connection = connection;
@@ -217,6 +221,110 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
+    /// Perform the specified 'action' to the specified array of content.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel[]), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Morning-Report" })]
+    public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
+    {
+        var items = _contentService.FindWithDatabase(new ContentFilter()
+        {
+            Quantity = model.ContentIds.Count(),
+            ContentIds = model.ContentIds.ToArray(),
+            IncludeHidden = true
+        }, false).Items;
+
+        var update = new List<Content>();
+        var action = !String.IsNullOrWhiteSpace(model.ActionName) ? _actionService.FindByName(model.ActionName) : null;
+        foreach (var content in items)
+        {
+            if (model.Action == ContentListAction.Publish)
+            {
+                if (content.Status != ContentStatus.Published)
+                {
+                    content.Status = ContentStatus.Publish;
+                    _contentService.Update(content);
+                    update.Add(content);
+                }
+            }
+            else if (model.Action == ContentListAction.Unpublish)
+            {
+                if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                {
+                    content.Status = ContentStatus.Unpublish;
+                    _contentService.Update(content);
+                    update.Add(content);
+                }
+            }
+            else if (model.Action == ContentListAction.Hide)
+            {
+                if (!content.IsHidden)
+                {
+                    content.IsHidden = true;
+                    _contentService.Update(content);
+                    update.Add(content);
+                }
+            }
+            else if (model.Action == ContentListAction.Unhide)
+            {
+                if (content.IsHidden)
+                {
+                    content.IsHidden = false;
+                    _contentService.Update(content);
+                    update.Add(content);
+                }
+            }
+            else if (model.Action == ContentListAction.Action)
+            {
+                if (action == null) throw new InvalidOperationException($"Action specified '{model.ActionName}' does not exist.");
+                _contentService.FindById(content.Id);
+                var currentAction = content.ActionsManyToMany.FirstOrDefault(a => a.Action!.Name == model.ActionName);
+                if (currentAction == null)
+                {
+                    content.ActionsManyToMany.Add(new ContentAction(content, action, model.ActionValue ?? ""));
+                    _contentService.Update(content);
+                    update.Add(content);
+                }
+                else if (currentAction.Value != model.ActionValue)
+                {
+                    currentAction.Value = model.ActionValue ?? "";
+                    _contentService.Update(content);
+                    update.Add(content);
+                }
+            }
+        }
+
+        // Save all changes in a single transaction.
+        _contentService.CommitTransaction();
+
+        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        {
+            foreach (var content in update)
+            {
+                // If a request is submitted to unpublish we do it regardless of the current state of the content.
+                if (content.Status == ContentStatus.Unpublish)
+                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Unpublish));
+
+                // Any request to publish, or if content is already published, we will republish.
+                if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+
+                // Always index the content.
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+            }
+        }
+        else
+            _logger.LogWarning("Kafka indexing topic not configured.");
+
+        return new JsonResult(update.Select(c => new ContentModel(c)).ToArray());
+    }
+
+    /// <summary>
     /// Delete content for the specified 'id'.
     /// Publish message to kafka to remove content from elasticsearch.
     /// </summary>
@@ -294,7 +402,6 @@ public class ContentController : ControllerBase
     }
 
     #region Files
-
     /// <summary>
     /// Upload a file and link it to the specified content.
     /// Only a single file can be linked to content, each upload will overwrite.

@@ -153,6 +153,7 @@ export const TopicScoreRuleList: React.FC = () => {
                         >
                           <FormikSelect
                             name={`${index}.sourceId`}
+                            required
                             options={sourceOptions}
                             value={sourceOptions.find((o) => o.value === item.sourceId) ?? ''}
                             width={FieldSize.Small}
@@ -232,7 +233,7 @@ export const TopicScoreRuleList: React.FC = () => {
                           />
                         </Col>
                         <Col>
-                          <FormikText name={`${index}.score`} width="3.5em" />
+                          <FormikText name={`${index}.score`} required width="3.5em" />
                         </Col>
                         <Col alignContent="flex-end" className="actions">
                           <Row nowrap>

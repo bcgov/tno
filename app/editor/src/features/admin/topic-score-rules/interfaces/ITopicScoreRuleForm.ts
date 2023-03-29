@@ -5,8 +5,8 @@ export interface ITopicScoreRuleForm extends IAuditColumnsModel {
   sourceId: number | '';
   seriesId: number | '';
   section: string;
-  pageMin: number | '';
-  pageMax: number | '';
+  pageMin: string;
+  pageMax: string;
   hasImage?: boolean;
   timeMin: string;
   timeMax: string;

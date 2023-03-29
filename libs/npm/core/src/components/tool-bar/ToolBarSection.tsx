@@ -3,17 +3,17 @@ import { Show } from '../show';
 import * as styled from './styled';
 
 export interface IToolBarSectionProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-  label?: string;
-  icon?: React.ReactNode;
+  /** Title of the section. */
   title?: string;
+  /** Label at bottom of section. */
+  label?: string;
+  /** Label icon at bottom of section. */
+  icon?: React.ReactNode;
 }
 /**
- * Creates a section for the parent ToolBar component
- * @param children Provide buttons/ filter actions for given section
- * @param label Provide a label for the section
- * @param icon Provide an icon for the section
- * @returns A ToolBar section
+ * Creates a section for the parent ToolBar component.
+ * @param props Component properties.
+ * @returns A ToolBar section.
  */
 export const ToolBarSection: React.FC<IToolBarSectionProps> = ({
   children,

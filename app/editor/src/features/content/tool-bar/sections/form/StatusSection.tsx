@@ -8,6 +8,8 @@ export interface IStatusSectionProps {
   values: IContentForm;
   /** Function to fetch content. */
   fetchContent: (id: number) => void;
+  /** Root path for combined view. */
+  combinedPath?: string;
 }
 
 /**
@@ -15,12 +17,20 @@ export interface IStatusSectionProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const StatusSection: React.FC<IStatusSectionProps> = ({ values, fetchContent }) => {
+export const StatusSection: React.FC<IStatusSectionProps> = ({
+  values,
+  fetchContent,
+  combinedPath,
+}) => {
   return (
     <Col>
       <ToolBarSection>
         <Col>
-          <ContentNavigation values={values} fetchContent={fetchContent} />
+          <ContentNavigation
+            values={values}
+            fetchContent={fetchContent}
+            combinedPath={combinedPath}
+          />
           <Row className="title-container">Content Details</Row>
           <Row justifyContent="center" className="white-bg">
             {getStatusText(values.status)}

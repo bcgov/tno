@@ -45,17 +45,21 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
   },
   {
     id: 'productId',
-    Header: 'Designation',
+    Header: 'Product',
     width: 1,
     accessor: (row) => row.product?.name,
     Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
   },
   {
     id: 'page',
-    Header: 'Section Page',
+    Header: 'Section:Page',
     width: 1,
-    accessor: (row) => (row.section ? `${row.section}/${row.page}` : row.page),
-    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
+    accessor: (row) => (row.section ? `${row.section}:${row.page}` : row.page),
+    Cell: ({ value }: { value: string }) => (
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
+        {value}
+      </CellEllipsis>
+    ),
   },
   {
     id: 'ownerId',

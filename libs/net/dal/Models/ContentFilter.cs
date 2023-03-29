@@ -26,9 +26,9 @@ public class ContentFilter : PageFilter
     public int? ProductId { get; set; }
 
     /// <summary>
-    /// get/set - Only include content with this type.
+    /// get/set - Only include content with this these types.
     /// </summary>
-    public ContentType? ContentType { get; set; }
+    public ContentType[] ContentTypes { get; set; } = Array.Empty<ContentType>();
 
     /// <summary>
     /// get/set - Only include content owned by this user.
@@ -39,11 +39,6 @@ public class ContentFilter : PageFilter
     /// get/set - Only include content created or updated by this user.
     /// </summary>
     public int? UserId { get; set; }
-
-    /// <summary>
-    /// get/set - Only include content with this source.
-    /// </summary>
-    public int? SourceId { get; set; }
 
     /// <summary>
     /// get/set - An array of source IDs.
@@ -128,12 +123,22 @@ public class ContentFilter : PageFilter
     /// <summary>
     /// get/set - Only include content with a topic.
     /// </summary>
-    public bool? IncludedInTopic { get; set; }
+    public bool? HasTopic { get; set; }
 
     /// <summary>
     /// get/set - Whether to include hidden content.
     /// </summary>
     public bool? IncludeHidden { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to only return hidden content.
+    /// </summary>
+    public bool? OnlyHidden { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to only included published or publishing content.
+    /// </summary>
+    public bool? OnlyPublished { get; set; }
 
     /// <summary>
     /// get/set - An array of content IDs.
@@ -172,15 +177,15 @@ public class ContentFilter : PageFilter
         this.Byline = filter.GetStringValue(nameof(this.Byline));
 
         this.Status = filter.GetEnumNullValue<ContentStatus>(nameof(this.Status));
-        this.ContentType = filter.GetEnumNullValue<ContentType>(nameof(this.ContentType));
 
-        this.IncludedInTopic = filter.GetBoolNullValue(nameof(this.IncludedInTopic));
+        this.HasTopic = filter.GetBoolNullValue(nameof(this.HasTopic));
         this.IncludeHidden = filter.GetBoolNullValue(nameof(this.IncludeHidden));
+        this.OnlyHidden = filter.GetBoolNullValue(nameof(this.OnlyHidden));
+        this.OnlyPublished = filter.GetBoolNullValue(nameof(this.OnlyPublished));
 
         this.ProductId = filter.GetIntNullValue(nameof(this.ProductId));
         this.OwnerId = filter.GetIntNullValue(nameof(this.OwnerId));
         this.UserId = filter.GetIntNullValue(nameof(this.UserId));
-        this.SourceId = filter.GetIntNullValue(nameof(this.SourceId));
 
         this.CreatedOn = filter.GetDateTimeNullValue(nameof(this.CreatedOn));
         this.CreatedStartOn = filter.GetDateTimeNullValue(nameof(this.CreatedStartOn));
@@ -192,6 +197,7 @@ public class ContentFilter : PageFilter
         this.PublishedStartOn = filter.GetDateTimeNullValue(nameof(this.PublishedStartOn));
         this.PublishedEndOn = filter.GetDateTimeNullValue(nameof(this.PublishedEndOn));
 
+        this.ContentTypes = filter.GetEnumArrayValue<ContentType>(nameof(this.ContentTypes));
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
         this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
         this.SourceIds = filter.GetLongArrayValue(nameof(this.SourceIds));

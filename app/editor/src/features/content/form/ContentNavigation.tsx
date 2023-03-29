@@ -13,6 +13,8 @@ export interface IContentNavigationProps {
   values: IContentForm;
   /** Function to fetch content. */
   fetchContent: (id: number) => void;
+  /** Root path for combined view. */
+  combinedPath?: string;
 }
 
 /**
@@ -20,7 +22,11 @@ export interface IContentNavigationProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ContentNavigation: React.FC<IContentNavigationProps> = ({ values, fetchContent }) => {
+export const ContentNavigation: React.FC<IContentNavigationProps> = ({
+  values,
+  fetchContent,
+  combinedPath,
+}) => {
   const navigate = useNavigate();
   const [{ content: page }] = useContent();
   const { combined } = useCombinedView(values.contentType);
@@ -40,7 +46,9 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({ values, f
           tooltip="Combined View"
           onClick={() => {
             navigate(
-              `${getContentPath(true, values.id, values.contentType)}?form=${values.contentType}`,
+              `${getContentPath(true, values.id, values.contentType, combinedPath)}?form=${
+                values.contentType
+              }`,
             );
           }}
         >
@@ -52,7 +60,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({ values, f
           variant={ButtonVariant.secondary}
           tooltip="Full Page View"
           onClick={() => {
-            navigate(getContentPath(false, values.id, values.contentType));
+            navigate(getContentPath(false, values.id, values.contentType, combinedPath));
           }}
         >
           <FontAwesomeIcon icon={faUpRightFromSquare} />
@@ -65,7 +73,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({ values, f
           onClick={() => {
             const id = page?.items[indexPosition - 1]?.id;
             if (!!id) {
-              navigate(getContentPath(combined, id, values.contentType));
+              navigate(getContentPath(combined, id, values.contentType, combinedPath));
             }
           }}
           disabled={!enablePrev}
@@ -77,7 +85,7 @@ export const ContentNavigation: React.FC<IContentNavigationProps> = ({ values, f
           tooltip="Next"
           onClick={() => {
             const id = page?.items[indexPosition + 1]?.id;
-            navigate(getContentPath(combined, id, values.contentType));
+            navigate(getContentPath(combined, id, values.contentType, combinedPath));
           }}
           disabled={!enableNext}
         >

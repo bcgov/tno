@@ -23,18 +23,28 @@ public class ActionService : BaseService<Entities.Action, int>, IActionService
     {
         return this.Context.Actions
             .AsNoTracking()
+            .Include(m => m.ContentTypes)
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
     }
 
     public Entities.Action? FindByName(string name)
     {
         return this.Context.Actions
+            .Include(m => m.ContentTypes)
             .FirstOrDefault(c => c.Name.ToLower() == name.ToLower());
+    }
+
+    public override Entities.Action? FindById(int id)
+    {
+        return this.Context.Actions
+            .Include(m => m.ContentTypes)
+            .FirstOrDefault(c => c.Id == id);
     }
 
     public IPaged<Entities.Action> Find(ActionFilter filter)
     {
         var query = this.Context.Actions
+            .Include(m => m.ContentTypes)
             .AsQueryable();
 
         if (!String.IsNullOrWhiteSpace(filter.Name))
@@ -60,6 +70,30 @@ public class ActionService : BaseService<Entities.Action, int>, IActionService
 
         var items = query?.ToArray() ?? Array.Empty<Entities.Action>();
         return new Paged<Entities.Action>(items, filter.Page, filter.Quantity, total);
+    }
+
+    /// <summary>
+    /// Add the specified data action to the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override Entities.Action AddAndSave(Entities.Action entity)
+    {
+        entity.AddToContext(this.Context);
+        base.AddAndSave(entity);
+        return entity;
+    }
+
+    /// <summary>
+    /// Update the specified data action in the database.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override Entities.Action UpdateAndSave(Entities.Action entity)
+    {
+        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        this.Context.UpdateContext(original, entity);
+        return base.UpdateAndSave(entity);
     }
     #endregion
 }

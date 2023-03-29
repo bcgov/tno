@@ -119,13 +119,13 @@ it('displays the Source column', async () => {
   await waitFor(() => expect(getByText('Source')).toBeInTheDocument());
 });
 
-it('displays the Designation column', async () => {
+it('displays the Product column', async () => {
   const { getByText } = render(
     <TestWrapper>
       <ContentListView />
     </TestWrapper>,
   );
-  await waitFor(() => expect(getByText('Designation')).toBeInTheDocument());
+  await waitFor(() => expect(getByText('Product')).toBeInTheDocument());
 });
 
 it('displays the status column', async () => {

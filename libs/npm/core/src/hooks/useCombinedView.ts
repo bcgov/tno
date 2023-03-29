@@ -17,10 +17,8 @@ export const useCombinedView = (contentType?: ContentTypeName) => {
 
   React.useEffect(() => {
     setCombined((pathname.match('/combined/')?.length ?? 0) > 0);
-    document.getElementById('bottom-pane')?.scrollIntoView({
-      behavior: 'smooth',
-    });
   }, [pathname]);
+
   React.useEffect(() => {
     setFormType(type);
   }, [type]);

@@ -63,7 +63,7 @@ export const NavBar: React.FC = () => {
             <NavBarItem navigateTo="/contents" label="Content" claim={Claim.editor} level={1} />
             <NavBarItem
               navigateTo="/morning/reports"
-              label="Morning Report"
+              label="Morning Reports"
               claim={Claim.editor}
               level={1}
             />
