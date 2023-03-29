@@ -1,6 +1,9 @@
 import React from 'react';
 import { components } from 'react-select';
 
+import * as styled from './styled';
+
+/** Custom option for react-select component adding a checkbox and label as the selection item */
 export const InputOption: React.FC<any> = ({
   getStyles,
   Icon,
@@ -20,12 +23,13 @@ export const InputOption: React.FC<any> = ({
   let bg = 'transparent';
   if (isFocused) bg = '#eee';
   if (isActive) bg = '#B2D4FF';
+  if (isSelected) bg = '#2293e9';
 
   const style = {
     alignItems: 'center',
-    backgroundColor: bg,
-    color: 'inherit',
+    color: isSelected ? 'white' : 'inherit',
     display: 'flex ',
+    backgroundColor: bg,
   };
 
   const props = {
@@ -36,6 +40,13 @@ export const InputOption: React.FC<any> = ({
     style,
   };
 
+  /** ensures that the element is unchecked in the menu when the item is removed from the selection */
+  React.useEffect(() => {
+    if (!isSelected) {
+      (document.getElementById(children) as HTMLInputElement).checked = false;
+    }
+  }, [isSelected, children]);
+
   return (
     <components.Option
       {...rest}
@@ -45,8 +56,13 @@ export const InputOption: React.FC<any> = ({
       getStyles={getStyles}
       innerProps={props}
     >
-      <input type="checkbox" defaultChecked={isSelected} />
-      {children}
+      <input type="checkbox" id={children} defaultChecked={isSelected} />
+      <styled.SelectLabel
+        className="label"
+        onClick={() => document.getElementById(children)?.click()}
+      >
+        {children}
+      </styled.SelectLabel>
     </components.Option>
   );
 };
