@@ -50,7 +50,6 @@ export const Newspaper: React.FC = (props) => {
             label="Date Offset"
             name="configuration.dateOffset"
             type="number"
-            value={0}
             tooltip="Which day to parse (0 = today)"
           />
         </Col>

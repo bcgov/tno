@@ -1,4 +1,3 @@
-using System;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Globalization;
@@ -139,7 +138,10 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         var code = manager.Ingest.Source?.Code ?? "";
         var filePattern = String.IsNullOrWhiteSpace(manager.Ingest.GetConfigurationValue("filePattern")) ? code : manager.Ingest.GetConfigurationValue("filePattern");
         if (String.IsNullOrWhiteSpace(filePattern)) throw new ConfigurationException($"Ingest '{manager.Ingest.Name}' is missing a 'filePattern'.");
-        filePattern = filePattern.Replace("<date>", $"{GetDateTimeForTimeZone(manager.Ingest, DateTime.Now.AddDays(manager.Ingest.GetConfigurationValue<double>("dateOffset"))):yyyyMMdd}");
+        var offset = manager.Ingest.GetConfigurationValue<double>("dateOffset");
+        var offsetDate = DateTime.Now.AddDays(offset);
+        var date = GetDateTimeForTimeZone(manager.Ingest, offsetDate);
+        filePattern = filePattern.Replace("<date>", $"{date:yyyyMMdd}");
         var match = new Regex(filePattern);
         using var client = new SftpClient(connectionInfo);
         client.Connect();
