@@ -9,7 +9,9 @@ import { defaultSources } from '.';
  * @param sources An array of sources.
  * @returns Morning report filter.
  */
-export const defaultReportFilter = (sources: ISourceModel[]): IMorningReportsFilter => {
+export const defaultMorningReportsFilter = (
+  sources: ISourceModel[] = [],
+): IMorningReportsFilter => {
   return {
     pageIndex: defaultPage.pageIndex,
     pageSize: defaultPage.pageSize,

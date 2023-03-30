@@ -94,10 +94,13 @@ export const TopicList: React.FC = () => {
         <Col flex="2 1 0">
           <GridTable
             columns={columns}
-            manualPageSize
             isLoading={!!requests.length}
             data={items}
-            paging={{ manualPagination: true, showPaging: false }}
+            paging={{
+              manualPagination: true,
+              type: 'hide',
+              pageSizeOptions: { show: false },
+            }}
             onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
           ></GridTable>
         </Col>

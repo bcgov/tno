@@ -42,7 +42,7 @@ export const ActionList: React.FC = () => {
         <GridTable
           columns={columns}
           header={ActionListFilter}
-          manualPageSize
+          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}

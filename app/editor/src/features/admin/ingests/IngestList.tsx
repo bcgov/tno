@@ -46,7 +46,7 @@ export const IngestList: React.FC<IIngestListProps> = (props) => {
         columns={columns}
         isLoading={!!requests.length}
         sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-        manualPageSize
+        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
         data={items}
         header={IngestFilter}
         onRowClick={(row) => navigate(`${row.original.id}`)}

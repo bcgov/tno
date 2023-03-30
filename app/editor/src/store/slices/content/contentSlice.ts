@@ -4,6 +4,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
+import { defaultMorningReportsFilter } from 'features/content/morning-reports/constants';
 import { IMorningReportsFilter } from 'features/content/morning-reports/interfaces';
 import { IContentModel, IPaged, LogicalOperator } from 'tno-core';
 
@@ -34,25 +35,7 @@ export const initialContentState: IContentState = {
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
-  filterMorningReports: {
-    pageIndex: 0,
-    pageSize: 100,
-    hasTopic: false,
-    includeHidden: false,
-    onlyHidden: false,
-    onlyPublished: false,
-    otherSource: '',
-    contentTypes: [],
-    productIds: [],
-    sourceIds: [],
-    ownerId: '',
-    userId: '',
-    timeFrame: 0,
-    onTicker: false,
-    commentary: false,
-    topStory: false,
-    sort: [],
-  },
+  filterMorningReports: defaultMorningReportsFilter(),
 };
 
 export const contentSlice = createSlice({

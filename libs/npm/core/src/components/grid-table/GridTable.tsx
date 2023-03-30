@@ -15,8 +15,17 @@ import {
 } from 'react-table';
 
 import { Loading, Show } from '..';
-import { Pager, SortIndicator } from '.';
+import { IPageSizeOptions, Pager, SortIndicator } from '.';
 import * as styled from './styled';
+
+export enum PagingType {
+  /** Show the pager */
+  Show = 'show',
+  /** Hide the pager */
+  Hide = 'hide',
+  /** Hide the pager and provide infinite scroll */
+  InfiniteScroll = 'infinite',
+}
 
 /**
  * GridTable properties.
@@ -24,115 +33,64 @@ import * as styled from './styled';
 export interface IGridTableProps<T extends object = Record<string, unknown>> {
   /** Class name */
   className?: string;
-  /** Whether or not you wish to use the infinite scroll variant */
-  infiniteScroll?: boolean;
-  /**
-   * An array of column definitions.
-   */
+  /** An array of column definitions. */
   columns: Column<T>[];
-  /**
-   * An array of row data.
-   */
+  /** An array of row data. */
   data: T[];
-  /**
-   * Handle row click event.
-   */
+  /** Handle row click event. */
   onRowClick?: (row: Row<T>) => void;
-  /**
-   * The page has changed.
-   */
+  /** The page has changed. */
   onChangePage?: (pageIndex: number, pageSize: number, instance: TableInstance<T>) => void;
-  /**
-   * The sort has changed.
-   */
+  /** The sort has changed. */
   onChangeSort?: (sortBy: Array<SortingRule<T>>, instance: TableInstance<T>) => void;
-  /**
-   * Header components.
-   */
+  /** Header components. */
   header?: React.ComponentType<any>;
-  /**
-   * Whether to show the footer.
-   */
+  /** Whether to show the footer. */
   showFooter?: boolean;
+  /** Paging settings. */
   paging?: {
-    /**
-     * Whether to show the paging.
-     */
-    showPaging?: boolean;
-    /**
-     * Manual paging is server-side.
-     */
+    /** The type of paging */
+    type?: PagingType | 'show' | 'hide' | 'infinite';
+    /** Manual paging is server-side. */
     manualPagination?: boolean;
-    /**
-     * The current page number.
-     */
+    /** The current page number. */
     pageIndex?: number;
-    /**
-     * The number of rows.
-     */
+    /** The number of rows. */
     pageSize?: number;
-    /**
-     * If `manualPagination=true` then this value is used to determine the amount of pages available.
-     */
+    /** If `manualPagination=true` then this value is used to determine the amount of pages available. */
     pageCount?: number;
+    /** Page sizing options. */
+    pageSizeOptions?: IPageSizeOptions;
   };
   sorting?: {
-    /**
-     * Whether to manually manage sorting.
-     */
+    /** Whether to manually manage sorting. */
     manualSortBy?: boolean;
-    /**
-     * Initial sorting rules.
-     */
+    /** Initial sorting rules. */
     sortBy?: Array<SortingRule<T>>;
   };
   filters?: {
-    /**
-     * Whether to manually manage filtering.
-     */
+    /** Whether to manually manage filtering. */
     manualFilters?: boolean;
   };
-  /**
-   * Flag to indicate whether table is loading data or not.
-   */
+  /** Flag to indicate whether table is loading data or not. */
   isLoading?: boolean;
-  /**
-   * Whether to include manual page sizing on the pager
-   */
-  manualPageSize?: boolean;
-  /**
-   * Provide an array of columns to hide from the table
-   */
+  /** Provide an array of columns to hide from the table */
   hiddenColumns?: IdType<T>[];
-  /**
-   * How to get the row Id.  By default it uses the row index position.
-   */
+  /** How to get the row Id.  By default it uses the row index position. */
   getRowId?: (originalRow: T, relativeIndex: number, parent?: Row<T> | undefined) => string;
-  /**
-   * Whether to enable multi select.  Defaults to false.
-   */
+  /** Whether to enable multi select.  Defaults to false. */
   isMulti?: boolean;
-  /**
-   * Whether selected rows should be automatically reset when data loads.  Defaults to true.
-   */
+  /** Whether selected rows should be automatically reset when data loads.  Defaults to true. */
   autoResetSelectedRows?: boolean;
-  /**
-   * Whether to maintain selected rows when data is refreshed.  Defaults to true.
-   */
+  /** Whether to maintain selected rows when data is refreshed.  Defaults to true. */
   maintainSelectedRows?: boolean;
-  /**
-   * The initial selected rows.
-   */
+  /** The initial selected rows. */
   selectedRowIds?: Record<IdType<T>, boolean>;
   /** Event fires when active row changes. */
   onActiveRowChange?: (row?: Row<T>) => void;
-  /**
-   * Event fires when selected rows changes.
-   */
+  /** Event fires when selected rows changes. */
   onSelectedRowsChange?: (selectedRows: Row<T>[], instance: TableInstance<T>) => void;
-  /**
-   * Whether to add to infinite items - helps the system to determine whether to clear infinite list if filter is applied.
-   */
+  /** Whether to add to infinite items - helps the system to determine whether to clear infinite list if filter is applied. */
   setAddToInfiniteItems?: (add: boolean) => void;
   /** Whether a row can be selected. */
   enableRowSelect?: boolean;
@@ -157,7 +115,6 @@ export const GridTable = <T extends object>({
   isLoading,
   hiddenColumns = [],
   filters,
-  manualPageSize,
   isMulti,
   autoResetSelectedRows = true,
   maintainSelectedRows = true,
@@ -165,16 +122,16 @@ export const GridTable = <T extends object>({
   onSelectedRowsChange,
   onActiveRowChange,
   getRowId,
-  infiniteScroll,
   setAddToInfiniteItems,
   enableRowSelect = true,
 }: IGridTableProps<T>) => {
   const {
-    showPaging = infiniteScroll ? false : true,
+    type = PagingType.Show,
     manualPagination = false,
     pageIndex: initialPageIndex = 0,
     pageSize: initialPageSize = 20,
     pageCount: initialPageCount = -1,
+    pageSizeOptions,
   } = paging || {};
   const { manualFilters = false } = filters || {};
   const { manualSortBy = false, sortBy: initialSortBy = [] } = sorting || {};
@@ -234,6 +191,7 @@ export const GridTable = <T extends object>({
     setPageSize,
     pageIndex,
     pageSize,
+    pageSizeOptions,
   };
 
   const [activeRow, setActiveRow] = React.useState<Row<T>>();
@@ -272,10 +230,11 @@ export const GridTable = <T extends object>({
   }, [data, instance, maintainSelectedRows]);
 
   React.useEffect(() => {
-    if (!manualPagination && !showPaging && data.length && pageSize !== data.length) {
+    // This solves an issue when a page contains more items than the pageSize.
+    if (!manualPagination && type !== PagingType.Show && data.length && pageSize < data.length) {
       instance.setPageSize(data.length);
     }
-  }, [data, instance, manualPagination, pageSize, showPaging]);
+  }, [data, instance, manualPagination, pageSize, type]);
 
   // The user / system disables a column
   React.useEffect(() => {
@@ -387,7 +346,7 @@ export const GridTable = <T extends object>({
       <div {...getTableBodyProps()}>
         {page.map((row, index) => {
           prepareRow(row);
-          if (page.length === index + 1 && infiniteScroll) {
+          if (page.length === index + 1 && type === PagingType.InfiniteScroll) {
             return (
               <div
                 {...row.getRowProps()}
@@ -439,7 +398,7 @@ export const GridTable = <T extends object>({
           ))}
         </div>
       )}
-      {showPaging && <Pager manualPageSize={manualPageSize} {...pager} />}
+      {type === PagingType.Show && <Pager {...pager} />}
     </styled.GridTable>
   );
 };

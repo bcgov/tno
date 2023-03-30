@@ -108,7 +108,7 @@ export const FileExplorer: React.FC<IFileExplorerProps> = ({
               enableRowSelect={false}
               data={folder.items}
               className="file-table"
-              paging={{ showPaging: false }}
+              paging={{ pageSizeOptions: { show: false } }}
               columns={fileExplorerColumns({
                 onSelect: navigate,
                 onDelete: (item) => {

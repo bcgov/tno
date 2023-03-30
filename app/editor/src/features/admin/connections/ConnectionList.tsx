@@ -46,7 +46,7 @@ export const ConnectionList: React.FC = () => {
       <GridTable
         columns={columns}
         header={ConnectionListFilter}
-        manualPageSize
+        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
         isLoading={!!requests.length}
         data={items}
         onRowClick={(row) => navigate(`${row.original.id}`)}

@@ -83,7 +83,7 @@ export const ScheduleAdvanced: React.FC<IScheduleAdvancedProps> = (props) => {
           setIndex(index !== row.index ? row.index : undefined);
           setSchedule(values.schedules[row.index]);
         }}
-        paging={{ showPaging: false }}
+        paging={{ pageSizeOptions: { show: false } }}
       ></GridTable>
       <Col className="actions">
         {index !== undefined && (

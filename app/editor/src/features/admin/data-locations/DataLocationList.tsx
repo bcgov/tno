@@ -41,7 +41,7 @@ export const DataLocationList: React.FC = () => {
       <GridTable
         columns={columns}
         header={DataLocationListFilter}
-        manualPageSize
+        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
         isLoading={!!requests.length}
         data={items}
         onRowClick={(row) => navigate(`${row.original.id}`)}

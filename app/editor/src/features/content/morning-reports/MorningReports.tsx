@@ -9,6 +9,7 @@ import {
   IContentModel,
   Page,
   PagedTable,
+  replaceQueryParams,
   Row,
   Show,
   useCombinedView,
@@ -89,7 +90,9 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   const handleChangePage = React.useCallback(
     (pi: number, ps: number) => {
       if (filter.pageIndex !== pi || filter.pageSize !== ps) {
-        storeMorningReportFilter({ ...filter, pageIndex: pi, pageSize: ps ?? filter.pageSize });
+        const newFilter = { ...filter, pageIndex: pi, pageSize: ps ?? filter.pageSize };
+        storeMorningReportFilter(newFilter);
+        replaceQueryParams(newFilter, { includeEmpty: false });
       }
     },
     [filter, storeMorningReportFilter],
@@ -128,6 +131,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
             autoResetSelectedRows={false}
             maintainSelectedRows={true}
             page={page}
+            paging={{ manualPagination: true, pageSize: filter.pageSize }}
             isLoading={loading}
             sorting={{ sortBy: filter.sort }}
             getRowId={(content) => content.id.toString()}
