@@ -39,7 +39,7 @@ export const TagList: React.FC = () => {
         <GridTable
           columns={columns}
           header={TagListFilter}
-          manualPageSize
+          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}

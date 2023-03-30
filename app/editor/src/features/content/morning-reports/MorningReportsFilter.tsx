@@ -9,7 +9,7 @@ import { fieldTypes } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { CreateNewSection } from '../tool-bar/sections/filter';
 import { AdvancedFilter, ContentFilter } from './components';
-import { defaultReportFilter } from './constants';
+import { defaultMorningReportsFilter } from './constants';
 import { IMorningReportsFilter } from './interfaces';
 import * as styled from './styled';
 
@@ -34,12 +34,12 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
     if (!window.location.search) {
-      replaceQueryParams(defaultReportFilter(sources), { includeEmpty: false });
+      replaceQueryParams(defaultMorningReportsFilter(sources), { includeEmpty: false });
     }
     storeMorningReportFilter(
       queryToFilter(
         {
-          ...defaultReportFilter(sources),
+          ...defaultMorningReportsFilter(sources),
         },
         window.location.search,
       ),
@@ -59,8 +59,9 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
   }, [pOptions]);
 
   const onFilterChange = (filter: IMorningReportsFilter) => {
-    storeMorningReportFilter(filter);
-    replaceQueryParams(filter, { includeEmpty: false });
+    const newFilter = { ...filter, pageIndex: 0 };
+    storeMorningReportFilter(newFilter);
+    replaceQueryParams(newFilter, { includeEmpty: false });
   };
 
   return (

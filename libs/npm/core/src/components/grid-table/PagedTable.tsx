@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { GridTable, IGridTableProps, IPage } from '.';
+import { GridTable, IGridTableProps, IPage, IPageSizeOptions, PagingType } from '.';
 
 export interface IPagedTableProps<CT extends object = Record<string, unknown>>
   extends Omit<IGridTableProps<CT>, 'data'> {
-  /**
-   * A page of data.
-   */
+  /** A page of data. */
   page: IPage<CT>;
+  /** Page size options. */
+  pageSizeOptions?: IPageSizeOptions;
 }
 
 /**
@@ -17,12 +17,13 @@ export interface IPagedTableProps<CT extends object = Record<string, unknown>>
  */
 export const PagedTable = <CT extends object = Record<string, unknown>>({
   page,
+  pageSizeOptions,
   sorting,
-  infiniteScroll,
   ...rest
 }: IPagedTableProps<CT>) => {
   const [items, setItems] = React.useState<CT[]>(page.items);
   const [addToInfiniteItems, setAddToInfiniteItems] = React.useState<boolean>(false);
+
   React.useEffect(() => {
     if (addToInfiniteItems) {
       setItems((prevItems) => prevItems.concat(page.items));
@@ -31,17 +32,17 @@ export const PagedTable = <CT extends object = Record<string, unknown>>({
       // we don't want stale items when user changes sorting or filter from something other than scrolling
       setItems(page.items);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page.items]);
+  }, [addToInfiniteItems, page.items]);
+
   return (
     <GridTable
-      data={infiniteScroll ? items : page.items}
-      infiniteScroll={infiniteScroll}
+      data={rest.paging?.type === PagingType.InfiniteScroll ? items : page.items}
       paging={{
         manualPagination: true,
         pageIndex: page.pageIndex,
         pageSize: page.pageSize,
         pageCount: page.pageCount,
+        pageSizeOptions,
       }}
       sorting={{
         manualSortBy: true,

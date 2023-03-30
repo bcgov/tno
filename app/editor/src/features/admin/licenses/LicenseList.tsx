@@ -41,7 +41,7 @@ export const LicenseList: React.FC = () => {
         <GridTable
           columns={columns}
           header={LicenseListFilter}
-          manualPageSize
+          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
           isLoading={!!requests.length}
           data={items}
           onRowClick={(row) => navigate(`${row.original.id}`)}

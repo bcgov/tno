@@ -45,7 +45,7 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
         columns={columns}
         isLoading={!!requests.length}
         sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-        manualPageSize
+        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
         data={items}
         header={SourceFilter}
         onRowClick={(row) => navigate(`${row.original.id}`)}

@@ -91,7 +91,7 @@ export const WorkOrderList = () => {
         onRowClick={(row) => navigate(`${row.original.id}`)}
         onChangeSort={handleChangeSort}
         onChangePage={handleChangePage}
-        manualPageSize
+        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
       ></PagedTable>
     </styled.WorkOrderList>
   );

@@ -80,7 +80,7 @@ export const UserList: React.FC = () => {
       </Row>
       <PagedTable
         columns={columns}
-        manualPageSize
+        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
         header={UserFilter}
         sorting={{ sortBy: userFilter.sort }}
         isLoading={!!requests.length}

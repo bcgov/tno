@@ -35,7 +35,7 @@ export const TimeLogTable: React.FC<ITimeLogTableProps> = ({
   return (
     <styled.TimeLogTable>
       <GridTable
-        paging={{ showPaging: false }}
+        paging={{ pageSizeOptions: { show: false } }}
         columns={timeLogColumns(setTotalEffort, setFieldValue, values)}
         data={parsedData}
       ></GridTable>
