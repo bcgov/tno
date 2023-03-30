@@ -1,3 +1,4 @@
+import { ShowOnlyValues } from 'features/content/form/constants';
 import { showOnlyOptions } from 'features/content/form/constants/showOnlyOptions';
 import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
@@ -9,6 +10,7 @@ import {
   Col,
   ContentTypeName,
   FieldSize,
+  IOptionItem,
   replaceQueryParams,
   Row,
   Select,
@@ -16,9 +18,7 @@ import {
   ToolBarSection,
 } from 'tno-core';
 
-import { useShowOnlyContentType } from './hooks';
 import { InputOption } from './InputOption';
-import { getSelectedOptions } from './utils';
 
 export interface IShowOnlySectionProps {}
 
@@ -29,7 +29,6 @@ export interface IShowOnlySectionProps {}
  */
 export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
   const [{ filter, filterAdvanced }, { storeFilter }] = useContent();
-  const showContentType = useShowOnlyContentType();
 
   const [width, setWidth] = React.useState(window.innerWidth);
 
@@ -54,6 +53,21 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
     // Return a function to disconnect the event listener
     return () => window.removeEventListener('resize', calcWidth);
   }, []);
+
+  const selectedValues = React.useMemo(() => {
+    const getSelectedOptions = (filter: IContentListFilter) => {
+      const selectedOptions: IOptionItem[] = [];
+      if (filter.contentTypes?.includes(ContentTypeName.PrintContent))
+        selectedOptions.push(showOnlyOptions[0]);
+      if (filter.hasTopic) selectedOptions.push(showOnlyOptions[1]);
+      if (filter.onTicker) selectedOptions.push(showOnlyOptions[2]);
+      if (filter.commentary) selectedOptions.push(showOnlyOptions[3]);
+      if (filter.topStory) selectedOptions.push(showOnlyOptions[4]);
+      return selectedOptions;
+    };
+
+    return getSelectedOptions(filter);
+  }, [filter]);
 
   const onChange = React.useCallback(
     (action: ActionDelegate<IContentListFilter>) => {
@@ -80,24 +94,24 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
               hideSelectedOptions={false}
               options={showOnlyOptions}
               width={FieldSize.Small}
-              defaultValue={getSelectedOptions(filter)}
+              defaultValue={selectedValues}
               components={{
                 Option: InputOption,
               }}
-              onChange={(newValues: any, { action }) => {
-                if (!newValues.length)
-                  onChange({
+              onChange={(newValues, { action }) => {
+                const values = newValues as IOptionItem[];
+                onChange((filter) => {
+                  return {
                     ...filter,
-                    showOnly: '',
-                    onTicker: '',
-                    commentary: '',
-                    topStory: '',
-                    includedInTopic: false,
-                    contentType: undefined,
-                  });
-                else {
-                  showContentType(newValues);
-                }
+                    pageIndex: 0,
+                    contentTypes: values.some((o) => o.value === ShowOnlyValues.PrintContent)
+                      ? [...filter.contentTypes, ContentTypeName.PrintContent]
+                      : filter.contentTypes,
+                    hasTopic: values.some((o) => o.value === ShowOnlyValues.HasTopic),
+                    commentary: values.some((o) => o.value === ShowOnlyValues.Commentary),
+                    topStory: values.some((o) => o.value === ShowOnlyValues.TopStory),
+                  };
+                });
               }}
             />
           </Show>
@@ -107,27 +121,27 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                 name="isPrintContent"
                 label="Print Content"
                 tooltip="Newspaper content without audio/video"
-                checked={filter.contentType === ContentTypeName.PrintContent}
+                checked={filter.contentTypes?.includes(ContentTypeName.PrintContent) === true}
                 onChange={(e) => {
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    contentType: e.target.checked ? ContentTypeName.PrintContent : undefined,
+                    contentTypes: e.target.checked ? [ContentTypeName.PrintContent] : [],
                   });
                 }}
               />
               <Checkbox
                 className="spaced"
-                name="includedInTopic"
-                label="Included in EoD"
+                name="hasTopic"
+                label="Has Topic"
                 tooltip="Content included in Event of the Day"
-                value={filter.includedInTopic}
-                checked={filter.includedInTopic}
+                value={filter.hasTopic}
+                checked={filter.hasTopic}
                 onChange={(e) => {
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    includedInTopic: e.target.checked,
+                    hasTopic: e.target.checked,
                   });
                 }}
               />
@@ -136,14 +150,13 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
               <Checkbox
                 name="commentary"
                 label="Commentary"
-                value="Commentary"
                 tooltip="Content identified as commentary"
-                checked={filter.commentary !== ''}
+                checked={filter.commentary}
                 onChange={(e) => {
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    commentary: e.target.checked ? e.target.value : '',
+                    commentary: e.target.checked,
                   });
                 }}
               />
@@ -151,14 +164,13 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                 className="spaced"
                 name="topStory"
                 label="Top Story"
-                value="Top Story"
                 tooltip="Content identified as a top story"
-                checked={filter.topStory !== ''}
+                checked={filter.topStory}
                 onChange={(e) => {
                   onChange({
                     ...filter,
                     pageIndex: 0,
-                    topStory: e.target.checked ? e.target.value : '',
+                    topStory: e.target.checked,
                   });
                 }}
               />

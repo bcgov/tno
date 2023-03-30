@@ -1,6 +1,6 @@
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { Ref } from 'react';
+import React from 'react';
 import { ActionMeta, GroupBase, Props } from 'react-select';
 import ReactSelect from 'react-select/dist/declarations/src/Select';
 
@@ -65,7 +65,7 @@ export type SelectProps = ISelectBaseProps &
   >;
 
 export interface ISelectProps<OptionType> extends SelectProps {
-  ref?: Ref<ReactSelect<OptionType, boolean, GroupBase<OptionType>>>;
+  ref?: React.Ref<ReactSelect<OptionType, boolean, GroupBase<OptionType>>>;
 }
 
 /**
@@ -130,7 +130,7 @@ export const Select = <OptionType extends IOptionItem>({
             ref={selectRef}
             id={id ?? `sel-${name}`}
             name={name}
-            className={`${className ?? ''}${!!error ? ' alert' : ''}`}
+            className={`${className ?? 'frm-select'}${!!error ? ' alert' : ''}`}
             classNamePrefix={classNamePrefix ?? 'rs'}
             variant={variant}
             required={required}

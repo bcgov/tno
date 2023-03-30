@@ -9,13 +9,17 @@ import {
   Button,
   ButtonVariant,
   Col,
+  ContentTypeName,
   FieldSize,
   FormikCheckbox,
   FormikDatePicker,
+  FormikSelect,
   FormikText,
   FormikTextArea,
+  getEnumStringOptions,
   IActionModel,
   IconButton,
+  IOptionItem,
   LabelPosition,
   Modal,
   Row,
@@ -26,16 +30,21 @@ import {
 import { defaultAction } from './constants';
 import * as styled from './styled';
 
-/** The page used to view and edit series the administrative section. */
+/**
+ * The page used to view and edit actions.
+ * @returns Component.
+ */
 export const ActionForm: React.FC = () => {
-  const [, api] = useActions();
-  const { state } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const actionId = Number(id);
+  const [, api] = useActions();
+  const { state } = useLocation();
+  const { toggle, isShowing } = useModal();
+
   const [action, setAction] = React.useState<IActionModel>((state as any)?.action ?? defaultAction);
 
-  const { toggle, isShowing } = useModal();
+  const actionId = Number(id);
+  const contentTypeOptions = getEnumStringOptions(ContentTypeName);
 
   React.useEffect(() => {
     if (!!actionId && action?.id !== actionId) {
@@ -71,11 +80,27 @@ export const ActionForm: React.FC = () => {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting, values }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <div className="form-container">
             <Col className="form-inputs">
               <FormikText width={FieldSize.Large} name="name" label="Name" />
               <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
+              <FormikSelect
+                name="contentTypes"
+                label="Content Types"
+                isMulti
+                options={contentTypeOptions}
+                value={contentTypeOptions.filter((ct) =>
+                  values.contentTypes.includes(ct.value as ContentTypeName),
+                )}
+                onChange={(newValue) => {
+                  const options = newValue as IOptionItem[];
+                  setFieldValue(
+                    'contentTypes',
+                    options.map((o) => o.value),
+                  );
+                }}
+              />
               <FormikText
                 width={FieldSize.Tiny}
                 name="sortOrder"

@@ -142,7 +142,7 @@ export const ContentListView: React.FC = () => {
 
   const handleRowClick = (row: TRow<IContentModel>) => {
     setContentType(row.original.contentType);
-    navigate(`/contents/combined/${row.original.id}`);
+    navigate(`/contents/combined/${row.original.id}${window.location.search}`);
   };
 
   return (

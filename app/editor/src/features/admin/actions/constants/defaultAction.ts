@@ -9,4 +9,5 @@ export const defaultAction: IActionModel = {
   defaultValue: '',
   valueType: ValueType.Boolean,
   valueLabel: '',
+  contentTypes: [],
 };

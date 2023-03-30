@@ -2,7 +2,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
+import { IMorningReportFilter } from 'features/content/morning-reports/interfaces';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IPaged } from 'tno-core';

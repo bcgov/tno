@@ -10,6 +10,8 @@ import { ActionSection, AlertSection, StatusSection } from './sections/form';
 export interface IContentFormToolBarProps {
   /** Function to fetch content. */
   fetchContent: (id: number) => void;
+  /** Root path for combined view. */
+  combinedPath?: string;
 }
 
 /**
@@ -17,7 +19,10 @@ export interface IContentFormToolBarProps {
  * @param param0 Component properties.
  * @returns Component.
  */
-export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({ fetchContent }) => {
+export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({
+  fetchContent,
+  combinedPath,
+}) => {
   const [{ licenses }] = useLookup();
   const { setFieldValue, values } = useFormikContext<IContentForm>();
   const [width, setWidth] = React.useState(window.innerWidth);
@@ -43,9 +48,10 @@ export const ContentFormToolBar: React.FC<IContentFormToolBarProps> = ({ fetchCo
     // Return a function to disconnect the event listener
     return () => window.removeEventListener('resize', calcWidth);
   }, []);
+
   return (
     <ToolBar variant="dark">
-      <StatusSection values={values} fetchContent={fetchContent} />
+      <StatusSection values={values} fetchContent={fetchContent} combinedPath={combinedPath} />
       <AlertSection values={values} />
       <ActionSection values={values} />
       <Show visible={width > 1800}>

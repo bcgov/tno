@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nest;
+using TNO.Core.Extensions;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -15,7 +16,10 @@ namespace TNO.DAL.Services;
 /// </summary>
 public class ContentService : BaseService<Content, long>, IContentService
 {
+    #region Variables
     private readonly IElasticClient _client;
+    private static ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
+    #endregion
 
     #region Properties
     #endregion
@@ -28,10 +32,10 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="logger"></param>
     #region Constructors
     public ContentService(TNOContext dbContext,
-        ClaimsPrincipal principal,
-        IServiceProvider serviceProvider,
-        IElasticClient client,
-        ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
+            ClaimsPrincipal principal,
+            IServiceProvider serviceProvider,
+            IElasticClient client,
+            ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _client = client;
     }
@@ -73,22 +77,22 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!String.IsNullOrWhiteSpace(filter.Byline))
             query = query.Where(c => EF.Functions.Like(c.Byline.ToLower(), $"%{filter.Byline.ToLower()}%"));
 
-        if (filter.ContentType.HasValue)
-            query = query.Where(c => c.ContentType == filter.ContentType);
+        if (filter.ContentTypes.Any())
+            query = query.Where(c => filter.ContentTypes.Contains(c.ContentType));
         if (filter.Status.HasValue)
             query = query.Where(c => c.Status == filter.Status);
 
-        if (filter.IncludedInTopic.HasValue)
+        if (filter.HasTopic.HasValue)
             query = query.Where(c => c.TopicsManyToMany.Any());
-        if (!filter.IncludeHidden.HasValue)
-            query = query.Where(c => !c.IsHidden);
-        else
-            query = query.Where(c => c.IsHidden == filter.IncludeHidden);
+        if (!filter.IncludeHidden.HasValue || !filter.IncludeHidden.Value)
+            query = query.Where(c => !c.IsHidden); // Do not return hidden content.
+        if (filter.OnlyHidden == true)
+            query = query.Where(c => c.IsHidden); // Only Hidden.
+        if (filter.OnlyPublished.HasValue && filter.OnlyPublished.Value)
+            query = query.Where(c => _onlyPublished.Contains(c.Status));
 
         if (filter.ProductId.HasValue)
             query = query.Where(c => c.ProductId == filter.ProductId);
-        if (filter.SourceId.HasValue)
-            query = query.Where(c => c.SourceId == filter.SourceId);
         if (filter.OwnerId.HasValue)
             query = query.Where(c => c.OwnerId == filter.OwnerId);
         if (filter.UserId.HasValue)
@@ -166,187 +170,134 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <returns>A page of content items that match the filter.</returns>
     public async Task<IPaged<Content>> FindWithElasticsearchAsync(ContentFilter filter)
     {
+        var sourceQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        foreach (var sourceId in filter.SourceIds)
+            sourceQueries.Add(s => s.Term(t => t.SourceId, sourceId));
+
         var productQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
         foreach (var productId in filter.ProductIds)
-        {
             productQueries.Add(s => s.Term(t => t.ProductId, productId));
-        }
 
         var contentQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
         foreach (var contentId in filter.ContentIds)
-        {
             contentQueries.Add(s => s.Term(t => t.Id, contentId));
-        }
+
+        var actionQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        foreach (var action in filter.Actions)
+            actionQueries.Add(s => s
+                .Nested(n => n
+                    .Path(p => p.Actions)
+                    .Query(y => y
+                        .Match(m => m
+                            .Field("actions.name")
+                            .Query(action)
+                        ) && (
+                            (
+                                y.Match(m => m
+                                    .Field("actions.valueType").Query("Boolean")
+                                    .Field("actions.value").Query("true"))
+                            ) || (
+                                !y.Match(m => m
+                                    .Field("actions.valueType").Query("Boolean")) &&
+                                y.Wildcard(m => m
+                                    .Field("actions.value").Value("*"))
+                            )
+                        )
+                    )
+                )
+            );
 
         var filterQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
 
-        if (filter.SourceId.HasValue)
-        {
-            filterQueries.Add(s => s.Term(t => t.SourceId, filter.SourceId));
-        }
-
         if (!string.IsNullOrWhiteSpace(filter.Headline))
-        {
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
-        }
 
         if (!string.IsNullOrWhiteSpace(filter.PageName))
-        {
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Page).Value($"*{filter.PageName.ToLower()}*")));
-        }
 
         if (!string.IsNullOrWhiteSpace(filter.Section))
-        {
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Section).Value($"*{filter.Section.ToLower()}*")));
-        }
 
         if (!string.IsNullOrWhiteSpace(filter.Edition))
-        {
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Edition).Value($"*{filter.Edition.ToLower()}*")));
-        }
 
         if (!string.IsNullOrWhiteSpace(filter.Byline))
-        {
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Byline).Value($"*{filter.Byline.ToLower()}*")));
-        }
 
-        if (filter.ContentType.HasValue)
-        {
-            filterQueries.Add(s => s.Match(m => m.Field(p => p.ContentType).Query(filter.ContentType.Value.ToString())));
-        }
-
-        if (filter.IncludeHidden.HasValue)
-        {
-            filterQueries.Add(s => s.Term(t => t.IsHidden, filter.IncludeHidden.Value));
-        }
+        foreach (var type in filter.ContentTypes)
+            filterQueries.Add(s => s.Terms(t => t.Field(f => f.ContentType).Terms(filter.ContentTypes.Select(ct => ct.GetName()))));
 
         if (filter.OwnerId.HasValue)
-        {
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.OwnerId.Value));
-        }
 
-        if (filter.IncludedInTopic.HasValue)
-        {
-            filterQueries.Add(s => s.Nested(n => n.Path(p => p.Topics).Query(q => q.MatchAll())));
-        }
+        if (!filter.IncludeHidden.HasValue || !filter.IncludeHidden.Value)
+            filterQueries.Add(s => s.Term(t => t.IsHidden, false)); // Do not include hidden content.
 
-        foreach (var action in filter.Actions)
-        {
-            filterQueries.Add(s => s
-                .Nested(n => n
-                .Path(p => p.Actions)
-                .Query(y => y
-                .Match(m => m
-                .Field("actions.name")
-                .Query(action)) && ((y.Match(m => m
-                .Field("actions.valueType")
-                .Query("Boolean")) && y.Match(m => m
-                .Field("actions.value")
-                .Query("true"))) || (!y.Match(m => m
-                .Field("actions.valueType")
-                .Query("Boolean")) && y.Exists(m => m
-                .Field("actions.value")))))));
-        }
+        if (filter.OnlyHidden == true)
+            filterQueries.Add(s => s.Term(t => t.IsHidden, true)); // Only hidden content.
 
-        if (filter.CreatedOn.HasValue)
-        {
-            var createdOn = filter.CreatedOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.Match(m => m.Field(p => p.CreatedOn).Query(createdOn)));
-        }
+        if (filter.HasTopic == true)
+            filterQueries.Add(s => s.Nested(n => n.IgnoreUnmapped().Path(f => f.Topics).Query(q => q.MatchAll())));
 
-        if (filter.CreatedStartOn.HasValue && filter.CreatedEndOn.HasValue)
-        {
-            var startOn = filter.CreatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
-            var endOn = filter.CreatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.CreatedOn)
-                .GreaterThanOrEquals(startOn)
-                .LessThanOrEquals(endOn)));
-        }
-        else if (filter.CreatedStartOn.HasValue)
-        {
-            var startOn = filter.CreatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.CreatedOn)
-                .GreaterThanOrEquals(startOn)));
-        }
-        else if (filter.CreatedEndOn.HasValue)
-        {
-            var endOn = filter.CreatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.CreatedOn)
-                .LessThanOrEquals(endOn)));
-        }
-
-        if (filter.UpdatedOn.HasValue)
-        {
-            var updatedOn = filter.UpdatedOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.Match(m => m.Field(p => p.UpdatedOn).Query(updatedOn)));
-        }
-
-        if (filter.UpdatedStartOn.HasValue && filter.UpdatedEndOn.HasValue)
-        {
-            var startOn = filter.UpdatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
-            var endOn = filter.UpdatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.UpdatedOn)
-                .GreaterThanOrEquals(startOn)
-                .LessThanOrEquals(endOn)));
-        }
-        else if (filter.UpdatedStartOn.HasValue)
-        {
-            var startOn = filter.UpdatedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.UpdatedOn)
-                .GreaterThanOrEquals(startOn)));
-        }
-        else if (filter.UpdatedEndOn.HasValue)
-        {
-            var endOn = filter.UpdatedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.UpdatedOn)
-                .LessThanOrEquals(endOn)));
-        }
-
-        if (filter.PublishedOn.HasValue)
-        {
-            var publishedOn = filter.PublishedOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.Match(m => m.Field(p => p.PublishedOn).Query(publishedOn)));
-        }
-
-        if (filter.PublishedStartOn.HasValue && filter.PublishedEndOn.HasValue)
-        {
-            var publishedStartOn = filter.PublishedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
-            var publishedEndOn = filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.PublishedOn)
-                .GreaterThanOrEquals(publishedStartOn)
-                .LessThanOrEquals(publishedEndOn)));
-        }
-        else if (filter.PublishedStartOn.HasValue)
-        {
-            var publishedStartOn = filter.PublishedStartOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.PublishedOn)
-                .GreaterThanOrEquals(publishedStartOn)));
-        }
-        else if (filter.PublishedEndOn.HasValue)
-        {
-            var publishedEndOn = filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z";
-            filterQueries.Add(s => s.DateRange(m => m
-                .Field(p => p.PublishedOn)
-                .LessThanOrEquals(publishedEndOn)));
-        }
+        if (filter.OnlyPublished == true)
+            filterQueries.Add(s => s.Terms(m => m.Field("status").Terms(_onlyPublished.Select(s => s.GetName()))));
 
         if (filter.UserId.HasValue)
-        {
             filterQueries.Add(s => s.Term(t => t.OwnerId, filter.UserId.Value));
-        }
 
         if (filter.Status.HasValue)
-        {
-            filterQueries.Add(s => s.Match(m => m.Field(p => p.Status).Query(filter.Status.Value.ToString())));
-        }
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.Status).Query(filter.Status.Value.GetName())));
+
+        if (filter.CreatedOn.HasValue)
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.CreatedOn).Query(filter.CreatedOn.Value.ToUniversalTime().ToString("s") + "Z")));
+
+        if (filter.CreatedStartOn.HasValue && filter.CreatedEndOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.CreatedOn)
+                .GreaterThanOrEquals(filter.CreatedStartOn.Value.ToUniversalTime().ToString("s") + "Z")
+                .LessThanOrEquals(filter.CreatedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
+        else if (filter.CreatedStartOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.CreatedOn)
+                .GreaterThanOrEquals(filter.CreatedStartOn.Value.ToUniversalTime().ToString("s") + "Z")));
+        else if (filter.CreatedEndOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.CreatedOn)
+                .LessThanOrEquals(filter.CreatedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
+
+        if (filter.UpdatedOn.HasValue)
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.UpdatedOn).Query(filter.UpdatedOn.Value.ToUniversalTime().ToString("s") + "Z")));
+
+        if (filter.UpdatedStartOn.HasValue && filter.UpdatedEndOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.UpdatedOn)
+                .GreaterThanOrEquals(filter.UpdatedStartOn.Value.ToUniversalTime().ToString("s") + "Z")
+                .LessThanOrEquals(filter.UpdatedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
+        else if (filter.UpdatedStartOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.UpdatedOn)
+                .GreaterThanOrEquals(filter.UpdatedStartOn.Value.ToUniversalTime().ToString("s") + "Z")));
+        else if (filter.UpdatedEndOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.UpdatedOn)
+                .LessThanOrEquals(filter.UpdatedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
+
+        if (filter.PublishedOn.HasValue)
+            filterQueries.Add(s => s.Match(m => m.Field(p => p.PublishedOn).Query(filter.PublishedOn.Value.ToUniversalTime().ToString("s") + "Z")));
+
+        if (filter.PublishedStartOn.HasValue && filter.PublishedEndOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.PublishedOn)
+                        .GreaterThanOrEquals(filter.PublishedStartOn.Value.ToUniversalTime().ToString("s") + "Z")
+                        .LessThanOrEquals(filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
+        else if (filter.PublishedStartOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.PublishedOn)
+                .GreaterThanOrEquals(filter.PublishedStartOn.Value.ToUniversalTime().ToString("s") + "Z")));
+        else if (filter.PublishedEndOn.HasValue)
+            filterQueries.Add(s => s.DateRange(m => m
+                .Field(p => p.PublishedOn)
+                .LessThanOrEquals(filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
 
         var response = await _client.SearchAsync<Content>(s =>
         {
@@ -356,43 +307,12 @@ public class ContentService : BaseService<Content, long>, IContentService
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity);
 
-            if (filterQueries.Any() && productQueries.Any() && contentQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Must(m =>
-                    m.Bool(a => a.Must(filterQueries)) &&
-                    m.Bool(a => a.Should(productQueries)) &&
-                    m.Bool(a => a.Should(contentQueries)))));
-            }
-            else if (filterQueries.Any() && productQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Must(m =>
-                    m.Bool(a => a.Must(filterQueries)) &&
-                    m.Bool(a => a.Should(productQueries)))));
-            }
-            else if (filterQueries.Any() && contentQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Must(m =>
-                    m.Bool(a => a.Must(filterQueries)) &&
-                    m.Bool(a => a.Should(contentQueries)))));
-            }
-            else if (productQueries.Any() && contentQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Must(m =>
-                    m.Bool(a => a.Should(productQueries)) &&
-                    m.Bool(a => a.Should(contentQueries)))));
-            }
-            else if (filterQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Must(filterQueries)));
-            }
-            else if (productQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Should(productQueries)));
-            }
-            else if (contentQueries.Any())
-            {
-                result = result.Query(q => q.Bool(b => b.Should(contentQueries)));
-            }
+            result = result.Query(q => (filterQueries.Any() ? q.Bool(b => b.Must(filterQueries)) : new QueryContainerDescriptor<Content>()) &&
+                (sourceQueries.Any() ? q.Bool(b => b.Should(sourceQueries)) : new QueryContainerDescriptor<Content>()) &&
+                (productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<Content>()) &&
+                (contentQueries.Any() ? q.Bool(b => b.Should(contentQueries)) : new QueryContainerDescriptor<Content>()) &&
+                (actionQueries.Any() ? q.Bool(b => b.Should(actionQueries)) : new QueryContainerDescriptor<Content>())
+            );
 
             if (filter.Sort.Any())
             {

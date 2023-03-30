@@ -265,6 +265,25 @@ public static class DictionaryExtensions
     }
 
     /// <summary>
+    /// Get the value from the dictionary for the specified 'key' and return it as an array of enum.
+    /// </summary>
+    /// <param name="dict"></param>
+    /// <param name="key"></param>
+    /// <param name="ignoreCase"></param>
+    /// <returns></returns>
+    public static T[] GetEnumArrayValue<T>(this IDictionary<string, Microsoft.Extensions.Primitives.StringValues> dict, string key, bool ignoreCase = true)
+    {
+        return dict.TryGetValue(key, out Microsoft.Extensions.Primitives.StringValues value) ? value.ToArray()
+            .Select(v =>
+            {
+                return Enum.TryParse(typeof(T), v, ignoreCase, out object? value) ? (T?)value : (T?)default;
+            })
+            .Where(v => v != null)
+            .Select(v => v!)
+            .ToArray() : Array.Empty<T>();
+    }
+
+    /// <summary>
     /// Get the value from the dictionary for the specified 'key' and return it as the specified type 'T'.
     /// If the value doesn't convert correctly it will return a default value of the specified type 'T'.
     /// </summary>

@@ -2,7 +2,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
+import { IMorningReportsFilter } from 'features/content/morning-reports/interfaces';
 import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import { IContentModel, IPaged } from 'tno-core';
@@ -28,7 +28,7 @@ export interface IContentStore {
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
   storeMorningReportFilter: (
-    filter: IMorningReportFilter | ActionDelegate<IMorningReportFilter>,
+    filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
   ) => void;
   storeContent: (content: IPaged<IContentModel>) => void;
   addContent: (content: IContentModel[]) => void;
@@ -54,10 +54,10 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
         else dispatch(storeFilterAdvanced(filter));
       },
       storeMorningReportFilter: (
-        filter: IMorningReportFilter | ActionDelegate<IMorningReportFilter>,
+        filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
       ) => {
         if (typeof filter === 'function')
-          dispatch(storeMorningReportFilter(filter(state.filterMorningReport)));
+          dispatch(storeMorningReportFilter(filter(state.filterMorningReports)));
         else dispatch(storeMorningReportFilter(filter));
       },
       storeContent: (content: IPaged<IContentModel>) => {
@@ -73,7 +73,7 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
         dispatch(removeContent(content));
       },
     }),
-    [dispatch, state.filter, state.filterAdvanced, state.filterMorningReport],
+    [dispatch, state.filter, state.filterAdvanced, state.filterMorningReports],
   );
 
   return [state, controller];

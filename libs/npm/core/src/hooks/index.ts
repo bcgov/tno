@@ -13,5 +13,6 @@ export * from './useIntersection';
 export * from './useIntersectionObserver';
 export * from './useNamespace';
 export * from './useQuery';
+export * from './useScrollTo';
 export * from './useTabValidationToasts';
 export * from './useVisibility';

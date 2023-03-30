@@ -1,5 +1,6 @@
 export enum ContentListActionName {
-  Remove = 'remove',
+  Hide = 'hide',
+  Unhide = 'unhide',
   Publish = 'publish',
   Unpublish = 'unpublish',
   Action = 'action',

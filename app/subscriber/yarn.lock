@@ -3645,15 +3645,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yup@npm:0.32.0":
-  version: 0.32.0
-  resolution: "@types/yup@npm:0.32.0"
-  dependencies:
-    yup: "*"
-  checksum: 5b30f1118bca288d949bcd4c7e17d1425ffa320eddd751a78c895b158fae0b6cbf242ced45ad47e9e70643c9475da09a7ad004192fb6f2111791d37e6a627e73
-  languageName: node
-  linkType: hard
-
 "@typescript-eslint/eslint-plugin@npm:5.55.0":
   version: 5.55.0
   resolution: "@typescript-eslint/eslint-plugin@npm:5.55.0"
@@ -10253,7 +10244,6 @@ __metadata:
     "@types/react-text-mask": 5.4.11
     "@types/redux-logger": 3.0.9
     "@types/styled-components": 5.1.26
-    "@types/yup": 0.32.0
     "@typescript-eslint/eslint-plugin": 5.55.0
     "@typescript-eslint/parser": 5.55.0
     axios: 1.3.4
@@ -10302,7 +10292,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.226
+    tno-core: 0.0.227
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14175,9 +14165,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.226":
-  version: 0.0.226
-  resolution: "tno-core@npm:0.0.226"
+"tno-core@npm:0.0.227":
+  version: 0.0.227
+  resolution: "tno-core@npm:0.0.227"
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.3.0
     "@fortawesome/react-fontawesome": ^0.2.0
@@ -14204,7 +14194,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^0.32.11
-  checksum: 1e3948bf39d0b8297a57599da51433c302263da168d490d64beaa39df0e9bd99c0c10077b5ef2e3bc31322f14bf1cf59f38771977f4db4fe1b0f90cdbe5c0e00
+  checksum: b9eeed489870395ebd67a479750a17b1f7cf5a48c915d8850aa1e6c57d13ea3a312ec737b6a3c68210f2cbf6e758a58d51babc10bfb89ad623233ee025031346
   languageName: node
   linkType: hard
 
@@ -15348,7 +15338,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yup@npm:*, yup@npm:^0.32.11":
+"yup@npm:^0.32.11":
   version: 0.32.11
   resolution: "yup@npm:0.32.11"
   dependencies:

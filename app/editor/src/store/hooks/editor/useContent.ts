@@ -2,12 +2,19 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-report/interfaces';
+import { IMorningReportsFilter } from 'features/content/morning-reports/interfaces';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
 import { IContentProps, IContentState } from 'store/slices/content';
-import { IContentFilter, IContentModel, IPaged, useApiContents } from 'tno-core';
+import {
+  ContentListActionName,
+  IContentFilter,
+  IContentListModel,
+  IContentModel,
+  IPaged,
+  useApiContents,
+} from 'tno-core';
 
 import { useAjaxWrapper } from '..';
 
@@ -16,6 +23,7 @@ interface IContentController {
   getContent: (id: number) => Promise<IContentModel | undefined>;
   addContent: (content: IContentModel) => Promise<IContentModel>;
   updateContent: (content: IContentModel) => Promise<IContentModel>;
+  updateContentList: (content: IContentListModel) => Promise<IContentModel[]>;
   deleteContent: (content: IContentModel) => Promise<IContentModel>;
   publishContent: (content: IContentModel) => Promise<IContentModel>;
   unpublishContent: (content: IContentModel) => Promise<IContentModel>;
@@ -27,7 +35,7 @@ interface IContentController {
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
   storeMorningReportFilter: (
-    filter: IMorningReportFilter | ActionDelegate<IMorningReportFilter>,
+    filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
   ) => void;
 }
 
@@ -59,6 +67,31 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
           'content',
         );
         actions.updateContent([response.data]);
+        return response.data;
+      },
+      updateContentList: async (content: IContentListModel) => {
+        const response = await dispatch(
+          'update-content-list',
+          () => api.updateContentList(content),
+          'content',
+        );
+
+        switch (content.action) {
+          case ContentListActionName.Publish:
+          case ContentListActionName.Unpublish:
+          case ContentListActionName.Action:
+            actions.updateContent(
+              response.data.map((i) => {
+                i.isSelected = true;
+                return i;
+              }),
+            );
+            break;
+          case ContentListActionName.Hide:
+          case ContentListActionName.Unhide:
+            actions.removeContent(response.data);
+            break;
+        }
         return response.data;
       },
       deleteContent: async (content: IContentModel) => {

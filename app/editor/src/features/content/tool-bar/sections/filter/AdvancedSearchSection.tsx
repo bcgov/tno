@@ -33,6 +33,11 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
   const [filter, setFilter] = React.useState(oFilter);
   const [filterAdvanced, setFilterAdvanced] = React.useState(oFilterAdvanced);
 
+  // keep the filter in sync with the store
+  React.useEffect(() => {
+    setFilter(oFilter);
+  }, [oFilter]);
+
   const onChange = React.useCallback(() => {
     storeFilter({ ...filter, pageIndex: 0 });
     storeFilterAdvanced(filterAdvanced);
@@ -56,7 +61,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
               setFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
-          <Show visible={filterAdvanced.fieldType === 'sourceId'}>
+          <Show visible={filterAdvanced.fieldType === 'sourceIds'}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -75,15 +80,13 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
                   });
                 }
               }}
-              options={[new OptionItem('', 0) as IOptionItem].concat([
-                ...filterEnabledOptions(sourceOptions, filterAdvanced.searchTerm),
-              ])}
+              options={filterEnabledOptions(sourceOptions, filterAdvanced.searchTerm)}
               value={sourceOptions.find(
                 (s) => String(s.value) === String(filterAdvanced.searchTerm),
               )}
             />
           </Show>
-          <Show visible={filterAdvanced.fieldType !== 'sourceId'}>
+          <Show visible={filterAdvanced.fieldType !== 'sourceIds'}>
             <Text
               name="searchTerm"
               width={FieldSize.Small}

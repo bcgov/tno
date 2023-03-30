@@ -1,4 +1,5 @@
 using TNO.API.Models;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Admin.Models.Action;
 
@@ -22,6 +23,11 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
     /// get/set - The default value.
     /// </summary>
     public string DefaultValue { get; set; } = "";
+
+    /// <summary>
+    /// get/set - An array of content types that support this action.
+    /// </summary>
+    public IEnumerable<ContentType> ContentTypes { get; set; } = Array.Empty<ContentType>();
     #endregion
 
     #region Constructors
@@ -40,6 +46,7 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
         this.ValueType = entity.ValueType;
         this.IsEnabled = entity.IsEnabled;
         this.DefaultValue = entity.DefaultValue;
+        this.ContentTypes = entity.ContentTypes.Select(t => t.ContentType);
     }
     #endregion
 
@@ -69,6 +76,7 @@ public class ActionModel : BaseTypeWithAuditColumnsModel<int>
             SortOrder = model.SortOrder,
             Version = model.Version ?? 0
         };
+        entity.ContentTypes.AddRange(model.ContentTypes.Select(t => new ContentTypeAction(t, model.Id)));
 
         return entity;
     }

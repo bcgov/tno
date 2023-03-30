@@ -30,8 +30,8 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
     border-radius: 0.25rem;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
       border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-      overflow: visible;
-      text-transform: none;
+    overflow: visible;
+    text-transform: none;
     color: ${(props) => {
       switch (props.variant) {
         case SelectVariant.warning:
@@ -98,7 +98,6 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
             return props.theme.css.primaryColor;
         }
       }};
-
     }
 
     &:focus {
@@ -123,6 +122,7 @@ export const SelectField = styled(Select)<ISelectProps<any>>`
             return 'none';
         }
       }};
+    }
   }
 
   .rs__menu {

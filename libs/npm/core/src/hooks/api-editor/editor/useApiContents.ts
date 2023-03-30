@@ -3,7 +3,14 @@ import React from 'react';
 
 import { toQueryString } from '../../../utils';
 import { defaultEnvelope, ILifecycleToasts } from '../../summon';
-import { IContentFilter, IContentModel, IPaged, IWorkOrderModel, useApi } from '..';
+import {
+  IContentFilter,
+  IContentListModel,
+  IContentModel,
+  IPaged,
+  IWorkOrderModel,
+  useApi,
+} from '..';
 
 /**
  * Common hook to make requests to the API.
@@ -44,6 +51,12 @@ export const useApiContents = (
       return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
         `/editor/contents/${content.id}`,
         content,
+      );
+    },
+    updateContentList: (action: IContentListModel) => {
+      return api.put<IContentListModel, AxiosResponse<IContentModel[]>, any>(
+        `/editor/contents`,
+        action,
       );
     },
     deleteContent: (content: IContentModel) => {

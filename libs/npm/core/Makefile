@@ -42,7 +42,7 @@ publish: ## Build and publish a new package to NPM.
 	@./scripts/publish.sh
 
 pack: ## Build and pack library so that it can be tested locally.
-	$(info Build and pack library so that it can be tested locally.)
-	@./scripts/package.sh
+	$(info Build and pack library so that it can be tested locally.(n=$(n)))
+	@./scripts/package.sh $(n)
 
 .PHONY: local

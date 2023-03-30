@@ -39,6 +39,7 @@ import {
   Tabs,
   useCombinedView,
   useModal,
+  useScrollTo,
   useTabValidationToasts,
   WorkOrderStatusName,
   WorkOrderTypeName,
@@ -58,6 +59,10 @@ import { WorkOrderStatus } from './WorkOrderStatus';
 export interface IContentFormProps {
   /** Control what form elements are visible. */
   contentType?: ContentTypeName;
+  /** Whether to scroll to content when loaded. */
+  scrollToContent?: boolean;
+  /** Root path for combined view. */
+  combinedPath?: string;
 }
 
 /**
@@ -67,7 +72,10 @@ export interface IContentFormProps {
  */
 export const ContentForm: React.FC<IContentFormProps> = ({
   contentType: initContentType = ContentTypeName.Snippet,
+  scrollToContent = true,
+  combinedPath,
 }) => {
+  const hub = useApiHub();
   const navigate = useNavigate();
   const [{ userInfo }] = useApp();
   const { id } = useParams();
@@ -78,11 +86,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
   const [{ sources, series, sourceOptions, productOptions }, { getSeries }] = useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
-  const hub = useApiHub();
+  useScrollTo(id, scrollToContent ? 'bottom-pane' : '');
   const { setShowValidationToast } = useTabValidationToasts();
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
-  const [size, setSize] = React.useState(1);
+  const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
   const [active, setActive] = React.useState('properties');
   const [savePressed, setSavePressed] = React.useState(false);
   const [allowPublishWithoutFile, setAllowPublishWithoutFile] = React.useState(false);
@@ -318,8 +326,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
           >
             {(props: FormikProps<IContentForm>) => (
               <Col className="content-col">
-                <ContentFormToolBar fetchContent={fetchContent} />
-
+                <ContentFormToolBar fetchContent={fetchContent} combinedPath={combinedPath} />
                 <FormikHidden name="uid" />
                 <Row alignItems="flex-start" className="content-details">
                   <Show visible={size === 0}>

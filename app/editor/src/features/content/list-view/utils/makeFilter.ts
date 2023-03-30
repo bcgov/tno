@@ -16,14 +16,15 @@ export const makeFilter = (
   const result: IContentFilter = {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
-    sourceId: filter.sourceId !== 0 ? filter.sourceId : undefined,
     productIds: filter.productIds ?? undefined,
     sourceIds: filter.sourceIds ?? undefined,
-    contentType: filter.contentType,
+    contentTypes: filter.contentTypes ?? undefined,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
-    includedInTopic: filter.includedInTopic ? true : undefined,
+    hasTopic: filter.hasTopic ? true : undefined,
     includeHidden: filter.includeHidden ? true : undefined,
+    onlyHidden: filter.onlyHidden ? true : undefined,
+    onlyPublished: filter.onlyPublished ? true : undefined,
     publishedStartOn: filter.startDate
       ? moment(filter.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
