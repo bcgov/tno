@@ -271,6 +271,12 @@ export const GridTable = <T extends object>({
     if (!maintainSelectedRows) instance.toggleAllRowsSelected(false);
   }, [data, instance, maintainSelectedRows]);
 
+  React.useEffect(() => {
+    if (!manualPagination && !showPaging && data.length && pageSize !== data.length) {
+      instance.setPageSize(data.length);
+    }
+  }, [data, instance, manualPagination, pageSize, showPaging]);
+
   // The user / system disables a column
   React.useEffect(() => {
     setHiddenColumns(hiddenColumns);
