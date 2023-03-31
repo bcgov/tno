@@ -51,12 +51,12 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-        - name: file-storage
+        - name: api-storage
           persistentVolumeClaim:
-            claimName: file-storage
-        - name: av-storage
+            claimName: api-storage
+        - name: ingest-storage
           persistentVolumeClaim:
-            claimName: av-storage
+            claimName: ingest-storage
       containers:
         - name: api
           image: ""
@@ -65,10 +65,10 @@ spec:
             - containerPort: 8080
               protocol: TCP
           volumeMounts:
-            - name: file-storage
-              mountPath: /data
-            - name: av-storage
-              mountPath: /av
+            - name: api-storage
+              mountPath: /mnt/data
+            - name: ingest-storage
+              mountPath: /mnt/ingest
           resources:
             requests:
               cpu: 20m
@@ -86,9 +86,9 @@ spec:
               value: Information
 
             - name: Storage__UploadPath
-              value: /data
+              value: /mnt/data
             - name: Storage__CapturePath
-              value: /av
+              value: /mnt/ingest
 
             - name: Keycloak__Authority
               valueFrom:
@@ -109,7 +109,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: services
-                  key: KEYCLOAK_SECRET
+                  key: KEYCLOAK_CLIENT_SECRET
 
             - name: CSS__IntegrationId
               valueFrom:

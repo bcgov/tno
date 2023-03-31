@@ -7,6 +7,7 @@ using System.Net.Mime;
 using System.Security.Authentication;
 using System.Text.Json;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 
 namespace TNO.API.Middleware
 {
@@ -159,7 +160,7 @@ namespace TNO.API.Middleware
             }
             else
             {
-                _logger.LogError(ex, "Middleware caught unhandled exception.", ex.Message);
+                _logger.LogError(ex, "Middleware caught unhandled exception.", ex.GetAllMessages());
             }
 
             if (!context.Response.HasStarted)

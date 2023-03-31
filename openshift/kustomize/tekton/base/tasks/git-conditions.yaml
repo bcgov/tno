@@ -102,6 +102,10 @@ spec:
           echo 'BUILD_API=true' >> build.env
         fi
 
+        if grep -s tools/elastic/migration <<< $DIFF; then
+          echo 'BUILD_ELASTIC_MIGRATION=true' >> build.env
+        fi
+
         build_service 'capture'
         build_service 'clip'
         build_service 'syndication'

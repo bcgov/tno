@@ -13,7 +13,7 @@ metadata:
     created-by: jeremy.foster
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 3
+  replicas: 4
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -36,7 +36,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 5Gi
+            storage: 2Gi
   template:
     metadata:
       labels:

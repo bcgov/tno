@@ -32,7 +32,7 @@ spec:
   postgresVersion: 14
   instances:
     - name: postgres
-      replicas: 3
+      replicas: 4
       resources:
         requests:
           cpu: 50m
@@ -45,7 +45,7 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: 5Gi
+            storage: 3Gi
         storageClassName: netapp-block-standard
       affinity:
         podAntiAffinity:

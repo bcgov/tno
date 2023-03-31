@@ -58,14 +58,14 @@ spec:
         #     claimName: tno-database-backup
       containers:
         - name: elastic
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.9
           resources:
             requests:
-              cpu: 10m
-              memory: 500Mi
-            limits:
               cpu: 100m
-              memory: 2Gi
+              memory: 850Mi
+            limits:
+              cpu: 200m
+              memory: 1500Mi
           ports:
             - containerPort: 9200
               name: 9200-tcp
@@ -121,6 +121,7 @@ spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: netapp-block-standard
+        persistentVolumeReclaimPolicy: Delete
         resources:
           requests:
-            storage: 10Gi
+            storage: 3Gi

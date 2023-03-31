@@ -47,7 +47,7 @@ data:
       echo "************************************"
     }
 
-    purge_folders /data/capture 2;
-    purge_folders /data/clips 2;
-    purge_folders /data/images 2;
-    purge_folders /data/papers 2;
+    purge_folders /mnt/data/capture 2;
+    purge_folders /mnt/data/clips 2;
+    purge_folders /mnt/data/images 2;
+    purge_folders /mnt/data/papers 2;

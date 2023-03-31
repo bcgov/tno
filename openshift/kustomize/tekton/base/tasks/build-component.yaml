@@ -25,6 +25,8 @@ spec:
       description: Path to the Dockerfile to build.
       default: ./Dockerfile
 
+    - name: BUILD
+      description: Whether to force build the component.
     - name: COMPONENT
       description: |
         The name of the component (often the same as the image name).
@@ -92,12 +94,13 @@ spec:
         fi
 
         # Dynamic variable to control what will be built.
-        COMPONENT='BUILD_$(params.COMPONENT)'
+        TVAR='BUILD_$(params.COMPONENT)'
+        COMPONENT=${TVAR//\-/_}
         COMPONENT=${COMPONENT^^}
         echo $COMPONENT=${!COMPONENT}
 
         # Check if this image needs to be built.
-        if [ "${!COMPONENT}" = true ]; then
+        if [ "${!COMPONENT}" = true ] || [ "$(params.BUILD)" = "yes" ]; then
           echo 'Build $(params.IMAGE)'
           if [ ! -z "$IMAGE_REGISTRY_USER" ];  then
             buildah login \

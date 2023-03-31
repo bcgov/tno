@@ -22,7 +22,7 @@ patches:
         value: https://loginproxy.gov.bc.ca
   - target:
       kind: PersistentVolumeClaim
-      name: file-storage
+      name: api-storage
     patch: |-
       - op: replace
         path: /spec/resources/requests/storage

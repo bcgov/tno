@@ -57,6 +57,9 @@ spec:
             - name: ASPNETCORE_URLS
               value: http://+:8080
 
+            - name: Logging__LogLevel__TNO
+              value: Information
+
             # Common Service Configuration
             - name: Service__ApiUrl
               valueFrom:

@@ -12,7 +12,7 @@ generatorOptions:
 patches:
   - target:
       kind: PersistentVolumeClaim
-      name: av-storage
+      name: ingest-storage
     patch: |-
       - op: replace
         path: /spec/resources/requests/storage
