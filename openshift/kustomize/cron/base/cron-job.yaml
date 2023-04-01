@@ -25,9 +25,9 @@ spec:
               configMap:
                 defaultMode: 0754
                 name: purge-service
-            - name: av-storage
+            - name: ingest-storage
               persistentVolumeClaim:
-                claimName: av-storage
+                claimName: ingest-storage
           containers:
             - name: purge-service
               image: image-registry.apps.silver.devops.gov.bc.ca/9b301c-tools/alpine:3.17.1
@@ -43,7 +43,7 @@ spec:
                 - name: entrypoint
                   mountPath: /bin/entrypoint.sh
                   subPath: entrypoint.sh
-                - name: av-storage
-                  mountPath: /data
+                - name: ingest-storage
+                  mountPath: /mnt/data
               command:
                 - /bin/entrypoint.sh

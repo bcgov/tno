@@ -41,6 +41,8 @@ spec:
   selector:
     matchLabels:
       statefulset: api-cluster
+  triggers:
+    - type: ConfigChange
   template:
     metadata:
       labels:
@@ -65,12 +67,12 @@ spec:
                       - api-cluster
               topologyKey: "kubernetes.io/hostname"
       volumes:
-        - name: file-storage
+        - name: api-storage
           persistentVolumeClaim:
-            claimName: file-storage
-        - name: av-storage
+            claimName: api-storage
+        - name: ingest-storage
           persistentVolumeClaim:
-            claimName: av-storage
+            claimName: ingest-storage
       containers:
         - name: api
           image: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:dev
@@ -79,10 +81,10 @@ spec:
             - containerPort: 8080
               protocol: TCP
           volumeMounts:
-            - name: file-storage
-              mountPath: /data
-            - name: av-storage
-              mountPath: /av
+            - name: api-storage
+              mountPath: /mnt/data
+            - name: ingest-storage
+              mountPath: /mnt/ingest
           resources:
             requests:
               cpu: 100m
@@ -100,9 +102,9 @@ spec:
               value: Information
 
             - name: Storage__UploadPath
-              value: /data
+              value: /mnt/data
             - name: Storage__CapturePath
-              value: /av
+              value: /mnt/ingest
 
             - name: Keycloak__Authority
               valueFrom:
@@ -123,7 +125,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: services
-                  key: KEYCLOAK_SECRET
+                  key: KEYCLOAK_CLIENT_SECRET
 
             - name: CSS__IntegrationId
               valueFrom:

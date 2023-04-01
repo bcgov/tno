@@ -2,10 +2,8 @@ using System.Text.Json;
 using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.Serialization;
 using Elastic.Transport;
-using Elasticsearch.Net;
 using Microsoft.Extensions.Options;
 using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
 using TNO.DAL.Config;
 
 namespace TNO.Elastic.Migration;

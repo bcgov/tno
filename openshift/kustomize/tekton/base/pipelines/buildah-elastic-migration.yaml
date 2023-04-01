@@ -31,6 +31,10 @@ spec:
         [dev,test,prod,tools].
       name: DEPLOY_TO
       type: string
+    - name: FORCE_BUILD
+      description: Whether to force build the component [yes|no].
+      type: string
+      default: "no"
   workspaces:
     - description: |
         Git repo source code.
@@ -71,8 +75,12 @@ spec:
       params:
         - name: COMPONENT
           value: elastic-migration
+        - name: BUILD
+          value: $(params.FORCE_BUILD)
         - name: CONTEXT
           value: $(params.CONTEXT)
+        - name: DOCKERFILE
+          value: $(params.CONTEXT)/tools/elastic/migration/Dockerfile
         - name: IMAGE
           value: elastic-migration
         - name: IMAGE_TAG

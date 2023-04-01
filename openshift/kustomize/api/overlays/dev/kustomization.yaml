@@ -22,7 +22,7 @@ patches:
         value: https://loginproxy.gov.bc.ca
   - target:
       kind: PersistentVolumeClaim
-      name: file-storage
+      name: api-storage
     patch: |-
       - op: replace
         path: /spec/resources/requests/storage
@@ -127,6 +127,3 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:dev
-      - op: replace
-        path: /spec/triggers/1/imageChangeParams/from/name
-        value: api:dev

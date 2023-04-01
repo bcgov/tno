@@ -131,7 +131,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
             autoResetSelectedRows={false}
             maintainSelectedRows={true}
             page={page}
-            paging={{ manualPagination: true, pageSize: filter.pageSize }}
+            paging={{ pageSize: filter.pageSize }}
             isLoading={loading}
             sorting={{ sortBy: filter.sort }}
             getRowId={(content) => content.id.toString()}

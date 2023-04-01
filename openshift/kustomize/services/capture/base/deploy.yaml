@@ -53,9 +53,9 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-        - name: av-storage
+        - name: ingest-storage
           persistentVolumeClaim:
-            claimName: av-storage
+            claimName: ingest-storage
       containers:
         - name: capture-service
           image: ""
@@ -64,7 +64,7 @@ spec:
             - containerPort: 8080
               protocol: TCP
           volumeMounts:
-            - name: av-storage
+            - name: ingest-storage
               mountPath: /data
           resources:
             requests:
@@ -79,6 +79,9 @@ spec:
               value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
+
+            - name: Logging__LogLevel__TNO
+              value: Information
 
             # Common Service Configuration
             - name: Service__ApiUrl

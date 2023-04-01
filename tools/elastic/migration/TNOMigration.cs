@@ -1,6 +1,5 @@
 using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
-using Elasticsearch.Net;
 using Microsoft.Extensions.Logging;
 using TNO.API.Areas.Services.Models.Content;
 using TNO.DAL.Models;

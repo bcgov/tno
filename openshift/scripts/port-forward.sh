@@ -23,6 +23,6 @@ fi
 
 echo "The following ${#POD[@]} pods were found"
 for i in ${POD[@]}; do echo $i; done
-echo "Selected pod '${POD[$INDEX]}'"
+echo "Selected pod '${POD[$INDEX]}' $3:$4"
 
 oc port-forward ${POD[$INDEX]} $3:$4

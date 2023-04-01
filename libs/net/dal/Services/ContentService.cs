@@ -2,8 +2,10 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Nest;
 using TNO.Core.Extensions;
+using TNO.DAL.Config;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -18,7 +20,8 @@ public class ContentService : BaseService<Content, long>, IContentService
 {
     #region Variables
     private readonly IElasticClient _client;
-    private static ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
+    private readonly ElasticOptions _elasticOptions;
+    private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
     #endregion
 
     #region Properties
@@ -29,15 +32,19 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="dbContext"></param>
     /// <param name="principal"></param>
     /// <param name="serviceProvider"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="logger"></param>
     #region Constructors
-    public ContentService(TNOContext dbContext,
-            ClaimsPrincipal principal,
-            IServiceProvider serviceProvider,
-            IElasticClient client,
-            ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
+    public ContentService(
+        TNOContext dbContext,
+        ClaimsPrincipal principal,
+        IServiceProvider serviceProvider,
+        IElasticClient client,
+        IOptions<ElasticOptions> elasticOptions,
+        ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _client = client;
+        _elasticOptions = elasticOptions.Value;
     }
     #endregion
 
@@ -303,7 +310,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         {
             var result = s
                 .Pretty()
-                .Index(_client.ConnectionSettings.DefaultIndex)
+                .Index(_elasticOptions.UnpublishedIndex)
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity);
 

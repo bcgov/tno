@@ -28,6 +28,6 @@ data:
 
   CONNECTION_STRING: Host=crunchy-primary:5432;Database=tno;Include Error Detail=true;Log Parameters=true;
 
-  ELASTIC_URIS: elastic:9200
+  ELASTIC_URIS: http://elastic:9200
 
   KAFKA_BOOTSTRAP_SERVERS: kafka-headless:29092
