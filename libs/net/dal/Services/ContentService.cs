@@ -426,5 +426,17 @@ public class ContentService : BaseService<Content, long>, IContentService
         base.UpdateAndSave(original);
         return original;
     }
+
+
+    /// <summary>
+    /// Get all the notification instances for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    public IEnumerable<NotificationInstance> GetNotificationsFor(long contentId)
+    {
+        return this.Context.NotificationInstances
+            .Where(n => n.ContentId == contentId);
+    }
     #endregion
 }

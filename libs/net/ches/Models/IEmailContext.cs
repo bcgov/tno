@@ -9,7 +9,7 @@ namespace TNO.Ches.Models
     {
         IEnumerable<string> Bcc { get; set; }
         IEnumerable<string> Cc { get; set; }
-        object Context { get; set; }
+        Dictionary<string, object> Context { get; set; }
 
         [JsonConverter(typeof(MicrosecondEpochJsonConverter))]
         [JsonPropertyName("delayTS")]

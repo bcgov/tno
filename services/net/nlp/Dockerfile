@@ -26,6 +26,10 @@ WORKDIR /app
 COPY --from=build /build .
 COPY --from=build /src/services/net/nlp/models models/.
 
+# [Optional] Uncomment this section to install additional OS packages.
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends procps curl libc6-dev libgdiplus
+
 # Run container by default as user with id 1001 (default)
 USER 1001
 

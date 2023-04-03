@@ -432,6 +432,42 @@
         "${workspaceFolder}/tools/elastic/migration/TNO.Elastic.Migration.csproj",
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-notification",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-notification",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-notification",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

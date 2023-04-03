@@ -15,7 +15,7 @@ namespace TNO.Kafka;
 public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDisposable
 {
     #region Variable
-    private readonly ConsumerConfig _config;
+    private readonly KafkaConsumerConfig _config;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
     private bool _disposed = false;
@@ -51,11 +51,9 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     public string[] Topics { get; private set; } = Array.Empty<string>();
 
     /// <summary>
-    /// get/set - The max threads for running service.
+    /// get - Determine if max threads has been reached.
     /// </summary>
-    public int MaxThreads { get; set; } = 10;
-
-    private bool ReachOrOverLimit => _consumeResults.Count >= MaxThreads;
+    private bool ReachOrOverLimit => _consumeResults.Count >= _config.MaxThreads;
     #endregion
 
     #region Events
@@ -77,7 +75,7 @@ public class KafkaListener<TKey, TValue> : IKafkaListener<TKey, TValue>, IDispos
     /// <param name="serializerOptions"></param>
     /// <param name="consumerConfigOptions"></param>
     /// <param name="logger"></param>
-    public KafkaListener(IOptions<JsonSerializerOptions> serializerOptions, IOptions<ConsumerConfig> consumerConfigOptions, ILogger<KafkaListener<TKey, TValue>> logger)
+    public KafkaListener(IOptions<JsonSerializerOptions> serializerOptions, IOptions<KafkaConsumerConfig> consumerConfigOptions, ILogger<KafkaListener<TKey, TValue>> logger)
     {
         _serializerOptions = serializerOptions.Value;
         _config = consumerConfigOptions.Value;

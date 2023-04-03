@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -10,6 +11,7 @@ using TNO.API.Config;
 using TNO.API.Models;
 using TNO.API.Models.SignalR;
 using TNO.API.SignalR;
+using TNO.Core.Extensions;
 using TNO.DAL.Config;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
@@ -42,6 +44,7 @@ public class ContentController : ControllerBase
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly JsonSerializerOptions _serializerOptions;
     private readonly IHubContext<MessageHub> _hub;
     private readonly ILogger _logger;
     #endregion
@@ -57,6 +60,7 @@ public class ContentController : ControllerBase
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="storageOptions"></param>
+    /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
     public ContentController(
         IContentService contentService,
@@ -66,6 +70,7 @@ public class ContentController : ControllerBase
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<StorageOptions> storageOptions,
+        IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ContentController> logger)
     {
         _contentService = contentService;
@@ -75,6 +80,7 @@ public class ContentController : ControllerBase
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _storageOptions = storageOptions.Value;
+        _serializerOptions = serializerOptions.Value;
         _logger = logger;
     }
     #endregion
@@ -119,22 +125,35 @@ public class ContentController : ControllerBase
     /// Add new content to the database.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
     /// <returns></returns>
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> AddAsync(ContentModel model)
+    public async Task<IActionResult> AddAsync(ContentModel model, int? requestorId = null)
     {
         var content = _contentService.AddAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+            Entities.User? user = null;
+            if (requestorId.HasValue)
+            {
+                user = _userService.FindById(requestorId.Value);
+            }
             else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+            {
+                var username = User.GetUsername();
+                if (!String.IsNullOrWhiteSpace(username))
+                    user = _userService.FindByUsername(username);
+            }
+
+            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Publish));
+            else
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Index));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -151,25 +170,39 @@ public class ContentController : ControllerBase
     /// Publish message to kafka to index content in elasticsearch.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="index">Be careful this can result in a indexing loop.</param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> UpdateAsync(ContentModel model)
+    public async Task<IActionResult> UpdateAsync(ContentModel model, bool index = false, int? requestorId = null)
     {
         var content = _contentService.UpdateAndSave((Content)model);
 
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
+        if (index && !String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
+            Entities.User? user = null;
+            if (requestorId.HasValue)
+            {
+                user = _userService.FindById(requestorId.Value);
+            }
+            else
+            {
+                var username = User.GetUsername();
+                if (!String.IsNullOrWhiteSpace(username))
+                    user = _userService.FindByUsername(username);
+            }
+
             // If a request is submitted to unpublish we do it regardless of the current state of the content.
             if (content.Status == ContentStatus.Unpublish)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Unpublish));
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Unpublish));
             else if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Publish));
             else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Index));
 
             await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
         }
@@ -249,19 +282,32 @@ public class ContentController : ControllerBase
     /// <summary>
     /// Re-index all content in the database.
     /// </summary>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
     /// <returns></returns>
     [HttpPost("reindex")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> ReindexAsync()
+    public async Task<IActionResult> ReindexAsync(int? requestorId = null)
     {
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
+            Entities.User? user = null;
+            if (requestorId.HasValue)
+            {
+                user = _userService.FindById(requestorId.Value);
+            }
+            else
+            {
+                var username = User.GetUsername();
+                if (!String.IsNullOrWhiteSpace(username))
+                    user = _userService.FindByUsername(username);
+            }
+
             var index = true;
             var filter = new ContentFilter(query)
             {
@@ -276,9 +322,9 @@ public class ContentController : ControllerBase
                 foreach (var content in results.Items)
                 {
                     if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Publish));
+                        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Publish));
                     else
-                        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, IndexAction.Index));
+                        await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Index));
                 }
 
                 index = results.Items.Count > 0;
@@ -290,6 +336,22 @@ public class ContentController : ControllerBase
             _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new BadRequestResult();
+    }
+
+    /// <summary>
+    /// Find the notifications that have been sent for the specified content 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/notifications")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<NotificationInstanceModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult GetNotificationsFor(long id)
+    {
+        var notifications = _contentService.GetNotificationsFor(id);
+        return new JsonResult(notifications.Select(n => new NotificationInstanceModel(n, _serializerOptions)));
     }
     #endregion
 }

@@ -40,6 +40,7 @@ public class TnoTestContext : TNOContext
         //     .HasConversion(v => JsonConvert.SerializeObject(v),
         //         v => JsonConvert.DeserializeObject<WellDefinedJsonProperty>(v));
 
+        // TODO: Find a way to automate this so that we don't have to manually add them each time.
         modelBuilder.Entity<Entities.Connection>().Property(p => p.Configuration)
             .HasConversion(
                 v => JsonDocumentToString(v),
@@ -61,6 +62,31 @@ public class TnoTestContext : TNOContext
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));
 
         modelBuilder.Entity<Entities.Report>().Property(p => p.Filter)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Report>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.ReportInstance>().Property(p => p.Response)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Notification>().Property(p => p.Filter)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.Notification>().Property(p => p.Settings)
+            .HasConversion(
+                v => JsonDocumentToString(v),
+                v => JsonDocument.Parse(v, new JsonDocumentOptions()));
+
+        modelBuilder.Entity<Entities.NotificationInstance>().Property(p => p.Response)
             .HasConversion(
                 v => JsonDocumentToString(v),
                 v => JsonDocument.Parse(v, new JsonDocumentOptions()));

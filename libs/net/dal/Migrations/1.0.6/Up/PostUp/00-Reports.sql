@@ -14,11 +14,11 @@ INSERT INTO public."report" (
   'Morning Report' -- name
   , 'The morning report contains stories linked to topics for the day.' -- description
   , 1 -- report_type
-  , '{}'
+  , '{}' -- filter
   , true -- is_enabled
   , 0 -- sort_order
-  , ''
-  , ''
+  , '' -- created_by
+  , '' -- updated_by
 );
 
 END $$;

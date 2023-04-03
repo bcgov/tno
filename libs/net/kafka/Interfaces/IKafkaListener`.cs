@@ -44,11 +44,6 @@ public interface IKafkaListener<TKey, TValue>
     /// get - An array of topics this consumer is subscribed to.
     /// </summary>
     public string[] Topics { get; }
-
-    /// <summary>
-    /// get/set - The max threads for running service.
-    /// </summary>
-    public int MaxThreads { get; set; }
     #endregion
 
     #region Events

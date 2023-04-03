@@ -23,6 +23,7 @@ RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 as deploy
 
+# [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends procps curl libc6-dev libgdiplus
 

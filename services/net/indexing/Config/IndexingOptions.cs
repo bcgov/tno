@@ -10,7 +10,7 @@ public class IndexingOptions : ServiceOptions
 {
     #region Properties
     /// <summary>
-    /// get/set - A comma separated list of topics to consume.
+    /// get/set - A comma separated list of Kafka topics to consume.
     /// </summary>
     public string Topics { get; set; } = "";
 

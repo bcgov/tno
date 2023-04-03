@@ -7,7 +7,7 @@ using TNO.Kafka;
 namespace TNO.Services.Transcription;
 
 /// <summary>
-/// TranscriptionService abstrct class, provides a console application that runs service, and an api.
+/// TranscriptionService abstract class, provides a console application that runs service, and an api.
 /// The TranscriptionService is a Kafka consumer which pulls content.
 /// </summary>
 public class TranscriptionService : KafkaConsumerService

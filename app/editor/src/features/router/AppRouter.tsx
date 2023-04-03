@@ -99,11 +99,11 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
           }
         />
         <Route
-          path="morning/reports"
+          path="morning/papers"
           element={<PrivateRoute claims={Claim.editor} element={<MorningReports />}></PrivateRoute>}
         />
         <Route
-          path="/morning/reports/combined/:id"
+          path="/morning/papers/combined/:id"
           element={<PrivateRoute claims={Claim.editor} element={<MorningReports />}></PrivateRoute>}
         />
         <Route

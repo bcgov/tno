@@ -6,19 +6,9 @@ namespace TNO.API.Areas.Admin.Models.Source;
 /// <summary>
 /// SourceModel class, provides a model that represents an source.
 /// </summary>
-public class SourceModel : AuditColumnsModel
+public class SourceModel : BaseTypeWithAuditColumnsModel<int>
 {
     #region Properties
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public int Id { get; set; }
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public string Name { get; set; } = "";
-
     /// <summary>
     /// get/set -
     /// </summary>
@@ -28,16 +18,6 @@ public class SourceModel : AuditColumnsModel
     /// get/set -
     /// </summary>
     public string ShortName { get; set; } = "";
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public string Description { get; set; } = "";
-
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public bool IsEnabled { get; set; }
 
     /// <summary>
     /// get/set -
@@ -109,6 +89,7 @@ public class SourceModel : AuditColumnsModel
         this.ShortName = entity.ShortName;
         this.Description = entity.Description;
         this.IsEnabled = entity.IsEnabled;
+        this.SortOrder = entity.SortOrder;
         this.LicenseId = entity.LicenseId;
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.OwnerId = entity.OwnerId;
@@ -148,6 +129,7 @@ public class SourceModel : AuditColumnsModel
             Description = model.Description,
             IsEnabled = model.IsEnabled,
             OwnerId = model.OwnerId,
+            SortOrder = model.SortOrder,
             ProductId = model.ProductId,
             AutoTranscribe = model.AutoTranscribe,
             DisableTranscribe = model.DisableTranscribe,

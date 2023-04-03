@@ -1,10 +1,3 @@
-using TNO.API.Areas.Editor.Models.Lookup;
-using TNO.API.Areas.Services.Models.Content;
-using TNO.API.Areas.Services.Models.ContentReference;
-using DataLocationModels = TNO.API.Areas.Services.Models.DataLocation;
-using IngestModels = TNO.API.Areas.Services.Models.Ingest;
-using TNO.API.Areas.Services.Models.WorkOrder;
-using TNO.API.Areas.Kafka.Models;
 using System.Net.Http.Headers;
 
 namespace TNO.Services;
@@ -18,81 +11,91 @@ public interface IApiService
     public Task<T> HandleRequestFailure<T>(Func<Task<T>> callbackDelegate, bool ignoreError, T defaultResponse);
     #endregion
 
+    #region Kafka
+    /// <summary>
+    /// Publish content to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    Task<API.Areas.Kafka.Models.DeliveryResultModel<TNO.Kafka.Models.SourceContent>?> SendMessageAsync(string topic, TNO.Kafka.Models.SourceContent content);
+    #endregion
+
     #region Lookups
     /// <summary>
-    /// Make an AJAX request to the api to get the lookups.
+    /// Make a request to the API to get the lookups.
     /// </summary>
     /// <returns></returns>
-    public Task<LookupModel?> GetLookupsAsync();
+    public Task<API.Areas.Editor.Models.Lookup.LookupModel?> GetLookupsAsync();
     #endregion
 
     #region Sources
     /// <summary>
-    /// Make an AJAX request to the api to fetch all sources.
+    /// Make a request to the API to fetch all sources.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModels.SourceModel>> GetSourcesAsync();
+    public Task<IEnumerable<API.Areas.Services.Models.Ingest.SourceModel>> GetSourcesAsync();
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch the sources for the specified 'code'.
+    /// Make a request to the API to fetch the sources for the specified 'code'.
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    public Task<IngestModels.SourceModel?> GetSourceForCodeAsync(string code);
+    public Task<API.Areas.Services.Models.Ingest.SourceModel?> GetSourceForCodeAsync(string code);
     #endregion
 
     #region Connections
     /// <summary>
-    /// Make an AJAX request to the api to get the connection for the specified 'id'.
+    /// Make a request to the API to get the connection for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<IngestModels.ConnectionModel?> GetConnectionAsync(int id);
+    public Task<API.Areas.Services.Models.Ingest.ConnectionModel?> GetConnectionAsync(int id);
     #endregion
 
     #region Data Locations
     /// <summary>
-    /// Make an AJAX request to the api to get the data location for the specified 'id'.
+    /// Make a request to the API to get the data location for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<DataLocationModels.DataLocationModel?> GetDataLocationAsync(int id);
+    public Task<API.Areas.Services.Models.DataLocation.DataLocationModel?> GetDataLocationAsync(int id);
 
     /// <summary>
-    /// Make an AJAX request to the api to get the data location for the specified 'name'.
+    /// Make a request to the API to get the data location for the specified 'name'.
     /// </summary>
     /// <param name="name"></param>
     /// <returns></returns>
-    public Task<DataLocationModels.DataLocationModel?> GetDataLocationAsync(string name);
+    public Task<API.Areas.Services.Models.DataLocation.DataLocationModel?> GetDataLocationAsync(string name);
     #endregion
 
     #region Ingests
     /// <summary>
-    /// Make an AJAX request to the api to fetch the ingest for the specified 'id'.
+    /// Make a request to the API to fetch the ingest for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<IngestModels.IngestModel?> GetIngestAsync(int id);
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> GetIngestAsync(int id);
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch all ingests.
+    /// Make a request to the API to fetch all ingests.
     /// </summary>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsAsync();
+    public Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsAsync();
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch ingests for the specified ingest type.
+    /// Make a request to the API to fetch ingests for the specified ingest type.
     /// </summary>
     /// <param name="ingestType"></param>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForIngestTypeAsync(string ingestType);
+    public Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsForIngestTypeAsync(string ingestType);
 
     /// <summary>
-    /// Make an AJAX request to the api to fetch the ingest for the specified 'topic'.
+    /// Make a request to the API to fetch the ingest for the specified 'topic'.
     /// </summary>
     /// <param name="topic"></param>
     /// <returns></returns>
-    public Task<IEnumerable<IngestModels.IngestModel>> GetIngestsForTopicAsync(string topic);
+    public Task<IEnumerable<API.Areas.Services.Models.Ingest.IngestModel>> GetIngestsForTopicAsync(string topic);
     #endregion
 
     #region Ingest Schedules
@@ -101,114 +104,167 @@ public interface IApiService
     /// </summary>
     /// <param name="schedule"></param>
     /// <returns></returns>
-    public Task<IngestModels.ScheduleModel?> DeleteIngestSchedule(IngestModels.IngestScheduleModel schedule);
+    public Task<API.Areas.Services.Models.Ingest.ScheduleModel?> DeleteIngestSchedule(API.Areas.Services.Models.Ingest.IngestScheduleModel schedule);
     #endregion
 
     #region Contents
     /// <summary>
-    /// Make an AJAX request to the api to update the content for the specified ContentModel.
-    /// </summary>
-    /// <param name="content"></param>
-    /// <param name="headers"></param>
-    /// <returns></returns>
-    public Task<ContentModel?> UpdateContentAsync(ContentModel content, HttpRequestHeaders? headers = null);
-
-    /// <summary>
-    /// Make an AJAX request to the api to update the ingest.
+    /// Make a request to the API to update the ingest.
     /// </summary>
     /// <param name="ingest"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<IngestModels.IngestModel?> UpdateIngestAsync(IngestModels.IngestModel ingest, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.Ingest.IngestModel?> UpdateIngestAsync(API.Areas.Services.Models.Ingest.IngestModel ingest, HttpRequestHeaders? headers = null);
 
     /// <summary>
-    /// Make an AJAX request to the api to find the content reference for the specified key.
+    /// Make a request to the API to find the content reference for the specified key.
     /// </summary>
     /// <param name="source"></param>
     /// <param name="uid"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> FindContentReferenceAsync(string source, string uid);
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> FindContentReferenceAsync(string source, string uid);
 
     /// <summary>
-    /// Make an AJAX request to the api to add the specified content reference.
+    /// Make a request to the API to add the specified content reference.
     /// </summary>
     /// <param name="contentReference"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> AddContentReferenceAsync(ContentReferenceModel contentReference);
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> AddContentReferenceAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference);
 
     /// <summary>
-    /// Make an AJAX request to the api to update the specified content reference.
-    /// </summary>
-    /// <param name="contentReference"></param>
-    /// <param name="headers"></param>
-    /// <returns></returns>
-    public Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
-
-    /// <summary>
-    /// Make an AJAX request to the api to update the specified content reference with Kafka information.
+    /// Make a request to the API to update the specified content reference.
     /// </summary>
     /// <param name="contentReference"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    public Task<ContentReferenceModel?> UpdateContentReferenceKafkaAsync(ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
 
     /// <summary>
-    /// Make an AJAX request to the api to add the specified content.
+    /// Make a request to the API to update the specified content reference with Kafka information.
+    /// </summary>
+    /// <param name="contentReference"></param>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceKafkaAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
+
+    /// <summary>
+    /// Make a request to the API to add the specified content.
     /// </summary>
     /// <param name="content"></param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
     /// <returns></returns>
-    public Task<ContentModel?> AddContentAsync(ContentModel content);
+    public Task<API.Areas.Services.Models.Content.ContentModel?> AddContentAsync(API.Areas.Services.Models.Content.ContentModel content, int? requestorId = null);
 
     /// <summary>
-    /// Make an AJAX request to the api to upload the file and link to specified content.
+    /// Make a request to the API to update the content for the specified ContentModel.
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="headers"></param>
+    /// <param name="index">Be careful this can result in a indexing loop.</param>
+    /// <param name="requestorId">The user ID who is requesting the update.</param>
+    /// <returns></returns>
+    public Task<API.Areas.Services.Models.Content.ContentModel?> UpdateContentAsync(API.Areas.Services.Models.Content.ContentModel content, HttpRequestHeaders? headers = null, bool index = false, int? requestorId = null);
+
+    /// <summary>
+    /// Make a request to the API to upload the file and link to specified content.
     /// </summary>
     /// <param name="contentId"></param>
     /// <param name="version"></param>
     /// <param name="file"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    Task<ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName);
+    Task<API.Areas.Services.Models.Content.ContentModel?> UploadFileAsync(long contentId, long version, Stream file, string fileName);
 
     /// <summary>
-    /// Make an AJAX request to the api to find the specified content.
+    /// Make a request to the API to find the specified content.
     /// </summary>
     /// <param name="uid"></param>
     /// <param name="source"></param>
     /// <returns></returns>
-    Task<ContentModel?> FindContentByUidAsync(string uid, string? source);
+    Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByUidAsync(string uid, string? source);
 
     /// <summary>
-    /// Make an AJAX request to the api to get the specified content.
+    /// Make a request to the API to get the specified content.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<ContentModel?> FindContentByIdAsync(long id);
+    Task<API.Areas.Services.Models.Content.ContentModel?> FindContentByIdAsync(long id);
+
+    /// <summary>
+    /// Make a request to the API to get all notification instances for the specified 'contentId'.
+    /// </summary>
+    /// <param name="contentId"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Content.NotificationInstanceModel>> GetNotificationsForAsync(long contentId);
     #endregion
 
     #region Work Orders
     /// <summary>
-    /// Make an AJAX request to the aip and find the work order for the specified 'id'.
+    /// Make a request to the API and find the work order for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<WorkOrderModel?> FindWorkOrderAsync(long id);
+    Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> FindWorkOrderAsync(long id);
 
     /// <summary>
-    /// Make an AJAX request to the aip and update the specified 'workOrder'.
+    /// Make a request to the API and update the specified 'workOrder'.
     /// </summary>
     /// <param name="workOrder"></param>
     /// <param name="headers"></param>
     /// <returns></returns>
-    Task<WorkOrderModel?> UpdateWorkOrderAsync(WorkOrderModel workOrder, HttpRequestHeaders? headers = null);
+    Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> UpdateWorkOrderAsync(API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder, HttpRequestHeaders? headers = null);
     #endregion
 
-    #region Kafka
+    #region Notifications
     /// <summary>
-    /// Publish content to Kafka.
+    /// Make a request to the API to fetch all the notifications.
     /// </summary>
-    /// <param name="topic"></param>
-    /// <param name="content"></param>
     /// <returns></returns>
-    Task<DeliveryResultModel<TNO.Kafka.Models.SourceContent>?> SendMessageAsync(string topic, TNO.Kafka.Models.SourceContent content);
+    Task<IEnumerable<API.Areas.Services.Models.Notification.NotificationModel>> GetAllNotificationsAsync();
+
+    /// <summary>
+    /// Make a request to the API to fetch the notification with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Notification.NotificationModel?> GetNotificationAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API and add a new notification instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel?> AddNotificationInstanceAsync(API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel instance);
+    #endregion
+
+    #region Reports
+    /// <summary>
+    /// Make a request to the API to fetch all the notifications.
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Report.ReportModel>> GetAllReportsAsync();
+
+    /// <summary>
+    /// Make a request to the API to fetch the report with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.Report.ReportModel?> GetReportAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API and add a new notification instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> AddReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance);
+    #endregion
+
+    #region Reports
+    /// <summary>
+    /// Make a request to the API to fetch the user with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.User.UserModel?> GetUserAsync(int id);
     #endregion
 }

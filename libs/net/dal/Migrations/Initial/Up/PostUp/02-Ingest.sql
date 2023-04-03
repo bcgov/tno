@@ -371,7 +371,7 @@ INSERT INTO public.ingest (
       "dateFmt": "yyyyMMdd",
       "escapeContent": false,
       "addParent": false,
-      "dateOffset": -1 }' -- configuration
+      "dateOffset": 0 }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit
   , conSSHId -- source_connection_id
@@ -441,7 +441,7 @@ INSERT INTO public.ingest (
       "dateFmt": "yyyyMMdd",
       "fileFormat": "fms",
       "filePattern": "^(.+)<date>(.+).fms$",
-      "dateOffset": -1,
+      "dateOffset": 0,
       "sources": "Vancouver Sun=SUN&The Province=PROVINCE&Times Colonist (Victoria)=TC&National Post=POST&Kelowna Daily Courier=KELOWNA&Delta Optimist=DO&North Shore News=NSN&Burnaby Now=BNOW&New West Record=NWR&Richmond News=RNEWS&Alaska Highway News=AHN&Squamish Chief=SC&Merritt Herald=MH&Tri-City News=TCN&Coast Reporter=CORE&Dawson Creek Mirror=DCMR&Kamloops This Week=KTW&Peachland View=PV&Prince George Citizen=PGC&Oliver Chronicle=APOC" }' -- configuration
   , 1 -- schedule_type
   , 3 -- retry_limit

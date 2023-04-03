@@ -1,7 +1,7 @@
 namespace TNO.Ches.Configuration
 {
     /// <summary>
-    /// ChesOptions class, provides a way to configure the Ches.
+    /// ChesOptions class, provides a way to configure the CHES.
     /// </summary>
     public class ChesOptions
     {
@@ -12,7 +12,7 @@ namespace TNO.Ches.Configuration
         public string AuthUrl { get; set; }
 
         /// <summary>
-        /// get/set - The URI to the Ches API service.
+        /// get/set - The URI to the CHES API service.
         /// </summary>
         public string HostUri { get; set; }
 
@@ -47,7 +47,7 @@ namespace TNO.Ches.Configuration
         public string OverrideTo { get; set; }
 
         /// <summary>
-        /// get/set - Send emails to the currently user as Bcc.
+        /// get/set - Add the user who generated the email to the Bcc.
         /// </summary>
         public bool BccUser { get; set; }
 

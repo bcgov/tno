@@ -33,7 +33,7 @@ public static class ConnectionModelExtensions
     /// <exception cref="InvalidOperationException"></exception>
     public static T? GetConfigurationValue<T>(this ConnectionModel model, string key)
     {
-        return model.Configuration.GetConfigurationValue<T>(key);
+        return model.Configuration.GetDictionaryJsonValue<T>(key);
     }
 
     /// <summary>
@@ -59,19 +59,20 @@ public static class ConnectionModelExtensions
     /// <exception cref="InvalidOperationException"></exception>
     public static T? GetConfigurationValue<T>(this API.Areas.Services.Models.DataLocation.ConnectionModel model, string key)
     {
-        return model.Configuration.GetConfigurationValue<T>(key);
+        return model.Configuration.GetDictionaryJsonValue<T>(key);
     }
 
     /// <summary>
-    /// Get the connection setting value for the specified key.
-    /// Or return an empty string if there is no key or value.
+    /// Get the dictionary value for the specified key.
+    /// If the value is a JsonElement then convert it to the specified 'T' type.
+    /// If the key does not exist it will return the 'default' value for the specified 'T' type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="configuration"></param>
     /// <param name="key"></param>
     /// <returns></returns>
     /// <exception cref="ConfigurationException"></exception>
-    public static T? GetConfigurationValue<T>(this Dictionary<string, object> configuration, string key)
+    public static T? GetDictionaryJsonValue<T>(this Dictionary<string, object> configuration, string key)
     {
         if (!configuration.TryGetValue(key, out object? value)) return default;
 

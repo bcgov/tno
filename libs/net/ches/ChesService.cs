@@ -1,11 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TNO.Ches.Configuration;
-using TNO.Ches.Models;
-using TNO.Core.Exceptions;
-using TNO.Core.Extensions;
-using TNO.Core.Http;
-using TNO.Core.Http.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +9,12 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using TNO.Ches.Configuration;
+using TNO.Ches.Models;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
+using TNO.Core.Http;
+using TNO.Core.Http.Models;
 
 namespace TNO.Ches
 {
@@ -25,11 +25,13 @@ namespace TNO.Ches
     {
         #region Variables
         private readonly ClaimsPrincipal _user;
+        private TokenModel _token = null;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
         private readonly ILogger<IChesService> _logger;
         #endregion
 
         #region Properties
-        protected IOpenIdConnectRequestClient Client { get; }
+        protected IHttpRequestClient Client { get; }
         public ChesOptions Options { get; }
         #endregion
 
@@ -42,11 +44,12 @@ namespace TNO.Ches
         /// <param name="client"></param>
         /// <param name="tokenHandler"></param>
         /// <param name="logger"></param>
-        public ChesService(IOptions<ChesOptions> options, ClaimsPrincipal user, OpenIdConnectRequestClient client, ILogger<IChesService> logger)
+        public ChesService(IOptions<ChesOptions> options, ClaimsPrincipal user, IHttpRequestClient client, JwtSecurityTokenHandler tokenHandler, ILogger<IChesService> logger)
         {
             this.Options = options.Value;
             _user = user;
             this.Client = client;
+            _tokenHandler = tokenHandler;
             _logger = logger;
         }
         #endregion
@@ -64,6 +67,20 @@ namespace TNO.Ches
         }
 
         /// <summary>
+        /// Ensure we have an active access token.
+        /// Make an HTTP request if one is needed.
+        /// </summary>
+        /// <returns></returns>
+        private async Task RefreshAccessTokenAsync()
+        {
+            // Check if token has expired.  If it has refresh it.
+            if (_token == null || String.IsNullOrWhiteSpace(_token.AccessToken) || _tokenHandler.ReadJwtToken(_token.AccessToken).ValidTo <= DateTime.UtcNow)
+            {
+                _token = await GetTokenAsync();
+            }
+        }
+
+        /// <summary>
         /// Send a request to the specified endpoint.
         /// </summary>
         /// <typeparam name="TR"></typeparam>
@@ -72,10 +89,13 @@ namespace TNO.Ches
         /// <returns></returns>
         private async Task<string> SendAsync(string endpoint, HttpMethod method)
         {
+            await RefreshAccessTokenAsync();
+
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
-            headers.Add("User-Agent", nameof(ChesService));
+            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
+
             try
             {
                 var response = await this.Client.SendAsync(url, method, headers);
@@ -98,9 +118,13 @@ namespace TNO.Ches
         /// <returns></returns>
         private async Task<TR> SendAsync<TR>(string endpoint, HttpMethod method)
         {
+            await RefreshAccessTokenAsync();
+
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
+            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
+
             try
             {
                 return await this.Client.SendAsync<TR>(url, method, headers);
@@ -126,9 +150,13 @@ namespace TNO.Ches
         private async Task<TR> SendAsync<TR, TD>(string endpoint, HttpMethod method, TD data)
             where TD : class
         {
+            await RefreshAccessTokenAsync();
+
             var url = GenerateUrl(endpoint);
 
             var headers = new HttpRequestMessage().Headers;
+            headers.Add("Authorization", $"Bearer {_token.AccessToken}");
+
             try
             {
                 return await this.Client.SendJsonAsync<TR, TD>(url, method, headers, data);
@@ -140,6 +168,38 @@ namespace TNO.Ches
                 throw new ChesException(ex, this.Client, response);
             }
         }
+
+        /// <summary>
+        /// Make an HTTP request to CHES to get an access token for the specified 'username' and 'password'.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<TokenModel> GetTokenAsync(string username = null, string password = null)
+        {
+            var headers = new HttpRequestMessage().Headers;
+            var creds = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes($"{username ?? this.Options.Username}:{password ?? this.Options.Password}"));
+            headers.Add("Authorization", $"Basic {creds}");
+            headers.Add("ContentType", "application/x-www-form-urlencoded");
+
+            var form = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("grant_type", "client_credentials")
+            };
+            var content = new FormUrlEncodedContent(form);
+
+            try
+            {
+                return await this.Client.SendAsync<TokenModel>(this.Options.AuthUrl, HttpMethod.Post, headers, content);
+            }
+            catch (HttpClientRequestException ex)
+            {
+                _logger.LogError(ex, $"Failed to send/receive request: {ex.StatusCode} {this.Options.AuthUrl}");
+                var response = await this.Client?.DeserializeAsync<Ches.Models.ErrorResponseModel>(ex.Response);
+                throw new ChesException(ex, this.Client, response);
+            }
+        }
+
         /// <summary>
         /// Send an HTTP request to CHES to send the specified 'email'.
         /// </summary>

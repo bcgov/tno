@@ -110,29 +110,59 @@ public class User : AuditColumns
     public string Roles { get; set; } = "";
 
     /// <summary>
-    /// get/set - A collection of content this user owns.
+    /// get - A collection of content this user owns.
     /// </summary>
     public virtual List<Content> Contents { get; } = new List<Content>();
 
     /// <summary>
-    /// get/set - A collection of tone pools for this user.
+    /// get - A collection of tone pools for this user.
     /// </summary>
     public virtual List<TonePool> TonePools { get; } = new List<TonePool>();
 
     /// <summary>
-    /// get/set - A collection of time tracking assigned to this user.
+    /// get - A collection of time tracking assigned to this user.
     /// </summary>
-    public virtual List<TimeTracking> TimeTrackings { get; set; } = new List<TimeTracking>();
+    public virtual List<TimeTracking> TimeTrackings { get; } = new List<TimeTracking>();
 
     /// <summary>
-    /// get/set - A collection of work order requests this user has submitted.
+    /// get - A collection of work order requests this user has submitted.
     /// </summary>
-    public virtual List<WorkOrder> WorkOrderRequests { get; set; } = new List<WorkOrder>();
+    public virtual List<WorkOrder> WorkOrderRequests { get; } = new List<WorkOrder>();
 
     /// <summary>
-    /// get/set - A collection of work order requests this user has been assigned.
+    /// get - A collection of work order requests this user has been assigned.
     /// </summary>
-    public virtual List<WorkOrder> WorkOrdersAssigned { get; set; } = new List<WorkOrder>();
+    public virtual List<WorkOrder> WorkOrdersAssigned { get; } = new List<WorkOrder>();
+
+    /// <summary>
+    /// get - Collection of notification subscriptions (many-to-many).
+    /// </summary>
+    public virtual List<UserNotification> NotificationSubscriptionsManyToMany { get; } = new List<UserNotification>();
+
+    /// <summary>
+    /// get - Collection of notification subscriptions.
+    /// </summary>
+    public virtual List<Notification> NotificationSubscriptions { get; } = new List<Notification>();
+
+    /// <summary>
+    /// get - Collection of notifications owned by this user.
+    /// </summary>
+    public virtual List<Notification> Notifications { get; } = new List<Notification>();
+
+    /// <summary>
+    /// get - Collection of report subscriptions (many-to-many).
+    /// </summary>
+    public virtual List<UserReport> ReportSubscriptionsManyToMany { get; } = new List<UserReport>();
+
+    /// <summary>
+    /// get - Collection of report subscriptions.
+    /// </summary>
+    public virtual List<Report> ReportSubscriptions { get; } = new List<Report>();
+
+    /// <summary>
+    /// get - Collection of reports owned by this user.
+    /// </summary>
+    public virtual List<Report> Reports { get; } = new List<Report>();
     #endregion
 
     #region Constructors
