@@ -29,12 +29,12 @@ public class TopicScoreRuleModel
     /// <summary>
     /// get/set - Minimum page number.
     /// </summary>
-    public int? PageMin { get; set; }
+    public string? PageMin { get; set; }
 
     /// <summary>
     /// get/set - Maximum page number.
     /// </summary>
-    public int? PageMax { get; set; }
+    public string? PageMax { get; set; }
 
     /// <summary>
     /// get/set - Whether story has image.

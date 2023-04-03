@@ -19,22 +19,43 @@ export const calcTopicScore = (values: IContentForm, rules: ITopicScoreRuleModel
 
       if (r.seriesId !== undefined && values.seriesId !== r.seriesId) return true;
 
-      const riPageMin = r.pageMin !== undefined ? r.pageMin.search(/\d$/) : undefined;
-      const riPageMax = r.pageMax !== undefined ? r.pageMax.search(/\d$/) : undefined;
+      const riPageMin = r.pageMin !== undefined ? r.pageMin.search(/\d*$/) : undefined;
+      const riPageMax = r.pageMax !== undefined ? r.pageMax.search(/\d*$/) : undefined;
       const rPageMin = riPageMin !== undefined ? Number(r.pageMin?.slice(riPageMin)) : undefined;
       const rPageMax = riPageMax !== undefined ? Number(r.pageMax?.slice(riPageMax)) : undefined;
+      const cPageMin = riPageMin !== undefined ? r.pageMin?.slice(0, riPageMin) : r.pageMin;
+      const cPageMax = riPageMax !== undefined ? r.pageMax?.slice(0, riPageMax) : r.pageMax;
 
-      const viPage = values.page !== '' ? values.page.search(/\d$/) : undefined;
+      const viPage = values.page !== '' ? values.page.search(/\d*$/) : undefined;
       const vPage = viPage !== undefined ? Number(values.page?.slice(viPage)) : 0;
+      const vcPage = viPage !== undefined ? values.page?.slice(0, viPage) : values.page;
 
       if (
-        rPageMin !== undefined &&
-        rPageMax !== undefined &&
-        (vPage === 0 || vPage < rPageMin || vPage > rPageMax)
+        (rPageMin !== undefined &&
+          rPageMax !== undefined &&
+          (vPage === 0 || vPage < rPageMin || vPage > rPageMax)) ||
+        (cPageMin !== undefined &&
+          vcPage !== cPageMin &&
+          cPageMax !== undefined &&
+          vcPage !== cPageMax)
       )
         return true;
-      else if (rPageMin !== undefined && (vPage === 0 || vPage < rPageMin)) return true;
-      else if (rPageMax !== undefined && (vPage === 0 || vPage > rPageMax)) return true;
+      else if (
+        (rPageMin !== undefined && (vPage === 0 || vPage < rPageMin)) ||
+        (cPageMin !== undefined &&
+          vcPage !== cPageMin &&
+          cPageMax !== undefined &&
+          vcPage !== cPageMax)
+      )
+        return true;
+      else if (
+        (rPageMax !== undefined && (vPage === 0 || vPage > rPageMax)) ||
+        (cPageMin !== undefined &&
+          vcPage !== cPageMin &&
+          cPageMax !== undefined &&
+          vcPage !== cPageMax)
+      )
+        return true;
 
       // if (r.hasImage !== undefined && values.hasImage) return true; // TODO: We need a way to identify a story has an image.
 

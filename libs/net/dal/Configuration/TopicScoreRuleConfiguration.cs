@@ -11,8 +11,8 @@ public class TopicScoreRuleConfiguration : AuditColumnsConfiguration<TopicScoreR
         builder.Property(m => m.SourceId).IsRequired();
         builder.Property(m => m.SeriesId);
         builder.Property(m => m.Section).HasMaxLength(100);
-        builder.Property(m => m.PageMin);
-        builder.Property(m => m.PageMax);
+        builder.Property(m => m.PageMin).HasMaxLength(5);
+        builder.Property(m => m.PageMax).HasMaxLength(5);
         builder.Property(m => m.HasImage);
         builder.Property(m => m.CharacterMin);
         builder.Property(m => m.CharacterMax);
