@@ -55,13 +55,13 @@ public class TopicScoreRule : AuditColumns
     /// get/set - The minimum page this score will be applied to.
     /// </summary>
     [Column("page_min")]
-    public int? PageMin { get; set; }
+    public string? PageMin { get; set; }
 
     /// <summary>
     /// get/set - The maximum page this score will be applied to.
     /// </summary>
     [Column("page_max")]
-    public int? PageMax { get; set; }
+    public string? PageMax { get; set; }
 
     /// <summary>
     /// get/set - Whether the content has an associated image.
@@ -121,7 +121,7 @@ public class TopicScoreRule : AuditColumns
     /// <param name="hasImage"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(Source source, string? section, int page, bool? hasImage, int score, int sortOrder)
+    public TopicScoreRule(Source source, string? section, string page, bool? hasImage, int score, int sortOrder)
     {
         this.Source = source ?? throw new ArgumentNullException(nameof(source));
         this.SourceId = source.Id;
@@ -142,7 +142,7 @@ public class TopicScoreRule : AuditColumns
     /// <param name="hasImage"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(int sourceId, string? section, int page, bool? hasImage, int score, int sortOrder)
+    public TopicScoreRule(int sourceId, string? section, string page, bool? hasImage, int score, int sortOrder)
     {
         this.SourceId = sourceId;
         this.Section = section;
@@ -163,7 +163,7 @@ public class TopicScoreRule : AuditColumns
     /// <param name="hasImage"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(int id, int sourceId, string? section, int page, bool? hasImage, int score, int sortOrder)
+    public TopicScoreRule(int id, int sourceId, string? section, string page, bool? hasImage, int score, int sortOrder)
         : this(sourceId, section, page, hasImage, score, sortOrder)
     {
         this.Id = id;
@@ -181,7 +181,7 @@ public class TopicScoreRule : AuditColumns
     /// <param name="charMax"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(Source source, string? section, int? pageMin, int? pageMax, bool? hasImage, int? charMin, int? charMax, int score, int sortOrder)
+    public TopicScoreRule(Source source, string? section, string? pageMin, string? pageMax, bool? hasImage, int? charMin, int? charMax, int score, int sortOrder)
     {
         this.Source = source ?? throw new ArgumentNullException(nameof(source));
         this.SourceId = source.Id;
@@ -207,7 +207,7 @@ public class TopicScoreRule : AuditColumns
     /// <param name="charMax"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(int sourceId, string? section, int? pageMin, int? pageMax, bool? hasImage, int? charMin, int? charMax, int score, int sortOrder)
+    public TopicScoreRule(int sourceId, string? section, string? pageMin, string? pageMax, bool? hasImage, int? charMin, int? charMax, int score, int sortOrder)
     {
         this.SourceId = sourceId;
         this.Section = section;
@@ -233,7 +233,7 @@ public class TopicScoreRule : AuditColumns
     /// <param name="charMax"></param>
     /// <param name="score"></param>
     /// <param name="sortOrder"></param>
-    public TopicScoreRule(int id, int sourceId, string? section, int? pageMin, int? pageMax, bool? hasImage, int? charMin, int? charMax, int score, int sortOrder)
+    public TopicScoreRule(int id, int sourceId, string? section, string? pageMin, string? pageMax, bool? hasImage, int? charMin, int? charMax, int score, int sortOrder)
         : this(sourceId, section, pageMin, pageMax, hasImage, charMin, charMax, score, sortOrder)
     {
         this.Id = id;

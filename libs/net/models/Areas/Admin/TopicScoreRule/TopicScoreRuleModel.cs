@@ -31,12 +31,12 @@ public class TopicScoreRuleModel : AuditColumnsModel
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? PageMin { get; set; }
+    public string? PageMin { get; set; }
 
     /// <summary>
     /// get/set -
     /// </summary>
-    public int? PageMax { get; set; }
+    public string? PageMax { get; set; }
 
     /// <summary>
     /// get/set -

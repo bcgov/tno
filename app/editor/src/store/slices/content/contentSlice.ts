@@ -31,7 +31,7 @@ export const initialContentState: IContentState = {
     sort: [],
   },
   filterAdvanced: {
-    fieldType: fieldTypes[3].value,
+    fieldType: fieldTypes[1].value,
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
