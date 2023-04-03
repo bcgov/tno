@@ -4,7 +4,7 @@ import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import React from 'react';
-import { useLookup } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -56,6 +56,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   const [{ series, users, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
+  const [, contentApi] = useContent();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
   const [effort, setEffort] = React.useState(0);
@@ -99,10 +100,20 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
 
   React.useEffect(() => {
     // TODO: Get MimeType from file.
-    setStream(
-      !!path ? { url: `/api/editor/contents/stream?path=${path}`, type: 'video/mp4' } : undefined,
-    );
-  }, [path]);
+    if (!!path)
+      contentApi.stream(path).then((result) => {
+        const mimeType = 'video/mp4';
+        setStream(
+          !!result
+            ? {
+                url: `data:${mimeType};base64,` + result,
+                type: mimeType,
+              }
+            : undefined,
+        );
+      });
+    else setStream(undefined);
+  }, [contentApi, path]);
 
   React.useEffect(() => {
     if (!!stream && !!videoRef.current) {

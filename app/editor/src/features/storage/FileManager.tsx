@@ -102,14 +102,19 @@ export const FileManager: React.FC<IFileManagerProps> = ({
 
   const playFile = (item?: IFileItem) => {
     setItem(item);
-    setStream(
-      !!item
-        ? {
-            url: `/api/editor/storage/${item.locationId}/stream?path=${item.path}/${item.name}`,
-            type: item.mimeType ?? 'video/mp4',
-          }
-        : undefined,
-    );
+    if (!!item)
+      storageApi.stream2(item.locationId, `${item.path}/${item.name}`).then((result) => {
+        const mimeType = item.mimeType ?? 'video/mp4';
+        setStream(
+          !!result
+            ? {
+                url: `data:${mimeType};base64,` + result,
+                type: mimeType,
+              }
+            : undefined,
+        );
+      });
+    else setStream(undefined);
   };
 
   const createClip = async () => {
@@ -151,14 +156,17 @@ export const FileManager: React.FC<IFileManagerProps> = ({
             setFolder({ ...folder, items: [...folder.items, file] });
             setStart('');
             setEnd('');
-            setStream(
-              !!item
-                ? {
-                    url: `/api/editor/storage/${item.locationId}/stream?path=${item.path}/${file.name}`,
-                    type: file.mimeType ?? 'video/mp4',
-                  }
-                : undefined,
-            );
+            storageApi.stream2(item.locationId, `${item.path}/${file.name}`).then((result) => {
+              const mimeType = item.mimeType ?? 'video/mp4';
+              setStream(
+                !!result
+                  ? {
+                      url: `data:${mimeType};base64,` + result,
+                      type: mimeType,
+                    }
+                  : undefined,
+              );
+            });
           }
         });
       } catch {

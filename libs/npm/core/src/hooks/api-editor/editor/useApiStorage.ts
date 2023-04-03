@@ -81,6 +81,12 @@ export const useApiStorage = (
       document.body.removeChild(link);
       return response;
     },
+    stream2: async (locationId: number, path: string) => {
+      const params = { path };
+      return await api.get<any, AxiosResponse<any>, any>(
+        `/editor/storage${locationId ? `/${locationId}` : ''}/stream?${toQueryString(params)}`,
+      );
+    },
     download: async (locationId: number, path: string, fileName?: string) => {
       const params = {
         path,

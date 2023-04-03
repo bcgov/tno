@@ -15,6 +15,7 @@ interface IStorageController {
   ) => Promise<IItemModel>;
   download: (locationId: number, path: string) => Promise<unknown>;
   stream: (locationId: number, path: string) => Promise<unknown>;
+  stream2: (locationId: number, path: string) => Promise<string>;
   move: (locationId: number, path: string, destination: string) => Promise<IItemModel>;
   delete: (locationId: number, path: string) => Promise<IItemModel>;
   clip: (
@@ -64,6 +65,10 @@ export const useStorage = (): IStorageController => {
       },
       stream: async (locationId: number, path: string) => {
         return (await dispatch<IItemModel>('storage-stream', () => api.stream(locationId, path)))
+          .data;
+      },
+      stream2: async (locationId: number, path: string) => {
+        return (await dispatch<string>('storage-stream2', () => api.stream2(locationId, path)))
           .data;
       },
       move: async (locationId: number, path: string, destination: string) => {
