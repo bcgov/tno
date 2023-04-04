@@ -31,6 +31,7 @@ interface IContentController {
   download: (id: number, fileName: string) => Promise<unknown>;
   attach: (contentId: number, locationId: number, path: string) => Promise<IContentModel>;
   storeFilter: (filter: IContentListFilter | ActionDelegate<IContentListFilter>) => void;
+  stream: (path: string) => Promise<string>;
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
@@ -126,6 +127,9 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
             'content',
           )
         ).data;
+      },
+      stream: async (path: string) => {
+        return (await dispatch('stream-content', () => api.stream(path), 'content')).data;
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,

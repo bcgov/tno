@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Mime;
 using System.Web;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -225,16 +224,15 @@ public class StorageController : ControllerBase
     /// <param name="locationId"></param>
     /// <param name="path"></param>
     /// <returns></returns>
-    [AllowAnonymous] // TODO: Temporary to test HTML 5 video
     [HttpGet("stream")]
     [HttpGet("{locationId:int}/stream")]
-    [Produces("application/octet-stream")]
-    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
+    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Storage" })]
-    public IActionResult Stream([FromRoute] int? locationId, [FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromRoute] int? locationId, [FromQuery] string path)
     {
+        string result;
         path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
         var dataLocation = locationId.HasValue ? _connection.GetDataLocation(locationId.Value) : null;
         if (dataLocation != null)
@@ -242,32 +240,38 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection == null || dataLocation.Connection?.ConnectionType == ConnectionType.LocalVolume)
             {
                 var safePath = Path.Combine(_storageOptions.GetCapturePath(), path);
-                if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
-
-                var info = new ItemModel(safePath, true);
-                var stream = System.IO.File.OpenRead(safePath);
-                return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
+                result = await GetResult(safePath, path);
             }
             else throw new NotImplementedException($"Location connection type '{dataLocation.Connection?.ConnectionType}' not implemented yet.");
         }
         else
         {
             var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
-            if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
-
-            var info = new ItemModel(safePath, true);
-            var stream = System.IO.File.OpenRead(safePath);
-            return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
+            result = await GetResult(safePath, path);
         }
+
+        return Ok(result);
     }
 
-    /// <summary>
-    /// Download the file for the specified path.
-    /// </summary>
-    /// <param name="locationId"></param>
-    /// <param name="path"></param>
-    /// <returns></returns>
-    [HttpGet("download")]
+    private async Task<string> GetResult(string safePath, string path)
+    {
+        if (!safePath.FileExists()) throw new InvalidOperationException($"Stream does not exist: '{path}'");
+
+        var info = new ItemModel(safePath, true);
+        using var stream = System.IO.File.OpenRead(safePath);
+        var fileStreamResult = File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
+        using var memoryStream = new MemoryStream();
+        await fileStreamResult.FileStream.CopyToAsync(memoryStream);
+        return Convert.ToBase64String(memoryStream.ToArray());
+    }
+
+        /// <summary>
+        /// Download the file for the specified path.
+        /// </summary>
+        /// <param name="locationId"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        [HttpGet("download")]
     [HttpGet("{locationId:int}/download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]

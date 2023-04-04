@@ -451,22 +451,25 @@ public class ContentController : ControllerBase
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    [AllowAnonymous] // TODO: Temporary to test HTML 5 video
     [HttpGet("stream")]
-    [Produces("application/octet-stream")]
-    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.PartialContent)]
+    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(OkObjectResult), (int)HttpStatusCode.PartialContent)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Content" })]
-    public IActionResult Stream([FromQuery] string path)
+    public async Task<IActionResult> StreamAsync([FromQuery] string path)
     {
-        path = String.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
-        var safePath = System.IO.Path.Combine(_storageOptions.GetUploadPath(), path);
+        path = string.IsNullOrWhiteSpace(path) ? "" : HttpUtility.UrlDecode(path).MakeRelativePath();
+        var safePath = Path.Combine(_storageOptions.GetUploadPath(), path);
         if (!safePath.FileExists()) throw new InvalidOperationException("File does not exist");
 
         var info = new ItemModel(safePath);
-        var stream = System.IO.File.OpenRead(safePath);
-        return File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
+        using var stream = System.IO.File.OpenRead(safePath);
+        var fileStreamResult = File(stream, contentType: info.MimeType!, fileDownloadName: info.Name, enableRangeProcessing: true);
+        using var memoryStream = new MemoryStream();
+        await fileStreamResult.FileStream.CopyToAsync(memoryStream);
+        var result = Convert.ToBase64String(memoryStream.ToArray());
+
+        return Ok(result);
     }
 
     /// <summary>

@@ -55,31 +55,11 @@ export const useApiStorage = (
         { onUploadProgress },
       );
     },
-    stream: async (
-      locationId: number,
-      path: string,
-      onUploadProgress?: (progressEvent: any) => void,
-    ) => {
-      const params = {
-        path,
-      };
-      var response = await api.get<any, AxiosResponse<any>, any>(
+    stream: async (locationId: number, path: string) => {
+      const params = { path };
+      return await api.get<any, AxiosResponse<any>, any>(
         `/editor/storage${locationId ? `/${locationId}` : ''}/stream?${toQueryString(params)}`,
-        {
-          responseType: 'stream',
-          headers: { accept: '*.*' },
-          onUploadProgress,
-        },
       );
-
-      const uri = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = uri;
-      link.setAttribute('download', new Date().toDateString());
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return response;
     },
     download: async (locationId: number, path: string, fileName?: string) => {
       const params = {

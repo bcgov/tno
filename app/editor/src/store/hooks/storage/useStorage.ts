@@ -63,8 +63,7 @@ export const useStorage = (): IStorageController => {
         ).data;
       },
       stream: async (locationId: number, path: string) => {
-        return (await dispatch<IItemModel>('storage-stream', () => api.stream(locationId, path)))
-          .data;
+        return (await dispatch<string>('storage-stream', () => api.stream(locationId, path))).data;
       },
       move: async (locationId: number, path: string, destination: string) => {
         return (

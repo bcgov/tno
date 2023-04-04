@@ -126,5 +126,11 @@ export const useApiContents = (
         `/editor/contents/${contentId}/${locationId}/attach?${toQueryString(params)}`,
       );
     },
+    stream: async (path: string) => {
+      const params = { path };
+      return await api.get<any, AxiosResponse<any>, any>(
+        `/editor/contents/stream?${toQueryString(params)}`,
+      );
+    },
   }).current;
 };
