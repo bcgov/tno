@@ -129,7 +129,7 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
         ).data;
       },
       stream: async (path: string) => {
-        return (await dispatch<string>('content-stream', () => api.stream(path))).data;
+        return (await dispatch<string>('content-stream', () => api.stream(path), 'content')).data;
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,
