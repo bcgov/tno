@@ -103,7 +103,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
   const playFile = (item?: IFileItem) => {
     setItem(item);
     if (!!item)
-      storageApi.stream2(item.locationId, `${item.path}/${item.name}`).then((result) => {
+      storageApi.stream(item.locationId, `${item.path}/${item.name}`).then((result) => {
         const mimeType = item.mimeType ?? 'video/mp4';
         setStream(
           !!result
@@ -156,7 +156,7 @@ export const FileManager: React.FC<IFileManagerProps> = ({
             setFolder({ ...folder, items: [...folder.items, file] });
             setStart('');
             setEnd('');
-            storageApi.stream2(item.locationId, `${item.path}/${file.name}`).then((result) => {
+            storageApi.stream(item.locationId, `${item.path}/${file.name}`).then((result) => {
               const mimeType = item.mimeType ?? 'video/mp4';
               setStream(
                 !!result
