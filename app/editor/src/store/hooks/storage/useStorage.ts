@@ -14,7 +14,7 @@ interface IStorageController {
     onUploadProgress?: (progressEvent: any) => void,
   ) => Promise<IItemModel>;
   download: (locationId: number, path: string) => Promise<unknown>;
-  stream: (locationId: number, path: string) => Promise<string>;
+  stream: (locationId: number, path: string) => Promise<unknown>;
   move: (locationId: number, path: string, destination: string) => Promise<IItemModel>;
   delete: (locationId: number, path: string) => Promise<IItemModel>;
   clip: (
