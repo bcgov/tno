@@ -3,23 +3,23 @@
 kind: DeploymentConfig
 apiVersion: apps.openshift.io/v1
 metadata:
-  name: nlp-service
+  name: notification-service
   namespace: default
   annotations:
-    description: Defines how to deploy nlp-service
+    description: Defines how to deploy notification-service
     created-by: jeremy.foster
   labels:
-    name: nlp-service
+    name: notification-service
     part-of: tno
     version: 1.0.0
-    component: nlp-service
+    component: notification-service
     managed-by: kustomize
 spec:
   replicas: 1
   selector:
-    name: nlp-service
+    name: notification-service
     part-of: tno
-    component: nlp-service
+    component: notification-service
   strategy:
     rollingParams:
       intervalSeconds: 1
@@ -30,26 +30,26 @@ spec:
     type: Rolling
   template:
     metadata:
-      name: nlp-service
+      name: notification-service
       labels:
-        name: nlp-service
+        name: notification-service
         part-of: tno
-        component: nlp-service
+        component: notification-service
     spec:
       containers:
-        - name: nlp-service
+        - name: notification-service
           image: ""
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
               protocol: TCP
           resources:
-            limits:
-              cpu: 75m
-              memory: 250Mi
             requests:
               cpu: 20m
-              memory: 180Mi
+              memory: 80Mi
+            limits:
+              cpu: 75m
+              memory: 120Mi
           env:
             # .NET Configuration
             - name: ASPNETCORE_ENVIRONMENT
@@ -83,10 +83,21 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
+            - name: Kafka__Admin__ClientId
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: KAFKA_CLIENT_ID
+            - name: Kafka__Admin__BootstrapServers
+              valueFrom:
+                configMapKeyRef:
+                  name: services
+                  key: KAFKA_BOOTSTRAP_SERVERS
+
             - name: Kafka__Consumer__GroupId
               valueFrom:
                 configMapKeyRef:
-                  name: nlp-service
+                  name: notification-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Consumer__BootstrapServers
               valueFrom:
@@ -97,7 +108,7 @@ spec:
             - name: Kafka__Producer__ClientId
               valueFrom:
                 configMapKeyRef:
-                  name: nlp-service
+                  name: notification-service
                   key: KAFKA_CLIENT_ID
             - name: Kafka__Producer__BootstrapServers
               valueFrom:
@@ -105,22 +116,55 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            # Indexing Service Configuration
+            # CHES Configuration
+            - name: CHES__From
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: CHES_FROM
+            - name: CHES__EmailEnabled
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: CHES_EMAIL_ENABLED
+            - name: CHES__EmailAuthorized
+              valueFrom:
+                configMapKeyRef:
+                  name: notification-service
+                  key: CHES_EMAIL_AUTHORIZED
+
+            - name: CHES__AuthUrl
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_AUTH_URL
+            - name: CHES__HostUri
+              valueFrom:
+                configMapKeyRef:
+                  name: ches
+                  key: CHES_HOST_URI
+            - name: CHES__Username
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: USERNAME
+            - name: CHES__Password
+              valueFrom:
+                secretKeyRef:
+                  name: ches
+                  key: PASSWORD
+
+            # Notification Service Configuration
             - name: Service__MaxFailLimit
               valueFrom:
                 configMapKeyRef:
-                  name: nlp-service
+                  name: notification-service
                   key: MAX_FAIL_LIMIT
             - name: Service__Topics
               valueFrom:
                 configMapKeyRef:
-                  name: nlp-service
+                  name: notification-service
                   key: TOPICS
-            - name: Service__IndexingTopic
-              valueFrom:
-                configMapKeyRef:
-                  name: nlp-service
-                  key: INDEXING_TOPIC
           livenessProbe:
             httpGet:
               path: "/health"
@@ -152,8 +196,8 @@ spec:
       imageChangeParams:
         automatic: true
         containerNames:
-          - nlp-service
+          - notification-service
         from:
           kind: ImageStreamTag
           namespace: 9b301c-tools
-          name: nlp-service:dev
+          name: notification-service:dev
