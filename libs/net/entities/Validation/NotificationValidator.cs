@@ -15,6 +15,11 @@ public class NotificationValidator : INotificationValidator
     /// get/set - The content to validate.
     /// </summary>
     protected Entities.Content? Content { get; private set; }
+
+    /// <summary>
+    /// get/set - The primary key to the alert action used to validate content.
+    /// </summary>
+    public int? AlertId { get; set; }
     #endregion
 
     #region Constructors
@@ -41,7 +46,8 @@ public class NotificationValidator : INotificationValidator
     /// </summary>
     /// <param name="notificationId"></param>
     /// <param name="contentId"></param>
-    public virtual Task InitializeAsync(int notificationId, long contentId)
+    /// <param name="alertId"></param>
+    public virtual Task InitializeAsync(int notificationId, long contentId, int alertId)
     {
         throw new NotImplementedException();
     }
@@ -51,24 +57,29 @@ public class NotificationValidator : INotificationValidator
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    public virtual void Initialize(Entities.Notification? notification = null, Entities.Content? content = null)
+    /// <param name="alertId"></param>
+    public virtual void Initialize(Entities.Notification notification, Entities.Content content, int alertId)
     {
         this.Notification = notification;
         this.Content = content;
+        this.AlertId = alertId;
     }
 
     /// <summary>
     /// Validate the content to determine whether it should generate anything.
     /// The Notification.Instances or Content.NotificationsManyToMany property must contain past notifications for the content for this method to work.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>True if the content should send a notification.</returns>
     protected virtual bool ValidateContent()
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
+        if (!this.AlertId.HasValue) throw new InvalidOperationException("AlertId must be set for validation");
 
+        var doAlert = !this.Notification.RequireAlert || this.Content.ActionsManyToMany.Any(a => a.ActionId == this.AlertId && a.Value == "true");
         var hasBeenSent = this.Notification.Instances.Any(i => i.ContentId == this.Content.Id) ||
             this.Content.NotificationsManyToMany.Any(n => n.NotificationId == this.Notification.Id);
         return this.Content.Status == Entities.ContentStatus.Published &&
+            doAlert &&
             this.Notification.Resend switch
             {
                 Entities.ResendOption.Never => !hasBeenSent,
@@ -83,7 +94,7 @@ public class NotificationValidator : INotificationValidator
     /// Validate the notification to determine whether it should generate anything.
     /// The Notification.Subscribers must contain subscribers for this method to work.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>True if the notification settings should generate send a notification.</returns>
     protected virtual bool ValidateNotification()
     {
         if (this.Notification == null || this.Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");

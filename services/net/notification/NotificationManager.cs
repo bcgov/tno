@@ -272,7 +272,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     var notification = await this.Api.GetNotificationAsync(request.NotificationId.Value);
                     if (notification != null)
                     {
-                        await this.NotificationValidator.InitializeAsync(notification, content);
+                        await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
                         if (this.NotificationValidator.ConfirmSend())
                             await SendNotificationAsync(request, notification, content);
                         else
@@ -284,7 +284,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     var notifications = await this.Api.GetAllNotificationsAsync();
                     foreach (var notification in notifications)
                     {
-                        await this.NotificationValidator.InitializeAsync(notification, content);
+                        await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
                         if (this.NotificationValidator.ConfirmSend())
                             await SendNotificationAsync(request, notification, content);
                         else
@@ -338,6 +338,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         };
 
         var response = await this.Ches.SendEmailAsync(merge);
+        this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
 
         // Save the notification instance.
         var instance = new NotificationInstance(notification.Id, content.Id)
@@ -355,7 +356,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private async Task HandleChesEmailOverrideAsync(NotificationRequestModel request)
     {
         // The requestor becomes the current user.
-        var email = this.ChesOptions.OverrideTo;
+        var email = this.ChesOptions.OverrideTo ?? "";
         if (request.RequestorId.HasValue)
         {
             var user = await this.Api.GetUserAsync(request.RequestorId.Value);
