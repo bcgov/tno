@@ -104,10 +104,13 @@ public class ContentReferenceController : ControllerBase
     {
         var reference = _service.FindByKey(model.Source, model.Uid);
         if (reference == null) return new NoContentResult();
-        reference.Offset = model.Offset;
-        reference.Partition = model.Partition;
-        var result = _service.UpdateAndSave(reference);
-        return new JsonResult(new ContentReferenceModel(result));
+        lock (reference)
+        {
+            reference.Offset = model.Offset;
+            reference.Partition = model.Partition;
+            var result = _service.UpdateAndSave(reference);
+            return new JsonResult(new ContentReferenceModel(result));
+        }
     }
     #endregion
 }
