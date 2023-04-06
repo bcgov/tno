@@ -111,6 +111,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 }
                 else continue;
 
+                reference = await FindContentReferenceAsync(manager.Ingest.Source?.Code, item.Id);
                 await ContentReceivedAsync(manager, reference, item);
             }
             catch (Exception ex)
