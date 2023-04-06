@@ -797,7 +797,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private static DateTime LocalizeForIngestTimezone(DateTime date, IngestModel ingest, FileMonitorOptions options)
     {
-        var timeZone = ingest.Configuration.GetConfigurationValue<string>("timeZone") ?? options.TimeZone;
+        var timeZone = ingest.Configuration.GetDictionaryJsonValue<string>("timeZone") ?? options.TimeZone;
         var tz = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
         var offset = tz.GetUtcOffset(date).Hours;
 

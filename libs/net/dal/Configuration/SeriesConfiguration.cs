@@ -15,6 +15,12 @@ public class SeriesConfiguration : BaseTypeConfiguration<Series, int>
 
         builder.HasOne(m => m.Source).WithMany(m => m.Series).HasForeignKey(m => m.SourceId).OnDelete(DeleteBehavior.Cascade);
 
+        // CREATE UNIQUE INDEX "IX_series_name" ON public."series"
+        // ("name") WHERE "source_id" IS NULL;
+
+        // CREATE UNIQUE INDEX "IX_source_id_name" ON public."series"
+        // ("source_id", "name") WHERE "source_id" IS NOT NULL;
+
         base.Configure(builder);
     }
 }

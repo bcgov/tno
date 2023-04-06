@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FileMonitor", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FileCopy", "filecopy\TNO.Services.FileCopy.csproj", "{E755104A-D6DB-4650-BF92-CA910A5D46EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Notification", "notification\TNO.Services.Notification.csproj", "{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,5 +80,9 @@ Global
 		{E755104A-D6DB-4650-BF92-CA910A5D46EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E755104A-D6DB-4650-BF92-CA910A5D46EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E755104A-D6DB-4650-BF92-CA910A5D46EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

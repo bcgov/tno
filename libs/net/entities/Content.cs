@@ -233,9 +233,14 @@ public class Content : AuditColumns
     public virtual List<ReportInstance> Reports { get; } = new List<ReportInstance>();
 
     /// <summary>
-    /// get - Collection of report instances associated with this content.
+    /// get - Collection of report instances associated with this content (many-to-many).
     /// </summary>
     public virtual List<ReportInstanceContent> ReportsManyToMany { get; } = new List<ReportInstanceContent>();
+
+    /// <summary>
+    /// get - Collection of notification instances for this content (many-to-many).
+    /// </summary>
+    public virtual List<NotificationInstance> NotificationsManyToMany { get; } = new List<NotificationInstance>();
     #endregion
 
     #region Constructors

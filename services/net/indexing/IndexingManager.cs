@@ -233,9 +233,9 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 {
                     await IndexContentAsync(content);
                     if (model.Action == IndexAction.Publish)
-                        await PublishContentAsync(content);
+                        await PublishContentAsync(result.Message.Value, content);
                     else if (model.Action == IndexAction.Unpublish)
-                        await UnpublishContentAsync(content);
+                        await UnpublishContentAsync(result.Message.Value, content);
                 }
                 else
                 {
@@ -260,8 +260,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// <returns></returns>
     private async Task IndexContentAsync(ContentModel content)
     {
-        var request = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
-        var response = await this.Client.IndexAsync(request);
+        var document = new IndexRequest<ContentModel>(content, this.Options.UnpublishedIndex, content.Id);
+        var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
             this.Logger.LogInformation("Content indexed.  Content ID: {id}, Index: {index}", content?.Id, this.Options.UnpublishedIndex);
@@ -279,16 +279,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// Ensure content status is updated to reflect being published.
     /// Send notifications.
     /// </summary>
+    /// <param name="request"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task PublishContentAsync(ContentModel content)
+    private async Task PublishContentAsync(IndexRequestModel request, ContentModel content)
     {
         // Remove the transcript body if it hasn't been approved.
         var body = content.Body;
         if (!content.IsApproved && content.ContentType == ContentType.Snippet) content.Body = "";
-        var request = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
-
-        var response = await this.Client.IndexAsync(request);
+        var document = new IndexRequest<ContentModel>(content, this.Options.PublishedIndex, content.Id);
+        var response = await this.Client.IndexAsync(document);
         if (response.IsSuccess())
         {
             content.Body = body;
@@ -298,15 +298,16 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 content.Status = ContentStatus.Published;
                 await this.Api.UpdateContentAsync(content, Headers);
             }
-            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
+            this.Logger.LogInformation("Content published.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
 
-            await SendNotifications(content!);
+            // Tell the API to inform users of published content.
+            await SendNotifications(request, content);
         }
         else
         {
             // TODO: Need to find a way to inform the Editor it failed.  Send notification message to them.
             if (response.TryGetOriginalException(out Exception? ex))
-                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
+                this.Logger.LogError(ex, "Content failed to publish.  Content ID: {id}, Index: {index}", content.Id, this.Options.PublishedIndex);
         }
     }
 
@@ -315,12 +316,13 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// Ensure content status is updated to reflect being published.
     /// Send notifications.
     /// </summary>
+    /// <param name="request"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private async Task UnpublishContentAsync(ContentModel content)
+    private async Task UnpublishContentAsync(IndexRequestModel request, ContentModel content)
     {
-        var request = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
-        var response = await this.Client.DeleteAsync(request);
+        var document = new DeleteRequest<ContentModel>(content, this.Options.PublishedIndex, content.Uid);
+        var response = await this.Client.DeleteAsync(document);
         if (response.IsSuccess())
         {
             // Update the status of the content to indicate it has been unpublished.
@@ -331,7 +333,7 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             }
             this.Logger.LogInformation("Content unpublished.  Content ID: {id}, Index: {index}", content?.Id, this.Options.PublishedIndex);
 
-            await SendNotifications(content!);
+            await SendNotifications(request, content!);
         }
         else
         {
@@ -378,18 +380,22 @@ public class IndexingManager : ServiceManager<IndexingOptions>
     /// Make a request to the API to determine if there are any notifications that should be sent for the content.
     /// There could be transcript requests, alerts based on subscriber filters, or other types.
     /// </summary>
+    /// <param name="request"></param>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task SendNotifications(ContentModel content)
+    private async Task SendNotifications(IndexRequestModel request, ContentModel content)
     {
         if (!String.IsNullOrWhiteSpace(this.Options.NotificationTopic))
         {
             // TODO: Make request to API to determine what notifications should be sent.
             // TODO: Generate appropriate notification request.
-            var notification = new NotificationRequestModel(0, content.Id, 0, 0);
+            var notification = new NotificationRequestModel(NotificationDestination.SignalR | NotificationDestination.NotificationService, content.Id)
+            {
+                RequestorId = request.RequestorId
+            };
             var result = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, content.Uid, notification);
-            if (result == null) throw new InvalidOperationException($"Failed to receive result from Kafka when submitting a notification request.  Content ID: {content.Id}");
+            if (result == null) throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
         }
     }
     #endregion

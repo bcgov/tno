@@ -76,10 +76,10 @@ public class ConnectionHelper : IConnectionHelper
     public SftpClient CreateSftpClient(Dictionary<string, object> configuration)
     {
         // TODO: Handle different authentication methods.
-        var hostname = configuration.GetConfigurationValue<string>("hostname") ?? throw new ConfigurationException("Connection configuration 'hostname' is required.");
-        var username = configuration.GetConfigurationValue<string>("username") ?? throw new ConfigurationException("Connection configuration 'username' is required.");
-        var password = configuration.GetConfigurationValue<string>("password") ?? throw new ConfigurationException("Connection configuration 'password' is required.");
-        var port = int.Parse(configuration.GetConfigurationValue<string>("port") ?? "22");
+        var hostname = configuration.GetDictionaryJsonValue<string>("hostname") ?? throw new ConfigurationException("Connection configuration 'hostname' is required.");
+        var username = configuration.GetDictionaryJsonValue<string>("username") ?? throw new ConfigurationException("Connection configuration 'username' is required.");
+        var password = configuration.GetDictionaryJsonValue<string>("password") ?? throw new ConfigurationException("Connection configuration 'password' is required.");
+        var port = int.Parse(configuration.GetDictionaryJsonValue<string>("port") ?? "22");
 
         var authMethod = new PasswordAuthenticationMethod(username, password);
         var connectionInfo = new Renci.SshNet.ConnectionInfo(hostname, port, username, authMethod);

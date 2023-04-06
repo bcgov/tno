@@ -24,10 +24,5 @@ public class FileCopyOptions : ServiceOptions
     /// This provides context information for content that is stored on local volumes.
     /// </summary>
     public string DataLocation { get; set; } = "";
-
-    /// <summary>
-    /// get/set - The max threads for running service.
-    /// </summary>
-    public int MaxThreads { get; set; } = 10;
     #endregion
 }

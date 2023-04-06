@@ -24,5 +24,20 @@ namespace TNO.Ches
                 .AddScoped<IHttpRequestClient, HttpRequestClient>()
                 .AddTransient<JwtSecurityTokenHandler>();
         }
+
+        /// <summary>
+        /// Add the AddChesService to the dependency injection service collection.
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="section"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddChesSingletonService(this IServiceCollection services, IConfigurationSection section)
+        {
+            return services
+                .Configure<Configuration.ChesOptions>(section)
+                .AddSingleton<IChesService, ChesService>()
+                .AddSingleton<IHttpRequestClient, HttpRequestClient>()
+                .AddTransient<JwtSecurityTokenHandler>();
+        }
     }
 }

@@ -7,7 +7,6 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Switch to root for package installs
 USER 0
-# RUN dotnet tool install --global dotnet-ef
 
 WORKDIR /src
 COPY services/net/transcription services/net/transcription
@@ -30,7 +29,7 @@ VOLUME /data
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends libc6-dev libgdiplus libgdiplus ffmpeg libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
+    && apt-get -y install --no-install-recommends procps curl libc6-dev libgdiplus
 
 # Run container by default as user with id 1001 (default)
 USER 1001

@@ -26,7 +26,8 @@ spec:
       default: ./Dockerfile
 
     - name: BUILD
-      description: Whether to force build the component.
+      description: Whether to force build the component [condition|yes].
+      default: "condition"
     - name: COMPONENT
       description: |
         The name of the component (often the same as the image name).
@@ -76,8 +77,8 @@ spec:
           memory: 250Mi
           cpu: 250m
         limits:
-          memory: 2560Mi
-          cpu: 1000m
+          memory: 4Gi
+          cpu: 2000m
       script: |
         #!/usr/bin/env bash
         set -xe

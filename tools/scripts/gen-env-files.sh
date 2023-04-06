@@ -72,6 +72,7 @@ IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
 NLP_PORT=$portNlp
 FILECOPY_PORT=$portFileCopy
+NOTIFICATION_PORT=$portNotification
 
 #############################
 # Kafka Configuration
@@ -579,7 +580,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__AzureCognitiveServicesKey={ENTER A VALID AZURE KEY}
 
-Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/transcription/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/transcription/.env
     echo "./services/net/transcription/.env created"
 fi
 
@@ -601,7 +602,7 @@ Service__ElasticsearchUri=http://host.docker.internal:$portElastic
 Service__ElasticsearchUsername=$elasticUser
 Service__ElasticsearchPassword=$password
 
-Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/indexing/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/indexing/.env
     echo "./services/net/indexing/.env created"
 fi
 
@@ -620,7 +621,7 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
-Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/nlp/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/nlp/.env
     echo "./services/net/nlp/.env created"
 fi
 
@@ -639,8 +640,34 @@ Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
 
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 
-Kafka__BootstrapServers=host.docker.internal:40102" >> ./services/net/filecopy/.env
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal" >> ./services/net/filecopy/.env
     echo "./services/net/filecopy/.env created"
+fi
+
+## Notification Service
+if test -f "./services/net/notification/.env"; then
+    echo "./services/net/notification/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__VolumePath=../data
+
+Kafka__BootstrapServers=host.docker.internal:$portKafkaBrokerAdvertisedExternal
+
+CHES__AuthUrl=https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+CHES__HostUri=https://ches-dev.api.gov.bc.ca/api/v1
+CHES__Username={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__Password={YOU WILL NEED TO GET THIS FROM CHES}
+CHES__OverrideTo={CHANGE THIS TO YOUR EMAIL ADDRESS}" >> ./services/net/notification/.env
+    echo "./services/net/notification/.env created"
 fi
 
 

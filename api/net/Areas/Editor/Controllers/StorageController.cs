@@ -77,7 +77,7 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(dataLocation.Connection);
-                var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
+                var locationPath = configuration.GetDictionaryJsonValue<string>("path") ?? "";
                 using var client = _connection.CreateSftpClient(configuration);
                 try
                 {
@@ -129,7 +129,7 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(dataLocation.Connection);
-                var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
+                var locationPath = configuration.GetDictionaryJsonValue<string>("path") ?? "";
                 using var client = _connection.CreateSftpClient(configuration);
                 try
                 {
@@ -265,13 +265,13 @@ public class StorageController : ControllerBase
         return Convert.ToBase64String(memoryStream.ToArray());
     }
 
-        /// <summary>
-        /// Download the file for the specified path.
-        /// </summary>
-        /// <param name="locationId"></param>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        [HttpGet("download")]
+    /// <summary>
+    /// Download the file for the specified path.
+    /// </summary>
+    /// <param name="locationId"></param>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    [HttpGet("download")]
     [HttpGet("{locationId:int}/download")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
@@ -386,7 +386,7 @@ public class StorageController : ControllerBase
             if (dataLocation.Connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(dataLocation.Connection);
-                var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
+                var locationPath = configuration.GetDictionaryJsonValue<string>("path") ?? "";
                 using var client = _connection.CreateSftpClient(configuration);
                 try
                 {

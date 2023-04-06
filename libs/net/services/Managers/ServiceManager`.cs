@@ -36,6 +36,9 @@ public abstract class ServiceManager<TOption> : IServiceManager
     /// </summary>
     protected IApiService Api { get; private set; }
 
+    /// <summary>
+    /// get - HTTP headers to include in all requests.
+    /// </summary>
     protected HttpRequestHeaders Headers
     {
         get

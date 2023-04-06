@@ -38,6 +38,7 @@ public abstract class KafkaConsumerService : BaseService
     {
         base.ConfigureServices(services);
         services
+            .Configure<KafkaConsumerConfig>(this.Configuration.GetSection("Kafka:Consumer"))
             .Configure<ConsumerConfig>(this.Configuration.GetSection("Kafka:Consumer"))
             .AddTransient<IKafkaListener<string, SourceContent>, KafkaListener<string, SourceContent>>();
 

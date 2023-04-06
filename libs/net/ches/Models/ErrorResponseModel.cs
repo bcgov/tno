@@ -21,7 +21,7 @@ namespace TNO.Ches.Models
         /// <summary>
         /// get/set - The error status.
         /// </summary>
-        public string Status { get; set; }
+        public int Status { get; set; }
 
         /// <summary>
         /// get/set - The error details.

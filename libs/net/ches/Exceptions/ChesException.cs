@@ -36,6 +36,7 @@ namespace TNO.Core.Exceptions
         {
             this.Client = client;
             this.Detail = $"{model.Title}{Environment.NewLine}{model.Detail}{Environment.NewLine}{model.Type}{Environment.NewLine}{String.Join(Environment.NewLine, model.Errors.Select(e => $"\t{e.Message}"))}";
+            this.Data.Add("error", model);
         }
 
         /// <summary>
@@ -72,9 +73,22 @@ namespace TNO.Core.Exceptions
         /// Creates a new instance of an ChesException class, initializes it with the specified arguments.
         /// </summary>
         /// <param name="response"></param>
+        /// <param name="innerException"></param>
         /// <returns></returns>
         public ChesException(HttpResponseMessage response, Exception innerException) : base(response, innerException)
         {
+        }
+
+        /// <summary>
+        /// Creates a new instance of an ChesException class, initializes it with the specified arguments.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public ChesException(HttpResponseMessage response, ErrorResponseModel model) : base(response)
+        {
+            this.Detail = $"{model.Title}{Environment.NewLine}{model.Detail}{Environment.NewLine}{model.Type}{Environment.NewLine}{String.Join(Environment.NewLine, model.Errors.Select(e => $"\t{e.Message}"))}";
+            this.Data.Add("error", model);
         }
         #endregion
     }

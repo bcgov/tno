@@ -25,6 +25,10 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 as deploy
 WORKDIR /app
 COPY --from=build /build .
 
+# [Optional] Uncomment this section to install additional OS packages.
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends procps curl libc6-dev libgdiplus
+
 # Run container by default as user with id 1001 (default)
 USER 1001
 

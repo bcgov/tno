@@ -216,7 +216,7 @@ public class WorkOrderController : ControllerBase
             if (dataLocation?.Connection?.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = _connection.GetConfiguration(dataLocation.Connection);
-                var locationPath = configuration.GetConfigurationValue<string>("path") ?? "";
+                var locationPath = configuration.GetDictionaryJsonValue<string>("path") ?? "";
                 using var client = _connection.CreateSftpClient(configuration);
                 try
                 {

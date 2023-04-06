@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddKafkaListener(this IServiceCollection services, IConfiguration config)
     {
         return services
+            .Configure<KafkaConsumerConfig>(config.GetSection("Kafka:Consumer"))
             .Configure<ConsumerConfig>(config.GetSection("Kafka:Consumer"))
             .AddScoped(typeof(IKafkaListener<,>), typeof(KafkaListener<,>));
     }
@@ -50,6 +51,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .Configure<KafkaHubConfig>(config.GetSection("Kafka"))
+            .Configure<KafkaConsumerConfig>(config.GetSection("Kafka:Consumer"))
             .Configure<ConsumerConfig>(config.GetSection("Kafka:Consumer"))
             .Configure<ProducerConfig>(config.GetSection("Kafka:Producer"))
             .AddSingleton<IUserIdProvider, HubUsernameProvider>()

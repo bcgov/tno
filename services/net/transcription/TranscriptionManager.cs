@@ -55,7 +55,6 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
-        this.Listener.MaxThreads = options.Value.MaxThreads;
     }
     #endregion
 

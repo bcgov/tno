@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace TNO.Entities;
 
@@ -20,6 +21,7 @@ public class ReportInstance : AuditColumns
     /// <summary>
     /// get/set - Foreign key to the report definition.
     /// </summary>
+    [Column("report_id")]
     public int ReportId { get; set; }
 
     /// <summary>
@@ -30,7 +32,14 @@ public class ReportInstance : AuditColumns
     /// <summary>
     /// get/set - The date and time the report was published on.
     /// </summary>
+    [Column("published_on")]
     public DateTime? PublishedOn { get; set; }
+
+    /// <summary>
+    /// get/set - CHES response containing keys to find the status of a report.
+    /// </summary>
+    [Column("response")]
+    public JsonDocument Response { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get - Collection of content associated with this report instance.
@@ -48,5 +57,28 @@ public class ReportInstance : AuditColumns
     /// Creates a new instance of a ReportInstance object.
     /// </summary>
     protected ReportInstance() { }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="content"></param>
+    public ReportInstance(Report report, IEnumerable<Content> content)
+    {
+        this.Report = report ?? throw new ArgumentNullException(nameof(report));
+        this.ReportId = report.Id;
+        this.ContentManyToMany.AddRange(content.Select(c => new ReportInstanceContent(0, c.Id)));
+    }
+
+    /// <summary>
+    /// Creates a new instance of a ReportInstance object, initializes with specified parameters.
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <param name="contentIds"></param>
+    public ReportInstance(int reportId, IEnumerable<long> contentIds)
+    {
+        this.ReportId = reportId;
+        this.ContentManyToMany.AddRange(contentIds.Select(c => new ReportInstanceContent(0, c)));
+    }
     #endregion
 }
