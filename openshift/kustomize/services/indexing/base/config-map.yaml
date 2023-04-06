@@ -22,4 +22,4 @@ data:
   ELASTICSEARCH_URI: http://elastic:9200
   UNPUBLISHED_INDEX: unpublished_content
   PUBLISHED_INDEX: content
-  NOTIFICATION_TOPIC: ""
+  NOTIFICATION_TOPIC: notify

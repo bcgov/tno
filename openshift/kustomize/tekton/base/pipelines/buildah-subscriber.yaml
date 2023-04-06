@@ -40,6 +40,11 @@ spec:
       type: string
       default: 9b301c
 
+    - name: FORCE_BUILD
+      description: Whether to force build the app [yes|no].
+      type: string
+      default: "yes"
+
     - name: DEPLOY_TO
       description: >-
         Identify the environment to deploy the solution to [dev,test,prod,tools].

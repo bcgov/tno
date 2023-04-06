@@ -32,7 +32,7 @@ spec:
   postgresVersion: 14
   instances:
     - name: postgres
-      replicas: 4
+      replicas: 3
       resources:
         requests:
           cpu: 50m

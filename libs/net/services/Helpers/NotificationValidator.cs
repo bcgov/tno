@@ -32,10 +32,11 @@ public class NotificationValidator : Entities.Validation.NotificationValidator
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    public async Task InitializeAsync(NotificationModel notification, ContentModel content)
+    /// <param name="alertId"></param>
+    public async Task InitializeAsync(NotificationModel notification, ContentModel content, int alertId)
     {
         content.Notifications = await this.Api.GetNotificationsForAsync(content.Id);
-        base.Initialize((Entities.Notification)notification, (Entities.Content)content);
+        base.Initialize((Entities.Notification)notification, (Entities.Content)content, alertId);
     }
     #endregion
 }

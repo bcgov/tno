@@ -20,7 +20,7 @@ data:
   TOPICS: notify
   CHES_FROM: Media Monitoring Insights and Analysis <mmia@gov.bc.ca>
   CHES_EMAIL_ENABLED: "true"
-  CHES_EMAIL_AUTHORIZED: "true"
+  CHES_EMAIL_AUTHORIZED: "false"
 
 ---
 kind: ConfigMap
@@ -39,5 +39,5 @@ metadata:
     managed-by: kustomize
 type: Opaque
 data:
-  CHES_AUTH_URL: https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-  CHES_HOST_URI: https://ches.api.gov.bc.ca/api/v1
+  CHES_AUTH_URL: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  CHES_HOST_URI: https://ches-dev.api.gov.bc.ca/api/v1

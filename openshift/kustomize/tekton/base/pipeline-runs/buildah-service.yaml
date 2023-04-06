@@ -21,7 +21,7 @@ spec:
     - name: CONTEXT
       value: tno
     - name: SERVICE_NAME
-      value: image
+      value: notification
     - name: IMAGE_TAG
       value: latest
     - name: PROJECT_SHORTNAME
@@ -45,14 +45,6 @@ spec:
           storageClassName: netapp-file-standard
           volumeMode: Filesystem
     - name: build
-      volumeClaimTemplate:
-        spec:
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 5Gi
-          storageClassName: netapp-block-standard
-          volumeMode: Filesystem
+      emptyDir: {}
     - name: owasp-settings
       emptyDir: {}

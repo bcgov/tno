@@ -40,6 +40,11 @@ spec:
       type: string
       default: 9b301c
 
+    - name: FORCE_BUILD
+      description: Whether to force build the app [yes|no].
+      type: string
+      default: "yes"
+
     - name: DEPLOY_TO
       description: >-
         Identify the environment to deploy the solution to [dev,test,prod,tools].
@@ -108,6 +113,8 @@ spec:
           value: editor
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
+        - name: BUILD
+          value: $(params.FORCE_BUILD)
       workspaces:
         - name: source
           workspace: source
