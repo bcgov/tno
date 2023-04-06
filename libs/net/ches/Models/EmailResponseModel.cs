@@ -20,7 +20,6 @@ namespace TNO.Ches.Models
         /// get/set - An array of messages that were sent.
         /// </summary>
         public IEnumerable<MessageResponseModel> Messages { get; set; } = new List<MessageResponseModel>();
-        public bool Message { get; set; }
         #endregion
     }
 }

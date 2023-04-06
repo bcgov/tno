@@ -54,9 +54,19 @@ public class TNOContext : DbContext
     public DbSet<Cache> Cache => Set<Cache>();
     public DbSet<User> Users => Set<User>();
     public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
+
+    #region Reports
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportInstance> ReportInstances => Set<ReportInstance>();
     public DbSet<ReportInstanceContent> ReportInstanceContent => Set<ReportInstanceContent>();
+    public DbSet<UserReport> UserReports => Set<UserReport>();
+    #endregion
+
+    #region Notifications
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationInstance> NotificationInstances => Set<NotificationInstance>();
+    public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
+    #endregion
     #endregion
 
     #region Constructors

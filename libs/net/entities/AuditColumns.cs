@@ -9,15 +9,27 @@ namespace TNO.Entities;
 /// </summary>
 public abstract class AuditColumns : ISaveChanges
 {
+    /// <summary>
+    /// get/set - A way to identify who created the record.
+    /// </summary>
     [Column("created_by")]
     public string CreatedBy { get; set; } = "";
 
+    /// <summary>
+    /// get/set - When the record was created.
+    /// </summary>
     [Column("created_on")]
     public DateTime CreatedOn { get; set; }
 
+    /// <summary>
+    /// get/set - A way to identify who last updated the record.
+    /// </summary>
     [Column("updated_by")]
     public string UpdatedBy { get; set; } = "";
 
+    /// <summary>
+    /// get/set - The last time the record was updated.
+    /// </summary>
     [Column("updated_on")]
     public DateTime UpdatedOn { get; set; }
 

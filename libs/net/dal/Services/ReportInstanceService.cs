@@ -1,11 +1,10 @@
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
 namespace TNO.DAL.Services;
 
-public class ReportInstanceService : BaseService<ReportInstance, int>, IReportInstanceService
+public class ReportInstanceService : BaseService<ReportInstance, long>, IReportInstanceService
 {
     #region Properties
     #endregion

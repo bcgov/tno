@@ -52,7 +52,6 @@ public class FileCopyManager : ServiceManager<FileCopyOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
-        this.Listener.MaxThreads = options.Value.MaxThreads;
     }
     #endregion
 
@@ -253,7 +252,7 @@ public class FileCopyManager : ServiceManager<FileCopyOptions>
             else if (location.Connection.ConnectionType == ConnectionType.SSH)
             {
                 var configuration = location.Connection.Configuration;
-                var remoteLocationRoot = configuration.GetConfigurationValue<string>("path") ?? "";
+                var remoteLocationRoot = configuration.GetDictionaryJsonValue<string>("path") ?? "";
                 using var client = SftpHelper.CreateSftpClient(configuration);
                 try
                 {

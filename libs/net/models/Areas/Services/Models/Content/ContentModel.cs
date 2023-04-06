@@ -133,34 +133,39 @@ public class ContentModel : AuditColumnsModel
     public List<IFormFile>? Files { get; set; }
 
     /// <summary>
-    /// get - An array of actions.
+    /// get/set - An array of actions.
     /// </summary>
     public IEnumerable<ContentActionModel> Actions { get; set; } = Array.Empty<ContentActionModel>();
 
     /// <summary>
-    /// get - An array of categories.
+    /// get/set - An array of categories.
     /// </summary>
     public IEnumerable<ContentTopicModel> Topics { get; set; } = Array.Empty<ContentTopicModel>();
 
     /// <summary>
-    /// get - An array of tags.
+    /// get/set - An array of tags.
     /// </summary>
     public IEnumerable<ContentTagModel> Tags { get; set; } = Array.Empty<ContentTagModel>();
 
     /// <summary>
-    /// get - An array of labels.
+    /// get/set - An array of labels.
     /// </summary>
     public IEnumerable<ContentLabelModel> Labels { get; set; } = Array.Empty<ContentLabelModel>();
 
     /// <summary>
-    /// get - An array of tone pools.
+    /// get/set - An array of tone pools.
     /// </summary>
     public IEnumerable<ContentTonePoolModel> TonePools { get; set; } = Array.Empty<ContentTonePoolModel>();
 
     /// <summary>
-    /// get - An array of file references.
+    /// get/set - An array of file references.
     /// </summary>
     public IEnumerable<FileReferenceModel> FileReferences { get; set; } = Array.Empty<FileReferenceModel>();
+
+    /// <summary>
+    /// get/set - An array of notification instances.
+    /// </summary>
+    public IEnumerable<NotificationInstanceModel> Notifications { get; set; } = Array.Empty<NotificationInstanceModel>();
     #endregion
 
     #region Constructors
@@ -243,6 +248,7 @@ public class ContentModel : AuditColumnsModel
         entity.Labels.AddRange(model.Labels.Select(f => f.ToEntity(entity.Id)));
         entity.TonePoolsManyToMany.AddRange(model.TonePools.Select(tp => tp.ToEntity(entity.Id)));
         entity.FileReferences.AddRange(model.FileReferences.Select(f => f.ToEntity(entity.Id)));
+        entity.NotificationsManyToMany.AddRange(model.Notifications.Select(n => (Entities.NotificationInstance)n));
 
         return entity;
     }

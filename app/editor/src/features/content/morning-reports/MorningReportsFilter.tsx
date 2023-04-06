@@ -67,12 +67,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
   return (
     <styled.MorningReportsFilter>
       <ToolBar>
-        <TitleSection
-          title="Morning Reports"
-          picture={<FaSun />}
-          label="VIEWING"
-          icon={<FaEye />}
-        />
+        <TitleSection title="Morning Papers" picture={<FaSun />} label="VIEWING" icon={<FaEye />} />
         <CreateNewSection contentTypes={[ContentTypeName.PrintContent, ContentTypeName.Image]} />
         <ContentFilter filter={filter} onFilterChange={onFilterChange} />
         <AdvancedFilter onSearch={onSearch} filter={filter} onFilterChange={onFilterChange} />

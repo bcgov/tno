@@ -94,7 +94,7 @@ spec:
                   name: services
                   key: KAFKA_BOOTSTRAP_SERVERS
 
-            - name: Kafka__Consumer__ClientId
+            - name: Kafka__Consumer__GroupId
               valueFrom:
                 configMapKeyRef:
                   name: indexing-service

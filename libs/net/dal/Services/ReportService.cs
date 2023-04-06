@@ -21,7 +21,15 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         return this.Context.Reports
             .AsNoTracking()
+            .Include(n => n.SubscribersManyToMany).ThenInclude(s => s.User)
             .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+    }
+
+    public override Report? FindById(int id)
+    {
+        return this.Context.Reports
+            .Include(n => n.SubscribersManyToMany).ThenInclude(s => s.User)
+            .FirstOrDefault(n => n.Id == id);
     }
     #endregion
 }

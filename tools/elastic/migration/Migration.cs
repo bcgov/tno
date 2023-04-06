@@ -162,7 +162,7 @@ public abstract class Migration
     #region Elastic actions
     private static async Task CreateIndexAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var name = step.Settings.GetConfigurationValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
+        var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
         var response = await builder.Client.LowLevel.Indices.CreateAsync<StringResponse>(name, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
@@ -175,7 +175,7 @@ public abstract class Migration
 
     private static async Task UpdateMappingAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var name = step.Settings.GetConfigurationValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
+        var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
         if (step.Data == null) throw new InvalidOperationException($"Migration step '{path}' is missing required property 'data'.");
 
         var response = await builder.Client.LowLevel.Indices.PutMappingAsync<StringResponse>(name, PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions)));
@@ -188,8 +188,8 @@ public abstract class Migration
 
     private async Task ReindexAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var source = step.Settings.GetConfigurationValue<string>("sourceIndexName");
-        var dest = step.Settings.GetConfigurationValue<string>("destIndexName");
+        var source = step.Settings.GetDictionaryJsonValue<string>("sourceIndexName");
+        var dest = step.Settings.GetDictionaryJsonValue<string>("destIndexName");
 
         TaskId? task = null;
 
@@ -276,7 +276,7 @@ public abstract class Migration
 
     private static async Task DeleteIndexAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var name = step.Settings.GetConfigurationValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
+        var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
 
         var response = await builder.Client.Indices.DeleteAsync(name);
         if (!response.IsValid)
@@ -288,8 +288,8 @@ public abstract class Migration
 
     private static async Task CreateOrUpdateAliasAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var name = step.Settings.GetConfigurationValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
-        var alias = step.Settings.GetConfigurationValue<string>("aliasName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.aliasName'.");
+        var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
+        var alias = step.Settings.GetDictionaryJsonValue<string>("aliasName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.aliasName'.");
 
         var data = step.Data == null ? PostData.Empty : PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
         var response = await builder.Client.LowLevel.Indices.PutAliasAsync<StringResponse>(name, alias, data);
@@ -302,8 +302,8 @@ public abstract class Migration
 
     private static async Task DeleteAliasAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var name = step.Settings.GetConfigurationValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
-        var alias = step.Settings.GetConfigurationValue<string>("aliasName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.aliasName'.");
+        var name = step.Settings.GetDictionaryJsonValue<string>("indexName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.indexName'.");
+        var alias = step.Settings.GetDictionaryJsonValue<string>("aliasName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.aliasName'.");
 
         var response = await builder.Client.Indices.DeleteAliasAsync(name, alias);
         if (!response.IsValid)
@@ -315,7 +315,7 @@ public abstract class Migration
 
     private static async Task CreateOrUpdatePipelineAsync(MigrationBuilder builder, MigrationStep step, string path)
     {
-        var name = step.Settings.GetConfigurationValue<string>("pipelineName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.pipelineName'.");
+        var name = step.Settings.GetDictionaryJsonValue<string>("pipelineName") ?? throw new InvalidOperationException($"Migration step '{path}' is missing required property 'settings.pipelineName'.");
         var data = step.Data == null ? PostData.Empty : PostData.String(JsonSerializer.Serialize(step.Data, builder.SerializerOptions));
 
         var response = await builder.Client.LowLevel.Ingest.PutPipelineAsync<StringResponse>(name, data);

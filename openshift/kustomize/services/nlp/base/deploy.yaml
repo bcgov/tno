@@ -83,7 +83,7 @@ spec:
                   name: services
                   key: KEYCLOAK_CLIENT_SECRET
 
-            - name: Kafka__Consumer__ClientId
+            - name: Kafka__Consumer__GroupId
               valueFrom:
                 configMapKeyRef:
                   name: nlp-service

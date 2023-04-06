@@ -84,7 +84,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
 
   const handleRowClick = (row: TRow<IContentModel>) => {
     if (row.isSelected)
-      navigate(`/morning/reports/combined/${row.original.id}${window.location.search}`);
+      navigate(`/morning/papers/combined/${row.original.id}${window.location.search}`);
   };
 
   const handleChangePage = React.useCallback(
@@ -150,7 +150,7 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
             <ContentForm
               contentType={ContentTypeName.PrintContent}
               scrollToContent={false}
-              combinedPath="/morning/reports/combined"
+              combinedPath="/morning/papers/combined"
             />
           </Row>
         </Show>

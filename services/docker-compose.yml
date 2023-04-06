@@ -277,3 +277,29 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  notification:
+    image: tno:notification
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-notification
+    build:
+      context: ./
+      dockerfile: services/net/notification/Dockerfile
+    env_file:
+      - services/net/notification/.env
+    ports:
+      - ${NOTIFICATION_PORT:-40030}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
