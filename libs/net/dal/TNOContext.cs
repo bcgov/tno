@@ -175,7 +175,7 @@ public class TNOContext : DbContext
                     }
                 }
 
-                _logger?.LogError("{metadataName}: {sb}", metadataName, sb);
+                _logger?.LogError("{metadataName} ({when}): {sb}", metadataName, DateTime.Now, sb);
             }
             throw;
         }
