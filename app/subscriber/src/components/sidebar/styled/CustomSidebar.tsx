@@ -2,10 +2,15 @@ import { Sidebar } from 'react-pro-sidebar';
 import styled from 'styled-components';
 
 export const CustomSidebar = styled(Sidebar)`
-  /* Side bar styling */
-  height: 100vh;
+  position: fixed;
+  left: 0;
   .ps-sidebar-container {
+    /* 500 is min width on chrome browser */
+    @media (max-width: 500px) {
+      max-width: 50px;
+    }
     background-color: ${(props) => props.theme.css.darkHeaderColor};
+    min-height: 100vh;
     img {
       max-width: 100%;
       max-height: 100%;
@@ -19,8 +24,13 @@ export const CustomSidebar = styled(Sidebar)`
   }
 
   .ps-sidebar-root {
+    @media (max-width: 500px) {
+      max-width: 50px;
+    }
     background-color: ${(props) => props.theme.css.darkHeaderColor};
     margin-right: 0px;
+    border: none;
+    min-height: -webkit-fill-available;
 
     min-height: 100vh;
     display: flex;
@@ -41,9 +51,11 @@ export const CustomSidebar = styled(Sidebar)`
     color: #a5a4bf;
   }
 
-  .menu-anchor {
-    &:hover {
-      background-color: red;
+  .ps-menu-button {
+    /* need to override defaults for mobile devices with smaller screens */
+    @media (max-width: 500px) {
+      padding-left: 6px !important;
+      padding-right: 6px !important;
     }
   }
   .ps-menuitem-root {

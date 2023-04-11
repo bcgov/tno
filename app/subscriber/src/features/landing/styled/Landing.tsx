@@ -1,14 +1,24 @@
 import styled from 'styled-components';
-import { Row } from 'tno-core';
+import { Col } from 'tno-core';
 
-export const Landing = styled(Row)`
+export const Landing = styled(Col)`
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;
 
+  /* header for viewing a piece of content on the landing page */
+  .view {
+    svg {
+      cursor: pointer;
+      color: #a5a4bf;
+    }
+  }
+
   /* The panel containing Commentary and front pages */
   .right-panel {
-    margin-left: 1.5em;
+    min-width: 39%;
+    margin-left: 0.5%;
+    flex-grow: 1;
     .title {
       background-color: ${(props) => props.theme.css.darkHeaderColor};
       padding: 0.5em;
@@ -16,38 +26,24 @@ export const Landing = styled(Row)`
       color: white;
     }
     .commentary {
-      margin-top: 5em;
-      width: 100%;
+      width: 99%;
+      margin-bottom: 5%;
       .content {
-        background-color: white;
-        min-height: 15em;
+        background-color: #f9f9f9;
+        min-height: 20em;
+      }
+    }
+
+    .front-pages {
+      width: 99%;
+      margin-bottom: 2%;
+      .content {
+        background-color: #f9f9f9;
+        min-height: 10em;
       }
     }
     display: flex;
-    .header {
-      padding: 0.5em;
-      max-height: fit-content;
-      justify-content: space-between;
-      flex-grow: 1;
-      .search {
-        max-width: 20em;
-      }
-    }
-    .logout {
-      padding: 0.5em;
-      max-height: fit-content;
-      font-size: 1.5em;
-      &:hover {
-        cursor: pointer;
-      }
-      display: flex;
-      svg {
-        margin-right: 0.5em;
-        margin-top: 0.25em;
-      }
-      color: ${(props) => props.theme.css.defaultRed};
-    }
-    min-width: 39%;
+
     input {
       min-height: 3em;
       border-radius: none;
@@ -55,19 +51,24 @@ export const Landing = styled(Row)`
     }
   }
 
+  /* container containing both panels */
+  .contents-container {
+    overflow-y: auto;
+    max-height: calc(100vh - 6.5em);
+  }
+
   /* The panel containing the media list */
   .main-panel {
-    min-width: 59%;
-    .show-media-label {
-      align-self: center;
-      font-weight: bold;
-      margin-right: 1em;
+    /* switch between max width and min width depending on screen size in order to maximize screen realestate */
+    @media (max-width: 1000px) {
+      min-width: 59%;
     }
-
-    .filter-buttons {
-      margin-top: 2.5em;
+    @media (min-width: 1000px) {
+      max-width: 59%;
     }
+    flex-grow: 1;
     margin-left: 0.5%;
+
     .title {
       background-color: ${(props) => props.theme.css.darkHeaderColor};
       padding: 0.5em;
@@ -76,27 +77,17 @@ export const Landing = styled(Row)`
     }
     .content {
       background-color: ${(props) => props.theme.css.lightGray};
-      padding: 1em;
-      min-height: 45em;
-      .date-navigator {
-        .calendar {
-          color: #3847aa;
-        }
-        svg {
-          align-self: center;
-          height: 1.5em;
-          width: 1.5em;
-          &:hover {
-            cursor: pointer;
-          }
-        }
-        margin-bottom: 1em;
+      @media (max-width: 500px) {
+        padding: 0.25em;
       }
+      @media (min-width: 500px) {
+        padding: 1em;
+      }
+      min-height: 45em;
     }
 
     /* TODO: move these to the button component as styling configuration */
     button {
-      border-radius: 1.25rem;
       margin-bottom: 10%;
       min-width: 5rem;
       border: none;
@@ -113,5 +104,3 @@ export const Landing = styled(Row)`
     }
   }
 `;
-
-export default Landing;

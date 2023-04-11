@@ -1,7 +1,6 @@
-import { BrowserView, MobileView } from 'react-device-detect';
 import { useKeycloakWrapper } from 'tno-core';
 
-import { BrowserLogin, MobileLogin } from '.';
+import { BrowserLogin } from '.';
 import * as styled from './styled';
 
 export interface IUnauthenticatedHomeProps {
@@ -55,12 +54,7 @@ export const UnauthenticatedHome: React.FC<IUnauthenticatedHomeProps> = (props) 
 
   return (
     <styled.UnauthenticatedHome>
-      <BrowserView>
-        <BrowserLogin login={login} />
-      </BrowserView>
-      <MobileView>
-        <MobileLogin login={login} />
-      </MobileView>
+      <BrowserLogin login={login} />
     </styled.UnauthenticatedHome>
   );
 };

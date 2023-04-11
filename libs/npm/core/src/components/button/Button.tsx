@@ -2,7 +2,7 @@ import React, { ButtonHTMLAttributes } from 'react';
 import { Tooltip } from 'react-tooltip';
 
 import { BouncingSpinner } from '../spinners';
-import { ButtonVariant } from '.';
+import { ButtonVariant, ButtonHeight } from '.';
 import * as styled from './styled';
 
 export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,9 +19,13 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    */
   loading?: boolean;
   /**
-   * Whether the button should contain rounded edges
+   * Whether the button should contain rounded edges.
    */
   rounded?: boolean;
+  /**
+   * Manually control the height of the button.
+   */
+  height?: ButtonHeight;
 }
 
 /**

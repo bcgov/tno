@@ -1,6 +1,7 @@
 import { SubscriberFooter } from 'components/footer';
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
 import { UnauthenticatedHome } from 'features/login';
+import { useWindowSize } from 'hooks';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
@@ -46,21 +47,30 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
     };
   }, [keycloak, setToken]);
 
-  const { collapsed } = useProSidebar();
+  const { collapsed, collapseSidebar } = useProSidebar();
+  const { width } = useWindowSize();
+
+  // check if width is mobile and if so collapse the sidebar or when window is being resized
+  React.useEffect(() => {
+    if (width && width < 768 && !collapsed) {
+      collapseSidebar();
+    }
+  }, [width, collapseSidebar, collapsed]);
 
   return (
     <styled.Layout collapsed={collapsed} {...rest}>
       <Show visible={keycloak.authenticated}>
         <div className="grid-container">
-          <div>
+          <div className="nav-bar">
             <CustomSidebar />
           </div>
           <div className="main-contents">
-            <main>
-              <LayoutErrorBoundary>
+            <LayoutErrorBoundary>
+              <main>
                 <Outlet />
-              </LayoutErrorBoundary>
-            </main>
+              </main>
+              <SubscriberFooter />
+            </LayoutErrorBoundary>
           </div>
         </div>
       </Show>

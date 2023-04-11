@@ -19,9 +19,8 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
     new URL(authority).host.startsWith('host.docker.internal');
   return (
     <styled.BrowserLogin>
-      <Row>
+      <Col>
         <img alt="MMIA Logo" className="app-logo" src="/assets/MMinsights_logo_black.svg" />
-
         <Row className="containing-row">
           <Col className="main-box">
             <p className="top-bar-box">
@@ -29,7 +28,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
               subscribers to see British Columbia’s news at a glance.
             </p>
             <div className="containing-box">
-              <b>Key feautres: </b>
+              <b>Key features: </b>
               <ul>
                 <li>Aggregation of newspapers, radio shows, and online articles </li>
                 <li>Transcription services</li>
@@ -85,7 +84,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
             </div>
           </Col>
         </Row>
-      </Row>
+      </Col>
 
       <img src="/assets/mm_logo.svg" alt="MM Logo" className="mm-logo" />
     </styled.BrowserLogin>
