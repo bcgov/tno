@@ -1,6 +1,6 @@
 import { DetermineToneIcon } from 'features/home/utils';
 import React from 'react';
-import ReactHTMLParser from 'react-html-parser';
+import parse from 'html-react-parser';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { ContentTypeName, IContentModel, Row, Show } from 'tno-core';
@@ -78,10 +78,10 @@ export const ViewContent: React.FC = () => {
       </Row>
       <Row id="summary" className="summary">
         <Show visible={content?.contentType === ContentTypeName.Snippet}>
-          <p>{ReactHTMLParser(content?.summary ?? '')}</p>
+          <p>{parse(content?.summary ?? '')}</p>
         </Show>
         <Show visible={content?.contentType === ContentTypeName.PrintContent}>
-          <p>{ReactHTMLParser(content?.body ?? '')}</p>
+          <p>{parse(content?.body ?? '')}</p>
         </Show>
       </Row>
     </styled.ViewContent>
