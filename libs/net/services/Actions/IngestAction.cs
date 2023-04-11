@@ -92,7 +92,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     {
         if (reference != null)
         {
-            reference.Status = (int)status;
+            if (reference.Status != (int)status) reference.Status = (int)status;
             reference = await this.Api.UpdateContentReferenceAsync(reference, Headers);
         }
         return reference;
@@ -108,7 +108,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <returns></returns>
     protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SourceContent? content)
     {
-        if (reference != null)
+        if (reference != null && reference.Status != (int)WorkflowStatus.Received)
         {
             reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.Received);
             if (reference != null && manager.Ingest.PostToKafka() && content != null)
