@@ -90,7 +90,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <returns></returns>
     protected virtual async Task<ContentReferenceModel?> UpdateContentReferenceAsync(ContentReferenceModel? reference, WorkflowStatus status = WorkflowStatus.InProgress)
     {
-        if (reference != null)
+        if (reference != null && reference.Status != (int)status)
         {
             reference.Status = (int)status;
             reference = await this.Api.UpdateContentReferenceAsync(reference, Headers);
