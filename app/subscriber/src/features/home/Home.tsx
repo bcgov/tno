@@ -1,10 +1,9 @@
 import { GroupedTable } from 'components/grouped-table';
-import { useWindowSize } from 'hooks';
 import React from 'react';
 import { FaAngleLeft, FaAngleRight, FaCalendarAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, Page, Row } from 'tno-core';
+import { ContentTypeName, Page, Row, useWindowSize } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';

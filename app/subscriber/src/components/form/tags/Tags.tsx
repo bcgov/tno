@@ -1,8 +1,7 @@
-import { useWindowSize } from 'hooks';
 import React from 'react';
 import { FaTags } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Col, FieldSize, IOptionItem, Row, Select } from 'tno-core';
+import { Col, FieldSize, IOptionItem, Row, Select, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 

@@ -1,8 +1,6 @@
-import { ContentTypeName } from 'tno-core';
-
 export enum HomeFilterType {
-  Papers = ContentTypeName.PrintContent,
-  RadioTV = ContentTypeName.Snippet,
+  Papers = 'PrintContent',
+  RadioTV = 'Snippet',
   Internet = 'internet',
   CPNews = 'cpNews',
 }

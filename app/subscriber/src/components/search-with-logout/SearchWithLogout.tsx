@@ -1,9 +1,8 @@
-import { useWindowSize } from 'hooks';
 import React from 'react';
 import { BiLogOut } from 'react-icons/bi';
 import { FaUserCircle } from 'react-icons/fa';
 import { useContent } from 'store/hooks';
-import { LogicalOperator, Show, Text, useKeycloakWrapper } from 'tno-core';
+import { LogicalOperator, Show, Text, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 

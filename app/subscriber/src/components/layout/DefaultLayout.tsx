@@ -1,12 +1,11 @@
 import { SubscriberFooter } from 'components/footer';
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
 import { UnauthenticatedHome } from 'features/login';
-import { useWindowSize } from 'hooks';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
 import { useToastError } from 'store/hooks';
-import { Show, SummonContext, useKeycloakWrapper } from 'tno-core';
+import { Show, SummonContext, useKeycloakWrapper, useWindowSize } from 'tno-core';
 
 import { LayoutErrorBoundary } from '.';
 import * as styled from './styled';
