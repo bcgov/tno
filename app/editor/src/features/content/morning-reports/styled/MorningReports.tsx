@@ -75,4 +75,16 @@ export const MorningReports = styled(FormPage)`
     align-items: center;
     justify-content: center;
   }
+
+  .table {
+    width: 100%;
+
+    .column {
+      overflow: hidden;
+    }
+
+    .row:hover {
+      cursor: pointer;
+    }
+  }
 `;

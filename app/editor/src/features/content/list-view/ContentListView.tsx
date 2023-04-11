@@ -1,15 +1,17 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Row as TRow, SortingRule } from 'react-table';
 import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
+  FlexboxTable,
   IContentModel,
+  ITableInternalRow,
+  ITablePage,
+  ITableSort,
   IWorkOrderModel,
   Page,
-  PagedTable,
   Row,
   Show,
   useCombinedView,
@@ -41,11 +43,6 @@ export const ContentListView: React.FC = () => {
   var hub = useApiHub();
 
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
-  const [loading, setLoading] = React.useState(false);
-
-  const selectedRowIds = !!contentId
-    ? ({ [contentId]: true } as Record<string, boolean>)
-    : undefined;
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -99,7 +96,6 @@ export const ContentListView: React.FC = () => {
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
-        setLoading(true);
         const data = await findContent(
           makeFilter({
             ...filter,
@@ -109,8 +105,6 @@ export const ContentListView: React.FC = () => {
       } catch (error) {
         // TODO: Handle error
         throw error;
-      } finally {
-        setLoading(false);
       }
     },
     [findContent],
@@ -125,22 +119,26 @@ export const ContentListView: React.FC = () => {
   }, [isReady, filter, fetch]);
 
   const handleChangePage = React.useCallback(
-    (pi: number, ps?: number) => {
-      if (filter.pageIndex !== pi || filter.pageSize !== ps)
-        storeFilter({ ...filter, pageIndex: pi, pageSize: ps ?? filter.pageSize });
+    (page: ITablePage) => {
+      if (filter.pageIndex !== page.pageIndex || filter.pageSize !== page.pageSize)
+        storeFilter({
+          ...filter,
+          pageIndex: page.pageIndex,
+          pageSize: page.pageSize ?? filter.pageSize,
+        });
     },
     [filter, storeFilter],
   );
 
   const handleChangeSort = React.useCallback(
-    (sortBy: SortingRule<IContentModel>[]) => {
-      const sorts = sortBy.map((sb) => ({ id: sb.id, desc: sb.desc }));
+    (sort: ITableSort<IContentModel>[]) => {
+      const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
       storeFilter({ ...filter, sort: sorts });
     },
     [storeFilter, filter],
   );
 
-  const handleRowClick = (row: TRow<IContentModel>) => {
+  const handleRowClick = (row: ITableInternalRow<IContentModel>) => {
     setContentType(row.original.contentType);
     navigate(`/contents/combined/${row.original.id}${window.location.search}`);
   };
@@ -151,16 +149,19 @@ export const ContentListView: React.FC = () => {
         <ContentToolBar onSearch={fetch} />
         <Row className="top-pane">
           <Row className="content-list">
-            <PagedTable
+            <FlexboxTable
+              rowId="id"
               columns={columns}
-              page={page}
-              isLoading={loading}
-              sorting={{ sortBy: filter.sort }}
-              getRowId={(content) => content.id.toString()}
-              selectedRowIds={selectedRowIds}
+              data={page.items}
+              manualPaging={true}
+              pageIndex={filter.pageIndex}
+              pageSize={filter.pageSize}
+              pageCount={page.pageCount}
+              showSort={true}
+              activeRowId={contentId}
+              onPageChange={handleChangePage}
+              onSortChange={handleChangeSort}
               onRowClick={handleRowClick}
-              onChangePage={handleChangePage}
-              onChangeSort={handleChangeSort}
             />
           </Row>
         </Row>

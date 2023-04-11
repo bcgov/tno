@@ -18,9 +18,9 @@ export const ContentListView = styled(FormPage)`
   .content-list {
     border-radius: 4px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
-    table {
-      background: transparent;
-    }
+    display: flex;
+    flex-flow: column;
+    width: 100%;
 
     div[role='rowgroup'] {
       min-height: 100px;
@@ -32,6 +32,23 @@ export const ContentListView = styled(FormPage)`
     .headline {
       & > svg:first-child {
         margin-right: 0.5em;
+      }
+    }
+
+    .table {
+      background: transparent;
+
+      .rows {
+        min-height: 100px;
+        max-height: calc(-600px + 100vh);
+      }
+
+      .column {
+        overflow: hidden;
+      }
+
+      .row:hover {
+        cursor: pointer;
       }
     }
   }
