@@ -90,8 +90,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, item.Id);
                 if (reference == null)
                 {
-                    reference = await AddContentReferenceAsync(manager.Ingest, item);
                     await FetchContent(manager.Ingest, item, link);
+                    reference = await AddContentReferenceAsync(manager.Ingest, item);
                 }
                 else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
                         (reference.Status != (int)WorkflowStatus.InProgress
@@ -105,13 +105,12 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
 
                     // If another process has it in progress only attempt to do an import if it's
                     // more than an hour old. Assumption is that it is stuck.
+                    await FetchContent(manager.Ingest, item, link);
                     this.Logger.LogWarning("Updating content {source}:{uid}", reference.Source, reference.Uid);
                     reference = await this.UpdateContentReferenceAsync(reference, item);
-                    await FetchContent(manager.Ingest, item, link);
                 }
                 else continue;
 
-                reference = await FindContentReferenceAsync(manager.Ingest.Source?.Code, item.Id);
                 await ContentReceivedAsync(manager, reference, item);
             }
             catch (Exception ex)
