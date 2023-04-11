@@ -1,6 +1,6 @@
 import { DetermineToneIcon } from 'features/home/utils';
-import React from 'react';
 import parse from 'html-react-parser';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { ContentTypeName, IContentModel, Row, Show } from 'tno-core';
