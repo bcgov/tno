@@ -3,7 +3,7 @@ import { Checkbox } from 'tno-core';
 
 import { DetermineToneIcon } from '../utils';
 
-export const columns: Column[] = [
+export const columns: Column<any>[] = [
   {
     id: 'checkbox',
     Header: () => <Checkbox />,
@@ -14,20 +14,20 @@ export const columns: Column[] = [
     id: 'tone',
     Header: 'TONE',
     accessor: 'tonePools',
-    Cell: (cell) => <DetermineToneIcon tone={cell.value[0].value} />,
+    Cell: (cell) => <DetermineToneIcon tone={cell.value ? cell.value[0]?.value : 0} />,
     width: 20,
   },
   {
     id: 'headline',
     Header: 'HEADLINE',
     accessor: 'headline',
-    Cell: (cell) => <div className="headline">{cell.value}</div>,
+    Cell: (cell) => <div className="headline">{cell?.value}</div>,
   },
   {
     id: 'description',
     Header: 'SECTION PAGE',
     accessor: 'section',
-    Cell: (cell) => <div className="section">{cell.value}</div>,
+    Cell: (cell) => <div className="section">{cell?.value}</div>,
     width: 30,
   },
 ];

@@ -59,7 +59,6 @@ export const Home: React.FC = () => {
         <GroupedTable
           onRowClick={(e, row) => {
             navigate(`/view/${row.original.id}`);
-            console.log(row);
           }}
           data={content?.items || []}
           groupBy={!!width && width > 500 ? 'source.name' : 'source.code'}
