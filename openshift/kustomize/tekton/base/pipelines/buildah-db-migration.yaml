@@ -31,6 +31,10 @@ spec:
         [dev,test,prod,tools].
       name: DEPLOY_TO
       type: string
+    - name: FORCE_BUILD
+      description: Whether to force build the migration [yes|no].
+      type: string
+      default: "yes"
   workspaces:
     - description: |
         Git repo source code.
@@ -77,6 +81,8 @@ spec:
           value: db-migration
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
+        - name: BUILD
+          value: $(params.FORCE_BUILD)
       runAfter:
         - git
       taskRef:
@@ -128,6 +134,8 @@ spec:
           value: db-migration
         - name: IMAGE_TAG
           value: $(params.IMAGE_TAG)
+        - name: BUILD
+          value: $(params.FORCE_BUILD)
         - name: DEPLOY_TO
           value: $(params.DEPLOY_TO)
       runAfter:

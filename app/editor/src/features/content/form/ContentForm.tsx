@@ -710,8 +710,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
                     <Show
                       visible={
-                        props.values.status === ContentStatusName.Unpublished &&
-                        userInfo?.roles.includes(Claim.administrator)
+                        props.values.status === ContentStatusName.Draft ||
+                        (props.values.status === ContentStatusName.Unpublished &&
+                          userInfo?.roles.includes(Claim.administrator))
                       }
                     >
                       <Button

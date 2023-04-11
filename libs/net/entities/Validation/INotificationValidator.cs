@@ -5,13 +5,21 @@ namespace TNO.Entities.Validation;
 /// </summary>
 public interface INotificationValidator
 {
+    #region Properties
+    /// <summary>
+    /// get/set - The primary key to the alert action used to validate content.
+    /// </summary>
+    public int? AlertId { get; set; }
+    #endregion
+
     #region Methods
     /// <summary>
     /// Initialize the validator and fetch the Notification and Content.
     /// </summary>
     /// <param name="notificationId"></param>
     /// <param name="contentId"></param>
-    Task InitializeAsync(int notificationId, long contentId);
+    /// <param name="alertId"></param>
+    Task InitializeAsync(int notificationId, long contentId, int alertId);
 
     /// <summary>
     /// Initialize the validator and fetch the Notification and Content.
@@ -19,7 +27,8 @@ public interface INotificationValidator
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
-    void Initialize(Entities.Notification? notification = null, Entities.Content? content = null);
+    /// <param name="alertId"></param>
+    void Initialize(Entities.Notification notification, Entities.Content content, int alertId);
 
     /// <summary>
     /// Determine if the specified 'notification' should be sent for the specified 'content'.

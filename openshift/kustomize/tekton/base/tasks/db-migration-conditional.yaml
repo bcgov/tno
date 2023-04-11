@@ -38,6 +38,10 @@ spec:
       type: string
       default: latest
 
+    - name: BUILD
+      description: Whether to force build the component [condition|yes].
+      default: "condition"
+
     - name: DEPLOY_TO
       description: Which environment to deploy to
       type: string
@@ -64,7 +68,7 @@ spec:
         fi
 
         # Check if this image needs to be built.
-        if [ ${BUILD_DB} = true ]; then
+        if [ "${BUILD_DB}" = "true" ] || [ "$(params.BUILD)" = "yes" ]; then
           echo "Fetching connection information"
 
           PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
