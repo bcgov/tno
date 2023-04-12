@@ -11,6 +11,7 @@ import {
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
+import { useSources } from 'store/hooks/admin';
 
 export interface IHomeFilterProps {
   fetch: (filter: IContentFilter) => Promise<Page<IContentModel>>;
@@ -23,6 +24,8 @@ export interface IHomeFilterProps {
  */
 export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
   const [active, setActive] = React.useState<HomeFilterType>(HomeFilterType.Papers);
+  const [{ sources }] = useSources();
+
   const handleFilterClick = (type: HomeFilterType) => {
     setActive(type);
   };
@@ -42,7 +45,10 @@ export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
         fetch({ contentTypes: [ContentTypeName.Story] });
         break;
       case HomeFilterType.CPNews:
-        fetch({ contentTypes: [ContentTypeName.Story], sourceIds: [174] });
+        fetch({
+          contentTypes: [ContentTypeName.Story],
+          sourceIds: [sources.find((s) => s.name === 'CP News')?.id ?? 0],
+        });
         break;
       default:
         fetch({ contentTypes: [ContentTypeName.PrintContent] });
