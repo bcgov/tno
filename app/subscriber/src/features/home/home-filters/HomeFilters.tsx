@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSources } from 'store/hooks/admin';
 import {
   Button,
   ButtonHeight,
@@ -11,7 +12,6 @@ import {
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
-import { useSources } from 'store/hooks/admin';
 
 export interface IHomeFilterProps {
   fetch: (filter: IContentFilter) => Promise<Page<IContentModel>>;
@@ -19,7 +19,7 @@ export interface IHomeFilterProps {
 
 /**
  * Component for displaying the home filters
- * @param fetch performs tha api call to gather the appropriate content
+ * @param fetch performs the api call to gather the appropriate content
  * @returns Home filter component
  */
 export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
@@ -53,7 +53,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
       default:
         fetch({ contentTypes: [ContentTypeName.PrintContent] });
     }
-  }, [active, fetch]);
+  }, [active, fetch, sources]);
 
   return (
     <styled.HomeFilters>
