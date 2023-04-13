@@ -21,11 +21,13 @@ export const Header: React.FC<IHeaderProps> = ({ name, children, ...rest }) => {
         </a>
       </div>
       <div className="vl" />
-      <img
-        alt="TNO logo"
-        className="app-logo"
-        src={process.env.PUBLIC_URL + '/assets/mminsights_logo.svg'}
-      />
+      <a href={`${process.env.PUBLIC_URL}/`}>
+        <img
+          alt="MMIA logo"
+          className="app-logo"
+          src={process.env.PUBLIC_URL + '/assets/mminsights_logo.svg'}
+        />
+      </a>
       <div>
         <div className="title" />
         <div className="options">{children}</div>
