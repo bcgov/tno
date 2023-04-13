@@ -61,7 +61,9 @@ export const Home: React.FC = () => {
             navigate(`/view/${row.original.id}`);
           }}
           data={content?.items || []}
-          groupBy={!!width && width > 500 ? 'source.name' : 'source.code'}
+          // TODO: return full source object from API so we can use name or code
+          // groupBy={!!width && width > 500 ? 'source.name' : 'source.code'}
+          groupBy="otherSource"
           columns={columns}
         />
       </Row>
