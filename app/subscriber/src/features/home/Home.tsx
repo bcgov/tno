@@ -1,6 +1,5 @@
 import { GroupedTable } from 'components/grouped-table';
 import React from 'react';
-import { FaAngleLeft, FaAngleRight, FaCalendarAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { ContentTypeName, Page, Row } from 'tno-core';
@@ -9,6 +8,7 @@ import { columns } from './constants';
 import { HomeFilters } from './home-filters';
 import * as styled from './styled';
 import { makeFilter } from './utils';
+import { DateFilter } from 'components/date-filter';
 
 /**
  * Home component that will be rendered when the user is logged in.
@@ -48,12 +48,7 @@ export const Home: React.FC = () => {
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
         <HomeFilters fetch={fetch} />
       </Row>
-      <Row justifyContent="center" className="date-navigator">
-        <FaAngleLeft />
-        2023-03-04
-        <FaAngleRight />
-        <FaCalendarAlt className="calendar" />
-      </Row>
+      <DateFilter />
       <Row className="table-container">
         <GroupedTable
           onRowClick={(e, row) => {
