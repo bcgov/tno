@@ -1,5 +1,4 @@
-import { FaExternalLinkAlt, FaFeather, FaInfoCircle } from 'react-icons/fa';
-import { Column, UseSortByColumnOptions } from 'react-table';
+import { FaExternalLinkAlt, FaFeather } from 'react-icons/fa';
 import {
   CellCheckbox,
   CellDate,
@@ -8,23 +7,18 @@ import {
   ContentTypeName,
   formatIdirUsername,
   IContentModel,
+  ITableHookColumn,
   Show,
 } from 'tno-core';
 
 import { getStatusText } from '../utils';
 
-export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
+export const columns: ITableHookColumn<IContentModel>[] = [
   {
-    id: 'id',
-    Header: 'Headline',
-    accessor: 'headline',
-    width: 4,
-    Cell: (cell) => (
-      <CellEllipsis
-        data-tooltip-id="main-tooltip"
-        data-tooltip-content={cell.value}
-        className="headline"
-      >
+    name: 'headline',
+    label: 'Headline',
+    cell: (cell) => (
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.headline}>
         <Show
           visible={
             cell.row.original.contentType === ContentTypeName.Snippet && !!cell.row.original.body
@@ -32,86 +26,102 @@ export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentMo
         >
           <FaFeather />
         </Show>
-        <span>{cell.value}</span>
+        <span>{cell.original.headline}</span>
+      </CellEllipsis>
+    ),
+    width: 5,
+  },
+  {
+    name: 'otherSource',
+    label: 'Source',
+    cell: (cell) => (
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.otherSource}>
+        {cell.original.otherSource}
       </CellEllipsis>
     ),
   },
   {
-    id: 'otherSource',
-    Header: 'Source',
-    width: 1,
-    accessor: 'otherSource',
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
-  },
-  {
-    id: 'productId',
-    Header: 'Product',
-    width: 1,
-    accessor: (row) => row.product?.name,
-    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
-  },
-  {
-    id: 'page',
-    Header: 'Section:Page',
-    width: 1,
-    accessor: (row) => (row.section ? `${row.section}:${row.page}` : row.page),
-    Cell: ({ value }: { value: string }) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
-        {value}
+    name: 'seriesId',
+    label: 'Product',
+    cell: (cell) => (
+      <CellEllipsis
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content={cell.original.product?.name}
+      >
+        {cell.original.product?.name}
       </CellEllipsis>
     ),
-  },
-  {
-    id: 'ownerId',
-    Header: 'Username',
     width: 1,
-    accessor: (row) => row.owner?.displayName,
-    Cell: ({ value }: { value: string }) => (
-      <CellEllipsis>{formatIdirUsername(value)}</CellEllipsis>
-    ),
   },
   {
-    id: 'status',
-    Header: 'Status',
-    width: 1,
-    accessor: (row) => <div className="center">{getStatusText(row.status)}</div>,
-  },
-  {
-    id: 'publishedOn',
-    Header: 'Pub Date',
-    width: 2,
-    accessor: (row) => row.publishedOn ?? row.createdOn,
-    Cell: ({ value }: any) => (
-      <div className="center">
-        <CellDate value={value} />
-      </div>
-    ),
-  },
-  {
-    id: 'use',
-    Header: 'Use',
-    disableSortBy: true,
-    width: 1,
-    accessor: (row) =>
-      row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
-    Cell: ({ value }: { value: boolean }) => {
+    name: 'section',
+    label: 'Section:Page',
+    cell: (cell) => {
+      const value = `${cell.original.section ? `${cell.original.section}:` : ''}${
+        cell.original.page
+      }`;
       return (
-        <div className="center">
-          <CellCheckbox checked={value} />
-        </div>
+        <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
+          {value}
+        </CellEllipsis>
       );
     },
+    width: 2,
   },
   {
-    id: 'newTab',
-    Header: () => (
-      <FaInfoCircle data-tooltip-id="main-tooltip" data-tooltip-content="Open snippet in new tab" />
+    name: 'ownerId',
+    label: 'User',
+    cell: (cell) => (
+      <CellEllipsis
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content={cell.original.owner?.username}
+      >
+        {formatIdirUsername(cell.original.owner?.username)}
+      </CellEllipsis>
     ),
-    disableSortBy: true,
     width: 1,
-    accessor: (row) => row.id,
-    Cell: ({ value }: { value: number }) => {
-      return <FaExternalLinkAlt onClick={() => window.open(`/contents/${value}`, '_blank')} />;
+  },
+  {
+    name: 'status',
+    label: 'Status',
+    hAlign: 'center',
+    cell: (cell) => getStatusText(cell.original.status),
+  },
+  {
+    name: 'publishedOn',
+    label: 'Pub Date',
+    cell: (cell) => <CellDate value={cell.original.publishedOn} />,
+    width: 3,
+    hAlign: 'center',
+  },
+  {
+    name: 'status',
+    label: 'Use',
+    cell: (cell) => (
+      <div className="center">
+        <CellCheckbox
+          checked={
+            cell.original.status === ContentStatusName.Publish ||
+            cell.original.status === ContentStatusName.Published
+          }
+        />
+      </div>
+    ),
+    width: '55px',
+  },
+  {
+    name: 'newTab',
+    label: '',
+    // Header: () => (
+    //   <FaInfoCircle data-tooltip-id="main-tooltip" data-tooltip-content="Open snippet in new tab" />
+    // ),
+    showSort: false,
+    hAlign: 'center',
+    cell: (cell) => {
+      return (
+        <FaExternalLinkAlt onClick={() => window.open(`/contents/${cell.original.id}`, '_blank')} />
+      );
     },
+    width: '50px',
   },
 ];

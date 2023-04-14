@@ -1,75 +1,84 @@
-import { Column, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellDate, CellEllipsis, ContentStatusName, IContentModel } from 'tno-core';
+import {
+  CellCheckbox,
+  CellDate,
+  CellEllipsis,
+  ContentStatusName,
+  IContentModel,
+  ITableHookColumn,
+} from 'tno-core';
 
 import { getStatusText } from '../../list-view/utils';
 
-export const columns: (Column<IContentModel> & UseSortByColumnOptions<IContentModel>)[] = [
+export const columns: ITableHookColumn<IContentModel>[] = [
   {
-    id: 'id',
-    Header: 'Headline',
-    accessor: 'headline',
+    name: 'headline',
+    label: 'Headline',
+    cell: (cell) => (
+      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={cell.original.headline}>
+        {cell.original.headline}
+      </CellEllipsis>
+    ),
     width: 5,
-    Cell: ({ value }) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
-        {value}
+  },
+  {
+    name: 'otherSource',
+    label: 'Source',
+    cell: (cell) => <CellEllipsis>{cell.original.otherSource}</CellEllipsis>,
+  },
+  {
+    name: 'seriesId',
+    label: 'Product',
+    cell: (cell) => (
+      <CellEllipsis
+        data-tooltip-id="main-tooltip"
+        data-tooltip-content={cell.original.product?.name}
+      >
+        {cell.original.product?.name}
       </CellEllipsis>
     ),
-  },
-  {
-    id: 'otherSource',
-    Header: 'Source',
-    width: 1,
-    accessor: 'otherSource',
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
-  },
-  {
-    id: 'productId',
-    Header: 'Product',
-    width: 1,
-    accessor: (row) => row.product?.name,
-    Cell: ({ value }: { value: string }) => <CellEllipsis>{value}</CellEllipsis>,
-  },
-  {
-    id: 'page',
-    Header: 'Section:Page',
-    width: 1,
-    accessor: (row) => (row.section ? `${row.section}:${row.page}` : row.page),
-    Cell: ({ value }: { value: string }) => (
-      <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
-        {value}
-      </CellEllipsis>
-    ),
-  },
-  {
-    id: 'status',
-    Header: 'Status',
-    width: 1,
-    accessor: (row) => <div className="center">{getStatusText(row.status)}</div>,
-  },
-  {
-    id: 'publishedOn',
-    Header: 'Pub Date',
     width: 2,
-    accessor: (row) => row.publishedOn ?? row.createdOn,
-    Cell: ({ value }: any) => (
-      <div className="center">
-        <CellDate value={value} />
-      </div>
-    ),
   },
   {
-    id: 'use',
-    Header: 'Use',
-    disableSortBy: true,
-    width: 1,
-    accessor: (row) =>
-      row.status === ContentStatusName.Publish || row.status === ContentStatusName.Published,
-    Cell: ({ value }: { value: boolean }) => {
+    name: 'section',
+    label: 'Section:Page',
+    cell: (cell) => {
+      const value = `${cell.original.section ? `${cell.original.section}:` : ''}${
+        cell.original.page
+      }`;
       return (
-        <div className="center">
-          <CellCheckbox checked={value} />
-        </div>
+        <CellEllipsis data-tooltip-id="main-tooltip" data-tooltip-content={value}>
+          {value}
+        </CellEllipsis>
       );
     },
+    width: 2,
+  },
+  {
+    name: 'status',
+    label: 'Status',
+    hAlign: 'center',
+    cell: (cell) => getStatusText(cell.original.status),
+  },
+  {
+    name: 'publishedOn',
+    label: 'Pub Date',
+    cell: (cell) => <CellDate value={cell.original.publishedOn} />,
+    width: 3,
+    hAlign: 'center',
+  },
+  {
+    name: 'status',
+    label: 'Use',
+    cell: (cell) => (
+      <div className="center">
+        <CellCheckbox
+          checked={
+            cell.original.status === ContentStatusName.Publish ||
+            cell.original.status === ContentStatusName.Published
+          }
+        />
+      </div>
+    ),
+    hAlign: 'center',
   },
 ];

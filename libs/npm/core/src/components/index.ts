@@ -15,6 +15,7 @@ export * from './navbar';
 export * from './section';
 export * from './show';
 export * from './spinners';
+export * from './table';
 export * from './tabs';
 export * from './toggle-group';
 export * from './tool-bar';

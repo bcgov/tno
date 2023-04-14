@@ -1,14 +1,15 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { SortingRule } from 'react-table';
-import { Row as TRow } from 'react-table';
 import { useContent } from 'store/hooks';
 import {
   Col,
   ContentTypeName,
+  FlexboxTable,
   IContentModel,
+  ITableInternalRow,
+  ITablePage,
+  ITableSort,
   Page,
-  PagedTable,
   replaceQueryParams,
   Row,
   Show,
@@ -41,12 +42,8 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
     { findContent, storeMorningReportFilter },
   ] = useContent();
 
-  const [loading, setLoading] = React.useState(false);
+  const [, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
-
-  const selectedRowIds = !!contentId
-    ? ({ [contentId]: true } as Record<string, boolean>)
-    : undefined;
 
   const page = React.useMemo(
     () =>
@@ -82,15 +79,18 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, fetch]);
 
-  const handleRowClick = (row: TRow<IContentModel>) => {
-    if (row.isSelected)
-      navigate(`/morning/papers/combined/${row.original.id}${window.location.search}`);
+  const handleRowClick = (row: ITableInternalRow<IContentModel>) => {
+    navigate(`/morning/papers/combined/${row.original.id}${window.location.search}`);
   };
 
   const handleChangePage = React.useCallback(
-    (pi: number, ps: number) => {
-      if (filter.pageIndex !== pi || filter.pageSize !== ps) {
-        const newFilter = { ...filter, pageIndex: pi, pageSize: ps ?? filter.pageSize };
+    (page: ITablePage) => {
+      if (filter.pageIndex !== page.pageIndex || filter.pageSize !== page.pageSize) {
+        const newFilter = {
+          ...filter,
+          pageIndex: page.pageIndex,
+          pageSize: page.pageSize ?? filter.pageSize,
+        };
         storeMorningReportFilter(newFilter);
         replaceQueryParams(newFilter, { includeEmpty: false });
       }
@@ -99,25 +99,19 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   );
 
   const handleChangeSort = React.useCallback(
-    (sortBy: SortingRule<IContentModel>[]) => {
-      const sorts = sortBy.map((sb) => ({ id: sb.id, desc: sb.desc }));
+    (sort: ITableSort<IContentModel>[]) => {
+      const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
       storeMorningReportFilter({ ...filter, sort: sorts });
     },
     [filter, storeMorningReportFilter],
   );
 
-  const handleSelectedRowsChanged = (selectedRowIds: TRow<IContentModel>[]) => {
-    if (
-      !loading &&
-      (selectedRowIds.length !== selected.length ||
-        !selectedRowIds.every((r) => selected.some((s) => s.id === r.original.id)))
-    ) {
-      setSelected(selectedRowIds.map((r) => r.original));
+  const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
+    if (row.isSelected) {
+      setSelected(row.table.rows.filter((r) => r.isSelected).map((r) => r.original));
+    } else {
+      setSelected((selected) => selected.filter((r) => r.id !== row.original.id));
     }
-  };
-
-  const handleActiveRowChange = (row?: TRow<IContentModel>) => {
-    if (row) handleRowClick(row);
   };
 
   return (
@@ -125,22 +119,21 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
       <Col wrap="nowrap">
         <MorningReportsFilter onSearch={fetch} />
         <Row className="content-list">
-          <PagedTable
+          <FlexboxTable
+            rowId="id"
             columns={columns}
-            isMulti
-            autoResetSelectedRows={false}
-            maintainSelectedRows={true}
-            page={page}
-            paging={{ pageSize: filter.pageSize }}
-            isLoading={loading}
-            sorting={{ sortBy: filter.sort }}
-            getRowId={(content) => content.id.toString()}
-            selectedRowIds={selectedRowIds}
+            data={page.items}
+            isMulti={true}
+            manualPaging={true}
+            pageIndex={filter.pageIndex}
+            pageSize={filter.pageSize}
+            pageCount={page.pageCount}
+            showSort={true}
+            activeRowId={contentId}
+            onPageChange={handleChangePage}
+            onSortChange={handleChangeSort}
             onRowClick={handleRowClick}
-            onSelectedRowsChange={handleSelectedRowsChanged}
-            onActiveRowChange={handleActiveRowChange}
-            onChangePage={handleChangePage}
-            onChangeSort={handleChangeSort}
+            onSelectedChanged={handleSelectedRowsChanged}
           />
         </Row>
         <ReportActions setLoading={setLoading} selected={selected} filter={filter} />
