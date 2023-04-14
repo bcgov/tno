@@ -1,11 +1,12 @@
+import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
+import { useContent } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
 import {
   Button,
   ButtonHeight,
   ButtonVariant,
   ContentTypeName,
-  IContentFilter,
   IContentModel,
   Page,
 } from 'tno-core';
@@ -14,7 +15,7 @@ import { HomeFilterType } from '../constants';
 import * as styled from './styled';
 
 export interface IHomeFilterProps {
-  fetch: (filter: IContentFilter) => Promise<Page<IContentModel>>;
+  fetch: (filter: IContentListFilter) => Promise<Page<IContentModel>>;
 }
 
 /**
@@ -24,6 +25,7 @@ export interface IHomeFilterProps {
  */
 export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
   const [active, setActive] = React.useState<HomeFilterType>(HomeFilterType.Papers);
+  const [{ filter }, { storeFilter }] = useContent();
   const [{ sources }] = useSources();
 
   const handleFilterClick = (type: HomeFilterType) => {
@@ -36,24 +38,27 @@ export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
   React.useEffect(() => {
     switch (active) {
       case HomeFilterType.Papers:
-        fetch({ contentTypes: [ContentTypeName.PrintContent] });
+        storeFilter({ ...filter, contentTypes: [ContentTypeName.PrintContent], sourceIds: [] });
         break;
       case HomeFilterType.RadioTV:
-        fetch({ contentTypes: [ContentTypeName.Snippet] });
+        storeFilter({ ...filter, contentTypes: [ContentTypeName.Snippet], sourceIds: [] });
         break;
       case HomeFilterType.Internet:
-        fetch({ contentTypes: [ContentTypeName.Story] });
+        storeFilter({ ...filter, contentTypes: [ContentTypeName.Story], sourceIds: [] });
         break;
       case HomeFilterType.CPNews:
-        fetch({
+        storeFilter({
+          ...filter,
           contentTypes: [ContentTypeName.Story],
           sourceIds: [sources.find((s) => s.name === 'CP News')?.id ?? 0],
         });
         break;
       default:
-        fetch({ contentTypes: [ContentTypeName.PrintContent] });
+        storeFilter({ ...filter, contentTypes: [ContentTypeName.PrintContent] });
     }
-  }, [active, fetch, sources]);
+    // only want the above to trigger when active changes not when the filter changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, sources]);
 
   return (
     <styled.HomeFilters>

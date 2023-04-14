@@ -1,24 +1,28 @@
+import { DateFilter } from 'components/date-filter';
 import { GroupedTable } from 'components/grouped-table';
+import {
+  IContentListAdvancedFilter,
+  IContentListFilter,
+} from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, Page, Row } from 'tno-core';
+import { Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
 import * as styled from './styled';
 import { makeFilter } from './utils';
-import { DateFilter } from 'components/date-filter';
 
 /**
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ content, filter }, { findContent }] = useContent();
+  const [{ content, filter, filterAdvanced }, { findContent }] = useContent();
   const navigate = useNavigate();
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
-    async (filter: any) => {
+    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setLoading(true);
         const data = await findContent(
@@ -37,10 +41,10 @@ export const Home: React.FC = () => {
     [findContent],
   );
 
-  // defaults to print content
+  /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({ ...filter, contentTypes: [ContentTypeName.PrintContent] });
-  }, [fetch, filter]);
+    fetch({ ...filter, ...filterAdvanced });
+  }, [filter, filterAdvanced, fetch]);
 
   return (
     <styled.Home>
@@ -48,7 +52,7 @@ export const Home: React.FC = () => {
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
         <HomeFilters fetch={fetch} />
       </Row>
-      <DateFilter />
+      <DateFilter fetch={fetch} />
       <Row className="table-container">
         <GroupedTable
           onRowClick={(e, row) => {

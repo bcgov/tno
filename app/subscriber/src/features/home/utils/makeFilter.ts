@@ -1,3 +1,7 @@
+import {
+  IContentListAdvancedFilter,
+  IContentListFilter,
+} from 'features/content/list-view/interfaces';
 import moment from 'moment';
 import { IContentFilter } from 'tno-core';
 
@@ -7,7 +11,9 @@ import { IContentFilter } from 'tno-core';
  * @param filter Filter object
  * @returns new IContentFilter object.
  */
-export const makeFilter = (filter: any): IContentFilter => {
+export const makeFilter = (
+  filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
+): IContentFilter => {
   const result: IContentFilter = {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
@@ -18,9 +24,8 @@ export const makeFilter = (filter: any): IContentFilter => {
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
     hasTopic: filter.hasTopic ? true : undefined,
     includeHidden: filter.includeHidden ? true : undefined,
-    onlyHidden: filter.onlyHidden ? true : undefined,
-    onlyPublished: filter.onlyPublished ? true : undefined,
-    publishedEndOn: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
+    publishedStartOn: filter.startDate ? moment(filter.startDate).toISOString() : undefined,
+    publishedEndOn: filter.endDate ? filter.endDate : undefined,
     logicalOperator:
       filter.searchTerm !== '' && filter.logicalOperator !== ''
         ? filter.logicalOperator
