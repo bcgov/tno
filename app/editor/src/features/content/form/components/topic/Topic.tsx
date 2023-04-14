@@ -42,7 +42,7 @@ export const Topic: React.FC<ITopicProps> = () => {
                   : `${item.name} (${item.topicType})`}
               </div>
             ),
-            item.id + '_' + item.name,
+            item.id,
             item.isEnabled,
           ),
         (a, b) => {
@@ -66,23 +66,21 @@ export const Topic: React.FC<ITopicProps> = () => {
         width={FieldSize.Medium}
         options={filterEnabledOptions(
           topicOptions,
-          !!values.topics?.length ? values.topics[0].id + '_' + values.topics[0].name : undefined,
+          !!values.topics?.length ? values.topics[0].id : undefined,
         )}
         required
         isDisabled={!values.sourceId}
+        filterOption={(option, input) => {
+          const label = (option.label as any)?.props?.children?.toLowerCase();
+          return !input || label?.includes(input.toLowerCase());
+        }}
         value={
-          !!values.topics?.length
-            ? topicOptions.find(
-                (c) =>
-                  c.value === values.topics[0].id ||
-                  c.value === values.topics[0].id + '_' + values.topics[0].name,
-              )
-            : []
+          !!values.topics?.length ? topicOptions.find((c) => c.value === values.topics[0].id) : []
         }
         onChange={(e: any) => {
           let value;
           if (!!e?.value) {
-            value = topics.find((c) => c.id === +e.value.split('_')[0]);
+            value = topics.find((c) => c.id === e.value);
           }
           setFieldValue(
             'topics',
