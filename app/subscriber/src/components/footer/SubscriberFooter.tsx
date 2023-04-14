@@ -2,7 +2,7 @@ import * as styled from './styled';
 
 export const SubscriberFooter: React.FC = () => {
   return (
-    <styled.SubscriberFooter>
+    <styled.SubscriberFooter className="contents">
       <a
         href="https://www2.gov.bc.ca/gov/content?id=79F93E018712422FBC8E674A67A70535"
         target="_blank"

@@ -16,3 +16,4 @@ export * from './useQuery';
 export * from './useScrollTo';
 export * from './useTabValidationToasts';
 export * from './useVisibility';
+export * from './useWindowSize';

@@ -25,6 +25,7 @@
     "dequal": "2.0.3",
     "formik": "2.2.9",
     "history": "5.3.0",
+    "html-react-parser": "3.0.15",
     "js-beautify": "1.14.7",
     "keycloak-js": "21.0.1",
     "lodash": "4.17.21",
@@ -51,7 +52,7 @@
     "react-tooltip": "5.10.0",
     "redux-logger": "3.0.6",
     "styled-components": "5.3.9",
-    "tno-core": "0.0.229"
+    "tno-core": "0.0.231"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",

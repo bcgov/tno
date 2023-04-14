@@ -62,6 +62,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Source)
             .Include(c => c.Series)
             .Include(c => c.License)
+            .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
             .Include(c => c.Owner)
             .AsQueryable();
 

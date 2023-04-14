@@ -2,9 +2,8 @@ import styled from 'styled-components';
 
 export const BrowserLogin = styled.div`
   .containing-row {
-    margin-left: 5%;
-    min-width: 100%;
-    justify-content: space-evenly;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .login-content {

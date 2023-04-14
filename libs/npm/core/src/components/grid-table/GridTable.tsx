@@ -12,6 +12,8 @@ import {
   useRowSelect,
   useSortBy,
   useTable,
+  useGroupBy,
+  useExpanded,
 } from 'react-table';
 
 import { Loading, Show } from '..';
@@ -155,6 +157,8 @@ export const GridTable = <T extends object>({
     },
     useFilters,
     useGlobalFilter,
+    useGroupBy,
+    useExpanded,
     useSortBy,
     usePagination,
     useFlexLayout,
