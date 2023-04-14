@@ -62,9 +62,9 @@ export const ViewContent: React.FC = () => {
         <p>{content?.headline && content.headline}</p>
         <Row alignItems="center">
           <p className="tone-value">
-            {showToneValue(content?.tonePools ? content?.tonePools[0].value : 0)}
+            {showToneValue(content?.tonePools ? content?.tonePools[0]?.value : 0)}
           </p>
-          <DetermineToneIcon tone={content?.tonePools ? content?.tonePools[0].value : 0} />
+          <DetermineToneIcon tone={content?.tonePools ? content?.tonePools[0]?.value : 0} />
         </Row>
       </Row>
       <Row justifyContent="space-between">
