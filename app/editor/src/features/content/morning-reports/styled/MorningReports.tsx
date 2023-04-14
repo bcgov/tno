@@ -79,6 +79,11 @@ export const MorningReports = styled(FormPage)`
   .table {
     width: 100%;
 
+    .rows {
+      min-height: 100px;
+      max-height: calc(-600px + 100vh);
+    }
+
     .column {
       overflow: hidden;
     }
