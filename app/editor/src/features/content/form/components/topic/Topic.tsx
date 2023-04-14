@@ -70,6 +70,10 @@ export const Topic: React.FC<ITopicProps> = () => {
         )}
         required
         isDisabled={!values.sourceId}
+        filterOption={(option, input) => {
+          const label = (option.label as any)?.props?.children?.toLowerCase();
+          return !input || label?.includes(input.toLowerCase());
+        }}
         value={
           !!values.topics?.length ? topicOptions.find((c) => c.value === values.topics[0].id) : []
         }
