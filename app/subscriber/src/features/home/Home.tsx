@@ -3,7 +3,7 @@ import React from 'react';
 import { FaAngleLeft, FaAngleRight, FaCalendarAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, Page, Row, useWindowSize } from 'tno-core';
+import { ContentTypeName, Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
@@ -17,7 +17,6 @@ export const Home: React.FC = () => {
   const [{ content, filter }, { findContent }] = useContent();
   const navigate = useNavigate();
   const [, setLoading] = React.useState(false);
-  const { width } = useWindowSize();
   const fetch = React.useCallback(
     async (filter: any) => {
       try {
