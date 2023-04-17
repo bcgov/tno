@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { Page, Row } from 'tno-core';
+import { ContentTypeName, Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
@@ -28,6 +28,9 @@ export const Home: React.FC = () => {
         const data = await findContent(
           makeFilter({
             ...filter,
+            contentTypes:
+              filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
+            startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
           }),
         );
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
