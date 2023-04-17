@@ -423,7 +423,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
-        if (entity.GuaranteeUid()) original.Uid = entity.Uid;
+        if (entity.GuaranteeUid() && original.Uid != entity.Uid) original.Uid = entity.Uid;
         return base.UpdateAndSave(original);
     }
 
