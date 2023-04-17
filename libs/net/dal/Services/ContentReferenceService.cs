@@ -88,8 +88,7 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
 
     public override ContentReference AddAndSave(ContentReference entity)
     {
-        base.AddAndSave(entity);
-        return entity;
+        return base.AddAndSave(entity);
     }
 
     /// <summary>
@@ -103,8 +102,7 @@ public class ContentReferenceService : BaseService<ContentReference, string[]>, 
         var original = FindByKey(entity.Source, entity.Uid) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.Entry(original).CurrentValues.SetValues(entity);
         this.Context.ResetVersion(original);
-        base.UpdateAndSave(original);
-        return original;
+        return base.UpdateAndSave(original);
     }
 
     /// <summary>
