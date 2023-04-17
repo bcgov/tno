@@ -1,15 +1,7 @@
-import { IContentListFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { useContent } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
-import {
-  Button,
-  ButtonHeight,
-  ButtonVariant,
-  ContentTypeName,
-  IContentModel,
-  Page,
-} from 'tno-core';
+import { Button, ButtonHeight, ButtonVariant, ContentTypeName } from 'tno-core';
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
