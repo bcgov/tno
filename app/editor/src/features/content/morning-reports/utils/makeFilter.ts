@@ -13,31 +13,28 @@ import { IMorningReportsFilter } from '../interfaces';
 export const makeFilter = (
   filter: IMorningReportsFilter & Partial<IContentListAdvancedFilter>,
 ): IContentFilter => {
-  const result: IContentFilter = {
+  const result: IContentFilter & Partial<IContentListAdvancedFilter> = {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
-    contentTypes: filter.contentTypes ?? undefined,
+    contentTypes: filter.contentTypes,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
     hasTopic: filter.hasTopic ? true : undefined,
     includeHidden: filter.includeHidden,
     onlyHidden: filter.onlyHidden ? true : undefined,
     onlyPublished: filter.onlyPublished ? true : undefined,
-    productIds: filter.productIds ?? undefined,
-    sourceIds: filter.sourceIds ?? undefined,
+    productIds: filter.productIds,
+    sourceIds: filter.sourceIds,
     publishedStartOn: setTimeFrame(filter.timeFrame as number)?.toISOString(),
     actions: applyActions(filter),
+    fieldType: filter.searchTerm?.trim() !== '' ? filter.fieldType : undefined,
+    searchTerm: filter.searchTerm?.trim() !== '' ? filter.searchTerm?.trim() : undefined,
     sort: applySortBy(filter.sort),
     logicalOperator:
       filter.searchTerm !== '' && filter.logicalOperator !== ''
         ? filter.logicalOperator
         : undefined,
   };
-  if (!!filter.fieldType) {
-    const searchTerm = filter.searchTerm?.trim();
-    (result as any)[(filter?.fieldType as string) ?? 'fake'] =
-      filter.searchTerm !== '' ? searchTerm : undefined;
-  }
   return result;
 };
 

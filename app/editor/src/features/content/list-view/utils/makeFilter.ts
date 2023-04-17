@@ -13,7 +13,7 @@ import { applySortBy, setTimeFrame } from '.';
 export const makeFilter = (
   filter: IContentListFilter & Partial<IContentListAdvancedFilter>,
 ): IContentFilter => {
-  const result: IContentFilter = {
+  const result: IContentFilter & Partial<IContentListAdvancedFilter> = {
     page: filter.pageIndex + 1,
     quantity: filter.pageSize,
     productIds: filter.productIds ?? undefined,
@@ -29,6 +29,8 @@ export const makeFilter = (
       ? moment(filter.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
     publishedEndOn: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
+    fieldType: filter.searchTerm?.trim() !== '' ? filter.fieldType : undefined,
+    searchTerm: filter.searchTerm?.trim() !== '' ? filter.searchTerm?.trim() : undefined,
     logicalOperator:
       filter.searchTerm !== '' && filter.logicalOperator !== ''
         ? filter.logicalOperator
@@ -36,12 +38,6 @@ export const makeFilter = (
     actions: applyActions(filter),
     sort: applySortBy(filter.sort),
   };
-  if (!!filter.fieldType) {
-    const searchTerm =
-      filter.fieldType === 'sourceId' ? filter.searchTerm : filter.searchTerm?.trim();
-    (result as any)[(filter?.fieldType as string) ?? 'fake'] =
-      filter.searchTerm !== '' ? searchTerm : undefined;
-  }
   return result;
 };
 
