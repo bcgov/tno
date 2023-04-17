@@ -297,8 +297,18 @@ public static class StringExtensions
         Regex rgx = new Regex(tagName);
         var res = rgx.Replace(articleContent, replaceString).Trim();
         // remove extra news lines
-        res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine + "]*", string.Empty, System.Text.RegularExpressions.RegexOptions.Multiline);
-        return res;
+        res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine + "]*", string.Empty, RegexOptions.Multiline);
+        return SanitizeContent(res, new Regex(@"\.�?[A-Z]"));
+    }
+
+    private static string SanitizeContent(string articleContent, Regex regex)
+    {
+        var matches = regex.Matches(articleContent);
+        foreach (var match in matches.Cast<Match>())
+        {
+            articleContent = articleContent.Replace(match.Value, match.Value[..^1] + "\n" + match.Value[^1..]);
+        }
+        return articleContent;
     }
 
     /// <summary>
