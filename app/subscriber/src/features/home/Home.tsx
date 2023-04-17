@@ -50,9 +50,9 @@ export const Home: React.FC = () => {
     <styled.Home>
       <Row>
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
-        <HomeFilters fetch={fetch} />
+        <HomeFilters />
       </Row>
-      <DateFilter fetch={fetch} />
+      <DateFilter />
       <Row className="table-container">
         <GroupedTable
           onRowClick={(e, row) => {

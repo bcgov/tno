@@ -14,16 +14,14 @@ import {
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
 
-export interface IHomeFilterProps {
-  fetch: (filter: IContentListFilter) => Promise<Page<IContentModel>>;
-}
+export interface IHomeFilterProps {}
 
 /**
  * Component for displaying the home filters
  * @param fetch performs the api call to gather the appropriate content
  * @returns Home filter component
  */
-export const HomeFilters: React.FC<IHomeFilterProps> = ({ fetch }) => {
+export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = React.useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
   const [{ sources }] = useSources();
