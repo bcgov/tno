@@ -403,13 +403,13 @@ public class ContentService : BaseService<Content, long>, IContentService
     public override Content AddAndSave(Content entity)
     {
         entity.AddToContext(this.Context);
-        base.AddAndSave(entity);
+        var result = base.AddAndSave(entity);
 
         // Ensure all content has a UID.
-        if (entity.GuaranteeUid())
-            base.UpdateAndSave(entity);
+        if (result.GuaranteeUid())
+            result = base.UpdateAndSave(result);
 
-        return entity;
+        return result;
     }
 
     /// <summary>
@@ -423,9 +423,8 @@ public class ContentService : BaseService<Content, long>, IContentService
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity);
-        entity.GuaranteeUid();
-        base.UpdateAndSave(original);
-        return original;
+        if (entity.GuaranteeUid() && original.Uid != entity.Uid) original.Uid = entity.Uid;
+        return base.UpdateAndSave(original);
     }
 
 
