@@ -1,6 +1,10 @@
+import { DateFilter } from 'components/date-filter';
 import { GroupedTable } from 'components/grouped-table';
+import {
+  IContentListAdvancedFilter,
+  IContentListFilter,
+} from 'features/content/list-view/interfaces';
 import React from 'react';
-import { FaAngleLeft, FaAngleRight, FaCalendarAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { ContentTypeName, Page, Row } from 'tno-core';
@@ -14,16 +18,19 @@ import { makeFilter } from './utils';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ content, filter }, { findContent }] = useContent();
+  const [{ content, filter, filterAdvanced }, { findContent }] = useContent();
   const navigate = useNavigate();
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
-    async (filter: any) => {
+    async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
       try {
         setLoading(true);
         const data = await findContent(
           makeFilter({
             ...filter,
+            contentTypes:
+              filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
+            startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
           }),
         );
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
@@ -37,23 +44,18 @@ export const Home: React.FC = () => {
     [findContent],
   );
 
-  // defaults to print content
+  /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({ ...filter, contentTypes: [ContentTypeName.PrintContent] });
-  }, [fetch, filter]);
+    fetch({ ...filter, ...filterAdvanced });
+  }, [filter, filterAdvanced, fetch]);
 
   return (
     <styled.Home>
       <Row>
         <div className="show-media-label">SHOW MEDIA TYPE:</div>
-        <HomeFilters fetch={fetch} />
+        <HomeFilters />
       </Row>
-      <Row justifyContent="center" className="date-navigator">
-        <FaAngleLeft />
-        2023-03-04
-        <FaAngleRight />
-        <FaCalendarAlt className="calendar" />
-      </Row>
+      <DateFilter />
       <Row className="table-container">
         <GroupedTable
           onRowClick={(e, row) => {

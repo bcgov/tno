@@ -7,7 +7,7 @@ export interface IContentListFilter {
   pageSize: number;
   hasTopic: boolean;
   includeHidden: boolean;
-  contentType?: ContentTypeName;
+  contentTypes: ContentTypeName[];
   sourceId: number;
   otherSource: string;
   productIds: number[];
