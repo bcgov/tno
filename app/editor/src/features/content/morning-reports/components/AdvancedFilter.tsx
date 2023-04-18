@@ -41,7 +41,10 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
   const [{ filterMorningReports, filterAdvanced }, { storeFilterAdvanced }] = useContent();
   const [{ products }] = useLookupOptions();
 
-  const search = fromQueryString(window.location.search);
+  const search = fromQueryString(window.location.search, {
+    arrays: ['contentTypes', 'sourceIds', 'productIds', 'sort'],
+    numbers: ['sourceIds', 'productIds'],
+  });
 
   const frontPageProduct = React.useMemo(
     () => products.find((p) => p.name === 'Front Page'),

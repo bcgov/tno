@@ -1,8 +1,8 @@
 export interface IQueryOptions {
   /** An array of query parameters that should be converted to arrays. */
-  arrays: string[];
+  arrays?: string[];
   /** An array of query parameters that should be converted to numbers. */
-  numbers: string[];
+  numbers?: string[];
 }
 
 /**
@@ -19,15 +19,16 @@ export const fromQueryString = (query?: string, options?: IQueryOptions): any =>
         var decodedValue: string | number = value
           ? decodeURIComponent(value.replace(/\+/g, ' '))
           : '';
-        if (options?.numbers.includes(key)) {
+        if (options?.numbers?.includes(key)) {
           decodedValue = Number(decodedValue);
         }
 
         // If the output object already contains the key then determine if it's an array.
         var currentValue = (params as any)[key];
-        var isArray = options?.arrays.includes(key) ?? false;
+        var isArray = options?.arrays?.includes(key) ?? false;
 
         if (currentValue === undefined && !isArray) (params as any)[key] = decodedValue;
+        else if (currentValue === undefined && isArray) (params as any)[key] = [decodedValue];
         else if ((decodedValue !== '' && Array.isArray(currentValue)) || isArray) {
           (params as any)[key] = [...currentValue, decodedValue];
         } else if (decodedValue !== '') {
