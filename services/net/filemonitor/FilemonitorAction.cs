@@ -144,19 +144,29 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         filePattern = filePattern.Replace("<date>", $"{date:yyyyMMdd}");
         var match = new Regex(filePattern);
         using var client = new SftpClient(connectionInfo);
-        client.Connect();
-
-        remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
-        var files = await FetchFileListingAsync(client, remotePath);
-        files = files.Where(f => match.Match(f.Name).Success);
-        this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
-
-        foreach (var file in files)
+        try
         {
-            await CopyFileAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
-        }
+            client.Connect();
 
-        client.Disconnect();
+            remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
+            var files = await FetchFileListingAsync(client, remotePath);
+            files = files.Where(f => match.Match(f.Name).Success);
+            this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), filePattern);
+
+            foreach (var file in files)
+            {
+                await CopyFileAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Failed at {class}.FetchFiles", nameof(FileMonitorAction));
+            throw;
+        }
+        finally
+        {
+            if (client.IsConnected) client.Disconnect();
+        }
     }
 
     /// <summary>
@@ -167,9 +177,17 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private async Task<IEnumerable<SftpFile>> FetchFileListingAsync(SftpClient client, string path)
     {
-        this.Logger.LogDebug("Requesting files at this path '{path}'", path);
-        // TODO: Fetch file from source data location.  Only continue if the image exists.
-        return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
+        try
+        {
+            this.Logger.LogDebug("Requesting files at this path '{path}'", path);
+            // TODO: Fetch file from source data location.  Only continue if the image exists.
+            return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "Failed at FetchFileListingAsync for the path '{path}'", path);
+            return Array.Empty<SftpFile>();
+        }
     }
 
     /// <summary>
@@ -412,7 +430,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task GetXmlArticlesAsync(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
-        var fileList = Directory.GetFiles(dir);
+        var fileList = GetFileList(dir);
 
         foreach (var path in fileList)
         {
@@ -463,6 +481,14 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
         }
     }
 
+    private IEnumerable<string> GetFileList(string dir)
+    {
+        var directoryExists = Directory.Exists(dir);
+        var result = directoryExists ? Directory.GetFiles(dir) : Array.Empty<string>();
+        if (!directoryExists) Logger.LogWarning("Directory '{dir}' does not exist.", dir);
+        return result;
+    }
+
     /// <summary>
     /// Get a separate FMS document for each file in dir and return a list of SourceContent records, one for each story in the
     /// list of files. Each document will include one or more stories. Story/field extraction is accomplished using Regex.
@@ -477,7 +503,7 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     private async Task GetFmsArticlesAsync(string dir, IIngestServiceActionManager manager, Dictionary<string, string> sources)
     {
         var ingest = manager.Ingest;
-        var fileList = Directory.GetFiles(dir);
+        var fileList = GetFileList(dir);
 
         // Iterate over the files in the list and process the stories they contain.
         foreach (var path in fileList)
