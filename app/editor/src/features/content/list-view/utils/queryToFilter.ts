@@ -12,7 +12,10 @@ export const queryToFilter = (
   filter: IContentListFilter,
   queryString: string,
 ): IContentListFilter => {
-  const search = fromQueryString(queryString);
+  const search = fromQueryString(queryString, {
+    arrays: ['contentTypes', 'sourceIds', 'productIds', 'sort'],
+    numbers: ['sourceIds', 'productIds'],
+  });
 
   if (!!Object.keys(search).length) {
     return {
