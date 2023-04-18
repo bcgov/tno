@@ -2,7 +2,6 @@ import styled from 'styled-components';
 
 export const ContentForm = styled.div`
   height: 100%;
-  z-index: 1;
 
   .form-page {
     max-width: none;
