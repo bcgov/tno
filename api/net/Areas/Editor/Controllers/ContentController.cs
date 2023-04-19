@@ -238,6 +238,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Morning-Report" })]
     public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
     {
+        var update = new List<Content>();
         var items = _contentService.FindWithDatabase(new ContentFilter()
         {
             Quantity = model.ContentIds.Count(),
@@ -245,8 +246,6 @@ public class ContentController : ControllerBase
             IncludeHidden = true
         }, false).Items;
 
-        var update = new List<Content>();
-        var action = !String.IsNullOrWhiteSpace(model.ActionName) ? _actionService.FindByName(model.ActionName) : null;
         foreach (var content in items)
         {
             if (model.Action == ContentListAction.Publish)
@@ -254,8 +253,7 @@ public class ContentController : ControllerBase
                 if (content.Status != ContentStatus.Published)
                 {
                     content.Status = ContentStatus.Publish;
-                    _contentService.Update(content);
-                    update.Add(content);
+                    update.Add(_contentService.Update(content));
                 }
             }
             else if (model.Action == ContentListAction.Unpublish)
@@ -263,8 +261,7 @@ public class ContentController : ControllerBase
                 if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
                 {
                     content.Status = ContentStatus.Unpublish;
-                    _contentService.Update(content);
-                    update.Add(content);
+                    update.Add(_contentService.Update(content));
                 }
             }
             else if (model.Action == ContentListAction.Hide)
@@ -272,8 +269,7 @@ public class ContentController : ControllerBase
                 if (!content.IsHidden)
                 {
                     content.IsHidden = true;
-                    _contentService.Update(content);
-                    update.Add(content);
+                    update.Add(_contentService.Update(content));
                 }
             }
             else if (model.Action == ContentListAction.Unhide)
@@ -281,26 +277,25 @@ public class ContentController : ControllerBase
                 if (content.IsHidden)
                 {
                     content.IsHidden = false;
-                    _contentService.Update(content);
-                    update.Add(content);
+                    update.Add(_contentService.Update(content));
                 }
             }
             else if (model.Action == ContentListAction.Action)
             {
-                if (action == null) throw new InvalidOperationException($"Action specified '{model.ActionName}' does not exist.");
                 _contentService.FindById(content.Id);
                 var currentAction = content.ActionsManyToMany.FirstOrDefault(a => a.Action!.Name == model.ActionName);
                 if (currentAction == null)
                 {
+                    var action = (!string.IsNullOrWhiteSpace(model.ActionName) ?
+                        _actionService.FindByName(model.ActionName) :
+                        null) ?? throw new InvalidOperationException($"Action specified '{model.ActionName}' does not exist.");
                     content.ActionsManyToMany.Add(new ContentAction(content, action, model.ActionValue ?? ""));
-                    _contentService.Update(content);
-                    update.Add(content);
+                    update.Add(_contentService.Update(content));
                 }
                 else if (currentAction.Value != model.ActionValue)
                 {
                     currentAction.Value = model.ActionValue ?? "";
-                    _contentService.Update(content);
-                    update.Add(content);
+                    update.Add(_contentService.Update(content));
                 }
             }
         }
