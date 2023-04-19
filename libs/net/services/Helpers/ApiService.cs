@@ -527,16 +527,6 @@ public class ApiService : IApiService
 
     #region Reports
     /// <summary>
-    /// Make a request to the API to fetch all the notifications.
-    /// </summary>
-    /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Report.ReportModel>> GetAllReportsAsync()
-    {
-        var url = this.Options.ApiUrl.Append($"services/reports");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Report.ReportModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Report.ReportModel>();
-    }
-
-    /// <summary>
     /// Make a request to the API to fetch the report with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -548,7 +538,40 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Make a request to the API and add a new notification instance.
+    /// Make a request to the API to fetch the content for the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/reports/{id}/content");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Content.ContentModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Content.ContentModel>();
+    }
+
+    /// <summary>
+    /// Make a request to the API to fetch the report instance with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> GetReportInstanceAsync(long id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{id}");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?>(url));
+    }
+
+    /// <summary>
+    /// Make a request to the API to fetch the content for the specified report instance 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> GetContentForReportInstanceIdAsync(long id)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{id}/content");
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Content.ContentModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Content.ContentModel>();
+    }
+
+    /// <summary>
+    /// Make a request to the API and add a new report instance.
     /// </summary>
     /// <param name="instance"></param>
     /// <returns></returns>
@@ -557,9 +580,20 @@ public class ApiService : IApiService
         var url = this.Options.ApiUrl.Append($"services/report/instances");
         return await RetryRequestAsync(async () => await this.Client.PostAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
     }
+
+    /// <summary>
+    /// Make a request to the API and update a report instance.
+    /// </summary>
+    /// <param name="instance"></param>
+    /// <returns></returns>
+    public async Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance)
+    {
+        var url = this.Options.ApiUrl.Append($"services/report/instances/{instance.Id}");
+        return await RetryRequestAsync(async () => await this.Client.PutAsync<API.Areas.Services.Models.ReportInstance.ReportInstanceModel>(url, JsonContent.Create(instance)));
+    }
     #endregion
 
-    #region Reports
+    #region Users
     /// <summary>
     /// Make a request to the API to fetch the user with the specified 'id'.
     /// </summary>

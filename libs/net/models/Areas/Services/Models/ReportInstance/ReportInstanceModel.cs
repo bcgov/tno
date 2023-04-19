@@ -20,6 +20,11 @@ public class ReportInstanceModel : AuditColumnsModel
     public int ReportId { get; set; }
 
     /// <summary>
+    /// get/set - The report.
+    /// </summary>
+    public Report.ReportModel? Report { get; set; }
+
+    /// <summary>
     /// get/set - The date and time the report was published on.
     /// </summary>
     public DateTime? PublishedOn { get; set; }
@@ -50,6 +55,7 @@ public class ReportInstanceModel : AuditColumnsModel
     {
         this.Id = entity.Id;
         this.ReportId = entity.ReportId;
+        this.Report = entity.Report != null ? new Report.ReportModel(entity.Report, options) : null;
         this.PublishedOn = entity.PublishedOn;
         this.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Response, options) ?? new Dictionary<string, object>();
 

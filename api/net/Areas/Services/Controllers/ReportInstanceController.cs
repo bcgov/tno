@@ -46,7 +46,7 @@ public class ReportInstanceController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find content for the specified 'id'.
+    /// Find report instance for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -64,7 +64,7 @@ public class ReportInstanceController : ControllerBase
     }
 
     /// <summary>
-    /// Add content for the specified 'id'.
+    /// Add report instance for the specified 'id'.
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
@@ -77,6 +77,39 @@ public class ReportInstanceController : ControllerBase
     {
         var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Update report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public IActionResult Update(ReportInstanceModel model)
+    {
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Make a request to Elasticsearch for content that matches the specified report 'id' filter.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpGet("{id}/content")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(IEnumerable<Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult GetContentForReportInstanceIdAsync(int id)
+    {
+        var instance = _service.FindById(id);
+        if (instance == null) return new BadRequestResult();
+        return new JsonResult(instance.Content.Select(c => new Models.Content.ContentModel(c)));
     }
     #endregion
 }

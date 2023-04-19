@@ -4,20 +4,20 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Services.Models.Report;
+using TNO.API.Areas.Editor.Models.Report;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
 using TNO.Keycloak;
 
-namespace TNO.API.Areas.Services.Controllers;
+namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// ReportController class, provides Report endpoints for the api.
 /// </summary>
-[ClientRoleAuthorize(ClientRole.Administrator)]
+[ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
-[Area("services")]
+[Area("admin")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[area]/reports")]
 [Route("api/[area]/reports")]
@@ -56,6 +56,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindAll()
     {
+        // TODO: Only return reports that the user has access to.
         return new JsonResult(_service.FindAll().Select(ds => new ReportModel(ds, _serializerOptions)));
     }
 
@@ -71,6 +72,7 @@ public class ReportController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Report" })]
     public IActionResult FindById(int id)
     {
+        // TODO: Only return reports that the user has access to.
         var result = _service.FindById(id);
 
         if (result == null) return new NoContentResult();
@@ -78,23 +80,54 @@ public class ReportController : ControllerBase
     }
 
     /// <summary>
-    /// Make a request to Elasticsearch for content that matches the specified report 'id' filter.
+    /// Add content for the specified 'id'.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    [HttpGet("{id}/content")]
+    [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.Created)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public async Task<IActionResult> FindContentForReportIdAsync(int id)
+    public IActionResult Add(ReportModel model)
     {
-        var report = _service.FindById(id);
-        if (report == null) return new BadRequestResult();
+        // TODO: Ensure report is assigned to user.
+        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(result, _serializerOptions));
+    }
 
-        // TODO: Make request to Elasticsearch for the content that matches the filter.
-        var content = await _service.FindContentWithElasticsearchAsync(report);
-        return new JsonResult(content.Select(c => new Models.Content.ContentModel(c)));
+    /// <summary>
+    /// Update content for the specified 'id'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpPut("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult Update(ReportModel model)
+    {
+        // TODO: Only allow reports that the user owns.
+        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        return new JsonResult(new ReportModel(result, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Delete content for the specified 'id'.
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    [HttpDelete("{id}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public IActionResult Delete(ReportModel model)
+    {
+        // TODO: Only allow reports that the user owns.
+        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
+        return new JsonResult(model);
     }
     #endregion
 }

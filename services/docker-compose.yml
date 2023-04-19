@@ -303,3 +303,29 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  reporting:
+    image: tno:reporting
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-reporting
+    build:
+      context: ./
+      dockerfile: services/net/reporting/Dockerfile
+    env_file:
+      - services/net/reporting/.env
+    ports:
+      - ${REPORTING_PORT:-40031}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
