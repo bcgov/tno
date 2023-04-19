@@ -41,18 +41,6 @@ export const useSubscriberApiContents = (
         `/subscriber/contents/${id}`,
       );
     },
-    updateContent: (content: IContentModel) => {
-      return api.put<IContentModel, AxiosResponse<IContentModel>, any>(
-        `/subscriber/contents/${content.id}`,
-        content,
-      );
-    },
-    updateContentList: (action: IContentListModel) => {
-      return api.put<IContentListModel, AxiosResponse<IContentModel[]>, any>(
-        `/subscriber/contents`,
-        action,
-      );
-    },
     download: async (id: number, fileName: string) => {
       const response = await api.get<any, AxiosResponse<any>, any>(
         `/subscriber/contents/${id}/download`,
