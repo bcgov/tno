@@ -25,14 +25,6 @@ export const Landing = styled(Col)`
       font-size: 1.25em;
       color: white;
     }
-    .commentary {
-      width: 99%;
-      margin-bottom: 5%;
-      .content {
-        background-color: #f9f9f9;
-        min-height: 20em;
-      }
-    }
 
     .front-pages {
       width: 99%;

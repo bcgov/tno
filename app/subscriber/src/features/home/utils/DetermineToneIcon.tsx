@@ -19,7 +19,7 @@ export const DetermineToneIcon: React.FC<IDetermineToneIconProps> = ({ tone }) =
       <Show visible={tone < 0}>
         <FaRegFrown color="#DC3545" />
       </Show>
-      <Show visible={tone === 0}>
+      <Show visible={tone === 0 || !tone}>
         <FaRegMeh color="#FFC107" />
       </Show>
       <Show visible={tone > 0}>

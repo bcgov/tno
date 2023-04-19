@@ -11,6 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
+import { Commentary } from 'features/commentary';
 
 /**
  * Main landing page for the subscriber app.
@@ -56,10 +57,7 @@ export const Landing: React.FC = () => {
         </Col>
         {/* unsure of whether these items will change depedning on selected item */}
         <Col className="right-panel">
-          <div className="commentary">
-            <div className="title">Commentary</div>
-            <div className="content"></div>
-          </div>
+          <Commentary />
           <div className="front-pages">
             <div className="title">Front Pages</div>
             <div className="content"></div>
