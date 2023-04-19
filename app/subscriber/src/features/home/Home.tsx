@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, Page, Row } from 'tno-core';
+import { ContentTypeName, IContentModel, Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
@@ -18,7 +18,8 @@ import { makeFilter } from './utils';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ content, filter, filterAdvanced }, { findContent }] = useContent();
+  const [{ filter, filterAdvanced }, { findContent }] = useContent();
+  const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
@@ -33,6 +34,7 @@ export const Home: React.FC = () => {
             startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
           }),
         );
+        setHomeItems(data.items);
         return new Page(data.page - 1, data.quantity, data?.items, data.total);
       } catch (error) {
         // TODO: Handle error
@@ -61,7 +63,7 @@ export const Home: React.FC = () => {
           onRowClick={(e, row) => {
             navigate(`/view/${row.original.id}`);
           }}
-          data={content?.items || []}
+          data={homeItems || []}
           // TODO: return full source object from API so we can use name or code
           // groupBy={!!width && width > 500 ? 'source.name' : 'source.code'}
           groupBy="otherSource"

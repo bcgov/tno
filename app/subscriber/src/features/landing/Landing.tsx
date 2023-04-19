@@ -3,6 +3,7 @@ import {
   sidebarMenuItemsArray,
 } from 'components/layout/constants/SidebarMenuItems';
 import { SearchWithLogout } from 'components/search-with-logout';
+import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import { Home } from 'features/home';
 import React from 'react';
@@ -56,10 +57,7 @@ export const Landing: React.FC = () => {
         </Col>
         {/* unsure of whether these items will change depedning on selected item */}
         <Col className="right-panel">
-          <div className="commentary">
-            <div className="title">Commentary</div>
-            <div className="content"></div>
-          </div>
+          <Commentary />
           <div className="front-pages">
             <div className="title">Front Pages</div>
             <div className="content"></div>
