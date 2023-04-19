@@ -12,7 +12,6 @@ import { useAjaxWrapper } from '..';
 interface IContentController {
   findContent: (filter: IContentFilter) => Promise<IPaged<IContentModel>>;
   getContent: (id: number) => Promise<IContentModel | undefined>;
-  updateContent: (content: IContentModel) => Promise<IContentModel>;
   download: (id: number, fileName: string) => Promise<unknown>;
   storeFilter: (filter: IContentListFilter) => void;
   storeFilterAdvanced: (filter: IContentListAdvancedFilter) => void;
@@ -33,15 +32,6 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       getContent: async (id: number) => {
         const response = await dispatch('get-content', () => api.getContent(id), 'content');
         return response.status === 204 ? undefined : response.data;
-      },
-      updateContent: async (content: IContentModel) => {
-        const response = await dispatch(
-          'update-content',
-          () => api.updateContent(content),
-          'content',
-        );
-        actions.updateContent([response.data]);
-        return response.data;
       },
       download: async (id: number, fileName: string) => {
         return (await dispatch('download-content', () => api.download(id, fileName), 'content'))
