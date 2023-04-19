@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.Entities;
 
@@ -16,5 +17,17 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
     #endregion
 
     #region Methods
+    /// <summary>
+    /// Find the report instance for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public override ReportInstance? FindById(long id)
+    {
+        return this.Context.ReportInstances
+            .Include(ri => ri.Report).ThenInclude(r => r!.SubscribersManyToMany).ThenInclude(sm2m => sm2m.User)
+            .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
+            .FirstOrDefault(ri => ri.Id == id);
+    }
     #endregion
 }

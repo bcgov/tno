@@ -30,4 +30,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Run container by default as user with id 1001 (default)
 USER 1001
 
-ENTRYPOINT dotnet TNO.Services.Notification.dll
+ENTRYPOINT dotnet TNO.Services.Reporting.dll

@@ -1,0 +1,43 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: reporting-service
+  namespace: default
+  annotations:
+    description: Reporting service configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: reporting-service
+    part-of: tno
+    version: 1.0.0
+    component: reporting-service
+    managed-by: kustomize
+type: Opaque
+data:
+  KAFKA_CLIENT_ID: Reporting
+  MAX_FAIL_LIMIT: "5"
+  TOPICS: reporting
+  CHES_FROM: Media Monitoring Insights and Analysis <mmia@gov.bc.ca>
+  CHES_EMAIL_ENABLED: "true"
+  CHES_EMAIL_AUTHORIZED: "true"
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: ches
+  namespace: default
+  annotations:
+    description: CHES configuration settings
+    created-by: jeremy.foster
+  labels:
+    name: ches
+    part-of: tno
+    version: 1.0.0
+    component: ches
+    managed-by: kustomize
+type: Opaque
+data:
+  CHES_AUTH_URL: https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  CHES_HOST_URI: https://ches.api.gov.bc.ca/api/v1

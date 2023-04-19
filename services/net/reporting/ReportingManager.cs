@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Services.Managers;
-using TNO.Services.Notification.Config;
+using TNO.Services.Reporting.Config;
 using TNO.Kafka.Models;
 using Confluent.Kafka;
 using TNO.Kafka;
@@ -15,12 +15,12 @@ using System.Text.Json;
 using System.Security.Claims;
 using TNO.Entities.Validation;
 
-namespace TNO.Services.Notification;
+namespace TNO.Services.Reporting;
 
 /// <summary>
-/// NotificationManager class, provides a Kafka Consumer service which imports audio from all active topics.
+/// ReportingManager class, provides a Kafka Consumer service which imports audio from all active topics.
 /// </summary>
-public class NotificationManager : ServiceManager<NotificationOptions>
+public class ReportingManager : ServiceManager<ReportingOptions>
 {
     #region Variables
     private CancellationTokenSource? _cancelToken;
@@ -35,7 +35,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <summary>
     /// get - Kafka Consumer.
     /// </summary>
-    protected IKafkaListener<string, NotificationRequestModel> Listener { get; }
+    protected IKafkaListener<string, ReportRequestModel> Listener { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -46,16 +46,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// get - CHES options.
     /// </summary>
     protected ChesOptions ChesOptions { get; }
-
-    /// <summary>
-    /// get - Notification validator.
-    /// </summary>
-    protected NotificationValidator NotificationValidator { get; }
     #endregion
 
     #region Constructors
     /// <summary>
-    /// Creates a new instance of a NotificationManager object, initializes with specified parameters.
+    /// Creates a new instance of a ReportingManager object, initializes with specified parameters.
     /// </summary>
     /// <param name="listener"></param>
     /// <param name="api"></param>
@@ -63,26 +58,23 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
-    /// <param name="notificationOptions"></param>
-    /// <param name="notificationValidator"></param>
+    /// <param name="reportOptions"></param>
     /// <param name="logger"></param>
-    public NotificationManager(
-        IKafkaListener<string, NotificationRequestModel> listener,
+    public ReportingManager(
+        IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
-        IOptions<NotificationOptions> notificationOptions,
-        INotificationValidator notificationValidator,
-        ILogger<NotificationManager> logger)
-        : base(api, notificationOptions, logger)
+        IOptions<ReportingOptions> reportOptions,
+        ILogger<ReportingManager> logger)
+        : base(api, reportOptions, logger)
     {
         _user = user;
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
-        this.NotificationValidator = notificationValidator as NotificationValidator ?? throw new ArgumentException("NotificationValidator must be of the correct type");
         this.Listener = listener;
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
@@ -213,11 +205,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
     /// <summary>
     /// Retrieve a file from storage and send to Microsoft Cognitive Services. Obtain
-    /// the notification and update the content record accordingly.
+    /// the report and update the content record accordingly.
     /// </summary>
     /// <param name="result"></param>
     /// <returns></returns>
-    private async Task HandleMessageAsync(ConsumeResult<string, NotificationRequestModel> result)
+    private async Task HandleMessageAsync(ConsumeResult<string, ReportRequestModel> result)
     {
         try
         {
@@ -229,7 +221,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             }
             else
             {
-                await ProcessNotificationAsync(result);
+                await ProcessReportAsync(result);
 
                 // Inform Kafka this message is completed.
                 this.Listener.Commit(result);
@@ -255,50 +247,34 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     }
 
     /// <summary>
-    /// Process the notification request.
+    /// Process the report request.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    private async Task ProcessNotificationAsync(ConsumeResult<string, NotificationRequestModel> result)
+    private async Task ProcessReportAsync(ConsumeResult<string, ReportRequestModel> result)
     {
         var request = result.Message.Value;
-        if (request.Destination.HasFlag(NotificationDestination.NotificationService) && request.ContentId.HasValue)
+        if (request.Destination.HasFlag(ReportDestination.ReportingService))
         {
-            var content = await this.Api.FindContentByIdAsync(request.ContentId.Value);
-            if (content != null)
+            if (request.ReportInstanceId.HasValue)
             {
-                // If the request specified a notification then use it, otherwise test all notifications.
-                if (request.NotificationId.HasValue)
+                var instance = await this.Api.GetReportInstanceAsync(request.ReportInstanceId.Value);
+                if (instance != null)
                 {
-                    var notification = await this.Api.GetNotificationAsync(request.NotificationId.Value);
-                    if (notification != null)
-                    {
-                        await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        if (this.NotificationValidator.ConfirmSend())
-                            await SendNotificationAsync(request, notification, content);
-                        else
-                            this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
-                    }
-                    else
-                        this.Logger.LogDebug("Notification does not exist.  Notification: {notification}", request.NotificationId);
+                    await GenerateReportAsync(request, instance);
                 }
                 else
-                {
-                    var notifications = await this.Api.GetAllNotificationsAsync();
-                    foreach (var notification in notifications)
-                    {
-                        await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        if (this.NotificationValidator.ConfirmSend())
-                            await SendNotificationAsync(request, notification, content);
-                        else
-                            this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
-                    }
-                }
+                    this.Logger.LogDebug("Report instance does not exist.  Report Instance: {instance}", request.ReportInstanceId);
             }
             else
             {
-                // Identify requests for notification for content that does not exist.
-                this.Logger.LogWarning("Content does not exist for this message. Key: {Key}, Content ID: {ContentId}", result.Message.Key, request.ContentId);
+                var report = await this.Api.GetReportAsync(request.ReportId);
+                if (report != null)
+                {
+                    await GenerateReportAsync(request, report);
+                }
+                else
+                    this.Logger.LogDebug("Report does not exist.  Report: {report}", request.ReportId);
             }
         }
     }
@@ -308,89 +284,159 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// This will send out a separate email to each context provided.
     /// </summary>
     /// <param name="request"></param>
-    /// <param name="notification"></param>
-    /// <param name="content"></param>
+    /// <param name="report"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task SendNotificationAsync(NotificationRequestModel request, API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
-        await HandleChesEmailOverrideAsync(request);
+        // TODO: Control when a report is sent through configuration.
+        var content = await this.Api.FindContentForReportIdAsync(report.Id);
 
-        var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        // TODO: Control when a notification is sent through configuration.
+        var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
+        var subject = await GenerateReportSubjectAsync(report, content);
+        var body = await GenerateReportBodyAsync(report, content);
+
+        var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
+
+        // Save the report instance.
+        var instance = new ReportInstance(report.Id, content.Select(c => c.Id))
+        {
+            Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
+        };
+        await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
+    }
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
+    {
+        var template = report.Settings.GetDictionaryJsonValue<string>("subject");
+        return Task.FromResult($"{template}");
+    }
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
+    {
+        return Task.FromResult($"{report.Template}");
+    }
+
+    /// <summary>
+    /// Send an email merge to CHES.
+    /// This will send out a separate email to each context provided.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="reportInstance"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.ReportInstance.ReportInstanceModel reportInstance)
+    {
+        // TODO: Control when a report is sent through configuration.
+        var report = reportInstance.Report ?? throw new ArgumentException("Report instance must include the report model.");
+        var content = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
+
+        var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
+        var subject = await GenerateReportSubjectAsync(reportInstance, content);
+        var body = await GenerateReportBodyAsync(reportInstance, content);
+
+        var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
+
+        // Update the report instance.
+        var json = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+        reportInstance.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _serializationOptions) ?? new Dictionary<string, object>();
+        await this.Api.UpdateReportInstanceAsync(reportInstance);
+    }
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
+    {
+        var template = instance.Report?.Settings.GetDictionaryJsonValue<string>("subject");
+        return Task.FromResult($"{template}");
+    }
+
+    /// <summary>
+    /// Generate the output of the report with the Razor engine.
+    /// </summary>
+    /// <param name="report"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
+    {
+        return Task.FromResult($"{instance.Report?.Template}");
+    }
+
+    /// <summary>
+    /// Send an email to CHES.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="to"></param>
+    /// <param name="subject"></param>
+    /// <param name="body"></param>
+    /// <param name="tag"></param>
+    /// <returns></returns>
+    private async Task<EmailResponseModel?> SendEmailAsync(ReportRequestModel request, IEnumerable<string> to, string subject, string body, string tag)
+    {
+        await HandleChesEmailOverrideAsync(request.RequestorId);
+
         var contexts = to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
         {
-            Tag = $"{notification.Name}-{content.Id}",
+            Tag = tag,
         }).ToList();
 
         if (!String.IsNullOrWhiteSpace(request.To))
         {
             // Add a context for the requested list of users in addition to the subscribers.
-            var requestTo = request.To.Split(",").Select(v => v.Trim());
-            contexts.Add(new EmailContextModel(requestTo, new Dictionary<string, object>(), DateTime.Now));
+            var another = request.To.Split(",").Select(v => v.Trim());
+            contexts.Add(new EmailContextModel(another, new Dictionary<string, object>(), DateTime.Now)
+            {
+                Tag = tag,
+            });
         }
 
-        var subject = await GenerateNotificationSubjectAsync(notification, content);
-        var body = await GenerateNotificationBodyAsync(notification, content);
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)
         {
-            // TODO: Extract values from notification settings.
+            // TODO: Extract values from report settings.
             Encoding = EmailEncodings.Utf8,
             BodyType = EmailBodyTypes.Html,
             Priority = EmailPriorities.Normal,
         };
 
         var response = await this.Ches.SendEmailAsync(merge);
-        this.Logger.LogInformation("Notification sent to CHES.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
+        this.Logger.LogInformation("Report sent to CHES.  Report: {report}", request.ReportId);
 
-        // Save the notification instance.
-        var instance = new NotificationInstance(notification.Id, content.Id)
-        {
-            Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
-        };
-        await this.Api.AddNotificationInstanceAsync(new API.Areas.Services.Models.NotificationInstance.NotificationInstanceModel(instance, _serializationOptions));
+        return response;
     }
 
     /// <summary>
     /// If CHES has been configured to send emails to the user we need to provide an appropriate user.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="requestorId"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    private async Task HandleChesEmailOverrideAsync(NotificationRequestModel request)
+    private async Task HandleChesEmailOverrideAsync(int? requestorId)
     {
         // The requestor becomes the current user.
         var email = this.ChesOptions.OverrideTo ?? "";
-        if (request.RequestorId.HasValue)
+        if (requestorId.HasValue)
         {
-            var user = await this.Api.GetUserAsync(request.RequestorId.Value);
+            var user = await this.Api.GetUserAsync(requestorId.Value);
             if (user != null) email = user.Email;
         }
         var identity = _user.Identity as ClaimsIdentity ?? throw new ConfigurationException("CHES requires an active ClaimsPrincipal");
         identity.RemoveClaim(_user.FindFirst(ClaimTypes.Email));
         identity.AddClaim(new Claim(ClaimTypes.Email, email));
-    }
-
-    /// <summary>
-    /// Generate the output of the notification with the Razor engine.
-    /// </summary>
-    /// <param name="notification"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
-    {
-        var template = notification.Settings.GetDictionaryJsonValue<string>("subject");
-        return Task.FromResult($"{template} - {content.Headline}");
-    }
-
-    /// <summary>
-    /// Generate the output of the notification with the Razor engine.
-    /// </summary>
-    /// <param name="notification"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private Task<string> GenerateNotificationBodyAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
-    {
-        return Task.FromResult($"{notification.Template} - Content ID: {content.Id} - {content.Summary}");
     }
     #endregion
 }

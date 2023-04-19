@@ -161,6 +161,7 @@ export portTranscription=40027
 export portNlp=40028
 export portFileCopy=40029
 export portNotification=40030
+export portReporting=40031
 
 export portKafkaZookeeper=40100
 export portKafkaBrokerAdvertisedHost=40101

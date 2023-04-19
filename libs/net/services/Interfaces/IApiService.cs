@@ -215,6 +215,15 @@ public interface IApiService
     Task<API.Areas.Services.Models.WorkOrder.WorkOrderModel?> UpdateWorkOrderAsync(API.Areas.Services.Models.WorkOrder.WorkOrderModel workOrder, HttpRequestHeaders? headers = null);
     #endregion
 
+    #region Users
+    /// <summary>
+    /// Make a request to the API to fetch the user with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.User.UserModel?> GetUserAsync(int id);
+    #endregion
+
     #region Notifications
     /// <summary>
     /// Make a request to the API to fetch all the notifications.
@@ -239,12 +248,6 @@ public interface IApiService
 
     #region Reports
     /// <summary>
-    /// Make a request to the API to fetch all the notifications.
-    /// </summary>
-    /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Report.ReportModel>> GetAllReportsAsync();
-
-    /// <summary>
     /// Make a request to the API to fetch the report with the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
@@ -252,19 +255,38 @@ public interface IApiService
     Task<API.Areas.Services.Models.Report.ReportModel?> GetReportAsync(int id);
 
     /// <summary>
+    /// Make a request to the API to fetch the content for the specified report 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id);
+
+    /// <summary>
+    /// Make a request to the API to fetch the report instance with the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> GetReportInstanceAsync(long id);
+
+    /// <summary>
+    /// Make a request to the API to fetch the content for the specified report instance 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> GetContentForReportInstanceIdAsync(long id);
+
+    /// <summary>
     /// Make a request to the API and add a new notification instance.
     /// </summary>
     /// <param name="instance"></param>
     /// <returns></returns>
     Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> AddReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance);
-    #endregion
 
-    #region Reports
     /// <summary>
-    /// Make a request to the API to fetch the user with the specified 'id'.
+    /// Make a request to the API and update a report instance.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="instance"></param>
     /// <returns></returns>
-    Task<API.Areas.Services.Models.User.UserModel?> GetUserAsync(int id);
+    Task<API.Areas.Services.Models.ReportInstance.ReportInstanceModel?> UpdateReportInstanceAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance);
     #endregion
 }

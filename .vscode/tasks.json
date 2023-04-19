@@ -468,6 +468,42 @@
         "${workspaceFolder}/services/net/notification/TNO.Services.Notification.csproj",
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-reporting",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-reporting",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-reporting",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/reporting/TNO.Services.Reporting.csproj",
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }
