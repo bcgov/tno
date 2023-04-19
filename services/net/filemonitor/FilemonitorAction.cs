@@ -177,17 +177,9 @@ public class FileMonitorAction : IngestAction<FileMonitorOptions>
     /// <returns></returns>
     private async Task<IEnumerable<SftpFile>> FetchFileListingAsync(SftpClient client, string path)
     {
-        try
-        {
-            this.Logger.LogDebug("Requesting files at this path '{path}'", path);
-            // TODO: Fetch file from source data location.  Only continue if the image exists.
-            return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
-        }
-        catch (Exception e)
-        {
-            Logger.LogError(e, "Failed at FetchFileListingAsync for the path '{path}'", path);
-            return Array.Empty<SftpFile>();
-        }
+        this.Logger.LogDebug("Requesting files at this path '{path}'", path);
+        // TODO: Fetch file from source data location.  Only continue if the image exists.
+        return await Task.Factory.FromAsync<IEnumerable<SftpFile>>((callback, obj) => client.BeginListDirectory(path, callback, obj), client.EndListDirectory, null);
     }
 
     /// <summary>
