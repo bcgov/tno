@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, IContentModel, Page, Row } from 'tno-core';
+import { ContentStatus, ContentTypeName, IContentModel, Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
@@ -32,6 +32,7 @@ export const Home: React.FC = () => {
             contentTypes:
               filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
             startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
+            status: ContentStatus.Published,
           }),
         );
         setHomeItems(data.items);

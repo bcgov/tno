@@ -141,6 +141,11 @@ public class ContentFilter : PageFilter
     public bool? OnlyPublished { get; set; }
 
     /// <summary>
+    /// get/set - Get/set the keyword to search for.
+    /// </summary>
+    public string? Keyword { get; set; }
+
+    /// <summary>
     /// get/set - An array of content IDs.
     /// </summary>
     public long[] ContentIds { get; set; } = Array.Empty<long>();
@@ -172,6 +177,7 @@ public class ContentFilter : PageFilter
         this.OtherSource = filter.GetStringValue(nameof(this.OtherSource));
         this.Headline = filter.GetStringValue(nameof(this.Headline));
         this.Section = filter.GetStringValue(nameof(this.Section));
+        this.Keyword = filter.GetStringValue(nameof(this.Keyword));
         this.PageName = filter.GetStringValue(nameof(this.PageName));
         this.Edition = filter.GetStringValue(nameof(this.Edition));
         this.Byline = filter.GetStringValue(nameof(this.Byline));

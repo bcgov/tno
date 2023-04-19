@@ -220,6 +220,9 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!string.IsNullOrWhiteSpace(filter.Headline))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
 
+        // if (!string.IsNullOrWhiteSpace(filter.Keyword))
+        //     filterQueries.Add(s => s.Terms(t => t.Field(p => p.)));
+
         if (!string.IsNullOrWhiteSpace(filter.PageName))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Page).Value($"*{filter.PageName.ToLower()}*")));
 
