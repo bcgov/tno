@@ -261,7 +261,8 @@ public class ImageAction : IngestAction<ImageOptions>
             $"{ingest.Name} Frontpage",
             "",
             "",
-            publishedOn.ToUniversalTime())
+            publishedOn.ToUniversalTime(),
+            ingest.GetConfigurationValue<bool>("publish"))
         {
             StreamUrl = ingest.GetConfigurationValue("url"),
             FilePath = (ingest.DestinationConnection?.GetConfigurationValue("path")?.MakeRelativePath() ?? "")

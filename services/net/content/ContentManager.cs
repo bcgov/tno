@@ -240,7 +240,7 @@ public class ContentManager : ServiceManager<ContentOptions>
 
             var content = new ContentModel()
             {
-                Status = Entities.ContentStatus.Draft, // TODO: Automatically publish based on Data Source config settings.
+                Status = model.Status,
                 SourceId = source?.Id,
                 OtherSource = model.Source,
                 ContentType = model.ContentType,
@@ -305,8 +305,12 @@ public class ContentManager : ServiceManager<ContentOptions>
             var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
             if (reference != null)
             {
-                reference.Status = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
-                await this.Api.UpdateContentReferenceAsync(reference, Headers);
+                var newStatus = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
+                if (reference.Status != newStatus)
+                {
+                    reference.Status = newStatus;
+                    await this.Api.UpdateContentReferenceAsync(reference, Headers);
+                }
             }
             else
                 this.Logger.LogWarning("Content reference is missing {source}:{uid}", content.OtherSource, content.Uid);

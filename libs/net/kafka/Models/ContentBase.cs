@@ -26,6 +26,11 @@ public abstract class ContentBase
     public ContentType ContentType { get; set; }
 
     /// <summary>
+    /// get/set - The content status.
+    /// </summary>
+    public ContentStatus Status { get; set; } = ContentStatus.Draft;
+
+    /// <summary>
     /// get/set - Foreign key to the product the content will be assigned by default.
     /// </summary>
     public int ProductId { get; set; }
