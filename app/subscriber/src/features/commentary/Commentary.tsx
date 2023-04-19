@@ -1,14 +1,15 @@
-import { ActionName, IContentModel, Row } from 'tno-core';
-import * as styled from './styled';
-import React from 'react';
-import { useContent } from 'store/hooks';
-import { DetermineContentIcon, isWeekday } from './utils';
 import { DetermineToneIcon } from 'features/home/utils';
 import moment from 'moment';
+import React from 'react';
 import { useNavigate } from 'react-router';
+import { useContent } from 'store/hooks';
+import { ActionName, IContentModel, Row } from 'tno-core';
+
+import * as styled from './styled';
+import { DetermineContentIcon, isWeekday } from './utils';
 
 export const Commentary: React.FC = () => {
-  const [{}, { findContent }] = useContent();
+  const [, { findContent }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
 
@@ -29,7 +30,7 @@ export const Commentary: React.FC = () => {
       contentTypes: [],
       publishedStartOn: moment(determineCommentaryTime()).toISOString(),
     }).then((data) => setCommentary(data.items));
-  }, []);
+  }, [findContent]);
 
   return (
     <styled.Commentary>

@@ -3,6 +3,7 @@ import {
   sidebarMenuItemsArray,
 } from 'components/layout/constants/SidebarMenuItems';
 import { SearchWithLogout } from 'components/search-with-logout';
+import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import { Home } from 'features/home';
 import React from 'react';
@@ -11,7 +12,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
-import { Commentary } from 'features/commentary';
 
 /**
  * Main landing page for the subscriber app.
