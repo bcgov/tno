@@ -1,6 +1,6 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
-import { FormikText, IIngestModel } from 'tno-core';
+import { FormikCheckbox, FormikText, IIngestModel } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -32,6 +32,7 @@ export const FrontPage: React.FC = (props) => {
         placeholder="^sv-GLB-[A-Za-z]{3}-(?<day>[0-9]{2})(?<month>[0-9]{2})(?<year>[0-9]{4})"
         value={values.configuration.publishedOnExpression}
       />
+      <FormikCheckbox label="Publish" name="configuration.publish" />
     </styled.IngestType>
   );
 };

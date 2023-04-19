@@ -32,11 +32,14 @@ public class SourceContent : ContentBase
     /// <param name="summary"></param>
     /// <param name="body"></param>
     /// <param name="publishedOn"></param>
+    /// <param name="publish"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SourceContent(string dataLocation, string source, ContentType contentType, int productId, string uid, string title, string summary, string body, DateTime publishedOn)
+    public SourceContent(string dataLocation, string source, ContentType contentType, int productId,
+        string uid, string title, string summary, string body, DateTime publishedOn, bool publish = false)
         : base(dataLocation, source, contentType, productId, uid, title, summary, publishedOn)
     {
         this.Body = body ?? throw new ArgumentNullException(nameof(body));
+        if (publish) Status = ContentStatus.Publish;
     }
     #endregion
 }
