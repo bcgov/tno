@@ -5,10 +5,12 @@ import { useContent } from 'store/hooks';
 import { DetermineContentIcon, isWeekday } from './utils';
 import { DetermineToneIcon } from 'features/home/utils';
 import moment from 'moment';
+import { useNavigate } from 'react-router';
 
 export const Commentary: React.FC = () => {
   const [{}, { findContent }] = useContent();
   const [commentary, setCommentary] = React.useState<IContentModel[]>([]);
+  const navigate = useNavigate();
 
   /** determine how far back to grab commentary */
   const determineCommentaryTime = () => {
@@ -38,7 +40,9 @@ export const Commentary: React.FC = () => {
             <Row>
               <DetermineToneIcon tone={x.tonePools?.length ? x.tonePools[0].value : 0} />
               <DetermineContentIcon contentType={x.contentType} />
-              <div className="headline">{x.headline}</div>
+              <div className="headline" onClick={() => navigate(`/view/${x.id}`)}>
+                {x.headline}
+              </div>
             </Row>
           );
         })}
