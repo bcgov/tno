@@ -21,14 +21,14 @@ export const Commentary: React.FC = () => {
     } else {
       date.setHours(date.getHours() - 5);
     }
-    return date;
+    return moment(date).toISOString();
   };
 
   React.useEffect(() => {
     findContent({
       actions: [ActionName.Commentary],
       contentTypes: [],
-      publishedStartOn: moment(determineCommentaryTime()).toISOString(),
+      publishedStartOn: determineCommentaryTime(),
     }).then((data) => setCommentary(data.items));
   }, [findContent]);
 
