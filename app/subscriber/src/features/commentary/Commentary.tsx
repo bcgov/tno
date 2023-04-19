@@ -1,4 +1,4 @@
-import { IContentModel, Row } from 'tno-core';
+import { ActionName, IContentModel, Row } from 'tno-core';
 import * as styled from './styled';
 import React from 'react';
 import { useContent } from 'store/hooks';
@@ -23,7 +23,7 @@ export const Commentary: React.FC = () => {
 
   React.useEffect(() => {
     findContent({
-      actions: [],
+      actions: [ActionName.Commentary],
       contentTypes: [],
       publishedStartOn: moment(determineCommentaryTime()).toISOString(),
     }).then((data) => setCommentary(data.items));
