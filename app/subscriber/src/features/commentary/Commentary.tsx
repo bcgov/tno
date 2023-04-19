@@ -38,7 +38,7 @@ export const Commentary: React.FC = () => {
       <div className="content">
         {commentary.map((x) => {
           return (
-            <Row>
+            <Row key={x.id}>
               <DetermineToneIcon tone={x.tonePools?.length ? x.tonePools[0].value : 0} />
               <DetermineContentIcon contentType={x.contentType} />
               <div className="headline" onClick={() => navigate(`/view/${x.id}`)}>

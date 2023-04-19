@@ -18,7 +18,7 @@ import { makeFilter } from './utils';
  * Home component that will be rendered when the user is logged in.
  */
 export const Home: React.FC = () => {
-  const [{ content, filter, filterAdvanced }, { findContent }] = useContent();
+  const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
   const [, setLoading] = React.useState(false);
