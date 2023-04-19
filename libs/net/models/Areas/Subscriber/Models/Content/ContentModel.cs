@@ -69,11 +69,6 @@ public class ContentModel : AuditColumnsModel
     public int? OwnerId { get; set; }
 
     /// <summary>
-    /// get/set - The content type.
-    /// </summary>
-    public UserModel? Owner { get; set; }
-
-    /// <summary>
     /// get/set - Foreign key to data source.
     /// </summary>
     public int? SourceId { get; set; }
@@ -178,11 +173,6 @@ public class ContentModel : AuditColumnsModel
     /// get - An array of tone pools.
     /// </summary>
     public IEnumerable<ContentTonePoolModel> TonePools { get; set; } = Array.Empty<ContentTonePoolModel>();
-
-    /// <summary>
-    /// get - An array of time trackings.
-    /// </summary>
-    public IEnumerable<TimeTrackingModel> TimeTrackings { get; set; } = Array.Empty<TimeTrackingModel>();
     #endregion
 
     #region Constructors
@@ -207,7 +197,6 @@ public class ContentModel : AuditColumnsModel
         this.SeriesId = entity.SeriesId;
         this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
         this.OwnerId = entity.OwnerId;
-        this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.SourceId = entity.SourceId;
         this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
@@ -229,7 +218,6 @@ public class ContentModel : AuditColumnsModel
         this.Tags = entity.TagsManyToMany.Select(e => new ContentTagModel(e));
         this.Labels = entity.Labels.Select(e => new ContentLabelModel(e));
         this.TonePools = entity.TonePoolsManyToMany.Select(e => new ContentTonePoolModel(e));
-        this.TimeTrackings = entity.TimeTrackings.Select(e => new TimeTrackingModel(e));
     }
     #endregion
 
@@ -268,7 +256,6 @@ public class ContentModel : AuditColumnsModel
         entity.TagsManyToMany.AddRange(model.Tags.Select(t => t.ToEntity(entity.Id)));
         entity.Labels.AddRange(model.Labels.Select(f => f.ToEntity(entity.Id)));
         entity.TonePoolsManyToMany.AddRange(model.TonePools.Select(tp => tp.ToEntity(entity.Id)));
-        entity.TimeTrackings.AddRange(model.TimeTrackings.Select(t => t.ToEntity(entity.Id)));
 
         return entity;
     }

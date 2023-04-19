@@ -17,7 +17,6 @@ using TNO.API.Config;
 using TNO.Kafka.Models;
 using System.Net.Mime;
 using TNO.API.Helpers;
-using TNO.Models.Extensions;
 using System.Web;
 using System.Text.Json;
 using TNO.API.SignalR;
@@ -145,37 +144,6 @@ public class ContentController : ControllerBase
     }
 
     /// <summary>
-    /// Add the new content to the database.
-    /// Publish message to kafka to index content in elasticsearch.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    [HttpPost]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.Created)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> AddAsync(ContentModel model)
-    {
-        var content = _contentService.AddAndSave((Content)model);
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
-            if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
-            else
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Index));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
-
-        return CreatedAtAction(nameof(FindById), new { id = content.Id }, new ContentModel(content));
-    }
-
-    /// <summary>
     /// Update content for the specified 'id'.
     /// Publish message to kafka to index content in elasticsearch.
     /// </summary>
@@ -207,141 +175,6 @@ public class ContentController : ControllerBase
             _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new JsonResult(new ContentModel(content));
-    }
-
-    /// <summary>
-    /// Perform the specified 'action' to the specified array of content.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    [HttpPut]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentModel[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Morning-Report" })]
-    public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
-    {
-        var items = _contentService.FindWithDatabase(new ContentFilter()
-        {
-            Quantity = model.ContentIds.Count(),
-            ContentIds = model.ContentIds.ToArray(),
-            IncludeHidden = true
-        }, false).Items;
-
-        var update = new List<Content>();
-        var action = !String.IsNullOrWhiteSpace(model.ActionName) ? _actionService.FindByName(model.ActionName) : null;
-        foreach (var content in items)
-        {
-            if (model.Action == ContentListAction.Publish)
-            {
-                if (content.Status != ContentStatus.Published)
-                {
-                    content.Status = ContentStatus.Publish;
-                    _contentService.Update(content);
-                    update.Add(content);
-                }
-            }
-            else if (model.Action == ContentListAction.Unpublish)
-            {
-                if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                {
-                    content.Status = ContentStatus.Unpublish;
-                    _contentService.Update(content);
-                    update.Add(content);
-                }
-            }
-            else if (model.Action == ContentListAction.Hide)
-            {
-                if (!content.IsHidden)
-                {
-                    content.IsHidden = true;
-                    _contentService.Update(content);
-                    update.Add(content);
-                }
-            }
-            else if (model.Action == ContentListAction.Unhide)
-            {
-                if (content.IsHidden)
-                {
-                    content.IsHidden = false;
-                    _contentService.Update(content);
-                    update.Add(content);
-                }
-            }
-            else if (model.Action == ContentListAction.Action)
-            {
-                if (action == null) throw new InvalidOperationException($"Action specified '{model.ActionName}' does not exist.");
-                _contentService.FindById(content.Id);
-                var currentAction = content.ActionsManyToMany.FirstOrDefault(a => a.Action!.Name == model.ActionName);
-                if (currentAction == null)
-                {
-                    content.ActionsManyToMany.Add(new ContentAction(content, action, model.ActionValue ?? ""));
-                    _contentService.Update(content);
-                    update.Add(content);
-                }
-                else if (currentAction.Value != model.ActionValue)
-                {
-                    currentAction.Value = model.ActionValue ?? "";
-                    _contentService.Update(content);
-                    update.Add(content);
-                }
-            }
-        }
-
-        // Save all changes in a single transaction.
-        _contentService.CommitTransaction();
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
-            foreach (var content in update)
-            {
-                // If a request is submitted to unpublish we do it regardless of the current state of the content.
-                if (content.Status == ContentStatus.Unpublish)
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
-
-                // Any request to publish, or if content is already published, we will republish.
-                if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
-                    await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
-
-                // Always index the content.
-                await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Index));
-            }
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
-
-        return new JsonResult(update.Select(c => new ContentModel(c)).ToArray());
-    }
-
-    /// <summary>
-    /// Delete content for the specified 'id'.
-    /// Publish message to kafka to remove content from elasticsearch.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    [HttpDelete("{id}")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "Content" })]
-    public async Task<IActionResult> DeleteAsync(ContentModel model)
-    {
-        _contentService.DeleteAndSave((Content)model);
-
-        if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
-        {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
-            await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(model.Id, user.Id, IndexAction.Delete));
-        }
-        else
-            _logger.LogWarning("Kafka indexing topic not configured.");
-
-        return new JsonResult(model);
     }
 
     /// <summary>
