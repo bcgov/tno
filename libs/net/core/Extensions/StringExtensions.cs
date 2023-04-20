@@ -295,7 +295,7 @@ public static class StringExtensions
     public static string SanitizeContent(string articleContent, string tagName, string replaceString = "")
     {
         Regex rgx = new Regex(tagName);
-        var res = rgx.Replace(articleContent, replaceString).Trim();
+        var res = rgx.Replace(articleContent.Replace(@"<p><br><\/p>", string.Empty), replaceString).Trim();
         // remove extra news lines
         res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine + "]*", string.Empty, RegexOptions.Multiline);
         return SanitizeContent(res, new Regex(@"[.?]'?”?[A-Z]"));
