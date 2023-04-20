@@ -3,10 +3,15 @@ import parse from 'html-react-parser';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, IContentModel, Row, Show } from 'tno-core';
+import { ContentTypeName, IContentModel, Row, Show, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 import { ViewContentToolbar } from './ViewContentToolbar';
+
+export interface IStream {
+  url: string;
+  type: string;
+}
 
 /**
  * Component to display content when navigating to it from the landing page list view, responsive and adaptive to screen size
@@ -15,7 +20,26 @@ import { ViewContentToolbar } from './ViewContentToolbar';
 export const ViewContent: React.FC = () => {
   const { id } = useParams();
   const [content, setContent] = React.useState<IContentModel>();
-  const [, { getContent }] = useContent();
+  const [, { getContent, stream }] = useContent();
+  const [avStream, setAVStream] = React.useState<IStream>();
+  const { width } = useWindowSize();
+  const path = content?.fileReferences ? content?.fileReferences[0]?.path : '';
+
+  React.useEffect(() => {
+    if (!!path)
+      stream(path).then((result) => {
+        const mimeType = 'video/mp4';
+        setAVStream(
+          !!result
+            ? {
+                url: `data:${mimeType};base64,` + result,
+                type: mimeType,
+              }
+            : undefined,
+        );
+      });
+    else setAVStream(undefined);
+  }, [stream, path]);
 
   const fetchContent = React.useCallback(
     (id: number) => {
@@ -76,6 +100,21 @@ export const ViewContent: React.FC = () => {
           {content?.source?.name} - {content?.section}
         </p>
       </Row>
+      <Show visible={!!avStream && content?.contentType === ContentTypeName.Snippet}>
+        <Row justifyContent="center">
+          <video
+            controls
+            height={width! > 500 ? '270' : 135}
+            width={width! > 500 ? 480 : 240}
+            src={!!avStream?.url ? avStream?.url : ''}
+          />
+        </Row>
+      </Show>
+      <Show visible={!!avStream && content?.contentType === ContentTypeName.Image}>
+        <Row justifyContent="center">
+          <img src={!!avStream?.url ? avStream?.url : ''} />
+        </Row>
+      </Show>
       <Row id="summary" className="summary">
         <Show visible={content?.contentType === ContentTypeName.Snippet}>
           <p>{parse(content?.summary ?? '')}</p>
