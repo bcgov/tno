@@ -306,7 +306,9 @@ public static class StringExtensions
         var matches = regex.Matches(articleContent);
         foreach (var match in matches.Cast<Match>())
         {
-            articleContent = articleContent.Replace(match.Value, match.Value[..^1] + "\n" + match.Value[^1..]);
+            var index = match.Index + match.Value.Length;
+            if (articleContent.Length > index && articleContent[index] != '.')
+                articleContent = articleContent.Replace(match.Value, match.Value[..^1] + "\n" + match.Value[^1..]);
         }
         return articleContent;
     }
