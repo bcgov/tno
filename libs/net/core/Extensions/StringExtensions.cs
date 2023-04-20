@@ -298,7 +298,7 @@ public static class StringExtensions
         var res = rgx.Replace(articleContent, replaceString).Trim();
         // remove extra news lines
         res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine + "]*", string.Empty, RegexOptions.Multiline);
-        return SanitizeContent(res, new Regex(@"\.�?[A-Z]"));
+        return SanitizeContent(res, new Regex(@"[.?]'?”?[A-Z]"));
     }
 
     private static string SanitizeContent(string articleContent, Regex regex)
