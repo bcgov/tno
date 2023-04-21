@@ -1,10 +1,12 @@
-import { fieldTypes } from 'features/content/list-view/constants';
+import { advancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
 import { useContent, useLookupOptions } from 'store/hooks';
 import {
+  ContentStatusName,
   FieldSize,
   filterEnabledOptions,
+  getEnumStringOptions,
   IOptionItem,
   OptionItem,
   replaceQueryParams,
@@ -30,6 +32,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
     { storeFilter, storeFilterAdvanced },
   ] = useContent();
 
+  const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
   const [filter, setFilter] = React.useState(oFilter);
   const [filterAdvanced, setFilterAdvanced] = React.useState(oFilterAdvanced);
 
@@ -50,18 +53,18 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
         <Row>
           <Select
             name="fieldType"
-            options={fieldTypes}
+            options={advancedSearchOptions}
             className="select"
             width={FieldSize.Medium}
             isClearable={false}
-            value={fieldTypes.find((ft) => ft.value === filterAdvanced.fieldType)}
+            value={advancedSearchOptions.find((ft) => ft.value === filterAdvanced.fieldType)}
             onChange={(newValue) => {
               const value =
                 newValue instanceof OptionItem ? newValue.toInterface() : (newValue as IOptionItem);
               setFilterAdvanced({ ...filterAdvanced, fieldType: value.value, searchTerm: '' });
             }}
           />
-          <Show visible={filterAdvanced.fieldType === 'sourceIds'}>
+          <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Source}>
             <Select
               name="searchTerm"
               width={FieldSize.Medium}
@@ -86,7 +89,36 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
               )}
             />
           </Show>
-          <Show visible={filterAdvanced.fieldType !== 'sourceIds'}>
+          <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Status}>
+            <Select
+              name="searchTerm"
+              width={FieldSize.Medium}
+              onKeyUpCapture={(e) => {
+                if (e.key === 'Enter') setFilter({ ...filter, pageIndex: 0 });
+              }}
+              onChange={(newValue: any) => {
+                if (!newValue) setFilterAdvanced({ ...filterAdvanced, searchTerm: '' });
+                else {
+                  const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
+                  setFilterAdvanced({
+                    ...filterAdvanced,
+                    searchTerm: optionItem?.value?.toString() ?? '',
+                  });
+                }
+              }}
+              options={statusOptions}
+              value={statusOptions.find(
+                (s) => String(s.value) === String(filterAdvanced.searchTerm),
+              )}
+            />
+          </Show>
+          <Show
+            visible={
+              ![advancedSearchKeys.Source, advancedSearchKeys.Status].includes(
+                filterAdvanced.fieldType,
+              )
+            }
+          >
             <Text
               name="searchTerm"
               width={FieldSize.Small}

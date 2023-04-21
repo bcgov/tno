@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { fieldTypes } from 'features/content/list-view/constants';
+import { advancedSearchKeys } from 'features/content/list-view/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -31,7 +31,7 @@ export const initialContentState: IContentState = {
     sort: [],
   },
   filterAdvanced: {
-    fieldType: fieldTypes[1].value,
+    fieldType: advancedSearchKeys.Source,
     logicalOperator: LogicalOperator.Contains,
     searchTerm: '',
   },
