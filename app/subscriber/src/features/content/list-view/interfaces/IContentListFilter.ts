@@ -1,4 +1,4 @@
-import { ContentTypeName } from 'tno-core';
+import { ContentStatus, ContentTypeName } from 'tno-core';
 
 import { ISortBy } from '.';
 
@@ -13,6 +13,7 @@ export interface IContentListFilter {
   productIds: number[];
   sourceIds: number[];
   ownerId: number | '';
+  status?: ContentStatus;
   userId: number | '';
   timeFrame: number | '';
   // Actions

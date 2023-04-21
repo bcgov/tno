@@ -5,7 +5,7 @@ import { useContent, useLookup, useLookupOptions } from 'store/hooks';
 import { storeFilterAdvanced } from 'store/slices';
 import { ContentTypeName, IOptionItem, OptionItem, replaceQueryParams, ToolBar } from 'tno-core';
 
-import { fieldTypes } from '../list-view/constants';
+import { advancedSearchKeys } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { CreateNewSection } from '../tool-bar/sections/filter';
 import { AdvancedFilter, ContentFilter } from './components';
@@ -24,7 +24,7 @@ export interface IMorningReportsFilterProps {
  * @returns Component.
  */
 export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onSearch }) => {
-  const [{ filterMorningReports: filter, filterAdvanced }, { storeMorningReportFilter }] =
+  const [{ filterMorningReports: filter, filterAdvanced }, { storeFilterMorningReport }] =
     useContent();
   const [{ productOptions: pOptions }] = useLookupOptions();
   const [{ sources }] = useLookup();
@@ -36,7 +36,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
     if (!window.location.search) {
       replaceQueryParams(defaultMorningReportsFilter(sources), { includeEmpty: false });
     }
-    storeMorningReportFilter(
+    storeFilterMorningReport(
       queryToFilter(
         {
           ...defaultMorningReportsFilter(sources),
@@ -46,7 +46,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
     );
     storeFilterAdvanced(
       queryToFilterAdvanced(
-        { ...filterAdvanced, fieldType: fieldTypes[0].value },
+        { ...filterAdvanced, fieldType: advancedSearchKeys.Headline },
         window.location.search,
       ),
     );
@@ -60,7 +60,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
 
   const onFilterChange = (filter: IMorningReportsFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };
-    storeMorningReportFilter(newFilter);
+    storeFilterMorningReport(newFilter);
     replaceQueryParams(newFilter, { includeEmpty: false });
   };
 
