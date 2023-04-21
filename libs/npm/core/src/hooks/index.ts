@@ -17,3 +17,4 @@ export * from './useScrollTo';
 export * from './useTabValidationToasts';
 export * from './useVisibility';
 export * from './useWindowSize';
+export * from './api-subscriber';
