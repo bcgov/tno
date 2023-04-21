@@ -9,5 +9,6 @@ export interface IContentState {
   filter: IContentListFilter;
   filterAdvanced: IContentListAdvancedFilter;
   filterMorningReports: IMorningReportsFilter;
+  filterMorningReportAdvanced: IContentListAdvancedFilter;
   content?: IPaged<IContentModel>;
 }

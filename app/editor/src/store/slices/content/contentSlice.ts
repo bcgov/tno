@@ -36,6 +36,11 @@ export const initialContentState: IContentState = {
     searchTerm: '',
   },
   filterMorningReports: defaultMorningReportsFilter(),
+  filterMorningReportAdvanced: {
+    fieldType: advancedSearchKeys.Headline,
+    logicalOperator: LogicalOperator.Contains,
+    searchTerm: '',
+  },
 };
 
 export const contentSlice = createSlice({
@@ -48,8 +53,14 @@ export const contentSlice = createSlice({
     storeFilterAdvanced(state: IContentState, action: PayloadAction<IContentListAdvancedFilter>) {
       state.filterAdvanced = action.payload;
     },
-    storeMorningReportFilter(state: IContentState, action: PayloadAction<IMorningReportsFilter>) {
+    storeFilterMorningReport(state: IContentState, action: PayloadAction<IMorningReportsFilter>) {
       state.filterMorningReports = action.payload;
+    },
+    storeFilterMorningReportAdvanced(
+      state: IContentState,
+      action: PayloadAction<IContentListAdvancedFilter>,
+    ) {
+      state.filterMorningReportAdvanced = action.payload;
     },
     storeContent(state: IContentState, action: PayloadAction<IPaged<IContentModel> | undefined>) {
       state.content = action.payload;
@@ -78,7 +89,8 @@ export const contentSlice = createSlice({
 export const {
   storeFilter,
   storeFilterAdvanced,
-  storeMorningReportFilter,
+  storeFilterMorningReport,
+  storeFilterMorningReportAdvanced,
   addContent,
   storeContent,
   updateContent,

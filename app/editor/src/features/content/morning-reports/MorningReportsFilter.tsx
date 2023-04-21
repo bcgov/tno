@@ -24,7 +24,7 @@ export interface IMorningReportsFilterProps {
  * @returns Component.
  */
 export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onSearch }) => {
-  const [{ filterMorningReports: filter, filterAdvanced }, { storeMorningReportFilter }] =
+  const [{ filterMorningReports: filter, filterAdvanced }, { storeFilterMorningReport }] =
     useContent();
   const [{ productOptions: pOptions }] = useLookupOptions();
   const [{ sources }] = useLookup();
@@ -36,7 +36,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
     if (!window.location.search) {
       replaceQueryParams(defaultMorningReportsFilter(sources), { includeEmpty: false });
     }
-    storeMorningReportFilter(
+    storeFilterMorningReport(
       queryToFilter(
         {
           ...defaultMorningReportsFilter(sources),
@@ -60,7 +60,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
 
   const onFilterChange = (filter: IMorningReportsFilter) => {
     const newFilter = { ...filter, pageIndex: 0 };
-    storeMorningReportFilter(newFilter);
+    storeFilterMorningReport(newFilter);
     replaceQueryParams(newFilter, { includeEmpty: false });
   };
 

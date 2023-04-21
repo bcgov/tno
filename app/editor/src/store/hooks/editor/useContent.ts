@@ -35,8 +35,11 @@ interface IContentController {
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeMorningReportFilter: (
+  storeFilterMorningReport: (
     filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
+  ) => void;
+  storeFilterMorningReportAdvanced: (
+    filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
 }
 
@@ -133,7 +136,8 @@ export const useContent = (props?: IContentProps): [IContentState, IContentContr
       },
       storeFilter: actions.storeFilter,
       storeFilterAdvanced: actions.storeFilterAdvanced,
-      storeMorningReportFilter: actions.storeMorningReportFilter,
+      storeFilterMorningReport: actions.storeFilterMorningReport,
+      storeFilterMorningReportAdvanced: actions.storeFilterMorningReportAdvanced,
     }),
     [actions, api, dispatch],
   );
