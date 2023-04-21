@@ -112,7 +112,7 @@ export const ViewContent: React.FC = () => {
       </Show>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.Image}>
         <Row justifyContent="center">
-          <img alt="media-image" src={!!avStream?.url ? avStream?.url : ''} />
+          <img alt="media" src={!!avStream?.url ? avStream?.url : ''} />
         </Row>
       </Show>
       <Row id="summary" className="summary">
