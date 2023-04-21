@@ -1,3 +1,4 @@
+import { advancedSearchKeys } from 'features/content/list-view/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -13,7 +14,8 @@ import {
   storeContent,
   storeFilter,
   storeFilterAdvanced,
-  storeMorningReportFilter,
+  storeFilterMorningReport,
+  storeFilterMorningReportAdvanced,
   updateContent,
 } from '.';
 import { IContentState } from './interfaces';
@@ -27,8 +29,11 @@ export interface IContentStore {
   storeFilterAdvanced: (
     filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
-  storeMorningReportFilter: (
+  storeFilterMorningReport: (
     filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
+  ) => void;
+  storeFilterMorningReportAdvanced: (
+    filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
   ) => void;
   storeContent: (content: IPaged<IContentModel>) => void;
   addContent: (content: IContentModel[]) => void;
@@ -36,9 +41,19 @@ export interface IContentStore {
   removeContent: (content: IContentModel[]) => void;
 }
 
+var filterAdvanced: IContentListAdvancedFilter = {
+  fieldType: advancedSearchKeys.Source,
+  logicalOperator: '',
+  searchTerm: '',
+};
+
 export const useContentStore = (props?: IContentProps): [IContentState, IContentStore] => {
   const dispatch = useAppDispatch();
   const state = useAppSelector((store) => store.content);
+
+  // We need to do this because react useEffects are garbage.
+  // Reset the value every time so that the memo has the correct value.
+  filterAdvanced = state.filterAdvanced;
 
   const controller = React.useMemo(
     () => ({
@@ -49,16 +64,22 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
       storeFilterAdvanced: (
         filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
       ) => {
-        if (typeof filter === 'function')
-          dispatch(storeFilterAdvanced(filter(state.filterAdvanced)));
+        if (typeof filter === 'function') dispatch(storeFilterAdvanced(filter(filterAdvanced)));
         else dispatch(storeFilterAdvanced(filter));
       },
-      storeMorningReportFilter: (
+      storeFilterMorningReport: (
         filter: IMorningReportsFilter | ActionDelegate<IMorningReportsFilter>,
       ) => {
         if (typeof filter === 'function')
-          dispatch(storeMorningReportFilter(filter(state.filterMorningReports)));
-        else dispatch(storeMorningReportFilter(filter));
+          dispatch(storeFilterMorningReport(filter(state.filterMorningReports)));
+        else dispatch(storeFilterMorningReport(filter));
+      },
+      storeFilterMorningReportAdvanced: (
+        filter: IContentListAdvancedFilter | ActionDelegate<IContentListAdvancedFilter>,
+      ) => {
+        if (typeof filter === 'function')
+          dispatch(storeFilterMorningReportAdvanced(filter(filterAdvanced)));
+        else dispatch(storeFilterMorningReportAdvanced(filter));
       },
       storeContent: (content: IPaged<IContentModel>) => {
         dispatch(storeContent(content));
@@ -73,7 +94,7 @@ export const useContentStore = (props?: IContentProps): [IContentState, IContent
         dispatch(removeContent(content));
       },
     }),
-    [dispatch, state.filter, state.filterAdvanced, state.filterMorningReports],
+    [dispatch, state.filter, state.filterMorningReports],
   );
 
   return [state, controller];

@@ -6,13 +6,17 @@ import { useContent, useLookupOptions } from 'store/hooks';
 import {
   Checkbox,
   Col,
+  ContentStatusName,
+  FieldSize,
   fromQueryString,
+  getEnumStringOptions,
   instanceOfIOption,
   IOptionItem,
   OptionItem,
   replaceQueryParams,
   Row,
   Select,
+  Show,
   Text,
   ToolBarSection,
 } from 'tno-core';
@@ -38,8 +42,13 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
   onFilterChange,
   onSearch,
 }) => {
-  const [{ filterMorningReports, filterAdvanced }, { storeFilterAdvanced }] = useContent();
+  const [
+    { filterMorningReports, filterMorningReportAdvanced: filterAdvanced },
+    { storeFilterMorningReportAdvanced },
+  ] = useContent();
   const [{ products }] = useLookupOptions();
+
+  const [statusOptions] = React.useState(getEnumStringOptions(ContentStatusName));
 
   const search = fromQueryString(window.location.search, {
     arrays: ['contentTypes', 'sourceIds', 'productIds', 'sort'],
@@ -54,7 +63,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
   /** initialize advanced search section with query values or new */
   React.useEffect(() => {
     if (!!window.location.search) {
-      storeFilterAdvanced({
+      storeFilterMorningReportAdvanced({
         ...filterAdvanced,
         fieldType: search.fieldType ?? advancedSearchKeys.Source,
         searchTerm: search.searchTerm ?? '',
@@ -117,24 +126,54 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
                   newValue instanceof OptionItem
                     ? newValue.toInterface()
                     : (newValue as IOptionItem);
-                storeFilterAdvanced({
+                storeFilterMorningReportAdvanced({
                   ...filterAdvanced,
                   fieldType: value.value,
                   searchTerm: '',
                 });
               }}
             />
-            <Text
-              name="searchTerm"
-              value={filterAdvanced.searchTerm}
-              onKeyUpCapture={(e) => {
-                if (e.key === 'Enter')
-                  onSearch({ ...filterMorningReports, pageIndex: 0, ...filterAdvanced });
-              }}
-              onChange={(e) => {
-                storeFilterAdvanced({ ...filterAdvanced, searchTerm: e.target.value });
-              }}
-            />
+            <Show visible={filterAdvanced.fieldType !== advancedSearchKeys.Status}>
+              <Text
+                name="searchTerm"
+                value={filterAdvanced.searchTerm}
+                onKeyUpCapture={(e) => {
+                  if (e.key === 'Enter')
+                    onSearch({ ...filterMorningReports, pageIndex: 0, ...filterAdvanced });
+                }}
+                onChange={(e) => {
+                  storeFilterMorningReportAdvanced({
+                    ...filterAdvanced,
+                    searchTerm: e.target.value,
+                  });
+                }}
+              />
+            </Show>
+            <Show visible={filterAdvanced.fieldType === advancedSearchKeys.Status}>
+              <Select
+                name="searchTerm"
+                width={FieldSize.Medium}
+                onKeyUpCapture={(e) => {
+                  if (e.key === 'Enter')
+                    onSearch({ ...filterMorningReports, pageIndex: 0, ...filterAdvanced });
+                }}
+                onChange={(newValue: any) => {
+                  if (!newValue)
+                    storeFilterMorningReportAdvanced({ ...filterAdvanced, searchTerm: '' });
+                  else {
+                    const optionItem = statusOptions.find((ds) => ds.value === newValue.value);
+                    storeFilterMorningReportAdvanced({
+                      ...filterAdvanced,
+                      searchTerm: optionItem?.value?.toString() ?? '',
+                    });
+                  }
+                }}
+                options={statusOptions}
+                value={statusOptions.find(
+                  (s) => String(s.value) === String(filterAdvanced.searchTerm),
+                )}
+              />
+            </Show>
           </Row>
           <Row alignContent="center">
             <FaArrowAltCircleRight

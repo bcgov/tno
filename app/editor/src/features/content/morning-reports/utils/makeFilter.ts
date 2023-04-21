@@ -27,14 +27,10 @@ export const makeFilter = (
     sourceIds: filter.sourceIds,
     publishedStartOn: setTimeFrame(filter.timeFrame as number)?.toISOString(),
     actions: applyActions(filter),
-    fieldType: filter.searchTerm?.trim() !== '' ? filter.fieldType : undefined,
-    searchTerm: filter.searchTerm?.trim() !== '' ? filter.searchTerm?.trim() : undefined,
     sort: applySortBy(filter.sort),
-    logicalOperator:
-      filter.searchTerm !== '' && filter.logicalOperator !== ''
-        ? filter.logicalOperator
-        : undefined,
   };
+
+  if (filter.fieldType && filter.searchTerm) (result as any)[filter.fieldType] = filter.searchTerm;
   return result;
 };
 

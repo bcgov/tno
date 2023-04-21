@@ -38,8 +38,8 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
   const navigate = useNavigate();
   const { combined } = useCombinedView();
   const [
-    { filterMorningReports: filter, filterAdvanced, content },
-    { findContent, storeMorningReportFilter },
+    { filterMorningReports: filter, filterMorningReportAdvanced: filterAdvanced, content },
+    { findContent, storeFilterMorningReport },
   ] = useContent();
 
   const [, setLoading] = React.useState(false);
@@ -91,19 +91,19 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
           pageIndex: page.pageIndex,
           pageSize: page.pageSize ?? filter.pageSize,
         };
-        storeMorningReportFilter(newFilter);
+        storeFilterMorningReport(newFilter);
         replaceQueryParams(newFilter, { includeEmpty: false });
       }
     },
-    [filter, storeMorningReportFilter],
+    [filter, storeFilterMorningReport],
   );
 
   const handleChangeSort = React.useCallback(
     (sort: ITableSort<IContentModel>[]) => {
       const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
-      storeMorningReportFilter({ ...filter, sort: sorts });
+      storeFilterMorningReport({ ...filter, sort: sorts });
     },
-    [filter, storeMorningReportFilter],
+    [filter, storeFilterMorningReport],
   );
 
   const handleSelectedRowsChanged = (row: ITableInternalRow<IContentModel>) => {
