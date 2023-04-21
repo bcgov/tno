@@ -146,5 +146,18 @@ public class UserService : BaseService<User, int>, IUserService
 
         throw new InvalidOperationException("User does not exist");
     }
+
+    public IEnumerable<User> FindByRoles(IEnumerable<string> roles)
+    {
+        var query = Context.Users.AsNoTracking();
+        var result = roles.Any() ? Enumerable.Empty<User>() : query;
+
+        foreach (var role in roles)
+        {
+            result = result.Union(query.Where(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{role.ToLower()}]%")));
+        }
+
+        return result.OrderBy(a => a.Username).ThenBy(a => a.LastName).ThenBy(a => a.FirstName);
+    }
     #endregion
 }
