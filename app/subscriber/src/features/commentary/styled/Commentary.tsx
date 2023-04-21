@@ -4,15 +4,20 @@ export const Commentary = styled.div`
   width: 99%;
   margin-bottom: 5%;
   div {
-    margin-right: 1em;
+    margin-right: 0.5em;
   }
 
   .headline {
     color: #3847aa;
     cursor: pointer;
+    /* underline on hover */
+    &:hover {
+      text-decoration: underline;
+    }
   }
+
   .content {
-    padding: 0.5em;
+    padding-top: 0.5em;
     background-color: #f9f9f9;
     min-height: 20em;
   }
