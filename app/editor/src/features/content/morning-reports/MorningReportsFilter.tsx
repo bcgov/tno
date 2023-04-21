@@ -5,7 +5,7 @@ import { useContent, useLookup, useLookupOptions } from 'store/hooks';
 import { storeFilterAdvanced } from 'store/slices';
 import { ContentTypeName, IOptionItem, OptionItem, replaceQueryParams, ToolBar } from 'tno-core';
 
-import { fieldTypes } from '../list-view/constants';
+import { advancedSearchKeys } from '../list-view/constants';
 import { queryToFilter, queryToFilterAdvanced } from '../list-view/utils';
 import { CreateNewSection } from '../tool-bar/sections/filter';
 import { AdvancedFilter, ContentFilter } from './components';
@@ -46,7 +46,7 @@ export const MorningReportsFilter: React.FC<IMorningReportsFilterProps> = ({ onS
     );
     storeFilterAdvanced(
       queryToFilterAdvanced(
-        { ...filterAdvanced, fieldType: fieldTypes[0].value },
+        { ...filterAdvanced, fieldType: advancedSearchKeys.Headline },
         window.location.search,
       ),
     );

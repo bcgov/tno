@@ -1,7 +1,9 @@
 import { LogicalOperator } from 'tno-core';
 
+import { advancedSearchKeys } from '../constants';
+
 export interface IContentListAdvancedFilter {
-  fieldType: string;
+  fieldType: advancedSearchKeys;
   logicalOperator: LogicalOperator | '';
   searchTerm: string;
   startDate?: string | null;

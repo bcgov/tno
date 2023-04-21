@@ -1,4 +1,4 @@
-import { fieldTypes } from 'features/content/list-view/constants';
+import { advancedSearchKeys, advancedSearchOptions } from 'features/content/list-view/constants';
 import { IContentListAdvancedFilter } from 'features/content/list-view/interfaces';
 import React from 'react';
 import { FaArrowAltCircleRight, FaBinoculars } from 'react-icons/fa';
@@ -56,7 +56,7 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
     if (!!window.location.search) {
       storeFilterAdvanced({
         ...filterAdvanced,
-        fieldType: search.fieldType ?? fieldTypes[0].value,
+        fieldType: search.fieldType ?? advancedSearchKeys.Source,
         searchTerm: search.searchTerm ?? '',
       });
     }
@@ -108,10 +108,10 @@ export const AdvancedFilter: React.FC<IAdvancedFilterProps> = ({
           <Row>
             <Select
               name="fieldType"
-              options={fieldTypes.filter((ft) => ft.label !== 'Source')}
+              options={advancedSearchOptions.filter((ft) => ft.value !== advancedSearchKeys.Source)}
               className="select"
               isClearable={false}
-              value={fieldTypes.find((ft) => ft.value === filterAdvanced.fieldType)}
+              value={advancedSearchOptions.find((ft) => ft.value === filterAdvanced.fieldType)}
               onChange={(newValue) => {
                 const value =
                   newValue instanceof OptionItem

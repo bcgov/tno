@@ -29,15 +29,11 @@ export const makeFilter = (
       ? moment(filter.startDate).toISOString()
       : setTimeFrame(filter.timeFrame as number)?.toISOString(),
     publishedEndOn: filter.endDate ? moment(filter.endDate).toISOString() : undefined,
-    fieldType: filter.searchTerm?.trim() !== '' ? filter.fieldType : undefined,
-    searchTerm: filter.searchTerm?.trim() !== '' ? filter.searchTerm?.trim() : undefined,
-    logicalOperator:
-      filter.searchTerm !== '' && filter.logicalOperator !== ''
-        ? filter.logicalOperator
-        : undefined,
     actions: applyActions(filter),
     sort: applySortBy(filter.sort),
   };
+
+  if (filter.fieldType && filter.searchTerm) (result as any)[filter.fieldType] = filter.searchTerm;
   return result;
 };
 

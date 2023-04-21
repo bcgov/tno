@@ -1,6 +1,5 @@
 import { convertTo, fromQueryString } from 'tno-core';
 
-import { fieldTypes } from '../constants';
 import { IContentListAdvancedFilter } from '../interfaces';
 
 /**
@@ -16,9 +15,7 @@ export const queryToFilterAdvanced = (
   const search = fromQueryString(queryString);
   if (!!Object.keys(search).length) {
     return {
-      fieldType: !!search.fieldType
-        ? fieldTypes.find((ft) => ft.value === search.fieldType)?.value ?? filter.fieldType
-        : filter.fieldType,
+      fieldType: filter.fieldType,
       logicalOperator: convertTo(search.logicalOperator, 'string', filter.logicalOperator),
       searchTerm: search.searchTerm ?? filter.searchTerm,
       startDate: search.startDate ?? filter.startDate,
