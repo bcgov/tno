@@ -282,20 +282,20 @@ public class ContentController : ControllerBase
             }
             else if (model.Action == ContentListAction.Action)
             {
-                _contentService.FindById(content.Id);
-                var currentAction = content.ActionsManyToMany.FirstOrDefault(a => a.Action!.Name == model.ActionName);
+                var latestContent = _contentService.FindById(content.Id);
+                var currentAction = latestContent?.ActionsManyToMany.FirstOrDefault(a => a.Action!.Name == model.ActionName);
                 if (currentAction == null)
                 {
                     var action = (!string.IsNullOrWhiteSpace(model.ActionName) ?
                         _actionService.FindByName(model.ActionName) :
                         null) ?? throw new InvalidOperationException($"Action specified '{model.ActionName}' does not exist.");
-                    content.ActionsManyToMany.Add(new ContentAction(content, action, model.ActionValue ?? ""));
-                    update.Add(_contentService.Update(content));
+                    latestContent?.ActionsManyToMany.Add(new ContentAction(latestContent, action, model.ActionValue ?? ""));
+                    if (latestContent != null) update.Add(_contentService.Update(latestContent));
                 }
                 else if (currentAction.Value != model.ActionValue)
                 {
                     currentAction.Value = model.ActionValue ?? "";
-                    update.Add(_contentService.Update(content));
+                    if (latestContent != null) update.Add(_contentService.Update(latestContent));
                 }
             }
         }

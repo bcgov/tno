@@ -108,7 +108,9 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
     /// <returns></returns>
     protected virtual async Task<ContentReferenceModel?> ContentReceivedAsync(IIngestServiceActionManager manager, ContentReferenceModel? reference, SourceContent? content)
     {
-        if (reference != null && reference.Status != (int)WorkflowStatus.Received)
+        if (reference != null &&
+            reference.Status != (int)WorkflowStatus.Received &&
+            reference.Status != (int)WorkflowStatus.Imported)
         {
             reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.Received);
             if (reference != null && manager.Ingest.PostToKafka() && content != null)
