@@ -5,6 +5,7 @@ using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Config;
@@ -19,6 +20,7 @@ using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Kafka;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 using TNO.Models.Extensions;
 
@@ -46,6 +48,7 @@ public class WorkOrderController : ControllerBase
     private readonly IUserService _userService;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly IHubContext<MessageHub> _hub;
     private readonly ApiOptions _apiOptions;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -63,8 +66,9 @@ public class WorkOrderController : ControllerBase
     /// <param name="userService"></param>
     /// <param name="connection"></param>
     /// <param name="kafkaMessenger"></param>
-    /// <param name="hub"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="kafkaHubOptions"></param>
+    /// <param name="hub"></param>
     /// <param name="apiOptions"></param>
     /// <param name="serializerOptions"></param>
     public WorkOrderController(
@@ -73,8 +77,9 @@ public class WorkOrderController : ControllerBase
         IUserService userService,
         IConnectionHelper connection,
         IKafkaMessenger kafkaMessenger,
-        IHubContext<MessageHub> hub,
         IOptions<KafkaOptions> kafkaOptions,
+        IOptions<KafkaHubConfig> kafkaHubOptions,
+        IHubContext<MessageHub> hub,
         IOptions<ApiOptions> apiOptions,
         IOptions<JsonSerializerOptions> serializerOptions)
     {
@@ -83,8 +88,9 @@ public class WorkOrderController : ControllerBase
         _userService = userService;
         _connection = connection;
         _kafkaMessenger = kafkaMessenger;
-        _hub = hub;
         _kafkaOptions = kafkaOptions.Value;
+        _kafkaHubOptions = kafkaHubOptions.Value;
+        _hub = hub;
         _apiOptions = apiOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
@@ -144,7 +150,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "Transcript request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
             throw new BadRequestException("Transcription request failed");
         }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));
@@ -186,7 +192,7 @@ public class WorkOrderController : ControllerBase
             workOrder.Status = WorkOrderStatus.Failed;
             workOrder.Note = "NLP request to Kafka failed";
             workOrder = _workOrderService.UpdateAndSave(workOrder);
-            await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(workOrder, _serializerOptions));
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(workOrder, _serializerOptions) })));
             throw new BadRequestException("Natural Language Processing request failed");
         }
         return new JsonResult(new WorkOrderMessageModel(workOrder, _serializerOptions));

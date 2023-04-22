@@ -8,6 +8,7 @@ import {
   HubMethodName,
   useApiHub,
   useApp,
+  useChannel,
   useContent,
   useLookupOptions,
   useWorkOrders,
@@ -88,6 +89,18 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const { combined, formType } = useCombinedView(initContentType);
   useScrollTo(id, scrollToContent ? 'bottom-pane' : '');
   const { setShowValidationToast } = useTabValidationToasts();
+  const channel = useChannel<any>({
+    onMessage: (ev) => {
+      switch (ev.data.type) {
+        case 'content':
+          setForm(toForm(ev.data.message));
+          break;
+        case 'fetch':
+          navigate(`/contents${combined ? '/combined' : ''}/${ev.data.message}`);
+          break;
+      }
+    },
+  });
 
   const [contentType, setContentType] = React.useState(formType ?? initContentType);
   const [size, setSize] = React.useState(1); // TODO: change this to use css media types instead.
@@ -190,6 +203,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
         toast.success(`"${contentResult.headline}" has successfully been saved.`);
 
+        channel('content', result);
+
         if (!originalId)
           navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
         if (!!contentResult?.seriesId) {
@@ -220,6 +235,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       updateContent,
       upload,
       userId,
+      channel,
     ],
   );
 

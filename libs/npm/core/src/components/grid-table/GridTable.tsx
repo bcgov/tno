@@ -5,15 +5,15 @@ import {
   Row,
   SortingRule,
   TableInstance,
+  useExpanded,
   useFilters,
   useFlexLayout,
   useGlobalFilter,
+  useGroupBy,
   usePagination,
   useRowSelect,
   useSortBy,
   useTable,
-  useGroupBy,
-  useExpanded,
 } from 'react-table';
 
 import { Loading, Show } from '..';
@@ -158,8 +158,8 @@ export const GridTable = <T extends object>({
     useFilters,
     useGlobalFilter,
     useGroupBy,
-    useExpanded,
     useSortBy,
+    useExpanded,
     usePagination,
     useFlexLayout,
     useRowSelect,

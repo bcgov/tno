@@ -43,7 +43,7 @@ export const AdvancedSearchSection: React.FC<IAdvancedSearchSectionProps> = () =
 
   const onChange = React.useCallback(() => {
     storeFilter({ ...filter, pageIndex: 0 });
-    storeFilterAdvanced(filterAdvanced);
+    storeFilterAdvanced({ ...filterAdvanced });
     replaceQueryParams({ ...filter, pageIndex: 0, ...filterAdvanced }, { includeEmpty: false });
   }, [filter, filterAdvanced, storeFilter, storeFilterAdvanced]);
 
