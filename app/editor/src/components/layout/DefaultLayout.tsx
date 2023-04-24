@@ -128,7 +128,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ name, children, ...rest 
     <styled.Layout {...rest}>
       <UserInfo />
       <Show visible={keycloak.authenticated}>
-        <Header name={name} className="header">
+        <Header name={name}>
           <Button onClick={() => keycloak.instance.logout()} name="signOut">
             Sign Out
           </Button>
