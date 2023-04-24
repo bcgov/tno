@@ -154,7 +154,7 @@ public class UserService : BaseService<User, int>, IUserService
 
         foreach (var role in roles)
         {
-            result = result.Union(query.Where(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{role.ToLower()}]%")));
+            result = result.UnionBy(query.Where(c => EF.Functions.Like(c.Roles.ToLower(), $"%[{role.ToLower()}]%")), x => x.Id);
         }
 
         return result.OrderBy(a => a.Username).ThenBy(a => a.LastName).ThenBy(a => a.FirstName);
