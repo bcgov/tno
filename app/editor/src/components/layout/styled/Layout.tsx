@@ -32,12 +32,16 @@ export const Layout = styled.div`
   }
 
   header {
-    background-color: ${(props) =>
-      process.env.NODE_ENV === 'production'
-        ? props.theme.css.productionBackgroundColor
-        : process.env.NODE_ENV === 'development'
-        ? props.theme.css.developmentBackgroundColor
-        : props.theme.css.testBackgroundColor};
+    background-color: ${(props) => {
+      switch (process.env.NODE_ENV) {
+        case 'production':
+          return props.theme.css.productionBackgroundColor;
+        case 'test':
+          return props.theme.css.testBackgroundColor;
+        default:
+          return props.theme.css.developmentBackgroundColor;
+      }
+    }};
   }
 
   .navbar {
