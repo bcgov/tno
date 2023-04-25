@@ -85,7 +85,6 @@ public class ClipAction : CommandAction<ClipOptions>
                     {
                         // If another process has it in progress only attempt to do an import if it's
                         // more than an 2 minutes old. Assumption is that it is stuck.
-                        reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     }
                     else continue;
 

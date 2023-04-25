@@ -100,7 +100,6 @@ public class ImageAction : IngestAction<ImageOptions>
                 {
                     // If another process has it in progress only attempt to do an import if it's
                     // more than an 5 minutes old. Assumption is that it is stuck.
-                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                 }
                 else continue;
 
