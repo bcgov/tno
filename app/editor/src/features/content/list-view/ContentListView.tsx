@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { HubMethodName, useApiHub, useApp, useContent } from 'store/hooks';
+import { HubMethodName, useApiHub, useApp, useChannel, useContent } from 'store/hooks';
 import { useContentStore } from 'store/slices';
 import {
   Col,
@@ -20,7 +20,7 @@ import {
 
 import { ContentForm } from '../form';
 import { ContentToolBar } from '../tool-bar';
-import { columns, defaultPage } from './constants';
+import { defaultPage, getColumns } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
 import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
@@ -41,6 +41,23 @@ export const ContentListView: React.FC = () => {
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   var hub = useApiHub();
+  const channel = useChannel<any>({
+    onMessage: (ev) => {
+      switch (ev.data.type) {
+        case 'content':
+          updateContent([ev.data.message]);
+      }
+    },
+  });
+
+  const [tab, setTab] = React.useState<Window | null>(null);
+  const columns = getColumns((id) => {
+    if (!tab || tab.closed) setTab(window.open(`/contents/${id}`, '_blank'));
+    else {
+      channel('fetch', id);
+      tab.focus();
+    }
+  });
 
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
 

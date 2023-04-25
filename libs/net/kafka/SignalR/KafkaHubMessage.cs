@@ -31,12 +31,12 @@ public class KafkaHubMessage
 
     #region Constructor
     /// <summary>
-    /// Creates a new instance of a KafakHubMessage object.
+    /// Creates a new instance of a KafkaHubMessage object.
     /// </summary>
     public KafkaHubMessage() { }
 
     /// <summary>
-    /// Creates a new instance of a KafakHubMessage object, initializes with specified parameters.
+    /// Creates a new instance of a KafkaHubMessage object, initializes with specified parameters.
     /// </summary>
     /// <param name="hubEvent"></param>
     /// <param name="message"></param>
@@ -49,7 +49,7 @@ public class KafkaHubMessage
     }
 
     /// <summary>
-    /// Creates a new instance of a KafakHubMessage object, initializes with specified parameters.
+    /// Creates a new instance of a KafkaHubMessage object, initializes with specified parameters.
     /// </summary>
     /// <param name="hubEvent"></param>
     /// <param name="identifier"></param>
@@ -61,7 +61,7 @@ public class KafkaHubMessage
     }
 
     /// <summary>
-    /// Creates a new instance of a KafakHubMessage object, initializes with specified parameters.
+    /// Creates a new instance of a KafkaHubMessage object, initializes with specified parameters.
     /// </summary>
     /// <param name="hubEvent"></param>
     /// <param name="identifiers"></param>

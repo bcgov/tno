@@ -13,7 +13,9 @@ import {
 
 import { getStatusText } from '../utils';
 
-export const columns: ITableHookColumn<IContentModel>[] = [
+export const getColumns = (
+  onClickOpen: (contentId: number) => void,
+): ITableHookColumn<IContentModel>[] => [
   {
     name: 'headline',
     label: 'Headline',
@@ -119,7 +121,13 @@ export const columns: ITableHookColumn<IContentModel>[] = [
     hAlign: 'center',
     cell: (cell) => {
       return (
-        <FaExternalLinkAlt onClick={() => window.open(`/contents/${cell.original.id}`, '_blank')} />
+        <FaExternalLinkAlt
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClickOpen(cell.original.id);
+          }}
+        />
       );
     },
     width: '50px',

@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using TNO.Kafka.Models;
+using TNO.Kafka.SignalR;
 
 namespace TNO.Kafka;
 
@@ -58,4 +59,12 @@ public interface IKafkaMessenger
     /// <param name="request"></param>
     /// <returns></returns>
     public Task<DeliveryResult<string, FileRequestModel>?> SendMessageAsync(string topic, FileRequestModel request);
+
+    /// <summary>
+    /// Send a message to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public Task<DeliveryResult<string, KafkaHubMessage>?> SendMessageAsync(string topic, KafkaHubMessage request);
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Content;
@@ -18,6 +19,7 @@ using TNO.DAL.Services;
 using TNO.Entities;
 using TNO.Kafka;
 using TNO.Kafka.Models;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Services.Controllers;
@@ -44,6 +46,7 @@ public class ContentController : ControllerBase
     private readonly StorageOptions _storageOptions;
     private readonly IKafkaMessenger _kafkaMessenger;
     private readonly KafkaOptions _kafkaOptions;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly IHubContext<MessageHub> _hub;
     private readonly ILogger _logger;
@@ -56,9 +59,10 @@ public class ContentController : ControllerBase
     /// <param name="contentService"></param>
     /// <param name="fileReferenceService"></param>
     /// <param name="userService"></param>
-    /// <param name="hub"></param>
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
+    /// <param name="kafkaHubOptions"></param>
+    /// <param name="hub"></param>
     /// <param name="storageOptions"></param>
     /// <param name="serializerOptions"></param>
     /// <param name="logger"></param>
@@ -66,9 +70,10 @@ public class ContentController : ControllerBase
         IContentService contentService,
         IFileReferenceService fileReferenceService,
         IUserService userService,
-        IHubContext<MessageHub> hub,
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
+        IOptions<KafkaHubConfig> kafkaHubOptions,
+        IHubContext<MessageHub> hub,
         IOptions<StorageOptions> storageOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
         ILogger<ContentController> logger)
@@ -76,9 +81,10 @@ public class ContentController : ControllerBase
         _contentService = contentService;
         _fileReferenceService = fileReferenceService;
         _userService = userService;
-        _hub = hub;
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
+        _kafkaHubOptions = kafkaHubOptions.Value;
+        _hub = hub;
         _storageOptions = storageOptions.Value;
         _serializerOptions = serializerOptions.Value;
         _logger = logger;
@@ -204,7 +210,7 @@ public class ContentController : ControllerBase
             else
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user?.Id, IndexAction.Index));
 
-            await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
+            await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
         }
         else
             _logger.LogWarning("Kafka indexing topic not configured.");
@@ -248,9 +254,9 @@ public class ContentController : ControllerBase
         {
             var owner = content.Owner ?? _userService.FindById(content.OwnerId.Value);
             if (!String.IsNullOrWhiteSpace(owner?.Username))
-                await _hub.Clients.User(owner.Username).SendAsync("Content", new ContentMessageModel(content));
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendUser, owner.Username, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
             else
-                await _hub.Clients.All.SendAsync("Content", new ContentMessageModel(content));
+                await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
         }
 
         return new JsonResult(new ContentModel(content));

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.Kafka.Serializers;
 using TNO.Kafka.Models;
+using TNO.Kafka.SignalR;
 
 namespace TNO.Kafka;
 
@@ -128,6 +129,19 @@ public class KafkaMessenger : IKafkaMessenger
         if (request == null) throw new ArgumentNullException(nameof(request));
 
         return await SendMessageAsync(topic, $"{request.LocationId}:{request.Path}", request);
+    }
+
+    /// <summary>
+    /// Send a message to to Kafka.
+    /// </summary>
+    /// <param name="topic"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    public async Task<DeliveryResult<string, KafkaHubMessage>?> SendMessageAsync(string topic, KafkaHubMessage request)
+    {
+        if (request == null) throw new ArgumentNullException(nameof(request));
+
+        return await SendMessageAsync(topic, $"{request.HubEvent}-${DateTime.Now.Ticks}", request);
     }
     #endregion
 }

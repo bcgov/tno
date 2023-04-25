@@ -90,8 +90,8 @@ spec:
               cpu: 100m
               memory: 150Mi
             limits:
-              cpu: 300m
-              memory: 300Mi
+              cpu: 500m
+              memory: 500Mi
           env:
             - name: ASPNETCORE_URLS
               value: http://+:8080

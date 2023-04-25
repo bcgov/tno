@@ -1,4 +1,5 @@
 export * from './app';
+export * from './channel';
 export * from './editor';
 export * from './lookup';
 export * from './signalr';

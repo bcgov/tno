@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.WorkOrder;
@@ -13,6 +14,8 @@ using TNO.API.SignalR;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
+using TNO.Kafka;
+using TNO.Kafka.SignalR;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
@@ -36,6 +39,8 @@ public class WorkOrderController : ControllerBase
     private readonly IWorkOrderService _workOrderService;
     private readonly IHubContext<MessageHub> _hub;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly IKafkaMessenger _kafkaMessenger;
+    private readonly KafkaHubConfig _kafkaHubOptions;
     #endregion
 
     #region Constructors
@@ -43,11 +48,15 @@ public class WorkOrderController : ControllerBase
     /// Creates a new instance of a WorkOrderController object, initializes with specified parameters.
     /// </summary>
     /// <param name="workOrderService"></param>
+    /// <param name="kafkaMessenger"></param>
+    /// <param name="kafkaHubOptions"></param>
     /// <param name="hub"></param>
     /// <param name="serializerOptions"></param>
-    public WorkOrderController(IWorkOrderService workOrderService, IHubContext<MessageHub> hub, IOptions<JsonSerializerOptions> serializerOptions)
+    public WorkOrderController(IWorkOrderService workOrderService, IKafkaMessenger kafkaMessenger, IOptions<KafkaHubConfig> kafkaHubOptions, IHubContext<MessageHub> hub, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _workOrderService = workOrderService;
+        _kafkaMessenger = kafkaMessenger;
+        _kafkaHubOptions = kafkaHubOptions.Value;
         _hub = hub;
         _serializerOptions = serializerOptions.Value;
     }
@@ -122,7 +131,7 @@ public class WorkOrderController : ControllerBase
         var entity = _workOrderService.FindById(model.Id);
         if (entity == null) throw new InvalidOperationException("Work order not found");
         var result = _workOrderService.UpdateAndSave(model.CopyTo(entity, _serializerOptions));
-        await _hub.Clients.All.SendAsync("WorkOrder", new WorkOrderMessageModel(result, _serializerOptions));
+        await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("WorkOrder", new[] { new WorkOrderMessageModel(result, _serializerOptions) })));
         return new JsonResult(new WorkOrderModel(result, _serializerOptions));
     }
 

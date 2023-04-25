@@ -120,10 +120,10 @@ patches:
         value: 150Mi
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/cpu
-        value: 300m
+        value: 500m
       - op: replace
         path: /spec/template/spec/containers/0/resources/limits/memory
-        value: 300Mi
+        value: 500Mi
       - op: replace
         path: /spec/template/spec/containers/0/image
         value: image-registry.openshift-image-registry.svc:5000/9b301c-tools/api:test

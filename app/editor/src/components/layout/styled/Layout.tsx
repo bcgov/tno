@@ -31,7 +31,7 @@ export const Layout = styled.div`
     justify-content: center;
   }
 
-  header {
+  & > header {
     background-color: ${(props) => {
       switch (process.env.NODE_ENV) {
         case 'development':
