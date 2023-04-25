@@ -136,7 +136,7 @@ public class LookupController : ControllerBase
         var metrics = _metricService.FindAll();
         var tagServices = _tagService.FindAll();
         var tonePools = _tonePoolService.FindAll();
-        var users = _userService.FindByRoles(roles.Where(x => x != ClientRole.Subscriber.ToString().ToLower()));
+        var users = _userService.FindByRoles(roles.Where(x => x == ClientRole.Editor.ToString().ToLower()));
         var dataLocations = _dataLocationService.FindAll();
         return new JsonResult(new LookupModel(
             actions,
