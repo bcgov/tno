@@ -33,14 +33,13 @@ export const Layout = styled.div`
 
   & > header {
     background-color: ${(props) => {
-      switch (process.env.NODE_ENV) {
-        case 'development':
-          return props.theme.css.developmentBackgroundColor;
-        case 'test':
-          return props.theme.css.testBackgroundColor;
-        default:
-          return props.theme.css.productionBackgroundColor;
-      }
+      const isDevelopment =
+        window.location.href.includes('tno-dev.') || process.env.NODE_ENV === 'development';
+      const isTest = window.location.href.includes('tno-test.') || process.env.NODE_ENV === 'test';
+
+      if (isDevelopment) return props.theme.css.developmentBackgroundColor;
+      else if (isTest) return props.theme.css.testBackgroundColor;
+      else return props.theme.css.productionBackgroundColor;
     }};
   }
 
