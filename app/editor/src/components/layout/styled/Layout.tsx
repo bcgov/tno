@@ -34,12 +34,12 @@ export const Layout = styled.div`
   header {
     background-color: ${(props) => {
       switch (process.env.NODE_ENV) {
-        case 'production':
-          return props.theme.css.productionBackgroundColor;
+        case 'development':
+          return props.theme.css.developmentBackgroundColor;
         case 'test':
           return props.theme.css.testBackgroundColor;
         default:
-          return props.theme.css.developmentBackgroundColor;
+          return props.theme.css.productionBackgroundColor;
       }
     }};
   }
