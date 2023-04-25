@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TNO.DAL.Extensions;
@@ -145,6 +146,22 @@ public class UserService : BaseService<User, int>, IUserService
         }
 
         throw new InvalidOperationException("User does not exist");
+    }
+
+    public IEnumerable<User> FindByRoles(IEnumerable<string> roles)
+    {
+        var result = Context.Users.AsNoTracking();
+        if (roles.Any())
+        {
+            var predicate = PredicateBuilder.New<User>();
+            foreach (var role in roles)
+            {
+                var currentRole = role;
+                predicate = predicate.Or(x => x.Roles.ToLower().Contains(currentRole));
+            }
+            result = result.Where(predicate);
+        }
+        return result.OrderBy(a => a.Username).ThenBy(a => a.LastName).ThenBy(a => a.FirstName);
     }
     #endregion
 }
