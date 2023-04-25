@@ -31,6 +31,19 @@ export const Layout = styled.div`
     justify-content: center;
   }
 
+  header {
+    background-color: ${(props) => {
+      switch (process.env.NODE_ENV) {
+        case 'development':
+          return props.theme.css.developmentBackgroundColor;
+        case 'test':
+          return props.theme.css.testBackgroundColor;
+        default:
+          return props.theme.css.productionBackgroundColor;
+      }
+    }};
+  }
+
   .navbar {
     & > div {
       margin-left: 5em;
