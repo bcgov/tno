@@ -34,12 +34,10 @@ export const Layout = styled.div`
 
   & > header {
     background-color: ${(props) => {
-      const isDevelopment =
-        env.dev.includes(window.location.hostname) || process.env.NODE_ENV === 'development';
-      const isTest = env.test.includes(window.location.hostname) || process.env.NODE_ENV === 'test';
-
-      if (isDevelopment) return props.theme.css.developmentBackgroundColor;
-      else if (isTest) return props.theme.css.testBackgroundColor;
+      if (env.dev.includes(window.location.hostname))
+        return props.theme.css.developmentBackgroundColor;
+      else if (env.test.includes(window.location.hostname))
+        return props.theme.css.testBackgroundColor;
       else return props.theme.css.productionBackgroundColor;
     }};
   }
