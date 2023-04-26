@@ -2,7 +2,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportFilter } from 'features/content/morning-reports/interfaces';
+import { IMorningReportFilter } from 'features/content/morning-papers/interfaces';
 import { IContentModel, IPaged } from 'tno-core';
 
 export interface IContentState {
