@@ -2,7 +2,7 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { IMorningReportsFilter } from 'features/content/morning-reports/interfaces';
+import { IMorningReportsFilter } from 'features/content/morning-papers/interfaces';
 import React from 'react';
 import { ActionDelegate } from 'store';
 import { useContentStore } from 'store/slices';
