@@ -45,6 +45,10 @@ jobs:
       - name: Set Yarn Version
         run: npm set version 3.2.0
 
+      - name: Update Browsers List
+        run: npx update-browserslist-db@latest
+        working-directory: ${{ env.working-directory }}
+
       - name: Install Dependencies
         run: yarn
         working-directory: ${{ env.working-directory }}
