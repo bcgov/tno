@@ -85,6 +85,7 @@ public class ClipAction : CommandAction<ClipOptions>
                     {
                         // If another process has it in progress only attempt to do an import if it's
                         // more than an 2 minutes old. Assumption is that it is stuck.
+                        reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
                     }
                     else continue;
 
@@ -108,6 +109,7 @@ public class ClipAction : CommandAction<ClipOptions>
                 if ((ex is MissingFileException || (ex is AggregateException && ex.InnerException is MissingFileException)) &&
                     !manager.Ingest.GetConfigurationValue<bool>("throwOnMissingFile")) continue;
 
+                Logger.LogError(ex, "Failed in {class}.{method}", nameof(ClipAction), nameof(PerformActionAsync));
                 throw;
             }
         }
