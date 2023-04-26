@@ -35,9 +35,10 @@ export const Layout = styled.div`
   & > header {
     background-color: ${(props) => {
       const isDevelopment =
-        window.location.href.includes(env['dev-env']) || process.env.NODE_ENV === 'development';
+        window.location.href.includes(env.environments[0]) ||
+        process.env.NODE_ENV === 'development';
       const isTest =
-        window.location.href.includes(env['test-env']) || process.env.NODE_ENV === 'test';
+        window.location.href.includes(env.environments[1]) || process.env.NODE_ENV === 'test';
 
       if (isDevelopment) return props.theme.css.developmentBackgroundColor;
       else if (isTest) return props.theme.css.testBackgroundColor;
