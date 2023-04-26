@@ -8,7 +8,6 @@ import {
   Button,
   ButtonVariant,
   Col,
-  FieldSize,
   FormikCheckbox,
   FormikSelect,
   FormikText,
@@ -109,21 +108,39 @@ export const TopicScoreRuleList: React.FC = () => {
               <Row className="add-media">
                 <h2>Scoring by source</h2>
               </Row>
-              <div className="table-list">
-                <Row className="row-header">
-                  <Col className="f3">Source</Col>
-                  <Col className="f3">Program/Show</Col>
-                  <Col className="f3">Section</Col>
-                  <Col>Page min</Col>
-                  <Col>Page max</Col>
-                  <Col>Has Image</Col>
-                  <Col className="f2">Text min</Col>
-                  <Col className="f2">Text max</Col>
-                  <Col className="f2">Time min</Col>
-                  <Col className="f2">Time max</Col>
-                  <Col>Score</Col>
-                  <Col>&nbsp;</Col>
-                </Row>
+              <div className="grid-table">
+                <div>Source</div>
+                <div>Program/Show</div>
+                <div>Section</div>
+                <div className="center">
+                  Page
+                  <br />
+                  Min
+                </div>
+                <div className="center">
+                  Page
+                  <br />
+                  Max
+                </div>
+                <div className="center">
+                  Has
+                  <br />
+                  Image
+                </div>
+                <div className="center">
+                  Text
+                  <br />
+                  Min
+                </div>
+                <div className="center">
+                  Text
+                  <br />
+                  Max
+                </div>
+                <div>Time Min</div>
+                <div>Time Max</div>
+                <div>Score</div>
+                <div>&nbsp;</div>
                 {values.map((item, index) => {
                   const optionSource = sourceOptions.find((o) => o.value === item.sourceId);
                   const tooltipSource =
@@ -145,18 +162,13 @@ export const TopicScoreRuleList: React.FC = () => {
                           onClick={() => addTopicScoreRule(index, values)}
                         ></Row>
                       </Show>
-                      <Row className={`row${item.id === 0 ? ' adding' : ''}`}>
-                        <Col
-                          className="f3"
-                          data-tooltip-content={tooltipSource}
-                          data-tooltip-id="main-tooltip"
-                        >
+                      <div className={`grid-row${item.id === 0 ? ' adding' : ''}`}>
+                        <div data-tooltip-content={tooltipSource} data-tooltip-id="main-tooltip">
                           <FormikSelect
                             name={`${index}.sourceId`}
                             required
                             options={sourceOptions}
                             value={sourceOptions.find((o) => o.value === item.sourceId) ?? ''}
-                            width={FieldSize.Small}
                             isClearable={false}
                             menuPortalTarget={document.body}
                             styles={{ menuPortal: (base) => ({ ...base, zIndex: 2 }) }}
@@ -171,17 +183,12 @@ export const TopicScoreRuleList: React.FC = () => {
                               }
                             }}
                           />
-                        </Col>
-                        <Col
-                          className="f3"
-                          data-tooltip-content={tooltipSeries}
-                          data-tooltip-id="main-tooltip"
-                        >
+                        </div>
+                        <div data-tooltip-content={tooltipSeries} data-tooltip-id="main-tooltip">
                           <FormikSelect
                             name={`${index}.seriesId`}
                             options={getSeriesOptions(values[index].sourceId)}
                             value={seriesOptions.find((o) => o.value === item.seriesId) ?? ''}
-                            width={FieldSize.Small}
                             menuPortalTarget={document.body}
                             styles={{ menuPortal: (base) => ({ ...base, zIndex: 2 }) }}
                             clearValue=""
@@ -197,45 +204,66 @@ export const TopicScoreRuleList: React.FC = () => {
                               }
                             }}
                           />
-                        </Col>
-                        <Col className="f3">
-                          <FormikText name={`${index}.section`} width={FieldSize.Small} />
-                        </Col>
-                        <Col>
-                          <FormikText name={`${index}.pageMin`} width="3em" />
-                        </Col>
-                        <Col>
-                          <FormikText name={`${index}.pageMax`} width="3em" />
-                        </Col>
-                        <Col>
+                        </div>
+                        <div>
+                          <FormikText name={`${index}.section`} />
+                        </div>
+                        <div className={`center`}>
+                          <FormikText
+                            name={`${index}.pageMin`}
+                            width="3em"
+                            className="text-right"
+                          />
+                        </div>
+                        <div className={`center`}>
+                          <FormikText
+                            name={`${index}.pageMax`}
+                            width="3em"
+                            className="text-right"
+                          />
+                        </div>
+                        <div className={`center`}>
                           <FormikCheckbox name={`${index}.hasImage`} value={true} />
-                        </Col>
-                        <Col>
-                          <FormikText name={`${index}.characterMin`} className="f2" width="4em" />
-                        </Col>
-                        <Col>
-                          <FormikText name={`${index}.characterMax`} className="f2" width="4em" />
-                        </Col>
-                        <Col className="f2">
+                        </div>
+                        <div className={`center`}>
+                          <FormikText
+                            name={`${index}.characterMin`}
+                            width="4em"
+                            className="text-right"
+                          />
+                        </div>
+                        <div className={`center`}>
+                          <FormikText
+                            name={`${index}.characterMax`}
+                            width="4em"
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
                           <FormikTimeInput
                             name={`${index}.timeMin`}
                             width="7em"
                             value={!!item.timeMin ? item.timeMin : ''}
                             placeholder={!!item.timeMin ? item.timeMin : 'HH:MM:SS'}
                           />
-                        </Col>
-                        <Col className="f2">
+                        </div>
+                        <div>
                           <FormikTimeInput
                             name={`${index}.timeMax`}
                             width="7em"
                             value={!!item.timeMax ? item.timeMax : ''}
                             placeholder={!!item.timeMax ? item.timeMax : 'HH:MM:SS'}
                           />
-                        </Col>
-                        <Col>
-                          <FormikText name={`${index}.score`} required width="3.5em" />
-                        </Col>
-                        <Col alignContent="flex-end" className="actions">
+                        </div>
+                        <div>
+                          <FormikText
+                            name={`${index}.score`}
+                            required
+                            width="3.5em"
+                            className="text-right"
+                          />
+                        </div>
+                        <div className={`actions`}>
                           <Row nowrap>
                             <Col>
                               <Button
@@ -291,8 +319,8 @@ export const TopicScoreRuleList: React.FC = () => {
                               <FaTrash />
                             </Button>
                           </Row>
-                        </Col>
-                      </Row>
+                        </div>
+                      </div>
                       <Show visible={!!rules.length}>
                         <Row
                           className="add-row"
