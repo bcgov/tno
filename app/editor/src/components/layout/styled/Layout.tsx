@@ -1,3 +1,4 @@
+import env from 'env.json';
 import styled from 'styled-components';
 
 export const Layout = styled.div`
@@ -34,8 +35,9 @@ export const Layout = styled.div`
   & > header {
     background-color: ${(props) => {
       const isDevelopment =
-        window.location.href.includes('tno-dev.') || process.env.NODE_ENV === 'development';
-      const isTest = window.location.href.includes('tno-test.') || process.env.NODE_ENV === 'test';
+        window.location.href.includes(env['dev-env']) || process.env.NODE_ENV === 'development';
+      const isTest =
+        window.location.href.includes(env['test-env']) || process.env.NODE_ENV === 'test';
 
       if (isDevelopment) return props.theme.css.developmentBackgroundColor;
       else if (isTest) return props.theme.css.testBackgroundColor;
