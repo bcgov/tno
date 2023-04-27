@@ -1,3 +1,4 @@
+import env from 'env.json';
 import styled from 'styled-components';
 
 export const Layout = styled.div`
@@ -33,14 +34,11 @@ export const Layout = styled.div`
 
   & > header {
     background-color: ${(props) => {
-      switch (process.env.NODE_ENV) {
-        case 'development':
-          return props.theme.css.developmentBackgroundColor;
-        case 'test':
-          return props.theme.css.testBackgroundColor;
-        default:
-          return props.theme.css.productionBackgroundColor;
-      }
+      if (env.dev.includes(window.location.hostname))
+        return props.theme.css.developmentBackgroundColor;
+      else if (env.test.includes(window.location.hostname))
+        return props.theme.css.testBackgroundColor;
+      else return props.theme.css.productionBackgroundColor;
     }};
   }
 
