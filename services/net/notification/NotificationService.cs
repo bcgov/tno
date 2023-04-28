@@ -6,6 +6,7 @@ using TNO.Kafka;
 using TNO.Ches;
 using System.Security.Claims;
 using TNO.Entities.Validation;
+using TNO.Services.Notification.Models;
 
 namespace TNO.Services.Notification;
 
@@ -46,7 +47,8 @@ public class NotificationService : KafkaConsumerService
             .AddTransient<INotificationValidator, NotificationValidator>()
             .AddChesSingletonService(this.Configuration.GetSection("CHES"))
             .AddSingleton(new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Email, "") })))
-            .AddSingleton<IServiceManager, NotificationManager>();
+            .AddSingleton<IServiceManager, NotificationManager>()
+            .AddSingleton<ITnoRazorLightEngine, TnoRazorLightEngine>();
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<NotificationOptions>()

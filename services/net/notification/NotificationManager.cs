@@ -14,6 +14,9 @@ using TNO.Ches.Configuration;
 using System.Text.Json;
 using System.Security.Claims;
 using TNO.Entities.Validation;
+using TNO.Services.Notification.Models;
+using TNO.API.Areas.Services.Models.Notification;
+using TNO.API.Areas.Services.Models.Content;
 
 namespace TNO.Services.Notification;
 
@@ -29,6 +32,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private int _retries = 0;
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
+    private readonly ITnoRazorLightEngine _engine;
     #endregion
 
     #region Properties
@@ -75,6 +79,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<NotificationOptions> notificationOptions,
         INotificationValidator notificationValidator,
+        ITnoRazorLightEngine engine,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
     {
@@ -87,6 +92,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
+        _engine = engine;
     }
     #endregion
 
@@ -376,10 +382,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="notification"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private Task<string> GenerateNotificationSubjectAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    private async Task<string> GenerateNotificationSubjectAsync(NotificationModel notification, ContentModel content)
     {
-        var template = notification.Settings.GetDictionaryJsonValue<string>("subject");
-        return Task.FromResult($"{template} - {content.Headline}");
+        return await GenerateNotificationAsync(notification, content, true);
     }
 
     /// <summary>
@@ -388,9 +393,23 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="notification"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private Task<string> GenerateNotificationBodyAsync(API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    private async Task<string> GenerateNotificationBodyAsync(NotificationModel notification, ContentModel content)
     {
-        return Task.FromResult($"{notification.Template} - Content ID: {content.Id} - {content.Summary}");
+        return await GenerateNotificationAsync(notification, content);
+    }
+
+    private async Task<string> GenerateNotificationAsync(NotificationModel notification, ContentModel content, bool isSubject = false)
+    {
+        var key = notification.Name + "_" + notification.Id;
+        var result = await _engine.CompileRenderStringAsync(
+            key,
+            isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
+            new TemplateModel
+            {
+                Key = key,
+                Content = content
+            });
+        return result;
     }
     #endregion
 }
