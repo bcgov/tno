@@ -7,7 +7,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentStatus, ContentTypeName, IContentModel, Page, Row } from 'tno-core';
+import { ContentTypeName, IContentModel, Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
