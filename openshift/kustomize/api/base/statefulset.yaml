@@ -28,7 +28,7 @@ metadata:
     cluster: api-cluster
 spec:
   serviceName: api
-  replicas: 3
+  replicas: 1
   podManagementPolicy: Parallel
   updateStrategy:
     type: RollingUpdate

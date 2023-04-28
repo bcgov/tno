@@ -4,8 +4,15 @@ kind: Kustomization
 
 resources:
   - config-map.yaml
+  - services-config-map.yaml
   - deploy.yaml
   - service.yaml
 
 generatorOptions:
   disableNameSuffixHash: true
+
+secretGenerator:
+  - name: ssh-key
+    type: stringData
+    files:
+      - id_rsa=secret.env
