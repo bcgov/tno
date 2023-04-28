@@ -9,12 +9,19 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 
-configMapGenerator:
-  - envs:
-      - config.env
-    name: services
+# configMapGenerator:
+#   - envs:
+#       - config.env
+#     name: services
 
 patches:
+  - target:
+      kind: ConfigMap
+      name: services
+    patch: |-
+      - op: replace
+        path: /data/KEYCLOAK_AUTHORITY
+        value: https://loginproxy.gov.bc.ca/auth
   - target:
       kind: DeploymentConfig
       name: syndication-service

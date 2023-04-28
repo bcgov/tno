@@ -15,7 +15,7 @@ metadata:
     managed-by: kustomize
     created-by: jeremy.foster
 spec:
-  replicas: 3
+  replicas: 1
   test: false
   selector:
     part-of: tno
