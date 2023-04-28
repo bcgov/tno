@@ -140,8 +140,7 @@ public class SourceService : BaseService<Source, int>, ISourceService
     {
         var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
         this.Context.UpdateContext(original, entity, updateChildren);
-        base.UpdateAndSave(original);
-        return original;
+        return base.UpdateAndSave(original);
     }
     #endregion
 }
