@@ -400,13 +400,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
     private async Task<string> GenerateNotificationAsync(NotificationModel notification, ContentModel content, bool isSubject = false)
     {
-        var key = notification.Name + "_" + notification.Id;
         var result = await _engine.CompileRenderStringAsync(
-            key,
+            notification.Name + "_" + notification.Id,
             isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
             new TemplateModel
             {
-                Key = key,
                 Content = content
             });
         return result;

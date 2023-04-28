@@ -1,6 +1,7 @@
 ﻿using RazorLight;
+using System.Reflection;
 
-namespace TNO.Services.Notification.Models
+namespace TNO.Services.Notification
 {
     public class TnoRazorLightEngine : ITnoRazorLightEngine
     {
@@ -8,7 +9,7 @@ namespace TNO.Services.Notification.Models
         public TnoRazorLightEngine()
         {
             _engine = new RazorLightEngineBuilder()
-                .UseEmbeddedResourcesProject(typeof(TemplateModel))
+                .UseEmbeddedResourcesProject(Assembly.GetEntryAssembly())
                 .Build();
         }
         public async Task<string> CompileRenderStringAsync<T>(string key, string content, T model)

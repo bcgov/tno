@@ -1,4 +1,4 @@
-﻿namespace TNO.Services.Notification.Models
+﻿namespace TNO.Services.Notification
 {
     public interface ITnoRazorLightEngine
     {

@@ -6,7 +6,6 @@ using TNO.Kafka;
 using TNO.Ches;
 using System.Security.Claims;
 using TNO.Entities.Validation;
-using TNO.Services.Notification.Models;
 
 namespace TNO.Services.Notification;
 
