@@ -93,7 +93,7 @@ export const ViewContent: React.FC = () => {
       </Row>
       <Row justifyContent="space-between">
         <p className="name-date">
-          by {content?.owner?.firstName} {content?.owner?.lastName} -{' '}
+          {content?.byline ? `by ${content?.byline} - ` : ''}
           {formatDate(content?.publishedOn ?? '')}
         </p>
         <p className="source-section">
