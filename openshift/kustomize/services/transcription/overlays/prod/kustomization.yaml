@@ -11,6 +11,13 @@ generatorOptions:
 
 patches:
   - target:
+      kind: ConfigMap
+      name: services
+    patch: |-
+      - op: replace
+        path: /data/KEYCLOAK_AUTHORITY
+        value: https://loginproxy.gov.bc.ca/auth
+  - target:
       kind: DeploymentConfig
       name: transcription-service
     patch: |-
