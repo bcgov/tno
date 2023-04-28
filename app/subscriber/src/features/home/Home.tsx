@@ -32,7 +32,8 @@ export const Home: React.FC = () => {
             contentTypes:
               filter.contentTypes.length > 0 ? filter.contentTypes : [ContentTypeName.PrintContent],
             startDate: filter.startDate ? filter.startDate : new Date().toDateString(),
-            status: ContentStatus.Published,
+            // TODO: For testing purposes leaving this commented out
+            // status: ContentStatus.Published,
           }),
         );
         setHomeItems(data.items);
