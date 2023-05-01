@@ -93,7 +93,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
         if (reference != null)
         {
             if (reference.Status != (int)status) reference.Status = (int)status;
-            reference = await Api.UpdateContentReferenceAsync(reference, Headers);
+            reference = await this.Api.UpdateContentReferenceAsync(reference, Headers);
         }
         return reference;
     }
