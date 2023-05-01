@@ -77,7 +77,7 @@ public class WorkOrderController : ControllerBase
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var result = _workOrderService.Find(new WorkOrderFilter(query));
         var items = result.Items.Select(ds => new WorkOrderModel(ds, _serializerOptions));
-        var page = new Paged<WorkOrderModel>(items, result.Page, result.Quantity, items.Count());
+        var page = new Paged<WorkOrderModel>(items, result.Page, result.Quantity, result.Total);
         return new JsonResult(page);
     }
 

@@ -9,6 +9,10 @@ export const TopicList = styled.div`
   .form-page {
     display: flex;
     gap: 1em;
+
+    div[role='rowgroup'] {
+      max-height: unset;
+    }
   }
 
   .filter-bar {
