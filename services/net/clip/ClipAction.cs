@@ -109,7 +109,6 @@ public class ClipAction : CommandAction<ClipOptions>
                 if ((ex is MissingFileException || (ex is AggregateException && ex.InnerException is MissingFileException)) &&
                     !manager.Ingest.GetConfigurationValue<bool>("throwOnMissingFile")) continue;
 
-                Logger.LogError(ex, "Failed in {class}.{method}", nameof(ClipAction), nameof(PerformActionAsync));
                 throw;
             }
         }

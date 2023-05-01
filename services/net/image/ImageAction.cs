@@ -77,47 +77,39 @@ public class ImageAction : IngestAction<ImageOptions>
 
         if (File.Exists(sshKeyFile))
         {
-            try
-            {
-                var keyFile = new PrivateKeyFile(sshKeyFile);
-                var keyFiles = new[] { keyFile };
-                var connectionInfo = new ConnectionInfo(hostname,
-                                                    username,
-                                                    new PrivateKeyAuthenticationMethod(username, keyFiles));
-                using var client = new SftpClient(connectionInfo);
-                client.Connect();
-                remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
-                var files = await FetchImagesAsync(client, remotePath);
-                files = files.Where(f => f.Name.Contains(inputFileName));
-                this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);
+            var keyFile = new PrivateKeyFile(sshKeyFile);
+            var keyFiles = new[] { keyFile };
+            var connectionInfo = new ConnectionInfo(hostname,
+                                                username,
+                                                new PrivateKeyAuthenticationMethod(username, keyFiles));
+            using var client = new SftpClient(connectionInfo);
+            client.Connect();
+            remotePath = remotePath.Replace("~/", $"{client.WorkingDirectory}/");
+            var files = await FetchImagesAsync(client, remotePath);
+            files = files.Where(f => f.Name.Contains(inputFileName));
+            this.Logger.LogDebug("{count} files were discovered that match the filter '{filter}'.", files.Count(), inputFileName);
 
-                foreach (var file in files)
+            foreach (var file in files)
+            {
+                var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, file.Name);
+                if (reference == null)
                 {
-                    var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, file.Name);
-                    if (reference == null)
-                    {
-                        reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, file.Name));
-                    }
-                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-                    {
-                        // If another process has it in progress only attempt to do an import if it's
-                        // more than an 5 minutes old. Assumption is that it is stuck.
-                        reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                    }
-                    else continue;
-
-                    await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
-                    reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                    if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
+                    reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, file.Name));
                 }
+                else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+                {
+                    // If another process has it in progress only attempt to do an import if it's
+                    // more than an 5 minutes old. Assumption is that it is stuck.
+                    reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                }
+                else continue;
 
-                client.Disconnect();
+                await CopyImageAsync(client, manager.Ingest, remotePath.CombineWith(file.Name));
+                reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
+                if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
             }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Failed in {class}.{method}", nameof(ImageAction), nameof(PerformActionAsync));
-                throw;
-            }
+
+            client.Disconnect();
         }
         else
         {
