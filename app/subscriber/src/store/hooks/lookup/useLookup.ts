@@ -5,6 +5,7 @@ import {
   IActionModel,
   ICacheModel,
   IDataLocationModel,
+  IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
   ILookupModel,
@@ -112,6 +113,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
               saveToLocalStorage('users', results.users, store.storeUsers);
               saveToLocalStorage('dataLocations', results.dataLocations, store.storeDataLocations);
+              saveToLocalStorage('holidays', results.holidays, store.storeHolidays);
               return results;
             } else {
               const lookups = {
@@ -130,6 +132,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
                 users: getFromLocalStorage<IUserModel[]>('users', []),
                 dataLocations: getFromLocalStorage<IDataLocationModel[]>('dataLocations', []),
+                holidays: getFromLocalStorage<IHolidayModel[]>('holidays', []),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
@@ -146,6 +149,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeTonePools(lookups.tonePools);
               store.storeUsers(lookups.users);
               store.storeDataLocations(lookups.dataLocations);
+              store.storeHolidays(lookups.holidays);
               return lookups;
             }
           },
