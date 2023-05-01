@@ -23,6 +23,7 @@ import {
   OptionItem,
   Row,
   Show,
+  Text,
   useModal,
   WorkOrderStatusName,
 } from 'tno-core';
@@ -119,14 +120,14 @@ export const WorkOrderForm: React.FC = () => {
             <Show visible={!!values.configuration.contentId}>
               <Row>
                 <Col flex="1 1 0">
-                  <FormikText name="content.headline" label="Content Headline" disabled>
+                  <Text name="content.headline" label="Content Headline" disabled>
                     <Button
                       variant={ButtonVariant.secondary}
                       onClick={() => goToContent(values.configuration.contentId!)}
                     >
                       Go
                     </Button>
-                  </FormikText>
+                  </Text>
                 </Col>
               </Row>
             </Show>

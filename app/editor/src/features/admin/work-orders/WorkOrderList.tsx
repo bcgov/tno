@@ -1,11 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SortingRule } from 'react-table';
-import { useApp } from 'store/hooks';
 import { useWorkOrders } from 'store/hooks/admin/useWorkOrders';
-import { Col, IWorkOrderModel, Page, PagedTable, Row } from 'tno-core';
+import { Col, FlexboxTable, ITablePage, IWorkOrderModel, Page, Row } from 'tno-core';
 
-import { columns } from './constants';
+import { getColumns } from './constants';
 import { IWorkOrderListFilter } from './interfaces/IWorkOrderListFilter';
 import * as styled from './styled';
 import { makeWorkOrderFilter } from './utils/makeWorkOrderFilter';
@@ -18,12 +17,11 @@ import { WorkOrderListFilter } from './WorkOrderListFilter';
 export const WorkOrderList = () => {
   const navigate = useNavigate();
   const [{ workOrders, workOrderFilter }, { findWorkOrders, storeFilter }] = useWorkOrders();
-  const [{ requests }] = useApp();
 
   const [page, setPage] = React.useState(
     new Page(workOrders.page - 1, workOrders.quantity, workOrders.items, workOrders.total),
   );
-  const [filter, setFilter] = React.useState(workOrderFilter);
+  const [filter, setFilter] = React.useState<IWorkOrderListFilter>();
 
   const handleChangeSort = React.useCallback(
     (sortBy: SortingRule<IWorkOrderModel>[]) => {
@@ -40,12 +38,15 @@ export const WorkOrderList = () => {
   );
 
   const handleChangePage = React.useCallback(
-    (pi: number, ps?: number) => {
-      if (workOrderFilter.pageIndex !== pi || workOrderFilter.pageSize !== ps) {
+    (page: ITablePage) => {
+      if (
+        workOrderFilter.pageIndex !== page.pageIndex ||
+        workOrderFilter.pageSize !== page.pageSize
+      ) {
         storeFilter({
           ...workOrderFilter,
-          pageIndex: pi,
-          pageSize: ps ?? workOrderFilter.pageSize,
+          pageIndex: page.pageIndex,
+          pageSize: page.pageSize ?? workOrderFilter.pageSize,
         });
       }
     },
@@ -82,17 +83,20 @@ export const WorkOrderList = () => {
           A work order is a request submitted to the system (i.e. transcription, NLP).
         </Col>
       </Row>
-      <PagedTable
-        columns={columns}
-        header={WorkOrderListFilter}
-        sorting={{ sortBy: workOrderFilter.sort }}
-        isLoading={!!requests.length}
-        page={page}
+      <WorkOrderListFilter />
+      <FlexboxTable
+        rowId="id"
+        columns={getColumns()}
+        data={page.items}
+        manualPaging={true}
+        pageIndex={workOrderFilter.pageIndex}
+        pageSize={workOrderFilter.pageSize}
+        pageCount={page.pageCount}
+        showSort={true}
+        onPageChange={handleChangePage}
+        onSortChange={handleChangeSort}
         onRowClick={(row) => navigate(`${row.original.id}`)}
-        onChangeSort={handleChangeSort}
-        onChangePage={handleChangePage}
-        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-      ></PagedTable>
+      />
     </styled.WorkOrderList>
   );
 };
