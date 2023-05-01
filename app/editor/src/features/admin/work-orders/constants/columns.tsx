@@ -1,47 +1,45 @@
 import moment from 'moment';
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellEllipsis, IWorkOrderModel } from 'tno-core';
+import { CellEllipsis, ITableHookColumn, IWorkOrderModel } from 'tno-core';
 
-export const columns: (Column<IWorkOrderModel> &
-  UseSortByColumnOptions<IWorkOrderModel> &
-  UseFiltersColumnOptions<IWorkOrderModel>)[] = [
+export const getColumns = (
+  onClickOpen?: (contentId: number) => void,
+): ITableHookColumn<IWorkOrderModel>[] => [
   {
-    id: 'id',
-    Header: 'Type',
-    accessor: 'workType',
+    label: 'Type',
+    name: 'workType',
     width: 2,
-    Cell: ({ value }) => <span>{value.replace(/([A-Z])/g, ' $1')}</span>,
+    cell: (cell) => <span>{cell.original.workType.replace(/([A-Z])/g, ' $1')}</span>,
   },
   {
-    Header: 'Content',
-    accessor: 'configuration',
+    label: 'Content',
+    name: 'configuration',
     width: 4,
-    Cell: ({ value }) => <CellEllipsis>{value?.contentId}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{JSON.stringify(cell.original.configuration)}</CellEllipsis>,
   },
   {
-    Header: 'Submitted',
-    accessor: 'createdOn',
+    label: 'Submitted',
+    name: 'createdOn',
     width: 2,
-    Cell: ({ value }) => {
-      const created = moment(value);
+    cell: (cell) => {
+      const created = moment(cell.original.createdOn);
       const text = created.isValid() ? created.format('MM/DD/YYYY HH:mm:ss') : '';
       return <div className="center">{text}</div>;
     },
   },
   {
-    Header: 'Updated',
-    accessor: 'updatedOn',
+    label: 'Updated',
+    name: 'updatedOn',
     width: 2,
-    Cell: ({ value }) => {
-      const created = moment(value);
+    cell: (cell) => {
+      const created = moment(cell.original.updatedOn);
       const text = created.isValid() ? created.format('MM/DD/YYYY HH:mm:ss') : '';
       return <div className="center">{text}</div>;
     },
   },
   {
-    Header: 'Status',
-    accessor: 'status',
+    label: 'Status',
+    name: 'status',
     width: 1,
-    Cell: ({ value }) => <span>{value.replace(/([A-Z])/g, ' $1')}</span>,
+    cell: (cell) => <span>{cell.original.status.replace(/([A-Z])/g, ' $1')}</span>,
   },
 ];

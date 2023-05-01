@@ -24,7 +24,7 @@ public class TopicService : BaseService<Topic, int>, ITopicService
     {
         return this.Context.Topics
             .AsNoTracking()
-            .OrderBy(a => a.TopicType)
+            .OrderByDescending(a => a.TopicType)
             .ThenBy(a => a.SortOrder)
             .ThenBy(a => a.Name).ToArray();
     }

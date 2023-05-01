@@ -1,4 +1,5 @@
 import { getIn, useFormikContext } from 'formik';
+import moment from 'moment';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
@@ -124,6 +125,10 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
               onChange={(e) => {
                 const checked = e.currentTarget.checked;
                 if (!checked) setFieldValue(field('value', index), '');
+                else {
+                  const weekDay = moment(values.publishedOn).weekday();
+                  setFieldValue(field('value', index), `${weekDay === 0 || weekDay === 6 ? 3 : 5}`);
+                }
                 setHidden(
                   hidden.map((h) => {
                     if (h.id === a.id) return { ...h, value: checked };

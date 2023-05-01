@@ -57,6 +57,10 @@ export const CustomSidebar = styled(Sidebar)`
       padding-left: 6px !important;
       padding-right: 6px !important;
     }
+    /* again need to override defaults */
+    &:hover {
+      background-color: ${(props) => props.theme.css.selectedMenuItemColor} !important;
+    }
   }
   .ps-menuitem-root {
     color: white;
