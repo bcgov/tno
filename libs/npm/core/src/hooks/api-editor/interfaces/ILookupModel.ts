@@ -1,6 +1,7 @@
 import {
   IActionModel,
   IDataLocationModel,
+  IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -32,4 +33,5 @@ export interface ILookupModel {
   tonePools: ITonePoolModel[];
   users: IUserModel[];
   dataLocations: IDataLocationModel[];
+  holidays: IHolidayModel[];
 }

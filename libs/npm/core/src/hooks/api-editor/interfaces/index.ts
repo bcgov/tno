@@ -19,6 +19,7 @@ export * from './IContentTopicModel';
 export * from './IDataLocationModel';
 export * from './IFileReferenceModel';
 export * from './IFolderModel';
+export * from './IHolidayModel';
 export * from './IIngestFilter';
 export * from './IIngestModel';
 export * from './IIngestScheduleModel';

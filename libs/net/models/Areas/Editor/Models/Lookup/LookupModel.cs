@@ -77,6 +77,11 @@ public class LookupModel
     /// get/set - An array of all data locations.
     /// </summary>
     public IEnumerable<DataLocation.DataLocationModel> DataLocations { get; set; } = Array.Empty<DataLocation.DataLocationModel>();
+
+    /// <summary>
+    /// get/set - An array of holidays for the current year.
+    /// </summary>
+    public IEnumerable<HolidayModel> Holidays { get; set; } = Array.Empty<HolidayModel>();
     #endregion
 
     #region Constructors
@@ -119,6 +124,7 @@ public class LookupModel
         IEnumerable<Entities.TonePool> tonePools,
         IEnumerable<Entities.User> users,
         IEnumerable<Entities.DataLocation> dataLocations,
+        IEnumerable<HolidayModel> holidays,
         JsonSerializerOptions options)
     {
         this.Actions = actions.Select(a => new Action.ActionModel(a));
@@ -135,6 +141,7 @@ public class LookupModel
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));
         this.Users = users.Select(a => new User.UserModel(a));
         this.DataLocations = dataLocations.Select(a => new DataLocation.DataLocationModel(a));
+        this.Holidays = holidays;
     }
     #endregion
 }
