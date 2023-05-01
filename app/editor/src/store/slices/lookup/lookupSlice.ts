@@ -3,6 +3,7 @@ import {
   IActionModel,
   ICacheModel,
   IDataLocationModel,
+  IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -37,6 +38,7 @@ export const initialLookupState: ILookupState = {
   tonePools: [],
   users: [],
   dataLocations: [],
+  holidays: [],
 };
 
 export const lookupSlice = createSlice({
@@ -102,6 +104,9 @@ export const lookupSlice = createSlice({
     storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
       state.dataLocations = action.payload;
     },
+    storeHolidays(state: ILookupState, action: PayloadAction<IHolidayModel[]>) {
+      state.holidays = action.payload;
+    },
   },
 });
 
@@ -123,4 +128,5 @@ export const {
   storeTonePools,
   storeUsers,
   storeDataLocations,
+  storeHolidays,
 } = lookupSlice.actions;
