@@ -1,5 +1,4 @@
 import { getIn, useFormikContext } from 'formik';
-import moment from 'moment';
 import React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
@@ -19,6 +18,7 @@ import {
 } from 'tno-core';
 
 import { IContentForm } from './interfaces';
+import { getDefaultCommentaryExpiryValue } from './utils';
 
 export interface IContentActionsProps {
   /** The name of the input and field assessor */
@@ -48,7 +48,7 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
   contentType,
 }) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const [{ actions }] = useLookup();
+  const [{ actions, holidays }] = useLookup();
   const { field } = useNamespace(name);
 
   const formActions: IContentActionModel[] = getIn(values, name, []);
@@ -126,8 +126,10 @@ export const ContentActions: React.FC<IContentActionsProps> = ({
                 const checked = e.currentTarget.checked;
                 if (!checked) setFieldValue(field('value', index), '');
                 else {
-                  const weekDay = moment(values.publishedOn).weekday();
-                  setFieldValue(field('value', index), `${weekDay === 0 || weekDay === 6 ? 3 : 5}`);
+                  setFieldValue(
+                    field('value', index),
+                    `${getDefaultCommentaryExpiryValue(values.publishedOn, holidays)}`,
+                  );
                 }
                 setHidden(
                   hidden.map((h) => {

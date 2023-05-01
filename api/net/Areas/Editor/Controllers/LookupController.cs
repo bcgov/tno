@@ -12,6 +12,7 @@ using TNO.DAL.Services;
 using TNO.CSS;
 using TNO.CSS.Config;
 using TNO.Keycloak;
+using TNO.Core.Http;
 
 namespace TNO.API.Areas.Editor.Controllers;
 
@@ -33,6 +34,7 @@ public class LookupController : ControllerBase
 {
     #region Variables
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly IHttpRequestClient _httpClient;
     private readonly IActionService _actionService;
     private readonly ITopicService _topicService;
     private readonly ITopicScoreRuleService _topicScoreRuleService;
@@ -48,12 +50,14 @@ public class LookupController : ControllerBase
     private readonly IDataLocationService _dataLocationService;
     private readonly ICssEnvironmentService _CssService;
     private readonly CssEnvironmentOptions _CssOptions;
+    private readonly ILogger _logger;
     #endregion
 
     #region Constructors
     /// <summary>
     /// Creates a new instance of a LookupController object, initializes with specified parameters.
     /// </summary>
+    /// <param name="httpClient"></param>
     /// <param name="actionService"></param>
     /// <param name="topicService"></param>
     /// <param name="topicScoreRuleService"></param>
@@ -70,7 +74,9 @@ public class LookupController : ControllerBase
     /// <param name="cssService"></param>
     /// <param name="cssOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="logger"></param>
     public LookupController(
+        IHttpRequestClient httpClient,
         IActionService actionService,
         ITopicService topicService,
         ITopicScoreRuleService topicScoreRuleService,
@@ -86,8 +92,10 @@ public class LookupController : ControllerBase
         IDataLocationService dataLocationService,
         ICssEnvironmentService cssService,
         IOptions<CssEnvironmentOptions> cssOptions,
-        IOptions<JsonSerializerOptions> serializerOptions)
+        IOptions<JsonSerializerOptions> serializerOptions,
+        ILogger<LookupController> logger)
     {
+        _httpClient = httpClient;
         _actionService = actionService;
         _topicService = topicService;
         _topicScoreRuleService = topicScoreRuleService;
@@ -104,6 +112,7 @@ public class LookupController : ControllerBase
         _CssService = cssService;
         _CssOptions = cssOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _logger = logger;
     }
     #endregion
 
@@ -123,6 +132,16 @@ public class LookupController : ControllerBase
     {
         if (String.IsNullOrWhiteSpace(_CssOptions.ClientId)) throw new ConfigurationException("CSS clientId has not been configured");
         if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");
+
+        CanadaHolidayModel? statHolidays = null;
+        try
+        {
+            statHolidays = await _httpClient.GetAsync<CanadaHolidayModel>("https://canada-holidays.ca/api/v1/provinces/BC");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch BC holidays");
+        }
 
         var actions = _actionService.FindAll();
         var topics = _topicService.FindAll();
@@ -153,6 +172,7 @@ public class LookupController : ControllerBase
             tonePools,
             users,
             dataLocations,
+            statHolidays?.Province?.Holidays ?? Array.Empty<HolidayModel>(),
             _serializerOptions
             ));
     }

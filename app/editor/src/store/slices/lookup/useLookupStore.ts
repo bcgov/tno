@@ -4,6 +4,7 @@ import {
   IActionModel,
   ICacheModel,
   IDataLocationModel,
+  IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
   IMetricModel,
@@ -23,6 +24,7 @@ import {
   storeActions,
   storeCache,
   storeDataLocations,
+  storeHolidays,
   storeIngestTypes,
   storeLicenses,
   storeMetrics,
@@ -58,6 +60,7 @@ export interface ILookupStore {
   storeTonePools: (contentTypes: ITonePoolModel[]) => void;
   storeUsers: (users: IUserModel[]) => void;
   storeDataLocations: (users: IDataLocationModel[]) => void;
+  storeHolidays: (users: IHolidayModel[]) => void;
 }
 
 export const useLookupStore = (): [ILookupState, ILookupStore] => {
@@ -116,6 +119,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeDataLocations: (dataLocations: IDataLocationModel[]) => {
         dispatch(storeDataLocations(dataLocations));
+      },
+      storeHolidays: (holidays: IHolidayModel[]) => {
+        dispatch(storeHolidays(holidays));
       },
     }),
     [dispatch],
