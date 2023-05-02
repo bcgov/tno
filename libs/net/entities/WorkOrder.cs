@@ -151,7 +151,7 @@ public class WorkOrder : AuditColumns
     /// <param name="type"></param>
     /// <param name="description"></param>
     /// <param name="content"></param>
-    public WorkOrder(WorkOrderType type, string description, Content content) : this(type, description, content.Id)
+    public WorkOrder(WorkOrderType type, string description, Content content) : this(type, description, content.Id, content.Headline)
     {
     }
 
@@ -161,7 +161,8 @@ public class WorkOrder : AuditColumns
     /// <param name="type"></param>
     /// <param name="description"></param>
     /// <param name="contentId"></param>
-    public WorkOrder(WorkOrderType type, string description, long contentId) : this(type, description, $"{{ \"contentId\": {contentId} }}")
+    /// <param name="headline"></param>
+    public WorkOrder(WorkOrderType type, string description, long contentId, string headline) : this(type, description, $"{{ \"contentId\": {contentId}, \"headline\": \"{headline}\" }}")
     {
     }
 
@@ -185,7 +186,8 @@ public class WorkOrder : AuditColumns
     /// <param name="requestorId"></param>
     /// <param name="description"></param>
     /// <param name="contentId"></param>
-    public WorkOrder(WorkOrderType type, int requestorId, string description, long contentId) : this(type, description, contentId)
+    /// <param name="headline"></param>
+    public WorkOrder(WorkOrderType type, int requestorId, string description, long contentId, string headline) : this(type, description, contentId, headline)
     {
         this.RequestorId = requestorId;
     }

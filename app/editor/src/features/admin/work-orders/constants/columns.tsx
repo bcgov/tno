@@ -14,7 +14,20 @@ export const getColumns = (
     label: 'Content',
     name: 'configuration',
     width: 4,
-    cell: (cell) => <CellEllipsis>{JSON.stringify(cell.original.configuration)}</CellEllipsis>,
+    cell: (cell) => (
+      <CellEllipsis
+        className="link"
+        onClick={(e) => {
+          if (cell.original.configuration.contentId) {
+            e.preventDefault();
+            e.stopPropagation();
+            onClickOpen?.(cell.original.configuration.contentId);
+          }
+        }}
+      >
+        {cell.original.configuration.headline ?? cell.original.configuration.contentId}
+      </CellEllipsis>
+    ),
   },
   {
     label: 'Submitted',

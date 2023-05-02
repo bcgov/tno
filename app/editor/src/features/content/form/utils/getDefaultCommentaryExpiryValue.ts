@@ -15,7 +15,6 @@ import { isHoliday } from '.';
 export const getDefaultCommentaryExpiryValue = (date: Date | string, holidays: IHolidayModel[]) => {
   const value = moment(date);
   const weekDay = value.weekday();
-  console.debug(weekDay);
   // TODO: There may be an issue if local time has Monday as the start of the week.
   return isHoliday(date, holidays) ? 5 : weekDay === 0 || weekDay === 6 ? 5 : 3;
 };

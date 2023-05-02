@@ -86,7 +86,7 @@ export const WorkOrderList = () => {
       <WorkOrderListFilter />
       <FlexboxTable
         rowId="id"
-        columns={getColumns()}
+        columns={getColumns((contentId) => navigate(`/contents/${contentId}`))}
         data={page.items}
         manualPaging={true}
         pageIndex={workOrderFilter.pageIndex}
