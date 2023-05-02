@@ -13,4 +13,13 @@ export const WorkOrderList = styled(FormPage)`
     align-items: center;
     justify-content: center;
   }
+
+  .link {
+    cursor: pointer;
+    color: ${(props) => props.theme.css.primaryColor};
+
+    &:hover {
+      color: ${(props) => props.theme.css.primaryLightColor};
+    }
+  }
 `;
