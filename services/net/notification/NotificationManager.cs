@@ -318,7 +318,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task SendNotificationAsync(NotificationRequestModel request, API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    private async Task SendNotificationAsync(NotificationRequestModel request, NotificationModel notification, ContentModel content)
     {
         await HandleChesEmailOverrideAsync(request);
 
@@ -401,11 +401,14 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private async Task<string> GenerateNotificationAsync(NotificationModel notification, ContentModel content, bool isSubject = false)
     {
         var result = await _engine.CompileRenderStringAsync(
-            notification.Name + "_" + notification.Id,
+            notification.Name + "_" + notification.Id + (isSubject ? "_subject" : ""),
             isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
             new TemplateModel
             {
-                Content = content
+                Content = content,
+                MmiaUrl = isSubject ? "" : "https://www.google.ca", // TODO...
+                RequestTranscriptUrl = isSubject ? "" : "https://www.microsoft.ca", // TODO...
+                AddToReportUrl = isSubject ? "" : "https://www.yahoo.com" // TODO...
             });
         return result;
     }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using TNO.API.Areas.Editor.Models.Content;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -30,6 +31,11 @@ public class ContentModel : AuditColumnsModel
     /// get/set - Foreign key to source.
     /// </summary>
     public int? SourceId { get; set; }
+
+    /// <summary>
+    /// get/set - The data source.
+    /// </summary>
+    public SourceModel? Source { get; set; }
 
     /// <summary>
     /// get/set - The id of the source.
@@ -184,6 +190,7 @@ public class ContentModel : AuditColumnsModel
         this.Status = entity.Status;
         this.ContentType = entity.ContentType;
         this.SourceId = entity.SourceId;
+        Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
         this.ProductId = entity.ProductId;
         this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
