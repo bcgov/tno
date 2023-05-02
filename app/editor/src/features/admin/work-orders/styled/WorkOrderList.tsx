@@ -22,4 +22,8 @@ export const WorkOrderList = styled(FormPage)`
       color: ${(props) => props.theme.css.primaryLightColor};
     }
   }
+
+  div.column {
+    overflow: hidden;
+  }
 `;
