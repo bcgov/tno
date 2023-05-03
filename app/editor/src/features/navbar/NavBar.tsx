@@ -121,6 +121,12 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
+              navigateTo="/admin/alerts"
+              label="Alerts"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
               navigateTo="/admin/users"
               label="Users"
               claim={Claim.administrator}

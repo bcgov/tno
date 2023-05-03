@@ -4,6 +4,7 @@ import React from 'react';
 import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
+  IAlertModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -22,6 +23,7 @@ import {
 
 import {
   storeAdminActions,
+  storeAdminAlerts,
   storeAdminConnections,
   storeAdminDataLocations,
   storeAdminIngests,
@@ -59,6 +61,7 @@ export interface IAdminStore {
   storeUserFilter: (filter: IUserListFilter | ActionDelegate<IUserListFilter>) => void;
   storeUsers: (users: IPaged<IUserModel> | ActionDelegate<IPaged<IUserModel>>) => void;
   storeTags: (tags: ITagModel[] | ActionDelegate<ITagModel[]>) => void;
+  storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => void;
   storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
   storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
   storeWorkOrderFilter: (
@@ -138,6 +141,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         if (typeof tags === 'function') {
           dispatch(storeAdminTags(tags(state.tags)));
         } else dispatch(storeAdminTags(tags));
+      },
+      storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => {
+        if (typeof alerts === 'function') {
+          dispatch(storeAdminAlerts(alerts(state.alerts)));
+        } else dispatch(storeAdminAlerts(alerts));
       },
       storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => {
         if (typeof actions === 'function') {

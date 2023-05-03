@@ -6,6 +6,7 @@ export * from './useIngests';
 export * from './useIngestTypes';
 export * from './useLicenses';
 export * from './useProducts';
+export * from './useAlerts';
 export * from './useSeries';
 export * from './useSources';
 export * from './useTags';

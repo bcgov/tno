@@ -1,6 +1,8 @@
-import { Button, Col, Row, Show, useKeycloakWrapper } from 'tno-core';
+import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
+import { useAlerts } from 'store/hooks/admin';
+import React from 'react';
 
 export interface IBrowserLoginProps {
   login: (hint?: string) => void;
@@ -17,6 +19,15 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const isLocal =
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
+
+  const [, api] = useAlerts();
+  const [alert, setAlert] = React.useState<IAlertModel>();
+
+  React.useEffect(() => {
+    api.findAllAlerts().then((data) => {
+      if (data.length > 0) setAlert(data[0]);
+    });
+  }, []);
   return (
     <styled.BrowserLogin>
       <Col>
@@ -75,12 +86,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
             <div className="alert-containing-box">
               <b>System Notices</b>
               <br />
-              <p>
-                Service interruption Dec 29 - Jan 3. Stories will not be updated over the holidays.{' '}
-                <br />
-                <br />
-                Jan 4th - Updates resume, business as usual.
-              </p>
+              <p>{!!alert?.message ? alert.message : 'No alert messages at this time.'}</p>
             </div>
           </Col>
         </Row>

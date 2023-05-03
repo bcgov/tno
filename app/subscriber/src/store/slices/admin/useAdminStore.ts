@@ -1,9 +1,10 @@
 import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter';
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import React from 'react';
-import { useAppDispatch, useAppSelector } from 'store';
+import { ActionDelegate, useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
+  IAlertModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -22,6 +23,7 @@ import {
 
 import {
   storeAdminActions,
+  storeAdminAlerts,
   storeAdminConnections,
   storeAdminDataLocations,
   storeAdminIngests,
@@ -55,6 +57,7 @@ export interface IAdminStore {
   storeUserFilter: (filter: IUserListFilter) => void;
   storeUsers: (users: IPaged<IUserModel>) => void;
   storeTags: (tags: ITagModel[]) => void;
+  storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => void;
   storeActions: (actions: IActionModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
   storeWorkOrderFilter: (filter: IWorkOrderListFilter) => void;
@@ -90,6 +93,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       },
       storeUserFilter: (filter: IUserListFilter) => {
         dispatch(storeAdminUserFilter(filter));
+      },
+      storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => {
+        if (typeof alerts === 'function') {
+          dispatch(storeAdminAlerts(alerts(state.alerts)));
+        } else dispatch(storeAdminAlerts(alerts));
       },
       storeUsers: (users: IPaged<IUserModel>) => {
         dispatch(storeAdminUsers(users));

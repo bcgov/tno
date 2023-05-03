@@ -28,6 +28,7 @@ public class TNOContext : DbContext
     public DbSet<TimeTracking> TimeTrackings => Set<TimeTracking>();
     public DbSet<License> Licenses => Set<License>();
     public DbSet<Series> Series => Set<Series>();
+    public DbSet<Alert> Alerts => Set<Alert>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ContentTypeAction> ContentTypeActions => Set<ContentTypeAction>();
     public DbSet<ContentAction> ContentActions => Set<ContentAction>();
