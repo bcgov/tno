@@ -17,6 +17,7 @@ using TNO.Entities.Validation;
 using TNO.Services.Notification.Models;
 using TNO.API.Areas.Services.Models.Notification;
 using TNO.API.Areas.Services.Models.Content;
+using Microsoft.Extensions.Configuration;
 
 namespace TNO.Services.Notification;
 
@@ -33,6 +34,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
     private readonly ITnoRazorLightEngine _engine;
+    private readonly IConfiguration _config;
     #endregion
 
     #region Properties
@@ -80,6 +82,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IOptions<NotificationOptions> notificationOptions,
         INotificationValidator notificationValidator,
         ITnoRazorLightEngine engine,
+        IConfiguration config,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
     {
@@ -93,6 +96,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
         _engine = engine;
+        _config = config;
     }
     #endregion
 
@@ -406,7 +410,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             new TemplateModel
             {
                 Content = content,
-                MmiaUrl = isSubject ? "" : "https://www.google.ca", // TODO...
+                MmiaUrl = isSubject ? "" : _config.GetValue<string>("MmiaUrl"),
                 RequestTranscriptUrl = isSubject ? "" : "https://www.microsoft.ca", // TODO...
                 AddToReportUrl = isSubject ? "" : "https://www.yahoo.com" // TODO...
             });
