@@ -231,11 +231,13 @@ public class IndexingManager : ServiceManager<IndexingOptions>
                 var content = await this.Api.FindContentByIdAsync(result.Message.Value.ContentId);
                 if (content != null)
                 {
-                    await IndexContentAsync(content);
                     if (model.Action == IndexAction.Publish)
                         await PublishContentAsync(result.Message.Value, content);
                     else if (model.Action == IndexAction.Unpublish)
                         await UnpublishContentAsync(result.Message.Value, content);
+
+                    // Update the unpublished content with the latest data and status.
+                    await IndexContentAsync(content);
                 }
                 else
                 {
