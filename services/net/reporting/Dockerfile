@@ -16,7 +16,8 @@ RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u 
     fix_permissions "/tmp"
 
 WORKDIR /src/services/net/notification
-RUN dotnet build -c $ASPNETCORE_ENVIRONMENT -o /build
+RUN dotnet restore
+RUN dotnet publish "TNO.Services.Reporting.csproj" -c "$BUILD_CONFIGURATION" -o /build
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 as deploy
 
