@@ -190,6 +190,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.users,
       state.workOrderFilter,
       state.workOrders,
+      state.alerts,
     ],
   );
 

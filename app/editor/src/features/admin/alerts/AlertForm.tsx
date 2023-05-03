@@ -2,7 +2,7 @@ import { FormikForm } from 'components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAlerts } from 'store/hooks/admin';
 import {
@@ -10,14 +10,11 @@ import {
   ButtonVariant,
   Col,
   FieldSize,
-  FormikCheckbox,
   FormikDatePicker,
   FormikText,
   FormikTextArea,
   IAlertModel,
   IconButton,
-  ITagModel,
-  LabelPosition,
   Modal,
   Row,
   Show,
@@ -40,6 +37,8 @@ export const AlertForm: React.FC = () => {
     api.findAllAlerts().then((data) => {
       if (data.length > 0) setAlert(data[0]);
     });
+    // only want to run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (values: IAlertModel) => {

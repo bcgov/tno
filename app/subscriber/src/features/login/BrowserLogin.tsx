@@ -1,8 +1,8 @@
+import React from 'react';
+import { useAlerts } from 'store/hooks/admin';
 import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
-import { useAlerts } from 'store/hooks/admin';
-import React from 'react';
 
 export interface IBrowserLoginProps {
   login: (hint?: string) => void;
@@ -27,6 +27,8 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
     api.findAllAlerts().then((data) => {
       if (data.length > 0) setAlert(data[0]);
     });
+    // only want to run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <styled.BrowserLogin>

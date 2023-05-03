@@ -11,6 +11,8 @@ export const InfoText: React.FC = () => {
     api.findAllAlerts().then((data) => {
       if (data.length > 0) setAlert(data[0]);
     });
+    // only want to run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

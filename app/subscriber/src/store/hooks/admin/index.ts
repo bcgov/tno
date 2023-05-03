@@ -1,4 +1,5 @@
 export * from './useActions';
+export * from './useAlerts';
 export * from './useConnections';
 export * from './useContentReferences';
 export * from './useDataLocations';
@@ -6,7 +7,6 @@ export * from './useIngests';
 export * from './useIngestTypes';
 export * from './useLicenses';
 export * from './useProducts';
-export * from './useAlerts';
 export * from './useSeries';
 export * from './useSources';
 export * from './useTags';
