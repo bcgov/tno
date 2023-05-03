@@ -53,9 +53,7 @@ export const AppRouter: React.FC<IAppRouter> = ({ name }) => {
         />
         <Route
           path="contents/:id"
-          element={
-            <PrivateRoute claims={Claim.administrator} element={<ContentForm />}></PrivateRoute>
-          }
+          element={<PrivateRoute claims={Claim.editor} element={<ContentForm />}></PrivateRoute>}
         />
         <Route
           path="/contents/combined/:id"
