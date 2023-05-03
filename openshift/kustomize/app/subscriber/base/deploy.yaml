@@ -52,11 +52,11 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: 50m
-              memory: 50Mi
+              cpu: 25m
+              memory: 30Mi
             limits:
-              cpu: 125m
-              memory: 250Mi
+              cpu: 50m
+              memory: 100Mi
           volumeMounts:
             - name: subscriber-keycloak
               mountPath: /usr/share/nginx/html/keycloak.json

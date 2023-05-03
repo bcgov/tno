@@ -68,6 +68,11 @@ public class ContentModel : AuditColumnsModel
     public int? OwnerId { get; set; }
 
     /// <summary>
+    /// get/set - The content type.
+    /// </summary>
+    public UserModel? Owner { get; set; }
+
+    /// <summary>
     /// get/set - The headline.
     /// </summary>
     public string Headline { get; set; } = "";
@@ -197,6 +202,7 @@ public class ContentModel : AuditColumnsModel
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
         this.OwnerId = entity.OwnerId;
+        this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Headline = entity.Headline;
         this.Byline = entity.Byline;
         this.Uid = entity.Uid;

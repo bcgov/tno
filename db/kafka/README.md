@@ -29,3 +29,10 @@ Fetch all messages in the specified topic.
 docker exec -it tno-broker bash
 /bin/kafka-console-consumer --bootstrap-server localhost:29092 --topic test --from-beginning
 ```
+
+Create a topic with the broker command line.
+SSH into the Kafka broker pod.
+
+```bash
+/bin/kafka-topics --bootstrap-server kafka-broker-0.kafka-headless:9092,kafka-broker-1.kafka-headless:9092,kafka-broker-2.kafka-headless:9092 --topic reporting --create --partitions 3 --replication-factor 1
+```

@@ -27,12 +27,13 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
         placeholderText="mm/dd/yyyy"
         selected={!!filterAdvanced.startDate ? new Date(filterAdvanced.startDate) : undefined}
         width="8em"
-        onChange={(date) =>
-          storeFilterAdvanced({
-            ...filterAdvanced,
+        onChange={(date) => {
+          storeFilter((filter) => ({ ...filter, timeFrame: 0 }));
+          storeFilterAdvanced((filter) => ({
+            ...filter,
             startDate: !!date ? date.toString() : undefined,
-          })
-        }
+          }));
+        }}
       />
       <span className="to-text">to</span>
       <SelectDate
@@ -46,6 +47,7 @@ export const DateRangeSection: React.FC<IDateRangeSectionProps> = () => {
             ...filter,
             endDate: !!date ? date.toString() : undefined,
           }));
+          storeFilter((filter) => ({ ...filter, timeFrame: 0 }));
         }}
       />
       <span

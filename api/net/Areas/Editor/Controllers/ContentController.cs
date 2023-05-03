@@ -174,13 +174,15 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> AddAsync(ContentModel model)
     {
-        var content = _contentService.AddAndSave((Content)model);
+        // Always make the user who created the content the owner.
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var newContent = (Content)model;
+        newContent.OwnerId = user.Id;
+        var content = _contentService.AddAndSave(newContent);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
             if (content.Status == ContentStatus.Publish || content.Status == ContentStatus.Published)
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Publish));
             else
@@ -205,13 +207,16 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> UpdateAsync(ContentModel model)
     {
-        var content = _contentService.UpdateAndSave((Content)model);
+        // Always make the user who updated the content the owner if the owner is currently empty.
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+        var updateContent = (Content)model;
+        updateContent.OwnerId ??= user.Id;
+
+        var content = _contentService.UpdateAndSave(updateContent);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
             // If a request is submitted to unpublish we do it regardless of the current state of the content.
             if (content.Status == ContentStatus.Unpublish)
                 await _kafkaMessenger.SendMessageAsync(_kafkaOptions.IndexingTopic, new IndexRequestModel(content.Id, user.Id, IndexAction.Unpublish));
@@ -238,6 +243,9 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Morning-Report" })]
     public async Task<IActionResult> UpdateContentAsync(ContentListModel model)
     {
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
         var update = new List<Content>();
         var items = _contentService.FindWithDatabase(new ContentFilter()
         {
@@ -298,6 +306,9 @@ public class ContentController : ControllerBase
                     if (latestContent != null) update.Add(_contentService.Update(latestContent));
                 }
             }
+
+            // Always make the user who updated the content the owner if the owner is currently empty.
+            content.OwnerId ??= user.Id;
         }
 
         // Save all changes in a single transaction.
@@ -305,9 +316,6 @@ public class ContentController : ControllerBase
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
         {
-            var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
-            var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
-
             foreach (var content in update)
             {
                 // If a request is submitted to unpublish we do it regardless of the current state of the content.
