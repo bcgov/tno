@@ -17,7 +17,6 @@ using TNO.Entities.Validation;
 using TNO.Services.Notification.Models;
 using TNO.API.Areas.Services.Models.Notification;
 using TNO.API.Areas.Services.Models.Content;
-using Microsoft.Extensions.Configuration;
 
 namespace TNO.Services.Notification;
 
@@ -34,7 +33,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
     private readonly ITnoRazorLightEngine _engine;
-    private readonly IConfiguration _config;
+    private readonly IOptions<NotificationOptions> _notificationOptions;
     #endregion
 
     #region Properties
@@ -82,7 +81,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IOptions<NotificationOptions> notificationOptions,
         INotificationValidator notificationValidator,
         ITnoRazorLightEngine engine,
-        IConfiguration config,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
     {
@@ -96,7 +94,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
         _engine = engine;
-        _config = config;
+        _notificationOptions = notificationOptions;
     }
     #endregion
 
@@ -407,12 +405,9 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         var result = await _engine.CompileRenderStringAsync(
             notification.Name + "_" + notification.Id + (isSubject ? "_subject" : ""),
             isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
-            new TemplateModel
+            new TemplateModel(_notificationOptions)
             {
                 Content = content,
-                MmiaUrl = isSubject ? "" : _config.GetValue<string>("MmiaUrl"),
-                RequestTranscriptUrl = isSubject ? "" : "https://www.microsoft.ca", // TODO...
-                AddToReportUrl = isSubject ? "" : "https://www.yahoo.com" // TODO...
             });
         return result;
     }

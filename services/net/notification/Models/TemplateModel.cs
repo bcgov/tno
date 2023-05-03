@@ -1,27 +1,24 @@
-﻿using TNO.API.Areas.Services.Models.Content;
+﻿using Microsoft.Extensions.Options;
+using TNO.API.Areas.Services.Models.Content;
+using TNO.Services.Notification.Config;
 
 namespace TNO.Services.Notification.Models
 {
     public class TemplateModel
     {
+        public TemplateModel(IOptions<NotificationOptions> notificationOptions)
+        {
+            NotificationOptions = notificationOptions;
+        }
+
         /// <summary>
         /// get/set - The content model.
         /// </summary>
         public ContentModel Content { get; set; } = new ContentModel();
 
         /// <summary>
-        /// get/set - The MMIA URL.
+        /// get - Notification options.
         /// </summary>
-        public string? MmiaUrl { get; set; }
-
-        /// <summary>
-        /// get/set - The request transcript URL.
-        /// </summary>
-        public string? RequestTranscriptUrl { get; set; }
-
-        /// <summary>
-        /// get/set - The add to report URL.
-        /// </summary>
-        public string? AddToReportUrl { get; set; }
+        public IOptions<NotificationOptions> NotificationOptions { get; }
     }
 }

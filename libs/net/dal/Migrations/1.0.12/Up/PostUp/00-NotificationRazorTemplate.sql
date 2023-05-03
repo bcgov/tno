@@ -39,6 +39,11 @@ SET
         }
 	" }', '\t', '', 'g')), 
 	template='
+        @{
+            var mmiaUrl = Model.NotificationOptions.Value.MmiaUrl?.AbsoluteUri;
+            var requestTranscriptUrl = Model.NotificationOptions.Value.RequestTranscriptUrl?.AbsoluteUri;
+            var addToReportUrl = Model.NotificationOptions.Value.AddToReportUrl?.AbsoluteUri;
+        }
         @if (Model.Content.Source != null)
         {
             <div>@Model.Content.Source.Code (@Model.Content.Source.Name)</div>
@@ -50,19 +55,19 @@ SET
         <div>@Model.Content.PublishedOn?.ToString("dd-MMM-yyyy hh:mm")</div>
         <div>@Model.Content.Body</div>
         <br />
-        @if (!string.IsNullOrEmpty(Model.MmiaUrl))
+        @if (!string.IsNullOrEmpty(mmiaUrl))
         {
-            <div><a href="@Model.MmiaUrl" target="_blank">MMIA...</a></div>
+            <div><a href="@mmiaUrl" target="_blank">MMIA...</a></div>
             <br />
         }
-        @if (Model.Content.ContentType == ContentType.Snippet && !string.IsNullOrEmpty(Model.RequestTranscriptUrl))
+        @if (Model.Content.ContentType == ContentType.Snippet && !string.IsNullOrEmpty(requestTranscriptUrl))
         {
-            <div><a href="@Model.RequestTranscriptUrl" target="_blank">Request Transcript...</a></div>
+            <div><a href="@requestTranscriptUrl" target="_blank">Request Transcript...</a></div>
             <br />
         }
-        @if (!string.IsNullOrEmpty(Model.AddToReportUrl))
+        @if (!string.IsNullOrEmpty(addToReportUrl))
         {
-            <div><a href="@Model.AddToReportUrl" target="_blank">Add to Report</a></div>
+            <div><a href="@addToReportUrl" target="_blank">Add to Report</a></div>
             <br />
         }
         <br />
