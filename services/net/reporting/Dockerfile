@@ -9,13 +9,13 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 USER 0
 
 WORKDIR /src
-COPY services/net/notification services/net/notification
+COPY services/net/reporting services/net/reporting
 COPY libs/net libs/net
 
 RUN fix_permissions() { while [ $# -gt 0 ] ; do chgrp -R 0 "$1" && chmod -R g=u "$1"; shift; done } && \
     fix_permissions "/tmp"
 
-WORKDIR /src/services/net/notification
+WORKDIR /src/services/net/reporting
 RUN dotnet restore
 RUN dotnet publish "TNO.Services.Reporting.csproj" -c "$BUILD_CONFIGURATION" -o /build
 
