@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAjaxWrapper, useLookup } from 'store/hooks';
+import { useAjaxWrapper } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import { IAlertModel, useApiAlerts } from 'tno-core';
 
