@@ -1,8 +1,8 @@
 import React from 'react';
+import { useAlerts } from 'store/hooks';
 import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
-import { useAlerts } from 'store/hooks';
 
 export interface IBrowserLoginProps {
   login: (hint?: string) => void;

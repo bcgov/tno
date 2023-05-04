@@ -21,7 +21,7 @@ export const useAlerts = (): [IAdminState, IAlertController] => {
         return response.data;
       },
     }),
-    [api, dispatch, lookup, store],
+    [api, dispatch, store],
   );
 
   return [state, controller];

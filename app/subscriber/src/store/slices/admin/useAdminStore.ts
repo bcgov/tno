@@ -124,7 +124,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
         dispatch(storeAdminWorkOrders(workOrders));
       },
     }),
-    [dispatch],
+    [dispatch, state.alerts],
   );
 
   return [state, controller];
