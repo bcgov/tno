@@ -11,7 +11,6 @@ export const useAlerts = (): [IAdminState, IAlertController] => {
   const api = useApiAlerts();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
-  const [, lookup] = useLookup();
 
   const controller = React.useMemo(
     () => ({

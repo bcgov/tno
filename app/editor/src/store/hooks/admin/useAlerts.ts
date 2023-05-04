@@ -23,16 +23,6 @@ export const useAlerts = (): [IAdminState, IAlertController] => {
         store.storeAlerts([response.data]);
         return response.data;
       },
-      // getAlert: async (id: number) => {
-      //   const response = await dispatch<IAlertModel>('get-alert', () => api.getAlert(id));
-      //   store.storeAlerts((alerts) =>
-      //     alerts.map((ds) => {
-      //       if (ds.id === response.data.id) return response.data;
-      //       return ds;
-      //     }),
-      //   );
-      //   return response.data;
-      // },
       addAlert: async (model: IAlertModel) => {
         const response = await dispatch<IAlertModel>('add-alert', () => api.addAlert(model));
         store.storeAlerts((alerts) => [...alerts, response.data]);
