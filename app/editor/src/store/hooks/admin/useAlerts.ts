@@ -3,15 +3,14 @@ import { useAjaxWrapper, useLookup } from 'store/hooks';
 import { IAdminState, useAdminStore } from 'store/slices';
 import { IAlertModel, useApiAdminAlerts } from 'tno-core';
 
-interface ITagController {
-  findAllAlerts: () => Promise<IAlertModel[]>;
-  getAlert: (id: number) => Promise<IAlertModel>;
+interface IAlertController {
+  findAlert: () => Promise<IAlertModel>;
   addAlert: (model: IAlertModel) => Promise<IAlertModel>;
   updateAlert: (model: IAlertModel) => Promise<IAlertModel>;
   deleteAlert: (model: IAlertModel) => Promise<IAlertModel>;
 }
 
-export const useAlerts = (): [IAdminState, ITagController] => {
+export const useAlerts = (): [IAdminState, IAlertController] => {
   const api = useApiAdminAlerts();
   const dispatch = useAjaxWrapper();
   const [state, store] = useAdminStore();
@@ -19,23 +18,21 @@ export const useAlerts = (): [IAdminState, ITagController] => {
 
   const controller = React.useMemo(
     () => ({
-      findAllAlerts: async () => {
-        const response = await dispatch<IAlertModel[]>('find-all-alerts', () =>
-          api.findAllAlerts(),
-        );
-        store.storeAlerts(response.data);
+      findAlert: async () => {
+        const response = await dispatch<IAlertModel>('find-alert', () => api.findAlert());
+        store.storeAlerts([response.data]);
         return response.data;
       },
-      getAlert: async (id: number) => {
-        const response = await dispatch<IAlertModel>('get-alert', () => api.getAlert(id));
-        store.storeAlerts((alerts) =>
-          alerts.map((ds) => {
-            if (ds.id === response.data.id) return response.data;
-            return ds;
-          }),
-        );
-        return response.data;
-      },
+      // getAlert: async (id: number) => {
+      //   const response = await dispatch<IAlertModel>('get-alert', () => api.getAlert(id));
+      //   store.storeAlerts((alerts) =>
+      //     alerts.map((ds) => {
+      //       if (ds.id === response.data.id) return response.data;
+      //       return ds;
+      //     }),
+      //   );
+      //   return response.data;
+      // },
       addAlert: async (model: IAlertModel) => {
         const response = await dispatch<IAlertModel>('add-alert', () => api.addAlert(model));
         store.storeAlerts((alerts) => [...alerts, response.data]);

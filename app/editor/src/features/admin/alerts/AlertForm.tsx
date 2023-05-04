@@ -10,11 +10,13 @@ import {
   ButtonVariant,
   Col,
   FieldSize,
+  FormikCheckbox,
   FormikDatePicker,
   FormikText,
   FormikTextArea,
   IAlertModel,
   IconButton,
+  LabelPosition,
   Modal,
   Row,
   Show,
@@ -34,8 +36,8 @@ export const AlertForm: React.FC = () => {
   const alertId = !!alert.id ? alert.id : 0;
 
   React.useEffect(() => {
-    api.findAllAlerts().then((data) => {
-      if (data.length > 0) setAlert(data[0]);
+    api.findAlert().then((data) => {
+      if (!!data) setAlert(data);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,7 +46,6 @@ export const AlertForm: React.FC = () => {
   const handleSubmit = async (values: IAlertModel) => {
     try {
       const originalId = values.id;
-      console.log(values);
       const result = alertId === 0 ? await api.addAlert(values) : await api.updateAlert(values);
       setAlert(result);
       toast.success(`${result.name} has successfully been saved.`);
@@ -84,6 +85,11 @@ export const AlertForm: React.FC = () => {
                 label="Message"
                 type="text"
                 className="message"
+              />
+              <FormikCheckbox
+                labelPosition={LabelPosition.Top}
+                label="Is Enabled"
+                name="isEnabled"
               />
               <Show visible={!!values.id}>
                 <Row>

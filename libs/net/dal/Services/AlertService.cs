@@ -17,16 +17,9 @@ public class AlertService : BaseService<Alert, int>, IAlertService {
     #endregion
 
     #region Methods
-    public IEnumerable<Alert> FindAll()
+    public Alert FindAlert()
     {
-        return this.Context.Alerts
-            .AsNoTracking()
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
-    }
-
-    public Alert? FindById(long id)
-    {
-        return this.Context.Alerts.FirstOrDefault(c => c.Id == id);
+        return this.Context.Alerts.FirstOrDefault();
     }
     #endregion
 

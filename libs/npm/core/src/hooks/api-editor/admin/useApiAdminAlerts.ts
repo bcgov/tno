@@ -19,11 +19,8 @@ export const useApiAdminAlerts = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllAlerts: () => {
-      return api.get<IAlertModel[], AxiosResponse<IAlertModel[]>, any>(`/admin/alerts/all`);
-    },
-    getAlert: (id: number) => {
-      return api.get<IAlertModel, AxiosResponse<IAlertModel>, any>(`/admin/alerts/${id}`);
+    findAlert: () => {
+      return api.get<IAlertModel, AxiosResponse<IAlertModel>, any>(`/admin/alerts`);
     },
     addAlert: (model: IAlertModel) => {
       return api.post<IAlertModel, AxiosResponse<IAlertModel>, any>(`/admin/alerts`, model);

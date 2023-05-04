@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
-import { IAlertModel, ILifecycleToasts, defaultEnvelope, useApi } from '..';
+import { IAlertModel, ILifecycleToasts, defaultEnvelope, useApi } from '../..';
 
 /**
  * Common hook to make requests to the API.
@@ -18,11 +18,8 @@ export const useApiAlerts = (
   const api = useApi(options);
 
   return React.useRef({
-    findAllAlerts: () => {
-      return api.get<IAlertModel[], AxiosResponse<IAlertModel[]>, any>(`/general/alerts/all`);
-    },
-    getAlert: (id: number) => {
-      return api.get<IAlertModel, AxiosResponse<IAlertModel>, any>(`/general/alerts/${id}`);
+    findAlert: () => {
+      return api.get<IAlertModel, AxiosResponse<IAlertModel>, any>(`/subscriber/alerts`);
     },
   }).current;
 };

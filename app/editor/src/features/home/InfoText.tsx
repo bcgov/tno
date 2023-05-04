@@ -1,15 +1,15 @@
 import { defaultAlert } from 'features/admin/alerts/constants';
 import React from 'react';
 import { useAlerts } from 'store/hooks/admin';
-import { IAlertModel } from 'tno-core';
+import { IAlertModel, Show } from 'tno-core';
 
 export const InfoText: React.FC = () => {
   const [, api] = useAlerts();
   const [alert, setAlert] = React.useState<IAlertModel>(defaultAlert);
 
   React.useEffect(() => {
-    api.findAllAlerts().then((data) => {
-      if (data.length > 0) setAlert(data[0]);
+    api.findAlert().then((data) => {
+      if (!!data) setAlert(data);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -26,7 +26,9 @@ export const InfoText: React.FC = () => {
         <li>BC’s top stories as they break.</li>
         <li>Articles related to major stories.</li>
       </ul>
-      <p>{alert.message ?? 'There are currently no pinned messages.'}</p>
+      <Show visible={alert.isEnabled}>
+        <p>{alert.message ?? ''}</p>
+      </Show>
       <div className="email">
         <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">
           tnonews-help@gov.bc.ca

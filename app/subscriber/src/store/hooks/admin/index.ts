@@ -1,5 +1,4 @@
 export * from './useActions';
-export * from './useAlerts';
 export * from './useConnections';
 export * from './useContentReferences';
 export * from './useDataLocations';

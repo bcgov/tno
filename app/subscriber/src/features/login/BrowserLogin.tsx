@@ -1,8 +1,8 @@
 import React from 'react';
-import { useAlerts } from 'store/hooks/admin';
 import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
+import { useAlerts } from 'store/hooks';
 
 export interface IBrowserLoginProps {
   login: (hint?: string) => void;
@@ -24,8 +24,8 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const [alert, setAlert] = React.useState<IAlertModel>();
 
   React.useEffect(() => {
-    api.findAllAlerts().then((data) => {
-      if (data.length > 0) setAlert(data[0]);
+    api.findAlert().then((data) => {
+      if (!!data) setAlert(data);
     });
     // only want to run on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,9 +86,11 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           </Col>
           <Col className="alert-box">
             <div className="alert-containing-box">
-              <b>System Notices</b>
-              <br />
-              <p>{!!alert?.message ? alert.message : 'No alert messages at this time.'}</p>
+              <Show visible={!!alert?.message && alert.isEnabled}>
+                <b>System Notices</b>
+                <br />
+                <p>{alert?.message}</p>
+              </Show>
             </div>
           </Col>
         </Row>
