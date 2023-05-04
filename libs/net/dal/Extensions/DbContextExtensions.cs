@@ -22,7 +22,10 @@ public static class DbContextExtensions
     public static TNOContext ResetVersion<T>(this TNOContext context, T entity)
         where T : AuditColumns
     {
-        context.Entry(entity).OriginalValues[nameof(AuditColumns.Version)] = entity.Version;
+        if (long.TryParse(context.Entry(entity).OriginalValues[nameof(AuditColumns.Version)]?.ToString(), out long result))
+        {
+            if (entity.Version != result) entity.Version = result;
+        }
         return context;
     }
 
