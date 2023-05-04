@@ -1,16 +1,15 @@
 import { AxiosResponse } from 'axios';
 import React from 'react';
 
+import { toQueryString } from '../../utils';
 import {
+  defaultEnvelope,
   IContentFilter,
-  IContentListModel,
   IContentModel,
   ILifecycleToasts,
   IPaged,
-  defaultEnvelope,
   useApi,
 } from '..';
-import { toQueryString } from '../../utils';
 
 /**
  * Common hook to make requests to the API.

@@ -8,10 +8,10 @@ export const TopicScoreRuleSchema = yup.object().shape({
   pageMax: yup
     .string()
     .optional()
-    .when('pageMin', (pageMin: string, schema: any) => {
+    .when('pageMin', (pageMin: string[], schema: any) => {
       return schema.test({
         test: (pageMax: string) => {
-          const riPageMin = pageMin !== undefined ? pageMin.search(/\d*$/) : undefined;
+          const riPageMin = pageMin !== undefined ? pageMin[0].search(/\d*$/) : undefined;
           const riPageMax = pageMax !== undefined ? pageMax.search(/\d*$/) : undefined;
           const rPageMin = riPageMin !== undefined ? Number(pageMin?.slice(riPageMin)) : undefined;
           const rPageMax = riPageMax !== undefined ? Number(pageMax?.slice(riPageMax)) : undefined;
@@ -26,11 +26,13 @@ export const TopicScoreRuleSchema = yup.object().shape({
     .number()
     .optional()
     .typeError('Invalid number')
-    .when('characterMin', (characterMin: number, schema: any) => {
+    .when('characterMin', (characterMin: number[] | undefined, schema: any) => {
       return schema.test({
         test: (characterMax: number) => {
           return (
-            characterMin === undefined || characterMax === undefined || characterMin <= characterMax
+            characterMin === undefined ||
+            characterMax === undefined ||
+            characterMin[0] <= characterMax
           );
         },
         message: 'Make greater',
@@ -41,10 +43,10 @@ export const TopicScoreRuleSchema = yup.object().shape({
     .string()
     .optional()
     .length(8, 'Invalid format')
-    .when('timeMin', (timeMin: string, schema: any) => {
+    .when('timeMin', (timeMin: string[], schema: any) => {
       return schema.test({
         test: (timeMax: string) => {
-          const min = Date.parse(`01/01/1900 ${timeMin}`);
+          const min = Date.parse(`01/01/1900 ${timeMin[0]}`);
           const max = Date.parse(`01/01/1900 ${timeMax}`);
           return timeMin === undefined || timeMax === undefined || min <= max;
         },
