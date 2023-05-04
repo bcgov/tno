@@ -396,8 +396,8 @@ public class IndexingManager : ServiceManager<IndexingOptions>
             {
                 RequestorId = request.RequestorId
             };
-            var result = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, content.Uid, notification);
-            if (result == null) throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
+            _ = await this.Producer.SendMessageAsync(this.Options.NotificationTopic, content.Uid, notification)
+                ?? throw new HttpClientRequestException($"Failed to receive result from Kafka when sending message.  Topic: {this.Options.NotificationTopic}, Content ID: {content.Id}");
         }
     }
     #endregion

@@ -94,7 +94,7 @@ public class ReportController : ControllerBase
 
         // TODO: Make request to Elasticsearch for the content that matches the filter.
         var content = await _service.FindContentWithElasticsearchAsync(report);
-        return new JsonResult(content.Select(c => new Models.Content.ContentModel(c)));
+        return new JsonResult(content);
     }
     #endregion
 }

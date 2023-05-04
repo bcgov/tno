@@ -30,5 +30,10 @@ public class KafkaOptions
     /// get/set - The Kafka topic name to request a notification to be sent.
     /// </summary>
     public string NotificationTopic { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The Kafka topic name to request a report to be sent.
+    /// </summary>
+    public string ReportingTopic { get; set; } = "";
     #endregion
 }

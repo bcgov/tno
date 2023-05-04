@@ -40,7 +40,7 @@ public class ReportRequestModel
     public int? AssignedId { get; set; }
 
     /// <summary>
-    /// get/set - Additional comma separated email addresses that this report will be sent to.
+    /// get/set - Comma separated email addresses that this report will be sent to instead of subscribers.
     /// </summary>
     public string To { get; set; } = "";
     #endregion

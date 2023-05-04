@@ -10258,7 +10258,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: 0.0.241
+    tno-core: ./tno-core-0.0.238.tgz
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -14152,9 +14152,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@npm:0.0.241":
-  version: 0.0.241
-  resolution: "tno-core@npm:0.0.241"
+"tno-core@file:./tno-core-0.0.238.tgz::locator=mmia-editor-app%40workspace%3A.":
+  version: 0.0.238
+  resolution: "tno-core@file:./tno-core-0.0.238.tgz::locator=mmia-editor-app%40workspace%3A."
   dependencies:
     "@fortawesome/free-solid-svg-icons": ^6.3.0
     "@fortawesome/react-fontawesome": ^0.2.0
@@ -14181,7 +14181,7 @@ __metadata:
     react-tooltip: ^5.10.0
     styled-components: ^5.3.9
     yup: ^0.32.11
-  checksum: a5543cab6a2030b1430da9021e243e9fd9f4b947e7c0cf33f448979d1e45423162ebe5c3d722526446d918f0d2f29b9e54f8fdc195a4de09fa37351045fe6ee7
+  checksum: 23ae9df10808acda0f6af98dac57f2bd20ebd800415315cd80c875ab61867b36fcbd1cfbb6efd2849fd6e68117b790c9f1bfdac5807e387ac6af0fdd7f275dd5
   languageName: node
   linkType: hard
 

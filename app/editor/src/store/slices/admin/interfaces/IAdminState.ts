@@ -10,6 +10,7 @@ import {
   ILicenseModel,
   IPaged,
   IProductModel,
+  IReportModel,
   ISeriesModel,
   ISourceModel,
   ITagModel,
@@ -37,4 +38,5 @@ export interface IAdminState {
   licenses: ILicenseModel[];
   workOrderFilter: IWorkOrderListFilter;
   workOrders: IPaged<IWorkOrderModel>;
+  reports: IReportModel[];
 }

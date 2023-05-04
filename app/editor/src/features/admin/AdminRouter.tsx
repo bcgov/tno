@@ -21,6 +21,8 @@ import {
   ProductForm,
   ProductList,
   ReachEarnedMedia,
+  ReportForm,
+  ReportList,
   SeriesForm,
   SeriesList,
   SourceDetails,
@@ -93,6 +95,9 @@ export const AdminRouter: React.FC = () => {
 
       <Route path="work/orders" element={<WorkOrderList />} />
       <Route path="work/orders/:id" element={<WorkOrderForm />} />
+
+      <Route path="reports" element={<ReportList />} />
+      <Route path="reports/:id" element={<ReportForm />} />
     </Routes>
   );
 };

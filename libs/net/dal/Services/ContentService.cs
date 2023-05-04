@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -173,24 +174,25 @@ public class ContentService : BaseService<Content, long>, IContentService
 
     /// <summary>
     /// Find content that matches the specified 'filter'.
+    /// TODO: Change to a raw JSON query.
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of content items that match the filter.</returns>
-    public async Task<IPaged<Content>> FindWithElasticsearchAsync(ContentFilter filter)
+    public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(ContentFilter filter)
     {
-        var sourceQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        var sourceQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var sourceId in filter.SourceIds)
             sourceQueries.Add(s => s.Term(t => t.SourceId, sourceId));
 
-        var productQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        var productQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var productId in filter.ProductIds)
             productQueries.Add(s => s.Term(t => t.ProductId, productId));
 
-        var contentQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        var contentQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var contentId in filter.ContentIds)
             contentQueries.Add(s => s.Term(t => t.Id, contentId));
 
-        var actionQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        var actionQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var action in filter.Actions)
             actionQueries.Add(s => s
                 .Nested(n => n
@@ -215,7 +217,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                 )
             );
 
-        var filterQueries = new List<Func<QueryContainerDescriptor<Content>, QueryContainer>>();
+        var filterQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
 
         if (!string.IsNullOrWhiteSpace(filter.Headline))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
@@ -310,7 +312,7 @@ public class ContentService : BaseService<Content, long>, IContentService
                 .Field(p => p.PublishedOn)
                 .LessThanOrEquals(filter.PublishedEndOn.Value.ToUniversalTime().ToString("s") + "Z")));
 
-        var response = await _client.SearchAsync<Content>(s =>
+        var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
             var result = s
                 .Pretty()
@@ -318,11 +320,11 @@ public class ContentService : BaseService<Content, long>, IContentService
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity);
 
-            result = result.Query(q => (filterQueries.Any() ? q.Bool(b => b.Must(filterQueries)) : new QueryContainerDescriptor<Content>()) &&
-                (sourceQueries.Any() ? q.Bool(b => b.Should(sourceQueries)) : new QueryContainerDescriptor<Content>()) &&
-                (productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<Content>()) &&
-                (contentQueries.Any() ? q.Bool(b => b.Should(contentQueries)) : new QueryContainerDescriptor<Content>()) &&
-                (actionQueries.Any() ? q.Bool(b => b.Should(actionQueries)) : new QueryContainerDescriptor<Content>())
+            result = result.Query(q => (filterQueries.Any() ? q.Bool(b => b.Must(filterQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
+                (sourceQueries.Any() ? q.Bool(b => b.Should(sourceQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
+                (productQueries.Any() ? q.Bool(b => b.Should(productQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
+                (contentQueries.Any() ? q.Bool(b => b.Should(contentQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>()) &&
+                (actionQueries.Any() ? q.Bool(b => b.Should(actionQueries)) : new QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>())
             );
 
             if (filter.Sort.Any())
@@ -352,7 +354,33 @@ public class ContentService : BaseService<Content, long>, IContentService
         var items = response.IsValid ?
             response.Documents :
             throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
-        return new Paged<Content>(items, filter.Page, filter.Quantity, response.Total);
+        return new Paged<API.Areas.Services.Models.Content.ContentModel>(items, filter.Page, filter.Quantity, response.Total);
+    }
+
+    /// <summary>
+    /// Make a raw JSON query to Elasticsearch and return content.
+    /// </summary>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(JsonDocument filter)
+    {
+        var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
+        {
+            var json = filter.ToJson();
+            var result = s
+                .Pretty()
+                .Index(_elasticOptions.PublishedIndex)
+                .Query(q => q.Raw(json == "{}" ? "" : json));
+
+            return result;
+        });
+
+        var items = response.IsValid ?
+            response.Documents :
+            throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
+        // TODO: handle paging results.
+        return items;
     }
 
     public override Content? FindById(long id)

@@ -12,6 +12,7 @@ import {
   ILicenseModel,
   IPaged,
   IProductModel,
+  IReportModel,
   ISeriesModel,
   ISourceModel,
   ITagModel,
@@ -30,6 +31,7 @@ import {
   storeAdminIngestTypes,
   storeAdminLicenses,
   storeAdminProducts,
+  storeAdminReports,
   storeAdminSeries,
   storeAdminSources,
   storeAdminTags,
@@ -68,8 +70,9 @@ export interface IAdminStore {
     filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
   ) => void;
   storeWorkOrders: (
-    users: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
+    workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
   ) => void;
+  storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -171,6 +174,11 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminWorkOrders(workOrders(state.workOrders)));
         } else dispatch(storeAdminWorkOrders(workOrders));
       },
+      storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => {
+        if (typeof reports === 'function') {
+          dispatch(storeAdminReports(reports(state.reports)));
+        } else dispatch(storeAdminReports(reports));
+      },
     }),
     [
       dispatch,
@@ -191,6 +199,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.workOrderFilter,
       state.workOrders,
       state.alerts,
+      state.reports,
     ],
   );
 
