@@ -28,7 +28,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
         get
         {
             var headers = new HttpRequestMessage().Headers;
-            headers.Add("User-Agent", GetType().Name);
+            headers.Add("User-Agent", GetType().FullName);
             return headers;
         }
     }

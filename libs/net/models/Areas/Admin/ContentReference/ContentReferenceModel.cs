@@ -1,9 +1,11 @@
+using TNO.API.Models;
+
 namespace TNO.API.Areas.Admin.Models.ContentReference;
 
 /// <summary>
 /// ContentReferenceModel class, provides a model for serializing content reference entities.
 /// </summary>
-public class ContentReferenceModel
+public class ContentReferenceModel: AuditColumnsModel
 {
     #region Properties
     /// <summary>
@@ -57,7 +59,7 @@ public class ContentReferenceModel
     /// Creates a new instance of a ContentReferenceModel object, initializes with specified parameter.
     /// </summary>
     /// <param name="reference"></param>
-    public ContentReferenceModel(Entities.ContentReference reference)
+    public ContentReferenceModel(Entities.ContentReference reference): base(reference)
     {
         this.Source = reference.Source;
         this.Uid = reference.Uid;
@@ -90,6 +92,7 @@ public class ContentReferenceModel
         {
             PublishedOn = model.PublishedOn,
             SourceUpdateOn = model.SourceUpdateOn,
+            Version = model.Version ?? 0
         };
 
         return entity;

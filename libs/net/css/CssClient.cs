@@ -167,7 +167,7 @@ public class CssClient : HttpRequestClient, ICssClient
         if (String.IsNullOrWhiteSpace(url)) throw new ArgumentException($"Argument '{nameof(url)}' must be a valid URL.");
         method ??= HttpMethod.Get;
         headers ??= new HttpRequestMessage().Headers;
-        headers.Add("User-Agent", nameof(CssClient));
+        headers.Add("User-Agent", GetType().FullName);
 
         var token = await RequestAccessTokenAsync();
         if (!String.IsNullOrWhiteSpace(token)) headers.Add("Authorization", token.ToString());
