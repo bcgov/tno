@@ -6,5 +6,5 @@ namespace TNO.DAL.Services;
 
 public interface IAlertService : IBaseService<Alert, int>
 {
-    Alert FindAlert();
+    Alert? FindAlert();
 }
