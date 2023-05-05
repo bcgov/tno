@@ -1,4 +1,6 @@
-import { Button, Col, Row, Show, useKeycloakWrapper } from 'tno-core';
+import React from 'react';
+import { useAlerts } from 'store/hooks';
+import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -17,6 +19,17 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
   const isLocal =
     new URL(authority).host.startsWith('localhost') ||
     new URL(authority).host.startsWith('host.docker.internal');
+
+  const [, api] = useAlerts();
+  const [alert, setAlert] = React.useState<IAlertModel>();
+
+  React.useEffect(() => {
+    api.findAlert().then((data) => {
+      if (!!data) setAlert(data);
+    });
+    // only want to run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <styled.BrowserLogin>
       <Col>
@@ -73,14 +86,11 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           </Col>
           <Col className="alert-box">
             <div className="alert-containing-box">
-              <b>System Notices</b>
-              <br />
-              <p>
-                Service interruption Dec 29 - Jan 3. Stories will not be updated over the holidays.{' '}
+              <Show visible={!!alert?.message && alert.isEnabled}>
+                <b>System Notices</b>
                 <br />
-                <br />
-                Jan 4th - Updates resume, business as usual.
-              </p>
+                <p>{alert?.message}</p>
+              </Show>
             </div>
           </Col>
         </Row>

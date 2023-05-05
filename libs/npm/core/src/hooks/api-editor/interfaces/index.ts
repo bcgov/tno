@@ -57,3 +57,4 @@ export * from './IValidationErrorModel';
 export * from './IWorkOrderFilter';
 export * from './IWorkOrderMessageModel';
 export * from './IWorkOrderModel';
+export * from './IAlertModel';

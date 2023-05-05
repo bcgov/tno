@@ -298,7 +298,7 @@ public static class StringExtensions
         var res = rgx.Replace(articleContent.Replace(@"<p><br><\/p>", string.Empty), replaceString).Trim();
         // remove extra news lines
         res = Regex.Replace(res, @"^\s+$[" + Environment.NewLine + "]*", string.Empty, RegexOptions.Multiline);
-        return SanitizeContent(res, new Regex(@"[.?]'?”?[A-Z]"));
+        return SanitizeContent(res, new Regex(@"[.?]'?”?“?[A-Z]"));
     }
 
     private static string SanitizeContent(string articleContent, Regex regex)
@@ -308,7 +308,14 @@ public static class StringExtensions
         {
             var index = match.Index + match.Value.Length;
             if (articleContent.Length > index && articleContent[index] != '.')
-                articleContent = articleContent.Replace(match.Value, match.Value[..^1] + "\n" + match.Value[^1..]);
+            {
+                articleContent = articleContent.Replace(
+                    match.Value,
+                    match.Value.Contains('“') ?
+                    match.Value[..1] + "\n" + match.Value[1..] :
+                    match.Value[..^1] + "\n" + match.Value[^1..]
+                    );
+            }
         }
         return articleContent;
     }

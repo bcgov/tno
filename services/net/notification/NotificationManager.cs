@@ -33,6 +33,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
     private readonly ITnoRazorLightEngine _engine;
+    private readonly IOptions<NotificationOptions> _notificationOptions;
     #endregion
 
     #region Properties
@@ -93,6 +94,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
         _engine = engine;
+        _notificationOptions = notificationOptions;
     }
     #endregion
 
@@ -318,7 +320,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <param name="content"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    private async Task SendNotificationAsync(NotificationRequestModel request, API.Areas.Services.Models.Notification.NotificationModel notification, API.Areas.Services.Models.Content.ContentModel content)
+    private async Task SendNotificationAsync(NotificationRequestModel request, NotificationModel notification, ContentModel content)
     {
         await HandleChesEmailOverrideAsync(request);
 
@@ -401,11 +403,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private async Task<string> GenerateNotificationAsync(NotificationModel notification, ContentModel content, bool isSubject = false)
     {
         var result = await _engine.CompileRenderStringAsync(
-            notification.Name + "_" + notification.Id,
+            notification.Name + "_" + notification.Id + (isSubject ? "_subject" : ""),
             isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
-            new TemplateModel
+            new TemplateModel(_notificationOptions)
             {
-                Content = content
+                Content = content,
             });
         return result;
     }

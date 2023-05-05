@@ -3,6 +3,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
+  IAlertModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -37,6 +38,7 @@ export const initialAdminState: IAdminState = {
   topics: [],
   rules: [],
   tags: [],
+  alerts: [],
   actions: [],
   series: [],
   licenses: [],
@@ -100,6 +102,9 @@ export const adminSlice = createSlice({
     storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
       state.workOrderFilter = action.payload;
     },
+    storeAlerts(state: IAdminState, action: PayloadAction<IAlertModel[]>) {
+      state.alerts = action.payload;
+    },
     storeWorkOrders(state: IAdminState, action: PayloadAction<IPaged<IWorkOrderModel>>) {
       state.workOrders = action.payload;
     },
@@ -116,6 +121,7 @@ export const {
   storeIngestTypes: storeAdminIngestTypes,
   storeUserFilter: storeAdminUserFilter,
   storeUsers: storeAdminUsers,
+  storeAlerts: storeAdminAlerts,
   storeTopics: storeAdminTopics,
   storeTopicScoreRules: storeAdminTopicScoreRules,
   storeTags: storeAdminTags,
