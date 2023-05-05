@@ -2,6 +2,7 @@ import { IUserListFilter } from 'features/admin/users/interfaces/IUserListFilter
 import { IWorkOrderListFilter } from 'features/admin/work-orders/interfaces/IWorkOrderListFilter';
 import {
   IActionModel,
+  IAlertModel,
   IConnectionModel,
   IDataLocationModel,
   IIngestModel,
@@ -30,6 +31,7 @@ export interface IAdminState {
   topics: ITopicModel[];
   rules: ITopicScoreRuleModel[];
   tags: ITagModel[];
+  alerts: IAlertModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
   licenses: ILicenseModel[];

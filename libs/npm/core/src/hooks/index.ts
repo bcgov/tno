@@ -10,6 +10,7 @@ export * from './useDeepCompareEffect';
 export * from './useDeepCompareMemo';
 export * from './useDownload';
 export * from './useIntersection';
+export * from './api-subscriber/useApiAlerts';
 export * from './useIntersectionObserver';
 export * from './useNamespace';
 export * from './useQuery';

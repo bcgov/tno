@@ -20,3 +20,4 @@ export * from './useApiTopics';
 export * from './useApiTopicScoreRules';
 export * from './useApiUsers';
 export * from './useApiWorkOrders';
+export * from './useApiAnonAlerts';
