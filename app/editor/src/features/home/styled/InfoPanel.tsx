@@ -19,6 +19,11 @@ export const InfoPanel = styled.div<IInfoPanelProps>`
     .email {
       margin-top: 25px;
     }
+    .alert-message {
+      max-height: 13em;
+      overflow: scroll;
+      overflow-x: hidden;
+    }
   }
 
   .loginPanel {

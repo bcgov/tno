@@ -27,7 +27,7 @@ export const InfoText: React.FC = () => {
         <li>Articles related to major stories.</li>
       </ul>
       <Show visible={alert.isEnabled}>
-        <p>{alert.message ?? ''}</p>
+        <p className="alert-message">{alert.message ?? ''}</p>
       </Show>
       <div className="email">
         <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">
