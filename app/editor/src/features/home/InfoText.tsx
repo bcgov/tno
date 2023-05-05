@@ -1,4 +1,20 @@
+import { defaultAlert } from 'features/admin/alerts/constants';
+import React from 'react';
+import { useAnonAlerts } from 'store/hooks';
+import { IAlertModel, Show } from 'tno-core';
+
 export const InfoText: React.FC = () => {
+  const [, api] = useAnonAlerts();
+  const [alert, setAlert] = React.useState<IAlertModel>(defaultAlert);
+
+  React.useEffect(() => {
+    api.findAlert().then((data) => {
+      if (!!data) setAlert(data);
+    });
+    // only want to run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="info">
       <p>
@@ -10,11 +26,9 @@ export const InfoText: React.FC = () => {
         <li>BC’s top stories as they break.</li>
         <li>Articles related to major stories.</li>
       </ul>
-      <p>
-        The following is a pinned message and announcement for all subscribers to the Media
-        Monitoring Insights & Analysis Service. Please be aware that system maintenance will occur
-        this Friday, from 8:00AM to 5PM.
-      </p>
+      <Show visible={alert.isEnabled}>
+        <p>{alert.message ?? ''}</p>
+      </Show>
       <div className="email">
         <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">
           tnonews-help@gov.bc.ca
