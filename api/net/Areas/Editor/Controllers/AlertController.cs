@@ -7,14 +7,14 @@ using TNO.API.Areas.Admin.Models.Alert;
 using TNO.API.Models;
 using TNO.DAL.Services;
 
-namespace TNO.API.Areas.Subscriber.Controllers;
+namespace TNO.API.Areas.Editor.Controllers;
 
 /// <summary>
 /// AlertController class, provides alert endpoints for the admin api.
 /// </summary>
 [ApiController]
+[Area("editor")]
 [AllowAnonymous]
-[Area("subscriber")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[area]/alerts")]
 [Route("api/[area]/alerts")]
@@ -50,7 +50,7 @@ public class AlertController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Alert" })]
     public IActionResult FindAlert()
     {
-         var result = _service.FindAlert();
+        var result = _service.FindAlert();
         if (result == null) return new NoContentResult();
         return new JsonResult(new AlertModel(result));
     }

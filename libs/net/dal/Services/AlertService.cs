@@ -17,7 +17,7 @@ public class AlertService : BaseService<Alert, int>, IAlertService {
     #endregion
 
     #region Methods
-    public Alert FindAlert()
+    public Alert? FindAlert()
     {
         return this.Context.Alerts.FirstOrDefault();
     }

@@ -1,10 +1,10 @@
 import { defaultAlert } from 'features/admin/alerts/constants';
 import React from 'react';
-import { useAlerts } from 'store/hooks/admin';
+import { useAnonAlerts } from 'store/hooks';
 import { IAlertModel, Show } from 'tno-core';
 
 export const InfoText: React.FC = () => {
-  const [, api] = useAlerts();
+  const [, api] = useAnonAlerts();
   const [alert, setAlert] = React.useState<IAlertModel>(defaultAlert);
 
   React.useEffect(() => {

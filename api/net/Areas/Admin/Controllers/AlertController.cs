@@ -14,6 +14,7 @@ namespace TNO.API.Areas.Admin.Controllers;
 /// AlertController class, provides alert endpoints for the admin api.
 /// </summary>
 [ApiController]
+[ClientRoleAuthorize(ClientRole.Administrator)]
 [Area("admin")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[area]/alerts")]
@@ -60,7 +61,6 @@ public class AlertController : ControllerBase
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [ClientRoleAuthorize(ClientRole.Administrator)]
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AlertModel), (int)HttpStatusCode.Created)]
@@ -77,7 +77,6 @@ public class AlertController : ControllerBase
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [ClientRoleAuthorize(ClientRole.Administrator)]
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AlertModel), (int)HttpStatusCode.OK)]
@@ -94,7 +93,6 @@ public class AlertController : ControllerBase
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    [ClientRoleAuthorize(ClientRole.Administrator)]
     [HttpDelete("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(AlertModel), (int)HttpStatusCode.OK)]
