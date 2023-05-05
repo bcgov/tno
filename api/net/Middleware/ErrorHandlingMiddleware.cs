@@ -95,7 +95,9 @@ namespace TNO.API.Middleware
                 code = HttpStatusCode.BadRequest;
                 message = "Data may have been modified or deleted since item was loaded.  Refresh your data and reapply your changes.";
 
-                _logger.LogDebug(ex, "Optimistic concurrency error", ex.Message);
+                _logger.LogError(ex,
+                    "Optimistic concurrency error (user agent: {userAgent})",
+                    context.Request.Headers["User-Agent"].ToString());
             }
             else if (ex is DbUpdateException)
             {
