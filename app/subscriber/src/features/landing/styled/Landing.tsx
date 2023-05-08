@@ -6,6 +6,10 @@ export const Landing = styled(Col)`
   font-family: -apple-system, BlinkMacSystemFont, 'BCSans', 'Noto Sans', Arial, 'sans serif';
   display: flex;
 
+  .title {
+    font-family: 'Source Sans Pro', sans-serif;
+  }
+
   /* header for viewing a piece of content on the landing page */
   .view {
     svg {

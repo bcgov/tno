@@ -10,6 +10,10 @@ export const Commentary = styled.div`
   .headline {
     color: #3847aa;
     cursor: pointer;
+    text-overflow: ellipsis;
+    max-width: 32em;
+    white-space: nowrap;
+    overflow: hidden;
     /* underline on hover */
     &:hover {
       text-decoration: underline;
