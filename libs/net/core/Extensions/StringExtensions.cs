@@ -276,6 +276,7 @@ public static class StringExtensions
         var articleStr = (startPos > 0 ?
             articleContent.Substring(startPos + 9, endPos - (startPos + 9)) :
             articleContent)
+            .Replace("B.</p><p>C.", "B.C.")
             .Replace("</p>", pEndingTagReplacer, true, null);
 
         return Regex.Replace(articleStr, @"<[^>]*>", string.Empty)
