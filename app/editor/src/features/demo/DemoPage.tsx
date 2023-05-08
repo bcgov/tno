@@ -5,14 +5,16 @@ export class DemoData {
   id: number;
   name: string;
   value: any;
-  section: string;
+  section?: string;
+  code: string;
   cost: number;
 
-  constructor(id: number, name: string) {
+  constructor(id: number, name: string, section: string | undefined = undefined) {
     this.id = id;
     this.name = name;
     this.value = undefined;
-    this.section = String.fromCharCode(id + 50);
+    this.section = section;
+    this.code = String.fromCharCode(id + 50);
     this.cost = 0.0;
   }
 }
@@ -49,10 +51,12 @@ const columns: ITableHookColumn<DemoData>[] = [
 
 const generate = (count: number) => {
   const items = [];
+  var section = 1;
   for (var i = 0; i < count; i++) {
-    const value = new DemoData(i, `name-${i}`);
+    const value = new DemoData(i, `name-${i}`, `${section}`);
     value.value = i % 2 ? 'even' : 'odd';
     items.push(value);
+    section = (i + 1) % 10 === 0 ? section + 1 : section;
   }
   return items;
 };
@@ -132,7 +136,8 @@ export const DemoPage: React.FC = () => {
         // showFilter={true}
         // scrollSize="200px"
         // showHeader={false}
-        // groupBy={(item) => item.section}
+        // groupBy={(item) => item.original.section ?? 'any'}
+        groupBy="section"
         onRowClick={(row) => {
           setItem(row.original);
         }}

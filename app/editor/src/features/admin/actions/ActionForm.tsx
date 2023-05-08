@@ -164,7 +164,7 @@ export const ActionForm: React.FC = () => {
             </Row>
             <Modal
               headerText="Confirm Removal"
-              body="Are you sure you wish to remove this show/program?"
+              body="Are you sure you wish to remove this action?"
               isShowing={isShowing}
               hide={toggle}
               type="delete"

@@ -133,14 +133,20 @@ export const NavBar: React.FC = () => {
               level={1}
             />
             <NavBarItem
-              navigateTo="/admin/licences"
-              label="Licences"
+              navigateTo="/admin/reports"
+              label="Reports"
               claim={Claim.administrator}
               level={1}
             />
             <NavBarItem
               navigateTo="/admin/actions"
               label="Actions"
+              claim={Claim.administrator}
+              level={1}
+            />
+            <NavBarItem
+              navigateTo="/admin/licences"
+              label="Licences"
               claim={Claim.administrator}
               level={1}
             />

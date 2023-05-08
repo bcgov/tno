@@ -6,6 +6,7 @@ export * from './ingest-types';
 export * from './ingests';
 export * from './licenses';
 export * from './products';
+export * from './reports';
 export * from './series';
 export * from './sources';
 export * from './tags';
