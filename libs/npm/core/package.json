@@ -43,6 +43,7 @@
     "react-toastify": "^9.1.1",
     "react-tooltip": "^5.10.0",
     "styled-components": "^5.3.9",
+    "tno-core": "0.0.240",
     "yup": "^0.32.11"
   },
   "devDependencies": {

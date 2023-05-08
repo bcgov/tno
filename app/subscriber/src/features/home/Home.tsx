@@ -1,5 +1,4 @@
 import { DateFilter } from 'components/date-filter';
-import { GroupedTable } from 'components/grouped-table';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -7,7 +6,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
-import { ContentTypeName, IContentModel, Page, Row } from 'tno-core';
+import { ContentTypeName, FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
 import { columns } from './constants';
 import { HomeFilters } from './home-filters';
@@ -21,6 +20,7 @@ export const Home: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
+
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
     async (filter: IContentListFilter & Partial<IContentListAdvancedFilter>) => {
@@ -61,15 +61,17 @@ export const Home: React.FC = () => {
       </Row>
       <DateFilter />
       <Row className="table-container">
-        <GroupedTable
-          onRowClick={(e, row) => {
-            navigate(`/view/${row.original.id}`);
+        <FlexboxTable
+          rowId="id"
+          columns={columns}
+          isMulti
+          groupBy={(item) => item.otherSource}
+          onRowClick={(e: any) => {
+            navigate(`/view/${e.original.id}`);
           }}
           data={homeItems || []}
-          // TODO: return full source object from API so we can use name or code
-          // groupBy={!!width && width > 500 ? 'source.name' : 'source.code'}
-          groupBy="otherSource"
-          columns={columns}
+          pageButtons={5}
+          showPaging={false}
         />
       </Row>
     </styled.Home>
