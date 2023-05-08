@@ -13,4 +13,5 @@ export const HomeFilters = styled(Row)`
   @media (min-width: 500px) {
     font-size: 0.5em !important;
   }
+  font-family: Roboto', sans-serif;
 `;

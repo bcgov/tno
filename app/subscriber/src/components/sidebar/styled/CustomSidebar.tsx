@@ -9,6 +9,7 @@ export const CustomSidebar = styled(Sidebar)`
     @media (max-width: 500px) {
       max-width: 50px;
     }
+    font-family: 'Source Sans Pro', sans-serif;
     background-color: ${(props) => props.theme.css.darkHeaderColor};
     min-height: 100vh;
     img {

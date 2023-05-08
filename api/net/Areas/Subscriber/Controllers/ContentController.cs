@@ -9,12 +9,10 @@ using TNO.API.Models;
 using TNO.DAL.Models;
 using TNO.DAL.Services;
 using TNO.DAL.Config;
-using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Core.Extensions;
 using TNO.Kafka;
 using TNO.API.Config;
-using TNO.Kafka.Models;
 using System.Net.Mime;
 using TNO.API.Helpers;
 using System.Web;
@@ -22,7 +20,6 @@ using System.Text.Json;
 using TNO.API.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using TNO.Keycloak;
-using TNO.Core.Exceptions;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -104,11 +101,12 @@ public class ContentController : ControllerBase
     #region Endpoints
     /// <summary>
     /// Find a page of content for the specified query filter.
+    /// TODO: The model stored in Elasticsearch is a little confusing based on the controller using it.  Need to clean up.
     /// </summary>
     /// <returns></returns>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<ContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(IPaged<Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> FindWithElasticsearchAsync()
     {
@@ -116,9 +114,8 @@ public class ContentController : ControllerBase
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
         var result = await _contentService.FindWithElasticsearchAsync(filter);
-        var items = result.Items.Select(i => new ContentModel(i));
-        var page = new Paged<ContentModel>(
-            items,
+        var page = new Paged<Services.Models.Content.ContentModel>(
+            result.Items,
             result.Page,
             result.Quantity,
             result.Total);
@@ -186,6 +183,6 @@ public class ContentController : ControllerBase
         return Ok(result);
     }
 
-    
+
     #endregion
 }

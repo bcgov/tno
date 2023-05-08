@@ -34,6 +34,8 @@ export * from './IPaged';
 export * from './IPageFilter';
 export * from './IProductModel';
 export * from './IRegisterModel';
+export * from './IReportInstanceModel';
+export * from './IReportModel';
 export * from './IResponseErrorModel';
 export * from './IRoleModel';
 export * from './IScheduleModel';

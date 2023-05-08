@@ -8,6 +8,8 @@ export * from './ContentStatusName';
 export * from './ContentType';
 export * from './ContentTypeName';
 export * from './LogicalOperator';
+export * from './ReportType';
+export * from './ReportTypeName';
 export * from './ScheduleMonth';
 export * from './ScheduleMonthName';
 export * from './ScheduleType';

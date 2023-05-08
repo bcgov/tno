@@ -17,7 +17,7 @@ namespace TNO.API.Areas.Editor.Controllers;
 /// </summary>
 [ClientRoleAuthorize(ClientRole.Editor)]
 [ApiController]
-[Area("admin")]
+[Area("editor")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[area]/reports")]
 [Route("api/[area]/reports")]

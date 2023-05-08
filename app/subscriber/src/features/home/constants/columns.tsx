@@ -1,33 +1,27 @@
-import { Column } from 'react-table';
-import { Checkbox } from 'tno-core';
+import { IContentModel, ITableHookColumn } from 'tno-core';
 
 import { DetermineToneIcon } from '../utils';
 
-export const columns: Column<any>[] = [
+export const columns: ITableHookColumn<IContentModel>[] = [
   {
-    id: 'checkbox',
-    Header: () => <Checkbox />,
-    Cell: () => <Checkbox />,
-    width: 0,
+    name: 'tone',
+    label: 'TONE',
+    cell: (cell) => (
+      <DetermineToneIcon tone={cell.original.tonePools ? cell.original.tonePools[0]?.value : 0} />
+    ),
   },
   {
-    id: 'tone',
-    Header: 'TONE',
-    accessor: 'tonePools',
-    Cell: (cell) => <DetermineToneIcon tone={cell.value ? cell.value[0]?.value : 0} />,
-    width: 20,
+    name: 'headline',
+    label: 'HEADLINE',
+    cell: (cell) => <div className="headline">{cell.original.headline}</div>,
+    width: 5,
   },
   {
-    id: 'headline',
-    Header: 'HEADLINE',
-    accessor: 'headline',
-    Cell: (cell) => <div className="headline">{cell?.value}</div>,
-  },
-  {
-    id: 'description',
-    Header: 'SECTION PAGE',
-    accessor: 'section',
-    Cell: (cell) => <div className="section">{cell?.value}</div>,
-    width: 30,
+    name: 'sectionPage',
+    label: 'SECTION PAGE',
+    cell: (cell) => (
+      <div className="section">{`${cell.original.section}:${cell?.original.page}`}</div>
+    ),
+    width: 1,
   },
 ];

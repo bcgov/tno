@@ -326,7 +326,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
     {
-        return Task.FromResult($"{report.Template}");
+        return Task.FromResult($"<div>{report.Template}<div><div>{String.Join("", content.Select(c => $"<p>{c.Headline}</p>"))}</div>");
     }
 
     /// <summary>
@@ -391,19 +391,22 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     {
         await HandleChesEmailOverrideAsync(request.RequestorId);
 
-        var contexts = to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
-        {
-            Tag = tag,
-        }).ToList();
-
+        var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
-            // Add a context for the requested list of users in addition to the subscribers.
+            // Add a context for the requested list of users.
             var another = request.To.Split(",").Select(v => v.Trim());
             contexts.Add(new EmailContextModel(another, new Dictionary<string, object>(), DateTime.Now)
             {
                 Tag = tag,
             });
+        }
+        else
+        {
+            contexts = to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+            {
+                Tag = tag,
+            }).ToList();
         }
 
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)

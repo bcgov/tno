@@ -68,11 +68,22 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
 
     this.rows = sortRows(rows, this.sortOrder);
     if (this.groupBy) {
-      this.groups = groupBy(this.rows, (row) => (row.original as any)['value']).map((group) => ({
-        key: group.key,
-        rows: group.rows,
-        heading: this.groupHeading,
-      }));
+      if (typeof this.groupBy === 'function') {
+        this.groups = groupBy(this.rows, this.groupBy).map((group) => ({
+          key: group.key,
+          rows: group.rows,
+          heading: this.groupHeading,
+        }));
+      } else if (typeof this.groupBy === 'string') {
+        this.groups = groupBy(this.rows, (item, index, array) => {
+          const value = (item.original as any)[this.groupBy] ?? '';
+          return value;
+        }).map((group) => ({
+          key: group.key,
+          rows: group.rows,
+          heading: this.groupHeading,
+        }));
+      }
     }
     this.refreshPage();
   };
@@ -199,7 +210,9 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
   };
 
   // Grouping
-  groupBy?: (item: T, index: number, array: T[]) => string;
+  groupBy?:
+    | keyof T
+    | ((item: ITableInternalRow<T>, index: number, array: ITableInternalRow<T>[]) => string);
   groupHeading: (group: ITableGroup<ITableInternalRow<T>>) => React.ReactNode;
   groups: ITableInternalRowGroup<ITableInternalRow<T>>[] = [];
 

@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\core\TNO.Core.csproj" />
     <ProjectReference Include="..\entities\TNO.Entities.csproj" />
+    <ProjectReference Include="..\models\TNO.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
