@@ -13,11 +13,6 @@ export const DateRangeSection = styled(Row)`
     padding-left: 0.25em;
     color: ${(props) => props.theme.css.lightVariantColor};
   }
-  .calendar {
-    color: ${(props) => props.theme.css.primaryColor};
-    height: 1.25em;
-    width: 1.25em;
-  }
   .to-text {
     align-self: center;
     margin-right: 0.25em;
