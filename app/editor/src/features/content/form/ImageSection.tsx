@@ -11,11 +11,9 @@ import {
   getSourceOptions,
   IOptionItem,
   Row,
-  Show,
   TimeInput,
 } from 'tno-core';
 
-import { Topic } from './components';
 import { IContentForm } from './interfaces';
 
 // TODO: This is horrible to hardcode these sources, the image form is for any type of image and shouldn't be limited to a few sources.
@@ -26,12 +24,9 @@ interface IImageSectionProps {}
 /** Contains form field in a layout specific to the image snippet. */
 export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const [{ sources, series, productOptions }] = useLookupOptions();
+  const [{ sources, productOptions }] = useLookupOptions();
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
-
-  const source = sources.find((s) => s.id === values.sourceId);
-  const program = series.find((s) => s.id === values.seriesId);
 
   React.useEffect(() => {
     setSourceOptions(
@@ -101,9 +96,6 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
           }
         }}
       />
-      <Show visible={source?.useInTopics || program?.useInTopics}>
-        <Topic />
-      </Show>
     </Row>
   );
 };
