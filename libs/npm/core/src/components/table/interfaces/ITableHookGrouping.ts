@@ -2,6 +2,8 @@ import { ITableGroup } from '..';
 import { ITableInternalRow } from '.';
 
 export interface ITableHookGrouping<T extends object> {
-  groupBy?: (item: T, index: number, array: T[]) => string;
+  groupBy?:
+    | keyof T
+    | ((item: ITableInternalRow<T>, index: number, array: ITableInternalRow<T>[]) => string);
   groupHeading?: (group: ITableGroup<ITableInternalRow<T>>) => React.ReactNode;
 }
