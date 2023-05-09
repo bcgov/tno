@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { useContent } from 'store/hooks';
+import { useChannel, useContent } from 'store/hooks';
+import { useContentStore } from 'store/slices';
 import {
   Col,
   ContentTypeName,
@@ -20,7 +21,7 @@ import { ContentForm } from '../form';
 import { defaultPage } from '../list-view/constants';
 import { IContentListAdvancedFilter } from '../list-view/interfaces';
 import { ReportActions } from './components';
-import { columns } from './constants';
+import { getColumns } from './constants';
 import { IMorningReportsFilter } from './interfaces';
 import { MorningReportsFilter } from './MorningReportsFilter';
 import * as styled from './styled';
@@ -44,6 +45,25 @@ export const MorningReports: React.FC<IMorningReportsProps> = (props) => {
 
   const [, setLoading] = React.useState(false);
   const [selected, setSelected] = React.useState<IContentModel[]>([]);
+
+  const [, { updateContent }] = useContentStore();
+  const channel = useChannel<any>({
+    onMessage: (ev) => {
+      switch (ev.data.type) {
+        case 'content':
+          updateContent([ev.data.message]);
+      }
+    },
+  });
+
+  const [tab, setTab] = React.useState<Window | null>(null);
+  const columns = getColumns((id) => {
+    if (!tab || tab.closed) setTab(window.open(`/contents/${id}`, '_blank'));
+    else {
+      channel('fetch', id);
+      tab.focus();
+    }
+  });
 
   const page = React.useMemo(
     () =>

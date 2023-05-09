@@ -1,3 +1,4 @@
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
   CellCheckbox,
   CellDate,
@@ -9,7 +10,9 @@ import {
 
 import { getStatusText } from '../../list-view/utils';
 
-export const columns: ITableHookColumn<IContentModel>[] = [
+export const getColumns = (
+  onClickOpen: (contentId: number) => void,
+): ITableHookColumn<IContentModel>[] => [
   {
     name: 'headline',
     label: 'Headline',
@@ -80,5 +83,23 @@ export const columns: ITableHookColumn<IContentModel>[] = [
       </div>
     ),
     hAlign: 'center',
+  },
+  {
+    name: 'newTab',
+    label: '',
+    showSort: false,
+    hAlign: 'center',
+    cell: (cell) => {
+      return (
+        <FaExternalLinkAlt
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClickOpen(cell.original.id);
+          }}
+        />
+      );
+    },
+    width: '50px',
   },
 ];
