@@ -23,16 +23,30 @@ export const ViewContentToolbar = styled(Col)`
   }
   .action-icons {
     svg {
+      &:focus {
+        outline: none;
+      }
       cursor: pointer;
       align-self: center;
       margin-left: 0.5rem;
       height: 1.85rem;
       width: 2.5rem;
       color: #a5a4bf;
+      padding-bottom: 0.25em;
       &:hover {
+        transform: scale(1.1);
         color: #da6d78;
       }
     }
     align-content: center;
+    .active {
+      /* blue underline */
+      border-bottom: 0.2rem solid #24b6d4;
+      color: #43425d;
+    }
+
+    #main-tooltip {
+      background-color: red !important;
+    }
   }
 `;

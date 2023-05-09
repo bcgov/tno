@@ -46,7 +46,16 @@ function App() {
         </LayoutAnonymous>
       </Show>
       <ToastContainer />
-      <Tooltip variant="light" id="main-tooltip" place="top" />
+      <Tooltip
+        style={{
+          backgroundColor: '#FFFFCC',
+          color: 'black',
+          opacity: '1',
+          boxShadow: '0 0 8px #464545',
+        }}
+        id="main-tooltip"
+        place="top"
+      />
       <Tooltip variant="light" id="main-tooltip-right" place="right" />
     </BrowserRouter>
   );
