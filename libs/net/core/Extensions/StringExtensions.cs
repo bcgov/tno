@@ -276,13 +276,12 @@ public static class StringExtensions
         var articleStr = (startPos > 0 ?
             articleContent.Substring(startPos + 9, endPos - (startPos + 9)) :
             articleContent)
-            .Replace("B.</p><p>C.", "B.C.")
             .Replace("</p>", pEndingTagReplacer, true, null);
 
         return Regex.Replace(articleStr, @"<[^>]*>", string.Empty)
             .Replace("\r\n", string.Empty, true, null)
             .Replace("\n", " ", true, null)
-            .Replace(pEndingTagReplacer, "\n\n")
+            .Replace(pEndingTagReplacer, "\n")
             .Trim();
     }
 
