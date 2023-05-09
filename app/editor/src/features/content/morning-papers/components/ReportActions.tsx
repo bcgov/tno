@@ -1,9 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AxiosError } from 'axios';
+import { getDefaultCommentaryExpiryValue } from 'features/content/form/utils';
 import * as React from 'react';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useContent } from 'store/hooks';
+import { useContent, useLookup } from 'store/hooks';
 import {
   Button,
   ButtonVariant,
@@ -40,8 +41,10 @@ export const ReportActions: React.FunctionComponent<IReportActionProps> = ({
   selected,
 }) => {
   const [, { updateContentList }] = useContent();
-
-  const [commentary, setCommentary] = React.useState('1');
+  const [{ holidays }] = useLookup();
+  const [commentary, setCommentary] = React.useState(
+    `${getDefaultCommentaryExpiryValue(new Date(), holidays)}`,
+  );
 
   const handleAction = React.useCallback(
     async (action: ContentListActionName, name?: string, value?: string) => {
