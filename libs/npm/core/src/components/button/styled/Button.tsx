@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { ButtonVariant, IButtonProps, ButtonHeight } from '..';
+import { ButtonHeight, ButtonVariant, IButtonProps } from '..';
 
 export const Button = styled.button<IButtonProps>`
   margin: 1px 2px 1px 2px;
