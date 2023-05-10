@@ -140,6 +140,14 @@ public interface IApiService
     public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
 
     /// <summary>
+    /// Make a request to the API to update the specified content reference status.
+    /// </summary>
+    /// <param name="contentReference"></param>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    public Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceStatusAsync(API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference, HttpRequestHeaders? headers = null);
+
+    /// <summary>
     /// Make a request to the API to update the specified content reference with Kafka information.
     /// </summary>
     /// <param name="contentReference"></param>
