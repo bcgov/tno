@@ -17,19 +17,21 @@ export interface ITablePagerProps<T extends object> {
  */
 export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => {
   const [pageSize, setPageSize] = React.useState(table.pageSize);
-
-  const pageButtons = table.pageButtons >= table.pageCount ? table.pageCount : table.pageButtons;
+  const pageCount = table.pageCount;
+  const pageButtons = table.pageButtons >= pageCount ? pageCount : table.pageButtons;
   const pageMiddleIndex = Math.round((pageButtons - 1) / 2);
   const startIndex =
-    table.pageIndex - pageMiddleIndex <= 0
+    table.pageIndex < pageMiddleIndex
       ? 0
-      : table.pageIndex - pageMiddleIndex + pageButtons > table.pageCount
-      ? table.pageCount - table.pageButtons
+      : pageCount - pageMiddleIndex <= table.pageIndex
+      ? pageCount - pageButtons
       : table.pageIndex - pageMiddleIndex;
   const buttons = pageButtons > 0 ? [...Array(pageButtons)] : [];
 
   React.useEffect(() => {
-    if (table.pageSize !== pageSize) setPageSize(table.pageSize);
+    if (table.pageSize !== pageSize) {
+      setPageSize(table.pageSize);
+    }
     // We only want to update when the parent changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table.pageSize]);
@@ -39,7 +41,8 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
   ) : (
     <div className="pager">
       <div className="pages">
-        Page {table.pageNumber()} of {table.pageCount}
+        Page {table.pageNumber()} of {pageCount}{' '}
+        {!table.manualPaging && `(${table.rows.length} items)`}
       </div>
       <div className="buttons">
         <Button
@@ -64,7 +67,7 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
         </Button>
         {buttons.map((_, index) => {
           var pageIndex = startIndex + index;
-          if (pageIndex < table.pageCount) {
+          if (pageIndex < pageCount) {
             return (
               <Button
                 key={index}
@@ -92,7 +95,7 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
         <Button
           variant={ButtonVariant.info}
           tooltip="Last"
-          disabled={table.pageIndex === table.pageCount - 1}
+          disabled={table.pageIndex === pageCount - 1}
           onClick={() => {
             table.goLast();
           }}
@@ -109,10 +112,12 @@ export const TablePager = <T extends object>({ table }: ITablePagerProps<T>) => 
             if (!isNaN(value)) setPageSize(value);
           }}
           onKeyUp={(e) => {
-            if (e.key === 'Enter') table.setPageSize(pageSize);
+            if (e.key === 'Enter' && table.pageSize !== pageSize) {
+              table.setPageSize(pageSize);
+            }
           }}
           onBlur={() => {
-            table.setPageSize(pageSize);
+            if (table.pageSize !== pageSize) table.setPageSize(pageSize);
           }}
         />
       </div>

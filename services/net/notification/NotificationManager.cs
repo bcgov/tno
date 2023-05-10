@@ -1,9 +1,11 @@
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
+using System.Security.Claims;
 using TNO.Services.Managers;
 using TNO.Services.Notification.Config;
 using TNO.Kafka.Models;
-using Confluent.Kafka;
 using TNO.Kafka;
 using TNO.Core.Exceptions;
 using TNO.Entities;
@@ -11,8 +13,6 @@ using TNO.Models.Extensions;
 using TNO.Ches;
 using TNO.Ches.Models;
 using TNO.Ches.Configuration;
-using System.Text.Json;
-using System.Security.Claims;
 using TNO.Entities.Validation;
 using TNO.Services.Notification.Models;
 using TNO.API.Areas.Services.Models.Notification;
@@ -403,7 +403,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private async Task<string> GenerateNotificationAsync(NotificationModel notification, ContentModel content, bool isSubject = false)
     {
         var result = await _engine.CompileRenderStringAsync(
-            notification.Name + "_" + notification.Id + (isSubject ? "_subject" : ""),
+            $"notification_{notification.Id}_{notification.UpdatedOn}{(isSubject ? "_subject" : "")}",
             isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
             new TemplateModel(_notificationOptions)
             {

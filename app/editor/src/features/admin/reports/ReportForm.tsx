@@ -4,6 +4,7 @@ import moment from 'moment';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useApp } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
 import {
   Button,
@@ -37,15 +38,17 @@ import * as styled from './styled';
  * @returns Component.
  */
 export const ReportForm: React.FC = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const [{ userInfo }] = useApp();
+  const { id } = useParams();
   const [, api] = useReports();
   const { state } = useLocation();
   const { toggle, isShowing } = useModal();
 
-  const [report, setReport] = React.useState<IReportModel>((state as any)?.report ?? defaultReport);
+  const [report, setReport] = React.useState<IReportModel>(
+    (state as any)?.report ?? { ...defaultReport, ownerId: userInfo?.id ?? 0 },
+  );
   const [filter, setFilter] = React.useState(JSON.stringify(report.filter));
-  const [settings, setSettings] = React.useState(JSON.stringify(report.settings));
   const [sendTo, setSendTo] = React.useState('');
 
   const reportId = Number(id);
@@ -57,7 +60,6 @@ export const ReportForm: React.FC = () => {
       api.getReport(reportId).then((data) => {
         setReport(data);
         setFilter(JSON.stringify(data.filter));
-        setSettings(JSON.stringify(data.settings));
       });
     }
   }, [api, report?.id, reportId]);
@@ -68,7 +70,6 @@ export const ReportForm: React.FC = () => {
       const result = !report.id ? await api.addReport(values) : await api.updateReport(values);
       setReport(result);
       setFilter(JSON.stringify(result.filter));
-      setSettings(JSON.stringify(result.settings));
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/reports/${result.id}`);
     } catch {}
@@ -100,18 +101,8 @@ export const ReportForm: React.FC = () => {
         {({ isSubmitting, values, setFieldValue }) => (
           <div className="form-container">
             <Col className="form-inputs">
-              <FormikText width={FieldSize.Large} name="name" label="Name" />
-              <FormikTextArea name="description" label="Description" width={FieldSize.Large} />
-              <TextArea
-                name="settings"
-                label="Settings"
-                tooltip="Configuration settings"
-                value={settings}
-                onChange={(e) => {
-                  setSettings(e.target.value);
-                  setFieldValue('settings', JSON.parse(e.target.value));
-                }}
-              />
+              <FormikText name="name" label="Name" />
+              <FormikTextArea name="description" label="Description" />
               <FormikSelect
                 name="reportType"
                 label="Report Type"
@@ -124,10 +115,11 @@ export const ReportForm: React.FC = () => {
                   setFieldValue('reportType', option.value);
                 }}
               />
+              <FormikTextArea name="settings.subject" label="Subject Razor Template" />
               <Show visible={values.reportType === ReportTypeName.Filter}>
                 <TextArea
                   name="filter"
-                  label="Filter"
+                  label="Elasticsearch Filter"
                   tooltip="Elasticsearch query statement"
                   value={filter}
                   onChange={(e) => {
@@ -136,7 +128,11 @@ export const ReportForm: React.FC = () => {
                   }}
                 />
               </Show>
-              <FormikTextArea name="template" label="Template" tooltip="Razor syntax template" />
+              <FormikTextArea
+                name="template"
+                label="Razor Template"
+                tooltip="Razor syntax template"
+              />
               <Row>
                 <Col>
                   <Row gap="1rem">
@@ -197,24 +193,26 @@ export const ReportForm: React.FC = () => {
                     </Row>
                   </Show>
                 </Col>
-                <Col>
-                  <h2>Test Report</h2>
-                  <p>You can test this report and send it to the following email address.</p>
-                  <Text
-                    name="to"
-                    label="Email To"
-                    value={sendTo}
-                    onChange={(e) => setSendTo(e.target.value)}
-                  >
-                    <Button
-                      variant={ButtonVariant.secondary}
-                      disabled={!sendTo}
-                      onClick={async () => await handleSend(values, sendTo)}
+                {values.id && (
+                  <Col>
+                    <h2>Test Report</h2>
+                    <p>You can test this report and send it to the following email address.</p>
+                    <Text
+                      name="to"
+                      label="Email To"
+                      value={sendTo}
+                      onChange={(e) => setSendTo(e.target.value)}
                     >
-                      Send
-                    </Button>
-                  </Text>
-                </Col>
+                      <Button
+                        variant={ButtonVariant.secondary}
+                        disabled={!sendTo}
+                        onClick={async () => await handleSend(values, sendTo)}
+                      >
+                        Send
+                      </Button>
+                    </Text>
+                  </Col>
+                )}
               </Row>
             </Col>
             <Row justifyContent="center" className="form-inputs">
@@ -238,7 +236,7 @@ export const ReportForm: React.FC = () => {
                 try {
                   await api.deleteReport(report);
                   toast.success(`${report.name} has successfully been deleted.`);
-                  navigate('/admin/programs');
+                  navigate('/admin/reports');
                 } finally {
                   toggle();
                 }

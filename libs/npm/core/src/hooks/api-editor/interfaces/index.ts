@@ -31,6 +31,8 @@ export * from './ILicenseModel';
 export * from './ILookupModel';
 export * from './ILookupModel';
 export * from './IMetricModel';
+export * from './INotificationInstanceModel';
+export * from './INotificationModel';
 export * from './IPaged';
 export * from './IPageFilter';
 export * from './IProductModel';

@@ -136,7 +136,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
   pageNumber = () => this.pageIndex + 1;
   pageCount: number;
   calcPageCount = () =>
-    this.rows.length < this.pageSize ? 1 : Math.ceil(this.rows.length / this.pageSize);
+    this.data.length < this.pageSize ? 1 : Math.ceil(this.data.length / this.pageSize);
   manualPaging: boolean;
   pageButtons: number;
   showPaging: boolean;
@@ -145,6 +145,7 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     if (pageSize > 0) {
       this.pageIndex = 0;
       this.pageSize = pageSize;
+      this.pageCount = this.data.length < pageSize ? 1 : Math.ceil(this.page.length / pageSize);
       this.onPageChange({ pageIndex: this.pageIndex, pageSize }, this);
     }
   };
@@ -263,7 +264,6 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     table.manualPaging = paging.manualPaging ?? false;
     table.pageIndex = paging.pageIndex ?? 0;
     table.pageSize = paging.pageSize ?? 10;
-    table.pageCount = paging.pageCount ?? table.calcPageCount();
     table.pageButtons = paging.pageButtons ?? 5;
     table.showPaging = paging.showPaging ?? true;
     table.scrollSize = paging.scrollSize ?? 0;
@@ -319,6 +319,9 @@ export class TableInternal<T extends object> implements ITableInternal<T> {
     };
 
     table.refreshRows(rowState);
+    table.pageCount = table.manualPaging
+      ? paging.pageCount ?? table.calcPageCount()
+      : table.calcPageCount();
     return table;
   }
 

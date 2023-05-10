@@ -1,32 +1,28 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis, IReportModel } from 'tno-core';
+import { CellCheckbox, CellEllipsis, IReportModel, ITableHookColumn } from 'tno-core';
 
-export const columns: (Column<IReportModel> &
-  UseSortByColumnOptions<IReportModel> &
-  UseFiltersColumnOptions<IReportModel>)[] = [
+export const columns: ITableHookColumn<IReportModel>[] = [
   {
-    id: 'id',
-    Header: 'Name',
-    accessor: 'name',
+    label: 'Name',
+    name: 'name',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Description',
-    accessor: 'description',
+    label: 'Description',
+    name: 'description',
     width: 7,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
-    Header: 'Public',
-    accessor: 'isPublic',
+    label: 'Public',
+    name: 'isPublic',
     width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isPublic} />,
   },
   {
-    Header: 'Enabled',
-    accessor: 'isEnabled',
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];

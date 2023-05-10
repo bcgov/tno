@@ -10,6 +10,7 @@ namespace TNO.Services.Notification
         {
             _engine = new RazorLightEngineBuilder()
                 .UseEmbeddedResourcesProject(Assembly.GetEntryAssembly())
+                .UseMemoryCachingProvider()
                 .Build();
         }
         public async Task<string> CompileRenderStringAsync<T>(string key, string content, T model)

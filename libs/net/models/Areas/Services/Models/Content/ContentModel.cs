@@ -58,6 +58,11 @@ public class ContentModel : AuditColumnsModel
     public int? SeriesId { get; set; }
 
     /// <summary>
+    /// get/set - The content type.
+    /// </summary>
+    public SeriesModel? Series { get; set; }
+
+    /// <summary>
     /// get/set - Provides a way to dynamically add new series.
     /// </summary>
     public string? OtherSeries { get; set; }
@@ -201,6 +206,7 @@ public class ContentModel : AuditColumnsModel
         this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
         this.LicenseId = entity.LicenseId;
         this.SeriesId = entity.SeriesId;
+        this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.Headline = entity.Headline;

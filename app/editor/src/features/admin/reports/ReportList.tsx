@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useReports } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, IReportModel, Row } from 'tno-core';
+import { Col, FlexboxTable, FormPage, IconButton, IReportModel, Row } from 'tno-core';
 
 import { columns } from './constants';
-import { ReportListFilter } from './ReportListFilter';
 import * as styled from './styled';
 
 export const ReportList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ reports }, api] = useReports();
 
   const [items, setItems] = React.useState<IReportModel[]>([]);
@@ -39,14 +36,12 @@ export const ReportList: React.FC = () => {
             onClick={() => navigate(`/admin/reports/0`)}
           />
         </Row>
-        <GridTable
-          columns={columns}
-          header={ReportListFilter}
-          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-          isLoading={!!requests.length}
+        <FlexboxTable
+          rowId="id"
           data={items}
+          columns={columns}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
+        />
       </FormPage>
     </styled.ReportList>
   );

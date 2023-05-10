@@ -57,6 +57,7 @@ export const useTable = <T extends object>({
     if (
       initPaging.pageIndex !== paging.pageIndex ||
       initPaging.pageSize !== paging.pageSize ||
+      initPaging.pageCount !== paging.pageCount ||
       initPaging.showPaging !== paging.showPaging ||
       initPaging.onPageChange !== paging.onPageChange
     ) {
