@@ -64,7 +64,7 @@ export const Home: React.FC = () => {
           rowId="id"
           columns={columns}
           isMulti
-          groupBy={(item) => item.original.otherSource}
+          groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
             navigate(`/view/${e.original.id}`);
           }}
