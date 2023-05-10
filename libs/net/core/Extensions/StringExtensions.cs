@@ -303,13 +303,14 @@ public static class StringExtensions
 
     private static string SanitizeContent(string articleContent, Regex regex)
     {
+        var result = articleContent;
         var matches = regex.Matches(articleContent);
         foreach (var match in matches.Cast<Match>())
         {
             var index = match.Index + match.Value.Length;
             if (articleContent.Length > index && articleContent[index] != '.')
             {
-                articleContent = articleContent.Replace(
+                result = result.Replace(
                     match.Value,
                     match.Value.Contains('“') ?
                     match.Value[..1] + "\n" + match.Value[1..] :
@@ -317,7 +318,7 @@ public static class StringExtensions
                     );
             }
         }
-        return articleContent;
+        return result;
     }
 
     /// <summary>
