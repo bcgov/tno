@@ -69,7 +69,7 @@ export const ToggleGroup: React.FC<IToggleGroupProps> = ({
           type="button"
           onClick={() => {
             setActiveToggle(option.id ?? option.label);
-            setShowDropDown(!showDropDown);
+            if (option.label === 'OTHER') setShowDropDown(!showDropDown);
             option.onClick?.();
           }}
         >
