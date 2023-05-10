@@ -281,7 +281,7 @@ public static class StringExtensions
         return Regex.Replace(articleStr, @"<[^>]*>", string.Empty)
             .Replace("\r\n", string.Empty, true, null)
             .Replace("\n", " ", true, null)
-            .Replace(pEndingTagReplacer, "\n\n")
+            .Replace(pEndingTagReplacer, "\n")
             .Trim();
     }
 
