@@ -1,4 +1,5 @@
 import { Tags } from 'components/form/tags';
+import React from 'react';
 import {
   FaFileAlt,
   FaFolderPlus,
@@ -9,9 +10,8 @@ import {
 } from 'react-icons/fa';
 import { Row } from 'tno-core';
 
-import * as styled from './styled';
 import { ActionNames } from './constants';
-import React from 'react';
+import * as styled from './styled';
 
 /**
  * Shows the various actions to be presented on a piece of content.
