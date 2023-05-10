@@ -6,7 +6,7 @@ import { AuditColumnsSchema } from './AuditColumnsSchema';
 /**
  * Validation schema for base schedules.
  */
-export const ScheduleSchema: Yup.ObjectSchema<IScheduleModel> = AuditColumnsSchema.shape({
+export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.shape({
   id: Yup.number().defined(),
   description: Yup.string().optional() as Yup.StringSchema<string>,
   isEnabled: Yup.boolean().defined(),
