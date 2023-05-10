@@ -66,7 +66,7 @@ export const ViewContent: React.FC = () => {
       const ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
       const mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
       const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-      return `${da}-${mo}-${ye}`;
+      return `${da}-${mo}-${ye} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
     } else {
       return '';
     }
@@ -97,7 +97,12 @@ export const ViewContent: React.FC = () => {
           {formatDate(content?.publishedOn ?? '')}
         </p>
         <p className="source-section">
-          {content?.source?.name} - {content?.section}
+          <Show visible={content?.contentType === ContentTypeName.PrintContent}>
+            {content?.source?.name} - {content?.section}
+          </Show>
+          <Show visible={content?.contentType !== ContentTypeName.PrintContent}>
+            {!!content?.series && `${content?.source?.name} / ${content?.series?.name}`}
+          </Show>
         </p>
       </Row>
       <Show visible={!!avStream && content?.contentType === ContentTypeName.Snippet}>
