@@ -44,9 +44,5 @@ export const ViewContentToolbar = styled(Col)`
       border-bottom: 0.2rem solid #24b6d4;
       color: #43425d;
     }
-
-    #main-tooltip {
-      background-color: red !important;
-    }
   }
 `;
