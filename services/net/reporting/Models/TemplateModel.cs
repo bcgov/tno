@@ -1,7 +1,7 @@
 ﻿using TNO.API.Areas.Services.Models.Content;
-using TNO.Services.Notification.Config;
+using TNO.Services.Reporting.Config;
 
-namespace TNO.Services.Notification.Models;
+namespace TNO.Services.Reporting.Models;
 
 /// <summary>
 /// TemplateModel class, provides a model to pass to the razor engine.
@@ -10,14 +10,14 @@ public class TemplateModel
 {
     #region Properties
     /// <summary>
-    /// get/set - The content model.
+    /// get/set - An array of content.
     /// </summary>
-    public ContentModel Content { get; }
+    public IEnumerable<ContentModel> Content { get; }
 
     /// <summary>
     /// get - Notification options.
     /// </summary>
-    public NotificationOptions NotificationOptions { get; }
+    public ReportingOptions ReportingOptions { get; }
     #endregion
 
     #region Constructors
@@ -26,10 +26,10 @@ public class TemplateModel
     /// </summary>
     /// <param name="content"></param>
     /// <param name="options"></param>
-    public TemplateModel(ContentModel content, NotificationOptions options)
+    public TemplateModel(IEnumerable<ContentModel> content, ReportingOptions options)
     {
         this.Content = content;
-        this.NotificationOptions = options;
+        this.ReportingOptions = options;
     }
     #endregion
 }

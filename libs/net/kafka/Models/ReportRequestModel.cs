@@ -43,6 +43,11 @@ public class ReportRequestModel
     /// get/set - Comma separated email addresses that this report will be sent to instead of subscribers.
     /// </summary>
     public string To { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether to update Razor template cache.
+    /// </summary>
+    public bool UpdateCache { get; set; }
     #endregion
 
     #region Constructors

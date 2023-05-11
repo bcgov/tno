@@ -59,6 +59,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - Provides a way to dynamically add new series.
     /// </summary>
+    [MaxLength(100)]
     public string? OtherSeries { get; set; }
 
     /// <summary>
@@ -84,36 +85,43 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - A source that isn't linked or maintained in a list.
     /// </summary>
+    [MaxLength(100)]
     public string OtherSource { get; set; } = "";
 
     /// <summary>
     /// get/set - The headline.
     /// </summary>
+    [MaxLength(500)]
     public string Headline { get; set; } = "";
 
     /// <summary>
     /// get/set - The author or writer's name.
     /// </summary>
+    [MaxLength(500)]
     public string Byline { get; set; } = "";
 
     /// <summary>
     /// get/set - A unique identifier for the content from the source.
     /// </summary>
+    [MaxLength(500)]
     public string Uid { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content edition.
     /// </summary>
+    [MaxLength(100)]
     public string Edition { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content section.
     /// </summary>
+    [MaxLength(100)]
     public string Section { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content page.
     /// </summary>
+    [MaxLength(10)]
     public string Page { get; set; } = "";
 
     /// <summary>
@@ -129,6 +137,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The source URL.
     /// </summary>
+    [MaxLength(500)]
     public string SourceUrl { get; set; } = "";
 
     /// <summary>
