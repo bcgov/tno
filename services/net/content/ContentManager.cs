@@ -309,7 +309,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 if (reference.Status != newStatus)
                 {
                     reference.Status = newStatus;
-                    await Api.UpdateContentReferenceStatusAsync(reference, Headers);
+                    await Api.UpdateContentReferenceAsync(reference, Headers);
                 }
             }
             else

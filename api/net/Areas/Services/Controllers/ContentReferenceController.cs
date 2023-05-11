@@ -91,27 +91,6 @@ public class ContentReferenceController : ControllerBase
     }
 
     /// <summary>
-    /// Update content reference status in database.
-    /// </summary>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    [HttpPut("status")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(ContentReferenceModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "ContentReference" })]
-    public IActionResult UpdateStatus(ContentReferenceModel model)
-    {
-        var reference = _service.FindByKey(model.Source, model.Uid);
-        if (reference == null || reference.Status == (Entities.WorkflowStatus)model.Status) return new NoContentResult();
-        reference.Status = (Entities.WorkflowStatus)model.Status;
-        if (reference.Offset != model.Offset) reference.Offset = model.Offset;
-        if (reference.Partition != model.Partition) reference.Partition = model.Partition;
-        var result = _service.UpdateAndSave(reference);
-        return new JsonResult(new ContentReferenceModel(result));
-    }
-
-    /// <summary>
     /// Update content reference in database with Kafka information.
     /// </summary>
     /// <param name="model"></param>

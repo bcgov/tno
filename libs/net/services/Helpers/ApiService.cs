@@ -362,21 +362,6 @@ public class ApiService : IApiService
     }
 
     /// <summary>
-    /// Make an HTTP request to the api to update the specified content reference status.
-    /// </summary>
-    /// <param name="contentReference"></param>
-    /// <returns></returns>
-    public async Task<API.Areas.Services.Models.ContentReference.ContentReferenceModel?> UpdateContentReferenceStatusAsync(
-        API.Areas.Services.Models.ContentReference.ContentReferenceModel contentReference,
-        HttpRequestHeaders? headers = null)
-    {
-        var url = Options.ApiUrl.Append("services/content/references/status");
-        var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(
-            url, HttpMethod.Put, headers, content));
-    }
-
-    /// <summary>
     /// Make an HTTP request to the api to update the specified content reference with Kafka information.
     /// </summary>
     /// <param name="contentReference"></param>
