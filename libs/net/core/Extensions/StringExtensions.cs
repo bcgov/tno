@@ -303,13 +303,17 @@ public static class StringExtensions
 
     private static string SanitizeContent(string articleContent, Regex regex)
     {
+        var result = articleContent;
         var matches = regex.Matches(articleContent);
         foreach (var match in matches.Cast<Match>())
         {
             var index = match.Index + match.Value.Length;
             if (articleContent.Length > index && articleContent[index] != '.')
             {
-                articleContent = articleContent.Replace(
+                // Add a new line between the period and the following capitalized character for each match,
+                // and based on the match pattern to determine if the new line should be right before the
+                // capitalized character or right after the period.
+                result = result.Replace(
                     match.Value,
                     match.Value.Contains('“') ?
                     match.Value[..1] + "\n" + match.Value[1..] :
@@ -317,7 +321,7 @@ public static class StringExtensions
                     );
             }
         }
-        return articleContent;
+        return result;
     }
 
     /// <summary>
