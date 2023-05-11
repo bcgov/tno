@@ -62,6 +62,7 @@ public abstract class BaseService<TEntity, TKey> : BaseService, IBaseService<TEn
             if (original != null)
             {
                 this.Context.Entry(original).CurrentValues.SetValues(entity);
+                Context.ResetVersion(original);
                 this.Context.Update(original);
                 this.Context.UpdateCache<TEntity>();
                 return (original as TEntity)!;
