@@ -310,6 +310,9 @@ public static class StringExtensions
             var index = match.Index + match.Value.Length;
             if (articleContent.Length > index && articleContent[index] != '.')
             {
+                // Add a new line between the period and the following capitalized character for each match,
+                // and based on the match pattern to determine if the new line should be right before the
+                // capitalized character or right after the period.
                 result = result.Replace(
                     match.Value,
                     match.Value.Contains('“') ?
