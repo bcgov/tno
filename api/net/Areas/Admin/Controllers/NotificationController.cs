@@ -5,9 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.Notification;
+using TNO.API.Config;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
 using TNO.Entities.Models;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
@@ -28,7 +33,10 @@ namespace TNO.API.Areas.Admin.Controllers;
 public class NotificationController : ControllerBase
 {
     #region Variables
-    private readonly INotificationService _service;
+    private readonly INotificationService _notificationService;
+    private readonly IUserService _userService;
+    private readonly IKafkaMessenger _kafkaProducer;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -36,11 +44,17 @@ public class NotificationController : ControllerBase
     /// <summary>
     /// Creates a new instance of a NotificationController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="service"></param>
+    /// <param name="notificationService"></param>
+    /// <param name="userService"></param>
+    /// <param name="kafkaProducer"></param>
+    /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
-    public NotificationController(INotificationService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public NotificationController(INotificationService notificationService, IUserService userService, IKafkaMessenger kafkaProducer, IOptions<KafkaOptions> kafkaOptions, IOptions<JsonSerializerOptions> serializerOptions)
     {
-        _service = service;
+        _notificationService = notificationService;
+        _userService = userService;
+        _kafkaProducer = kafkaProducer;
+        _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -56,7 +70,7 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult FindAll()
     {
-        return new JsonResult(_service.FindAll().Select(ds => new NotificationModel(ds, _serializerOptions)));
+        return new JsonResult(_notificationService.FindAll().Select(ds => new NotificationModel(ds, _serializerOptions)));
     }
 
     /// <summary>
@@ -71,7 +85,7 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult FindById(int id)
     {
-        var result = _service.FindById(id);
+        var result = _notificationService.FindById(id);
 
         if (result == null) return new NoContentResult();
         return new JsonResult(new NotificationModel(result, _serializerOptions));
@@ -89,7 +103,7 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Add(NotificationModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        var result = _notificationService.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new NotificationModel(result, _serializerOptions));
     }
 
@@ -105,7 +119,7 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Update(NotificationModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new NotificationModel(result, _serializerOptions));
     }
 
@@ -121,8 +135,40 @@ public class NotificationController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Notification" })]
     public IActionResult Delete(NotificationModel model)
     {
-        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
+        _notificationService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Send the notification to the specified email address.
+    /// </summary>
+    /// <param name="notificationId"></param>
+    /// <param name="contentId"></param>
+    /// <param name="to"></param>
+    /// <returns></returns>
+    [HttpPost("{notificationId}/send/{contentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(NotificationModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Notification" })]
+    public async Task<IActionResult> SendToAsync(int notificationId, long contentId, string to)
+    {
+        var notification = _notificationService.FindById(notificationId);
+        if (notification == null) return new NoContentResult();
+
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var request = new NotificationRequestModel(NotificationDestination.NotificationService, new { })
+        {
+            NotificationId = notification.Id,
+            ContentId = contentId,
+            RequestorId = user.Id,
+            To = to
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
+        return new JsonResult(new NotificationModel(notification, _serializerOptions));
     }
     #endregion
 }
