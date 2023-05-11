@@ -1,5 +1,6 @@
 export * from './IActionFilter';
 export * from './IActionModel';
+export * from './IAlertModel';
 export * from './IAuditColumnsModel';
 export * from './ICacheModel';
 export * from './IClipModel';
@@ -59,4 +60,3 @@ export * from './IValidationErrorModel';
 export * from './IWorkOrderFilter';
 export * from './IWorkOrderMessageModel';
 export * from './IWorkOrderModel';
-export * from './IAlertModel';

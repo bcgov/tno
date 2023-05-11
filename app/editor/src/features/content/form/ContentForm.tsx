@@ -277,6 +277,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const handleSave = React.useCallback(
     async (props: FormikProps<IContentForm>) => {
       triggerFormikValidate(props);
+      props.validateForm(props.values);
       if (props.isValid) {
         await handleSubmit(props.values);
       }

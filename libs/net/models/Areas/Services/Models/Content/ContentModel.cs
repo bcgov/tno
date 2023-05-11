@@ -195,7 +195,7 @@ public class ContentModel : AuditColumnsModel
         this.Status = entity.Status;
         this.ContentType = entity.ContentType;
         this.SourceId = entity.SourceId;
-        Source = entity.Source != null ? new SourceModel(entity.Source) : null;
+        this.Source = entity.Source != null ? new SourceModel(entity.Source) : null;
         this.OtherSource = entity.OtherSource;
         this.ProductId = entity.ProductId;
         this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;

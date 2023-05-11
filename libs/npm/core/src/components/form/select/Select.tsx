@@ -121,7 +121,7 @@ export const Select = <OptionType extends IOptionItem>({
         <Row
           onKeyUp={(e) => {
             if (e.code === 'Delete') {
-              if (!!selectRef.current) selectRef.current.select.clearValue();
+              selectRef.current?.clearValue();
             }
           }}
           data-tooltip-id="select-tooltip"
