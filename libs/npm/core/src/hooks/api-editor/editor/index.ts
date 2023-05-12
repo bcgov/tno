@@ -1,4 +1,5 @@
 export * from './useApiActions';
+export * from './useApiAnonAlerts';
 export * from './useApiCache';
 export * from './useApiContents';
 export * from './useApiDataLocations';
@@ -20,4 +21,3 @@ export * from './useApiTopics';
 export * from './useApiTopicScoreRules';
 export * from './useApiUsers';
 export * from './useApiWorkOrders';
-export * from './useApiAnonAlerts';

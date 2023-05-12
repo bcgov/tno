@@ -6,7 +6,7 @@ import { AuditColumnsSchema } from './AuditColumnsSchema';
 /**
  * Validation schema for base schedules.
  */
-export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.shape({
+export const ScheduleSchema: Yup.ObjectSchema<IScheduleModel> = AuditColumnsSchema.shape({
   id: Yup.number().defined(),
   description: Yup.string().optional() as Yup.StringSchema<string>,
   isEnabled: Yup.boolean().defined(),
@@ -24,7 +24,7 @@ export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.s
       scheduleType[0] === ScheduleTypeName.Daily ||
       scheduleType[0] === ScheduleTypeName.Advanced
     ) {
-      return Yup.string().required(`Required for ${scheduleType} schedules.`);
+      return Yup.string().required(`Required for ${scheduleType[0]} schedules.`);
     } else {
       return Yup.string().optional().default(undefined);
     }
@@ -34,7 +34,7 @@ export const ScheduleSchema: Yup.SchemaOf<IScheduleModel> = AuditColumnsSchema.s
       scheduleType[0] === ScheduleTypeName.Daily ||
       scheduleType[0] === ScheduleTypeName.Advanced
     ) {
-      return Yup.string().required(`Required for ${scheduleType} schedules.`);
+      return Yup.string().required(`Required for ${scheduleType[0]} schedules.`);
     } else {
       return Yup.string().optional().default(undefined);
     }
