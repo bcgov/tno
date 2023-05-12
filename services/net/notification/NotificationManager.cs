@@ -17,6 +17,7 @@ using TNO.Entities.Validation;
 using TNO.Services.Notification.Models;
 using TNO.API.Areas.Services.Models.Notification;
 using TNO.API.Areas.Services.Models.Content;
+using RazorLight;
 
 namespace TNO.Services.Notification;
 
@@ -32,8 +33,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     private int _retries = 0;
     private readonly JsonSerializerOptions _serializationOptions;
     private readonly ClaimsPrincipal _user;
-    private readonly ITnoRazorLightEngine _engine;
-    private readonly IOptions<NotificationOptions> _notificationOptions;
     #endregion
 
     #region Properties
@@ -41,6 +40,11 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// get - Kafka Consumer.
     /// </summary>
     protected IKafkaListener<string, NotificationRequestModel> Listener { get; }
+
+    /// <summary>
+    /// get - Razor template engine.
+    /// </summary>
+    protected IRazorLightEngine RazorEngine { get; }
 
     /// <summary>
     /// get - CHES service.
@@ -80,7 +84,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         IOptions<JsonSerializerOptions> serializationOptions,
         IOptions<NotificationOptions> notificationOptions,
         INotificationValidator notificationValidator,
-        ITnoRazorLightEngine engine,
+        IRazorLightEngine engine,
         ILogger<NotificationManager> logger)
         : base(api, notificationOptions, logger)
     {
@@ -93,8 +97,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         this.Listener.IsLongRunningJob = true;
         this.Listener.OnError += ListenerErrorHandler;
         this.Listener.OnStop += ListenerStopHandler;
-        _engine = engine;
-        _notificationOptions = notificationOptions;
+        this.RazorEngine = engine;
     }
     #endregion
 
@@ -383,10 +386,17 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
+    /// <param name="updateCache"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationSubjectAsync(NotificationModel notification, ContentModel content)
+    private async Task<string> GenerateNotificationSubjectAsync(NotificationModel notification, ContentModel content, bool updateCache = false)
     {
-        return await GenerateNotificationAsync(notification, content, true);
+        var key = $"notification_{notification.Id}_subject";
+        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        var model = new TemplateModel(content, this.Options);
+        if (updateCache && cache.Success)
+            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
+        else
+            return await this.RazorEngine.CompileRenderStringAsync(key, notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "", model);
     }
 
     /// <summary>
@@ -394,22 +404,17 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// </summary>
     /// <param name="notification"></param>
     /// <param name="content"></param>
+    /// <param name="updateCache"></param>
     /// <returns></returns>
-    private async Task<string> GenerateNotificationBodyAsync(NotificationModel notification, ContentModel content)
+    private async Task<string> GenerateNotificationBodyAsync(NotificationModel notification, ContentModel content, bool updateCache = false)
     {
-        return await GenerateNotificationAsync(notification, content);
-    }
-
-    private async Task<string> GenerateNotificationAsync(NotificationModel notification, ContentModel content, bool isSubject = false)
-    {
-        var result = await _engine.CompileRenderStringAsync(
-            $"notification_{notification.Id}_{notification.UpdatedOn}{(isSubject ? "_subject" : "")}",
-            isSubject ? (notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "") : notification.Template,
-            new TemplateModel(_notificationOptions)
-            {
-                Content = content,
-            });
-        return result;
+        var key = $"notification_{notification.Id}";
+        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        var model = new TemplateModel(content, this.Options);
+        if (updateCache && cache.Success)
+            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
+        else
+            return await this.RazorEngine.CompileRenderStringAsync(key, notification.Template, model);
     }
     #endregion
 }

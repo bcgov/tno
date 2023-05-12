@@ -41,6 +41,11 @@ public class NotificationRequestModel
     /// get/set - Additional comma separated email addresses that this notification will be sent to.
     /// </summary>
     public string To { get; set; } = "";
+
+    /// <summary>
+    /// get/set - Whether to update Razor template cache.
+    /// </summary>
+    public bool UpdateCache { get; set; }
     #endregion
 
     #region Constructors

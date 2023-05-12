@@ -13,7 +13,8 @@ using TNO.Ches.Models;
 using TNO.Ches.Configuration;
 using System.Text.Json;
 using System.Security.Claims;
-using TNO.Entities.Validation;
+using RazorLight;
+using TNO.Services.Reporting.Models;
 
 namespace TNO.Services.Reporting;
 
@@ -38,6 +39,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     protected IKafkaListener<string, ReportRequestModel> Listener { get; }
 
     /// <summary>
+    /// get - Razor template engine.
+    /// </summary>
+    protected IRazorLightEngine RazorEngine { get; }
+
+    /// <summary>
     /// get - CHES service.
     /// </summary>
     protected IChesService Ches { get; }
@@ -55,6 +61,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="listener"></param>
     /// <param name="api"></param>
     /// <param name="user"></param>
+    /// <param name="razorEngine"></param>
     /// <param name="chesService"></param>
     /// <param name="chesOptions"></param>
     /// <param name="serializationOptions"></param>
@@ -64,6 +71,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         IKafkaListener<string, ReportRequestModel> listener,
         IApiService api,
         ClaimsPrincipal user,
+        IRazorLightEngine razorEngine,
         IChesService chesService,
         IOptions<ChesOptions> chesOptions,
         IOptions<JsonSerializerOptions> serializationOptions,
@@ -72,6 +80,7 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         : base(api, reportOptions, logger)
     {
         _user = user;
+        this.RazorEngine = razorEngine;
         this.Ches = chesService;
         this.ChesOptions = chesOptions.Value;
         _serializationOptions = serializationOptions.Value;
@@ -293,8 +302,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var content = await this.Api.FindContentForReportIdAsync(report.Id);
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        var subject = await GenerateReportSubjectAsync(report, content);
-        var body = await GenerateReportBodyAsync(report, content);
+        var subject = await GenerateReportSubjectAsync(report, content, request.UpdateCache);
+        var body = await GenerateReportBodyAsync(report, content, request.UpdateCache);
 
         var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
@@ -304,29 +313,6 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
         };
         await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
-    }
-
-    /// <summary>
-    /// Generate the output of the report with the Razor engine.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
-    {
-        var template = report.Settings.GetDictionaryJsonValue<string>("subject");
-        return Task.FromResult($"{template}");
-    }
-
-    /// <summary>
-    /// Generate the output of the report with the Razor engine.
-    /// </summary>
-    /// <param name="report"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
-    {
-        return Task.FromResult($"<div>{report.Template}<div><div>{String.Join("", content.Select(c => $"<p>{c.Headline}</p>"))}</div>");
     }
 
     /// <summary>
@@ -344,8 +330,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         var content = await this.Api.GetContentForReportInstanceIdAsync(reportInstance.Id);
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        var subject = await GenerateReportSubjectAsync(reportInstance, content);
-        var body = await GenerateReportBodyAsync(reportInstance, content);
+        var subject = await GenerateReportSubjectAsync(reportInstance.Report, content, request.UpdateCache);
+        var body = await GenerateReportBodyAsync(reportInstance.Report, content, request.UpdateCache);
 
         var response = await SendEmailAsync(request, to, subject, body, $"{report.Name}-{report.Id}");
 
@@ -360,11 +346,17 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// </summary>
     /// <param name="report"></param>
     /// <param name="content"></param>
+    /// <param name="updateCache"></param>
     /// <returns></returns>
-    private Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
+    private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
     {
-        var template = instance.Report?.Settings.GetDictionaryJsonValue<string>("subject");
-        return Task.FromResult($"{template}");
+        var key = $"report_{report.Id}_subject";
+        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        var model = new TemplateModel(content, this.Options);
+        if (updateCache && cache.Success)
+            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
+        else
+            return await this.RazorEngine.CompileRenderStringAsync(key, report.Settings.GetDictionaryJsonValue<string>("subject") ?? "", model);
     }
 
     /// <summary>
@@ -373,9 +365,15 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <param name="report"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.ReportInstance.ReportInstanceModel instance, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content)
+    private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
     {
-        return Task.FromResult($"{instance.Report?.Template}");
+        var key = $"report_{report.Id}";
+        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        var model = new TemplateModel(content, this.Options);
+        if (updateCache && cache.Success)
+            return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
+        else
+            return await this.RazorEngine.CompileRenderStringAsync(key, report.Template, model);
     }
 
     /// <summary>

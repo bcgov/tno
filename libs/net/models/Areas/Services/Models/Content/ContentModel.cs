@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using TNO.API.Areas.Editor.Models.Content;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -40,6 +39,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The id of the source.
     /// </summary>
+    [MaxLength(100)]
     public string OtherSource { get; set; } = "";
 
     /// <summary>
@@ -65,6 +65,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - Provides a way to dynamically add new series.
     /// </summary>
+    [MaxLength(100)]
     public string? OtherSeries { get; set; }
 
     /// <summary>
@@ -80,31 +81,37 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The headline.
     /// </summary>
+    [MaxLength(500)]
     public string Headline { get; set; } = "";
 
     /// <summary>
     /// get/set - The author or writer's name.
     /// </summary>
+    [MaxLength(500)]
     public string Byline { get; set; } = "";
 
     /// <summary>
     /// get/set - A unique identifier for the content from the source.
     /// </summary>
+    [MaxLength(500)]
     public string Uid { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content edition.
     /// </summary>
+    [MaxLength(100)]
     public string Edition { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content section.
     /// </summary>
+    [MaxLength(100)]
     public string Section { get; set; } = "";
 
     /// <summary>
     /// get/set - The print content page.
     /// </summary>
+    [MaxLength(10)]
     public string Page { get; set; } = "";
 
     /// <summary>
@@ -120,6 +127,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The source URL.
     /// </summary>
+    [MaxLength(500)]
     public string SourceUrl { get; set; } = "";
 
     /// <summary>

@@ -8,12 +8,17 @@
     <RootNamespace>TNO.Services.Reporting</RootNamespace>
     <Version>1.0.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\net\ches\TNO.Ches.csproj" />
     <ProjectReference Include="..\..\..\libs\net\services\TNO.Services.csproj" />
     <ProjectReference Include="..\..\..\libs\net\kafka\TNO.Kafka.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RazorLight" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
