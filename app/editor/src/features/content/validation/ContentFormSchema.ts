@@ -4,12 +4,12 @@ import { array, date, number, object, string } from 'yup';
 export const ContentFormSchema = object().shape(
   {
     productId: number().required('Product is required.').notOneOf([0], 'Product is required.'),
-    sourceId: number().when('tempSource', (value: (number | undefined)[]) => {
+    sourceId: number().when('tempSource', (value: number[]) => {
       if (value[0] === undefined)
         return number().required('Either source or other source is required.');
       return number();
     }),
-    tempSource: string().when('sourceId', (value: (string | undefined)[]) => {
+    tempSource: string().when('sourceId', (value: string[]) => {
       if (value[0] === undefined)
         return string().required('Either source or other source is required.');
       return string();

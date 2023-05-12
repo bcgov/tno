@@ -11,9 +11,10 @@ export const TopicScoreRuleSchema = yup.object().shape({
     .when('pageMin', (pageMin: string[], schema: any) => {
       return schema.test({
         test: (pageMax: string) => {
-          const riPageMin = pageMin !== undefined ? pageMin[0].search(/\d*$/) : undefined;
+          const riPageMin = pageMin[0] !== undefined ? pageMin[0].search(/\d*$/) : undefined;
           const riPageMax = pageMax !== undefined ? pageMax.search(/\d*$/) : undefined;
-          const rPageMin = riPageMin !== undefined ? Number(pageMin?.slice(riPageMin)) : undefined;
+          const rPageMin =
+            riPageMin !== undefined ? Number(pageMin[0]?.slice(riPageMin)) : undefined;
           const rPageMax = riPageMax !== undefined ? Number(pageMax?.slice(riPageMax)) : undefined;
           return rPageMin === undefined || rPageMax === undefined || rPageMin <= rPageMax;
         },
@@ -26,11 +27,11 @@ export const TopicScoreRuleSchema = yup.object().shape({
     .number()
     .optional()
     .typeError('Invalid number')
-    .when('characterMin', (characterMin: number[] | undefined, schema: any) => {
+    .when('characterMin', (characterMin: number[], schema: any) => {
       return schema.test({
         test: (characterMax: number) => {
           return (
-            characterMin === undefined ||
+            characterMin[0] === undefined ||
             characterMax === undefined ||
             characterMin[0] <= characterMax
           );
@@ -48,7 +49,7 @@ export const TopicScoreRuleSchema = yup.object().shape({
         test: (timeMax: string) => {
           const min = Date.parse(`01/01/1900 ${timeMin[0]}`);
           const max = Date.parse(`01/01/1900 ${timeMax}`);
-          return timeMin === undefined || timeMax === undefined || min <= max;
+          return timeMin[0] === undefined || timeMax === undefined || min <= max;
         },
         message: 'Make greater',
       });

@@ -1,5 +1,6 @@
 export * from './api-editor';
 export * from './api-subscriber';
+export * from './api-subscriber/useApiAlerts';
 export * from './formik';
 export * from './keycloak';
 export * from './modal';
@@ -11,7 +12,6 @@ export * from './useDeepCompareEffect';
 export * from './useDeepCompareMemo';
 export * from './useDownload';
 export * from './useIntersection';
-export * from './api-subscriber/useApiAlerts';
 export * from './useIntersectionObserver';
 export * from './useNamespace';
 export * from './useQuery';
