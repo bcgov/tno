@@ -34,13 +34,17 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
         storeFilter({ ...filter, contentTypes: [ContentTypeName.Snippet], sourceIds: [] });
         break;
       case HomeFilterType.Internet:
-        storeFilter({ ...filter, contentTypes: [ContentTypeName.Story], sourceIds: [] });
+        storeFilter({
+          ...filter,
+          contentTypes: [ContentTypeName.Story],
+          sourceIds: sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id),
+        });
         break;
       case HomeFilterType.CPNews:
         storeFilter({
           ...filter,
           contentTypes: [ContentTypeName.Story],
-          sourceIds: [sources.find((s) => s.name === 'CP News')?.id ?? 0],
+          sourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
         });
         break;
       default:
