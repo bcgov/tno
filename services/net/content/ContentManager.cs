@@ -251,13 +251,13 @@ public class ContentManager : ServiceManager<ContentOptions>
                 OwnerId = model.RequestedById ?? source?.OwnerId,
                 Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
                 Uid = model.Uid,
-                Page = model.Page,
+                Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
                 Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
                 Section = model.Section,
-                Byline = string.Join(",", model.Authors.Select(a => a.Name))
+                Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])) // TODO: Temporary workaround to deal with regression issue in Syndication Service.
             };
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
             this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
