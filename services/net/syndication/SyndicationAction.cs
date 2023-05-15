@@ -16,6 +16,7 @@ using TNO.Models.Extensions;
 using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
+using HtmlAgilityPack;
 
 namespace TNO.Services.Syndication;
 
@@ -142,20 +143,34 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         {
             if (link != null && Uri.IsWellFormedUriString(link.ToString(), UriKind.Absolute))
             {
-                var html = await this.GetContentAsync(link);
-                if (item.PublishDate.Date == DateTime.MinValue) item.PublishDate = GetPubDateTime(html, ingest);
-                var text = StringExtensions.SanitizeContent(html);
-                if (text.StartsWith("By "))
+                var text = await this.GetContentAsync(link);
+                var html = new HtmlDocument();
+                html.LoadHtml(text);
+                var dateNode = html.DocumentNode.SelectSingleNode("//html/p/date");
+                if (dateNode != null)
+                    item.PublishDate = DateTimeOffset.Parse(dateNode.InnerText);
+
+                var articleNode = html.DocumentNode.SelectSingleNode("//html/article");
+                if (articleNode != null)
                 {
-                    var separator = "\n\n";
-                    var authorName = text.Split(separator)[0];
-                    item.Authors.Add(new SyndicationPerson { Name = authorName?.Trim() });
-                    text = text.ReplaceFirst(authorName + separator, string.Empty);
+                    var bylineNode = articleNode.SelectSingleNode("p[starts-with(., 'By ')]");
+                    if (bylineNode != null)
+                    {
+                        item.Authors.Add(new SyndicationPerson { Name = bylineNode.InnerHtml.Replace("By ", "").Replace("\n", "") });
+                        bylineNode.Remove();
+                    }
+                    var content = new TextSyndicationContent(articleNode.InnerHtml.Replace("\r\n", "").Replace("\n", ""), TextSyndicationContentKind.Html);
+                    // Only update the summary if it's empty.
+                    if (string.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = content;
+                    item.Content = content;
                 }
-                var content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
-                // Only update the summary if it's empty.
-                if (string.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = content;
-                item.Content = content;
+                else
+                {
+                    var content = new TextSyndicationContent(text, TextSyndicationContentKind.Html);
+                    // Only update the summary if it's empty.
+                    if (string.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = content;
+                    item.Content = content;
+                }
             }
             else
             {
