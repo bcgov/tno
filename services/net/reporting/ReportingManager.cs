@@ -350,13 +350,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private async Task<string> GenerateReportSubjectAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
     {
-        var key = $"report_{report.Id}_subject";
-        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
+        var key = $"report_{report.Id}-{report.Version}_subject";
         var model = new TemplateModel(content, this.Options);
-        if (updateCache && cache.Success)
+        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
+        if (!updateCache && cache?.Success == true)
             return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
         else
+        {
             return await this.RazorEngine.CompileRenderStringAsync(key, report.Settings.GetDictionaryJsonValue<string>("subject") ?? "", model);
+        }
     }
 
     /// <summary>
@@ -367,13 +370,16 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     /// <returns></returns>
     private async Task<string> GenerateReportBodyAsync(API.Areas.Services.Models.Report.ReportModel report, IEnumerable<API.Areas.Services.Models.Content.ContentModel> content, bool updateCache = false)
     {
-        var key = $"report_{report.Id}";
-        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
+        var key = $"report_{report.Id}-{report.Version}";
         var model = new TemplateModel(content, this.Options);
-        if (updateCache && cache.Success)
+        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
+        if (!updateCache && cache?.Success == true)
             return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
         else
+        {
             return await this.RazorEngine.CompileRenderStringAsync(key, report.Template, model);
+        }
     }
 
     /// <summary>
