@@ -261,31 +261,6 @@ public static class StringExtensions
     }
 
     /// <summary>
-    /// Extract the article text from the HTML document articleContent and remove all tags. This produces a rather
-    /// monolithic block of text. This method can be modified to refine the appearance of the output once we have
-    /// a subscriber interface to work with.
-    /// </summary>
-    /// <param name="articleContent">HTML encoded news article</param>
-    /// <returns>Article text only with tags removed</returns>
-    public static string SanitizeContent(string articleContent)
-    {
-        int startPos = articleContent.IndexOf("<ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
-        int endPos = articleContent.IndexOf("</ARTICLE>", StringComparison.CurrentCultureIgnoreCase);
-
-        const string pEndingTagReplacer = "[|]";
-        var articleStr = (startPos > 0 ?
-            articleContent.Substring(startPos + 9, endPos - (startPos + 9)) :
-            articleContent)
-            .Replace("</p>", pEndingTagReplacer, true, null);
-
-        return Regex.Replace(articleStr, @"<[^>]*>", string.Empty)
-            .Replace("\r\n", string.Empty, true, null)
-            .Replace("\n", " ", true, null)
-            .Replace(pEndingTagReplacer, "\n")
-            .Trim();
-    }
-
-    /// <summary>
     /// remove specified tags.
     /// </summary>
     /// <param name="articleContent">HTML encoded news article</param>
