@@ -257,7 +257,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 SourceUrl = model.Link,
                 PublishedOn = model.PublishedOn,
                 Section = model.Section,
-                Byline = string.Join(",", model.Authors.Select(a => a.Name))
+                Byline = string.Join(",", model.Authors.Select(a => a.Name[0..Math.Min(a.Name.Length, 200)])) // TODO: Temporary workaround to deal with regression issue in Syndication Service.
             };
             content = await this.Api.AddContentAsync(content) ?? throw new InvalidOperationException($"Adding content failed {content.OtherSource}:{content.Uid}");
             this.Logger.LogInformation("Content Imported.  Content ID: {id}, Pub: {published}", content.Id, content.PublishedOn);
