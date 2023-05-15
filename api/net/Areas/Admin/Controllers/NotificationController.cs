@@ -165,7 +165,8 @@ public class NotificationController : ControllerBase
             NotificationId = notification.Id,
             ContentId = contentId,
             RequestorId = user.Id,
-            To = to
+            To = to,
+            UpdateCache = true
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
         return new JsonResult(new NotificationModel(notification, _serializerOptions));

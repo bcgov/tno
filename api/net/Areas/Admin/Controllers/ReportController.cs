@@ -161,7 +161,8 @@ public class ReportController : ControllerBase
         var request = new ReportRequestModel(ReportDestination.ReportingService, report.Id, new { })
         {
             RequestorId = user.Id,
-            To = to
+            To = to,
+            UpdateCache = true
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
         return new JsonResult(new ReportModel(report, _serializerOptions));

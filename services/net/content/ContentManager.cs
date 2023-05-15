@@ -251,7 +251,7 @@ public class ContentManager : ServiceManager<ContentOptions>
                 OwnerId = model.RequestedById ?? source?.OwnerId,
                 Headline = String.IsNullOrWhiteSpace(model.Title) ? "[TBD]" : model.Title,
                 Uid = model.Uid,
-                Page = model.Page,
+                Page = model.Page[0..Math.Min(model.Page.Length, 10)], // TODO: Temporary workaround to deal FileMonitor Service.
                 Summary = String.IsNullOrWhiteSpace(model.Summary) ? "[TBD]" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 Body = !String.IsNullOrWhiteSpace(model.Body) ? StringExtensions.SanitizeContent(model.Body, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine) : model.ContentType == ContentType.Snippet ? "" : StringExtensions.SanitizeContent(model.Summary, "<p(?:\\s[^>]*)?>|</p>", Environment.NewLine),
                 SourceUrl = model.Link,
