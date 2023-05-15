@@ -69,7 +69,7 @@ builder.Services.AddControllers(options =>
 builder.Services.AddOptions<KestrelServerOptions>().Bind(config.GetSection("Kestrel"));
 builder.Services.AddOptions<FormOptions>().Bind(config.GetSection("Form"));
 builder.Services.AddOptions<KafkaOptions>().Bind(config.GetSection("Kafka"));
-var o = builder.Services.AddOptions<SignalROptions>().Bind(config.GetSection("SignalR"));
+builder.Services.AddOptions<SignalROptions>().Bind(config.GetSection("SignalR"));
 var signalROptions = new SignalROptions();
 config.GetSection("SignalR").Bind(signalROptions);
 

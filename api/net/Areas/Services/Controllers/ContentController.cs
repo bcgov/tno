@@ -212,7 +212,7 @@ public class ContentController : ControllerBase
 
             await _kafkaMessenger.SendMessageAsync(_kafkaHubOptions.HubTopic, new KafkaHubMessage(HubEvent.SendAll, new InvocationMessage("Content", new[] { new ContentMessageModel(content) })));
         }
-        else
+        else if (index)
             _logger.LogWarning("Kafka indexing topic not configured.");
 
         return new JsonResult(new ContentModel(content));
