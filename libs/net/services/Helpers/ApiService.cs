@@ -366,11 +366,11 @@ public class ApiService : IApiService
     private static HttpRequestHeaders? GetHeaders(HttpRequestHeaders? headers, ContentReferenceModel contentReference)
     {
         var result = headers;
-        if (headers != null)
+        if (result != null)
         {
-            var userAgent = headers.UserAgent.ToString();
-            headers.UserAgent.Clear();
-            headers.UserAgent.ParseAdd(
+            var userAgent = result.UserAgent.ToString();
+            result.UserAgent.Clear();
+            result.UserAgent.ParseAdd(
                 $"{userAgent} [version: {contentReference.Version}; offset: {contentReference.Offset}; partition: {contentReference.Partition}]");
         }
         return result;
