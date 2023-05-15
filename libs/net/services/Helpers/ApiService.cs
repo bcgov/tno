@@ -10,6 +10,7 @@ using TNO.Services.Config;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using Microsoft.Extensions.Logging;
+using TNO.API.Areas.Services.Models.ContentReference;
 
 namespace TNO.Services;
 
@@ -358,7 +359,21 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, HttpMethod.Put, headers, content));
+        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(
+            url, HttpMethod.Put, GetHeaders(headers, contentReference), content));
+    }
+
+    private static HttpRequestHeaders? GetHeaders(HttpRequestHeaders? headers, ContentReferenceModel contentReference)
+    {
+        var result = headers;
+        if (headers != null)
+        {
+            var userAgent = headers.UserAgent.ToString();
+            headers.UserAgent.Clear();
+            headers.UserAgent.ParseAdd(
+                $"{userAgent} [version: {contentReference.Version}; offset: {contentReference.Offset}; partition: {contentReference.Partition}]");
+        }
+        return result;
     }
 
     /// <summary>

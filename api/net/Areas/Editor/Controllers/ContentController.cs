@@ -377,11 +377,7 @@ public class ContentController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Content" })]
     public async Task<IActionResult> PublishAsync(ContentModel model)
     {
-        var result = _contentService.FindById(model.Id);
-        if (result?.Status == ContentStatus.Published) throw new InvalidOperationException("Entity has already been published");
-        if (model.Status != ContentStatus.Publish && model.Status != ContentStatus.Published)
-            model.Status = ContentStatus.Publish;
-
+        if (model.Status != ContentStatus.Published) model.Status = ContentStatus.Publish;
         var content = _contentService.UpdateAndSave((Content)model);
 
         if (!String.IsNullOrWhiteSpace(_kafkaOptions.IndexingTopic))
