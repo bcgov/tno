@@ -11,6 +11,7 @@ using TNO.Core.Extensions;
 using TNO.Core.Http;
 using Microsoft.Extensions.Logging;
 using TNO.API.Areas.Services.Models.ContentReference;
+using TNO.API.Areas.Services.Models.Content;
 
 namespace TNO.Services;
 
@@ -443,7 +444,21 @@ public class ApiService : IApiService
         int? requestorId = null)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}");
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
+        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(
+            url, HttpMethod.Put, GetHeaders(headers, content), JsonContent.Create(content)));
+    }
+
+    private static HttpRequestHeaders? GetHeaders(HttpRequestHeaders? headers, ContentModel content)
+    {
+        var result = headers;
+        if (result != null)
+        {
+            var userAgent = result.UserAgent.ToString();
+            result.UserAgent.Clear();
+            result.UserAgent.ParseAdd(
+                $"{userAgent} [version: {content.Version}]");
+        }
+        return result;
     }
 
     /// <summary>
