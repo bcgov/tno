@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
 using Npgsql;
+using TNO.Core.Http;
 using TNO.DAL.Config;
 using TNO.DAL.Elasticsearch;
 using TNO.DAL.Services;
@@ -50,7 +51,9 @@ public static class ServiceCollectionExtensions
                 db.UseLoggerFactory(debugLoggerFactory);
             }
         })
-            .AddSingleton<IElasticClient, TNOElasticClient>();
+            .AddScoped<IHttpRequestClient, HttpRequestClient>()
+            .AddScoped<IElasticClient, TNOElasticClient>()
+            .AddScoped<ITnoElasticClient, TNOElasticClient>();
 
         return services;
     }
