@@ -1,7 +1,14 @@
 import React from 'react';
 import { useContent } from 'store/hooks';
 import { useSources } from 'store/hooks/admin';
-import { Button, ButtonHeight, ButtonVariant, ContentTypeName } from 'tno-core';
+import {
+  Button,
+  ButtonHeight,
+  ButtonVariant,
+  ContentTypeName,
+  ISourceModel,
+  getFromLocalStorage,
+} from 'tno-core';
 
 import { HomeFilterType } from '../constants';
 import * as styled from './styled';
@@ -17,6 +24,17 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = React.useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
   const [{ sources }] = useSources();
+
+  const [sourcesLookup, setSourcesLookup] = React.useState<ISourceModel[]>([]);
+
+  // if 304 is returned we need to get it from local storage
+  React.useEffect(() => {
+    if (sourcesLookup.length === 0 && sources.length > 0) {
+      setSourcesLookup(sources);
+    } else {
+      setSourcesLookup(getFromLocalStorage<ISourceModel[]>('sources', []));
+    }
+  }, [sources]);
 
   const handleFilterClick = (type: HomeFilterType) => {
     setActive(type);
@@ -37,14 +55,14 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
         storeFilter({
           ...filter,
           contentTypes: [ContentTypeName.Story],
-          sourceIds: sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id),
+          sourceIds: sourcesLookup.filter((s) => s.code !== 'CPNEWS').map((s) => s.id),
         });
         break;
       case HomeFilterType.CPNews:
         storeFilter({
           ...filter,
           contentTypes: [ContentTypeName.Story],
-          sourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
+          sourceIds: [sourcesLookup.find((s) => s.code === 'CPNEWS')?.id ?? 0],
         });
         break;
       default:
@@ -52,7 +70,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
     }
     // only want the above to trigger when active changes not when the filter changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, sources]);
+  }, [active, sourcesLookup]);
 
   return (
     <styled.HomeFilters>
