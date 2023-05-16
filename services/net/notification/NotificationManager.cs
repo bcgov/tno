@@ -390,13 +390,16 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <returns></returns>
     private async Task<string> GenerateNotificationSubjectAsync(NotificationModel notification, ContentModel content, bool updateCache = false)
     {
-        var key = $"notification_{notification.Id}_subject";
-        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
+        var key = $"notification_{notification.Id}-{notification.Version}_subject";
         var model = new TemplateModel(content, this.Options);
-        if (updateCache && cache.Success)
+        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
+        if (!updateCache && cache?.Success == true)
             return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
         else
+        {
             return await this.RazorEngine.CompileRenderStringAsync(key, notification.Settings.GetDictionaryJsonValue<string>("subject") ?? "", model);
+        }
     }
 
     /// <summary>
@@ -408,13 +411,16 @@ public class NotificationManager : ServiceManager<NotificationOptions>
     /// <returns></returns>
     private async Task<string> GenerateNotificationBodyAsync(NotificationModel notification, ContentModel content, bool updateCache = false)
     {
-        var key = $"notification_{notification.Id}";
-        var cache = this.RazorEngine.Handler.Cache.RetrieveTemplate(key);
+        // TODO: Having a key for every version is a memory leak, but the RazorLight library is junk and has no way to invalidate a cached item.
+        var key = $"notification_{notification.Id}-{notification.Version}";
         var model = new TemplateModel(content, this.Options);
-        if (updateCache && cache.Success)
+        var cache = this.RazorEngine.Handler.Cache?.RetrieveTemplate(key);
+        if (!updateCache && cache?.Success == true)
             return await this.RazorEngine.RenderTemplateAsync(cache.Template.TemplatePageFactory(), model);
         else
+        {
             return await this.RazorEngine.CompileRenderStringAsync(key, notification.Template, model);
+        }
     }
     #endregion
 }
