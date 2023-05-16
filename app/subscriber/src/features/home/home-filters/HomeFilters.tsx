@@ -6,8 +6,8 @@ import {
   ButtonHeight,
   ButtonVariant,
   ContentTypeName,
-  ISourceModel,
   getFromLocalStorage,
+  ISourceModel,
 } from 'tno-core';
 
 import { HomeFilterType } from '../constants';
@@ -34,7 +34,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
     } else {
       setSourcesLookup(getFromLocalStorage<ISourceModel[]>('sources', []));
     }
-  }, [sources]);
+  }, [sources, sourcesLookup.length]);
 
   const handleFilterClick = (type: HomeFilterType) => {
     setActive(type);
