@@ -305,11 +305,21 @@ public class ContentManager : ServiceManager<ContentOptions>
             var reference = await this.Api.FindContentReferenceAsync(content.OtherSource, content.Uid);
             if (reference != null)
             {
-                var newStatus = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
-                if (reference.Status != newStatus)
+                try
                 {
-                    reference.Status = newStatus;
-                    await Api.UpdateContentReferenceAsync(reference, Headers);
+                    var newStatus = isUploadSuccess ? (int)WorkflowStatus.Imported : (int)WorkflowStatus.Failed;
+                    if (reference.Status != newStatus)
+                    {
+                        reference.Status = newStatus;
+                        await Api.UpdateContentReferenceAsync(reference, Headers);
+                    }
+                }
+                catch
+                {
+                    Logger.LogError("{class}.{method}: [version: {version}; offset: {offset}; partition: {partition}]",
+                        nameof(ContentManager), nameof(HandleMessageAsync),
+                        reference.Version, reference.Offset, reference.Partition);
+                    throw;
                 }
             }
             else

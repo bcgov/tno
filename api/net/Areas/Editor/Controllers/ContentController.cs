@@ -258,7 +258,7 @@ public class ContentController : ControllerBase
         {
             if (model.Action == ContentListAction.Publish)
             {
-                if (content.Status != ContentStatus.Published)
+                if (content.Status != ContentStatus.Published && content.Status != ContentStatus.Publish)
                 {
                     content.Status = ContentStatus.Publish;
                     update.Add(_contentService.Update(content));

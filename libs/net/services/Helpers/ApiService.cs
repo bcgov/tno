@@ -10,8 +10,6 @@ using TNO.Services.Config;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
 using Microsoft.Extensions.Logging;
-using TNO.API.Areas.Services.Models.ContentReference;
-using TNO.API.Areas.Services.Models.Content;
 
 namespace TNO.Services;
 
@@ -360,21 +358,7 @@ public class ApiService : IApiService
     {
         var url = this.Options.ApiUrl.Append($"services/content/references/{contentReference.Source}?uid={contentReference.Uid}");
         var content = JsonContent.Create(contentReference);
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(
-            url, HttpMethod.Put, GetHeaders(headers, contentReference), content));
-    }
-
-    private static HttpRequestHeaders? GetHeaders(HttpRequestHeaders? headers, ContentReferenceModel contentReference)
-    {
-        var result = headers;
-        if (result != null)
-        {
-            var userAgent = result.UserAgent.ToString();
-            result.UserAgent.Clear();
-            result.UserAgent.ParseAdd(
-                $"{userAgent} [version: {contentReference.Version}; offset: {contentReference.Offset}; partition: {contentReference.Partition}]");
-        }
-        return result;
+        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.ContentReference.ContentReferenceModel>(url, HttpMethod.Put, headers, content));
     }
 
     /// <summary>
@@ -444,21 +428,7 @@ public class ApiService : IApiService
         int? requestorId = null)
     {
         var url = this.Options.ApiUrl.Append($"services/contents/{content.Id}?index={index}{(requestorId.HasValue ? $"&requestorId={requestorId.Value}" : "")}");
-        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(
-            url, HttpMethod.Put, GetHeaders(headers, content), JsonContent.Create(content)));
-    }
-
-    private static HttpRequestHeaders? GetHeaders(HttpRequestHeaders? headers, ContentModel content)
-    {
-        var result = headers;
-        if (result != null)
-        {
-            var userAgent = result.UserAgent.ToString();
-            result.UserAgent.Clear();
-            result.UserAgent.ParseAdd(
-                $"{userAgent} [version: {content.Version}]");
-        }
-        return result;
+        return await RetryRequestAsync(async () => await Client.SendAsync<API.Areas.Services.Models.Content.ContentModel>(url, HttpMethod.Put, headers, JsonContent.Create(content)));
     }
 
     /// <summary>

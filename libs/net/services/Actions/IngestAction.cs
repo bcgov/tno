@@ -115,10 +115,7 @@ public abstract class IngestAction<TOptions> : ServiceAction<TOptions>, IIngestA
             reference = await this.UpdateContentReferenceAsync(reference, WorkflowStatus.Received);
             if (reference != null && manager.Ingest.PostToKafka() && content != null)
             {
-                var result = await this.Api.SendMessageAsync(manager.Ingest.Topic, content) ?? throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
-                reference.Offset = result.Offset;
-                reference.Partition = result.Partition;
-                reference = await Api.UpdateContentReferenceKafkaAsync(reference, Headers);
+                _ = await Api.SendMessageAsync(manager.Ingest.Topic, content) ?? throw new InvalidOperationException($"Failed to receive result from Kafka for {reference.Source}:{reference.Uid}");
             }
         }
         return reference;
