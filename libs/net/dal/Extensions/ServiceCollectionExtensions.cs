@@ -5,11 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Nest;
 using Npgsql;
 using TNO.DAL.Config;
-using TNO.DAL.Elasticsearch;
 using TNO.DAL.Services;
+using TNO.Elastic;
 
 namespace TNO.DAL;
 
@@ -49,8 +48,7 @@ public static class ServiceCollectionExtensions
                     });
                 db.UseLoggerFactory(debugLoggerFactory);
             }
-        })
-            .AddSingleton<IElasticClient, TNOElasticClient>();
+        });
 
         return services;
     }
@@ -87,7 +85,7 @@ public static class ServiceCollectionExtensions
 
         services.AddTNOContext(config, env)
             .AddStorageConfig(config)
-            .AddElasticConfig(config);
+            .AddElastic(config, env);
 
         // Find all the configuration classes.
         var assembly = typeof(BaseService).Assembly;
@@ -114,24 +112,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<StorageOptions>>().Value);
         services.AddOptions<StorageOptions>()
             .Bind(config.GetSection("Storage"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        return services;
-    }
-
-    /// <summary>
-    /// Add the elastic configuration to the service collection.
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="config"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddElasticConfig(this IServiceCollection services, IConfiguration config)
-    {
-        services.Configure<ElasticOptions>(config.GetSection("Elastic"));
-        services.AddSingleton(sp => sp.GetRequiredService<IOptions<ElasticOptions>>().Value);
-        services.AddOptions<ElasticOptions>()
-            .Bind(config.GetSection("Elastic"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 

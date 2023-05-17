@@ -1,20 +1,16 @@
 using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Nest;
-using TNO.Core.Extensions;
-using TNO.DAL.Config;
+using TNO.Elastic;
 using TNO.Entities;
-using TNO.Models.Extensions;
 
 namespace TNO.DAL.Services;
 
 public class ReportService : BaseService<Report, int>, IReportService
 {
     #region Variables
-    private readonly IElasticClient _client;
+    private readonly ITNOElasticClient _client;
     private readonly ElasticOptions _elasticOptions;
     #endregion
 
@@ -22,7 +18,7 @@ public class ReportService : BaseService<Report, int>, IReportService
     public ReportService(
         TNOContext dbContext,
         ClaimsPrincipal principal,
-        IElasticClient client,
+        ITNOElasticClient client,
         IOptions<ElasticOptions> elasticOptions,
         IServiceProvider serviceProvider,
         ILogger<ReportService> logger) : base(dbContext, principal, serviceProvider, logger)
@@ -63,33 +59,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <param name="report"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(Report report)
+    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(Report report)
     {
-        var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
-        {
-            var json = report.Filter.ToJson();
-            var result = s
-                .Pretty()
-                .Index(_elasticOptions.PublishedIndex) // TODO: Switch to unpublished if the report settings require it.
-                .Query(q => q.Raw(json == "{}" ? "" : json));
-
-            var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(report.Settings) ?? new Dictionary<string, object>();
-            var page = settings.GetDictionaryJsonValue<int>("page");
-            var quantity = settings.GetDictionaryJsonValue<int>("quantity");
-            if (quantity > 0)
-            {
-                result.From((page - 1) * quantity)
-                    .Size(quantity);
-            }
-
-            return result;
-        });
-
-        var items = response.IsValid ?
-            response.Documents :
-            throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
-
-        return items;
+        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(_elasticOptions.UnpublishedIndex, report.Filter);
     }
     #endregion
 }

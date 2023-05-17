@@ -259,7 +259,7 @@ public interface IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id);
+    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id);
 
     /// <summary>
     /// Make a request to the API to fetch the report instance with the specified 'id'.

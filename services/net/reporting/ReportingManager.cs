@@ -299,7 +299,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     private async Task GenerateReportAsync(ReportRequestModel request, API.Areas.Services.Models.Report.ReportModel report)
     {
         // TODO: Control when a report is sent through configuration.
-        var content = await this.Api.FindContentForReportIdAsync(report.Id);
+        var result = await this.Api.FindContentForReportIdAsync(report.Id);
+        var content = result.Hits.Hits.Select(h => h.Source);
 
         var to = report.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
         var subject = await GenerateReportSubjectAsync(report, content, request.UpdateCache);

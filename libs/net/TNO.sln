@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Kafka", "kafka\TNO.Kafk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Ches", "ches\TNO.Ches.csproj", "{08A82D74-0854-498F-9C74-E0A7242FE430}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Elastic", "elastic\TNO.Elastic.csproj", "{01FB5BC6-3AAA-43E2-8BFB-E6BAC0F6262F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{08A82D74-0854-498F-9C74-E0A7242FE430}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08A82D74-0854-498F-9C74-E0A7242FE430}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08A82D74-0854-498F-9C74-E0A7242FE430}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01FB5BC6-3AAA-43E2-8BFB-E6BAC0F6262F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01FB5BC6-3AAA-43E2-8BFB-E6BAC0F6262F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01FB5BC6-3AAA-43E2-8BFB-E6BAC0F6262F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01FB5BC6-3AAA-43E2-8BFB-E6BAC0F6262F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{DE579C2E-05C3-4B91-8CEA-B59E430A2C53} = {062EACFE-9CC0-42F7-B6B5-4556892C36CC}
