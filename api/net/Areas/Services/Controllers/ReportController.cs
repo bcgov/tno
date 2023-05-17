@@ -84,17 +84,15 @@ public class ReportController : ControllerBase
     /// <returns></returns>
     [HttpGet("{id}/content")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IEnumerable<Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "Report" })]
     public async Task<IActionResult> FindContentForReportIdAsync(int id)
     {
         var report = _service.FindById(id);
         if (report == null) return new BadRequestResult();
-
-        // TODO: Make request to Elasticsearch for the content that matches the filter.
-        var content = await _service.FindContentWithElasticsearchAsync(report);
-        return new JsonResult(content);
+        var result = await _service.FindContentWithElasticsearchAsync(report);
+        return new JsonResult(result);
     }
     #endregion
 }

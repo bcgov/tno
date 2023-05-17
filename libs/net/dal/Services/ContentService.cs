@@ -6,8 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nest;
 using TNO.Core.Extensions;
-using TNO.DAL.Config;
-using TNO.DAL.Elasticsearch;
+using TNO.Elastic;
 using TNO.DAL.Extensions;
 using TNO.DAL.Models;
 using TNO.Entities;
@@ -21,7 +20,7 @@ namespace TNO.DAL.Services;
 public class ContentService : BaseService<Content, long>, IContentService
 {
     #region Variables
-    private readonly ITnoElasticClient _client;
+    private readonly ITNOElasticClient _client;
     private readonly ElasticOptions _elasticOptions;
     private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
     #endregion
@@ -41,7 +40,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         TNOContext dbContext,
         ClaimsPrincipal principal,
         IServiceProvider serviceProvider,
-        ITnoElasticClient client,
+        ITNOElasticClient client,
         IOptions<ElasticOptions> elasticOptions,
         ILogger<ContentService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
@@ -364,30 +363,9 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <param name="filter"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(JsonDocument filter)
+    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(JsonDocument filter)
     {
-        // var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
-        // {
-        //     var json = filter.ToJson();
-        //     var result = s
-        //         .Pretty()
-        //         .From(0)
-        //         .Size(50)
-        //         .Index(_elasticOptions.UnpublishedIndex)
-        //         .Query(q => q.Raw(json == "{}" ? "" : json));
-
-        //     return result;
-        // });
-
-        // var items = response.IsValid ?
-        //     response.Documents :
-        //     throw new Exception($"Invalid Elasticsearch response: {response.ServerError?.Error?.Reason}");
-
-        var r = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(_elasticOptions.UnpublishedIndex, JsonDocument.Parse("{\"query\": { \"match\": { \"productId\": 7 }}}"));
-        var docs = r?.Hits.Hits.Select(h => h.Source) ?? Array.Empty<API.Areas.Services.Models.Content.ContentModel>();
-
-        // TODO: handle paging results.
-        return docs;
+        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(_elasticOptions.UnpublishedIndex, filter);
     }
 
     public override Content? FindById(long id)

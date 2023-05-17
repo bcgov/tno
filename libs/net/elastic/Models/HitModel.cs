@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TNO.DAL.Elasticsearch.Models;
+namespace TNO.Elastic.Models;
 
 public class HitModel<T>
     where T : class

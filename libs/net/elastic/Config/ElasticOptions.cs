@@ -1,5 +1,5 @@
 
-namespace TNO.DAL.Config;
+namespace TNO.Elastic;
 
 /// <summary>
 /// ElasticOptions class, configuration options for elasticsearch.

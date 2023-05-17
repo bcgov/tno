@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace TNO.DAL.Elasticsearch.Models;
+namespace TNO.Elastic.Models;
 
-public class SearchResultHitsModel<T>
+public class HitsModel<T>
     where T : class
 {
     #region Properties

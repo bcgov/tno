@@ -542,10 +542,10 @@ public class ApiService : IApiService
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id)
+    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentForReportIdAsync(int id)
     {
         var url = this.Options.ApiUrl.Append($"services/reports/{id}/content");
-        return await RetryRequestAsync(async () => await this.Client.GetAsync<IEnumerable<API.Areas.Services.Models.Content.ContentModel>>(url)) ?? Array.Empty<API.Areas.Services.Models.Content.ContentModel>();
+        return await RetryRequestAsync(async () => await this.Client.GetAsync<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>>(url)) ?? new Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>();
     }
 
     /// <summary>

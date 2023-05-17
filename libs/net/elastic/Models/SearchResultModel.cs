@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TNO.DAL.Elasticsearch.Models;
+namespace TNO.Elastic.Models;
 
 public class SearchResultModel<T>
     where T : class
@@ -16,6 +16,6 @@ public class SearchResultModel<T>
     public ShardsModel? Shards { get; set; }
 
     [JsonPropertyName("hits")]
-    public SearchResultHitsModel<T> Hits { get; set; } = new SearchResultHitsModel<T>();
+    public HitsModel<T> Hits { get; set; } = new HitsModel<T>();
     #endregion
 }

@@ -7,15 +7,14 @@ using Nest;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
 using TNO.Core.Http;
-using TNO.DAL.Config;
-using TNO.DAL.Elasticsearch.Models;
+using TNO.Elastic.Models;
 
-namespace TNO.DAL.Elasticsearch
+namespace TNO.Elastic
 {
     /// <summary>
     /// The TNOElasticClient class
     /// </summary>
-    public class TNOElasticClient : ElasticClient, ITnoElasticClient
+    public class TNOElasticClient : ElasticClient, ITNOElasticClient
     {
         #region Variables
         #endregion
@@ -66,13 +65,20 @@ namespace TNO.DAL.Elasticsearch
                 .ThrowExceptions();
         }
 
-        public async Task<SearchResultModel<T>?> SearchAsync<T>(string index, JsonDocument query)
+        /// <summary>
+        /// Make a request to Elasticsearch 'index' with the specified 'query'.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="index"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public async Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonDocument query)
             where T : class
         {
             var url = this.Options.Url!.Append($"/{index}/_search");
             var content = JsonContent.Create(query);
             var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
-            return response;
+            return response ?? new SearchResultModel<T>();
         }
         #endregion
     }
