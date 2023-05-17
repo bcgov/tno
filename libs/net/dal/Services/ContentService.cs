@@ -179,7 +179,7 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// </summary>
     /// <param name="filter">Filter to apply to the query.</param>
     /// <returns>A page of content items that match the filter.</returns>
-    public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(ContentFilter filter)
+    public async Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, ContentFilter filter)
     {
         var sourceQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var sourceId in filter.SourceIds)
@@ -315,9 +315,13 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
+            if(index == "published")
+                s.Index(_elasticOptions.PublishedIndex);
+            else
+                s.Index(_elasticOptions.UnpublishedIndex);
+
             var result = s
                 .Pretty()
-                .Index(_elasticOptions.UnpublishedIndex)
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity);
 

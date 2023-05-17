@@ -134,7 +134,7 @@ public class ContentController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
-        var result = await _contentService.FindWithElasticsearchAsync(filter);
+        var result = await _contentService.FindWithElasticsearchAsync("unpublished", filter);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,
             result.Page,
