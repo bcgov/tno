@@ -1,3 +1,6 @@
+using System.Text.Json;
+using TNO.Entities.Models;
+
 namespace TNO.Entities.Validation;
 
 /// <summary>
@@ -5,6 +8,10 @@ namespace TNO.Entities.Validation;
 /// </summary>
 public class NotificationValidator : INotificationValidator
 {
+    #region Variables
+    private static readonly ContentStatus[] _onlyPublished = new[] { ContentStatus.Publish, ContentStatus.Published };
+    #endregion
+
     #region Properties
     /// <summary>
     /// get/set - The notification to validate.
@@ -104,12 +111,72 @@ public class NotificationValidator : INotificationValidator
     }
 
     /// <summary>
+    /// Validate the notification filter to determine whether it should generate anything.
+    /// </summary>
+    /// <returns>True if the notification filter has been matched.</returns>
+    protected virtual bool ValidateFilter()
+    {
+        if (Notification == null || Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
+
+        var filter = JsonSerializer.Deserialize<NotificationFilter>(Notification.Filter);
+        if (filter == null) return false;
+
+        var result =
+            (string.IsNullOrWhiteSpace(filter.OtherSource) || Content.OtherSource.ToLower() == filter.OtherSource.ToLower()) &&
+            (string.IsNullOrWhiteSpace(filter.Headline) || Content.Headline.ToLower().Contains(filter.Headline.ToLower())) &&
+            (string.IsNullOrWhiteSpace(filter.Page) || Content.Page.ToLower().Contains(filter.Page.ToLower())) &&
+            (string.IsNullOrWhiteSpace(filter.Section) || Content.Section.ToLower().Contains(filter.Section.ToLower())) &&
+            (string.IsNullOrWhiteSpace(filter.Product) || (Content.Product != null && Content.Product.Name.ToLower().Contains(filter.Product.ToLower()))) &&
+            (string.IsNullOrWhiteSpace(filter.Edition) || Content.Edition.ToLower().Contains(filter.Edition.ToLower())) &&
+            (string.IsNullOrWhiteSpace(filter.Byline) || Content.Byline.ToLower().Contains(filter.Byline.ToLower())) &&
+            (!filter.SourceIds.Any() || (Content.SourceId.HasValue && filter.SourceIds.Contains(Content.SourceId.Value))) &&
+            (!filter.ProductIds.Any() || filter.ProductIds.Contains(Content.ProductId)) &&
+            (!filter.ContentIds.Any() || filter.ContentIds.Contains(Content.Id)) &&
+            (!filter.ContentTypes.Any() || filter.ContentTypes.Contains(Content.ContentType)) &&
+            (!filter.Status.HasValue || filter.Status == Content.Status) &&
+            (!filter.ProductId.HasValue || filter.ProductId == Content.ProductId) &&
+            (!filter.OwnerId.HasValue || filter.OwnerId == Content.OwnerId) &&
+            (!filter.UserId.HasValue || filter.UserId == Content.OwnerId) &&
+            (!filter.CreatedOn.HasValue || Content.CreatedOn == filter.CreatedOn.Value.ToUniversalTime()) &&
+            (!filter.UpdatedOn.HasValue || Content.UpdatedOn == filter.UpdatedOn.Value.ToUniversalTime()) &&
+            (!filter.PublishedOn.HasValue || Content.PublishedOn == filter.PublishedOn.Value.ToUniversalTime()) &&
+            (!filter.HasTopic.HasValue || Content.TopicsManyToMany.Any()) &&
+            ((filter.IncludeHidden.HasValue && filter.IncludeHidden.Value) || !Content.IsHidden) &&
+            (!filter.OnlyHidden.HasValue || !filter.OnlyHidden.Value || Content.IsHidden) &&
+            (!filter.OnlyPublished.HasValue || !filter.OnlyPublished.Value || _onlyPublished.Contains(Content.Status)) &&
+            (!filter.Actions.Any() || Content.ActionsManyToMany.Any(ca => ca.Action != null &&
+                filter.Actions.Contains(ca.Action.Name) &&
+                ((ca.Action.ValueType == ValueType.Boolean && ca.Value == "true") ||
+                 (ca.Action.ValueType != ValueType.Boolean && !string.IsNullOrWhiteSpace(ca.Value))))) &&
+            ((!filter.CreatedStartOn.HasValue && !filter.CreatedEndOn.HasValue) ||
+             (filter.CreatedStartOn.HasValue && filter.CreatedEndOn.HasValue &&
+              Content.CreatedOn >= filter.CreatedStartOn.Value.ToUniversalTime() &&
+              Content.CreatedOn <= filter.CreatedEndOn.Value.ToUniversalTime()) ||
+             (filter.CreatedStartOn.HasValue && Content.CreatedOn >= filter.CreatedStartOn.Value.ToUniversalTime()) ||
+             (filter.CreatedEndOn.HasValue && Content.CreatedOn <= filter.CreatedEndOn.Value.ToUniversalTime())) &&
+            ((!filter.UpdatedStartOn.HasValue && !filter.UpdatedEndOn.HasValue) ||
+             (filter.UpdatedStartOn.HasValue && filter.UpdatedEndOn.HasValue &&
+              Content.UpdatedOn >= filter.UpdatedStartOn.Value.ToUniversalTime() &&
+              Content.UpdatedOn <= filter.UpdatedEndOn.Value.ToUniversalTime()) ||
+             (filter.UpdatedStartOn.HasValue && Content.UpdatedOn >= filter.UpdatedStartOn.Value.ToUniversalTime()) ||
+             (filter.UpdatedEndOn.HasValue && Content.UpdatedOn <= filter.UpdatedEndOn.Value.ToUniversalTime())) &&
+            ((!filter.PublishedStartOn.HasValue && !filter.PublishedEndOn.HasValue) ||
+             (filter.PublishedStartOn.HasValue && filter.PublishedEndOn.HasValue &&
+              Content.PublishedOn >= filter.PublishedStartOn.Value.ToUniversalTime() &&
+              Content.PublishedOn <= filter.PublishedEndOn.Value.ToUniversalTime()) ||
+             (filter.PublishedStartOn.HasValue && Content.PublishedOn >= filter.PublishedStartOn.Value.ToUniversalTime()) ||
+             (filter.PublishedEndOn.HasValue && Content.PublishedOn <= filter.PublishedEndOn.Value.ToUniversalTime()));
+
+        return result;
+    }
+
+    /// <summary>
     /// Determine if the specified 'notification' should be sent for the specified 'content'.
     /// </summary>
     /// <returns></returns>
     public bool ConfirmSend()
     {
-        return ValidateNotification() && ValidateContent();
+        return ValidateNotification() && ValidateContent() && ValidateFilter();
     }
     #endregion
 }
