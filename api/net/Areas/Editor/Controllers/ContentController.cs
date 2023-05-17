@@ -259,7 +259,7 @@ public class ContentController : ControllerBase
             if (model.Action == ContentListAction.Publish)
             {
                 var latestContent = _contentService.FindById(content.Id);
-                if (latestContent != null)
+                if (latestContent != null && latestContent.Status != ContentStatus.Publish)
                 {
                     latestContent.Status = ContentStatus.Publish;
                     update.Add(_contentService.Update(latestContent));
