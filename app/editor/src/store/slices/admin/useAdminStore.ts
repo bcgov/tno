@@ -6,6 +6,7 @@ import {
   IActionModel,
   IAlertModel,
   IConnectionModel,
+  IContributorModel,
   IDataLocationModel,
   IIngestModel,
   IIngestTypeModel,
@@ -26,6 +27,7 @@ import {
   storeAdminActions,
   storeAdminAlerts,
   storeAdminConnections,
+  storeAdminContributors,
   storeAdminDataLocations,
   storeAdminIngests,
   storeAdminIngestTypes,
@@ -66,6 +68,7 @@ export interface IAdminStore {
   storeAlerts: (alerts: IAlertModel[] | ActionDelegate<IAlertModel[]>) => void;
   storeActions: (actions: IActionModel[] | ActionDelegate<IActionModel[]>) => void;
   storeSeries: (series: ISeriesModel[] | ActionDelegate<ISeriesModel[]>) => void;
+  storeContributors: (series: IContributorModel[] | ActionDelegate<IContributorModel[]>) => void;
   storeWorkOrderFilter: (
     filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
   ) => void;
@@ -160,6 +163,13 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminSeries(series(state.series)));
         } else dispatch(storeAdminSeries(series));
       },
+      storeContributors: (
+        contributors: IContributorModel[] | ActionDelegate<IContributorModel[]>,
+      ) => {
+        if (typeof contributors === 'function') {
+          dispatch(storeAdminContributors(contributors(state.contributors)));
+        } else dispatch(storeAdminContributors(contributors));
+      },
       storeWorkOrderFilter: (
         filter: IWorkOrderListFilter | ActionDelegate<IWorkOrderListFilter>,
       ) => {
@@ -191,6 +201,7 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
       state.products,
       state.rules,
       state.series,
+      state.contributors,
       state.sources,
       state.tags,
       state.topics,

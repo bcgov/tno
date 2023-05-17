@@ -23,7 +23,11 @@ export const WorkOrderList = styled(FormPage)`
     }
   }
 
-  div.column {
-    overflow: hidden;
+  div.row {
+    cursor: pointer;
+
+    div.column {
+      overflow: hidden;
+    }
   }
 `;

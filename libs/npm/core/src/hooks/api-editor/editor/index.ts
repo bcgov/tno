@@ -2,6 +2,7 @@ export * from './useApiActions';
 export * from './useApiAnonAlerts';
 export * from './useApiCache';
 export * from './useApiContents';
+export * from './useApiContributors';
 export * from './useApiDataLocations';
 export * from './useApiIngests';
 export * from './useApiIngestSchedules';

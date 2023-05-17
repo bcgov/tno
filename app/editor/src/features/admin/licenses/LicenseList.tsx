@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLicenses } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, ILicenseModel, Row } from 'tno-core';
+import { Col, FlexboxTable, FormPage, IconButton, ILicenseModel, Row } from 'tno-core';
 
 import { columns } from './constants';
-import { LicenseListFilter } from './LicenseListFilter';
 import * as styled from './styled';
 
 export const LicenseList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ licenses }, api] = useLicenses();
 
   const [items, setItems] = React.useState<ILicenseModel[]>([]);
@@ -38,14 +35,13 @@ export const LicenseList: React.FC = () => {
             onClick={() => navigate(`/admin/licences/0`)}
           />
         </Row>
-        <GridTable
-          columns={columns}
-          header={LicenseListFilter}
-          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-          isLoading={!!requests.length}
+        <FlexboxTable
+          rowId="id"
           data={items}
+          columns={columns}
+          showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
+        />
       </FormPage>
     </styled.LicenseList>
   );

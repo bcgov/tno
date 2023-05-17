@@ -80,6 +80,17 @@ public class Content : AuditColumns
     public virtual Series? Series { get; set; }
 
     /// <summary>
+    /// get/set - Foreign key to the contributor.
+    /// </summary>
+    [Column("contributor_id")]
+    public int? ContributorId { get; set; }
+
+    /// <summary>
+    /// get/set - The contributor this story belongs to.
+    /// </summary>
+    public virtual Contributor? Contributor { get; set; }
+
+    /// <summary>
     /// get/set - Foreign key to the owner.
     /// </summary>
     [Column("owner_id")]

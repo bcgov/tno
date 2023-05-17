@@ -1,26 +1,22 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis, IDataLocationModel } from 'tno-core';
+import { CellCheckbox, CellEllipsis, IDataLocationModel, ITableHookColumn } from 'tno-core';
 
-export const columns: (Column<IDataLocationModel> &
-  UseSortByColumnOptions<IDataLocationModel> &
-  UseFiltersColumnOptions<IDataLocationModel>)[] = [
+export const columns: ITableHookColumn<IDataLocationModel>[] = [
   {
-    id: 'id',
-    Header: 'Name',
-    accessor: 'name',
-    width: 3,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    label: 'Name',
+    name: 'name',
+    width: 2,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Description',
-    accessor: 'description',
-    width: 5,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    label: 'Description',
+    name: 'description',
+    width: 7,
+    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
-    Header: 'Enabled',
-    accessor: 'isEnabled',
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];

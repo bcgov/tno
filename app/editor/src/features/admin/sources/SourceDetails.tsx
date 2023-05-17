@@ -3,6 +3,7 @@ import React from 'react';
 import { useLookup } from 'store/hooks';
 import {} from 'store/hooks/lookup/utils';
 import {
+  FieldSize,
   filterEnabledOptions,
   FormikCheckbox,
   FormikSelect,
@@ -85,6 +86,13 @@ export const SourceDetails: React.FC<ISourceDetailsProps> = () => {
           tooltip="Timezone of the source (overrides the value in the ingest)"
           options={TimeZones}
           value={timeZone}
+        />
+        <FormikText
+          width={FieldSize.Tiny}
+          name="sortOrder"
+          label="Sort Order"
+          type="number"
+          className="sort-order"
         />
       </Col>
       <Col>

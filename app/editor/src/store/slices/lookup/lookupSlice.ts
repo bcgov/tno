@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
   IActionModel,
   ICacheModel,
+  IContributorModel,
   IDataLocationModel,
   IHolidayModel,
   IIngestTypeModel,
@@ -31,6 +32,7 @@ export const initialLookupState: ILookupState = {
   ingestTypes: [],
   roles: [],
   series: [],
+  contributors: [],
   sources: [],
   sourceActions: [],
   metrics: [],
@@ -86,6 +88,9 @@ export const lookupSlice = createSlice({
     storeSeries(state: ILookupState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
     },
+    storeContributors(state: ILookupState, action: PayloadAction<IContributorModel[]>) {
+      state.contributors = action.payload;
+    },
     storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
       state.sourceActions = action.payload;
     },
@@ -121,6 +126,7 @@ export const {
   storeIngestTypes,
   storeRoles,
   storeSeries,
+  storeContributors,
   storeSources,
   storeSourceActions,
   storeMetrics,

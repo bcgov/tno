@@ -4,6 +4,7 @@ import { ILookupState } from 'store/slices/lookup';
 import {
   IActionModel,
   ICacheModel,
+  IContributorModel,
   IDataLocationModel,
   IHolidayModel,
   IIngestTypeModel,
@@ -22,6 +23,7 @@ import {
   IUserModel,
   useApiActions,
   useApiCache,
+  useApiContributors,
   useApiDataLocations,
   useApiIngestTypes,
   useApiLicenses,
@@ -56,6 +58,7 @@ export interface ILookupController {
   getIngestTypes: (refresh?: boolean) => Promise<IIngestTypeModel[]>;
   getSources: (refresh?: boolean) => Promise<ISourceModel[]>;
   getSeries: (refresh?: boolean) => Promise<ISeriesModel[]>;
+  getContributors: (refresh?: boolean) => Promise<IContributorModel[]>;
   getTags: (refresh?: boolean) => Promise<ITagModel[]>;
   getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
   getUsers: (refresh?: boolean) => Promise<IUserModel[]>;
@@ -77,6 +80,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const ingestTypes = useApiIngestTypes();
   const roles = useApiRoles();
   const series = useApiSeries();
+  const contributors = useApiContributors();
   const sourceActions = useApiSourceActions();
   const sourceMetrics = useApiMetrics();
   const tags = useApiTags();
@@ -107,6 +111,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('licenses', results.licenses, store.storeLicenses);
               saveToLocalStorage('roles', results.roles, store.storeRoles);
               saveToLocalStorage('series', results.series, store.storeSeries);
+              saveToLocalStorage('contributors', results.contributors, store.storeContributors);
               saveToLocalStorage('source_actions', results.sourceActions, store.storeSourceActions);
               saveToLocalStorage('metrics', results.metrics, store.storeMetrics);
               saveToLocalStorage('tags', results.tags, store.storeTags);
@@ -126,6 +131,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 licenses: getFromLocalStorage<ILicenseModel[]>('licenses', []),
                 roles: getFromLocalStorage<IRoleModel[]>('roles', []),
                 series: getFromLocalStorage<ISeriesModel[]>('series', []),
+                contributors: getFromLocalStorage<IContributorModel[]>('contributors', []),
                 sourceActions: getFromLocalStorage<ISourceActionModel[]>('source_actions', []),
                 metrics: getFromLocalStorage<IMetricModel[]>('metrics', []),
                 tags: getFromLocalStorage<ITagModel[]>('tags', []),
@@ -143,6 +149,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeLicenses(lookups.licenses);
               store.storeRoles(lookups.roles);
               store.storeSeries(lookups.series);
+              store.storeContributors(lookups.contributors);
               store.storeSourceActions(lookups.sourceActions);
               store.storeMetrics(lookups.metrics);
               store.storeTags(lookups.tags);
@@ -283,6 +290,20 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
+      getContributors: async () => {
+        return await fetchIfNoneMatch<IContributorModel[]>(
+          'contributors',
+          dispatch,
+          (etag) => contributors.getContributors(etag),
+          (results) => {
+            const values = results ?? [];
+            store.storeContributors(values);
+            return values;
+          },
+          true,
+          'lookup',
+        );
+      },
       getSourceActions: async () => {
         return await fetchIfNoneMatch<ISourceActionModel[]>(
           'source_actions',
@@ -385,6 +406,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       ingestTypes,
       roles,
       series,
+      contributors,
       sourceActions,
       sourceMetrics,
       store,

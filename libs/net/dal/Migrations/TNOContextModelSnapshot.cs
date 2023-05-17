@@ -18,7 +18,7 @@ namespace TNO.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.3")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -356,6 +356,10 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("content_type");
 
+                    b.Property<int?>("ContributorId")
+                        .HasColumnType("integer")
+                        .HasColumnName("contributor_id");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -474,6 +478,8 @@ namespace TNO.DAL.Migrations
                         .HasDefaultValueSql("0");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContributorId");
 
                     b.HasIndex("IngestTypeId");
 
@@ -1009,6 +1015,88 @@ namespace TNO.DAL.Migrations
                     b.ToTable("content_type_action");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Contributor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AutoTranscribe")
+                        .HasColumnType("boolean")
+                        .HasColumnName("auto_transcribe");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description")
+                        .HasDefaultValueSql("''");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("sort_order");
+
+                    b.Property<int?>("SourceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTime>("UpdatedOn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_on")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version")
+                        .HasDefaultValueSql("0");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceId");
+
+                    b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
+                        .HasDatabaseName("IX_is_enabled2");
+
+                    b.ToTable("contributor");
+                });
+
             modelBuilder.Entity("TNO.Entities.DataLocation", b =>
                 {
                     b.Property<int>("Id")
@@ -1082,7 +1170,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("ConnectionId");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled2");
+                        .HasDatabaseName("IX_is_enabled3");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -1490,7 +1578,7 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled3");
+                        .HasDatabaseName("IX_is_enabled4");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -1570,7 +1658,7 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled4");
+                        .HasDatabaseName("IX_is_enabled5");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -1646,7 +1734,7 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled5");
+                        .HasDatabaseName("IX_is_enabled6");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -1764,7 +1852,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled6");
+                        .HasDatabaseName("IX_is_enabled7");
 
                     b.ToTable("notification");
                 });
@@ -1900,7 +1988,7 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled7");
+                        .HasDatabaseName("IX_is_enabled8");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -2010,7 +2098,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled8");
+                        .HasDatabaseName("IX_is_enabled9");
 
                     b.ToTable("report");
                 });
@@ -2317,7 +2405,7 @@ namespace TNO.DAL.Migrations
                     b.HasIndex("SourceId");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled9");
+                        .HasDatabaseName("IX_is_enabled10");
 
                     b.ToTable("series");
                 });
@@ -2443,7 +2531,7 @@ namespace TNO.DAL.Migrations
                         .IsUnique();
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled10");
+                        .HasDatabaseName("IX_is_enabled11");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -2595,7 +2683,7 @@ namespace TNO.DAL.Migrations
                         .HasDatabaseName("IX_code1");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled11");
+                        .HasDatabaseName("IX_is_enabled12");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -2746,7 +2834,7 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled12");
+                        .HasDatabaseName("IX_is_enabled13");
 
                     b.HasIndex(new[] { "OwnerId", "Name" }, "IX_name")
                         .IsUnique()
@@ -2826,7 +2914,7 @@ namespace TNO.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex(new[] { "IsEnabled", "Name" }, "IX_is_enabled")
-                        .HasDatabaseName("IX_is_enabled13");
+                        .HasDatabaseName("IX_is_enabled14");
 
                     b.HasIndex(new[] { "Name" }, "IX_name")
                         .IsUnique()
@@ -3271,6 +3359,11 @@ namespace TNO.DAL.Migrations
 
             modelBuilder.Entity("TNO.Entities.Content", b =>
                 {
+                    b.HasOne("TNO.Entities.Contributor", "Contributor")
+                        .WithMany("Contents")
+                        .HasForeignKey("ContributorId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("TNO.Entities.IngestType", null)
                         .WithMany("Contents")
                         .HasForeignKey("IngestTypeId");
@@ -3301,6 +3394,8 @@ namespace TNO.DAL.Migrations
                         .WithMany("Contents")
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Contributor");
 
                     b.Navigation("License");
 
@@ -3439,6 +3534,16 @@ namespace TNO.DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Action");
+                });
+
+            modelBuilder.Entity("TNO.Entities.Contributor", b =>
+                {
+                    b.HasOne("TNO.Entities.Source", "Source")
+                        .WithMany("Contributors")
+                        .HasForeignKey("SourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Source");
                 });
 
             modelBuilder.Entity("TNO.Entities.DataLocation", b =>
@@ -3833,6 +3938,11 @@ namespace TNO.DAL.Migrations
                     b.Navigation("TopicsManyToMany");
                 });
 
+            modelBuilder.Entity("TNO.Entities.Contributor", b =>
+                {
+                    b.Navigation("Contents");
+                });
+
             modelBuilder.Entity("TNO.Entities.DataLocation", b =>
                 {
                     b.Navigation("IngestsManyToMany");
@@ -3909,6 +4019,8 @@ namespace TNO.DAL.Migrations
             modelBuilder.Entity("TNO.Entities.Source", b =>
                 {
                     b.Navigation("Contents");
+
+                    b.Navigation("Contributors");
 
                     b.Navigation("Ingests");
 

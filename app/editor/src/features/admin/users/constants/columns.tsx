@@ -1,57 +1,52 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellDate, CellEllipsis, IUserModel } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis, ITableHookColumn, IUserModel } from 'tno-core';
 
-export const columns: (Column<IUserModel> &
-  UseSortByColumnOptions<IUserModel> &
-  UseFiltersColumnOptions<IUserModel>)[] = [
+export const columns: ITableHookColumn<IUserModel>[] = [
   {
-    id: 'username',
-    Header: 'Username',
-    accessor: 'username',
+    label: 'Username',
+    name: 'username',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.username}</CellEllipsis>,
   },
   {
-    Header: 'Email',
-    accessor: 'email',
+    label: 'Email',
+    name: 'email',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.email}</CellEllipsis>,
   },
   {
-    Header: 'Last Name',
-    accessor: 'lastName',
+    label: 'Last Name',
+    name: 'lastName',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.lastName}</CellEllipsis>,
   },
   {
-    Header: 'First Name',
-    accessor: 'firstName',
+    label: 'First Name',
+    name: 'firstName',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.firstName}</CellEllipsis>,
   },
   {
-    Header: 'Role(s)',
-    accessor: 'roles',
+    label: 'Role(s)',
+    name: 'roles',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value?.join(', ')}</CellEllipsis>,
-    disableSortBy: true,
+    cell: (cell) => <CellEllipsis>{cell.original.roles?.join(', ')}</CellEllipsis>,
   },
   {
-    Header: 'Last Login',
-    accessor: 'lastLoginOn',
+    label: 'Last Login',
+    name: 'lastLoginOn',
     width: 2,
-    Cell: ({ value }: any) => <CellDate value={value} />,
+    cell: (cell) => <CellDate value={cell.original.lastLoginOn} />,
   },
   {
-    Header: 'Enabled',
-    accessor: 'isEnabled',
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
   {
-    Header: 'Status',
-    accessor: 'status',
+    label: 'Status',
+    name: 'status',
     width: 1,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.status}</CellEllipsis>,
   },
 ];

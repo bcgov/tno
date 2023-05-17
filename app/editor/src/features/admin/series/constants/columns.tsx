@@ -1,38 +1,34 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis, ISeriesModel } from 'tno-core';
+import { CellCheckbox, CellEllipsis, ISeriesModel, ITableHookColumn } from 'tno-core';
 
-export const columns: (Column<ISeriesModel> &
-  UseSortByColumnOptions<ISeriesModel> &
-  UseFiltersColumnOptions<ISeriesModel>)[] = [
+export const columns: ITableHookColumn<ISeriesModel>[] = [
   {
-    id: 'id',
-    Header: 'Name',
-    accessor: 'name',
-    width: 3,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    label: 'Name',
+    name: 'name',
+    width: 2,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Source',
+    label: 'Source',
+    name: 'source.code',
+    width: 2,
+    cell: (cell) => <CellEllipsis>{cell.original.source?.code}</CellEllipsis>,
+  },
+  {
+    label: 'Description',
+    name: 'description',
+    width: 7,
+    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
+  },
+  {
+    label: 'Topics',
+    name: 'useInTopics',
     width: 1,
-    accessor: (row) => row.source?.code,
-    Cell: ({ value }: any) => value,
+    cell: (cell) => <CellCheckbox checked={cell.original.useInTopics} />,
   },
   {
-    Header: 'Description',
-    accessor: 'description',
-    width: 4,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
-  },
-  {
-    Header: 'Topics',
-    accessor: 'useInTopics',
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
-  },
-  {
-    Header: 'Enabled',
-    accessor: 'isEnabled',
-    width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];

@@ -62,6 +62,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             .Include(c => c.Product)
             .Include(c => c.Source)
             .Include(c => c.Series)
+            .Include(c => c.Contributor)
             .Include(c => c.License)
             .Include(c => c.TonePoolsManyToMany).ThenInclude(ct => ct.TonePool)
             .Include(c => c.Owner)
@@ -360,12 +361,13 @@ public class ContentService : BaseService<Content, long>, IContentService
     /// <summary>
     /// Make a raw JSON query to Elasticsearch and return content.
     /// </summary>
+    /// <param name="index"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(JsonDocument filter)
+    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, JsonDocument filter)
     {
-        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(_elasticOptions.UnpublishedIndex, filter);
+        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, filter);
     }
 
     public override Content? FindById(long id)
@@ -373,6 +375,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         return this.Context.Contents
             .Include(c => c.Product)
             .Include(c => c.Series)
+            .Include(c => c.Contributor)
             .Include(c => c.License)
             .Include(c => c.Source)
             .Include(c => c.Owner)
@@ -392,6 +395,7 @@ public class ContentService : BaseService<Content, long>, IContentService
         var query = this.Context.Contents
             .Include(c => c.Product)
             .Include(c => c.Series)
+            .Include(c => c.Contributor)
             .Include(c => c.License)
             .Include(c => c.Source)
             .Include(c => c.Owner)

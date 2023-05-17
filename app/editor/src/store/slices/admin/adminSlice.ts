@@ -5,6 +5,7 @@ import {
   IActionModel,
   IAlertModel,
   IConnectionModel,
+  IContributorModel,
   IDataLocationModel,
   IIngestModel,
   IIngestTypeModel,
@@ -42,6 +43,7 @@ export const initialAdminState: IAdminState = {
   alerts: [],
   actions: [],
   series: [],
+  contributors: [],
   licenses: [],
   workOrderFilter: {
     pageIndex: 0,
@@ -104,6 +106,9 @@ export const adminSlice = createSlice({
     storeSeries(state: IAdminState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
     },
+    storeContributors(state: IAdminState, action: PayloadAction<IContributorModel[]>) {
+      state.contributors = action.payload;
+    },
     storeWorkOrderFilter(state: IAdminState, action: PayloadAction<IWorkOrderListFilter>) {
       state.workOrderFilter = action.payload;
     },
@@ -132,6 +137,7 @@ export const {
   storeAlerts: storeAdminAlerts,
   storeActions: storeAdminActions,
   storeSeries: storeAdminSeries,
+  storeContributors: storeAdminContributors,
   storeWorkOrderFilter: storeAdminWorkOrderFilter,
   storeWorkOrders: storeAdminWorkOrders,
   storeReports: storeAdminReports,

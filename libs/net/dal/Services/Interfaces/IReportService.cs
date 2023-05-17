@@ -5,5 +5,5 @@ namespace TNO.DAL.Services;
 public interface IReportService : IBaseService<Report, int>
 {
     IEnumerable<Report> FindAll();
-    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(Report report);
+    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(string index, Report report);
 }

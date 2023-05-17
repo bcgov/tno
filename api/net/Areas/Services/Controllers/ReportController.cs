@@ -7,6 +7,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Services.Models.Report;
 using TNO.API.Models;
 using TNO.DAL.Services;
+using TNO.Elastic;
 using TNO.Entities.Models;
 using TNO.Keycloak;
 
@@ -29,6 +30,7 @@ public class ReportController : ControllerBase
 {
     #region Variables
     private readonly IReportService _service;
+    private readonly ElasticOptions _elasticOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -37,10 +39,12 @@ public class ReportController : ControllerBase
     /// Creates a new instance of a ReportController object, initializes with specified parameters.
     /// </summary>
     /// <param name="service"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="serializerOptions"></param>
-    public ReportController(IReportService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportController(IReportService service, IOptions<ElasticOptions> elasticOptions, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _service = service;
+        _elasticOptions = elasticOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -91,7 +95,7 @@ public class ReportController : ControllerBase
     {
         var report = _service.FindById(id);
         if (report == null) return new BadRequestResult();
-        var result = await _service.FindContentWithElasticsearchAsync(report);
+        var result = await _service.FindContentWithElasticsearchAsync(_elasticOptions.PublishedIndex, report);
         return new JsonResult(result);
     }
     #endregion

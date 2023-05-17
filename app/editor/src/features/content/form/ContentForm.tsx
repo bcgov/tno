@@ -85,7 +85,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
   const { isShowing: showNLPModal, toggle: toggleNLP } = useModal();
-  const [{ sources, series, sourceOptions, productOptions }, { getSeries }] = useLookupOptions();
+  const [{ contributorOptions, sources, series, sourceOptions, productOptions }, { getSeries }] =
+    useLookupOptions();
   const { combined, formType } = useCombinedView(initContentType);
   useScrollTo(id, scrollToContent ? 'bottom-pane' : '');
   const { setShowValidationToast } = useTabValidationToasts();
@@ -459,6 +460,17 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       <Show visible={contentType === ContentTypeName.PrintContent}>
                         <Row>
                           <FormikText name="byline" label="Byline" required />
+                          <FormikSelect
+                            name="contributorId"
+                            value={
+                              contributorOptions.find(
+                                (mt) => mt.value === props.values.contributorId,
+                              ) ?? ''
+                            }
+                            label="Columnist/Pundit"
+                            width={FieldSize.Small}
+                            options={contributorOptions}
+                          />
                           <FormikText name="edition" label="Edition" />
                           <FormikText name="section" label="Section" required />
                           <FormikText name="page" label="Page" />
@@ -472,46 +484,58 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       >
                         <Row>
                           <FormikText name="byline" label="Byline" />
-                          <FormikText
-                            style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
-                            className="source-url"
-                            name="sourceUrl"
-                            label="Source URL"
-                            tooltip="The URL to the original source story"
-                            width={FieldSize.Large}
-                            onKeyDown={(e) => {
-                              if (e.ctrlKey && props.values.sourceUrl) {
-                                setTextDecorationStyle('underline');
-                                setCursorStyle('pointer');
-                              }
-                            }}
-                            onKeyUp={() => {
-                              if (textDecorationStyle !== 'none') setTextDecorationStyle('none');
-                              if (cursorStyle !== 'text') setCursorStyle('text');
-                            }}
-                            onClick={(e) => {
-                              if (e.ctrlKey && props.values.sourceUrl) {
-                                window.open(props.values.sourceUrl, '_blank', 'noreferrer');
-                              }
-                            }}
-                          >
-                            <FaCopy
-                              className="icon-button src-cpy"
-                              onClick={() => {
-                                if (props.values.sourceUrl) {
-                                  navigator.clipboard.writeText(props.values.sourceUrl);
+                          <FormikSelect
+                            name="contributorId"
+                            value={
+                              contributorOptions.find(
+                                (mt) => mt.value === props.values.contributorId,
+                              ) ?? ''
+                            }
+                            label="Columnist/Pundit"
+                            width={FieldSize.Small}
+                            options={contributorOptions}
+                          />
+                          <Col flex="1">
+                            <FormikText
+                              style={{ textDecoration: textDecorationStyle, cursor: cursorStyle }}
+                              className="source-url"
+                              name="sourceUrl"
+                              label="Source URL"
+                              tooltip="The URL to the original source story"
+                              onKeyDown={(e) => {
+                                if (e.ctrlKey && props.values.sourceUrl) {
+                                  setTextDecorationStyle('underline');
+                                  setCursorStyle('pointer');
                                 }
                               }}
-                            />
-                            <FaExternalLinkAlt
-                              className={`icon-button ${!props.values.sourceUrl && 'disabled'}`}
-                              onClick={() => {
-                                if (props.values.sourceUrl) {
+                              onKeyUp={() => {
+                                if (textDecorationStyle !== 'none') setTextDecorationStyle('none');
+                                if (cursorStyle !== 'text') setCursorStyle('text');
+                              }}
+                              onClick={(e) => {
+                                if (e.ctrlKey && props.values.sourceUrl) {
                                   window.open(props.values.sourceUrl, '_blank', 'noreferrer');
                                 }
                               }}
-                            />
-                          </FormikText>
+                            >
+                              <FaCopy
+                                className="icon-button src-cpy"
+                                onClick={() => {
+                                  if (props.values.sourceUrl) {
+                                    navigator.clipboard.writeText(props.values.sourceUrl);
+                                  }
+                                }}
+                              />
+                              <FaExternalLinkAlt
+                                className={`icon-button ${!props.values.sourceUrl && 'disabled'}`}
+                                onClick={() => {
+                                  if (props.values.sourceUrl) {
+                                    window.open(props.values.sourceUrl, '_blank', 'noreferrer');
+                                  }
+                                }}
+                              />
+                            </FormikText>
+                          </Col>
                         </Row>
                       </Show>
                     </Col>

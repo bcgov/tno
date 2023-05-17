@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTags } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, ITagModel, Row } from 'tno-core';
+import { Col, FlexboxTable, FormPage, IconButton, ITagModel, Row } from 'tno-core';
 
 import { columns } from './constants';
 import * as styled from './styled';
-import { TagListFilter } from './TagListFilter';
 
 export const TagList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ tags }, api] = useTags();
 
   const [items, setItems] = React.useState<ITagModel[]>([]);
@@ -36,14 +33,13 @@ export const TagList: React.FC = () => {
             onClick={() => navigate(`/admin/tags/0`)}
           />
         </Row>
-        <GridTable
-          columns={columns}
-          header={TagListFilter}
-          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-          isLoading={!!requests.length}
+        <FlexboxTable
+          rowId="id"
           data={items}
+          columns={columns}
+          showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
+        />
       </FormPage>
     </styled.TagList>
   );

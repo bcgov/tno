@@ -14,7 +14,9 @@ import {
   IContentTagModel,
   IContentTonePoolModel,
   IContentTopicModel,
+  IContributorModel,
   IFileReferenceModel,
+  ISourceModel,
   ITimeTrackingModel,
 } from '.';
 
@@ -25,12 +27,14 @@ export interface IContentModel extends IAuditColumnsModel {
   licenseId: number;
   license?: ILicenseModel;
   sourceId?: number;
-  source?: ISeriesModel;
+  source?: ISourceModel;
   otherSource: string;
   productId: number;
   product?: IProductModel;
   seriesId?: number;
   series?: ISeriesModel;
+  contributorId?: number;
+  contributor?: IContributorModel;
   otherSeries?: string;
   ownerId?: number;
   owner?: IUserModel;
@@ -56,5 +60,6 @@ export interface IContentModel extends IAuditColumnsModel {
   links?: IContentLinkModel[];
 
   // React-Table Properties
+  // TODO: Should not be part of the API interface.
   isSelected?: boolean;
 }

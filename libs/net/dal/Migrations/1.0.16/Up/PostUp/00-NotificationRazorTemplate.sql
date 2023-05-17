@@ -1,6 +1,6 @@
 DO $$
 BEGIN
-
+-- Fixing NotificationOptions implementation
 UPDATE public."notification"
 SET
 	settings=regexp_replace('{ "subject": "@model TNO.Services.Notification.Models.TemplateModel\n

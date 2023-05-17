@@ -1,10 +1,17 @@
 import { makeUserFilter } from 'features/admin/users/utils/makeUserFilter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SortingRule } from 'react-table';
 import { useUsers } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, IconButton, IUserModel, Page, PagedTable, Row } from 'tno-core';
+import {
+  Col,
+  FlexboxTable,
+  IconButton,
+  ITablePage,
+  ITableSort,
+  IUserModel,
+  Page,
+  Row,
+} from 'tno-core';
 
 import { columns } from './constants';
 import { IUserListFilter } from './interfaces/IUserListFilter';
@@ -14,7 +21,6 @@ import { UserFilter } from './UserFilter';
 export const UserList: React.FC = () => {
   const navigate = useNavigate();
   const [{ users, userFilter }, { findUsers, storeFilter }] = useUsers();
-  const [{ requests }] = useApp();
 
   const [filter, setFilter] = React.useState<IUserListFilter>();
   const [page, setPage] = React.useState(
@@ -22,22 +28,21 @@ export const UserList: React.FC = () => {
   );
 
   const handleChangeSort = React.useCallback(
-    (sortBy: SortingRule<IUserModel>[]) => {
-      const sorts = sortBy.map((sb) => ({ id: sb.id, desc: sb.desc }));
-      const same = sorts.every(
-        (val, i) => val.id === userFilter.sort[i]?.id && val.desc === userFilter.sort[i]?.desc,
-      );
-      if (!same) {
-        storeFilter({ ...userFilter, sort: sorts });
-      }
+    (sort: ITableSort<IUserModel>[]) => {
+      const sorts = sort.filter((s) => s.isSorted).map((s) => ({ id: s.id, desc: s.isSortedDesc }));
+      storeFilter({ ...userFilter, sort: sorts });
     },
     [storeFilter, userFilter],
   );
 
   const handleChangePage = React.useCallback(
-    (pi: number, ps?: number) => {
-      if (userFilter.pageIndex !== pi || userFilter.pageSize !== ps) {
-        storeFilter({ ...userFilter, pageIndex: pi, pageSize: ps ?? userFilter.pageSize });
+    (page: ITablePage) => {
+      if (userFilter.pageIndex !== page.pageIndex || userFilter.pageSize !== page.pageSize) {
+        storeFilter({
+          ...userFilter,
+          pageIndex: page.pageIndex,
+          pageSize: page.pageSize ?? userFilter.pageSize,
+        });
       }
     },
     [userFilter, storeFilter],
@@ -78,17 +83,17 @@ export const UserList: React.FC = () => {
           onClick={() => navigate('/admin/users/0')}
         />
       </Row>
-      <PagedTable
+      <UserFilter />
+      <FlexboxTable
+        rowId="id"
+        data={page.items}
         columns={columns}
-        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-        header={UserFilter}
-        sorting={{ sortBy: userFilter.sort }}
-        isLoading={!!requests.length}
-        page={page}
+        showSort={true}
+        manualPaging={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
-        onChangeSort={handleChangeSort}
-        onChangePage={handleChangePage}
-      ></PagedTable>
+        onPageChange={handleChangePage}
+        onSortChange={handleChangeSort}
+      />
     </styled.UserList>
   );
 };

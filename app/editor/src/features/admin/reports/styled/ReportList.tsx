@@ -19,5 +19,9 @@ export const ReportList = styled.div`
 
   div.row {
     cursor: pointer;
+
+    div.column {
+      overflow: hidden;
+    }
   }
 `;

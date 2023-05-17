@@ -1,25 +1,28 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellEllipsis, ITopicModel } from 'tno-core';
+import { CellCheckbox, CellEllipsis, ITableHookColumn, ITopicModel } from 'tno-core';
 
-export const columns: (Column<ITopicModel> &
-  UseSortByColumnOptions<ITopicModel> &
-  UseFiltersColumnOptions<ITopicModel>)[] = [
+export const columns: ITableHookColumn<ITopicModel>[] = [
   {
-    id: 'id',
-    Header: 'Name',
-    accessor: 'name',
+    label: 'Name',
+    name: 'name',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Description',
-    accessor: 'description',
-    width: 3,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    label: 'Description',
+    name: 'description',
+    width: 7,
+    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
-    Header: 'Type',
-    accessor: 'topicType',
+    label: 'Type',
+    name: 'topicType',
+    width: 2,
+    cell: (cell) => <CellEllipsis>{cell.original.topicType}</CellEllipsis>,
+  },
+  {
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];
