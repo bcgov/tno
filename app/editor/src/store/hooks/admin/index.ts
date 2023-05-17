@@ -2,6 +2,7 @@ export * from './useActions';
 export * from './useAlerts';
 export * from './useConnections';
 export * from './useContentReferences';
+export * from './useContributors';
 export * from './useDataLocations';
 export * from './useIngests';
 export * from './useIngestTypes';

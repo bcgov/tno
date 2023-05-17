@@ -1,26 +1,22 @@
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellEllipsis, IIngestTypeModel } from 'tno-core';
+import { CellCheckbox, CellEllipsis, IIngestTypeModel, ITableHookColumn } from 'tno-core';
 
-export const columns: (Column<IIngestTypeModel> &
-  UseSortByColumnOptions<IIngestTypeModel> &
-  UseFiltersColumnOptions<IIngestTypeModel>)[] = [
+export const columns: ITableHookColumn<IIngestTypeModel>[] = [
   {
-    id: 'id',
-    Header: 'Name',
-    accessor: 'name',
+    label: 'Name',
+    name: 'name',
     width: 2,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Description',
-    accessor: 'description',
+    label: 'Description',
+    name: 'description',
     width: 7,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
-    Header: 'Enabled',
-    accessor: 'isEnabled',
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];

@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useActions } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IActionModel, IconButton, Row } from 'tno-core';
+import { Col, FlexboxTable, FormPage, IActionModel, IconButton, Row } from 'tno-core';
 
-import { ActionListFilter } from './ActionListFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
 export const ActionList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ actions }, api] = useActions();
 
   const [items, setItems] = React.useState<IActionModel[]>([]);
@@ -39,14 +36,13 @@ export const ActionList: React.FC = () => {
             onClick={() => navigate(`/admin/actions/0`)}
           />
         </Row>
-        <GridTable
-          columns={columns}
-          header={ActionListFilter}
-          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-          isLoading={!!requests.length}
+        <FlexboxTable
+          rowId="id"
           data={items}
+          columns={columns}
+          showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
+        />
       </FormPage>
     </styled.ActionList>
   );

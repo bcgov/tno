@@ -97,6 +97,11 @@ public class Source : BaseType<int>
     public virtual List<Series> Series { get; } = new List<Series>();
 
     /// <summary>
+    /// get - List of contributors linked to this source.
+    /// </summary>
+    public virtual List<Contributor> Contributors { get; } = new List<Contributor>();
+
+    /// <summary>
     /// get - List of topic score rules linked to this source.
     /// </summary>
     public virtual List<TopicScoreRule> ScoreRules { get; } = new List<TopicScoreRule>();

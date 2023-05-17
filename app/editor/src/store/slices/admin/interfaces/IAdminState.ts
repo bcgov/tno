@@ -4,6 +4,7 @@ import {
   IActionModel,
   IAlertModel,
   IConnectionModel,
+  IContributorModel,
   IDataLocationModel,
   IIngestModel,
   IIngestTypeModel,
@@ -35,6 +36,7 @@ export interface IAdminState {
   alerts: IAlertModel[];
   actions: IActionModel[];
   series: ISeriesModel[];
+  contributors: IContributorModel[];
   licenses: ILicenseModel[];
   workOrderFilter: IWorkOrderListFilter;
   workOrders: IPaged<IWorkOrderModel>;

@@ -29,6 +29,7 @@ export function toForm(model: IContentModel): IContentForm {
     page: model.page,
     ownerId: model.ownerId ?? '',
     seriesId: model.seriesId,
+    contributorId: model.contributorId,
     otherSeries: '',
     publishedOn: model.publishedOn ?? '',
     publishedOnTime: !!model.publishedOn ? moment(model.publishedOn).format('HH:mm:ss') : '',

@@ -47,12 +47,12 @@ public class ContentModel : AuditColumnsModel
     public LicenseModel? License { get; set; }
 
     /// <summary>
-    /// get/set - Foreign key to series.
+    /// get/set - Foreign key to series (program/show).
     /// </summary>
     public int? SeriesId { get; set; }
 
     /// <summary>
-    /// get/set - The content type.
+    /// get/set - The series (program/show).
     /// </summary>
     public SeriesModel? Series { get; set; }
 
@@ -61,6 +61,16 @@ public class ContentModel : AuditColumnsModel
     /// </summary>
     [MaxLength(100)]
     public string? OtherSeries { get; set; }
+
+    /// <summary>
+    /// get/set - Foreign key to contributor.
+    /// </summary>
+    public int? ContributorId { get; set; }
+
+    /// <summary>
+    /// get/set - The contributor.
+    /// </summary>
+    public ContributorModel? Contributor { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to user who owns the content.
@@ -223,6 +233,8 @@ public class ContentModel : AuditColumnsModel
         this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.SeriesId = entity.SeriesId;
         this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
+        this.ContributorId = entity.ContributorId;
+        this.Contributor = entity.Contributor != null ? new ContributorModel(entity.Contributor) : null;
         this.OwnerId = entity.OwnerId;
         this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.SourceId = entity.SourceId;
@@ -264,6 +276,7 @@ public class ContentModel : AuditColumnsModel
             Id = model.Id,
             Status = model.Status,
             SeriesId = model.SeriesId,
+            ContributorId = model.ContributorId,
             Byline = model.Byline,
             Edition = model.Edition,
             Section = model.Section,

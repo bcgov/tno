@@ -1,10 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSources } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, GridTable, IconButton, ISourceModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, ISourceModel, Row } from 'tno-core';
 
-import { SourceFilter } from '.';
 import { columns } from './constants';
 import * as styled from './styled';
 
@@ -13,7 +11,6 @@ interface ISourceListProps {}
 export const SourceList: React.FC<ISourceListProps> = (props) => {
   const navigate = useNavigate();
   const [{ sources }, api] = useSources();
-  const [{ requests }] = useApp();
 
   const [items, setItems] = React.useState<ISourceModel[]>([]);
 
@@ -41,15 +38,13 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
           onClick={() => navigate('/admin/sources/0')}
         />
       </Row>
-      <GridTable
-        columns={columns}
-        isLoading={!!requests.length}
-        sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
+      <FlexboxTable
+        rowId="id"
         data={items}
-        header={SourceFilter}
+        columns={columns}
+        showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
-      ></GridTable>
+      />
     </styled.SourceList>
   );
 };

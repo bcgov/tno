@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, IProductModel, Row } from 'tno-core';
+import { Col, FlexboxTable, FormPage, IconButton, IProductModel, Row } from 'tno-core';
 
 import { columns } from './constants';
-import { ProductListFilter } from './ProductListFilter';
 import * as styled from './styled';
 
 export const ProductList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ products }, api] = useProducts();
 
   const [items, setItems] = React.useState<IProductModel[]>([]);
@@ -38,14 +35,13 @@ export const ProductList: React.FC = () => {
             onClick={() => navigate(`/admin/products/0`)}
           />
         </Row>
-        <GridTable
-          columns={columns}
-          header={ProductListFilter}
-          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-          isLoading={!!requests.length}
+        <FlexboxTable
+          rowId="id"
           data={items}
+          columns={columns}
+          showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
+        />
       </FormPage>
     </styled.ProductList>
   );

@@ -1,10 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConnections } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, GridTable, IconButton, IConnectionModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, IConnectionModel, Row } from 'tno-core';
 
-import { ConnectionListFilter } from './ConnectionListFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
@@ -14,7 +12,6 @@ import * as styled from './styled';
  */
 export const ConnectionList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ connections }, api] = useConnections();
 
   const [items, setItems] = React.useState<IConnectionModel[]>([]);
@@ -43,14 +40,13 @@ export const ConnectionList: React.FC = () => {
           onClick={() => navigate(`/admin/connections/0`)}
         />
       </Row>
-      <GridTable
-        columns={columns}
-        header={ConnectionListFilter}
-        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-        isLoading={!!requests.length}
+      <FlexboxTable
+        rowId="id"
         data={items}
+        columns={columns}
+        showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
-      ></GridTable>
+      />
     </styled.ConnectionList>
   );
 };

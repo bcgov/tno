@@ -10,7 +10,7 @@ public interface IContentService : IBaseService<Content, long>
 {
     IPaged<Content> FindWithDatabase(ContentFilter filter, bool asNoTracking = true);
     Task<IPaged<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(ContentFilter filter);
-    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(JsonDocument filter);
+    Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindWithElasticsearchAsync(string index, JsonDocument filter);
     Content? FindByUid(string uid, string? source);
 
     /// <summary>

@@ -54,6 +54,11 @@ public class LookupModel
     public IEnumerable<Series.SeriesModel> Series { get; set; } = Array.Empty<Series.SeriesModel>();
 
     /// <summary>
+    /// get/set - An array of all contributors.
+    /// </summary>
+    public IEnumerable<Contributor.ContributorModel> Contributors { get; set; } = Array.Empty<Contributor.ContributorModel>();
+
+    /// <summary>
     /// get/set - An array of all source metrics.
     /// </summary>
     public IEnumerable<Metric.MetricModel> Metrics { get; set; } = Array.Empty<Metric.MetricModel>();
@@ -103,6 +108,7 @@ public class LookupModel
     /// <param name="ingestTypes"></param>
     /// <param name="roles"></param>
     /// <param name="series"></param>
+    /// <param name="contributors"></param>
     /// <param name="sourceMetrics"></param>
     /// <param name="tagServices"></param>
     /// <param name="tonePools"></param>
@@ -119,6 +125,7 @@ public class LookupModel
         IEnumerable<Entities.IngestType> ingestTypes,
         IEnumerable<string> roles,
         IEnumerable<Entities.Series> series,
+        IEnumerable<Entities.Contributor> contributors,
         IEnumerable<Entities.Metric> metrics,
         IEnumerable<Entities.Tag> tagServices,
         IEnumerable<Entities.TonePool> tonePools,
@@ -136,6 +143,7 @@ public class LookupModel
         this.IngestTypes = ingestTypes.Select(a => new IngestType.IngestTypeModel(a));
         this.Roles = roles.Select(a => new Role.RoleModel(a));
         this.Series = series.Select(a => new Series.SeriesModel(a));
+        this.Contributors = contributors.Select(a => new Contributor.ContributorModel(a));
         this.Metrics = metrics.Select(a => new Metric.MetricModel(a));
         this.Tags = tagServices.Select(a => new Tag.TagModel(a));
         this.TonePools = tonePools.Select(a => new TonePool.TonePoolModel(a));

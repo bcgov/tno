@@ -26,6 +26,7 @@ export interface IContentForm {
   otherSource: string;
   tempSource: string;
   seriesId?: number;
+  contributorId?: number;
   otherSeries: string;
   page: string;
   summary: string;

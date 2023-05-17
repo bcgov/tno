@@ -43,6 +43,7 @@ public class LookupController : ControllerBase
     private readonly ILicenseService _licenseService;
     private readonly IIngestTypeService _ingestTypeService;
     private readonly ISeriesService _seriesService;
+    private readonly IContributorService _contributorService;
     private readonly IMetricService _metricService;
     private readonly ITagService _tagService;
     private readonly ITonePoolService _tonePoolService;
@@ -66,6 +67,7 @@ public class LookupController : ControllerBase
     /// <param name="licenseService"></param>
     /// <param name="ingestTypeService"></param>
     /// <param name="seriesService"></param>
+    /// <param name="contributorService"></param>
     /// <param name="metricService"></param>
     /// <param name="tagService"></param>
     /// <param name="tonePoolService"></param>
@@ -85,6 +87,7 @@ public class LookupController : ControllerBase
         ILicenseService licenseService,
         IIngestTypeService ingestTypeService,
         ISeriesService seriesService,
+        IContributorService contributorService,
         IMetricService metricService,
         ITagService tagService,
         ITonePoolService tonePoolService,
@@ -104,6 +107,7 @@ public class LookupController : ControllerBase
         _licenseService = licenseService;
         _ingestTypeService = ingestTypeService;
         _seriesService = seriesService;
+        _contributorService = contributorService;
         _metricService = metricService;
         _tagService = tagService;
         _tonePoolService = tonePoolService;
@@ -152,6 +156,7 @@ public class LookupController : ControllerBase
         var ingestTypes = _ingestTypeService.FindAll();
         var roles = (await _CssService.GetRolesAsync()).Select(r => r.Name!);
         var series = _seriesService.FindAll();
+        var contributors = _contributorService.FindAll();
         var metrics = _metricService.FindAll();
         var tagServices = _tagService.FindAll();
         var tonePools = _tonePoolService.FindAll();
@@ -167,6 +172,7 @@ public class LookupController : ControllerBase
             ingestTypes,
             roles,
             series,
+            contributors,
             metrics,
             tagServices,
             tonePools,

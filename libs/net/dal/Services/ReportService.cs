@@ -56,12 +56,13 @@ public class ReportService : BaseService<Report, int>, IReportService
     /// <summary>
     /// Make a request to Elasticsearch to find content for the specified 'report'.
     /// </summary>
+    /// <param name="index"></param>
     /// <param name="report"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(Report report)
+    public async Task<Elastic.Models.SearchResultModel<API.Areas.Services.Models.Content.ContentModel>> FindContentWithElasticsearchAsync(string index, Report report)
     {
-        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(_elasticOptions.UnpublishedIndex, report.Filter);
+        return await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(index, report.Filter);
     }
     #endregion
 }

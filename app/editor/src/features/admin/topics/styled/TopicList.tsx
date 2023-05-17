@@ -84,4 +84,12 @@ export const TopicList = styled.div`
       }
     }
   }
+
+  div.row {
+    cursor: pointer;
+
+    div.column {
+      overflow: hidden;
+    }
+  }
 `;

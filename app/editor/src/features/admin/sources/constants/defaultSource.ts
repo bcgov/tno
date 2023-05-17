@@ -12,7 +12,7 @@ export const defaultSource: ISourceModel = {
   autoTranscribe: false,
   disableTranscribe: false,
   useInTopics: false,
-  configuration: '',
+  configuration: {},
   actions: [],
   metrics: [],
 };

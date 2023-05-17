@@ -1,6 +1,7 @@
 export * from './actions';
 export * from './AdminRouter';
 export * from './connections';
+export * from './contributors';
 export * from './data-locations';
 export * from './ingest-types';
 export * from './ingests';

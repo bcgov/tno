@@ -18,6 +18,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.Property(m => m.LicenseId).IsRequired();
         builder.Property(m => m.ProductId).IsRequired();
         builder.Property(m => m.SeriesId);
+        builder.Property(m => m.ContributorId);
         builder.Property(m => m.Edition).IsRequired().HasMaxLength(100);
         builder.Property(m => m.Section).IsRequired().HasMaxLength(100);
         builder.Property(m => m.Byline).IsRequired().HasMaxLength(500);
@@ -35,6 +36,7 @@ public class ContentConfiguration : AuditColumnsConfiguration<Content>
         builder.HasOne(m => m.Product).WithMany(m => m.Contents).HasForeignKey(m => m.ProductId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.License).WithMany(m => m.Contents).HasForeignKey(m => m.LicenseId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Series).WithMany(m => m.Contents).HasForeignKey(m => m.SeriesId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(m => m.Contributor).WithMany(m => m.Contents).HasForeignKey(m => m.ContributorId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Owner).WithMany(m => m.Contents).HasForeignKey(m => m.OwnerId).OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(m => m.Actions).WithMany(m => m.Contents).UsingEntity<ContentAction>();

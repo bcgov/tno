@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from 'store';
 import {
   IActionModel,
   ICacheModel,
+  IContributorModel,
   IDataLocationModel,
   IHolidayModel,
   IIngestTypeModel,
@@ -23,6 +24,7 @@ import {
 import {
   storeActions,
   storeCache,
+  storeContributors,
   storeDataLocations,
   storeHolidays,
   storeIngestTypes,
@@ -54,6 +56,7 @@ export interface ILookupStore {
   storeIngestTypes: (ingestTypes: IIngestTypeModel[]) => void;
   storeRoles: (roles: IRoleModel[]) => void;
   storeSeries: (series: ISeriesModel[]) => void;
+  storeContributors: (contributors: IContributorModel[]) => void;
   storeSourceActions: (actions: ISourceActionModel[]) => void;
   storeMetrics: (metrics: IMetricModel[]) => void;
   storeTags: (tags: ITagModel[]) => void;
@@ -101,6 +104,9 @@ export const useLookupStore = (): [ILookupState, ILookupStore] => {
       },
       storeSeries: (series: ISeriesModel[]) => {
         dispatch(storeSeries(series));
+      },
+      storeContributors: (contributors: IContributorModel[]) => {
+        dispatch(storeContributors(contributors));
       },
       storeSourceActions: (actions: ISourceActionModel[]) => {
         dispatch(storeSourceActions(actions));

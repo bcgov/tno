@@ -3,18 +3,17 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTopics } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
 import {
   Button,
   ButtonVariant,
   Col,
   FieldSize,
+  FlexboxTable,
   FormikSelect,
   FormikText,
   FormikTextArea,
   FormPage,
   getEnumStringOptions,
-  GridTable,
   ITopicModel,
   Modal,
   Row,
@@ -34,7 +33,6 @@ import { TopicSchema } from './validation/TopicSchema';
 export const TopicList: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [{ requests }] = useApp();
   const { toggle, isShowing } = useModal();
   const [, api] = useTopics();
 
@@ -92,17 +90,13 @@ export const TopicList: React.FC = () => {
     <styled.TopicList>
       <FormPage>
         <Col flex="2 1 0">
-          <GridTable
-            columns={columns}
-            isLoading={!!requests.length}
+          <FlexboxTable
+            rowId="id"
             data={items}
-            paging={{
-              manualPagination: true,
-              type: 'hide',
-              pageSizeOptions: { show: false },
-            }}
+            columns={columns}
+            showSort={true}
             onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
-          ></GridTable>
+          />
         </Col>
         <Col flex="1 1 0">
           <FormikForm

@@ -1,5 +1,6 @@
 import {
   IActionModel,
+  IContributorModel,
   IDataLocationModel,
   IHolidayModel,
   IIngestTypeModel,
@@ -27,6 +28,7 @@ export interface ILookupModel {
   ingestTypes: IIngestTypeModel[];
   roles: IRoleModel[];
   series: ISeriesModel[];
+  contributors: IContributorModel[];
   sourceActions: ISourceActionModel[];
   metrics: IMetricModel[];
   tags: ITagModel[];

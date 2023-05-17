@@ -21,6 +21,7 @@ export function toModel(values: IContentForm): IContentModel {
     licenseId: values.licenseId,
     ownerId: !!values.ownerId ? values.ownerId : undefined,
     seriesId: values.seriesId,
+    contributorId: values.contributorId,
     otherSeries: values.otherSeries,
     sourceId: values.sourceId,
     otherSource: values.otherSource,

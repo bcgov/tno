@@ -1,12 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngests } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, IconButton, IIngestModel, Row } from 'tno-core';
-import { GridTable } from 'tno-core/dist/components/grid-table';
+import { Col, FlexboxTable, IconButton, IIngestModel, Row } from 'tno-core';
 
-import { IngestFilter } from '.';
 import { columns } from './constants';
+import { IngestFilter } from './IngestFilter';
 import * as styled from './styled';
 
 interface IIngestListProps {}
@@ -14,7 +12,6 @@ interface IIngestListProps {}
 export const IngestList: React.FC<IIngestListProps> = (props) => {
   const navigate = useNavigate();
   const [{ ingests }, api] = useIngests();
-  const [{ requests }] = useApp();
 
   const [items, setItems] = React.useState<IIngestModel[]>([]);
 
@@ -42,15 +39,31 @@ export const IngestList: React.FC<IIngestListProps> = (props) => {
           onClick={() => navigate('/admin/ingests/0')}
         />
       </Row>
-      <GridTable
-        columns={columns}
-        isLoading={!!requests.length}
-        sorting={{ sortBy: [{ id: 'id', desc: false }] }}
-        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
+      <IngestFilter
+        setGlobalFilter={(filter) => {
+          if (filter && filter.length) {
+            const value = filter.toLocaleLowerCase();
+            setItems(
+              ingests.filter(
+                (i) =>
+                  i.name.toLocaleLowerCase().includes(value) ||
+                  i.source?.code.toLocaleLowerCase().includes(value) ||
+                  i.description.toLocaleLowerCase().includes(value) ||
+                  i.ingestType?.name.toLocaleLowerCase().includes(value),
+              ),
+            );
+          } else {
+            setItems(ingests);
+          }
+        }}
+      />
+      <FlexboxTable
+        rowId="id"
         data={items}
-        header={IngestFilter}
+        columns={columns}
+        showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
-      ></GridTable>
+      />
     </styled.IngestList>
   );
 };

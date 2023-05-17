@@ -40,6 +40,7 @@ export const ReportList: React.FC = () => {
           rowId="id"
           data={items}
           columns={columns}
+          showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
         />
       </FormPage>

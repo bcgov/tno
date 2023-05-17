@@ -1,16 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSeries } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, FormPage, GridTable, IconButton, ISeriesModel, Row } from 'tno-core';
+import { Col, FlexboxTable, FormPage, IconButton, ISeriesModel, Row } from 'tno-core';
 
 import { columns } from './constants';
-import { SeriesListFilter } from './SeriesListFilter';
 import * as styled from './styled';
 
 export const SeriesList: React.FC = () => {
   const navigate = useNavigate();
-  const [{ requests }] = useApp();
   const [{ series }, api] = useSeries();
 
   const [items, setItems] = React.useState<ISeriesModel[]>([]);
@@ -39,14 +36,13 @@ export const SeriesList: React.FC = () => {
             onClick={() => navigate(`/admin/programs/0`)}
           />
         </Row>
-        <GridTable
-          columns={columns}
-          header={SeriesListFilter}
-          paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-          isLoading={!!requests.length}
+        <FlexboxTable
+          rowId="id"
           data={items}
+          columns={columns}
+          showSort={true}
           onRowClick={(row) => navigate(`${row.original.id}`)}
-        ></GridTable>
+        />
       </FormPage>
     </styled.SeriesList>
   );

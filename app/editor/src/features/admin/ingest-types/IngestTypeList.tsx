@@ -1,17 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIngestTypes } from 'store/hooks/admin';
-import { useApp } from 'store/hooks/app/useApp';
-import { Col, GridTable, IconButton, IIngestTypeModel, Row } from 'tno-core';
+import { Col, FlexboxTable, IconButton, IIngestTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';
-import { IngestTypeFilter } from './IngestTypeFilter';
 import * as styled from './styled';
 
 export const IngestTypeList: React.FC = () => {
   const navigate = useNavigate();
   const [{ ingestTypes }, api] = useIngestTypes();
-  const [{ requests }] = useApp();
 
   const [items, setItems] = React.useState<IIngestTypeModel[]>([]);
 
@@ -38,14 +35,13 @@ export const IngestTypeList: React.FC = () => {
           onClick={() => navigate('/admin/ingest/types/0')}
         />
       </Row>
-      <GridTable
-        columns={columns}
-        header={IngestTypeFilter}
-        paging={{ pageSizeOptions: { fromLocalStorage: true } }}
-        isLoading={!!requests.length}
+      <FlexboxTable
+        rowId="id"
         data={items}
+        columns={columns}
+        showSort={true}
         onRowClick={(row) => navigate(`${row.original.id}`)}
-      ></GridTable>
+      />
     </styled.IngestTypeList>
   );
 };

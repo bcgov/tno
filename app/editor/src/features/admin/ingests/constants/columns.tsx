@@ -1,59 +1,55 @@
 import moment from 'moment';
-import { Column, UseFiltersColumnOptions, UseSortByColumnOptions } from 'react-table';
-import { CellCheckbox, CellDate, CellEllipsis, IIngestModel } from 'tno-core';
+import { CellCheckbox, CellDate, CellEllipsis, IIngestModel, ITableHookColumn } from 'tno-core';
 
-export const columns: (Column<IIngestModel> &
-  UseSortByColumnOptions<IIngestModel> &
-  UseFiltersColumnOptions<IIngestModel>)[] = [
+export const columns: ITableHookColumn<IIngestModel>[] = [
   {
-    id: 'id',
-    Header: 'Ingest',
-    accessor: 'name',
-    width: 3,
-    Cell: ({ value }) => <CellEllipsis>{value}</CellEllipsis>,
+    label: 'Name',
+    name: 'name',
+    width: 2,
+    cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
-    Header: 'Source',
+    label: 'Source',
+    name: 'source.code',
     width: 1,
-    accessor: (row) => row.source?.code,
-    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.source?.code}</CellEllipsis>,
   },
   {
-    Header: 'Type',
-    width: 1,
-    accessor: (row) => row.ingestType?.name,
-    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
+    label: 'Description',
+    name: 'description',
+    width: 7,
+    cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
-    Header: 'Product',
+    label: 'Type',
+    name: 'ingestTypeId',
     width: 1,
-    accessor: (row) => row.product?.name,
-    Cell: ({ value }: any) => <CellEllipsis>{value}</CellEllipsis>,
+    cell: (cell) => <CellEllipsis>{cell.original.ingestType?.name}</CellEllipsis>,
   },
   {
-    Header: 'Status',
+    label: 'Status',
+    name: 'status',
     width: 1,
-    accessor: (row) => {
-      if (row.failedAttempts >= row.retryLimit) return 'Failed';
-      else if (!row.isEnabled) return 'Disabled';
-      else if (!row.lastRanOn) return 'Not Running';
+    cell: (cell) => {
+      if (cell.original.failedAttempts >= cell.original.retryLimit) return 'Failed';
+      else if (!cell.original.isEnabled) return 'Disabled';
+      else if (!cell.original.lastRanOn) return 'Not Running';
 
       const lastDelay = moment();
-      const lastRanOn = moment(row.lastRanOn).add(5, 'minutes');
+      const lastRanOn = moment(cell.original.lastRanOn).add(5, 'minutes');
       return lastRanOn.isValid() && lastRanOn >= lastDelay ? 'Running' : 'Sleeping';
     },
   },
   {
-    Header: 'Last Run',
-    accessor: 'lastRanOn',
+    label: 'Last Run',
+    name: 'lastRanOn',
     width: 2,
-    Cell: (cell) => <CellDate value={cell.value} format="MM/DD/YYYY HH:mm:SS A" />,
+    cell: (cell) => <CellDate value={cell.original.lastRanOn} format="MM/DD/YYYY HH:mm:SS A" />,
   },
   {
-    Header: 'Enabled',
-    accessor: 'isEnabled',
+    label: 'Enabled',
+    name: 'isEnabled',
     width: 1,
-    sortType: 'basic',
-    Cell: (cell) => <CellCheckbox checked={cell.value} />,
+    cell: (cell) => <CellCheckbox checked={cell.original.isEnabled} />,
   },
 ];
