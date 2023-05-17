@@ -12,15 +12,16 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="2.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.5" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
-    <PackageReference Include="Confluent.Kafka" Version="2.0.2" />
+    <PackageReference Include="Confluent.Kafka" Version="2.1.1" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
     <PackageReference Include="SSH.NET" Version="2020.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\core\TNO.Core.csproj" />
+    <ProjectReference Include="..\elastic\TNO.Elastic.csproj" />
     <ProjectReference Include="..\kafka\TNO.Kafka.csproj" />
     <ProjectReference Include="..\models\TNO.Models.csproj" />
   </ItemGroup>

@@ -77,7 +77,6 @@ export const ReportForm: React.FC = () => {
 
   const handleSend = async (values: IReportModel, to: string) => {
     try {
-      console.debug(values, to);
       await api.sendReport(values, to);
       toast.success('Report has been successfully requested');
     } catch {}
