@@ -95,7 +95,8 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                     await FetchContent(manager.Ingest, item, link);
                 }
                 else if ((reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddHours(1) < DateTime.UtcNow) ||
-                        (reference.Status != (int)WorkflowStatus.InProgress
+                        (reference.Status != (int)WorkflowStatus.InProgress &&
+                         reference.Status != (int)WorkflowStatus.Received
                             && item.PublishDate.UtcDateTime != DateTime.MinValue
                             && (reference.PublishedOn != item.PublishDate.UtcDateTime
                                 || (item.LastUpdatedTime.UtcDateTime != DateTime.MinValue
