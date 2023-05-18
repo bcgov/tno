@@ -315,7 +315,7 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
-            if(index == "published")
+            if(index == _elasticOptions.PublishedIndex)
                 s.Index(_elasticOptions.PublishedIndex);
             else
                 s.Index(_elasticOptions.UnpublishedIndex);
