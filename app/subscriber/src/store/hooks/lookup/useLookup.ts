@@ -2,9 +2,9 @@ import React from 'react';
 import { useLookupStore } from 'store/slices';
 import { ILookupState } from 'store/slices/lookup';
 import {
+  getFromLocalStorage,
   IActionModel,
   ICacheModel,
-  getFromLocalStorage,
   IContributorModel,
   IDataLocationModel,
   IHolidayModel,
