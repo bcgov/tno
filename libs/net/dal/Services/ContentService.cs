@@ -315,13 +315,11 @@ public class ContentService : BaseService<Content, long>, IContentService
 
         var response = await _client.SearchAsync<API.Areas.Services.Models.Content.ContentModel>(s =>
         {
-            if(index == _elasticOptions.PublishedIndex)
-                s.Index(_elasticOptions.PublishedIndex);
-            else
-                s.Index(_elasticOptions.UnpublishedIndex);
+
 
             var result = s
                 .Pretty()
+                .Index(index)
                 .From((filter.Page - 1) * filter.Quantity)
                 .Size(filter.Quantity);
 
