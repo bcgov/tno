@@ -1,8 +1,15 @@
+import 'prismjs/themes/prism.css';
+import 'prismjs/components/prism-csharp';
+import 'prismjs/components/prism-cshtml';
+import 'prismjs/components/prism-json';
+
 import { FormikForm } from 'components/formik';
 import { noop } from 'lodash';
 import moment from 'moment';
+import { highlight, languages } from 'prismjs';
 import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
 import { useApp } from 'store/hooks';
 import { useReports } from 'store/hooks/admin';
@@ -26,7 +33,6 @@ import {
   Row,
   Show,
   Text,
-  TextArea,
   useModal,
 } from 'tno-core';
 
@@ -48,7 +54,7 @@ export const ReportForm: React.FC = () => {
   const [report, setReport] = React.useState<IReportModel>(
     (state as any)?.report ?? { ...defaultReport, ownerId: userInfo?.id ?? 0 },
   );
-  const [filter, setFilter] = React.useState(JSON.stringify(report.filter));
+  const [filter, setFilter] = React.useState(JSON.stringify(report.filter, null, 2));
   const [sendTo, setSendTo] = React.useState('');
 
   const reportId = Number(id);
@@ -59,7 +65,7 @@ export const ReportForm: React.FC = () => {
       setReport({ ...defaultReport, id: reportId }); // Do this to stop double fetch.
       api.getReport(reportId).then((data) => {
         setReport(data);
-        setFilter(JSON.stringify(data.filter));
+        setFilter(JSON.stringify(data.filter, null, 2));
       });
     }
   }, [api, report?.id, reportId]);
@@ -69,7 +75,7 @@ export const ReportForm: React.FC = () => {
       const originalId = values.id;
       const result = !report.id ? await api.addReport(values) : await api.updateReport(values);
       setReport(result);
-      setFilter(JSON.stringify(result.filter));
+      setFilter(JSON.stringify(result.filter, null, 2));
       toast.success(`${result.name} has successfully been saved.`);
       if (!originalId) navigate(`/admin/reports/${result.id}`);
     } catch {}
@@ -114,24 +120,50 @@ export const ReportForm: React.FC = () => {
                   setFieldValue('reportType', option.value);
                 }}
               />
-              <FormikTextArea name="settings.subject" label="Subject Razor Template" />
               <Show visible={values.reportType === ReportTypeName.Filter}>
-                <TextArea
-                  name="filter"
-                  label="Elasticsearch Filter"
-                  tooltip="Elasticsearch query statement"
-                  value={filter}
-                  onChange={(e) => {
-                    setFilter(e.target.value);
-                    setFieldValue('filter', JSON.parse(e.target.value));
-                  }}
-                />
+                <Col className="code frm-in">
+                  <label htmlFor="txa-filter">Elasticsearch Filter</label>
+                  <Col className="editor">
+                    <Editor
+                      id="txa-filter"
+                      value={filter}
+                      onValueChange={(code) => {
+                        setFilter(code);
+                        setFieldValue('filter', JSON.parse(code));
+                      }}
+                      highlight={(code) => {
+                        return highlight(code, languages.json, 'json');
+                      }}
+                    />
+                  </Col>
+                </Col>
               </Show>
-              <FormikTextArea
-                name="template"
-                label="Razor Template"
-                tooltip="Razor syntax template"
-              />
+              <Col className="code frm-in">
+                <label htmlFor="txa-subject">Subject Template</label>
+                <Col className="editor">
+                  <Editor
+                    id="txa-subject"
+                    value={values.settings.subject ?? ''}
+                    onValueChange={(code) => setFieldValue('settings.subject', code)}
+                    highlight={(code) => {
+                      return highlight(code, languages.cshtml, 'razor');
+                    }}
+                  />
+                </Col>
+              </Col>
+              <Col className="code frm-in">
+                <label htmlFor="txa-template">Report Template</label>
+                <Col className="editor">
+                  <Editor
+                    id="txa-template"
+                    value={values.template}
+                    onValueChange={(code) => setFieldValue('template', code)}
+                    highlight={(code) => {
+                      return highlight(code, languages.cshtml, 'razor');
+                    }}
+                  />
+                </Col>
+              </Col>
               <Row>
                 <Col>
                   <Row gap="1rem">

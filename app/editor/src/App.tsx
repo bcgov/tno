@@ -1,5 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-tooltip/dist/react-tooltip.css';
+import 'prismjs';
 
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { LayoutAnonymous } from 'components/layout';

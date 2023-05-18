@@ -10,7 +10,7 @@ public class HitsModel<T>
     public TotalModel Total { get; set; } = new TotalModel();
 
     [JsonPropertyName("max_score")]
-    public float MaxScore { get; set; }
+    public float? MaxScore { get; set; }
 
     [JsonPropertyName("hits")]
     public IEnumerable<HitModel<T>> Hits { get; set; } = Array.Empty<HitModel<T>>();

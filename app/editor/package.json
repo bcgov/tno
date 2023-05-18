@@ -31,6 +31,7 @@
     "lodash.throttle": "4.1.1",
     "moment": "2.29.4",
     "moment-timezone": "0.5.41",
+    "prismjs": "1.29.0",
     "react": "18.2.0",
     "react-datepicker": "4.10.0",
     "react-dom": "18.2.0",
@@ -45,6 +46,7 @@
     "react-router-dom": "6.9.0",
     "react-scripts": "5.0.1",
     "react-select": "5.7.0",
+    "react-simple-code-editor": "0.13.1",
     "react-table": "7.8.0",
     "react-text-mask": "5.5.0",
     "react-toastify": "9.1.1",
@@ -65,6 +67,7 @@
     "@types/lodash.throttle": "4.1.7",
     "@types/node": "18.15.3",
     "@types/pretty": "2.0.1",
+    "@types/prismjs": "1.26.0",
     "@types/react": "18.0.28",
     "@types/react-datepicker": "4.10.0",
     "@types/react-dom": "18.0.11",
@@ -76,6 +79,7 @@
     "@types/styled-components": "5.1.26",
     "@typescript-eslint/eslint-plugin": "5.55.0",
     "@typescript-eslint/parser": "5.55.0",
+    "babel-plugin-prismjs": "2.1.0",
     "compression-webpack-plugin": "10.0.0",
     "eslint": "8.36.0",
     "eslint-config-prettier": "8.7.0",
@@ -133,7 +137,29 @@
     ],
     "plugins": [
       "@babel/proposal-class-properties",
-      "@babel/plugin-transform-runtime"
+      "@babel/plugin-transform-runtime",
+      [
+        "prismjs",
+        {
+          "languages": [
+            "javascript",
+            "js-extras",
+            "css",
+            "css-extras",
+            "markup",
+            "csharp",
+            "cshtml",
+            "razor"
+          ],
+          "plugins": [
+            "line-numbers",
+            "show-language",
+            "copy-to-clipboard"
+          ],
+          "theme": "twilight",
+          "css": true
+        }
+      ]
     ]
   },
   "browserslist": {
