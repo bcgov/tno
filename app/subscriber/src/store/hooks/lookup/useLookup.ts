@@ -2,6 +2,7 @@ import React from 'react';
 import { useLookupStore } from 'store/slices';
 import { ILookupState } from 'store/slices/lookup';
 import {
+  getFromLocalStorage,
   IActionModel,
   ICacheModel,
   IContributorModel,
@@ -40,7 +41,6 @@ import {
   useApiTopicScoreRules,
   useApiUsers,
 } from 'tno-core';
-import { getFromLocalStorage } from 'utils';
 
 import { useAjaxWrapper } from '..';
 import { fetchIfNoneMatch, saveToLocalStorage } from './utils';

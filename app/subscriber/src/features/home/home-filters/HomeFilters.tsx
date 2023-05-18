@@ -1,6 +1,5 @@
 import React from 'react';
-import { useContent } from 'store/hooks';
-import { useSources } from 'store/hooks/admin';
+import { useContent, useLookup } from 'store/hooks';
 import { Button, ButtonHeight, ButtonVariant, ContentTypeName } from 'tno-core';
 
 import { HomeFilterType } from '../constants';
@@ -16,7 +15,7 @@ export interface IHomeFilterProps {}
 export const HomeFilters: React.FC<IHomeFilterProps> = () => {
   const [active, setActive] = React.useState<HomeFilterType>(HomeFilterType.Papers);
   const [{ filter }, { storeFilter }] = useContent();
-  const [{ sources }] = useSources();
+  const [{ sources }] = useLookup();
 
   const handleFilterClick = (type: HomeFilterType) => {
     setActive(type);
