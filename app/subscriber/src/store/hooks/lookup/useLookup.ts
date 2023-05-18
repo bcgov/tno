@@ -4,6 +4,7 @@ import { ILookupState } from 'store/slices/lookup';
 import {
   IActionModel,
   ICacheModel,
+  getFromLocalStorage,
   IContributorModel,
   IDataLocationModel,
   IHolidayModel,
@@ -40,7 +41,6 @@ import {
   useApiTopicScoreRules,
   useApiUsers,
 } from 'tno-core';
-import { getFromLocalStorage } from 'utils';
 
 import { useAjaxWrapper } from '..';
 import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
