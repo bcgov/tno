@@ -20,6 +20,7 @@ using System.Text.Json;
 using TNO.API.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using TNO.Keycloak;
+using TNO.Elastic;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -51,6 +52,8 @@ public class ContentController : ControllerBase
     private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly ILogger _logger;
+    private readonly ElasticOptions _elasticOptions;
+
     #endregion
 
     #region Constructors
@@ -68,6 +71,7 @@ public class ContentController : ControllerBase
     /// <param name="kafkaMessenger"></param>
     /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
+    /// <param name="elasticOptions"></param>
     /// <param name="logger"></param>
     public ContentController(
         IContentService contentService,
@@ -81,6 +85,7 @@ public class ContentController : ControllerBase
         IKafkaMessenger kafkaMessenger,
         IOptions<KafkaOptions> kafkaOptions,
         IOptions<JsonSerializerOptions> serializerOptions,
+        IOptions<ElasticOptions> elasticOptions,
         ILogger<ContentController> logger)
     {
         _contentService = contentService;
@@ -94,6 +99,7 @@ public class ContentController : ControllerBase
         _kafkaMessenger = kafkaMessenger;
         _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
+        _elasticOptions = elasticOptions.Value;
         _logger = logger;
     }
     #endregion
@@ -113,7 +119,7 @@ public class ContentController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
-        var result = await _contentService.FindWithElasticsearchAsync(filter);
+        var result = await _contentService.FindWithElasticsearchAsync(_elasticOptions.PublishedIndex, filter);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,
             result.Page,
