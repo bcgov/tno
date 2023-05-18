@@ -75,7 +75,7 @@ namespace TNO.Elastic
         public async Task<SearchResultModel<T>> SearchAsync<T>(string index, JsonDocument query)
             where T : class
         {
-            var url = this.Options.Url!.Append($"/{index}/_search");
+            var url = this.Options.Url!.Append($"/{index}/_search?pretty=true&typed_keys=true");
             var content = JsonContent.Create(query);
             var response = await this.Client.PostAsync<SearchResultModel<T>>(url, content);
             return response ?? new SearchResultModel<T>();

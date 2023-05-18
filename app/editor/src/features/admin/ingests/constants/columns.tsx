@@ -17,7 +17,7 @@ export const columns: ITableHookColumn<IIngestModel>[] = [
   {
     label: 'Description',
     name: 'description',
-    width: 7,
+    width: 3,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {
@@ -43,7 +43,7 @@ export const columns: ITableHookColumn<IIngestModel>[] = [
   {
     label: 'Last Run',
     name: 'lastRanOn',
-    width: 2,
+    width: 3,
     cell: (cell) => <CellDate value={cell.original.lastRanOn} format="MM/DD/YYYY HH:mm:SS A" />,
   },
   {
