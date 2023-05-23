@@ -4,6 +4,7 @@ import { useLicenses } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, ILicenseModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { LicenseFilter } from './LicenseFilter';
 import * as styled from './styled';
 
 export const LicenseList: React.FC = () => {
@@ -35,6 +36,23 @@ export const LicenseList: React.FC = () => {
             onClick={() => navigate(`/admin/licences/0`)}
           />
         </Row>
+        <LicenseFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                licenses.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value) ||
+                    `${i.ttl}`.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(licenses);
+            }
+          }}
+        />
         <FlexboxTable
           rowId="id"
           data={items}

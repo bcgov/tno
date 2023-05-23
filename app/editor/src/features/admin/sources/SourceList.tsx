@@ -4,6 +4,7 @@ import { useSources } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, ISourceModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { SourceFilter } from './SourceFilter';
 import * as styled from './styled';
 
 interface ISourceListProps {}
@@ -38,6 +39,23 @@ export const SourceList: React.FC<ISourceListProps> = (props) => {
           onClick={() => navigate('/admin/sources/0')}
         />
       </Row>
+      <SourceFilter
+        onFilterChange={(filter) => {
+          if (filter && filter.length) {
+            const value = filter.toLocaleLowerCase();
+            setItems(
+              sources.filter(
+                (i) =>
+                  i.name.toLocaleLowerCase().includes(value) ||
+                  i.description.toLocaleLowerCase().includes(value) ||
+                  i.code.toLocaleLowerCase().includes(value),
+              ),
+            );
+          } else {
+            setItems(sources);
+          }
+        }}
+      />
       <FlexboxTable
         rowId="id"
         data={items}

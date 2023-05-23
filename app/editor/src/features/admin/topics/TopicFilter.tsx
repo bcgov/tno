@@ -2,17 +2,17 @@ import React from 'react';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface IAdminFilterProps {
-  setGlobalFilter: (filterValue: any) => void;
+  onFilterChange: (value: string) => void;
 }
 
-export const ProductListFilter: React.FC<IAdminFilterProps> = ({ setGlobalFilter }) => {
+export const TopicFilter: React.FC<IAdminFilterProps> = ({ onFilterChange }) => {
   const [filter, setFilter] = React.useState<string>('');
   return (
     <Row className="filter-bar" justifyContent="center">
       <Text
         onChange={(e) => {
           setFilter(e.target.value);
-          setGlobalFilter(e.target.value);
+          onFilterChange(e.target.value);
         }}
         placeholder="Search by keyword"
         name="search"
@@ -22,7 +22,7 @@ export const ProductListFilter: React.FC<IAdminFilterProps> = ({ setGlobalFilter
         iconType="reset"
         onClick={() => {
           setFilter('');
-          setGlobalFilter('');
+          onFilterChange('');
         }}
       />
     </Row>

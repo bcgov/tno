@@ -5,6 +5,7 @@ import { Col, FlexboxTable, FormPage, IconButton, ITagModel, Row } from 'tno-cor
 
 import { columns } from './constants';
 import * as styled from './styled';
+import { TagFilter } from './TagFilter';
 
 export const TagList: React.FC = () => {
   const navigate = useNavigate();
@@ -33,6 +34,23 @@ export const TagList: React.FC = () => {
             onClick={() => navigate(`/admin/tags/0`)}
           />
         </Row>
+        <TagFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                tags.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value) ||
+                    i.code.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(tags);
+            }
+          }}
+        />
         <FlexboxTable
           rowId="id"
           data={items}

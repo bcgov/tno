@@ -2,11 +2,12 @@ import React from 'react';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface IIngestFilterProps {
-  setGlobalFilter: (filterValue: any) => void;
+  onFilterChange: (value: string) => void;
 }
 
-export const IngestFilter: React.FC<IIngestFilterProps> = ({ setGlobalFilter }) => {
+export const IngestFilter = ({ onFilterChange }: IIngestFilterProps) => {
   const [filter, setFilter] = React.useState<string>('');
+
   return (
     <Row className="filter" justifyContent="center">
       <Text
@@ -14,7 +15,7 @@ export const IngestFilter: React.FC<IIngestFilterProps> = ({ setGlobalFilter }) 
         placeholder="Search by keyword"
         onChange={(e) => {
           setFilter(e.target.value);
-          setGlobalFilter(e.target.value);
+          onFilterChange(e.target.value);
         }}
         value={filter}
       />
@@ -22,7 +23,7 @@ export const IngestFilter: React.FC<IIngestFilterProps> = ({ setGlobalFilter }) 
         iconType="reset"
         onClick={() => {
           setFilter('');
-          setGlobalFilter('');
+          onFilterChange('');
         }}
       />
     </Row>

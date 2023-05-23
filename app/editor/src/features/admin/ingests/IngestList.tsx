@@ -40,7 +40,7 @@ export const IngestList: React.FC<IIngestListProps> = (props) => {
         />
       </Row>
       <IngestFilter
-        setGlobalFilter={(filter) => {
+        onFilterChange={(filter) => {
           if (filter && filter.length) {
             const value = filter.toLocaleLowerCase();
             setItems(

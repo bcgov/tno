@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useConnections } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, IConnectionModel, Row } from 'tno-core';
 
+import { ConnectionFilter } from './ConnectionFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
@@ -40,6 +41,23 @@ export const ConnectionList: React.FC = () => {
           onClick={() => navigate(`/admin/connections/0`)}
         />
       </Row>
+      <ConnectionFilter
+        onFilterChange={(filter) => {
+          if (filter && filter.length) {
+            const value = filter.toLocaleLowerCase();
+            setItems(
+              connections.filter(
+                (i) =>
+                  i.name.toLocaleLowerCase().includes(value) ||
+                  i.description.toLocaleLowerCase().includes(value) ||
+                  i.connectionType.toLocaleLowerCase().includes(value),
+              ),
+            );
+          } else {
+            setItems(connections);
+          }
+        }}
+      />
       <FlexboxTable
         rowId="id"
         data={items}
