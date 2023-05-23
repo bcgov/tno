@@ -4,6 +4,7 @@ import { useIngestTypes } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, IIngestTypeModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { IngestTypeFilter } from './IngestTypeFilter';
 import * as styled from './styled';
 
 export const IngestTypeList: React.FC = () => {
@@ -35,6 +36,22 @@ export const IngestTypeList: React.FC = () => {
           onClick={() => navigate('/admin/ingest/types/0')}
         />
       </Row>
+      <IngestTypeFilter
+        onFilterChange={(filter) => {
+          if (filter && filter.length) {
+            const value = filter.toLocaleLowerCase();
+            setItems(
+              ingestTypes.filter(
+                (i) =>
+                  i.name.toLocaleLowerCase().includes(value) ||
+                  i.description.toLocaleLowerCase().includes(value),
+              ),
+            );
+          } else {
+            setItems(ingestTypes);
+          }
+        }}
+      />
       <FlexboxTable
         rowId="id"
         data={items}

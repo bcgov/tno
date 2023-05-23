@@ -4,6 +4,7 @@ import { useDataLocations } from 'store/hooks/admin';
 import { Col, FlexboxTable, IconButton, IDataLocationModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { DataLocationFilter } from './DataLocationFilter';
 import * as styled from './styled';
 
 export const DataLocationList: React.FC = () => {
@@ -35,6 +36,22 @@ export const DataLocationList: React.FC = () => {
           onClick={() => navigate(`/admin/data/locations/0`)}
         />
       </Row>
+      <DataLocationFilter
+        onFilterChange={(filter) => {
+          if (filter && filter.length) {
+            const value = filter.toLocaleLowerCase();
+            setItems(
+              dataLocations.filter(
+                (i) =>
+                  i.name.toLocaleLowerCase().includes(value) ||
+                  i.description.toLocaleLowerCase().includes(value),
+              ),
+            );
+          } else {
+            setItems(dataLocations);
+          }
+        }}
+      />
       <FlexboxTable
         rowId="id"
         data={items}

@@ -25,6 +25,7 @@ import {
 
 import { columns, defaultTopic } from './constants';
 import * as styled from './styled';
+import { TopicFilter } from './TopicFilter';
 import { TopicSchema } from './validation/TopicSchema';
 
 /**
@@ -39,6 +40,7 @@ export const TopicList: React.FC = () => {
   const [, api] = useTopics();
 
   const [loading, setLoading] = React.useState(false);
+  const [topics, setTopics] = React.useState<ITopicModel[]>([]);
   const [items, setItems] = React.useState<ITopicModel[]>([]);
   const [topic, setTopic] = React.useState<ITopicModel>(defaultTopic);
 
@@ -51,6 +53,7 @@ export const TopicList: React.FC = () => {
       api
         .findAllTopics()
         .then((data) => {
+          setTopics(data.filter((t) => t.id !== 1));
           setItems(data.filter((t) => t.id !== 1));
         })
         .finally(() => {
@@ -85,17 +88,36 @@ export const TopicList: React.FC = () => {
     <styled.TopicList>
       <FormPage>
         <Col flex="2 1 0">
-          <FlexboxTable
-            rowId="id"
-            data={items}
-            columns={columns}
-            showSort={true}
-            activeRowId={id}
-            onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
-            showPaging={false}
-            manualPaging={true}
-            pageSize={items.length}
-          />
+          <Col>
+            <TopicFilter
+              onFilterChange={(filter) => {
+                if (filter && filter.length) {
+                  const value = filter.toLocaleLowerCase();
+                  setItems(
+                    topics.filter(
+                      (i) =>
+                        i.name.toLocaleLowerCase().includes(value) ||
+                        i.description.toLocaleLowerCase().includes(value) ||
+                        i.topicType.toLocaleLowerCase().includes(value),
+                    ),
+                  );
+                } else {
+                  setItems(topics);
+                }
+              }}
+            />
+            <FlexboxTable
+              rowId="id"
+              data={items}
+              columns={columns}
+              showSort={true}
+              activeRowId={id}
+              onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
+              showPaging={false}
+              manualPaging={true}
+              pageSize={items.length}
+            />
+          </Col>
         </Col>
         <Col flex="1 1 0" className="form">
           <FormikForm

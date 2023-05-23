@@ -4,6 +4,7 @@ import { useContributors } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, IContributorModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { ContributorFilter } from './ContributorFilter';
 import * as styled from './styled';
 
 export const ContributorList: React.FC = () => {
@@ -33,6 +34,24 @@ export const ContributorList: React.FC = () => {
             onClick={() => navigate(`/admin/contributors/0`)}
           />
         </Row>
+        <ContributorFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                contributors.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value) ||
+                    i.source?.name.toLocaleLowerCase().includes(value) ||
+                    i.source?.code.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(contributors);
+            }
+          }}
+        />
         <FlexboxTable
           rowId="id"
           data={items}

@@ -4,6 +4,7 @@ import { useReports } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, IReportModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { ReportFilter } from './ReportFilter';
 import * as styled from './styled';
 
 export const ReportList: React.FC = () => {
@@ -36,6 +37,22 @@ export const ReportList: React.FC = () => {
             onClick={() => navigate(`/admin/reports/0`)}
           />
         </Row>
+        <ReportFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                reports.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(reports);
+            }
+          }}
+        />
         <FlexboxTable
           rowId="id"
           data={items}

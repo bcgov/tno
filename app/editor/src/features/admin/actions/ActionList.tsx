@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useActions } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IActionModel, IconButton, Row } from 'tno-core';
 
+import { ActionFilter } from './ActionFilter';
 import { columns } from './constants';
 import * as styled from './styled';
 
@@ -36,6 +37,22 @@ export const ActionList: React.FC = () => {
             onClick={() => navigate(`/admin/actions/0`)}
           />
         </Row>
+        <ActionFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                actions.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(actions);
+            }
+          }}
+        />
         <FlexboxTable
           rowId="id"
           data={items}

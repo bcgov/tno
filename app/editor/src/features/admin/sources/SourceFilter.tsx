@@ -2,10 +2,10 @@ import React from 'react';
 import { IconButton, Row, Text } from 'tno-core';
 
 interface ISourceFilterProps {
-  setGlobalFilter: (filterValue: any) => void;
+  onFilterChange: (value: string) => void;
 }
 
-export const SourceFilter: React.FC<ISourceFilterProps> = ({ setGlobalFilter }) => {
+export const SourceFilter: React.FC<ISourceFilterProps> = ({ onFilterChange }) => {
   const [filter, setFilter] = React.useState<string>('');
   return (
     <Row className="filter" justifyContent="center">
@@ -14,7 +14,7 @@ export const SourceFilter: React.FC<ISourceFilterProps> = ({ setGlobalFilter }) 
         placeholder="Search by keyword"
         onChange={(e) => {
           setFilter(e.target.value);
-          setGlobalFilter(e.target.value);
+          onFilterChange(e.target.value);
         }}
         value={filter}
       />
@@ -22,7 +22,7 @@ export const SourceFilter: React.FC<ISourceFilterProps> = ({ setGlobalFilter }) 
         iconType="reset"
         onClick={() => {
           setFilter('');
-          setGlobalFilter('');
+          onFilterChange('');
         }}
       />
     </Row>

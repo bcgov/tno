@@ -4,6 +4,7 @@ import { useSeries } from 'store/hooks/admin';
 import { Col, FlexboxTable, FormPage, IconButton, ISeriesModel, Row } from 'tno-core';
 
 import { columns } from './constants';
+import { SeriesFilter } from './SeriesFilter';
 import * as styled from './styled';
 
 export const SeriesList: React.FC = () => {
@@ -36,6 +37,24 @@ export const SeriesList: React.FC = () => {
             onClick={() => navigate(`/admin/programs/0`)}
           />
         </Row>
+        <SeriesFilter
+          onFilterChange={(filter) => {
+            if (filter && filter.length) {
+              const value = filter.toLocaleLowerCase();
+              setItems(
+                series.filter(
+                  (i) =>
+                    i.name.toLocaleLowerCase().includes(value) ||
+                    i.description.toLocaleLowerCase().includes(value) ||
+                    i.source?.name.toLocaleLowerCase().includes(value) ||
+                    i.source?.code.toLocaleLowerCase().includes(value),
+                ),
+              );
+            } else {
+              setItems(series);
+            }
+          }}
+        />
         <FlexboxTable
           rowId="id"
           data={items}
