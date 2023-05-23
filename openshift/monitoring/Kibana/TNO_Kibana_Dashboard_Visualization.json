@@ -1,0 +1,175 @@
+[
+  {
+    "_id": "f8c60180-ef58-11ed-a1ab-696655fe8615",
+    "_type": "search",
+    "_source": {
+      "title": "Kafka-broker-error-logs",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "kubernetes.container_name",
+        "message"
+      ],
+      "sort": [
+        "@timestamp",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":\"kubernetes.pod_name:\\\"kafka-broker-0\\\" AND kubernetes.namespace_name:\\\"9b301c-dev\\\" AND kubernetes.container_name.raw:\\\"kafka-broker\\\" AND level:\\\"error\\\"\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "3f2668e0-eb7b-11ed-a1ab-696655fe8615",
+    "_type": "search",
+    "_source": {
+      "title": "Filter_apps",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "kubernetes.labels.app.kubernetes.io/name",
+        "kubernetes.pod_name",
+        "level",
+        "log_type"
+      ],
+      "sort": [
+        "@timestamp",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "b16bb510-eee9-11ed-a1ab-696655fe8615",
+    "_type": "search",
+    "_source": {
+      "title": "service_levels",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "kubernetes.container_name",
+        "level"
+      ],
+      "sort": [
+        "level",
+        "asc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "3bd38cf0-eeb3-11ed-a1ab-696655fe8615",
+    "_type": "visualization",
+    "_source": {
+      "title": "Error_FileMonitor",
+      "visState": "{\"title\":\"Error_FileMonitor\",\"type\":\"horizontal_bar\",\"params\":{\"type\":\"histogram\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":200},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":75,\"filter\":true,\"truncate\":100},\"title\":{\"text\":\"error\"}}],\"seriesParams\":[{\"show\":true,\"type\":\"histogram\",\"mode\":\"normal\",\"data\":{\"label\":\"error\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true},{\"show\":true,\"mode\":\"normal\",\"type\":\"histogram\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"data\":{\"id\":\"3\",\"label\":\"file_monitor\"},\"valueAxis\":\"ValueAxis-1\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"cardinality\",\"schema\":\"metric\",\"params\":{\"field\":\"level\",\"customLabel\":\"error\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"timeRange\":{\"from\":\"now-15m\",\"to\":\"now\",\"mode\":\"quick\"},\"useNormalizedEsInterval\":true,\"interval\":\"auto\",\"drop_partials\":false,\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{},\"customLabel\":\"3\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"cardinality\",\"schema\":\"metric\",\"params\":{\"field\":\"kubernetes.container_name.raw\",\"customLabel\":\"file_monitor\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    },
+    "_migrationVersion": {
+      "visualization": "6.7.2"
+    }
+  },
+  {
+    "_id": "4218f310-eeeb-11ed-a1ab-696655fe8615",
+    "_type": "visualization",
+    "_source": {
+      "title": "Service Error Counts",
+      "visState": "{\"title\":\"Service Error Counts\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":true,\"values\":true,\"last_level\":false,\"truncate\":50}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{\"customLabel\":\"level\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"kubernetes.container_name.raw\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "savedSearchId": "3f2668e0-eb7b-11ed-a1ab-696655fe8615",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+      }
+    },
+    "_migrationVersion": {
+      "visualization": "6.7.2"
+    }
+  },
+  {
+    "_id": "bd7d03a0-eeed-11ed-a1ab-696655fe8615",
+    "_type": "visualization",
+    "_source": {
+      "title": "TNO_LogLevel_Per_Service_Container",
+      "visState": "{\"title\":\"TNO_LogLevel_Per_Service_Container\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":true,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"level\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"kubernetes.container_name.raw\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"customLabel\":\"\"}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    },
+    "_migrationVersion": {
+      "visualization": "6.7.2"
+    }
+  },
+  {
+    "_id": "e35d7540-f538-11ed-a1ab-696655fe8615",
+    "_type": "visualization",
+    "_source": {
+      "title": "Error_Counts_Stacked_Per_Service",
+      "visState": "{\"title\":\"Error_Counts_Stacked_Per_Service\",\"type\":\"line\",\"params\":{\"type\":\"line\",\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\",\"setYExtents\":false,\"defaultYExtents\":false},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"error\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"area\",\"mode\":\"stacked\",\"data\":{\"label\":\"error\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"interpolate\":\"step-after\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{\"customLabel\":\"error\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"timeRange\":{\"from\":\"2023-05-08T11:00:00.000Z\",\"to\":\"2023-05-08T12:00:00.000Z\",\"mode\":\"absolute\"},\"useNormalizedEsInterval\":true,\"interval\":\"auto\",\"drop_partials\":true,\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{},\"customLabel\":\"Date Range\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"filters\",\"schema\":\"group\",\"params\":{\"filters\":[{\"input\":{\"query\":\"content-service\"},\"label\":\"\"},{\"input\":{\"query\":\"api\"}},{\"input\":{\"query\":\"filemonitor-service\"}},{\"input\":{\"query\":\"postgres\"}},{\"input\":{\"query\":\"image-service\"}},{\"input\":{\"query\":\"syndication-service\"}},{\"input\":{\"query\":\"kafka-broker\"}},{\"input\":{\"query\":\"\"}}]}}]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    },
+    "_migrationVersion": {
+      "visualization": "6.7.2"
+    }
+  },
+  {
+    "_id": "e9d5e280-ef3f-11ed-a1ab-696655fe8615",
+    "_type": "visualization",
+    "_source": {
+      "title": "TNO Application Dashboard MD",
+      "visState": "{\"title\":\"TNO Application Dashboard MD\",\"type\":\"markdown\",\"params\":{\"fontSize\":22,\"openLinksInNewTab\":false,\"markdown\":\"# TNO Application Dashboard\"},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+      }
+    },
+    "_migrationVersion": {
+      "visualization": "6.7.2"
+    }
+  },
+  {
+    "_id": "6daf1950-eb7b-11ed-a1ab-696655fe8615",
+    "_type": "dashboard",
+    "_source": {
+      "title": "TNO Service Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"1\",\"w\":24,\"x\":0,\"y\":20},\"id\":\"3bd38cf0-eeb3-11ed-a1ab-696655fe8615\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"version\":\"6.8.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"2\",\"w\":24,\"x\":24,\"y\":5},\"id\":\"4218f310-eeeb-11ed-a1ab-696655fe8615\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"version\":\"6.8.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"3\",\"w\":24,\"x\":0,\"y\":5},\"id\":\"bd7d03a0-eeed-11ed-a1ab-696655fe8615\",\"panelIndex\":\"3\",\"type\":\"visualization\",\"version\":\"6.8.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":5,\"i\":\"4\",\"w\":48,\"x\":0,\"y\":0},\"id\":\"e9d5e280-ef3f-11ed-a1ab-696655fe8615\",\"panelIndex\":\"4\",\"title\":\"\",\"type\":\"visualization\",\"version\":\"6.8.1\"}]",
+      "optionsJSON": "{\"darkTheme\":false,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "version": 1,
+      "timeRestore": true,
+      "timeTo": "2023-05-10T18:00:00.000Z",
+      "timeFrom": "2023-05-07T20:14:24.089Z",
+      "refreshInterval": {
+        "pause": true,
+        "value": 0
+      },
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  }
+]

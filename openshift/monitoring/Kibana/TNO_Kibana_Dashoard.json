@@ -1,0 +1,24 @@
+[
+  {
+    "_id": "6daf1950-eb7b-11ed-a1ab-696655fe8615",
+    "_type": "dashboard",
+    "_source": {
+      "title": "TNO Service Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"1\",\"w\":24,\"x\":0,\"y\":20},\"id\":\"3bd38cf0-eeb3-11ed-a1ab-696655fe8615\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"version\":\"6.8.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"2\",\"w\":24,\"x\":24,\"y\":5},\"id\":\"4218f310-eeeb-11ed-a1ab-696655fe8615\",\"panelIndex\":\"2\",\"type\":\"visualization\",\"version\":\"6.8.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"3\",\"w\":24,\"x\":0,\"y\":5},\"id\":\"bd7d03a0-eeed-11ed-a1ab-696655fe8615\",\"panelIndex\":\"3\",\"type\":\"visualization\",\"version\":\"6.8.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":5,\"i\":\"4\",\"w\":48,\"x\":0,\"y\":0},\"id\":\"e9d5e280-ef3f-11ed-a1ab-696655fe8615\",\"panelIndex\":\"4\",\"title\":\"\",\"type\":\"visualization\",\"version\":\"6.8.1\"}]",
+      "optionsJSON": "{\"darkTheme\":false,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "version": 1,
+      "timeRestore": true,
+      "timeTo": "2023-05-10T18:00:00.000Z",
+      "timeFrom": "2023-05-07T20:14:24.089Z",
+      "refreshInterval": {
+        "pause": true,
+        "value": 0
+      },
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  }
+]
