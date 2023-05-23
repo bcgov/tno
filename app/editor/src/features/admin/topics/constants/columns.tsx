@@ -4,13 +4,13 @@ export const columns: ITableHookColumn<ITopicModel>[] = [
   {
     label: 'Name',
     name: 'name',
-    width: 2,
+    width: 3,
     cell: (cell) => <CellEllipsis>{cell.original.name}</CellEllipsis>,
   },
   {
     label: 'Description',
     name: 'description',
-    width: 7,
+    width: 3,
     cell: (cell) => <CellEllipsis>{cell.original.description}</CellEllipsis>,
   },
   {

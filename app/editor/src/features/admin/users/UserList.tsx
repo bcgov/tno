@@ -90,6 +90,8 @@ export const UserList: React.FC = () => {
         columns={columns}
         showSort={true}
         manualPaging={true}
+        pageIndex={page.pageIndex}
+        pageSize={page.pageSize}
         onRowClick={(row) => navigate(`${row.original.id}`)}
         onPageChange={handleChangePage}
         onSortChange={handleChangeSort}
