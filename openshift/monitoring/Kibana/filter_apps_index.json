@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "3f2668e0-eb7b-11ed-a1ab-696655fe8615",
+    "_type": "search",
+    "_source": {
+      "title": "Filter_apps",
+      "description": "",
+      "hits": 0,
+      "columns": [
+        "kubernetes.labels.app.kubernetes.io/name",
+        "kubernetes.pod_name",
+        "level",
+        "log_type"
+      ],
+      "sort": [
+        "@timestamp",
+        "desc"
+      ],
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"index\":\"00d0baf0-ea86-11ed-a1ab-696655fe8615\",\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"kuery\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  }
+]
