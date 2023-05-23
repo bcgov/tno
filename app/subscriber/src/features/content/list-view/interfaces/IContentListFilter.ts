@@ -14,6 +14,7 @@ export interface IContentListFilter {
   sourceIds: number[];
   ownerId: number | '';
   status?: ContentStatus;
+  keyword?: string;
   userId: number | '';
   timeFrame: number | '';
   // Actions

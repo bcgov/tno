@@ -3,44 +3,34 @@ import {
   IActionModel,
   ICacheModel,
   IContributorModel,
-  IDataLocationModel,
   IHolidayModel,
-  IIngestTypeModel,
   ILicenseModel,
-  IMetricModel,
   IProductModel,
-  IRoleModel,
   ISeriesModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
-  IUserModel,
 } from 'tno-core';
 
 import { ILookupState } from './interfaces';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 
 export const initialLookupState: ILookupState = {
   cache: [],
   actions: [],
   topics: [],
-  rules: [],
   products: [],
   licenses: [],
-  ingestTypes: [],
-  roles: [],
   series: [],
   contributors: [],
   sources: [],
   sourceActions: [],
-  metrics: [],
   tags: [],
   tonePools: [],
-  users: [],
-  dataLocations: [],
   holidays: [],
+  ministers: [],
 };
 
 export const lookupSlice = createSlice({
@@ -67,8 +57,8 @@ export const lookupSlice = createSlice({
     storeTopics(state: ILookupState, action: PayloadAction<ITopicModel[]>) {
       state.topics = action.payload;
     },
-    storeTopicScoreRules(state: ILookupState, action: PayloadAction<ITopicScoreRuleModel[]>) {
-      state.rules = action.payload;
+    storeMinisters(state: ILookupState, action: PayloadAction<IMinisterModel[]>) {
+      state.ministers = action.payload;
     },
     storeProducts(state: ILookupState, action: PayloadAction<IProductModel[]>) {
       state.products = action.payload;
@@ -79,12 +69,6 @@ export const lookupSlice = createSlice({
     storeLicenses(state: ILookupState, action: PayloadAction<ILicenseModel[]>) {
       state.licenses = action.payload;
     },
-    storeIngestTypes(state: ILookupState, action: PayloadAction<IIngestTypeModel[]>) {
-      state.ingestTypes = action.payload;
-    },
-    storeRoles(state: ILookupState, action: PayloadAction<IRoleModel[]>) {
-      state.roles = action.payload;
-    },
     storeSeries(state: ILookupState, action: PayloadAction<ISeriesModel[]>) {
       state.series = action.payload;
     },
@@ -94,20 +78,11 @@ export const lookupSlice = createSlice({
     storeSourceActions(state: ILookupState, action: PayloadAction<ISourceActionModel[]>) {
       state.sourceActions = action.payload;
     },
-    storeMetrics(state: ILookupState, action: PayloadAction<IMetricModel[]>) {
-      state.metrics = action.payload;
-    },
     storeTags(state: ILookupState, action: PayloadAction<ITagModel[]>) {
       state.tags = action.payload;
     },
     storeTonePools(state: ILookupState, action: PayloadAction<ITonePoolModel[]>) {
       state.tonePools = action.payload;
-    },
-    storeUsers(state: ILookupState, action: PayloadAction<IUserModel[]>) {
-      state.users = action.payload;
-    },
-    storeDataLocations(state: ILookupState, action: PayloadAction<IDataLocationModel[]>) {
-      state.dataLocations = action.payload;
     },
     storeHolidays(state: ILookupState, action: PayloadAction<IHolidayModel[]>) {
       state.holidays = action.payload;
@@ -120,19 +95,14 @@ export const {
   updateCache,
   storeActions,
   storeTopics,
-  storeTopicScoreRules,
   storeProducts,
   storeLicenses,
-  storeIngestTypes,
-  storeRoles,
   storeSeries,
   storeContributors,
   storeSources,
   storeSourceActions,
-  storeMetrics,
   storeTags,
   storeTonePools,
-  storeUsers,
-  storeDataLocations,
+  storeMinisters,
   storeHolidays,
 } = lookupSlice.actions;

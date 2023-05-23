@@ -49,7 +49,7 @@ export const CustomSidebar = styled(Sidebar)`
   }
 
   .ps-menu-icon {
-    color: #a5a4bf;
+    color: ${(props) => props.theme.css.sideBarIconColor};
   }
 
   .ps-menu-button {
@@ -70,5 +70,19 @@ export const CustomSidebar = styled(Sidebar)`
 
   .ps-menuitem-root:not(.selected) {
     background-color: ${(props) => props.theme.css.menuItemColor};
+  }
+
+  .label-container {
+    .secondary-icon {
+      &:hover {
+        color: white;
+      }
+      color: ${(props) => props.theme.css.sideBarIconColor};
+      margin-left: 70px;
+      margin-top: auto;
+      margin-bottom: auto;
+      height: 16px;
+      width: 16px;
+    }
   }
 `;

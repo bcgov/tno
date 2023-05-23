@@ -12,6 +12,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
+import { MyMinisterSettings } from 'features/settings';
+import { MyMinister } from 'features/my-minister/MyMinister';
 
 /**
  * Main landing page for the subscriber app.
@@ -43,7 +45,11 @@ export const Landing: React.FC = () => {
             </div>
           </Show>
           <Show visible={activeItem !== 'View'}>
-            <div className="title">{activeItem}</div>
+            <div className="title">
+              {activeItem === SidebarMenuItems.settings.label
+                ? 'Settings | My Minister'
+                : activeItem}
+            </div>
           </Show>
           <div className="content">
             {/* Home is default selected navigation item on login*/}
@@ -52,6 +58,12 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === 'View'}>
               <ViewContent />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.settings.label}>
+              <MyMinisterSettings />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.myMinister.label}>
+              <MyMinister />
             </Show>
           </div>
         </Col>

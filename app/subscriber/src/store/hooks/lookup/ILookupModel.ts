@@ -1,31 +1,40 @@
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
-  ICacheModel,
   IContributorModel,
+  IDataLocationModel,
   IHolidayModel,
+  IIngestTypeModel,
   ILicenseModel,
+  IMetricModel,
   IProductModel,
+  IRoleModel,
   ISeriesModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
+  ITopicScoreRuleModel,
+  IUserModel,
 } from 'tno-core';
+import { IMinisterModel } from '../subscriber/interfaces/IMinisterModel';
 
-export interface ILookupState {
-  cache: ICacheModel[];
+export interface ILookupModel {
   actions: IActionModel[];
   topics: ITopicModel[];
-  ministers: IMinisterModel[];
+  rules: ITopicScoreRuleModel[];
   products: IProductModel[];
+  sources: ISourceModel[];
   licenses: ILicenseModel[];
+  ingestTypes: IIngestTypeModel[];
+  roles: IRoleModel[];
   series: ISeriesModel[];
   contributors: IContributorModel[];
-  sources: ISourceModel[];
   sourceActions: ISourceActionModel[];
   tags: ITagModel[];
   tonePools: ITonePoolModel[];
+  users: IUserModel[];
+  dataLocations: IDataLocationModel[];
   holidays: IHolidayModel[];
+  ministers: IMinisterModel[];
 }
