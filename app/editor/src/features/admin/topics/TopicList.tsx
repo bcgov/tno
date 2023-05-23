@@ -9,12 +9,14 @@ import {
   Col,
   FieldSize,
   FlexboxTable,
+  FormikCheckbox,
   FormikSelect,
   FormikText,
   FormikTextArea,
   FormPage,
   getEnumStringOptions,
   ITopicModel,
+  LabelPosition,
   Modal,
   Row,
   TopicTypeName,
@@ -72,14 +74,7 @@ export const TopicList: React.FC = () => {
         const result = await api.updateTopic(values);
         results = items.map((i) => (i.id === values.id ? result : i));
       }
-      setItems(
-        results.sort(
-          (a, b) =>
-            (a.sortOrder < b.sortOrder ? -1 : a.sortOrder > b.sortOrder ? 1 : 0) ||
-            (a.topicType < b.topicType ? -1 : a.topicType > b.topicType ? 1 : 0) ||
-            a.name.localeCompare(b.name),
-        ),
-      );
+      setItems(results);
       toast.success(`${values.name} has successfully been saved.`);
     } catch {
       // Ignore error as it's handled globally.
@@ -95,10 +90,14 @@ export const TopicList: React.FC = () => {
             data={items}
             columns={columns}
             showSort={true}
+            activeRowId={id}
             onRowClick={(row) => navigate(`/admin/topics/${row.original.id}`)}
+            showPaging={false}
+            manualPaging={true}
+            pageSize={items.length}
           />
         </Col>
-        <Col flex="1 1 0">
+        <Col flex="1 1 0" className="form">
           <FormikForm
             loading={false}
             validationSchema={TopicSchema}
@@ -120,13 +119,20 @@ export const TopicList: React.FC = () => {
                 </Row>
                 <FormikText name="name" label="Name" />
                 <FormikTextArea name="description" label="Description" />
-                <FormikSelect
-                  label="Type"
-                  name="topicType"
-                  options={topicTypeOptions}
-                  value={topicTypeOptions.find((o) => o.value === values.topicType)}
-                  width={FieldSize.Medium}
-                />
+                <Row>
+                  <FormikSelect
+                    label="Type"
+                    name="topicType"
+                    options={topicTypeOptions}
+                    value={topicTypeOptions.find((o) => o.value === values.topicType)}
+                    width={FieldSize.Medium}
+                  />
+                  <FormikCheckbox
+                    labelPosition={LabelPosition.Top}
+                    label="Is Enabled"
+                    name="isEnabled"
+                  />
+                </Row>
                 <Row alignContent="stretch" className="actions">
                   <Button
                     variant={ButtonVariant.danger}

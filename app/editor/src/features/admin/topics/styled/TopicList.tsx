@@ -92,4 +92,14 @@ export const TopicList = styled.div`
       overflow: hidden;
     }
   }
+
+  .form {
+    div {
+      height: 100%;
+      form {
+        position: sticky;
+        top: 0;
+      }
+    }
+  }
 `;
