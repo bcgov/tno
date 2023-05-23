@@ -38,10 +38,10 @@ export const ContentFilter: React.FC<IContentFilter> = ({ onFilterChange, filter
           <Row>
             <FaEye className="icon-indicator" />
             <ToggleGroup
-              defaultSelected="ALL TODAYS CONTENT"
+              defaultSelected="ALL TODAY'S CONTENT"
               options={[
                 {
-                  label: 'ALL TODAYS CONTENT',
+                  label: "ALL TODAY'S CONTENT",
                   onClick: () =>
                     onFilterChange({
                       ...filter,
