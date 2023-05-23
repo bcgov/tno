@@ -1,6 +1,3 @@
-import * as styled from './styled';
-
-import { DateFilter } from 'components/date-filter';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -9,13 +6,27 @@ import { columns } from 'features/home/constants';
 import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContent } from 'store/hooks';
-import { ContentStatus, ContentTypeName, FlexboxTable, IContentModel, Page, Row } from 'tno-core';
+import { useApp, useContent, useUsers } from 'store/hooks';
+import { FlexboxTable, IContentModel, IUserModel, Page, Row } from 'tno-core';
+
+import * as styled from './styled';
+import { defaultUser } from 'features/access-request/constants';
 
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
+  const [user, setUser] = React.useState<IUserModel>(defaultUser);
+  const [{ userInfo }] = useApp();
+  const api = useUsers();
+
+  React.useEffect(() => {
+    if (userInfo && userInfo.id) {
+      api.getUser(userInfo.id).then((data) => {
+        setUser(data);
+      });
+    }
+  }, [userInfo]);
 
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
@@ -27,7 +38,6 @@ export const MyMinister: React.FC = () => {
             ...filter,
             startDate: '',
             endDate: '',
-            keyword: localStorage.getItem('myMinister') ?? '',
           }),
         );
         setHomeItems(data.items);
@@ -44,11 +54,10 @@ export const MyMinister: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({ ...filter, ...filterAdvanced });
-  }, [filter, filterAdvanced, fetch]);
+    fetch({ ...filter, ...filterAdvanced, keyword: user.preferences?.myMinister ?? '' });
+  }, [filter, filterAdvanced, fetch, user]);
   return (
     <styled.MyMinister>
-      {' '}
       <Row className="table-container">
         <FlexboxTable
           rowId="id"

@@ -4,12 +4,10 @@ import {
   getFromLocalStorage,
   IActionModel,
   ICacheModel,
-  IContributorModel,
   IDataLocationModel,
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
-  IMetricModel,
   IProductModel,
   IRoleModel,
   ISeriesModel,
@@ -22,29 +20,22 @@ import {
   IUserModel,
   useApiActions,
   useApiCache,
-  useApiContributors,
-  useApiDataLocations,
-  useApiIngestTypes,
   useApiLicenses,
-  useApiMetrics,
   useApiProducts,
-  useApiRoles,
   useApiSeries,
   useApiSourceActions,
   useApiSources,
   useApiTags,
   useApiTonePools,
   useApiTopics,
-  useApiTopicScoreRules,
-  useApiUsers,
 } from 'tno-core';
 
 import { useAjaxWrapper } from '..';
-import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
-import { useApiLookups } from './useApiLookups';
-import { IMinisterModel } from '../subscriber/interfaces/IMinisterModel';
 import { useApiMinisters } from '../subscriber/api/useApiMinisters';
+import { IMinisterModel } from '../subscriber/interfaces/IMinisterModel';
 import { ILookupModel } from './ILookupModel';
+import { useApiLookups } from './useApiLookups';
+import { fetchIfNoneMatch, saveToLocalStorage } from './utils';
 
 export interface ILookupController {
   getCache: () => Promise<ICacheModel[]>;
@@ -56,7 +47,6 @@ export interface ILookupController {
   getLicenses: (refresh?: boolean) => Promise<ILicenseModel[]>;
   getSources: (refresh?: boolean) => Promise<ISourceModel[]>;
   getSeries: (refresh?: boolean) => Promise<ISeriesModel[]>;
-  getContributors: (refresh?: boolean) => Promise<IContributorModel[]>;
   getMinisters: (refresh?: boolean) => Promise<IMinisterModel[]>;
   getTags: (refresh?: boolean) => Promise<ITagModel[]>;
   getTonePools: (refresh?: boolean) => Promise<ITonePoolModel[]>;
@@ -70,21 +60,14 @@ export const useLookup = (): [ILookupState, ILookupController] => {
   const lookups = useApiLookups();
   const actions = useApiActions();
   const topics = useApiTopics();
-  const rules = useApiTopicScoreRules();
   const products = useApiProducts();
   const sources = useApiSources();
   const licenses = useApiLicenses();
   const ministers = useApiMinisters();
-  const ingestTypes = useApiIngestTypes();
-  const roles = useApiRoles();
   const series = useApiSeries();
-  const contributors = useApiContributors();
   const sourceActions = useApiSourceActions();
-  const sourceMetrics = useApiMetrics();
   const tags = useApiTags();
   const tonePools = useApiTonePools();
-  const users = useApiUsers();
-  const dataLocations = useApiDataLocations();
 
   const controller = React.useMemo(
     () => ({
@@ -125,7 +108,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
                 roles: getFromLocalStorage<IRoleModel[]>('roles', []),
                 series: getFromLocalStorage<ISeriesModel[]>('series', []),
                 ministers: getFromLocalStorage<IMinisterModel[]>('ministers', []),
-                contributors: getFromLocalStorage<IContributorModel[]>('contributors', []),
                 sourceActions: getFromLocalStorage<ISourceActionModel[]>('source_actions', []),
                 tags: getFromLocalStorage<ITagModel[]>('tags', []),
                 tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
@@ -139,7 +121,6 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeSources(lookups.sources);
               store.storeLicenses(lookups.licenses);
               store.storeSeries(lookups.series);
-              store.storeContributors(lookups.contributors);
               store.storeSourceActions(lookups.sourceActions);
               store.storeTags(lookups.tags);
               store.storeTonePools(lookups.tonePools);
@@ -236,22 +217,7 @@ export const useLookup = (): [ILookupState, ILookupController] => {
           'lookup',
         );
       },
-      getContributors: async () => {
-        return await fetchIfNoneMatch<IContributorModel[]>(
-          'contributors',
-          dispatch,
-          (etag) => contributors.getContributors(etag),
-          (results) => {
-            const values = results ?? [];
-            store.storeContributors(values);
-            return values;
-          },
-          true,
-          'lookup',
-        );
-      },
       getMinisters: async () => {
-        alert('getMinisters');
         return await fetchIfNoneMatch<IMinisterModel[]>(
           'ministers',
           dispatch,
@@ -322,11 +288,11 @@ export const useLookup = (): [ILookupState, ILookupController] => {
       licenses,
       lookups,
       series,
-      contributors,
       sourceActions,
       store,
       tags,
       tonePools,
+      ministers,
     ],
   );
 

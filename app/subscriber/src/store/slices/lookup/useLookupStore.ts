@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'store';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   ICacheModel,
@@ -32,7 +33,6 @@ import {
   updateCache,
 } from '.';
 import { ILookupState } from './interfaces';
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 
 export interface ILookupStore {
   storeCache: (cache: ICacheModel[]) => void;

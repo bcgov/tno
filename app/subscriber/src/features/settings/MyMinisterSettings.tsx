@@ -1,12 +1,28 @@
-import { useLookup } from 'store/hooks';
-import { IOptionItem, RadioGroup, Row } from 'tno-core';
+import React from 'react';
+import { useApp, useLookup, useUsers } from 'store/hooks';
+import { Button, IOptionItem, IUserModel, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
-import React from 'react';
+import { FormikForm } from 'components/formik';
+import { toast } from 'react-toastify';
+import { defaultUser } from 'features/access-request/constants';
 
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const [myMinister, setMyMinister] = React.useState<string>();
+  const [{ userInfo }] = useApp();
+
+  const [user, setUser] = React.useState<IUserModel>(defaultUser);
+
+  React.useEffect(() => {
+    if (userInfo && userInfo.id) {
+      api.getUser(userInfo.id).then((data) => {
+        setUser(data);
+      });
+    }
+  }, [userInfo]);
+
+  const api = useUsers();
 
   React.useEffect(() => {
     if (!!myMinister) localStorage.setItem('myMinister', myMinister);
@@ -26,24 +42,47 @@ export const MyMinisterSettings: React.FC = () => {
     } as IOptionItem;
   });
 
+  const handleSubmit = async (values: IUserModel) => {
+    try {
+      await api.updateUser(values);
+      toast.success(
+        `${values.preferences.myMinister} has successfully been chosen as your minister.`,
+      );
+    } catch {}
+  };
+
   return (
     <styled.MyMinisterSettings>
       <p className="description">
         Choose the Minister you'd like to follow. Stories about your selected Minister will be
         available from a quick click in the sidebar menu.
       </p>
-      <RadioGroup
-        value={
-          !!myMinister
-            ? options.find((o) => o.value === myMinister)
-            : options.find((o) => o.value === localStorage.getItem('myMinister'))
-        }
-        onChange={(e) => {
-          setMyMinister(e.target.value);
+      <FormikForm
+        initialValues={{ ...user, preferences: { myMinister: myMinister } }}
+        onSubmit={(values, { setSubmitting }) => {
+          handleSubmit(values);
+          setSubmitting(false);
         }}
-        options={options}
-        name="ministers"
-      />
+      >
+        {({ values, setFieldValue }) => (
+          <>
+            <RadioGroup
+              value={
+                !!values.preferences.myMinister
+                  ? options.find((o) => o.value === values.preferences.myMinister)
+                  : options.find((o) => o.value === user.preferences?.myMinister)
+              }
+              onChange={(e) => {
+                setMyMinister(e.target.value);
+                setFieldValue('preferences.myMinister', e.target.value);
+              }}
+              options={options}
+              name="ministers"
+            />
+            <Button type="submit">SAVE</Button>
+          </>
+        )}
+      </FormikForm>
     </styled.MyMinisterSettings>
   );
 };

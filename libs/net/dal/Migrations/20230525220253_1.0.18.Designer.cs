@@ -13,8 +13,8 @@ using TNO.DAL;
 namespace TNO.DAL.Migrations
 {
     [DbContext(typeof(TNOContext))]
-    [Migration("20230518063031_1.0.17")]
-    partial class _1017
+    [Migration("20230525220253_1.0.18")]
+    partial class _1018
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -3174,6 +3174,13 @@ namespace TNO.DAL.Migrations
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("note")
                         .HasDefaultValueSql("''");
+
+                    b.Property<JsonDocument>("Preferences")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("preferences")
+                        .HasDefaultValueSql("'{}'::jsonb");
 
                     b.Property<string>("Roles")
                         .IsRequired()

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using TNO.Core.Data;
 
 namespace TNO.Entities;
@@ -96,6 +97,12 @@ public class User : AuditColumns
     /// </summary>
     [Column("code")]
     public string Code { get; set; } = "";
+
+    /// <summary>
+    /// get/set - The user preferences.
+    /// </summary>
+    [Column("preferences")]
+    public JsonDocument Preferences { get; set; } = JsonDocument.Parse("{}");
 
     /// <summary>
     /// get/set - When the 2FA code was created.

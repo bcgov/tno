@@ -1,5 +1,6 @@
 ﻿using System;
 using TNO.DAL;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -8,12 +9,19 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TNO.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class _1017 : SeedMigration
+    public partial class _1018 : SeedMigration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             PreUp(migrationBuilder);
+            migrationBuilder.AddColumn<JsonDocument>(
+                name: "preferences",
+                table: "user",
+                type: "jsonb",
+                nullable: false,
+                defaultValueSql: "'{}'::jsonb");
+
             migrationBuilder.CreateTable(
                 name: "minister",
                 columns: table => new
@@ -43,6 +51,10 @@ namespace TNO.DAL.Migrations
             PreDown(migrationBuilder);
             migrationBuilder.DropTable(
                 name: "minister");
+
+            migrationBuilder.DropColumn(
+                name: "preferences",
+                table: "user");
             PostDown(migrationBuilder);
         }
     }

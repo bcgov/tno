@@ -3,7 +3,7 @@ import {
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
 import moment from 'moment';
-import { IContentFilter } from './IContentFilter';
+import { IContentFilter } from 'tno-core';
 
 /**
  * Creates a IContentFilter that can be passed to the API hook endpoint.

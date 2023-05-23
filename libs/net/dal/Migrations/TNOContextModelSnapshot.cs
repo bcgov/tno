@@ -3172,6 +3172,13 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("note")
                         .HasDefaultValueSql("''");
 
+                    b.Property<JsonDocument>("Preferences")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("preferences")
+                        .HasDefaultValueSql("'{}'::jsonb");
+
                     b.Property<string>("Roles")
                         .IsRequired()
                         .ValueGeneratedOnAdd()

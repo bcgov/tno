@@ -11,6 +11,7 @@ export interface IUserInfoModel {
   lastLoginOn?: Date;
   isEnabled: boolean;
   status: UserStatusName;
+  preferences?: any;
   note?: string;
   roles: string[];
 }

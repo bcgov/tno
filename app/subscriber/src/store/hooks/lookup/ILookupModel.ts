@@ -5,7 +5,6 @@ import {
   IHolidayModel,
   IIngestTypeModel,
   ILicenseModel,
-  IMetricModel,
   IProductModel,
   IRoleModel,
   ISeriesModel,
@@ -17,6 +16,7 @@ import {
   ITopicScoreRuleModel,
   IUserModel,
 } from 'tno-core';
+
 import { IMinisterModel } from '../subscriber/interfaces/IMinisterModel';
 
 export interface ILookupModel {

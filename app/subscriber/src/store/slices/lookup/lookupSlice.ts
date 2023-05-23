@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 import {
   IActionModel,
   ICacheModel,
@@ -15,7 +16,6 @@ import {
 } from 'tno-core';
 
 import { ILookupState } from './interfaces';
-import { IMinisterModel } from 'store/hooks/subscriber/interfaces/IMinisterModel';
 
 export const initialLookupState: ILookupState = {
   cache: [],
