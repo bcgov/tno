@@ -65,7 +65,7 @@ public static class FfmpegHelper
         var count = Directory.GetFiles(directory, $"{outputName}_*.{ext}").Length;
         var output = $"{Path.Combine(directory, outputName)}_{count + 1}.{ext}";
 
-        return ($"ffmpeg -ss {start} -t {duration} -i '{path}' -c:a copy '{output}'", output);
+        return ($"ffmpeg -ss {start} -t {duration} -i '{path}' -c:a copy '{output.Replace("'", @"'\''")}'", output);
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public static class FfmpegHelper
         var directory = Path.GetDirectoryName(path) ?? "";
         var output = Path.Combine(directory, $"{prefix}-final.{ext}");
 
-        return ($"ffmpeg -f concat -safe 0 -i '{muxFile}' '{output}'", output);
+        return ($"ffmpeg -f concat -safe 0 -i '{muxFile.Replace("'", @"'\''")}' '{output.Replace("'", @"'\''")}'", output);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ public static class FfmpegHelper
         {
             foreach (var filename in clips)
             {
-                sw.WriteLine("file " + filename);
+                sw.WriteLine("file " + filename.Replace("'", @"\'"));
             }
             sw.Close();
         }
