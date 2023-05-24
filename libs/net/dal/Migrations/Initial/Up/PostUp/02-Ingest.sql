@@ -108,7 +108,7 @@ INSERT INTO public.ingest (
   , (SELECT id FROM public.source WHERE code = 'IPOLY') -- source_id
   , 'IPOLY' -- topic
   , wireId -- product_id
-  , '{ "url":"http://www.ipolitics.ca/custom-feeds/bc-gov-feed.php",
+  , '{ "url":"https://old.ipolitics.ca/custom-feeds/bc-gov-feed.php",
       "timeZone": "Pacific Standard Time",
       "language": "en-CA",
       "post": true,

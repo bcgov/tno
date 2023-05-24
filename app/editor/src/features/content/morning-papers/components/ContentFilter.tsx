@@ -1,4 +1,4 @@
-import { InputOption } from 'features/content/tool-bar/sections/filter';
+import { InputOption } from 'features/content/list-view/components/tool-bar/filter';
 import React from 'react';
 import { FaEye, FaFilter, FaIcons, FaNewspaper, FaWindowRestore } from 'react-icons/fa';
 import { useLookupOptions } from 'store/hooks';
