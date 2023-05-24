@@ -20,6 +20,7 @@ export function toForm(model: IContentModel): IContentForm {
     summary: model.summary,
     body: model.body ?? '',
     productId: model.productId,
+    product: model.product?.name ?? '',
     licenseId: model.licenseId,
     headline: model.headline,
     byline: model.byline ?? '',

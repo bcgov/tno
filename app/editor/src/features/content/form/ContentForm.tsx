@@ -115,6 +115,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
   });
+  const [product, setProduct] = React.useState('');
 
   const userId = userInfo?.id ?? '';
 
@@ -123,6 +124,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       getContent(id).then((content) => {
         if (!!content) {
           setForm(toForm(content));
+          if (content.product) setProduct(content.product.name);
           findWorkOrders({ contentId: id }).then((res) => {
             setForm({ ...toForm(content), workOrders: res.data.items });
             // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
@@ -430,6 +432,9 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                     (mt) => mt.value === props.values.productId,
                                   ) ?? ''
                                 }
+                                onChange={(newValue: any) => {
+                                  setProduct(newValue?.label);
+                                }}
                                 label="Product"
                                 width={FieldSize.Small}
                                 options={productOptions}
@@ -548,6 +553,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       setContent={setForm}
                       contentType={ContentTypeName.Image}
                       savePressed={savePressed}
+                      product={product}
                     />
                   </Show>
                 </Row>
@@ -624,6 +630,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                           setContent={setForm}
                           contentType={contentType}
                           savePressed={savePressed}
+                          product={product}
                         />
                       </Show>
                       <Show visible={active === 'transcript'}>
@@ -646,6 +653,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       content={form}
                       setContent={setForm}
                       contentType={contentType}
+                      product={product}
                     />
                   </Show>
                 </Row>

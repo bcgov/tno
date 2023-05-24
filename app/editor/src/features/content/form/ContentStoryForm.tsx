@@ -39,6 +39,7 @@ export interface IContentStoryFormProps {
   content: IContentForm;
   contentType: ContentTypeName;
   savePressed?: boolean;
+  product: string;
 }
 
 /**
@@ -51,6 +52,7 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   content,
   contentType,
   savePressed,
+  product,
 }) => {
   const keycloak = useKeycloakWrapper();
   const [{ series, users, sources }] = useLookup();
@@ -222,13 +224,14 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           stream={stream}
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
+          product={product}
         />
       </Show>
       <Modal
         body={
           <Wysiwyg
             label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
-            required
+            required={product !== 'News Radio' && product !== 'Events'}
             hasHeight
             fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
           />
