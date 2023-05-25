@@ -2,37 +2,42 @@ import { IContentForm } from 'features/content/form/interfaces';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { FaArrowAltCircleRight, FaRegListAlt } from 'react-icons/fa';
-import { FieldSize, FormikText, IContentModel, Row } from 'tno-core';
+import { useLookup } from 'store/hooks';
+import {
+  Button,
+  ButtonVariant,
+  FieldSize,
+  FormikText,
+  IUserModel,
+  Modal,
+  Row,
+  useKeycloakWrapper,
+  useModal,
+} from 'tno-core';
 
+import { TimeLogTable } from '../../TimeLogTable';
+import { getTotalTime } from '../../utils';
 import * as styled from './styled';
 
-export interface ITimeLogSectionProps {
-  toggle: () => void;
-  setEffort: React.Dispatch<React.SetStateAction<number>>;
-  effort: number;
-  setContent: (content: IContentForm) => void;
-  content: IContentForm;
-  userId: number;
-}
+export interface ITimeLogSectionProps {}
 
 /**
  * TimeLogSection contains the input for time tracking gor a content item.
- * @param effort The total effort for the content item.
- * @param setEffort The setter for the total effort.
- * @param toggle The toggle function for the time log modal.
- * @param content The content from parent.
- * @param setContent The setter for the content.
- * @param userId The id of the user.
  */
-export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({
-  effort,
-  setEffort,
-  toggle,
-  content,
-  setContent,
-  userId,
-}) => {
-  const { values, setFieldValue } = useFormikContext<IContentModel>();
+export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
+  const keycloak = useKeycloakWrapper();
+  const { values, setFieldValue } = useFormikContext<IContentForm>();
+  const { isShowing, toggle } = useModal();
+  const [{ users }] = useLookup();
+
+  const [effort, setEffort] = React.useState(0);
+
+  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
+
+  React.useEffect(() => {
+    setEffort(getTotalTime(values.timeTrackings ?? []));
+  }, [values.timeTrackings]);
+
   return (
     <styled.TimeLogSection>
       <FormikText width={FieldSize.Small} name="prep" label="Prep time (minutes)" type="number" />
@@ -66,12 +71,28 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({
         <FaRegListAlt
           className="action-button"
           onClick={() => {
-            if (!!values.timeTrackings)
-              setContent({ ...content, timeTrackings: values.timeTrackings });
+            if (!!values.timeTrackings) setFieldValue('timeTrackings', values.timeTrackings);
             toggle();
           }}
         />
       </Row>
+      <Modal
+        hide={toggle}
+        isShowing={isShowing}
+        headerText="Prep Time Log"
+        body={
+          <TimeLogTable
+            setTotalEffort={setEffort}
+            totalEffort={effort}
+            data={values.timeTrackings ?? []}
+          />
+        }
+        customButtons={
+          <Button variant={ButtonVariant.secondary} onClick={toggle}>
+            Close
+          </Button>
+        }
+      />
     </styled.TimeLogSection>
   );
 };

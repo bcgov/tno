@@ -18,6 +18,7 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
+import { useTab } from '..';
 import { ContentForm } from '../form';
 import { ContentToolBar } from './components';
 import { defaultPage, getColumns } from './constants';
@@ -32,8 +33,8 @@ import { makeFilter, queryToFilter, queryToFilterAdvanced } from './utils';
  */
 export const ContentListView: React.FC = () => {
   const [{ userInfo }] = useApp();
-  const { id: contentId = '' } = useParams();
-  const [, { updateContent }] = useContentStore();
+  const { id } = useParams();
+  const [, { addContent, updateContent }] = useContentStore();
   const [
     { filter, filterAdvanced, content },
     { findContent, getContent, storeFilter, storeFilterAdvanced },
@@ -41,30 +42,31 @@ export const ContentListView: React.FC = () => {
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   var hub = useApiHub();
+  const initTab = useTab();
 
   const channel = useChannel<any>({
     onMessage: (ev) => {
       switch (ev.data.type) {
         case 'content':
-          updateContent([ev.data.message]);
+          if (content?.items.some((i) => i.id === ev.data.message.id))
+            updateContent([ev.data.message]);
+          else addContent([ev.data.message]);
           break;
         case 'page':
           channel('page', content);
+          break;
+        case 'load':
+          setContentId(ev.data.message.id.toString());
           break;
       }
     },
   });
 
-  const [tab, setTab] = React.useState<Window | null>(null);
-  const columns = getColumns((id) => {
-    if (!tab || tab.closed) setTab(window.open(`/contents/${id}`, '_blank'));
-    else {
-      channel('fetch', id);
-      tab.focus();
-    }
-  });
-
+  const [contentId, setContentId] = React.useState(id);
   const [contentType, setContentType] = React.useState(formType ?? ContentTypeName.Snippet);
+
+  const openTab = true; // TODO: Change to user preference and responsive in future.
+  const columns = getColumns(openTab, initTab);
 
   React.useEffect(() => {
     // Extract query string values and place them into redux store.
@@ -164,7 +166,9 @@ export const ContentListView: React.FC = () => {
 
   const handleRowClick = (row: ITableInternalRow<IContentModel>) => {
     setContentType(row.original.contentType);
-    navigate(`/contents/combined/${row.original.id}${window.location.search}`);
+    setContentId(row.original.id.toString());
+    if (openTab) initTab(row.original.id);
+    else navigate(`/contents/combined/${row.original.id}${window.location.search}`);
   };
 
   return (
