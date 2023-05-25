@@ -19,10 +19,5 @@ public class ContentMigrationOptions : IngestServiceOptions
     /// </summary>
     public string VolumePath { get; set; } = "";
 
-    /// <summary>
-    /// get/set - The path to private key files
-    /// </summary>
-    public string PrivateKeysPath { get; set; } = "";
-
     #endregion
 }

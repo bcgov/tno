@@ -34,7 +34,7 @@ INSERT INTO public.ingest (
       "import": true }' -- configuration
   , 0 -- schedule_type
   , 3 -- retry_limit
-  , conDatabaseConnectionId --destination_connection_id
+  , conDatabaseConnectionId --source_connection_id
   , (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Clips') --destination_connection_id
   , ''
   , ''
@@ -50,7 +50,7 @@ INSERT INTO public.ingest (
       "import": true }' -- configuration
   , 0 -- schedule_type
   , 3 -- retry_limit
-  , conDatabaseConnectionId --destination_connection_id
+  , conDatabaseConnectionId --source_connection_id
   , (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Papers') --destination_connection_id
   , ''
   , ''
@@ -66,7 +66,7 @@ INSERT INTO public.ingest (
       "import": true }' -- configuration
   , 0 -- schedule_type
   , 3 -- retry_limit
-  , conDatabaseConnectionId --destination_connection_id
+  , conDatabaseConnectionId --source_connection_id
   , (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Images') --destination_connection_id
   , ''
   , ''
@@ -82,7 +82,7 @@ INSERT INTO public.ingest (
       "import": true }' -- configuration
   , 0 -- schedule_type
   , 3 -- retry_limit
-  , conDatabaseConnectionId --destination_connection_id
+  , conDatabaseConnectionId --source_connection_id
   , (SELECT id FROM public.connection WHERE "name" = 'Local Volume - Streams') --destination_connection_id
   , ''
   , ''
