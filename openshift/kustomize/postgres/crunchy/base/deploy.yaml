@@ -11,6 +11,7 @@ metadata:
     component: postgres
     managed-by: kustomize
     created-by: jeremy.foster
+    updated-by: kulpree
 spec:
   users:
     - name: postgres
@@ -61,10 +62,10 @@ spec:
         replicaCertCopy:
           resources:
             requests:
-              cpu: 50m
+              cpu: 25m
               memory: 100Mi
             limits:
-              cpu: 250m
+              cpu: 100m
               memory: 250Mi
   backups:
     pgbackrest:
@@ -110,10 +111,10 @@ spec:
         pgbackrestConfig:
           resources:
             requests:
-              cpu: 50m
+              cpu: 25m
               memory: 50Mi
             limits:
-              cpu: 250m
+              cpu: 100m
               memory: 500Mi
   proxy:
     pgBouncer:
