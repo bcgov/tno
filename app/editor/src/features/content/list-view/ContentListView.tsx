@@ -19,7 +19,7 @@ import {
 } from 'tno-core';
 
 import { ContentForm } from '../form';
-import { ContentToolBar } from '../tool-bar';
+import { ContentToolBar } from './components';
 import { defaultPage, getColumns } from './constants';
 import { IContentListAdvancedFilter, IContentListFilter } from './interfaces';
 import * as styled from './styled';
@@ -41,11 +41,16 @@ export const ContentListView: React.FC = () => {
   const navigate = useNavigate();
   const { combined, formType } = useCombinedView();
   var hub = useApiHub();
+
   const channel = useChannel<any>({
     onMessage: (ev) => {
       switch (ev.data.type) {
         case 'content':
           updateContent([ev.data.message]);
+          break;
+        case 'page':
+          channel('page', content);
+          break;
       }
     },
   });
@@ -118,13 +123,15 @@ export const ContentListView: React.FC = () => {
             ...filter,
           }),
         );
-        return new Page(data.page - 1, data.quantity, data?.items, data.total);
+        const page = new Page(data.page - 1, data.quantity, data?.items, data.total);
+        channel('page', page);
+        return page;
       } catch (error) {
         // TODO: Handle error
         throw error;
       }
     },
-    [findContent],
+    [channel, findContent],
   );
 
   React.useEffect(() => {

@@ -11,6 +11,7 @@ metadata:
     component: postgres
     managed-by: kustomize
     created-by: jeremy.foster
+    updated-by: kulpree
 spec:
   users:
     - name: postgres
@@ -20,7 +21,7 @@ spec:
   monitoring:
     pgmonitor:
       exporter:
-        image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres-exporter:ubi8-5.0.4-0
+        image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres-exporter:ubi8-5.3.1-0
         resources:
           requests:
             cpu: 25m
@@ -28,7 +29,7 @@ spec:
           limits:
             cpu: 50m
             memory: 250Mi
-  image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres:centos8-14.1-0
+  image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres:ubi8-14.7-0
   postgresVersion: 14
   instances:
     - name: postgres
@@ -61,16 +62,16 @@ spec:
         replicaCertCopy:
           resources:
             requests:
-              cpu: 50m
+              cpu: 25m
               memory: 100Mi
             limits:
-              cpu: 250m
+              cpu: 100m
               memory: 250Mi
   backups:
     pgbackrest:
       global:
         repo1-retention-full: "2"
-      image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbackrest:centos8-2.36-0
+      image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbackrest:ubi8-2.41-4
       repoHost:
         resources:
           requests:
@@ -107,12 +108,20 @@ spec:
             limits:
               cpu: 250m
               memory: 500Mi
+        pgbackrestConfig:
+          resources:
+            requests:
+              cpu: 25m
+              memory: 50Mi
+            limits:
+              cpu: 100m
+              memory: 500Mi
   proxy:
     pgBouncer:
       config:
         global:
           client_tls_sslmode: disable
-      image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbouncer:centos8-1.16-0
+      image: artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-pgbouncer:ubi8-1.18-0
       replicas: 2
       resources:
         requests:

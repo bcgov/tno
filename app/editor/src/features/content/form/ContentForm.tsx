@@ -13,7 +13,7 @@ import {
   useLookupOptions,
   useWorkOrders,
 } from 'store/hooks';
-import { IAjaxRequest } from 'store/slices';
+import { IAjaxRequest, useContentStore } from 'store/slices';
 import {
   Area,
   Button,
@@ -46,10 +46,10 @@ import {
   WorkOrderTypeName,
 } from 'tno-core';
 
-import { ContentFormToolBar } from '../tool-bar/ContentFormToolBar';
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
+import { ContentFormToolBar } from './components';
 import { defaultFormValues } from './constants';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -81,6 +81,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [{ userInfo }] = useApp();
   const { id } = useParams();
   const [, { getContent, addContent, updateContent, deleteContent, upload, attach }] = useContent();
+  const [, { storeContent }] = useContentStore();
   const [, { findWorkOrders, transcribe, nlp }] = useWorkOrders();
   const { isShowing: showDeleteModal, toggle: toggleDelete } = useModal();
   const { isShowing: showTranscribeModal, toggle: toggleTranscribe } = useModal();
@@ -90,9 +91,13 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const { combined, formType } = useCombinedView(initContentType);
   useScrollTo(id, scrollToContent ? 'bottom-pane' : '');
   const { setShowValidationToast } = useTabValidationToasts();
+
   const channel = useChannel<any>({
     onMessage: (ev) => {
       switch (ev.data.type) {
+        case 'page':
+          storeContent(ev.data.message);
+          break;
         case 'content':
           setForm(toForm(ev.data.message));
           break;
@@ -118,6 +123,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
   const [product, setProduct] = React.useState('');
 
   const userId = userInfo?.id ?? '';
+
+  React.useEffect(() => {
+    // On the initial load it needs to request the page of content from the list view.
+    channel('page', null);
+  }, [channel]);
 
   const fetchContent = React.useCallback(
     (id: number) => {

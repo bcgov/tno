@@ -70,7 +70,7 @@ spec:
           cpu: 1000m
       script: |
         #!/usr/bin/env bash
-        set -xe
+        set -e
 
         # export TMPDIR="$(workspaces.source.path)/tmp/buildah"
         # mkdir -p "${TMPDIR}"

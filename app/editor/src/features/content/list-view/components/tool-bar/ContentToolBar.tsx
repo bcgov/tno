@@ -2,13 +2,13 @@ import React from 'react';
 import { useContent } from 'store/hooks';
 import { fromQueryString, ToolBar } from 'tno-core';
 
-import { IContentListAdvancedFilter, IContentListFilter } from '../list-view/interfaces';
+import { IContentListAdvancedFilter, IContentListFilter } from '../../../list-view/interfaces';
 import {
   AdvancedSearchSection,
   CreateNewSection,
   FilterContentSection,
   ShowOnlySection,
-} from './sections/filter';
+} from './filter';
 
 export interface IContentToolBarProps {
   onSearch: (filter: IContentListFilter & IContentListAdvancedFilter) => void;

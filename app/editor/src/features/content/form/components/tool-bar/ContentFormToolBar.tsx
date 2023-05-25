@@ -4,8 +4,8 @@ import { FaCalendarTimes } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
 import { Row, Show, ToggleGroup, ToolBar, ToolBarSection } from 'tno-core';
 
-import { IContentForm } from '../form/interfaces';
-import { ActionSection, AlertSection, StatusSection } from './sections/form';
+import { IContentForm } from '../../../form/interfaces';
+import { ActionSection, AlertSection, StatusSection } from './form';
 
 export interface IContentFormToolBarProps {
   /** Function to fetch content. */
