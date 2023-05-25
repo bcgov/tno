@@ -54,7 +54,7 @@ spec:
       resources: {}
       script: |
         #!/usr/bin/env bash
-        set -xe
+        set -e
         echo "Fetching connection information"
 
         PROJECT=$(params.PROJECT_SHORTNAME)-$(params.DEPLOY_TO)
