@@ -168,6 +168,34 @@ services:
       retries: 3
       start_period: 30s
 
+  contentmigration:
+    image: tno:contentmigration
+    profiles:
+      - all
+      - service
+    restart: "no"
+    container_name: tno-contentmigration
+    build:
+      context: ./
+      dockerfile: services/net/contentmigration/Dockerfile
+    env_file:
+      - services/net/contentmigration/.env
+    ports:
+      - ${CONTENTMIGRATION_PORT:-40032}:8081
+    depends_on:
+      - api
+      - broker
+    networks:
+      - tno
+    volumes:
+      - tno-av-data:/data
+    healthcheck:
+      test: curl -s -f http://localhost:8081/health || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   indexing:
     image: tno:indexing
     profiles:

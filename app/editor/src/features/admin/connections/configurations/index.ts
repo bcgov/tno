@@ -1,6 +1,7 @@
 export * from './AWSConfiguration';
 export * from './AzureConfiguration';
 export * from './ConnectionConfiguration';
+export * from './DBConfiguration';
 export * from './FTPConfiguration';
 export * from './HTTPConfiguration';
 export * from './LocalVolumeConfiguration';
