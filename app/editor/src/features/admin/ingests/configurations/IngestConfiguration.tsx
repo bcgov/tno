@@ -3,7 +3,7 @@ import React from 'react';
 import { useConnections } from 'store/hooks/admin';
 import { IIngestModel, Show } from 'tno-core';
 
-import { Audio, AVArchive, FrontPage, Image, Newspaper, Syndication, Video } from '.';
+import { Audio, AVArchive, DbMigration, FrontPage, Image, Newspaper, Syndication, Video } from '.';
 import * as styled from './styled';
 
 // TODO: Hardcoded configuration values based on the ingest type name isn't good because it can be edited by an admin.
@@ -53,6 +53,18 @@ export const IngestConfiguration: React.FC = (props) => {
       </Show>
       <Show visible={values.ingestType?.name === 'Corporate Calendar'}>
         <p>Under Construction</p>
+      </Show>
+      <Show visible={values.ingestType?.name === 'TNO-Image'}>
+        <DbMigration />
+      </Show>
+      <Show visible={values.ingestType?.name === 'TNO-PrintContent'}>
+        <DbMigration />
+      </Show>
+      <Show visible={values.ingestType?.name === 'TNO-Snippet'}>
+        <DbMigration />
+      </Show>
+      <Show visible={values.ingestType?.name === 'TNO-Story'}>
+        <DbMigration />
       </Show>
     </styled.Connection>
   );
