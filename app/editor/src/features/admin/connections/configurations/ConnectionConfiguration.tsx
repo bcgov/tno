@@ -5,6 +5,7 @@ import { ConnectionTypeName, FormikTextArea, IConnectionModel } from 'tno-core';
 import {
   AWSConfiguration,
   AzureConfiguration,
+  DBConfiguration,
   FTPConfiguration,
   HTTPConfiguration,
   LocalVolumeConfiguration,
@@ -45,6 +46,8 @@ export const ConnectionConfiguration = () => {
       return <AzureConfiguration />;
     case ConnectionTypeName.AWS:
       return <AWSConfiguration />;
+    case ConnectionTypeName.Database:
+      return <DBConfiguration />;
     default:
       return (
         <FormikTextArea

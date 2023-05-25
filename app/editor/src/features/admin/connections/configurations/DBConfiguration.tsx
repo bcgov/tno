@@ -1,0 +1,55 @@
+import { useFormikContext } from 'formik';
+import { Col, FormikText, IConnectionModel, Row } from 'tno-core';
+
+export const DBConfiguration = () => {
+  const { values } = useFormikContext<IConnectionModel>();
+
+  return (
+    <div>
+      <Row>
+        <Col flex="1 1 0">
+          <FormikText
+            label="Hostname"
+            name="configuration.hostname"
+            value={values.configuration?.hostname}
+          />
+        </Col>
+        <Col flex="1 1 0">
+          <FormikText
+            label="Port"
+            name="configuration.port"
+            value={values.configuration?.port}
+            type="number"
+            placeholder="1521"
+          />
+        </Col>
+        <Col flex="1 1 0">
+          <FormikText
+            label="Oracle SID"
+            name="configuration.sid"
+            value={values.configuration?.sid}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col flex="1 1 0">
+          <FormikText
+            label="Username"
+            name="configuration.username"
+            value={values.configuration?.username}
+            autoComplete="off"
+          />
+        </Col>
+        <Col flex="1 1 0">
+          <FormikText
+            label="Password"
+            name="configuration.password"
+            value={values.configuration?.password}
+            type="password"
+            autoComplete="new-password"
+          />
+        </Col>
+      </Row>
+    </div>
+  );
+};
