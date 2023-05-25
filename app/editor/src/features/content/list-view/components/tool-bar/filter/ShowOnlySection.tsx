@@ -60,9 +60,8 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
       if (filter.contentTypes?.includes(ContentTypeName.PrintContent))
         selectedOptions.push(showOnlyOptions[0]);
       if (filter.hasTopic) selectedOptions.push(showOnlyOptions[1]);
-      if (filter.onTicker) selectedOptions.push(showOnlyOptions[2]);
-      if (filter.commentary) selectedOptions.push(showOnlyOptions[3]);
-      if (filter.topStory) selectedOptions.push(showOnlyOptions[4]);
+      if (filter.commentary) selectedOptions.push(showOnlyOptions[2]);
+      if (filter.topStory) selectedOptions.push(showOnlyOptions[3]);
       return selectedOptions;
     };
 
@@ -106,7 +105,7 @@ export const ShowOnlySection: React.FC<IShowOnlySectionProps> = () => {
                     pageIndex: 0,
                     contentTypes: values.some((o) => o.value === ShowOnlyValues.PrintContent)
                       ? [...filter.contentTypes, ContentTypeName.PrintContent]
-                      : filter.contentTypes,
+                      : filter.contentTypes.filter((x) => x !== ContentTypeName.PrintContent),
                     hasTopic: values.some((o) => o.value === ShowOnlyValues.HasTopic),
                     commentary: values.some((o) => o.value === ShowOnlyValues.Commentary),
                     topStory: values.some((o) => o.value === ShowOnlyValues.TopStory),
