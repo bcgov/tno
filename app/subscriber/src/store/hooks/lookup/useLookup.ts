@@ -4,20 +4,14 @@ import {
   getFromLocalStorage,
   IActionModel,
   ICacheModel,
-  IDataLocationModel,
-  IHolidayModel,
-  IIngestTypeModel,
   ILicenseModel,
   IProductModel,
-  IRoleModel,
   ISeriesModel,
   ISourceActionModel,
   ISourceModel,
   ITagModel,
   ITonePoolModel,
   ITopicModel,
-  ITopicScoreRuleModel,
-  IUserModel,
   useApiActions,
   useApiCache,
   useApiLicenses,
@@ -90,30 +84,20 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               saveToLocalStorage('sources', results.sources, store.storeSources);
               saveToLocalStorage('licenses', results.licenses, store.storeLicenses);
               saveToLocalStorage('series', results.series, store.storeSeries);
-              saveToLocalStorage('contributors', results.contributors, store.storeContributors);
-              saveToLocalStorage('source_actions', results.sourceActions, store.storeSourceActions);
               saveToLocalStorage('tags', results.tags, store.storeTags);
               saveToLocalStorage('tone_pools', results.tonePools, store.storeTonePools);
-              saveToLocalStorage('holidays', results.holidays, store.storeHolidays);
               return results;
             } else {
               const lookups = {
                 actions: getFromLocalStorage<IActionModel[]>('actions', []),
                 topics: getFromLocalStorage<ITopicModel[]>('topics', []),
-                rules: getFromLocalStorage<ITopicScoreRuleModel[]>('rules', []),
                 products: getFromLocalStorage<IProductModel[]>('products', []),
                 sources: getFromLocalStorage<ISourceModel[]>('sources', []),
-                ingestTypes: getFromLocalStorage<IIngestTypeModel[]>('ingest_types', []),
                 licenses: getFromLocalStorage<ILicenseModel[]>('licenses', []),
-                roles: getFromLocalStorage<IRoleModel[]>('roles', []),
                 series: getFromLocalStorage<ISeriesModel[]>('series', []),
                 ministers: getFromLocalStorage<IMinisterModel[]>('ministers', []),
-                sourceActions: getFromLocalStorage<ISourceActionModel[]>('source_actions', []),
                 tags: getFromLocalStorage<ITagModel[]>('tags', []),
                 tonePools: getFromLocalStorage<ITonePoolModel[]>('tone_pools', []),
-                users: getFromLocalStorage<IUserModel[]>('users', []),
-                dataLocations: getFromLocalStorage<IDataLocationModel[]>('dataLocations', []),
-                holidays: getFromLocalStorage<IHolidayModel[]>('holidays', []),
               };
               store.storeActions(lookups.actions);
               store.storeTopics(lookups.topics);
@@ -121,10 +105,8 @@ export const useLookup = (): [ILookupState, ILookupController] => {
               store.storeSources(lookups.sources);
               store.storeLicenses(lookups.licenses);
               store.storeSeries(lookups.series);
-              store.storeSourceActions(lookups.sourceActions);
               store.storeTags(lookups.tags);
               store.storeTonePools(lookups.tonePools);
-              store.storeHolidays(lookups.holidays);
               store.storeMinisters(lookups.ministers);
               return lookups;
             }

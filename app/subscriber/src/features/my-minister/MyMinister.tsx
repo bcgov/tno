@@ -1,3 +1,4 @@
+import { defaultUser } from 'features/access-request/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -10,7 +11,6 @@ import { useApp, useContent, useUsers } from 'store/hooks';
 import { FlexboxTable, IContentModel, IUserModel, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
-import { defaultUser } from 'features/access-request/constants';
 
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
@@ -26,7 +26,7 @@ export const MyMinister: React.FC = () => {
         setUser(data);
       });
     }
-  }, [userInfo]);
+  }, [userInfo, api]);
 
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(

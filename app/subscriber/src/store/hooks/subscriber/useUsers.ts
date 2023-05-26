@@ -1,8 +1,9 @@
 import React from 'react';
 import { useAjaxWrapper } from 'store/hooks';
-import { IUserModel } from 'tno-core';
-import { useApiUsers } from './api/useApiUsers';
 import { useAdminStore } from 'store/slices';
+import { IUserModel } from 'tno-core';
+
+import { useApiUsers } from './api/useApiUsers';
 
 interface IUserController {
   getUser: (id: number) => Promise<IUserModel>;
@@ -31,7 +32,7 @@ export const useUsers = (): IUserController => {
         return response.data;
       },
     }),
-    [api, dispatch],
+    [api, dispatch, state.users, store],
   );
 
   return controller;

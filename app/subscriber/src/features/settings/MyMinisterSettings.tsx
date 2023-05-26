@@ -1,16 +1,17 @@
+import { FormikForm } from 'components/formik';
+import { defaultUser } from 'features/access-request/constants';
 import React from 'react';
+import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
 import { Button, IOptionItem, IUserModel, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
-import { FormikForm } from 'components/formik';
-import { toast } from 'react-toastify';
-import { defaultUser } from 'features/access-request/constants';
 
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
   const [myMinister, setMyMinister] = React.useState<string>();
   const [{ userInfo }] = useApp();
+  const api = useUsers();
 
   const [user, setUser] = React.useState<IUserModel>(defaultUser);
 
@@ -20,9 +21,7 @@ export const MyMinisterSettings: React.FC = () => {
         setUser(data);
       });
     }
-  }, [userInfo]);
-
-  const api = useUsers();
+  }, [userInfo, api]);
 
   React.useEffect(() => {
     if (!!myMinister) localStorage.setItem('myMinister', myMinister);
