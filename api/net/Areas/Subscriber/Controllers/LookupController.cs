@@ -37,7 +37,6 @@ public class LookupController : ControllerBase
     private readonly IHttpRequestClient _httpClient;
     private readonly IActionService _actionService;
     private readonly ITopicService _topicService;
-    private readonly ITopicScoreRuleService _topicScoreRuleService;
     private readonly IProductService _productService;
     private readonly ISourceService _sourceService;
     private readonly IMinisterService _ministerService;
