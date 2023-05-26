@@ -14,7 +14,7 @@ export interface IMediaSummaryProps {
   stream: any;
   contentType?: ContentTypeName;
   setShowExpandModal?: (show: boolean) => void;
-  product: string;
+  isSummaryRequired: boolean;
 }
 
 /**
@@ -28,7 +28,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
   stream,
   contentType,
   setShowExpandModal,
-  product,
+  isSummaryRequired,
 }) => {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const { setFieldValue, values } = useFormikContext<IContentForm>();
@@ -64,7 +64,7 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
       <Col className="summary">
         <Wysiwyg
           label="Summary"
-          required={product !== 'News Radio' && product !== 'Events'}
+          required={isSummaryRequired}
           fieldName="summary"
           expandModal={setShowExpandModal}
         />

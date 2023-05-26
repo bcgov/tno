@@ -32,7 +32,7 @@ import * as styled from './styled';
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
   setContent: (content: IContentForm) => void;
-  product: string;
+  isSummaryRequired: boolean;
 }
 
 /**
@@ -43,7 +43,7 @@ export interface IContentStoryFormProps {
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   setContent,
   contentType,
-  product,
+  isSummaryRequired,
 }) => {
   const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
@@ -207,14 +207,14 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           stream={stream}
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
-          product={product}
+          isSummaryRequired={isSummaryRequired}
         />
       </Show>
       <Modal
         body={
           <Wysiwyg
             label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
-            required={product !== 'News Radio' && product !== 'Events'}
+            required={isSummaryRequired}
             hasHeight
             fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
           />

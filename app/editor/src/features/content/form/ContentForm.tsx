@@ -120,7 +120,12 @@ export const ContentForm: React.FC<IContentFormProps> = ({
     ...defaultFormValues(contentType),
     id: parseInt(id ?? '0'),
   });
-  const [product, setProduct] = React.useState('');
+
+  const [isSummaryRequired, setIsSummaryRequired] = React.useState(true);
+  const setSummaryRequirement = (input: string | unknown) => {
+    const product = typeof input === 'string' ? input : (input as any)?.label;
+    setIsSummaryRequired(product !== 'News Radio' && product !== 'Events');
+  };
 
   const userId = userInfo?.id ?? '';
 
@@ -134,7 +139,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
       getContent(id).then((content) => {
         if (!!content) {
           setForm(toForm(content));
-          if (content.product) setProduct(content.product.name);
+          if (content.product) setSummaryRequirement(content.product.name);
           findWorkOrders({ contentId: id }).then((res) => {
             setForm({ ...toForm(content), workOrders: res.data.items });
             // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
@@ -447,7 +452,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                                   ) ?? ''
                                 }
                                 onChange={(newValue: any) => {
-                                  setProduct(newValue?.label);
+                                  setSummaryRequirement(newValue?.label);
                                 }}
                                 label="Product"
                                 width={FieldSize.Small}
@@ -474,7 +479,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                       </Row>
                       {/* Image form layout */}
                       <Show visible={contentType === ContentTypeName.Image}>
-                        <ImageSection />
+                        <ImageSection handleProductChange={setSummaryRequirement} />
                       </Show>
                       <Show visible={contentType === ContentTypeName.PrintContent}>
                         <Row>
@@ -565,7 +570,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     <ContentStoryForm
                       setContent={setForm}
                       contentType={ContentTypeName.Image}
-                      product={product}
+                      isSummaryRequired={isSummaryRequired}
                     />
                   </Show>
                 </Row>
@@ -640,7 +645,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                         <ContentStoryForm
                           setContent={setForm}
                           contentType={contentType}
-                          product={product}
+                          isSummaryRequired={isSummaryRequired}
                         />
                       </Show>
                       <Show visible={active === 'transcript'}>
@@ -662,7 +667,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     <ContentStoryForm
                       setContent={setForm}
                       contentType={contentType}
-                      product={product}
+                      isSummaryRequired={isSummaryRequired}
                     />
                   </Show>
                 </Row>
