@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using TNO.API.Areas.Subscriber.Content;
 using TNO.API.Models;
 
 using TNO.Entities;
@@ -35,7 +36,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The product.
     /// </summary>
-    public Product.ProductModel? Product { get; set; }
+    public ProductModel? Product { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to license.
@@ -45,7 +46,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The content type.
     /// </summary>
-    public License.LicenseModel? License { get; set; }
+    public LicenseModel? License { get; set; }
 
     /// <summary>
     /// get/set - Foreign key to series (program/show).
@@ -55,7 +56,7 @@ public class ContentModel : AuditColumnsModel
     /// <summary>
     /// get/set - The series (program/show).
     /// </summary>
-    public Series.SeriesModel? Series { get; set; }
+    public SeriesModel? Series { get; set; }
 
     /// <summary>
     /// get/set - Provides a way to dynamically add new series.
@@ -199,12 +200,12 @@ public class ContentModel : AuditColumnsModel
         this.Id = entity?.Id ?? throw new ArgumentNullException(nameof(entity));
         this.Status = entity.Status;
         this.ProductId = entity.ProductId;
-        this.Product = entity.Product != null ? new Product.ProductModel(entity.Product) : null;
+        this.Product = entity.Product != null ? new ProductModel(entity.Product) : null;
         this.ContentType = entity.ContentType;
         this.LicenseId = entity.LicenseId;
-        this.License = entity.License != null ? new License.LicenseModel(entity.License) : null;
+        this.License = entity.License != null ? new LicenseModel(entity.License) : null;
         this.SeriesId = entity.SeriesId;
-        this.Series = entity.Series != null ? new Series.SeriesModel(entity.Series) : null;
+        this.Series = entity.Series != null ? new SeriesModel(entity.Series) : null;
         this.ContributorId = entity.ContributorId;
         this.Contributor = entity.Contributor != null ? new ContributorModel(entity.Contributor) : null;
         this.OwnerId = entity.OwnerId;

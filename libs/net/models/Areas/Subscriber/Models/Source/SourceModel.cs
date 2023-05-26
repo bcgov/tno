@@ -78,10 +78,6 @@ public class SourceModel
     /// </summary>
     public bool UseInTopics { get; set; }
 
-    /// <summary>
-    /// get/set -
-    /// </summary>
-    public Dictionary<string, object> Configuration { get; set; } = new Dictionary<string, object>();
     #endregion
 
     #region Constructors
@@ -111,7 +107,6 @@ public class SourceModel
         this.AutoTranscribe = entity.AutoTranscribe;
         this.DisableTranscribe = entity.DisableTranscribe;
         this.UseInTopics = entity.UseInTopics;
-        this.Configuration = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Configuration, options) ?? new Dictionary<string, object>();
     }
     #endregion
 }
