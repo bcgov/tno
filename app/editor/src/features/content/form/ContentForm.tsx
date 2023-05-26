@@ -49,7 +49,7 @@ import {
 import { isWorkOrderStatus } from '../utils';
 import { ContentFormSchema } from '../validation';
 import { ContentClipForm, ContentLabelsForm, ContentStoryForm, ContentTranscriptForm } from '.';
-import { ContentFormToolBar } from './components';
+import { ContentFormToolBar, TimeLogSection } from './components';
 import { defaultFormValues } from './constants';
 import { ImageSection } from './ImageSection';
 import { IContentForm } from './interfaces';
@@ -140,13 +140,14 @@ export const ContentForm: React.FC<IContentFormProps> = ({
             // If the form is loaded from the URL instead of clicking on the list view it defaults to the snippet form.
           });
           setContentType(content.contentType);
+          channel('load', content);
         } else {
           toast.error('Content requested could not be found.');
           navigate('/contents');
         }
       });
     },
-    [getContent, findWorkOrders, navigate],
+    [channel, getContent, findWorkOrders, navigate],
   );
 
   const onWorkOrder = React.useCallback(
@@ -218,8 +219,11 @@ export const ContentForm: React.FC<IContentFormProps> = ({
 
         channel('content', result);
 
-        if (!originalId)
-          navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+        if (!originalId) {
+          // Reset form for next record.
+          setForm({ ...defaultFormValues(contentType) });
+          // navigate(getContentPath(combined, contentResult.id, contentResult?.contentType));
+        }
         if (!!contentResult?.seriesId) {
           // A dynamically added series has been added, fetch the latests series.
           const newSeries = series.find((s) => s.id === contentResult?.seriesId);
@@ -559,10 +563,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                 <Row flex="1 1 100%" wrap="nowrap">
                   <Show visible={contentType === ContentTypeName.Image}>
                     <ContentStoryForm
-                      content={form}
                       setContent={setForm}
                       contentType={ContentTypeName.Image}
-                      savePressed={savePressed}
                       product={product}
                     />
                   </Show>
@@ -636,10 +638,8 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                     >
                       <Show visible={active === 'properties'}>
                         <ContentStoryForm
-                          content={form}
                           setContent={setForm}
                           contentType={contentType}
-                          savePressed={savePressed}
                           product={product}
                         />
                       </Show>
@@ -660,7 +660,6 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                   <Show visible={contentType === ContentTypeName.PrintContent}>
                     <ContentStoryForm
-                      content={form}
                       setContent={setForm}
                       contentType={contentType}
                       product={product}
@@ -668,6 +667,16 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   </Show>
                 </Row>
                 <Row className="submit-buttons">
+                  <Row
+                    flex="1 1 0"
+                    className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}
+                  >
+                    <Show visible={contentType === ContentTypeName.Snippet}>
+                      <Row className="multi-group">
+                        <TimeLogSection />
+                      </Row>
+                    </Show>
+                  </Row>
                   <Show
                     visible={
                       contentType === ContentTypeName.Snippet &&

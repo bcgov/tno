@@ -1,3 +1,4 @@
+import { useTab } from 'features/content';
 import React from 'react';
 import { FaFileAlt, FaFileAudio, FaFileImage, FaFileInvoice } from 'react-icons/fa';
 import { GiFairyWand } from 'react-icons/gi';
@@ -9,6 +10,8 @@ import * as styled from './styled';
 export interface ICreateNewSectionProps {
   /** What types of content will be displayed. */
   contentTypes?: ContentTypeName[];
+  /** Whether to open form in tab. */
+  openTab?: boolean;
 }
 
 /**
@@ -22,8 +25,10 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
     ContentTypeName.Image,
     ContentTypeName.Story,
   ],
+  openTab = true,
 }) => {
   const navigate = useNavigate();
+  const initTab = useTab();
 
   const getIcon = React.useCallback(
     (contentType: ContentTypeName) => {
@@ -34,7 +39,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Radio/TV"
               data-tooltip-id="main-tooltip"
-              onClick={() => navigate('/snippets/0')}
+              onClick={() => (openTab ? initTab(0, '/contents') : navigate('/contents/0'))}
               className="action-button"
             />
           );
@@ -44,7 +49,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Print content"
               data-tooltip-id="main-tooltip"
-              onClick={() => navigate('/papers/0')}
+              onClick={() => (openTab ? initTab(0, '/papers') : navigate('/papers/0'))}
               className="action-button"
             />
           );
@@ -54,7 +59,7 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Image"
               data-tooltip-id="main-tooltip"
-              onClick={() => navigate('/images/0')}
+              onClick={() => (openTab ? initTab(0, '/images') : navigate('/images/0'))}
               className="action-button"
             />
           );
@@ -64,13 +69,13 @@ export const CreateNewSection: React.FC<ICreateNewSectionProps> = ({
               key={contentType}
               data-tooltip-content="Internet"
               data-tooltip-id="main-tooltip"
-              onClick={() => navigate('/stories/0')}
+              onClick={() => (openTab ? initTab(0, '/stories') : navigate('/stories/0'))}
               className="action-button"
             />
           );
       }
     },
-    [navigate],
+    [initTab, navigate, openTab],
   );
 
   return (

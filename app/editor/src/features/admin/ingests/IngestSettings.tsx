@@ -157,6 +157,54 @@ export const IngestSettings: React.FC<IIngestSettingsProps> = () => {
                 </Col>
               </Row>
             </Show>
+            <Show visible={values.sourceConnection?.connectionType === ConnectionTypeName.Database}>
+              <Row>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Hostname"
+                    name="_.hostname"
+                    value={values.sourceConnection?.configuration.hostname}
+                    disabled
+                  />
+                </Col>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Port"
+                    name="_.port"
+                    value={values.sourceConnection?.configuration.port}
+                    disabled
+                  />
+                </Col>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Oracle SID"
+                    name="_.sid"
+                    value={values.sourceConnection?.configuration.sid}
+                    disabled
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Username"
+                    name="_.username"
+                    value={values.sourceConnection?.configuration.username}
+                    disabled
+                  />
+                </Col>
+                <Col flex="1 1 0">
+                  <FormikText
+                    label="Password"
+                    name="_.password"
+                    value={values.sourceConnection?.configuration.password}
+                    type="password"
+                    disabled
+                    autoComplete="new-password"
+                  />
+                </Col>
+              </Row>
+            </Show>
             <hr />
             <p>
               If the ingest service will generate files select the connection that represents the

@@ -67,6 +67,7 @@ CLIP_PORT=$portClip
 IMAGE_PORT=$portImage
 FILE_PORT=$portFile
 CONTENT_PORT=$portContent
+CONTENTMIGRATION_PORT=$portContentMigration
 INDEXING_PORT=$portIndexing
 IMAGE_PORT=$portImage
 TRANSCRIPTION_PORT=$portTranscription
@@ -563,6 +564,28 @@ Kafka__Consumer__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertise
 Service__ApiUrl=http://host.docker.internal:$portApi/api
 Service__TranscriptionTopic=transcription" >> ./services/net/content/.env
     echo "./services/net/content/.env created"
+fi
+
+## Content Migration Service
+if test -f "./services/net/contentmigration/.env"; then
+    echo "./services/net/contentmigration/.env exists"
+else
+echo \
+"ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://+:8081
+
+Auth__Keycloak__Authority=http://host.docker.internal:$portKeycloak/auth
+Auth__Keycloak__Audience=tno-service-account
+Auth__Keycloak__Secret={YOU WILL NEED TO GET THIS FROM KEYCLOAK}
+Auth__OIDC__Token=/realms/tno/protocol/openid-connect/token
+
+Kafka__Admin__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+Kafka__Producer__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+Kafka__Consumer__BootstrapServers=host.docker.internal:$portKafkaBorkerAdvertisedExternal
+
+Service__ApiUrl=http://host.docker.internal:$portApi/api
+Service__TranscriptionTopic=transcription" >> ./services/net/contentmigration/.env
+    echo "./services/net/contentmigration/.env created"
 fi
 
 ## Transcription Service

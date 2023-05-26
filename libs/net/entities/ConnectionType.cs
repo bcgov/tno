@@ -44,4 +44,9 @@ public enum ConnectionType
     /// Files are accessible via SSH.
     /// </summary>
     SSH = 7,
+
+    /// <summary>
+    /// Files are accessible via SSH.
+    /// </summary>
+    Database = 8,
 }

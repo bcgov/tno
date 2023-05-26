@@ -22,4 +22,7 @@ export enum ConnectionType {
 
   /** Files are stored on an SSH. */
   SSH = 7,
+
+  /** Files are stored in a database. */
+  Database = 8,
 }

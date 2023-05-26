@@ -218,6 +218,42 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-contentmigration",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/services/net/contentmigration/TNO.Services.ContentMigration.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "publish-contentmigration",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "publish",
+        "${workspaceFolder}/services/net/contentmigration/TNO.Services.ContentMigration.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "watch-contentmigration",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "watch",
+        "run",
+        "--project",
+        "${workspaceFolder}/services/net/contentmigration/TNO.Services.ContentMigration.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-indexing",
       "command": "dotnet",
       "type": "process",

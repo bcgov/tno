@@ -1,41 +1,40 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Syndication", "syndication\TNO.Services.Syndication.csproj", "{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Syndication", "syndication\TNO.Services.Syndication.csproj", "{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.NLP", "nlp\TNO.Services.NLP.csproj", "{9F920C1C-1D67-4D34-A60E-5608D4989762}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.NLP", "nlp\TNO.Services.NLP.csproj", "{9F920C1C-1D67-4D34-A60E-5608D4989762}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Content", "content\TNO.Services.Content.csproj", "{F57E61B8-C192-4FF9-B211-77FEAB8890B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Content", "content\TNO.Services.Content.csproj", "{F57E61B8-C192-4FF9-B211-77FEAB8890B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Capture", "capture\TNO.Services.Capture.csproj", "{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Capture", "capture\TNO.Services.Capture.csproj", "{3D6F6F0D-E74E-45A4-BA5E-49B42E918666}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Command", "command\TNO.Services.Command.csproj", "{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Command", "command\TNO.Services.Command.csproj", "{7E4A9F16-3A45-48C7-8EB8-4A2EA1F9FBBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Clip", "clip\TNO.Services.Clip.csproj", "{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Clip", "clip\TNO.Services.Clip.csproj", "{C45D2D4B-3B1C-42CC-912E-44BDB83BB3ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Image", "image\TNO.Services.Image.csproj", "{9F4D1CCE-68FC-4E8B-8548-4372488117C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Image", "image\TNO.Services.Image.csproj", "{9F4D1CCE-68FC-4E8B-8548-4372488117C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Indexing", "indexing\TNO.Services.Indexing.csproj", "{8F84A744-F6DC-489C-8053-9F47AFF0910E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Indexing", "indexing\TNO.Services.Indexing.csproj", "{8F84A744-F6DC-489C-8053-9F47AFF0910E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Transcription", "transcription\TNO.Services.Transcription.csproj", "{5D2287DD-75F6-4FBD-A8CE-F169C360D1B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Transcription", "transcription\TNO.Services.Transcription.csproj", "{5D2287DD-75F6-4FBD-A8CE-F169C360D1B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FileMonitor", "filemonitor\TNO.Services.FileMonitor.csproj", "{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.FileMonitor", "filemonitor\TNO.Services.FileMonitor.csproj", "{AEFBDFA4-A08B-45A0-8E5A-630D64BD56E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.FileCopy", "filecopy\TNO.Services.FileCopy.csproj", "{E755104A-D6DB-4650-BF92-CA910A5D46EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.FileCopy", "filecopy\TNO.Services.FileCopy.csproj", "{E755104A-D6DB-4650-BF92-CA910A5D46EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Notification", "notification\TNO.Services.Notification.csproj", "{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Notification", "notification\TNO.Services.Notification.csproj", "{01F3864D-6AB7-49DC-A512-EF2944E1B3DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TNO.Services.Reporting", "reporting\TNO.Services.Reporting.csproj", "{148C9B22-5EB0-416C-9A1F-9A19E9821F9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.Reporting", "reporting\TNO.Services.Reporting.csproj", "{148C9B22-5EB0-416C-9A1F-9A19E9821F9D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TNO.Services.ContentMigration", "contentmigration\TNO.Services.ContentMigration.csproj", "{2A181581-3371-45DC-8001-1B1C5366BD23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F3D767A1-7B69-415D-ADAF-29EF5814C4EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -90,5 +89,12 @@ Global
 		{148C9B22-5EB0-416C-9A1F-9A19E9821F9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{148C9B22-5EB0-416C-9A1F-9A19E9821F9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{148C9B22-5EB0-416C-9A1F-9A19E9821F9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A181581-3371-45DC-8001-1B1C5366BD23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A181581-3371-45DC-8001-1B1C5366BD23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A181581-3371-45DC-8001-1B1C5366BD23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A181581-3371-45DC-8001-1B1C5366BD23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

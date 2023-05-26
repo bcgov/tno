@@ -4,6 +4,9 @@ export const Upload = styled.div`
   display: flex;
   flex-direction: row;
   width: fit-content;
+  height: 100%;
+  width: 100%;
+
   .indicator {
     align-self: center;
     padding-right: 0.25em;
@@ -13,6 +16,12 @@ export const Upload = styled.div`
     height: 5rem;
     width: 5rem;
     align-self: center;
+  }
+  .drop-box {
+    label {
+      height: 100%;
+      width: 100%;
+    }
   }
 
   .text {
@@ -26,10 +35,9 @@ export const Upload = styled.div`
     font-size: 1rem;
   }
   .upload-box {
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
     border: 1px dotted #ccc;
-    width: 500px;
-    min-height: 24em;
+    padding-bottom: 1rem;
   }
   .body {
     margin-top: 15%;
