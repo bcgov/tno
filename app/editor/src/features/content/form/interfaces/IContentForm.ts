@@ -21,7 +21,6 @@ export interface IContentForm {
   contentType: ContentTypeName;
   ownerId: number | '';
   productId: number;
-  product: string;
   licenseId: number;
   sourceId?: number;
   otherSource: string;

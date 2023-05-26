@@ -13,7 +13,6 @@ export const defaultFormValues = (contentType: ContentTypeName): IContentForm =>
     otherSource: '',
     tempSource: '',
     productId: 0,
-    product: '',
     licenseId: 1,
     seriesId: undefined,
     otherSeries: '',
