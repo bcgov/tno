@@ -1,4 +1,5 @@
 import { defaultAlert } from 'features/admin/alerts/constants';
+import parse from 'html-react-parser';
 import React from 'react';
 import { useAnonAlerts } from 'store/hooks';
 import { IAlertModel, Show } from 'tno-core';
@@ -27,7 +28,7 @@ export const InfoText: React.FC = () => {
         <li>Articles related to major stories.</li>
       </ul>
       <Show visible={alert.isEnabled}>
-        <p className="alert-message">{alert.message ?? ''}</p>
+        <p className="alert-message">{parse(alert.message) ?? ''}</p>
       </Show>
       <div className="email">
         <a style={{ marginTop: 25 }} href="mailto:tnonews-help@gov.bc.ca">
