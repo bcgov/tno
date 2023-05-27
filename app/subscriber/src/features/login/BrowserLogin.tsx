@@ -1,7 +1,7 @@
+import parse from 'html-react-parser';
 import React from 'react';
 import { useAlerts } from 'store/hooks';
 import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
-import parse from 'html-react-parser';
 
 import * as styled from './styled';
 
