@@ -72,92 +72,15 @@ INSERT INTO public.product (
   , ''
   , ''
 ), (
-  'Live stream' -- 10
-  , 'Embedded press theatre URL - Alerts summary and URL link - can be password protected (was Webcast)'
-  , true
-  , 100
-  , ''
-  , ''
-), (
-  'Front Page' -- 11
+  'Front Page' -- 10
   , 'JPGs of front pages of 5 Daily Papers'
   , true
   , 100
   , ''
   , ''
 ), (
-  'Corporate Calendar' -- 12
+  'Corporate Calendar' -- 11
   , 'Screenshot of corporate calendar - page 2'
-  , true
-  , 100
-  , ''
-  , ''
-), (
-  'BiV' -- 13
-  , 'Business in Vancouver'
-  , true
-  , 40
-  , ''
-  , ''
-), (
-  'Castanet' -- 14
-  , ''
-  , true
-  , 70
-  , ''
-  , ''
-), (
-  'Daily Hive' -- 15
-  , ''
-  , true
-  , 30
-  , ''
-  , ''
-), (
-  'Ha-Shilth-Sa' -- 16
-  , 'Canada''s Oldest First Nations Newspaper https://hashilthsa.com/news'
-  , true
-  , 80
-  , ''
-  , ''
-), (
-  'iPolitics' -- 17
-  , ''
-  , true
-  , 20
-  , ''
-  , ''
-), (
-  'Georgia Straight' -- 18
-  , ''
-  , true
-  , 50
-  , ''
-  , ''
-), (
-  'iNFOnews' -- 19
-  , ''
-  , true
-  , 60
-  , ''
-  , ''
-), (
-  'Advertising Campaign' -- 20
-  , ''
-  , true
-  , 99
-  , ''
-  , ''
-), (
-  'Narwhal' -- 21
-  , ''
-  , true
-  , 100
-  , ''
-  , ''
-), (
-  'The Georgia Straight' -- 22
-  , ''
   , true
   , 100
   , ''

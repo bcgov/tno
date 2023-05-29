@@ -11,7 +11,6 @@ DECLARE talkRadioId INT := (SELECT id FROM public.product WHERE "name" = 'Talk R
 DECLARE videoNewsId INT := (SELECT id FROM public.product WHERE "name" = 'TV / Video News'); -- product_id
 DECLARE weeklyPrintId INT := (SELECT id FROM public.product WHERE "name" = 'Weekly Print'); -- product_id
 DECLARE dailyPrintId INT := (SELECT id FROM public.product WHERE "name" = 'Daily Print'); -- product_id
-DECLARE haShilthSaId INT := (SELECT id FROM public.product WHERE "name" = 'Ha-Shilth-Sa'); -- product_id
 DECLARE onlinePrintId INT := (SELECT id FROM public.product WHERE "name" = 'Online Print'); -- product_id
 
 DECLARE conNoneId INT := (SELECT id FROM public.connection WHERE "name" = 'None'); -- connection_id
@@ -279,7 +278,7 @@ INSERT INTO public.ingest (
   , ingestSyndicationId -- ingest_type_id
   , (SELECT id FROM public.source WHERE code = 'HaShilthSa') -- source_id
   , 'Ha-Shilth-Sa' -- topic
-  , haShilthSaId -- product_id
+  , wireId -- product_id
   , '{ "import": true,
       "post": true,
       "timeZone": "Pacific Standard Time",
