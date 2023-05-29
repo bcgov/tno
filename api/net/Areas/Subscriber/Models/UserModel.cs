@@ -1,7 +1,7 @@
 using System.Text.Json;
 using TNO.API.Models;
 
-namespace TNO.API.Areas.Services.Models.Minister;
+namespace TNO.API.Areas.Subscriber.Models;
 
 /// <summary>
 /// UserModel class, provides a model that represents an user.

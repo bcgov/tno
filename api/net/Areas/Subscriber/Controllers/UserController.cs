@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
-using TNO.API.Areas.Services.Models.Minister;
 using TNO.API.CSS;
 using TNO.API.Models;
 using TNO.DAL.Services;
+using TNO.API.Areas.Subscriber.Models;
 using TNO.Entities;
 using TNO.Entities.Models;
 using TNO.Keycloak;
@@ -101,7 +101,7 @@ public class UserController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-    [SwaggerOperation(Tags = new[] { "User" })]
+[SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync(UserModel model)
     {
         await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());

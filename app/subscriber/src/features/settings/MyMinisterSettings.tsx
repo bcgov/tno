@@ -3,7 +3,7 @@ import { defaultUser } from 'features/access-request/constants';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
-import { Button, IOptionItem, IUserModel, RadioGroup, Row } from 'tno-core';
+import { Button, IUserModel, OptionItem, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -27,19 +27,7 @@ export const MyMinisterSettings: React.FC = () => {
     if (!!myMinister) localStorage.setItem('myMinister', myMinister);
   }, [myMinister]);
 
-  const options = ministers.map((m) => {
-    return {
-      label: (
-        <Row className="options">
-          <b>{m.name} | </b>
-          <span className="desc">{m.description}</span>
-        </Row>
-      ),
-      value: m.name,
-      isEnabled: true,
-      discriminator: 'IOption',
-    } as IOptionItem;
-  });
+  const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));
 
   const handleSubmit = async (values: IUserModel) => {
     try {
@@ -64,8 +52,9 @@ export const MyMinisterSettings: React.FC = () => {
         }}
       >
         {({ values, setFieldValue }) => (
-          <>
+          <div className="option-container">
             <RadioGroup
+              className="ministers"
               value={
                 !!values.preferences.myMinister
                   ? options.find((o) => o.value === values.preferences.myMinister)
@@ -78,8 +67,10 @@ export const MyMinisterSettings: React.FC = () => {
               options={options}
               name="ministers"
             />
-            <Button type="submit">SAVE</Button>
-          </>
+            <Row justifyContent="flex-end">
+              <Button type="submit">Save</Button>
+            </Row>
+          </div>
         )}
       </FormikForm>
     </styled.MyMinisterSettings>
