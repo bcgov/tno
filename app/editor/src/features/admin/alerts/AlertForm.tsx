@@ -1,4 +1,5 @@
 import { FormikForm } from 'components/formik';
+import { Wysiwyg } from 'components/wysiwyg';
 import { noop } from 'lodash';
 import moment from 'moment';
 import React from 'react';
@@ -79,13 +80,8 @@ export const AlertForm: React.FC = () => {
                 width={FieldSize.Large}
                 value={defaultAlert.description}
               />
-              <FormikTextArea
-                width={FieldSize.Large}
-                name="message"
-                label="Message"
-                type="text"
-                className="message"
-              />
+              <Wysiwyg label="Message" fieldName="message" />
+
               <FormikCheckbox
                 labelPosition={LabelPosition.Top}
                 label="Is Enabled"
