@@ -17,8 +17,14 @@ export const ContentFormSchema = object().shape(
     publishedOn: date().required('Published On is a required field.'),
     // TODO: Summary should not be empty.
     summary: string().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.Snippet)
-        return string().trim().required('Summary is a required field.');
+      if (value[0] === ContentTypeName.Snippet || value[0] === ContentTypeName.Image) {
+        return number().when('productId', (value: number[]) => {
+          // Summary is not a required field when content is tagged as News Radio or Events product
+          if (value[0] !== 4 && value[0] !== 9)
+            return string().trim().required('Summary is a required field.');
+          return string();
+        });
+      }
       return string();
     }),
     body: string().when('contentType', (value: string[]) => {
