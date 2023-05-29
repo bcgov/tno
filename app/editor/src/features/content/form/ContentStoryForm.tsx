@@ -32,6 +32,7 @@ import * as styled from './styled';
 export interface IContentStoryFormProps {
   contentType: ContentTypeName;
   setContent: (content: IContentForm) => void;
+  isSummaryRequired: boolean;
 }
 
 /**
@@ -39,7 +40,11 @@ export interface IContentStoryFormProps {
  * @param param0 Component properties
  * @returns A new instance of a component.
  */
-export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({ setContent, contentType }) => {
+export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
+  setContent,
+  contentType,
+  isSummaryRequired,
+}) => {
   const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [, contentApi] = useContent();
@@ -202,13 +207,14 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({ setContent,
           stream={stream}
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
+          isSummaryRequired={isSummaryRequired}
         />
       </Show>
       <Modal
         body={
           <Wysiwyg
             label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
-            required
+            required={isSummaryRequired}
             hasHeight
             fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
           />
