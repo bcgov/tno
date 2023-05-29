@@ -1,7 +1,8 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using TNO.Core.Extensions;
+using TNO.DAL.Extensions;
 using TNO.Elastic;
 using TNO.Entities;
 
@@ -11,7 +12,6 @@ public class ReportService : BaseService<Report, int>, IReportService
 {
     #region Variables
     private readonly ITNOElasticClient _client;
-    private readonly ElasticOptions _elasticOptions;
     #endregion
 
     #region Constructors
@@ -19,12 +19,10 @@ public class ReportService : BaseService<Report, int>, IReportService
         TNOContext dbContext,
         ClaimsPrincipal principal,
         ITNOElasticClient client,
-        IOptions<ElasticOptions> elasticOptions,
         IServiceProvider serviceProvider,
         ILogger<ReportService> logger) : base(dbContext, principal, serviceProvider, logger)
     {
         _client = client;
-        _elasticOptions = elasticOptions.Value;
     }
     #endregion
 
@@ -51,6 +49,47 @@ public class ReportService : BaseService<Report, int>, IReportService
         return this.Context.Reports
             .Include(n => n.SubscribersManyToMany).ThenInclude(s => s.User)
             .FirstOrDefault(n => n.Id == id);
+    }
+
+    /// <summary>
+    /// Add the new report to the database.
+    /// Add subscribers to the report.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public override Report Add(Report entity)
+    {
+        this.Context.AddRange(entity.SubscribersManyToMany);
+        return base.Add(entity);
+    }
+
+    /// <summary>
+    /// Update the report in the database.
+    /// Update subscribers of the report.
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public override Report Update(Report entity)
+    {
+        var original = FindById(entity.Id) ?? throw new InvalidOperationException("Entity does not exist");
+        var subscribers = this.Context.UserReports.Where(ur => ur.ReportId == entity.Id).ToArray();
+
+        subscribers.Except(entity.SubscribersManyToMany).ForEach(s =>
+        {
+            this.Context.Entry(s).State = EntityState.Deleted;
+        });
+        entity.SubscribersManyToMany.ForEach(s =>
+        {
+            var current = subscribers.FirstOrDefault(rs => rs.UserId == s.UserId);
+            if (current == null)
+                original.SubscribersManyToMany.Add(s);
+        });
+
+        this.Context.Entry(original).CurrentValues.SetValues(entity);
+        this.Context.ResetVersion(original);
+
+        return base.Update(original);
     }
 
     /// <summary>

@@ -57,4 +57,15 @@ public class UserReport : AuditColumns
         this.ReportId = reportId;
     }
     #endregion
+
+    #region Methods
+    public bool Equals(UserReport? other)
+    {
+        if (other == null) return false;
+        return this.UserId == other.UserId && this.ReportId == other.ReportId;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as UserReport);
+    public override int GetHashCode() => (this.UserId, this.ReportId).GetHashCode();
+    #endregion
 }
