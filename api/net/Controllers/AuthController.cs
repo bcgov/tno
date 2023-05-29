@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Mime;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Editor.Models.User;
 using TNO.API.CSS;
@@ -29,6 +31,7 @@ public class AuthController : ControllerBase
     #region Variables
     private readonly ICssHelper _cssHelper;
     private readonly IUserService _userService;
+    private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
     #region Constructors
@@ -36,11 +39,14 @@ public class AuthController : ControllerBase
     /// Creates a new instance of a AuthController object, initializes with specified parameters.
     /// </summary>
     /// <param name="cssHelper"></param>
+    /// <param name="serializerOptions"></param>
     /// <param name="userService"></param>
-    public AuthController(ICssHelper cssHelper, IUserService userService)
+    public AuthController(ICssHelper cssHelper, IUserService userService, IOptions<JsonSerializerOptions> serializerOptions)
     {
         _cssHelper = cssHelper;
         _userService = userService;
+        _serializerOptions = serializerOptions.Value;
+
     }
     #endregion
 
@@ -58,7 +64,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> UserInfoAsync()
     {
         var user = await _cssHelper.ActivateAsync(this.User);
-        return new JsonResult(new PrincipalModel(this.User, user));
+        return new JsonResult(new PrincipalModel(this.User, user, _serializerOptions));
     }
 
     /// <summary>

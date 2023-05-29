@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Mime;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -9,8 +8,6 @@ using TNO.API.CSS;
 using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.API.Areas.Subscriber.Models;
-using TNO.Entities;
-using TNO.Entities.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
@@ -55,43 +52,6 @@ public class UserController : ControllerBase
 
     #region Endpoints
     /// <summary>
-    /// Find a page of user for the specified query filter.
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(IPaged<UserModel>), (int)HttpStatusCode.OK)]
-    [SwaggerOperation(Tags = new[] { "User" })]
-    public IActionResult Find()
-    {
-        var uri = new Uri(this.Request.GetDisplayUrl());
-        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-        var result = _userService.Find(new DAL.Models.UserFilter(query));
-        var page = new Paged<UserModel>(result.Items.Select(ds => new UserModel(ds, _serializerOptions)), result.Page, result.Quantity, result.Total);
-        return new JsonResult(page);
-    }
-
-    /// <summary>
-    /// Find user for the specified 'id'.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    [HttpGet("{id}")]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
-    [SwaggerOperation(Tags = new[] { "User" })]
-    public IActionResult FindById(int id)
-    {
-        var result = _userService.FindById(id);
-
-        if (result == null) return new NoContentResult();
-        return new JsonResult(new UserModel(result, _serializerOptions));
-    }
-
-
-
-    /// <summary>
     /// Update user for the specified 'id'.
     /// Update the user in Keycloak if the 'Key' is linked.
     /// </summary>
@@ -101,7 +61,7 @@ public class UserController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
-[SwaggerOperation(Tags = new[] { "User" })]
+    [SwaggerOperation(Tags = new[] { "User" })]
     public async Task<IActionResult> UpdateAsync(UserModel model)
     {
         await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());

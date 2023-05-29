@@ -1,9 +1,8 @@
 import { FormikForm } from 'components/formik';
-import { defaultUser } from 'features/access-request/constants';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useApp, useLookup, useUsers } from 'store/hooks';
-import { Button, IUserModel, OptionItem, RadioGroup, Row } from 'tno-core';
+import { Button, IUserInfoModel, IUserModel, OptionItem, RadioGroup, Row } from 'tno-core';
 
 import * as styled from './styled';
 
@@ -13,25 +12,15 @@ export const MyMinisterSettings: React.FC = () => {
   const [{ userInfo }] = useApp();
   const api = useUsers();
 
-  const [user, setUser] = React.useState<IUserModel>(defaultUser);
-
-  React.useEffect(() => {
-    if (userInfo && userInfo.id) {
-      api.getUser(userInfo.id).then((data) => {
-        setUser(data);
-      });
-    }
-  }, [userInfo, api]);
-
   React.useEffect(() => {
     if (!!myMinister) localStorage.setItem('myMinister', myMinister);
   }, [myMinister]);
 
   const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));
 
-  const handleSubmit = async (values: IUserModel) => {
+  const handleSubmit = async (values: IUserInfoModel) => {
     try {
-      await api.updateUser(values);
+      await api.updateUser(values as IUserModel);
       toast.success(
         `${values.preferences.myMinister} has successfully been chosen as your minister.`,
       );
@@ -45,7 +34,13 @@ export const MyMinisterSettings: React.FC = () => {
         available from a quick click in the sidebar menu.
       </p>
       <FormikForm
-        initialValues={{ ...user, preferences: { myMinister: myMinister } }}
+        initialValues={
+          {
+            ...userInfo,
+            preferences: { myMinister: myMinister },
+            roles: userInfo?.roles ?? [],
+          } as IUserInfoModel
+        }
         onSubmit={(values, { setSubmitting }) => {
           handleSubmit(values);
           setSubmitting(false);
@@ -58,7 +53,7 @@ export const MyMinisterSettings: React.FC = () => {
               value={
                 !!values.preferences.myMinister
                   ? options.find((o) => o.value === values.preferences.myMinister)
-                  : options.find((o) => o.value === user.preferences?.myMinister)
+                  : options.find((o) => o.value === userInfo?.preferences?.myMinister)
               }
               onChange={(e) => {
                 setMyMinister(e.target.value);
