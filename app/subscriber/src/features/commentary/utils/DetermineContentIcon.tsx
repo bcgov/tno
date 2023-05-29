@@ -1,5 +1,4 @@
-import { BiRadio } from 'react-icons/bi';
-import { FaCamera, FaNewspaper, FaTv } from 'react-icons/fa';
+import { FaCamera, FaNewspaper, FaPlayCircle, FaTv } from 'react-icons/fa';
 import { ContentTypeName } from 'tno-core';
 
 import * as styled from './styled';
@@ -17,7 +16,7 @@ export const DetermineContentIcon: React.FC<IDetermineContentIconProps> = ({ con
       case ContentTypeName.Story:
         return <FaTv />;
       case ContentTypeName.Snippet:
-        return <BiRadio />;
+        return <FaPlayCircle />;
       default:
         return <FaCamera />;
     }

@@ -58,7 +58,7 @@ export const Wysiwyg = <T extends object>({
   const [showRaw, setShowRaw] = React.useState(false);
 
   React.useEffect(() => {
-    if (!!id && !!fieldName) {
+    if (!!fieldName) {
       setState({
         ...state,
         html: (values[fieldName] as string)?.replace(/\n/g, '<br />') ?? '',

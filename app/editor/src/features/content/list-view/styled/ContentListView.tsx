@@ -40,7 +40,7 @@ export const ContentListView = styled(FormPage)`
 
       .rows {
         min-height: 100px;
-        max-height: calc(-600px + 100vh);
+        max-height: calc(-380px + 100vh);
       }
 
       .column {
