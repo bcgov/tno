@@ -21,7 +21,6 @@ export const useApiMinisters = (
   return React.useRef({
     getMinisters: (etag: string | undefined = undefined) => {
       const config = { headers: { 'If-None-Match': etag ?? '' } };
-      alert('getMinisters');
       return api.get<IMinisterModel[], AxiosResponse<IMinisterModel[]>, any>(
         `/subscriber/ministers`,
         config,

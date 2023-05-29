@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TNO.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class _1018 : SeedMigration
+    public partial class _1019 : SeedMigration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

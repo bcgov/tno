@@ -7,7 +7,7 @@ import { useApiUsers } from './api/useApiUsers';
 
 interface IUserController {
   getUser: (id: number) => Promise<IUserModel>;
-  updateUser: (model: IUserModel) => Promise<IUserModel>;
+  updateUser: (model: IUserModel, requestorId: number) => Promise<IUserModel>;
 }
 
 export const useUsers = (): IUserController => {
@@ -20,8 +20,10 @@ export const useUsers = (): IUserController => {
       getUser: async (id: number) => {
         return (await dispatch<IUserModel>('get-user', () => api.getUser(id))).data;
       },
-      updateUser: async (model: IUserModel) => {
-        const response = await dispatch<IUserModel>('update-user', () => api.updateUser(model));
+      updateUser: async (model: IUserModel, requestorId: number) => {
+        const response = await dispatch<IUserModel>('update-user', () =>
+          api.updateUser(model, requestorId),
+        );
         store.storeUsers({
           ...state.users,
           items: state.users.items.map((ds) => {

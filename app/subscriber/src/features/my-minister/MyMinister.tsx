@@ -16,17 +16,7 @@ export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
-  const [user, setUser] = React.useState<IUserModel>(defaultUser);
   const [{ userInfo }] = useApp();
-  const api = useUsers();
-
-  React.useEffect(() => {
-    if (userInfo && userInfo.id) {
-      api.getUser(userInfo.id).then((data) => {
-        setUser(data);
-      });
-    }
-  }, [userInfo, api]);
 
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
@@ -54,8 +44,8 @@ export const MyMinister: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({ ...filter, ...filterAdvanced, keyword: user.preferences?.myMinister ?? '' });
-  }, [filter, filterAdvanced, fetch, user]);
+    fetch({ ...filter, ...filterAdvanced, keyword: userInfo?.preferences?.myMinister ?? '' });
+  }, [filter, filterAdvanced, fetch, userInfo]);
   return (
     <styled.MyMinister>
       <Row className="table-container">

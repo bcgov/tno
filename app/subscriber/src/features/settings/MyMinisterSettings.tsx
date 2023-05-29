@@ -20,7 +20,7 @@ export const MyMinisterSettings: React.FC = () => {
 
   const handleSubmit = async (values: IUserInfoModel) => {
     try {
-      await api.updateUser(values as IUserModel);
+      await api.updateUser(values as IUserModel, userInfo?.id ?? 0);
       toast.success(
         `${values.preferences.myMinister} has successfully been chosen as your minister.`,
       );

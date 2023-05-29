@@ -24,10 +24,11 @@ export const useApiUsers = (
     getUser: (id: number) => {
       return api.get<IUserModel, AxiosResponse<IUserModel>, any>(`/subscriber/users/${id}`);
     },
-    updateUser: (model: IUserModel) => {
+    updateUser: (model: IUserModel, requestorId: number) => {
       return api.put<IUserModel, AxiosResponse<IUserModel>, any>(
         `/subscriber/users/${model.id}`,
         model,
+        { params: { requestorId } },
       );
     },
   }).current;

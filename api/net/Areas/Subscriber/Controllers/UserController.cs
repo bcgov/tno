@@ -9,6 +9,7 @@ using TNO.API.Models;
 using TNO.DAL.Services;
 using TNO.API.Areas.Subscriber.Models;
 using TNO.Keycloak;
+using TNO.Core.Exceptions;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -56,14 +57,20 @@ public class UserController : ControllerBase
     /// Update the user in Keycloak if the 'Key' is linked.
     /// </summary>
     /// <param name="model"></param>
+    /// <param name="requestorId"></param>
+
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
-    public async Task<IActionResult> UpdateAsync(UserModel model)
+    public async Task<IActionResult> UpdateAsync(UserModel model, [FromQuery] int requestorId)
     {
+        if(requestorId != model.Id)
+        {
+            throw new NotAuthorizedException("You are not authorized to update this user.");
+        }
         await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());
         var user = _userService.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new UserModel(user, _serializerOptions));
