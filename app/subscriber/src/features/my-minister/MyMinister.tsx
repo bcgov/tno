@@ -1,4 +1,3 @@
-import { defaultUser } from 'features/access-request/constants';
 import {
   IContentListAdvancedFilter,
   IContentListFilter,
@@ -7,8 +6,8 @@ import { columns } from 'features/home/constants';
 import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useContent, useUsers } from 'store/hooks';
-import { FlexboxTable, IContentModel, IUserModel, Page, Row } from 'tno-core';
+import { useApp, useContent } from 'store/hooks';
+import { FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
 
