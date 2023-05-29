@@ -16,29 +16,23 @@ import {
   FormikSelect,
   FormikText,
   IOptionItem,
-  IUserModel,
   Modal,
   OptionItem,
   Row,
   Show,
   TimeInput,
-  useKeycloakWrapper,
-  useModal,
 } from 'tno-core';
 
-import { IFile, Tags, TimeLogSection, ToningGroup, Wysiwyg } from '.';
-import { Topic } from './components';
+import { IFile, Tags, ToningGroup, Wysiwyg } from '.';
+import { TimeLogSection, Topic } from './components';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
-import { TimeLogTable } from './TimeLogTable';
-import { getTotalTime } from './utils';
 
 export interface IContentStoryFormProps {
-  setContent: (content: IContentForm) => void;
-  content: IContentForm;
   contentType: ContentTypeName;
-  savePressed?: boolean;
+  setContent: (content: IContentForm) => void;
+  isSummaryRequired: boolean;
 }
 
 /**
@@ -48,20 +42,15 @@ export interface IContentStoryFormProps {
  */
 export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
   setContent,
-  content,
   contentType,
-  savePressed,
+  isSummaryRequired,
 }) => {
-  const keycloak = useKeycloakWrapper();
-  const [{ series, users, sources }] = useLookup();
+  const [{ series, sources }] = useLookup();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
-  const { isShowing, toggle } = useModal();
   const [, contentApi] = useContent();
   const [showExpandModal, setShowExpandModal] = React.useState(false);
   const [seriesOptions, setSeriesOptions] = React.useState<IOptionItem[]>([]);
-  const [effort, setEffort] = React.useState(0);
 
-  const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
   const source = sources.find((s) => s.id === values.sourceId);
   const program = series.find((s) => s.id === values.seriesId);
 
@@ -75,10 +64,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
     : undefined;
   const [stream, setStream] = React.useState<IStream>(); // TODO: Remove dependency coupling with storage component.
   const videoRef = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    setEffort(getTotalTime(values.timeTrackings));
-  }, [values.timeTrackings]);
 
   React.useEffect(() => {
     setFieldValue(
@@ -222,13 +207,14 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           stream={stream}
           contentType={contentType}
           setShowExpandModal={setShowExpandModal}
+          isSummaryRequired={isSummaryRequired}
         />
       </Show>
       <Modal
         body={
           <Wysiwyg
             label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
-            required
+            required={isSummaryRequired}
             hasHeight
             fieldName={contentType === ContentTypeName.PrintContent ? 'body' : 'summary'}
           />
@@ -253,42 +239,12 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           >
             <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
             <Row>
+              <TimeLogSection />
               <Tags />
               <ToningGroup fieldName="tonePools" />
             </Row>
           </Show>
         </Col>
-      </Row>
-      <Row className={contentType !== ContentTypeName.Image ? 'multi-section' : ''}>
-        <Show visible={contentType === ContentTypeName.Snippet}>
-          <Row className="multi-group">
-            <TimeLogSection
-              toggle={toggle}
-              content={content}
-              setContent={setContent}
-              effort={effort}
-              setEffort={setEffort}
-              userId={userId!}
-            />
-            <Modal
-              hide={toggle}
-              isShowing={isShowing}
-              headerText="Prep Time Log"
-              body={
-                <TimeLogTable
-                  setTotalEffort={setEffort}
-                  totalEffort={effort}
-                  data={values.timeTrackings}
-                />
-              }
-              customButtons={
-                <Button variant={ButtonVariant.secondary} onClick={toggle}>
-                  Close
-                </Button>
-              }
-            />
-          </Row>
-        </Show>
       </Row>
     </styled.ContentStoryForm>
   );

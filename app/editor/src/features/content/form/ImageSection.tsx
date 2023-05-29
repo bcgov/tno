@@ -19,14 +19,18 @@ import { IContentForm } from './interfaces';
 // TODO: This is horrible to hardcode these sources, the image form is for any type of image and shouldn't be limited to a few sources.
 const validSources = ['TC', 'PROVINCE', 'GLOBE', 'POST', 'SUN'];
 
-interface IImageSectionProps {}
+interface IImageSectionProps {
+  handleProductChange: (newValue: unknown) => void;
+}
 
 /** Contains form field in a layout specific to the image snippet. */
-export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
+export const ImageSection: React.FunctionComponent<IImageSectionProps> = (props) => {
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const [{ sources, productOptions }] = useLookupOptions();
 
   const [sourceOptions, setSourceOptions] = React.useState<IOptionItem[]>([]);
+
+  const { handleProductChange } = props;
 
   React.useEffect(() => {
     setSourceOptions(
@@ -58,6 +62,7 @@ export const ImageSection: React.FunctionComponent<IImageSectionProps> = () => {
         name="productId"
         value={productOptions.find((mt) => mt.value === values.productId) ?? ''}
         label="Product"
+        onChange={handleProductChange}
         width={FieldSize.Small}
         options={productOptions}
         required

@@ -14,6 +14,7 @@ import {
 import { getStatusText } from '../utils';
 
 export const getColumns = (
+  openTab: boolean,
   onClickOpen: (contentId: number) => void,
 ): ITableHookColumn<IContentModel>[] => [
   {
@@ -119,6 +120,7 @@ export const getColumns = (
     // ),
     showSort: false,
     hAlign: 'center',
+    isVisible: !openTab,
     cell: (cell) => {
       return (
         <FaExternalLinkAlt

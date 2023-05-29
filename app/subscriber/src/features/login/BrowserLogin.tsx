@@ -1,3 +1,4 @@
+import parse from 'html-react-parser';
 import React from 'react';
 import { useAlerts } from 'store/hooks';
 import { Button, Col, IAlertModel, Row, Show, useKeycloakWrapper } from 'tno-core';
@@ -87,9 +88,7 @@ export const BrowserLogin: React.FC<IBrowserLoginProps> = ({ login }) => {
           <Col className="alert-box">
             <div className="alert-containing-box">
               <Show visible={!!alert?.message && alert.isEnabled}>
-                <b>System Notices</b>
-                <br />
-                <p>{alert?.message}</p>
+                <p>{parse(alert?.message ?? '')}</p>
               </Show>
             </div>
           </Col>

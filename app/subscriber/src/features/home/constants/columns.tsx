@@ -20,7 +20,7 @@ export const columns: ITableHookColumn<IContentModel>[] = [
     name: 'sectionPage',
     label: 'SECTION PAGE',
     cell: (cell) => (
-      <div className="section">{`${cell.original.section}:${cell?.original.page}`}</div>
+      <div className="section">{`${cell.original.section}: ${cell?.original.page}`}</div>
     ),
     width: 1,
   },

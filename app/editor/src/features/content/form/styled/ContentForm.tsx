@@ -113,7 +113,7 @@ export const ContentForm = styled.div`
 
   .submit-buttons {
     justify-content: flex-end;
-    padding-top: 4.5em;
+    align-items: center;
   }
 
   .content-status {
