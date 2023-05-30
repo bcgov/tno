@@ -17,6 +17,7 @@ using TNO.Services.Actions;
 using TNO.Services.Syndication.Config;
 using TNO.Services.Syndication.Xml;
 using HtmlAgilityPack;
+using System;
 
 namespace TNO.Services.Syndication;
 
@@ -128,6 +129,30 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
     }
 
     /// <summary>
+    /// Parse the date time value and handle a common formatting issues.
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="format"></param>
+    /// <returns></returns>
+    private DateTimeOffset ParseDateTime(string value, string? format = null)
+    {
+        try
+        {
+            if (String.IsNullOrWhiteSpace(format))
+                return DateTimeOffset.Parse(value);
+            else
+                return DateTimeOffset.ParseExact(value, format, CultureInfo.InvariantCulture);
+        }
+        catch (Exception ex)
+        {
+            if (String.IsNullOrWhiteSpace(format))
+                return ParseDateTime(value, "MMM dd HH:mm");
+            else
+                throw;
+        }
+    }
+
+    /// <summary>
     /// Make HTTP request to fetch story body only if configured to do so.
     /// Strip HTML from response body.
     /// Extract published on date and time.
@@ -149,7 +174,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                 html.LoadHtml(text);
                 var dateNode = html.DocumentNode.SelectSingleNode("//html/p/date");
                 if (dateNode != null)
-                    item.PublishDate = DateTimeOffset.Parse(dateNode.InnerText);
+                    item.PublishDate = ParseDateTime(dateNode.InnerText);
 
                 var articleNode = html.DocumentNode.SelectSingleNode("//html/article");
                 if (articleNode != null)
