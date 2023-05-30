@@ -10,6 +10,7 @@ using TNO.DAL.Services;
 using TNO.API.Areas.Subscriber.Models;
 using TNO.Keycloak;
 using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -57,7 +58,6 @@ public class UserController : ControllerBase
     /// Update the user in Keycloak if the 'Key' is linked.
     /// </summary>
     /// <param name="model"></param>
-    /// <param name="requestorId"></param>
 
     /// <returns></returns>
     [HttpPut("{id}")]
@@ -65,15 +65,17 @@ public class UserController : ControllerBase
     [ProducesResponseType(typeof(UserModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
     [SwaggerOperation(Tags = new[] { "User" })]
-    public async Task<IActionResult> UpdateAsync(UserModel model, [FromQuery] int requestorId)
+    public IActionResult Update(UserModel model)
     {
-        if(requestorId != model.Id)
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        if(user.Id != model.Id)
         {
             throw new NotAuthorizedException("You are not authorized to update this user.");
         }
-        await _cssHelper.UpdateUserRolesAsync(model.Key, model.Roles.ToArray());
-        var user = _userService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        return new JsonResult(new UserModel(user, _serializerOptions));
+        var result = _userService.UpdateAndSave(model.ToEntity(_serializerOptions));
+        return new JsonResult(new UserModel(result, _serializerOptions));
     }
     #endregion
 }

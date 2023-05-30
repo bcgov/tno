@@ -8,13 +8,8 @@ import * as styled from './styled';
 
 export const MyMinisterSettings: React.FC = () => {
   const [{ ministers }] = useLookup();
-  const [myMinister, setMyMinister] = React.useState<string>();
   const [{ userInfo }] = useApp();
   const api = useUsers();
-
-  React.useEffect(() => {
-    if (!!myMinister) localStorage.setItem('myMinister', myMinister);
-  }, [myMinister]);
 
   const options = ministers.map((m) => new OptionItem(`${m.name} | ${m.description}`, m.name));
 
@@ -37,7 +32,7 @@ export const MyMinisterSettings: React.FC = () => {
         initialValues={
           {
             ...userInfo,
-            preferences: { myMinister: myMinister },
+            preferences: { myMinister: '' },
             roles: userInfo?.roles ?? [],
           } as IUserInfoModel
         }
@@ -51,12 +46,12 @@ export const MyMinisterSettings: React.FC = () => {
             <RadioGroup
               className="ministers"
               value={
-                !!values.preferences.myMinister
-                  ? options.find((o) => o.value === values.preferences.myMinister)
+                !!localStorage.getItem('myMinister')
+                  ? options.find((o) => o.value === localStorage.getItem('myMinister'))
                   : options.find((o) => o.value === userInfo?.preferences?.myMinister)
               }
               onChange={(e) => {
-                setMyMinister(e.target.value);
+                localStorage.setItem('myMinister', e.target.value);
                 setFieldValue('preferences.myMinister', e.target.value);
               }}
               options={options}

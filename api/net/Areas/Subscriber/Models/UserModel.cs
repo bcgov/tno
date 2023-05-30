@@ -45,44 +45,9 @@ public class UserModel : AuditColumnsModel
     public string LastName { get; set; } = "";
 
     /// <summary>
-    /// get/set - Whether the user is enabled.
-    /// </summary>
-    public bool IsEnabled { get; set; }
-
-    /// <summary>
-    /// get/set - The user status.
-    /// </summary>
-    public Entities.UserStatus Status { get; set; }
-
-    /// <summary>
-    /// get/set - Whether the user email is verified.
-    /// </summary>
-    public bool EmailVerified { get; set; }
-
-    /// <summary>
-    /// get/set - Whether the user is a system account.
-    /// </summary>
-    public bool IsSystemAccount { get; set; }
-
-    /// <summary>
-    /// get/set - The last date and time when user logged in.
-    /// </summary>
-    public DateTime? LastLoginOn { get; set; }
-
-    /// <summary>
     /// get/set - The preferences for this user.
     /// </summary>
     public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
-
-    /// <summary>
-    /// get/set - A user note.
-    /// </summary>
-    public string Note { get; set; } = "";
-
-    /// <summary>
-    /// get/set - An array of roles this user belongs to.
-    /// </summary>
-    public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
     #endregion
 
     #region Constructors
@@ -104,14 +69,7 @@ public class UserModel : AuditColumnsModel
         this.DisplayName = entity.DisplayName;
         this.FirstName = entity.FirstName;
         this.LastName = entity.LastName;
-        this.IsEnabled = entity.IsEnabled;
         this.Preferences = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Preferences, options) ?? new Dictionary<string, object>();
-        this.Status = entity.Status;
-        this.IsSystemAccount = entity.IsSystemAccount;
-        this.EmailVerified = entity.EmailVerified;
-        this.LastLoginOn = entity.LastLoginOn;
-        this.Note = entity.Note;
-        this.Roles = entity.Roles.Split(",").Where(s => !String.IsNullOrWhiteSpace(s)).Select(r => r[1..^1]);
     }
     #endregion
 
@@ -140,14 +98,7 @@ public class UserModel : AuditColumnsModel
             FirstName = model.FirstName,
             LastName = model.LastName,
             DisplayName = model.DisplayName,
-            IsEnabled = model.IsEnabled,
-            Status = model.Status,
-            IsSystemAccount = model.IsSystemAccount,
-            EmailVerified = model.EmailVerified,
-            LastLoginOn = model.LastLoginOn,
-            Note = model.Note,
             Preferences = JsonDocument.Parse(JsonSerializer.Serialize(model.Preferences)),
-            Roles = String.Join(",", model.Roles.Select(r => $"[{r.ToLower()}]")),
             Version = model.Version ?? 0
         };
 

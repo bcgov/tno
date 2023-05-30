@@ -17,18 +17,10 @@ export const useApiUsers = (
   const api = useApi(options);
 
   return React.useRef({
-    getUsers: (etag: string | undefined = undefined) => {
-      const config = { headers: { 'If-None-Match': etag ?? '' } };
-      return api.get<IUserModel[], AxiosResponse<IUserModel[]>, any>(`/subscriber/users`, config);
-    },
-    getUser: (id: number) => {
-      return api.get<IUserModel, AxiosResponse<IUserModel>, any>(`/subscriber/users/${id}`);
-    },
-    updateUser: (model: IUserModel, requestorId: number) => {
+    updateUser: (model: IUserModel) => {
       return api.put<IUserModel, AxiosResponse<IUserModel>, any>(
         `/subscriber/users/${model.id}`,
         model,
-        { params: { requestorId } },
       );
     },
   }).current;
