@@ -2,7 +2,6 @@ import {
   IContentListAdvancedFilter,
   IContentListFilter,
 } from 'features/content/list-view/interfaces';
-import { columns } from 'features/home/constants';
 import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import { useApp, useContent } from 'store/hooks';
 import { FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
+import { determinecolumns } from 'features/home/constants';
 
 export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
@@ -50,7 +50,7 @@ export const MyMinister: React.FC = () => {
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={columns}
+          columns={determinecolumns('all')}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
