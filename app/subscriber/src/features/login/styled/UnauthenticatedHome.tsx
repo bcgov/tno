@@ -16,6 +16,7 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   }
 
   .app-logo {
+    padding: 1%;
     @media (min-width: 1450px) {
       margin-left: 5%;
     }
@@ -76,6 +77,10 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   }
   .mm-logo {
     height: 8%;
+    @media (max-width: 768px) {
+      height: 6%;
+      right: 1%;
+    }
     position: fixed;
     right: 5%;
     bottom: 1%;
