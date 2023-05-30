@@ -702,7 +702,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 1 -- license_id
   , null -- product_id
-  , 0 -- sort_order
+  , -2 -- sort_order
   , ''
   , ''
 ), (
@@ -1196,7 +1196,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 5 -- license_id
   , null -- product_id
-  , 0 -- sort_order
+  , -5 -- sort_order
   , ''
   , ''
 ), (
@@ -1313,7 +1313,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 6 -- license_id
   , null -- product_id
-  , 0 -- sort_order
+  , -3 -- sort_order
   , ''
   , ''
 ), (
@@ -3211,7 +3211,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 3 -- license_id
   , dailyPrintId -- product_id
-  , 0 -- sort_order
+  , -6 -- sort_order
   , ''
   , ''
 ), (
@@ -3224,7 +3224,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 3 -- license_id
   , dailyPrintId -- product_id
-  , 0 -- sort_order
+  , -8 -- sort_order
   , ''
   , ''
 ), (
@@ -3237,7 +3237,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 3 -- license_id
   , dailyPrintId -- product_id
-  , 0 -- sort_order
+  , -4 -- sort_order
   , ''
   , ''
 ), (
@@ -3250,7 +3250,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 3 -- license_id
   , dailyPrintId -- product_id
-  , 0 -- sort_order
+  , -7 -- sort_order
   , ''
   , ''
 ), (
