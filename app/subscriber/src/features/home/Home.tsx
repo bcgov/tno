@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContent } from 'store/hooks';
 import { ContentStatus, ContentTypeName, FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
-import { columns } from './constants';
+import { determinecolumns } from './constants';
 import { HomeFilters } from './home-filters';
 import * as styled from './styled';
 import { makeFilter } from './utils';
@@ -62,7 +62,7 @@ export const Home: React.FC = () => {
       <Row className="table-container">
         <FlexboxTable
           rowId="id"
-          columns={columns}
+          columns={determinecolumns(filter.contentTypes[0])}
           isMulti
           groupBy={(item) => item.original.source?.name ?? ''}
           onRowClick={(e: any) => {
