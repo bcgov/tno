@@ -4,13 +4,19 @@ import { IUnauthenticatedHomeProps } from '..';
 
 export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
   position: relative;
-  overflow-y: auto;
   overflow-x: hidden;
-  min-height: calc(100vh - 1.5em);
   background-color: ${(props) => props.theme.css.beigeBackgroundColor};
   width: 100%;
 
+  .containing-row {
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* accounts for top logo bar and footer */
+    max-height: calc(100vh - 8.5em);
+  }
+
   .app-logo {
+    padding: 1%;
     @media (min-width: 1450px) {
       margin-left: 5%;
     }
@@ -62,12 +68,19 @@ export const UnauthenticatedHome = styled.div<IUnauthenticatedHomeProps>`
       min-width: 98%;
       margin-left: 1%;
     }
+    @media (max-width: 768px) {
+      margin-bottom: 0.5em;
+    }
     @media (min-width: 1450px) {
       max-width: 50em;
     }
   }
   .mm-logo {
     height: 8%;
+    @media (max-width: 768px) {
+      height: 6%;
+      right: 1%;
+    }
     position: fixed;
     right: 5%;
     bottom: 1%;
