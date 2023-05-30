@@ -1,6 +1,6 @@
 import { SubscriberFooter } from 'components/footer';
 import { CustomSidebar } from 'components/sidebar/CustomSidebar';
-import { UnauthenticatedHome } from 'features/login';
+import { UnauthenticatedHome, UserInfo } from 'features/login';
 import React from 'react';
 import { useProSidebar } from 'react-pro-sidebar';
 import { Outlet } from 'react-router-dom';
@@ -58,6 +58,7 @@ export const DefaultLayout: React.FC<ILayoutProps> = ({ children, ...rest }) => 
 
   return (
     <styled.Layout collapsed={collapsed} {...rest}>
+      <UserInfo />
       <Show visible={keycloak.authenticated}>
         <div className="grid-container">
           <div className="nav-bar">

@@ -6,6 +6,8 @@ import { SearchWithLogout } from 'components/search-with-logout';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
 import { Home } from 'features/home';
+import { MyMinister } from 'features/my-minister/MyMinister';
+import { MyMinisterSettings } from 'features/settings';
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -43,7 +45,11 @@ export const Landing: React.FC = () => {
             </div>
           </Show>
           <Show visible={activeItem !== 'View'}>
-            <div className="title">{activeItem}</div>
+            <div className="title">
+              {activeItem === SidebarMenuItems.settings.label
+                ? 'Settings | My Minister'
+                : activeItem}
+            </div>
           </Show>
           <div className="content">
             {/* Home is default selected navigation item on login*/}
@@ -52,6 +58,12 @@ export const Landing: React.FC = () => {
             </Show>
             <Show visible={activeItem === 'View'}>
               <ViewContent />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.settings.label}>
+              <MyMinisterSettings />
+            </Show>
+            <Show visible={activeItem === SidebarMenuItems.myMinister.label}>
+              <MyMinister />
             </Show>
           </div>
         </Col>

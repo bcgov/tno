@@ -2,6 +2,7 @@ import { sidebarMenuItemsArray } from 'components/layout/constants/SidebarMenuIt
 import React from 'react';
 import { MenuItem } from 'react-pro-sidebar';
 import { useNavigate } from 'react-router';
+import { Row } from 'tno-core';
 
 export interface ISelectableMenuItemProps {}
 
@@ -22,15 +23,26 @@ export const SelectableMenuItems: React.FC<ISelectableMenuItemProps> = () => {
       {sidebarMenuItemsArray.map((item) => {
         return (
           <MenuItem
-            onClick={() => {
-              navigate(`landing/${item.path}` ?? '');
-              setSelected(item.label);
-            }}
             className={selected === item.label ? 'selected' : ''}
             key={item.label}
             icon={item.icon}
           >
-            {item.label}
+            <Row className="label-container">
+              <div
+                onClick={() => {
+                  navigate(`landing/${item.path}` ?? '');
+                  setSelected(item.label);
+                }}
+              >
+                {item.label}
+              </div>
+              <div
+                onClick={() => navigate(item.secondaryIconRoute ?? '')}
+                className="secondary-icon"
+              >
+                {item.secondaryIcon}
+              </div>
+            </Row>
           </MenuItem>
         );
       })}

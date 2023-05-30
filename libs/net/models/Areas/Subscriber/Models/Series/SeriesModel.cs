@@ -1,6 +1,6 @@
 using TNO.API.Models;
 
-namespace TNO.API.Areas.Subscriber.Models;
+namespace TNO.API.Areas.Subscriber.Models.Series;
 
 /// <summary>
 /// SeriesModel class, provides a model that represents an series.

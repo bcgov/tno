@@ -75,6 +75,8 @@ public class ContentService : BaseService<Content, long>, IContentService
             query = query.Where(c => c.OtherSource.ToLower() == filter.OtherSource.ToLower());
         if (!String.IsNullOrWhiteSpace(filter.Headline))
             query = query.Where(c => EF.Functions.Like(c.Headline.ToLower(), $"%{filter.Headline.ToLower()}%"));
+        if (!String.IsNullOrWhiteSpace(filter.Keyword))
+            query = query.Where(c => EF.Functions.Like(c.Headline.ToLower(), $"%{filter.Keyword.ToLower()}%") || EF.Functions.Like(c.Body.ToLower(), $"%{filter.Keyword.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.PageName))
             query = query.Where(c => EF.Functions.Like(c.Page.ToLower(), $"%{filter.PageName.ToLower()}%"));
         if (!String.IsNullOrWhiteSpace(filter.Section))
@@ -223,8 +225,17 @@ public class ContentService : BaseService<Content, long>, IContentService
         if (!string.IsNullOrWhiteSpace(filter.Headline))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
 
-        // if (!string.IsNullOrWhiteSpace(filter.Keyword))
-        //     filterQueries.Add(s => s.Terms(t => t.Field(p => p.)));
+        if (!string.IsNullOrWhiteSpace(filter.Keyword))
+            filterQueries.Add(s => s.MultiMatch(m => m
+                .Fields(f => f
+                    .Field(p => p.Headline)
+                    .Field(p => p.Body)
+                    .Field(p => p.Byline)
+                    .Field(p => p.Contributor)
+                )
+                .Query(filter.Keyword.ToLower())
+            ));
+
 
         if (!string.IsNullOrWhiteSpace(filter.PageName))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Page).Value($"*{filter.PageName.ToLower()}*")));

@@ -14,6 +14,7 @@ export interface IUserModel extends IAuditColumnsModel {
   status: UserStatusName;
   emailVerified: boolean;
   isSystemAccount: boolean;
+  preferences?: any;
   note: string;
   roles?: string[];
 }

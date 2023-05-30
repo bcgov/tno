@@ -23,6 +23,7 @@ public class UserConfiguration : AuditColumnsConfiguration<User>
         builder.Property(m => m.Roles).IsRequired().HasMaxLength(500).HasDefaultValueSql("''");
         builder.Property(m => m.Note).IsRequired().HasMaxLength(2000).HasDefaultValueSql("''");
         builder.Property(m => m.Code).IsRequired().HasMaxLength(10).HasDefaultValueSql("''");
+        builder.Property(m => m.Preferences).IsRequired().HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
 
 
         builder.HasIndex(m => m.Username, "IX_username").IsUnique();

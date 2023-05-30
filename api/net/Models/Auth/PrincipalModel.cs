@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using TNO.Core.Extensions;
 using TNO.Entities;
 
@@ -69,6 +70,12 @@ public class PrincipalModel
     /// get/set - Keycloak roles, TNO claims.
     /// </summary>
     public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// get/set - User preferences.
+    /// </summary>
+    public Dictionary<string, object> Preferences { get; set; } = new Dictionary<string, object>();
+
     #endregion
 
     #region Constructors
@@ -82,7 +89,9 @@ public class PrincipalModel
     /// </summary>
     /// <param name="principal"></param>
     /// <param name="user"></param>
-    public PrincipalModel(ClaimsPrincipal principal, User? user)
+    /// <param name="options"></param>
+
+    public PrincipalModel(ClaimsPrincipal principal, User? user, JsonSerializerOptions options)
     {
         this.Id = user?.Id ?? 0;
         this.Key = principal.GetKey();
@@ -94,6 +103,7 @@ public class PrincipalModel
         this.Status = user?.Status;
         this.IsEnabled = user?.IsEnabled ?? false;
         this.Note = user?.Note ?? "";
+        this.Preferences = JsonSerializer.Deserialize<Dictionary<string, object>>(user?.Preferences, options) ?? new Dictionary<string, object>();
         this.Roles = user?.Roles.Split(",")
             .Where(s => !String.IsNullOrWhiteSpace(s))
             .Select(r => r[1..^1])
