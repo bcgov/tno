@@ -2,6 +2,8 @@ import { IOptionItem, OptionItem } from '../components';
 import { ISourceModel } from '../hooks';
 
 export const sortSource = <T extends ISourceModel>(a: T, b: T) => {
+  if (a.sortOrder < b.sortOrder) return -1;
+  if (a.sortOrder > b.sortOrder) return 1;
   if (a.name < b.name) return -1;
   if (a.name > b.name) return 1;
   if (a.code < b.code) return -1;
