@@ -149,6 +149,19 @@ public class UserService : BaseService<User, int>, IUserService
         throw new InvalidOperationException("User does not exist");
     }
 
+    public User UpdatePreferences(User model)
+    {
+        var original = FindById(model.Id);
+        if (original != null)
+        {
+            original.Preferences = model.Preferences;
+            base.UpdateAndSave(original);
+            return FindById(model.Id)!;
+        }
+
+        throw new InvalidOperationException("User does not exist");
+    }
+
     public IEnumerable<User> FindByRoles(IEnumerable<string> roles)
     {
         var result = Context.Users.AsNoTracking();

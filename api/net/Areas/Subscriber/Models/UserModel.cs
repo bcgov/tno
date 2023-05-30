@@ -15,11 +15,6 @@ public class UserModel : AuditColumnsModel
     public int Id { get; set; } = default!;
 
     /// <summary>
-    /// get/set - Unique key to identify the user.
-    /// </summary>
-    public string Key { get; set; } = "";
-
-    /// <summary>
     /// get/set - Unique username to identify user.
     /// </summary>
     public string Username { get; set; } = "";
@@ -63,7 +58,6 @@ public class UserModel : AuditColumnsModel
     public UserModel(Entities.User entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
-        this.Key = entity.Key;
         this.Username = entity.Username;
         this.Email = entity.Email;
         this.DisplayName = entity.DisplayName;
@@ -92,7 +86,7 @@ public class UserModel : AuditColumnsModel
     /// <param name="model"></param>
     public static explicit operator Entities.User(UserModel model)
     {
-        var entity = new Entities.User(model.Username, model.Email, model.Key)
+        var entity = new Entities.User(model.Username, model.Email)
         {
             Id = model.Id,
             FirstName = model.FirstName,

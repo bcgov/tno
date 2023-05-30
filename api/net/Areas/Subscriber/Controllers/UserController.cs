@@ -11,6 +11,7 @@ using TNO.API.Areas.Subscriber.Models;
 using TNO.Keycloak;
 using TNO.Core.Exceptions;
 using TNO.Core.Extensions;
+using TNO.Entities;
 
 namespace TNO.API.Areas.Subscriber.Controllers;
 
@@ -58,7 +59,6 @@ public class UserController : ControllerBase
     /// Update the user in Keycloak if the 'Key' is linked.
     /// </summary>
     /// <param name="model"></param>
-
     /// <returns></returns>
     [HttpPut("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -74,7 +74,7 @@ public class UserController : ControllerBase
         {
             throw new NotAuthorizedException("You are not authorized to update this user.");
         }
-        var result = _userService.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _userService.UpdatePreferences((User)model);
         return new JsonResult(new UserModel(result, _serializerOptions));
     }
     #endregion
