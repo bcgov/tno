@@ -10,6 +10,7 @@ using TNO.Services.Actions;
 using TNO.Services.ContentMigration.Config;
 using TNO.Core.Exceptions;
 using System.Text.RegularExpressions;
+using TNO.Services.ContentMigration.Sources.Oracle;
 
 namespace TNO.Services.ContentMigration;
 
@@ -24,6 +25,7 @@ namespace TNO.Services.ContentMigration;
 public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
 {
     #region Variables
+    private readonly MigrationSourceContext _sourceContext;
     #endregion
 
     #region Properties
@@ -33,11 +35,13 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// <summary>
     /// Creates a new instance of a ContentMigrationAction, initializes with specified parameters.
     /// </summary>
+    /// <param name="sourceContext"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
-    public ContentMigrationAction(IApiService api, IOptions<ContentMigrationOptions> options, ILogger<ContentMigrationAction> logger) : base(api, options, logger)
+    public ContentMigrationAction(MigrationSourceContext sourceContext, IApiService api, IOptions<ContentMigrationOptions> options, ILogger<ContentMigrationAction> logger) : base(api, options, logger)
     {
+        _sourceContext = sourceContext;
     }
     #endregion
 
@@ -58,61 +62,28 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     {
         this.Logger.LogDebug("Performing ingestion service action for ingest '{name}'", manager.Ingest.Name);
 
+        // var lookups = await this.Api.GetLookupsAsync();
+
         var skip = 0;
-        var count = 0;
+        var count = 20;
 
         while (count > 0)
         {
             try
             {
-                // attempt to retrieve a batch of non-migrated news items
+                var items = _sourceContext.NewsItems
+                    .Where(ni => ni.CreatedOn >= manager.Ingest.LastRanOn)
+                    .OrderByDescending(ni => ni.UpdatedOn)
+                    .OrderByDescending(ni => ni.RSN).Skip(skip).Take(count);
 
-                // if there news items to be migrated in the batch
-                // iterate over each item in the batch
+                count = items.Count();
+                skip += count;
 
-                // determine what "type" of news item the current item is
-                // handle it with a strategy specific to that type
-
-                try
-                {
-                    // KGM - fixed values in place until we bring in NewsItem entity
-                    var newsItemWebPath = "newsItem.WebPath";
-                    var newsItemRSN = "NewsItem.RSN";
-                    var newsItemTitle = "NewsItem.Title";
-
-                    // KGM: does uid exist for all newsItem types in old system and does this correlate to new system?
-                    // KGM: for soft-launch - how do we avoid duplication if MMIA is ingest from source *AND* historic?
-                    // var uid = newsItem.WebPath ?? $"{newsItem.RSN}";
-                    var uid = newsItemWebPath ?? $"{newsItemRSN}";
-                    var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, uid);
-                    if (reference == null)
-                    {
-                        reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, uid));
-                        // Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-                        Logger.LogInformation("Migrating content {RSN}:{Title}", newsItemRSN, newsItemTitle);
-                    }
-                    else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
-                    {
-                        // If another process has it in progress only attempt to do an Migration if it's
-                        // more than an 5 minutes old. Assumption is that it is stuck.
-                        reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
-                        // Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
-                        Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItemRSN, newsItemTitle);
-                    }
-
-                    reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
-                    if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
-                }
-                catch (Exception ex)
-                {
-                    // Reached limit return to ingest manager.
-                    if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
-                        throw;
-
-                    this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
-                    await manager.RecordFailureAsync();
-                }
-
+                // KGM: do nothing for now, fine tune this code next
+                // await items.ForEachAsync(async newsItem =>
+                // {
+                //     await MigrateNewsItemAsync(manager, newsItem);
+                // });
 
             }
             catch (Exception)
@@ -123,6 +94,50 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
         }
 
         Logger.LogInformation("Migration Complete");
+    }
+
+    /// <summary>
+    /// Attempt to migrate a single item from the historic system via api.
+    /// Checks if a content reference has already been created for each item before deciding whether to migrate it or not.
+    /// Sends message to kafka if content has been added or updated.
+    /// Informs API of content reference status.
+    /// </summary>
+    /// <param name="manager"></param>
+    /// <param name="newsItem"></param>
+    /// <returns></returns>
+    private async Task MigrateNewsItemAsync(IIngestServiceActionManager manager, NewsItem newsItem)
+    {
+        try
+        {
+            // KGM: does uid exist for all newsItem types in old system and does this correlate to new system?
+            // KGM: for soft-launch - how do we avoid duplication if MMIA is ingest from source *AND* historic?
+            var uid = newsItem.WebPath ?? $"{newsItem.RSN}";
+            var reference = await this.FindContentReferenceAsync(manager.Ingest.Source?.Code, uid);
+            if (reference == null)
+            {
+                reference = await this.Api.AddContentReferenceAsync(CreateContentReference(manager.Ingest, uid));
+                Logger.LogInformation("Migrating content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+            }
+            else if (reference.Status == (int)WorkflowStatus.InProgress && reference.UpdatedOn?.AddMinutes(5) < DateTime.UtcNow)
+            {
+                // If another process has it in progress only attempt to do an Migration if it's
+                // more than an 5 minutes old. Assumption is that it is stuck.
+                reference = await UpdateContentReferenceAsync(reference, WorkflowStatus.InProgress);
+                Logger.LogInformation("Updating migrated content {RSN}:{Title}", newsItem.RSN, newsItem.Title);
+            }
+
+            reference = await FindContentReferenceAsync(reference?.Source, reference?.Uid);
+            if (reference != null) await ContentReceivedAsync(manager, reference, CreateSourceContent(manager.Ingest, reference));
+        }
+        catch (Exception ex)
+        {
+            // Reached limit return to ingest manager.
+            if (manager.Ingest.FailedAttempts + 1 >= manager.Ingest.RetryLimit)
+                throw;
+
+            this.Logger.LogError(ex, "Failed to ingest item for ingest '{name}'", manager.Ingest.Name);
+            await manager.RecordFailureAsync();
+        }
     }
 
     /// <summary>

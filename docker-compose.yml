@@ -314,6 +314,28 @@ services:
     networks:
       - tno
 
+  ####################### Oracle #######################
+  oracle:
+    profiles:
+      - all
+      - utility
+      - elastic
+      - service
+    restart: "no"
+    container_name: tno-oracle
+    build:
+      context: ${ORACLE_DB_CONTEXT:-db/oracle/docker}
+    env_file:
+      - ${ORACLE_DB_CONTEXT:-db/oracle/docker}/.env
+    ports:
+      - ${ORACLE_DATABASE_PORT:-41521}:1521
+    volumes:
+      - tno-oracle-data:/opt/oracle/oradata
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - tno
+
 ####################### Volumes Definition #######################
 volumes:
   tno-database-data:
@@ -326,6 +348,8 @@ volumes:
     name: tno-av-data
   tno-ssh-data:
     name: tno-ssh-data
+  tno-oracle-data:
+    name: tno-oracle-data
 
   tno-azure-storage-data:
     name: tno-azure-storage-data

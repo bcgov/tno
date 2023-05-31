@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TNO.API.Areas.Services.Models.Ingest;
@@ -10,13 +11,14 @@ namespace TNO.Services.Managers;
 /// It will fetch all ingests for the configured ingest types.
 /// It will ensure all ingests are being run based on their schedules.
 /// </summary>
-public abstract class IngestManager<TIngestServiceActionManager, TOption> : ServiceManager<TOption>, IIngestManager
+public abstract class IngestManager<TIngestServiceActionManager, TOption> : ServiceManager<TOption>, IIngestManager, IDisposable
     where TIngestServiceActionManager : IIngestServiceActionManager
     where TOption : IngestServiceOptions
 {
     #region Variables
     private readonly IngestManagerFactory<TIngestServiceActionManager, TOption> _factory;
     private readonly Dictionary<int, TIngestServiceActionManager> _ingests = new();
+    private readonly IServiceScope _serviceScope;
     #endregion
 
     #region Properties
@@ -35,6 +37,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
     /// <param name="options">Configuration options.</param>
     /// <param name="logger">Logging client.</param>
     public IngestManager(
+        IServiceProvider serviceProvider,
         IApiService api,
         IngestManagerFactory<TIngestServiceActionManager, TOption> factory,
         IOptions<TOption> options,
@@ -42,6 +45,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
         : base(api, options, logger)
     {
         _factory = factory;
+        _serviceScope = serviceProvider.CreateScope();
     }
     #endregion
 
@@ -91,7 +95,7 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
                     // Maintain a dictionary of managers for each ingest.
                     // Fire event for the ingest scheduler.
                     var hasKey = _ingests.ContainsKey(ingest.Id);
-                    if (!hasKey) _ingests.Add(ingest.Id, _factory.Create(ingest));
+                    if (!hasKey) _ingests.Add(ingest.Id, _factory.Create(ingest, _serviceScope));
                     var manager = _ingests[ingest.Id];
 
                     // Ask all live threads to stop.
@@ -233,6 +237,11 @@ public abstract class IngestManager<TIngestServiceActionManager, TOption> : Serv
             this.Logger.LogError(ex, "Ignoring error and reusing existing ingests");
             return this.Ingests.ToArray();
         }
+    }
+
+    public void Dispose()
+    {
+        _serviceScope.Dispose();
     }
     #endregion
 }
