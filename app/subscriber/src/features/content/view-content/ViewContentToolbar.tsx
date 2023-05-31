@@ -8,16 +8,21 @@ import {
   FaQuoteLeft,
   FaShareSquare,
 } from 'react-icons/fa';
-import { Row } from 'tno-core';
+import { ITagModel, Row } from 'tno-core';
 
 import { ActionNames } from './constants';
 import * as styled from './styled';
+
+export interface IViewContentToolbarProps {
+  /** The current content that is being viewed. */
+  tags: ITagModel[] | [];
+}
 
 /**
  * Shows the various actions to be presented on a piece of content.
  * @returns Toolbar for the ViewContent component
  */
-export const ViewContentToolbar: React.FC = () => {
+export const ViewContentToolbar: React.FC<IViewContentToolbarProps> = ({ tags }) => {
   const [active, setActive] = React.useState<ActionNames>(ActionNames.ReadStory);
   return (
     <styled.ViewContentToolbar>
@@ -63,7 +68,7 @@ export const ViewContentToolbar: React.FC = () => {
             />
           </div>
         </Row>
-        <Tags />
+        <Tags contentTags={tags} />
       </Row>
       <Row className="hrz-line" />
     </styled.ViewContentToolbar>
