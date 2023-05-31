@@ -6,7 +6,7 @@ import { determinecolumns } from 'features/home/constants';
 import { makeFilter } from 'features/home/utils';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp, useContent } from 'store/hooks';
+import { useContent } from 'store/hooks';
 import { FlexboxTable, IContentModel, Page, Row } from 'tno-core';
 
 import * as styled from './styled';
@@ -15,7 +15,6 @@ export const MyMinister: React.FC = () => {
   const [{ filter, filterAdvanced }, { findContent }] = useContent();
   const [homeItems, setHomeItems] = React.useState<IContentModel[]>([]);
   const navigate = useNavigate();
-  const [{ userInfo }] = useApp();
 
   const [, setLoading] = React.useState(false);
   const fetch = React.useCallback(
@@ -43,8 +42,12 @@ export const MyMinister: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({ ...filter, ...filterAdvanced, keyword: userInfo?.preferences?.myMinister ?? '' });
-  }, [filter, filterAdvanced, fetch, userInfo]);
+    fetch({
+      ...filter,
+      ...filterAdvanced,
+      keyword: localStorage.getItem('myMinister') ?? '',
+    });
+  }, [filter, filterAdvanced, fetch]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
