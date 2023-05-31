@@ -43,7 +43,11 @@ export const MyMinister: React.FC = () => {
 
   /** retrigger content fetch when change is applied */
   React.useEffect(() => {
-    fetch({ ...filter, ...filterAdvanced, keyword: userInfo?.preferences?.myMinister ?? '' });
+    fetch({
+      ...filter,
+      ...filterAdvanced,
+      keyword: localStorage.getItem('myMinister') ?? '',
+    });
   }, [filter, filterAdvanced, fetch, userInfo]);
   return (
     <styled.MyMinister>
