@@ -90,10 +90,6 @@ export const FlexboxTable = styled.div<ITableStyleProps>`
         font-weight: bold;
         border-top-left-radius: 0.5em;
         border-top-right-radius: 0.5em;
-
-        &:hover ~ .group-rows {
-          filter: brightness(90%);
-        }
       }
     }
   }
