@@ -121,10 +121,10 @@ export const ViewContent: React.FC = () => {
         </Row>
       </Show>
       <Row id="summary" className="summary">
-        <Show visible={content?.contentType === ContentTypeName.Snippet}>
+        <Show visible={!!content?.summary}>
           <p>{parse(content?.summary ?? '')}</p>
         </Show>
-        <Show visible={content?.contentType === ContentTypeName.PrintContent}>
+        <Show visible={!!content?.body}>
           <p>{parse(content?.body ?? '')}</p>
         </Show>
       </Row>
