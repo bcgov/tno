@@ -253,6 +253,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
+        finally
+        {
+            if (State.Status == ServiceStatus.Running) Listener.Resume();
+        }
     }
 
     /// <summary>
@@ -289,6 +293,8 @@ public class ReportingManager : ServiceManager<ReportingOptions>
     }
 
     /// <summary>
+    /// Send out an email for the specified report.
+    /// Generate a report instance for this email.
     /// Send an email merge to CHES.
     /// This will send out a separate email to each context provided.
     /// </summary>
@@ -311,12 +317,14 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         // Save the report instance.
         var instance = new ReportInstance(report.Id, content.Select(c => c.Id))
         {
+            PublishedOn = DateTime.UtcNow,
             Response = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions))
         };
         await this.Api.AddReportInstanceAsync(new API.Areas.Services.Models.ReportInstance.ReportInstanceModel(instance, _serializationOptions));
     }
 
     /// <summary>
+    /// Send out an email for the specified report instance.
     /// Send an email merge to CHES.
     /// This will send out a separate email to each context provided.
     /// </summary>
@@ -338,8 +346,11 @@ public class ReportingManager : ServiceManager<ReportingOptions>
 
         // Update the report instance.
         var json = JsonDocument.Parse(JsonSerializer.Serialize(response, _serializationOptions));
+        if (reportInstance.PublishedOn == null) reportInstance.PublishedOn = DateTime.UtcNow;
         reportInstance.Response = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _serializationOptions) ?? new Dictionary<string, object>();
         await this.Api.UpdateReportInstanceAsync(reportInstance);
+
+
     }
 
     /// <summary>
