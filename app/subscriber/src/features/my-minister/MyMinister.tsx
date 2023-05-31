@@ -48,7 +48,7 @@ export const MyMinister: React.FC = () => {
       ...filterAdvanced,
       keyword: localStorage.getItem('myMinister') ?? '',
     });
-  }, [filter, filterAdvanced, fetch, userInfo]);
+  }, [filter, filterAdvanced, fetch]);
   return (
     <styled.MyMinister>
       <Row className="table-container">
