@@ -244,7 +244,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
                 // Inform Kafka this message is completed.
                 this.Listener.Commit(result);
-                this.Listener.Resume();
 
                 // Successful run clears any errors.
                 this.State.ResetFailures();
@@ -262,6 +261,10 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                 this.Logger.LogError(ex, "Failed to handle message");
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
+        }
+        finally
+        {
+            if (State.Status == ServiceStatus.Running) Listener.Resume();
         }
     }
 
