@@ -144,6 +144,7 @@ public class ContentMigrationAction : IngestAction<ContentMigrationOptions>
     /// Create a content reference for this clip.
     /// </summary>
     /// <param name="ingest"></param>
+    /// <param name="filename"></param>
     /// <returns></returns>
     private ContentReferenceModel CreateContentReference(IngestModel ingest, string filename)
     {

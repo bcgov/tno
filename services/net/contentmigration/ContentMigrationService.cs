@@ -52,11 +52,6 @@ public class ContentMigrationService : KafkaProducerService
         //     .Bind(this.Configuration.GetSection("Service"))
         //     .ValidateDataAnnotations();
 
-        // Build an intermediate service provider
-        var sp = services.BuildServiceProvider();
-        // This will succeed.
-        var msg = sp.GetService<MigrationSourceContext>();
-
         return services;
     }
     #endregion

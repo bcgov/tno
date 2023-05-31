@@ -34,6 +34,7 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
     /// Create a new instance of a IngestManager object.
     /// </summary>
     /// <param name="ingest"></param>
+    /// <param name="serviceScope"></param>
     /// <returns></returns>
     public TIngestServiceActionManager Create(IngestModel ingest, IServiceScope? serviceScope = null)
     {
