@@ -16,16 +16,18 @@ public class CaptureManager : IngestManager<CaptureIngestActionManager, CaptureO
     /// <summary>
     /// Creates a new instance of a CaptureManager object, initializes with specified parameters.
     /// </summary>
+    /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public CaptureManager(
+        IServiceProvider serviceProvider,
         IApiService api,
         IngestManagerFactory<CaptureIngestActionManager, CaptureOptions> factory,
         IOptions<CaptureOptions> options,
         ILogger<CaptureManager> logger)
-        : base(api, factory, options, logger)
+        : base(serviceProvider, api, factory, options, logger)
     {
     }
 

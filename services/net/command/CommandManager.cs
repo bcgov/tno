@@ -14,16 +14,18 @@ public class CommandManager : IngestManager<CommandIngestActionManager, CommandO
     /// <summary>
     /// Creates a new instance of a CommandManager object, initializes with specified parameters.
     /// </summary>
+    /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public CommandManager(
+        IServiceProvider serviceProvider,
         IApiService api,
         IngestManagerFactory<CommandIngestActionManager, CommandOptions> factory,
         IOptions<CommandOptions> options,
         ILogger<CommandManager> logger)
-        : base(api, factory, options, logger)
+        : base(serviceProvider, api, factory, options, logger)
     {
     }
     #endregion

@@ -14,16 +14,18 @@ public class ContentMigrationManager : IngestManager<ContentMigrationIngestActio
     /// <summary>
     /// Creates a new instance of a ContentMigrationManager object, initializes with specified parameters.
     /// </summary>
+    /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ContentMigrationManager(
+        IServiceProvider serviceProvider,
         IApiService api,
         IngestManagerFactory<ContentMigrationIngestActionManager, ContentMigrationOptions> factory,
         IOptions<ContentMigrationOptions> options,
         ILogger<ContentMigrationManager> logger)
-        : base(api, factory, options, logger)
+        : base(serviceProvider, api, factory, options, logger)
     {
     }
     #endregion

@@ -17,12 +17,12 @@ public class ContentMigrationIngestActionManager : IngestActionManager<ContentMi
     /// <summary>
     /// Creates a new instance of a ContentMigrationIngestActionManager object, initializes with specified parameters.
     /// </summary>
-    /// <param name="dataSource"></param>
+    /// <param name="ingest"></param>
     /// <param name="action"></param>
     /// <param name="api"></param>
     /// <param name="options"></param>
-    public ContentMigrationIngestActionManager(IngestModel dataSource, IApiService api, IIngestAction<ContentMigrationOptions> action, IOptions<ContentMigrationOptions> options)
-        : base(dataSource, api, action, options)
+    public ContentMigrationIngestActionManager(IngestModel ingest, IApiService api, IIngestAction<ContentMigrationOptions> action, IOptions<ContentMigrationOptions> options)
+        : base(ingest, api, action, options)
     {
     }
     #endregion

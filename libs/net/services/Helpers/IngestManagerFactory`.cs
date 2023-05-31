@@ -34,8 +34,9 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
     /// Create a new instance of a IngestManager object.
     /// </summary>
     /// <param name="ingest"></param>
+    /// <param name="serviceScope"></param>
     /// <returns></returns>
-    public TIngestServiceActionManager Create(IngestModel ingest)
+    public TIngestServiceActionManager Create(IngestModel ingest, IServiceScope? serviceScope = null)
     {
         // var type = typeof(TIngestManager).MakeGenericType(new[] { typeof(IngestModel), typeof(IIngestAction<TOption>), typeof(IApiService), typeof(ILogger<TIngestManager>) });]
         var type = typeof(TIngestServiceActionManager);
@@ -46,7 +47,11 @@ public class IngestManagerFactory<TIngestServiceActionManager, TOption>
         {
             if (cparam.ParameterType == typeof(IngestModel))
                 args.Add(ingest);
-            else
+            else if (serviceScope != null)
+            {
+                args.Add(serviceScope.ServiceProvider.GetRequiredService(cparam.ParameterType));
+
+            } else
                 args.Add(_serviceProvider.GetRequiredService(cparam.ParameterType));
         }
 
