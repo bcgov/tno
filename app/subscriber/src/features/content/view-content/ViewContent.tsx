@@ -6,9 +6,8 @@ import { useContent } from 'store/hooks';
 import { ContentTypeName, IContentModel, Row, Show, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
-import { ViewContentToolbar } from './ViewContentToolbar';
-import { format } from 'path';
 import { formatTime } from './utils';
+import { ViewContentToolbar } from './ViewContentToolbar';
 
 export interface IStream {
   url: string;
