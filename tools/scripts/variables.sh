@@ -29,7 +29,7 @@ else
 fi
 
 ######################################################################
-# Database configuration
+# Postgres Database configuration
 ######################################################################
 
 export dbName="tno"
@@ -54,6 +54,22 @@ then
     export password
 else
     echo "Your password is: $password"
+fi
+
+######################################################################
+# Oracle Database configuration
+######################################################################
+
+export oraclePassword=$("$GREP" -Po 'ORACLE_PWD=\K.*$' ./db/oracle/docker/.env 2>/dev/null)
+if [ -z "$oraclePassword" ]
+then
+    # Generate a random password that satisfies password requirements.
+    echo 'A password is randomly being generated for connection to the oracle db.'
+    oraclePassword=$(date +%s | sha256sum | base64 | head -c 29)A8!
+    echo "Your generated password is: $oraclePassword"
+    export oraclePassword
+else
+    echo "Your password is: $oraclePassword"
 fi
 
 ######################################################################
@@ -140,6 +156,7 @@ export portDejavu=40005
 export portAzureBlob=40006
 export portAzureQueue=40007
 export portAzureTable=40008
+export portOracleDatabase=41521
 
 export portApi=40010
 export portApiHttps=40011
