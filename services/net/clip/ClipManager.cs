@@ -16,16 +16,18 @@ public class ClipManager : IngestManager<ClipIngestActionManager, ClipOptions>
     /// <summary>
     /// Creates a new instance of a ClipManager object, initializes with specified parameters.
     /// </summary>
+    /// <param name="serviceProvider"></param>
     /// <param name="api"></param>
     /// <param name="factory"></param>
     /// <param name="options"></param>
     /// <param name="logger"></param>
     public ClipManager(
+        IServiceProvider serviceProvider,
         IApiService api,
         IngestManagerFactory<ClipIngestActionManager, ClipOptions> factory,
         IOptions<ClipOptions> options,
         ILogger<ClipManager> logger)
-        : base(api, factory, options, logger)
+        : base(serviceProvider, api, factory, options, logger)
     {
     }
 
