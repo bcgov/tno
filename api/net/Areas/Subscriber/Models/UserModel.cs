@@ -55,6 +55,7 @@ public class UserModel : AuditColumnsModel
     /// Creates a new instance of an UserModel, initializes with specified parameter.
     /// </summary>
     /// <param name="entity"></param>
+    /// <param name="options"></param>
     public UserModel(Entities.User entity, JsonSerializerOptions options) : base(entity)
     {
         this.Id = entity.Id;
@@ -77,7 +78,7 @@ public class UserModel : AuditColumnsModel
         var entity = (Entities.User)this;
         entity.Preferences = JsonDocument.Parse(JsonSerializer.Serialize(this.Preferences, options));
         return entity;
-        
+
     }
 
     /// <summary>

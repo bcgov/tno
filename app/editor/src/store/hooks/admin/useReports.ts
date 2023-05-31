@@ -5,11 +5,12 @@ import { IReportModel, useApiAdminReports } from 'tno-core';
 
 interface IReportController {
   findAllReports: () => Promise<IReportModel[]>;
-  getReport: (id: number) => Promise<IReportModel>;
+  getReport: (id: number, includeInstances: boolean) => Promise<IReportModel>;
   addReport: (model: IReportModel) => Promise<IReportModel>;
   updateReport: (model: IReportModel) => Promise<IReportModel>;
   deleteReport: (model: IReportModel) => Promise<IReportModel>;
   sendReport: (model: IReportModel, to: string) => Promise<IReportModel>;
+  publishReport: (model: IReportModel) => Promise<IReportModel>;
 }
 
 export const useReports = (): [IAdminState, IReportController] => {
@@ -27,8 +28,10 @@ export const useReports = (): [IAdminState, IReportController] => {
         store.storeReports(response.data);
         return response.data;
       },
-      getReport: async (id: number) => {
-        const response = await dispatch<IReportModel>('get-report', () => api.getReport(id));
+      getReport: async (id: number, includeInstances: boolean) => {
+        const response = await dispatch<IReportModel>('get-report', () =>
+          api.getReport(id, includeInstances),
+        );
         store.storeReports((reports) =>
           reports.map((ds) => {
             if (ds.id === response.data.id) return response.data;
@@ -67,6 +70,12 @@ export const useReports = (): [IAdminState, IReportController] => {
       sendReport: async (model: IReportModel, to: string) => {
         const response = await dispatch<IReportModel>('send-report', () =>
           api.sendReport(model, to),
+        );
+        return response.data;
+      },
+      publishReport: async (model: IReportModel) => {
+        const response = await dispatch<IReportModel>('publish-report', () =>
+          api.publishReport(model),
         );
         return response.data;
       },

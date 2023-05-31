@@ -29,5 +29,16 @@ public class ReportInstanceService : BaseService<ReportInstance, long>, IReportI
             .Include(ri => ri.ContentManyToMany).ThenInclude(cm2m => cm2m.Content)
             .FirstOrDefault(ri => ri.Id == id);
     }
+
+    public override ReportInstance Add(ReportInstance entity)
+    {
+        entity.ContentManyToMany.ForEach(c => this.Context.Add(c));
+        return base.Add(entity);
+    }
+
+    public override ReportInstance Update(ReportInstance entity)
+    {
+        return base.Update(entity);
+    }
     #endregion
 }

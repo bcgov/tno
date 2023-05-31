@@ -11,7 +11,7 @@ import React from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Editor from 'react-simple-code-editor';
 import { toast } from 'react-toastify';
-import { useApp } from 'store/hooks';
+import { useApp, useLookupOptions } from 'store/hooks';
 import { useReports, useUsers } from 'store/hooks/admin';
 import {
   Button,
@@ -43,7 +43,7 @@ import {
   useModal,
 } from 'tno-core';
 
-import { defaultReport, subscriberColumns } from './constants';
+import { defaultReport, instanceColumns, subscriberColumns } from './constants';
 import { ReportFilter } from './ReportFilter';
 import * as styled from './styled';
 
@@ -59,6 +59,7 @@ export const ReportForm: React.FC = () => {
   const { state } = useLocation();
   const { toggle, isShowing } = useModal();
   const [{ users }, { findUsers }] = useUsers();
+  const [{ productOptions }] = useLookupOptions();
 
   const [report, setReport] = React.useState<IReportModel>(
     (state as any)?.report ?? { ...defaultReport, ownerId: userInfo?.id ?? 0 },
@@ -81,7 +82,7 @@ export const ReportForm: React.FC = () => {
   React.useEffect(() => {
     if (!!reportId && report?.id !== reportId) {
       setReport({ ...defaultReport, id: reportId }); // Do this to stop double fetch.
-      api.getReport(reportId).then((data) => {
+      api.getReport(reportId, true).then((data) => {
         setReport(data);
         setFilter(JSON.stringify(data.filter, null, 2));
       });
@@ -102,6 +103,13 @@ export const ReportForm: React.FC = () => {
   const handleSend = async (values: IReportModel, to: string) => {
     try {
       await api.sendReport(values, to);
+      toast.success('Report has been successfully requested');
+    } catch {}
+  };
+
+  const handlePublish = async (values: IReportModel) => {
+    try {
+      await api.publishReport(values);
       toast.success('Report has been successfully requested');
     } catch {}
   };
@@ -148,14 +156,37 @@ export const ReportForm: React.FC = () => {
                     setActive('report');
                   }}
                   active={active === 'report'}
-                ></Tab>
+                />
+                <Show visible={values.reportType === ReportTypeName.Filter}>
+                  <Tab
+                    label="Filter"
+                    onClick={() => {
+                      setActive('filter');
+                    }}
+                    active={active === 'filter'}
+                  />
+                </Show>
+                <Tab
+                  label="Template"
+                  onClick={() => {
+                    setActive('template');
+                  }}
+                  active={active === 'template'}
+                />
                 <Tab
                   label="Subscribers"
                   onClick={() => {
                     setActive('subscribers');
                   }}
                   active={active === 'subscribers'}
-                ></Tab>
+                />
+                <Tab
+                  label="Sent"
+                  onClick={() => {
+                    setActive('sent');
+                  }}
+                  active={active === 'sent'}
+                />
               </>
             }
           >
@@ -168,6 +199,7 @@ export const ReportForm: React.FC = () => {
                     name="reportType"
                     label="Report Type"
                     options={reportTypeOptions}
+                    width="20ch"
                     value={reportTypeOptions.filter((rt) =>
                       values.reportType.includes(rt.value as ReportTypeName),
                     )}
@@ -176,52 +208,8 @@ export const ReportForm: React.FC = () => {
                       setFieldValue('reportType', option.value);
                     }}
                   />
-                  <Show visible={values.reportType === ReportTypeName.Filter}>
-                    <Col className="code frm-in">
-                      <label htmlFor="txa-filter">Elasticsearch Filter</label>
-                      <Col className="editor">
-                        <Editor
-                          id="txa-filter"
-                          value={filter}
-                          onValueChange={(code) => {
-                            setFilter(code);
-                            setFieldValue('filter', JSON.parse(code));
-                          }}
-                          highlight={(code) => {
-                            return highlight(code, languages.json, 'json');
-                          }}
-                        />
-                      </Col>
-                    </Col>
-                  </Show>
-                  <Col className="code frm-in">
-                    <label htmlFor="txa-subject">Subject Template</label>
-                    <Col className="editor">
-                      <Editor
-                        id="txa-subject"
-                        value={values.settings.subject ?? ''}
-                        onValueChange={(code) => setFieldValue('settings.subject', code)}
-                        highlight={(code) => {
-                          return highlight(code, languages.cshtml, 'razor');
-                        }}
-                      />
-                    </Col>
-                  </Col>
-                  <Col className="code frm-in">
-                    <label htmlFor="txa-template">Report Template</label>
-                    <Col className="editor">
-                      <Editor
-                        id="txa-template"
-                        value={values.template}
-                        onValueChange={(code) => setFieldValue('template', code)}
-                        highlight={(code) => {
-                          return highlight(code, languages.cshtml, 'razor');
-                        }}
-                      />
-                    </Col>
-                  </Col>
                   <Row>
-                    <Col>
+                    <Col flex="2">
                       <Row gap="1rem">
                         <FormikCheckbox
                           labelPosition={LabelPosition.Top}
@@ -281,7 +269,7 @@ export const ReportForm: React.FC = () => {
                       </Show>
                     </Col>
                     {values.id && (
-                      <Col>
+                      <Col flex="1">
                         <h2>Test Report</h2>
                         <p>You can test this report and send it to the following email address.</p>
                         <Text
@@ -303,6 +291,101 @@ export const ReportForm: React.FC = () => {
                   </Row>
                 </Col>
               </Show>
+              <Show visible={active === 'filter'}>
+                <Col>
+                  <FormikText
+                    name="filter.size"
+                    label="Number of Stories"
+                    type="number"
+                    width="10ch"
+                    onChange={(e) => {
+                      if (!!e.target.value) {
+                        const value = parseInt(e.target.value);
+                        setFieldValue('filter.size', value);
+                        setFilter(JSON.stringify({ ...values.filter, size: value }, null, 2));
+                      }
+                    }}
+                  />
+                </Col>
+
+                <FormikSelect
+                  name="productId"
+                  value={
+                    productOptions.find(
+                      (mt) => mt.value === values.filter?.query?.match?.productId,
+                    ) ?? ''
+                  }
+                  onChange={(newValue: any) => {
+                    if (!!newValue) {
+                      const filter = {
+                        ...values.filter,
+                        query: {
+                          ...values.filter?.query,
+                          match: { ...values.filter?.query?.match, productId: newValue.value },
+                        },
+                      };
+                      setFieldValue('filter', filter);
+                      setFilter(JSON.stringify(filter, null, 2));
+                    } else {
+                      setFieldValue('filter.query', {});
+                      setFilter(JSON.stringify({ ...values.filter, query: {} }, null, 2));
+                    }
+                  }}
+                  label="Product"
+                  width={FieldSize.Small}
+                  options={productOptions}
+                />
+                <Col className="code frm-in">
+                  <label htmlFor="txa-filter">Elasticsearch Filter</label>
+                  <Col className="editor">
+                    <Editor
+                      id="txa-filter"
+                      value={filter}
+                      onValueChange={(code) => {
+                        setFilter(code);
+                        try {
+                          const json = JSON.parse(code);
+                          setFieldValue('filter', json);
+                        } catch {
+                          // Ignore errors.
+                          // TODO: Inform user of formatting issues on blur/validation.
+                        }
+                      }}
+                      highlight={(code) => {
+                        return highlight(code, languages.json, 'json');
+                      }}
+                    />
+                  </Col>
+                </Col>
+              </Show>
+              <Show visible={active === 'template'}>
+                <Col className="code frm-in">
+                  <label htmlFor="txa-subject">Subject Template</label>
+                  <Col className="editor">
+                    <Editor
+                      id="txa-subject"
+                      value={values.settings.subject ?? ''}
+                      onValueChange={(code) => setFieldValue('settings.subject', code)}
+                      highlight={(code) => {
+                        return highlight(code, languages.cshtml, 'razor');
+                      }}
+                    />
+                  </Col>
+                </Col>
+                <Col className="code frm-in">
+                  <label htmlFor="txa-template">Report Template</label>
+                  <Col className="editor">
+                    <Editor
+                      id="txa-template"
+                      value={values.template}
+                      onValueChange={(code) => setFieldValue('template', code)}
+                      highlight={(code) => {
+                        return highlight(code, languages.cshtml, 'razor');
+                      }}
+                    />
+                  </Col>
+                </Col>
+              </Show>
               <Show visible={active === 'subscribers'}>
                 <ReportFilter
                   onSearch={async (value: string) => {
@@ -322,9 +405,15 @@ export const ReportForm: React.FC = () => {
                   showSort
                 />
               </Show>
+              <Show visible={active === 'sent'}>
+                <FlexboxTable rowId="id" data={values.instances} columns={instanceColumns()} />
+              </Show>
               <Row justifyContent="center" className="form-inputs">
                 <Button type="submit" disabled={isSubmitting}>
                   Save
+                </Button>
+                <Button variant={ButtonVariant.secondary} onClick={() => handlePublish(values)}>
+                  Publish
                 </Button>
                 <Show visible={!!values.id}>
                   <Button onClick={toggle} variant={ButtonVariant.danger} disabled={isSubmitting}>

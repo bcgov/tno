@@ -5,8 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using TNO.API.Areas.Admin.Models.ReportInstance;
+using TNO.API.Config;
 using TNO.API.Models;
+using TNO.Core.Exceptions;
+using TNO.Core.Extensions;
 using TNO.DAL.Services;
+using TNO.Kafka;
+using TNO.Kafka.Models;
 using TNO.Keycloak;
 
 namespace TNO.API.Areas.Admin.Controllers;
@@ -27,7 +32,10 @@ namespace TNO.API.Areas.Admin.Controllers;
 public class ReportInstanceController : ControllerBase
 {
     #region Variables
-    private readonly IReportInstanceService _service;
+    private readonly IReportInstanceService _reportInstanceService;
+    private readonly IUserService _userService;
+    private readonly IKafkaMessenger _kafkaProducer;
+    private readonly KafkaOptions _kafkaOptions;
     private readonly JsonSerializerOptions _serializerOptions;
     #endregion
 
@@ -35,11 +43,22 @@ public class ReportInstanceController : ControllerBase
     /// <summary>
     /// Creates a new instance of a ReportInstanceController object, initializes with specified parameters.
     /// </summary>
-    /// <param name="service"></param>
+    /// <param name="reportInstanceService"></param>
+    /// <param name="userService"></param>
+    /// <param name="kafkaProducer"></param>
+    /// <param name="kafkaOptions"></param>
     /// <param name="serializerOptions"></param>
-    public ReportInstanceController(IReportInstanceService service, IOptions<JsonSerializerOptions> serializerOptions)
+    public ReportInstanceController(
+        IReportInstanceService reportInstanceService,
+        IUserService userService,
+        IKafkaMessenger kafkaProducer,
+        IOptions<KafkaOptions> kafkaOptions,
+        IOptions<JsonSerializerOptions> serializerOptions)
     {
-        _service = service;
+        _reportInstanceService = reportInstanceService;
+        _userService = userService;
+        _kafkaProducer = kafkaProducer;
+        _kafkaOptions = kafkaOptions.Value;
         _serializerOptions = serializerOptions.Value;
     }
     #endregion
@@ -57,7 +76,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult FindById(long id)
     {
-        var result = _service.FindById(id);
+        var result = _reportInstanceService.FindById(id);
 
         if (result == null) return new NoContentResult();
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
@@ -75,7 +94,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Add(ReportInstanceModel model)
     {
-        var result = _service.AddAndSave(model.ToEntity(_serializerOptions));
+        var result = _reportInstanceService.AddAndSave(model.ToEntity(_serializerOptions));
         return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -91,7 +110,7 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Update(ReportInstanceModel model)
     {
-        var result = _service.UpdateAndSave(model.ToEntity(_serializerOptions));
+        var result = _reportInstanceService.UpdateAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(new ReportInstanceModel(result, _serializerOptions));
     }
 
@@ -107,8 +126,35 @@ public class ReportInstanceController : ControllerBase
     [SwaggerOperation(Tags = new[] { "ReportInstance" })]
     public IActionResult Delete(ReportInstanceModel model)
     {
-        _service.DeleteAndSave(model.ToEntity(_serializerOptions));
+        _reportInstanceService.DeleteAndSave(model.ToEntity(_serializerOptions));
         return new JsonResult(model);
+    }
+
+    /// <summary>
+    /// Publish the report instance and send to all subscribers.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/publish")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportInstanceModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "ReportInstance" })]
+    public async Task<IActionResult> Publish(int id)
+    {
+        var instance = _reportInstanceService.FindById(id);
+        if (instance == null) return new NoContentResult();
+
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var request = new ReportRequestModel(ReportDestination.ReportingService, instance.ReportId, instance.Id, new { })
+        {
+            RequestorId = user.Id
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{instance.ReportId}", request);
+        return new JsonResult(new ReportInstanceModel(instance, _serializerOptions));
     }
     #endregion
 }

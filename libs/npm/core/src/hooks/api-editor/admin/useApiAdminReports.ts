@@ -22,8 +22,10 @@ export const useApiAdminReports = (
     findAllReports: () => {
       return api.get<IReportModel[], AxiosResponse<IReportModel[]>, any>(`/admin/reports`);
     },
-    getReport: (id: number) => {
-      return api.get<IReportModel, AxiosResponse<IReportModel>, any>(`/admin/reports/${id}`);
+    getReport: (id: number, includeInstances: boolean) => {
+      return api.get<IReportModel, AxiosResponse<IReportModel>, any>(
+        `/admin/reports/${id}?includeInstances=${includeInstances}`,
+      );
     },
     addReport: (model: IReportModel) => {
       return api.post<IReportModel, AxiosResponse<IReportModel>, any>(`/admin/reports`, model);
@@ -45,6 +47,11 @@ export const useApiAdminReports = (
     sendReport: (model: IReportModel, to: string) => {
       return api.post<IReportModel, AxiosResponse<IReportModel>, any>(
         `/admin/reports/${model.id}/send?to=${to}`,
+      );
+    },
+    publishReport: (model: IReportModel) => {
+      return api.post<IReportModel, AxiosResponse<IReportModel>, any>(
+        `/admin/reports/${model.id}/publish`,
       );
     },
   }).current;
