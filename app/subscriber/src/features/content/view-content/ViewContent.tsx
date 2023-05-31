@@ -82,7 +82,7 @@ export const ViewContent: React.FC = () => {
 
   return (
     <styled.ViewContent>
-      <ViewContentToolbar currentContent={content && content} />
+      <ViewContentToolbar tags={content?.tags ?? []} />
       <Row className="headline-container">
         <p>{content?.headline && content.headline}</p>
         <Row alignItems="center">

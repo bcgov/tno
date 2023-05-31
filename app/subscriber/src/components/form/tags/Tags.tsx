@@ -1,20 +1,20 @@
 import React from 'react';
 import { FaTags } from 'react-icons/fa';
 import { useLookup } from 'store/hooks';
-import { Col, FieldSize, IContentModel, IOptionItem, Row, Select, useWindowSize } from 'tno-core';
+import { Col, FieldSize, IOptionItem, ITagModel, Row, Select, useWindowSize } from 'tno-core';
 
 import * as styled from './styled';
 
 export interface ITagsProps {
   /** The current content that is being viewed. */
-  currentContent?: IContentModel;
+  contentTags: ITagModel[] | [];
 }
 
 /**
  * The component that renders tags for a given text field
  * @returns the Tags component
  */
-export const Tags: React.FC<ITagsProps> = ({ currentContent }) => {
+export const Tags: React.FC<ITagsProps> = ({ contentTags }) => {
   const [{ tags }] = useLookup();
   const { width } = useWindowSize();
 
@@ -38,10 +38,8 @@ export const Tags: React.FC<ITagsProps> = ({ currentContent }) => {
             isDisabled
             options={tagOptions}
             value={
-              currentContent &&
-              tagOptions.filter((option) =>
-                currentContent.tags?.some((tag) => tag.id === option.value),
-              )
+              contentTags.length &&
+              tagOptions.filter((option) => contentTags.some((tag) => tag.id === option.value))
             }
             maxMenuHeight={120}
             onChange={(selectedTags) => {}}
