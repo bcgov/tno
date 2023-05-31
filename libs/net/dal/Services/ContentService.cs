@@ -226,16 +226,7 @@ public class ContentService : BaseService<Content, long>, IContentService
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Headline).Value($"*{filter.Headline.ToLower()}*")));
 
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
-            filterQueries.Add(s => s.MultiMatch(m => m
-                .Fields(f => f
-                    .Field(p => p.Headline)
-                    .Field(p => p.Body)
-                    .Field(p => p.Byline)
-                    .Field(p => p.Contributor)
-                )
-                .Query(filter.Keyword.ToLower())
-            ));
-
+            filterQueries.Add(s => s.Term(t => t.Headline, filter.Keyword.ToLower()) || s.Term(t => t.Body, filter.Keyword.ToLower()) || s.Term(t => t.Summary, filter.Keyword.ToLower()) || s.Term(t => t.Byline, filter.Keyword.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(filter.PageName))
             filterQueries.Add(s => s.Wildcard(m => m.Field(p => p.Page).Value($"*{filter.PageName.ToLower()}*")));
