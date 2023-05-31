@@ -4,6 +4,7 @@ import { FormPage } from 'tno-core';
 export const ReportForm = styled(FormPage)`
   display: flex;
   flex-direction: column;
+
   .back-button {
     align-self: start;
     margin-bottom: 3%;
@@ -31,5 +32,9 @@ export const ReportForm = styled(FormPage)`
         border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
       resize: both;
     }
+  }
+
+  .form {
+    width: 100%;
   }
 `;

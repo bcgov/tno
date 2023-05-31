@@ -23,6 +23,7 @@ export const makeFilter = (
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
     status: filter.status ?? undefined,
+    keyword: filter.keyword ?? undefined,
     hasTopic: filter.hasTopic ? true : undefined,
     includeHidden: filter.includeHidden ? true : undefined,
     publishedStartOn: filter.startDate ? moment(filter.startDate).toISOString() : undefined,

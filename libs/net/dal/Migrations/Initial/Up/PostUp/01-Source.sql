@@ -1,13 +1,5 @@
 DO $$
 DECLARE dailyPrintId INT := (SELECT "id" FROM public.product WHERE Name = 'Daily Print'); -- product_id
-DECLARE dailyHiveId INT := (SELECT "id" FROM public.product WHERE Name = 'Daily Hive'); -- product_id
-DECLARE haShilthSaId INT := (SELECT "id" FROM public.product WHERE Name = 'Ha-Shilth-Sa'); -- product_id
-DECLARE bivId INT := (SELECT "id" FROM public.product WHERE Name = 'BiV'); -- product_id
-DECLARE castanetId INT := (SELECT "id" FROM public.product WHERE Name = 'Castanet'); -- product_id
-DECLARE infoNewsId INT := (SELECT "id" FROM public.product WHERE Name = 'iNFOnews'); -- product_id
-DECLARE iPoliticsId INT := (SELECT "id" FROM public.product WHERE Name = 'iPolitics'); -- product_id
-DECLARE narwhalId INT := (SELECT "id" FROM public.product WHERE Name = 'Narwhal'); -- product_id
-DECLARE theGeorgiaStraightId INT := (SELECT "id" FROM public.product WHERE Name = 'The Georgia Straight'); -- product_id
 
 BEGIN
 
@@ -33,7 +25,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 7 -- license_id
-  , dailyHiveId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -59,7 +51,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 7 -- license_id
-  , theGeorgiaStraightId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -124,7 +116,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 5 -- license_id
-  , castanetId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -189,7 +181,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 7 -- license_id
-  , iPoliticsId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -774,7 +766,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 3 -- license_id
-  , bivId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -1931,7 +1923,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 7 -- license_id
-  , infoNewsId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -3179,7 +3171,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 7 -- license_id
-  , narwhalId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''
@@ -3270,7 +3262,7 @@ INSERT INTO public.source (
   , false -- auto_transcribe
   , false -- disable_transcribe
   , 3 -- license_id
-  , haShilthSaId -- product_id
+  , null -- product_id
   , 0 -- sort_order
   , ''
   , ''

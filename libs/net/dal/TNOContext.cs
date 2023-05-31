@@ -56,6 +56,7 @@ public class TNOContext : DbContext
     public DbSet<Cache> Cache => Set<Cache>();
     public DbSet<User> Users => Set<User>();
     public DbSet<WorkOrder> WorkOrders => Set<WorkOrder>();
+    public DbSet<Minister> Ministers => Set<Minister>();
 
     #region Reports
     public DbSet<Report> Reports => Set<Report>();

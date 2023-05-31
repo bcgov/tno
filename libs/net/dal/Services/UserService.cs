@@ -137,12 +137,26 @@ public class UserService : BaseService<User, int>, IUserService
             original.Note = entity.Note;
             original.Code = entity.Code;
             original.Roles = entity.Roles;
+            original.Preferences = entity.Preferences;
             original.LastLoginOn = entity.LastLoginOn;
             if (String.IsNullOrWhiteSpace(entity.Code)) original.CodeCreatedOn = null;
             else if (original.Code != entity.Code) original.CodeCreatedOn = DateTime.UtcNow;
 
             base.UpdateAndSave(original);
             return FindById(entity.Id)!;
+        }
+
+        throw new InvalidOperationException("User does not exist");
+    }
+
+    public User UpdatePreferences(User model)
+    {
+        var original = FindById(model.Id);
+        if (original != null)
+        {
+            original.Preferences = model.Preferences;
+            base.UpdateAndSave(original);
+            return FindById(model.Id)!;
         }
 
         throw new InvalidOperationException("User does not exist");

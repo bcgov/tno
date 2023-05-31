@@ -1,5 +1,7 @@
 import {
   FaClipboard,
+  FaCog,
+  FaCogs,
   FaComment,
   FaFire,
   FaHeart,
@@ -10,7 +12,13 @@ import {
 } from 'react-icons/fa';
 
 export interface ISideBarMenuItems {
-  [key: string]: { label: string; path: string; icon: JSX.Element };
+  [key: string]: {
+    label: string;
+    path: string;
+    icon: JSX.Element;
+    secondaryIcon?: JSX.Element;
+    secondaryIconRoute?: string;
+  };
 }
 
 /** The below manages the items that will appear in the left navigation bar in sequential order. */
@@ -29,6 +37,8 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: 'My Minister',
     path: 'myminister',
     icon: <FaUserTie />,
+    secondaryIcon: <FaCog />,
+    secondaryIconRoute: '/landing/settings',
   },
   todaysCommentary: {
     label: "Today's Commentary",
@@ -54,6 +64,11 @@ export const SidebarMenuItems: ISideBarMenuItems = {
     label: 'My Reports',
     path: 'myreports',
     icon: <FaClipboard />,
+  },
+  settings: {
+    label: 'Settings',
+    path: 'settings',
+    icon: <FaCogs />,
   },
 };
 

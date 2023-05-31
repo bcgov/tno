@@ -72,7 +72,8 @@ class Program
                     .AddTNOServices(context.Configuration, context.HostingEnvironment)
                     .AddElasticMigration(context.Configuration)
                     .AddSingleton<ElasticsearchClient, TNOElasticClient>()
-                    .AddSingleton<MigrationService>();
+                    .AddSingleton<MigrationService>()
+                    .AddHttpClient();
             });
     }
     #endregion

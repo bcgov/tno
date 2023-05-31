@@ -24,6 +24,8 @@ export interface IFormikFormProps<Values extends FormikValues> extends FormikFor
     size?: string;
     variant?: SpinnerVariant;
   };
+  /** Classname of parent element. */
+  className?: string;
 }
 
 /**
@@ -43,7 +45,7 @@ export const FormikForm = <Values extends FormikValues = FormikValues>({
   const [{ requests }] = useApp();
 
   return (
-    <styled.FormikForm>
+    <styled.FormikForm className={`form${rest.className ? ` ${rest.className}` : ''}`}>
       <Loader
         size={load.size}
         variant={load.variant}

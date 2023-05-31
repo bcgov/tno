@@ -43,7 +43,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get - List of users who are subscribed to this report (many-to-many).
     /// </summary>
-    public virtual IEnumerable<UserReportModel> Subscribers { get; } = Array.Empty<UserReportModel>();
+    public IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
     #endregion
 
     #region Constructors
@@ -65,8 +65,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.IsPublic = entity.IsPublic;
         this.Filter = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Filter, options) ?? new Dictionary<string, object>();
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
-
-        this.Subscribers = entity.SubscribersManyToMany.Select(m => new UserReportModel(m));
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!));
     }
     #endregion
 
@@ -103,7 +102,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
             Version = model.Version ?? 0
         };
 
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => (UserReport)us));
+        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new UserReport(us.Id, entity.Id)));
 
         return entity;
     }

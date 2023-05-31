@@ -103,7 +103,8 @@ public class ReportController : ControllerBase
     public IActionResult Add(ReportModel model)
     {
         var result = _reportService.AddAndSave(model.ToEntity(_serializerOptions));
-        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(result, _serializerOptions));
+        var report = _reportService.FindById(result.Id);
+        return CreatedAtAction(nameof(FindById), new { id = result.Id }, new ReportModel(report!, _serializerOptions));
     }
 
     /// <summary>
@@ -119,7 +120,8 @@ public class ReportController : ControllerBase
     public IActionResult Update(ReportModel model)
     {
         var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        return new JsonResult(new ReportModel(result, _serializerOptions));
+        var report = _reportService.FindById(result.Id);
+        return new JsonResult(new ReportModel(report!, _serializerOptions));
     }
 
     /// <summary>

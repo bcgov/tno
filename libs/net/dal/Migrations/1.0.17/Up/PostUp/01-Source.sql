@@ -24,7 +24,7 @@ INSERT INTO public.source (
   , false -- disable_transcribe
   , 2 -- license_id
   , null -- product_id
-  , -1 -- sort_order
+  , 8 -- sort_order
   , ''
   , ''
 );

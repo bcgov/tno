@@ -1,6 +1,6 @@
 using TNO.API.Models;
 
-namespace TNO.API.Areas.Subscriber.Models;
+namespace TNO.API.Areas.Subscriber.Models.License;
 
 /// <summary>
 /// LicenseModel class, provides a model that represents an license.

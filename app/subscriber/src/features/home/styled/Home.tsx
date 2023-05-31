@@ -11,6 +11,7 @@ export const Home = styled.div`
     .header {
       background-color: #f5f6fa;
       font-family: 'Roboto', sans-serif;
+      font-size: 0.8em;
       /* box shadow only on bottom */
       box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
       border: none;

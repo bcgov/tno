@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using TNO.API.Areas.Subscriber.Content;
 using TNO.API.Models;
 
 using TNO.Entities;

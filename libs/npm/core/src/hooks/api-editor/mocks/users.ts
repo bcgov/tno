@@ -14,6 +14,7 @@ export const mockUsers: IUserModel[] = [
     status: UserStatusName.Preapproved,
     isSystemAccount: false,
     emailVerified: false,
+    preferences: {},
     note: '',
   },
 ];
