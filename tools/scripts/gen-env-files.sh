@@ -41,6 +41,8 @@ AZURE_BLOB_PORT=$portAzureBlob
 AZURE_QUEUE_PORT=$portAzureQueue
 AZURE_TABLE_PORT=$portAzureTable
 
+ORACLE_DATABASE_PORT=$portOracleDatabase
+
 #############################
 # Applications
 #############################
@@ -116,6 +118,18 @@ POSTGRESQL_ADMIN_PASSWORD=$password
 
 KEYCLOAK_DATABASE=$keycloakDbName" >> ./db/postgres/rhel8/.env
     echo "./db/postgres/rhel8/.env created"
+fi
+
+# Database - Oracle Docker Image
+if test -f "./db/oracle/docker/.env"; then
+    echo "./db/oracle/docker/.env exists"
+else
+echo \
+"ORACLE_PWD=$oraclePassword
+ORACLE_CHARACTERSET=AL32UTF8
+ORACLE_EDITION=standard
+" >> ./db/oracle/docker/.env
+    echo "./db/oracle/docker/.env created"
 fi
 
 # Database - DAL
