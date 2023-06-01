@@ -4,6 +4,7 @@ using TNO.Services.Runners;
 using TNO.Services.ContentMigration.Sources.Oracle.Services;
 using TNO.Services.ContentMigration.Sources.Oracle;
 using Oracle.ManagedDataAccess.Client;
+using Microsoft.Extensions.Configuration;
 
 namespace TNO.Services.ContentMigration;
 
@@ -39,13 +40,11 @@ public class ContentMigrationService : KafkaProducerService
         base.ConfigureServices(services);
 
         services
-            .Configure<ContentMigrationOptions>(this.Configuration.GetSection("Service"))
-            .AddMigrationSourceContext(this.Configuration)
+            .Configure<ContentMigrationOptions>(this.Configuration.GetSection("Service") )
+            .AddMigrationSourceContext(this.Configuration.GetSection("Service:OracleConnection").Get<OracleConnectionSettings>())
             .AddTransient<IIngestAction<ContentMigrationOptions>, ContentMigrationAction>()
             .AddTransient<IngestManagerFactory<ContentMigrationIngestActionManager, ContentMigrationOptions>>()
             .AddSingleton<IServiceManager, ContentMigrationManager>();
-
-        // services.AddTransient<OracleConnection>(provider => { var connectionString = "User Id=TNO_USER;Password='TnoVsMmia2023';Data Source=localhost:41521/freepdb1"; return new OracleConnection(connectionString); });
 
         // TODO: Figure out how to validate without resulting in aggregating the config values.
         // services.AddOptions<ContentMigrationOptions>()

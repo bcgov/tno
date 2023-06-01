@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Oracle.ManagedDataAccess.Client;
+using TNO.Services.ContentMigration.Config;
 
 namespace TNO.Services.ContentMigration.Sources.Oracle.Services;
 
@@ -42,12 +42,15 @@ public static class ServiceCollectionExtensions
     /// <param name="services"></param>
     /// <param name="config"></param>
     /// <returns></returns>
-    public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddMigrationSourceContext(this IServiceCollection services, OracleConnectionSettings? config)
     {
-        var connectionString = config["DB_ORACLE_CS"];
-        var userId = config["DB_ORACLE_USERNAME"];
-        var pwd = config["DB_ORACLE_PASSWORD"];
-        var oracleBuilder = new OracleConnectionStringBuilder(connectionString);
+        if (config == null) throw new ArgumentException("Argument is required and cannot be null, empty or whitespace.", nameof(config));
+
+        var connectionStringPartial = config.DataSource;
+        var userId = config.UserId;
+        var pwd = config.Password;
+
+        var oracleBuilder = new OracleConnectionStringBuilder(connectionStringPartial);
         oracleBuilder.UserID = userId;
         oracleBuilder.Password = pwd;
 
