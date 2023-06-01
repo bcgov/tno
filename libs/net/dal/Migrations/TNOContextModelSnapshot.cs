@@ -3255,7 +3255,7 @@ namespace TNO.DAL.Migrations
                         .HasColumnName("created_on")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("Resend")
+                    b.Property<int?>("Resend")
                         .HasColumnType("integer")
                         .HasColumnName("resend");
 

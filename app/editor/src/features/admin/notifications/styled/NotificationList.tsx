@@ -1,0 +1,28 @@
+import styled from 'styled-components';
+
+export const NotificationList = styled.div`
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    input {
+      margin-top: 3.5%;
+    }
+    button {
+      background-color: white;
+    }
+    background-color: #f5f5f5;
+  }
+
+  div.row {
+    cursor: pointer;
+
+    div.column {
+      overflow: hidden;
+    }
+  }
+`;

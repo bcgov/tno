@@ -43,7 +43,7 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get - List of users who are subscribed to this report (many-to-many).
     /// </summary>
-    public virtual IEnumerable<UserReportModel> Subscribers { get; } = Array.Empty<UserReportModel>();
+    public virtual IEnumerable<UserReportModel> Subscribers { get; set; } = Array.Empty<UserReportModel>();
     #endregion
 
     #region Constructors

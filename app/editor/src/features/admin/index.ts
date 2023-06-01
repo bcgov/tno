@@ -6,6 +6,7 @@ export * from './data-locations';
 export * from './ingest-types';
 export * from './ingests';
 export * from './licenses';
+export * from './notifications';
 export * from './products';
 export * from './reports';
 export * from './series';

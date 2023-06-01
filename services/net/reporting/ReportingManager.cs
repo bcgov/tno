@@ -419,10 +419,10 @@ public class ReportingManager : ServiceManager<ReportingOptions>
         }
         else
         {
-            contexts = to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+            contexts.AddRange(to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
             {
                 Tag = tag,
-            }).ToList();
+            }).ToList());
         }
 
         var merge = new EmailMergeModel(this.ChesOptions.From, contexts, subject, body)

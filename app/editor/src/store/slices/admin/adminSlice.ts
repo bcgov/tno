@@ -10,6 +10,7 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  INotificationModel,
   IPaged,
   IProductModel,
   IReportModel,
@@ -55,6 +56,7 @@ export const initialAdminState: IAdminState = {
   },
   workOrders: { page: 1, quantity: 10, items: [], total: 0 },
   reports: [],
+  notifications: [],
 };
 
 export const adminSlice = createSlice({
@@ -118,6 +120,9 @@ export const adminSlice = createSlice({
     storeReports(state: IAdminState, action: PayloadAction<IReportModel[]>) {
       state.reports = action.payload;
     },
+    storeNotifications(state: IAdminState, action: PayloadAction<INotificationModel[]>) {
+      state.notifications = action.payload;
+    },
   },
 });
 
@@ -141,4 +146,5 @@ export const {
   storeWorkOrderFilter: storeAdminWorkOrderFilter,
   storeWorkOrders: storeAdminWorkOrders,
   storeReports: storeAdminReports,
+  storeNotifications: storeAdminNotifications,
 } = adminSlice.actions;

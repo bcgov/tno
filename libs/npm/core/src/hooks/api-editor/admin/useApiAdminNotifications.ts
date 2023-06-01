@@ -49,9 +49,9 @@ export const useApiAdminNotifications = (
         },
       );
     },
-    sendNotification: (model: INotificationModel, to: string) => {
+    sendNotification: (model: INotificationModel, contentId: number, to: string) => {
       return api.post<INotificationModel, AxiosResponse<INotificationModel>, any>(
-        `/admin/notifications/${model.id}/send?to=${to}`,
+        `/admin/notifications/${model.id}/send/${contentId}?to=${to}`,
       );
     },
   }).current;
