@@ -22,9 +22,9 @@ export interface IContentForm {
   status: ContentStatusName;
   contentType: ContentTypeName;
   ownerId: number | '';
-  owner: IUserModel | undefined;
+  owner?: IUserModel;
   productId: number;
-  product: IProductModel | undefined;
+  product?: IProductModel;
   licenseId: number;
   sourceId?: number;
   otherSource: string;
