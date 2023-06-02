@@ -315,9 +315,8 @@ public class TranscriptionManager : ServiceManager<TranscriptionOptions>
             var matches = Regex.Matches(result, pattern);
             foreach (Match match in matches)
             {
-                result = result.Replace(match.Value, match.Value[0] + " " + match.Value[1]);
+                result = result.Replace(match.Value, match.Value[0] + Environment.NewLine + match.Value[1]);
             }
-            result = result.Replace(". ", ".<br/>");
         }
         return result;
     }

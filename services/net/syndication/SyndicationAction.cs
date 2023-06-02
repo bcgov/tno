@@ -185,7 +185,9 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
                         item.Authors.Add(new SyndicationPerson { Name = bylineNode.InnerHtml.Replace("By ", "").Replace("\n", "") });
                         bylineNode.Remove();
                     }
-                    var content = new TextSyndicationContent(articleNode.InnerHtml.Replace("\r\n", "").Replace("\n", ""), TextSyndicationContentKind.Html);
+                    var content = new TextSyndicationContent(
+                        articleNode.InnerHtml.Replace("\r\n", " ").Replace("\n", " "),
+                        TextSyndicationContentKind.Html);
                     // Only update the summary if it's empty.
                     if (string.IsNullOrWhiteSpace(item.Summary.Text)) item.Summary = content;
                     item.Content = content;
