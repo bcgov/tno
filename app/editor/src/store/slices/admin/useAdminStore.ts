@@ -11,6 +11,7 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  INotificationModel,
   IPaged,
   IProductModel,
   IReportModel,
@@ -32,6 +33,7 @@ import {
   storeAdminIngests,
   storeAdminIngestTypes,
   storeAdminLicenses,
+  storeAdminNotifications,
   storeAdminProducts,
   storeAdminReports,
   storeAdminSeries,
@@ -76,6 +78,9 @@ export interface IAdminStore {
     workOrders: IPaged<IWorkOrderModel> | ActionDelegate<IPaged<IWorkOrderModel>>,
   ) => void;
   storeReports: (reports: IReportModel[] | ActionDelegate<IReportModel[]>) => void;
+  storeNotifications: (
+    notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
+  ) => void;
 }
 
 export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] => {
@@ -189,28 +194,36 @@ export const useAdminStore = (props?: IAdminProps): [IAdminState, IAdminStore] =
           dispatch(storeAdminReports(reports(state.reports)));
         } else dispatch(storeAdminReports(reports));
       },
+      storeNotifications: (
+        notifications: INotificationModel[] | ActionDelegate<INotificationModel[]>,
+      ) => {
+        if (typeof notifications === 'function') {
+          dispatch(storeAdminNotifications(notifications(state.notifications)));
+        } else dispatch(storeAdminNotifications(notifications));
+      },
     }),
     [
       dispatch,
-      state.actions,
+      state.sources,
       state.connections,
       state.dataLocations,
-      state.ingestTypes,
-      state.ingests,
-      state.licenses,
       state.products,
-      state.rules,
-      state.series,
-      state.contributors,
-      state.sources,
-      state.tags,
-      state.topics,
+      state.licenses,
+      state.ingests,
+      state.ingestTypes,
       state.userFilter,
       state.users,
+      state.topics,
+      state.rules,
+      state.tags,
+      state.alerts,
+      state.actions,
+      state.series,
+      state.contributors,
       state.workOrderFilter,
       state.workOrders,
-      state.alerts,
       state.reports,
+      state.notifications,
     ],
   );
 

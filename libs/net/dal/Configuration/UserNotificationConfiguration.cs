@@ -11,7 +11,7 @@ public class UserNotificationConfiguration : AuditColumnsConfiguration<UserNotif
         builder.HasKey(m => new { m.UserId, m.NotificationId });
         builder.Property(m => m.UserId).IsRequired().ValueGeneratedNever();
         builder.Property(m => m.NotificationId).IsRequired().ValueGeneratedNever();
-        builder.Property(m => m.Resend).IsRequired();
+        builder.Property(m => m.Resend);
 
         builder.HasOne(m => m.User).WithMany(m => m.NotificationSubscriptionsManyToMany).HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
         builder.HasOne(m => m.Notification).WithMany(m => m.SubscribersManyToMany).HasForeignKey(m => m.NotificationId).OnDelete(DeleteBehavior.Cascade);

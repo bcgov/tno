@@ -1,10 +1,11 @@
 import styled from 'styled-components';
 
 export const ReportList = styled.div`
-  width: auto;
+  width: 100%;
   min-height: 100%;
   display: flex;
   justify-content: center;
+
   .filter-bar {
     display: flex;
     align-items: center;

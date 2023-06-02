@@ -112,7 +112,7 @@ public class LookupController : ControllerBase
     [SwaggerOperation(Tags = new[] { "Lookup" })]
     [ETagCacheTableFilter("lookups")]
     [ResponseCache(Duration = 5 * 60)]
-    public async Task<IActionResult> FindAllAsync()
+    public IActionResult FindAllAsync()
     {
         if (String.IsNullOrWhiteSpace(_CssOptions.ClientId)) throw new ConfigurationException("CSS clientId has not been configured");
         if (String.IsNullOrWhiteSpace(_CssOptions.Secret)) throw new ConfigurationException("CSS secret has not been configured");

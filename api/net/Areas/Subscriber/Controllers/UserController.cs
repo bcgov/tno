@@ -49,7 +49,7 @@ public class UserController : ControllerBase
         _cssHelper = cssHelper;
         _serializerOptions = serializerOptions.Value;
 
-        
+
     }
     #endregion
 
@@ -70,12 +70,12 @@ public class UserController : ControllerBase
         var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
         var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
 
-        if(user.Id != model.Id)
+        if (user.Id != model.Id)
         {
             throw new NotAuthorizedException("You are not authorized to update this user.");
         }
         var result = _userService.UpdatePreferences((User)model);
-        return new JsonResult(new UserModel(result, _serializerOptions));
+        return new JsonResult(new UserModel(result!, _serializerOptions));
     }
     #endregion
 }

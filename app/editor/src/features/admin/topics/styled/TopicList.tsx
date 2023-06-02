@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const TopicList = styled.div`
-  width: auto;
+  width: 100%;
   min-height: 100%;
   display: flex;
   justify-content: center;

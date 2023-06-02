@@ -37,7 +37,7 @@ public class ReportInstanceModel : AuditColumnsModel
     /// <summary>
     /// get - Collection of content associated with this report instance.
     /// </summary>
-    public IEnumerable<ReportInstanceContentModel> Content { get; } = Array.Empty<ReportInstanceContentModel>();
+    public IEnumerable<ReportInstanceContentModel> Content { get; set; } = Array.Empty<ReportInstanceContentModel>();
     #endregion
 
     #region Constructors

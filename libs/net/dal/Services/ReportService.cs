@@ -35,8 +35,9 @@ public class ReportService : BaseService<Report, int>, IReportService
     {
         return this.Context.Reports
             .AsNoTracking()
-            .Include(n => n.SubscribersManyToMany).ThenInclude(s => s.User)
-            .OrderBy(a => a.SortOrder).ThenBy(a => a.Name).ToArray();
+            .Include(r => r.Owner)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .OrderBy(r => r.SortOrder).ThenBy(r => r.Name).ToArray();
     }
 
     /// <summary>
@@ -47,8 +48,25 @@ public class ReportService : BaseService<Report, int>, IReportService
     public override Report? FindById(int id)
     {
         return this.Context.Reports
-            .Include(n => n.SubscribersManyToMany).ThenInclude(s => s.User)
-            .FirstOrDefault(n => n.Id == id);
+            .Include(r => r.Owner)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .FirstOrDefault(r => r.Id == id);
+    }
+
+    /// <summary>
+    /// Find the report for the specified 'id'.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="includeInstances"></param>
+    /// <returns></returns>
+    public Report? FindById(int id, bool includeInstances)
+    {
+        var query = this.Context.Reports
+            .Include(r => r.Owner)
+            .Include(r => r.SubscribersManyToMany).ThenInclude(s => s.User)
+            .AsQueryable();
+        if (includeInstances) query = query.Include(r => r.Instances);
+        return query.FirstOrDefault(n => n.Id == id);
     }
 
     /// <summary>

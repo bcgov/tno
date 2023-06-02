@@ -8,7 +8,9 @@ import {
   IContentTonePoolModel,
   IContentTopicModel,
   IFileReferenceModel,
+  IProductModel,
   ITimeTrackingModel,
+  IUserModel,
   IWorkOrderModel,
 } from 'tno-core';
 
@@ -20,7 +22,9 @@ export interface IContentForm {
   status: ContentStatusName;
   contentType: ContentTypeName;
   ownerId: number | '';
+  owner?: IUserModel;
   productId: number;
+  product?: IProductModel;
   licenseId: number;
   sourceId?: number;
   otherSource: string;

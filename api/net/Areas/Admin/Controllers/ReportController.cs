@@ -77,15 +77,16 @@ public class ReportController : ControllerBase
     /// Find content for the specified 'id'.
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="includeInstances"></param>
     /// <returns></returns>
     [HttpGet("{id}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
     [SwaggerOperation(Tags = new[] { "Report" })]
-    public IActionResult FindById(int id)
+    public IActionResult FindById(int id, bool includeInstances)
     {
-        var result = _reportService.FindById(id);
+        var result = _reportService.FindById(id, includeInstances);
         if (result == null) return new NoContentResult();
         return new JsonResult(new ReportModel(result, _serializerOptions));
     }
@@ -120,7 +121,7 @@ public class ReportController : ControllerBase
     public IActionResult Update(ReportModel model)
     {
         var result = _reportService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        var report = _reportService.FindById(result.Id);
+        var report = _reportService.FindById(result.Id, true);
         return new JsonResult(new ReportModel(report!, _serializerOptions));
     }
 
@@ -167,6 +168,33 @@ public class ReportController : ControllerBase
             UpdateCache = true
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}-test", request);
+        return new JsonResult(new ReportModel(report, _serializerOptions));
+    }
+
+    /// <summary>
+    /// Publish the report and send to all subscribers.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    [HttpPost("{id}/publish")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ReportModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.NoContent)]
+    [ProducesResponseType(typeof(ErrorResponseModel), (int)HttpStatusCode.BadRequest)]
+    [SwaggerOperation(Tags = new[] { "Report" })]
+    public async Task<IActionResult> Publish(int id)
+    {
+        var report = _reportService.FindById(id);
+        if (report == null) return new NoContentResult();
+
+        var username = User.GetUsername() ?? throw new NotAuthorizedException("Username is missing");
+        var user = _userService.FindByUsername(username) ?? throw new NotAuthorizedException("User does not exist");
+
+        var request = new ReportRequestModel(ReportDestination.ReportingService, report.Id, new { })
+        {
+            RequestorId = user.Id
+        };
+        await _kafkaProducer.SendMessageAsync(_kafkaOptions.ReportingTopic, $"report-{report.Id}", request);
         return new JsonResult(new ReportModel(report, _serializerOptions));
     }
     #endregion

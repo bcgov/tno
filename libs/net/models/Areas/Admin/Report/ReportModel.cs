@@ -1,4 +1,5 @@
 using System.Text.Json;
+using TNO.API.Areas.Admin.Models.ReportInstance;
 using TNO.API.Models;
 using TNO.Entities;
 
@@ -31,6 +32,11 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     public int OwnerId { get; set; }
 
     /// <summary>
+    /// get/set - The owner of this report.
+    /// </summary>
+    public UserModel? Owner { get; set; }
+
+    /// <summary>
     /// get/set - Whether this report is public to all users.
     /// </summary>
     public bool IsPublic { get; set; } = false;
@@ -41,9 +47,14 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
     public Dictionary<string, object> Settings { get; set; } = new Dictionary<string, object>();
 
     /// <summary>
-    /// get - List of users who are subscribed to this report (many-to-many).
+    /// get/set - List of users who are subscribed to this report (many-to-many).
     /// </summary>
     public IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
+
+    /// <summary>
+    /// get/set - An array of report instances.
+    /// </summary>
+    public IEnumerable<ReportInstanceModel> Instances { get; set; } = Array.Empty<ReportInstanceModel>();
     #endregion
 
     #region Constructors
@@ -62,10 +73,12 @@ public class ReportModel : BaseTypeWithAuditColumnsModel<int>
         this.ReportType = entity.ReportType;
         this.Template = entity.Template;
         this.OwnerId = entity.OwnerId;
+        this.Owner = entity.Owner != null ? new UserModel(entity.Owner) : null;
         this.IsPublic = entity.IsPublic;
         this.Filter = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Filter, options) ?? new Dictionary<string, object>();
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
         this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!));
+        this.Instances = entity.Instances.OrderByDescending(i => i.Id).Select(i => new ReportInstanceModel(i, options));
     }
     #endregion
 

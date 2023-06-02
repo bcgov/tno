@@ -5,7 +5,6 @@ import { IFormPageProps } from '../FormPage';
 export const FormPage = styled.div<IFormPageProps>`
   background-color: white;
   min-height: fit-content;
-  min-width: 1200px;
   margin: 0px auto;
   overflow: auto;
   overflow-x: hidden;
@@ -24,5 +23,13 @@ export const FormPage = styled.div<IFormPageProps>`
   p[role='alert'] {
     font-size: 0.85em;
     color: ${(props) => props.theme.css.dangerColor};
+  }
+
+  @media only screen and (max-width: 1200px) {
+    width: 100%;
+  }
+
+  @media only screen and (min-width: 1201px) {
+    width: 90%;
   }
 `;

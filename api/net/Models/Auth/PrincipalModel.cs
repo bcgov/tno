@@ -103,7 +103,7 @@ public class PrincipalModel
         this.Status = user?.Status;
         this.IsEnabled = user?.IsEnabled ?? false;
         this.Note = user?.Note ?? "";
-        this.Preferences = JsonSerializer.Deserialize<Dictionary<string, object>>(user?.Preferences, options) ?? new Dictionary<string, object>();
+        this.Preferences = user?.Preferences != null ? JsonSerializer.Deserialize<Dictionary<string, object>>(user.Preferences, options) ?? new Dictionary<string, object>() : new Dictionary<string, object>();
         this.Roles = user?.Roles.Split(",")
             .Where(s => !String.IsNullOrWhiteSpace(s))
             .Select(r => r[1..^1])

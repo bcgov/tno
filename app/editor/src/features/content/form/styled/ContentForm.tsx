@@ -2,10 +2,7 @@ import styled from 'styled-components';
 
 export const ContentForm = styled.div`
   height: 100%;
-
-  .form-page {
-    max-width: none;
-  }
+  width: 100%;
 
   .minimize-details {
     margin: 1em 0 0 0;

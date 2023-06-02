@@ -46,6 +46,11 @@ public class NotificationRequestModel
     /// get/set - Whether to update Razor template cache.
     /// </summary>
     public bool UpdateCache { get; set; }
+
+    /// <summary>
+    /// get/set - Whether to ignore the standard validation. This will ensure the notification is sent regardless of the normal rules.
+    /// </summary>
+    public bool IgnoreValidation { get; set; }
     #endregion
 
     #region Constructors

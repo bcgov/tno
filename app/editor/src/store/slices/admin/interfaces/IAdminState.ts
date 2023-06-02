@@ -9,6 +9,7 @@ import {
   IIngestModel,
   IIngestTypeModel,
   ILicenseModel,
+  INotificationModel,
   IPaged,
   IProductModel,
   IReportModel,
@@ -41,4 +42,5 @@ export interface IAdminState {
   workOrderFilter: IWorkOrderListFilter;
   workOrders: IPaged<IWorkOrderModel>;
   reports: IReportModel[];
+  notifications: INotificationModel[];
 }
