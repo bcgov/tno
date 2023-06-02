@@ -34,6 +34,17 @@ public class ReportInstanceContentModel : AuditColumnsModel
         this.InstanceId = entity.InstanceId;
         this.ContentId = entity.ContentId;
     }
+
+    /// <summary>
+    /// Creates a new instance of an ReportInstanceContentModel, initializes with specified parameter.
+    /// </summary>
+    /// <param name="instanceId"></param>
+    /// <param name="contentId"></param>
+    public ReportInstanceContentModel(long instanceId, long contentId)
+    {
+        this.InstanceId = instanceId;
+        this.ContentId = contentId;
+    }
     #endregion
 
     #region Methods

@@ -7,6 +7,7 @@ export * from './useDataLocations';
 export * from './useIngests';
 export * from './useIngestTypes';
 export * from './useLicenses';
+export * from './useNotifications';
 export * from './useProducts';
 export * from './useReports';
 export * from './useSeries';

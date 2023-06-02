@@ -143,7 +143,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
             else
                 return DateTimeOffset.ParseExact(value, format, CultureInfo.InvariantCulture);
         }
-        catch (Exception ex)
+        catch
         {
             if (String.IsNullOrWhiteSpace(format))
                 return ParseDateTime(value, "MMM dd HH:mm");

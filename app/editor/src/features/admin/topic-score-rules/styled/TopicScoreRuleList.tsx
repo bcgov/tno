@@ -6,11 +6,6 @@ export const TopicScoreRuleList = styled.div`
   display: flex;
   justify-content: center;
 
-  .form-page {
-    max-width: none;
-    width: 95vw;
-  }
-
   .filter-bar {
     display: flex;
     align-items: center;

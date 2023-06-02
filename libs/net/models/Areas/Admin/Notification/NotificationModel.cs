@@ -53,7 +53,7 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
     /// <summary>
     /// get - List of users who are subscribed to this notification (many-to-many).
     /// </summary>
-    public virtual IEnumerable<UserNotificationModel> Subscribers { get; } = Array.Empty<UserNotificationModel>();
+    public virtual IEnumerable<UserModel> Subscribers { get; set; } = Array.Empty<UserModel>();
     #endregion
 
     #region Constructors
@@ -77,8 +77,7 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
         this.IsPublic = entity.IsPublic;
         this.Filter = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Filter, options) ?? new Dictionary<string, object>();
         this.Settings = JsonSerializer.Deserialize<Dictionary<string, object>>(entity.Settings, options) ?? new Dictionary<string, object>();
-
-        this.Subscribers = entity.SubscribersManyToMany.Select(m => new UserNotificationModel(m));
+        this.Subscribers = entity.SubscribersManyToMany.Where(s => s.User != null).Select(s => new UserModel(s.User!));
     }
     #endregion
 
@@ -117,7 +116,7 @@ public class NotificationModel : BaseTypeWithAuditColumnsModel<int>
             Version = model.Version ?? 0
         };
 
-        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => (UserNotification)us));
+        entity.SubscribersManyToMany.AddRange(model.Subscribers.Select(us => new UserNotification(us.Id, entity.Id)));
 
         return entity;
     }

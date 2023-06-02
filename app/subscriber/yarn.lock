@@ -7623,7 +7623,7 @@ __metadata:
 
 "fsevents@patch:fsevents@^2.3.2#~builtin<compat/fsevents>, fsevents@patch:fsevents@~2.3.2#~builtin<compat/fsevents>":
   version: 2.3.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=18f3a7"
+  resolution: "fsevents@patch:fsevents@npm%3A2.3.2#~builtin<compat/fsevents>::version=2.3.2&hash=df0bf1"
   dependencies:
     node-gyp: latest
   conditions: os=darwin
@@ -10374,7 +10374,7 @@ __metadata:
     sass-extract-js: 0.4.0
     sass-extract-loader: 1.1.0
     styled-components: 5.3.9
-    tno-core: ./tno-core-0.0.251.tgz
+    tno-core: 0.0.255
     typescript: 4.9.5
   languageName: unknown
   linkType: soft
@@ -13079,7 +13079,7 @@ __metadata:
 
 "resolve@patch:resolve@^1.1.7#~builtin<compat/resolve>, resolve@patch:resolve@^1.14.2#~builtin<compat/resolve>, resolve@patch:resolve@^1.19.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.20.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.0#~builtin<compat/resolve>, resolve@patch:resolve@^1.22.1#~builtin<compat/resolve>":
   version: 1.22.1
-  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A1.22.1#~builtin<compat/resolve>::version=1.22.1&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -13092,7 +13092,7 @@ __metadata:
 
 "resolve@patch:resolve@^2.0.0-next.3#~builtin<compat/resolve>":
   version: 2.0.0-next.4
-  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4#~builtin<compat/resolve>::version=2.0.0-next.4&hash=07638b"
+  resolution: "resolve@patch:resolve@npm%3A2.0.0-next.4#~builtin<compat/resolve>::version=2.0.0-next.4&hash=c3c19d"
   dependencies:
     is-core-module: ^2.9.0
     path-parse: ^1.0.7
@@ -14279,40 +14279,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tno-core@file:./tno-core-0.0.251.tgz::locator=mmia-subscriber-app%40workspace%3A.":
-  version: 0.0.251
-  resolution: "tno-core@file:./tno-core-0.0.251.tgz::locator=mmia-subscriber-app%40workspace%3A."
-  dependencies:
-    "@fortawesome/free-solid-svg-icons": ^6.3.0
-    "@fortawesome/react-fontawesome": ^0.2.0
-    "@headlessui/react": ^1.7.13
-    "@react-keycloak/web": ^3.4.0
-    axios: ^1.3.4
-    dequal: ^2.0.3
-    formik: ^2.2.9
-    keycloak-js: ^21.0.1
-    lodash: ^4.17.21
-    lodash.throttle: ^4.1.1
-    moment: ^2.29.4
-    moment-timezone: ^0.5.41
-    react: ^18.2.0
-    react-datepicker: ^4.10.0
-    react-dom: ^18.2.0
-    react-icons: ^4.8.0
-    react-inlinesvg: ^3.0.2
-    react-router-dom: ^6.9.0
-    react-select: ^5.7.0
-    react-table: ^7.8.0
-    react-text-mask: ^5.5.0
-    react-toastify: ^9.1.1
-    react-tooltip: ^5.10.0
-    styled-components: ^5.3.9
-    tno-core: 0.0.247
-    yup: ^1.1.1
-  checksum: 4bc8da8a14d0e724e00d28d56dc8cc5cc88a929b7412875aa9f4e8bacc1c9cd5285ef903e85bd3ba20af3b362f4193f421adaa9456a935d0e5d535cdade05a57
-  languageName: node
-  linkType: hard
-
 "tno-core@npm:0.0.243":
   version: 0.0.243
   resolution: "tno-core@npm:0.0.243"
@@ -14377,6 +14343,40 @@ __metadata:
     tno-core: 0.0.243
     yup: ^1.1.1
   checksum: d82d4531989dbe7e7cad9777479d0aa6118e22d9381113f04c7de1d84c12430b9509daa3161c368b966338b04dbbee76c189f25812a855171fa09827f986d9bc
+  languageName: node
+  linkType: hard
+
+"tno-core@npm:0.0.255":
+  version: 0.0.255
+  resolution: "tno-core@npm:0.0.255"
+  dependencies:
+    "@fortawesome/free-solid-svg-icons": ^6.3.0
+    "@fortawesome/react-fontawesome": ^0.2.0
+    "@headlessui/react": ^1.7.13
+    "@react-keycloak/web": ^3.4.0
+    axios: ^1.3.4
+    dequal: ^2.0.3
+    formik: ^2.2.9
+    keycloak-js: ^21.0.1
+    lodash: ^4.17.21
+    lodash.throttle: ^4.1.1
+    moment: ^2.29.4
+    moment-timezone: ^0.5.41
+    react: ^18.2.0
+    react-datepicker: ^4.10.0
+    react-dom: ^18.2.0
+    react-icons: ^4.8.0
+    react-inlinesvg: ^3.0.2
+    react-router-dom: ^6.9.0
+    react-select: ^5.7.0
+    react-table: ^7.8.0
+    react-text-mask: ^5.5.0
+    react-toastify: ^9.1.1
+    react-tooltip: ^5.10.0
+    styled-components: ^5.3.9
+    tno-core: 0.0.247
+    yup: ^1.1.1
+  checksum: 52597c40d09cda5e4df27c755b23067799b26ecb48c559de05f3019e6d9d718fa5fcfe5fa3d5e0ffa413656ea4a8edc7a86319d8a39ff70902ae1f6f37d8935b
   languageName: node
   linkType: hard
 
@@ -14575,7 +14575,7 @@ __metadata:
 
 "typescript@patch:typescript@4.9.5#~builtin<compat/typescript>":
   version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=bda367"
+  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=d73830"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

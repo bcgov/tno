@@ -244,7 +244,6 @@ public class NotificationManager : ServiceManager<NotificationOptions>
 
                 // Inform Kafka this message is completed.
                 this.Listener.Commit(result);
-                this.Listener.Resume();
 
                 // Successful run clears any errors.
                 this.State.ResetFailures();
@@ -263,10 +262,17 @@ public class NotificationManager : ServiceManager<NotificationOptions>
             }
             ListenerErrorHandler(this, new ErrorEventArgs(ex));
         }
+        finally
+        {
+            if (State.Status == ServiceStatus.Running) Listener.Resume();
+        }
     }
 
     /// <summary>
     /// Process the notification request.
+    /// There are two types of notification requests.
+    /// 1) A specific notification has been requested to be sent out
+    /// 2) All notifications will be validated to determine if they should be sent out for the specific content.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -285,7 +291,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     if (notification != null)
                     {
                         await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        if (this.NotificationValidator.ConfirmSend())
+                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
                             await SendNotificationAsync(request, notification, content);
                         else
                             this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
@@ -299,7 +305,7 @@ public class NotificationManager : ServiceManager<NotificationOptions>
                     foreach (var notification in notifications)
                     {
                         await this.NotificationValidator.InitializeAsync(notification, content, this.Options.AlertId);
-                        if (this.NotificationValidator.ConfirmSend())
+                        if (request.IgnoreValidation || this.NotificationValidator.ConfirmSend())
                             await SendNotificationAsync(request, notification, content);
                         else
                             this.Logger.LogDebug("Notification not sent.  Notification: {notification}, Content ID: {contentId}", notification.Id, content.Id);
@@ -328,17 +334,20 @@ public class NotificationManager : ServiceManager<NotificationOptions>
         await HandleChesEmailOverrideAsync(request);
 
         var to = notification.Subscribers.Where(s => !String.IsNullOrWhiteSpace(s.User?.Email)).Select(s => s.User!.Email).ToArray();
-        // TODO: Control when a notification is sent through configuration.
-        var contexts = to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
-        {
-            Tag = $"{notification.Name}-{content.Id}",
-        }).ToList();
-
+        var contexts = new List<EmailContextModel>();
         if (!String.IsNullOrWhiteSpace(request.To))
         {
             // Add a context for the requested list of users in addition to the subscribers.
             var requestTo = request.To.Split(",").Select(v => v.Trim());
             contexts.Add(new EmailContextModel(requestTo, new Dictionary<string, object>(), DateTime.Now));
+        }
+        else
+        {
+            // TODO: Control when a notification is sent through configuration.
+            contexts.AddRange(to.Select(v => new EmailContextModel(new[] { v }, new Dictionary<string, object>(), DateTime.Now)
+            {
+                Tag = $"{notification.Name}-{content.Id}",
+            }).ToList());
         }
 
         var subject = await GenerateNotificationSubjectAsync(notification, content);

@@ -119,7 +119,7 @@ public class NotificationValidator : INotificationValidator
         if (Notification == null || Content == null) throw new InvalidOperationException("Notification and Content properties cannot be null");
 
         var filter = JsonSerializer.Deserialize<NotificationFilter>(Notification.Filter);
-        if (filter == null) return false;
+        if (filter == null) return true; // No filter will always send.
 
         var result =
             (string.IsNullOrWhiteSpace(filter.OtherSource) || Content.OtherSource.ToLower() == filter.OtherSource.ToLower()) &&

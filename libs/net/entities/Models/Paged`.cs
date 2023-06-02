@@ -1,5 +1,3 @@
-using TNO.Entities;
-
 namespace TNO.Entities.Models;
 
 public class Paged<T> : IPaged<T>

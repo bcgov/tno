@@ -45,7 +45,11 @@ export const ReportList: React.FC = () => {
                 reports.filter(
                   (i) =>
                     i.name.toLocaleLowerCase().includes(value) ||
-                    i.description.toLocaleLowerCase().includes(value),
+                    i.description.toLocaleLowerCase().includes(value) ||
+                    i.owner?.username.toLocaleLowerCase().includes(value) ||
+                    i.owner?.displayName.toLocaleLowerCase().includes(value) ||
+                    i.owner?.firstName.toLocaleLowerCase().includes(value) ||
+                    i.owner?.lastName.toLocaleLowerCase().includes(value),
                 ),
               );
             } else {
