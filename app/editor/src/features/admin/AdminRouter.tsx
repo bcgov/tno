@@ -20,6 +20,8 @@ import {
   IngestTypeList,
   LicenseForm,
   LicenseList,
+  NotificationForm,
+  NotificationList,
   ProductForm,
   ProductList,
   ReachEarnedMedia,
@@ -103,6 +105,9 @@ export const AdminRouter: React.FC = () => {
 
       <Route path="reports" element={<ReportList />} />
       <Route path="reports/:id" element={<ReportForm />} />
+
+      <Route path="notifications" element={<NotificationList />} />
+      <Route path="notifications/:id" element={<NotificationForm />} />
     </Routes>
   );
 };

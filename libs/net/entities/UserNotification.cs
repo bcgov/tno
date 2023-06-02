@@ -68,4 +68,15 @@ public class UserNotification : AuditColumns
         this.Resend = resend;
     }
     #endregion
+
+    #region Methods
+    public bool Equals(UserNotification? other)
+    {
+        if (other == null) return false;
+        return this.UserId == other.UserId && this.NotificationId == other.NotificationId;
+    }
+
+    public override bool Equals(object? obj) => Equals(obj as UserNotification);
+    public override int GetHashCode() => (this.UserId, this.NotificationId).GetHashCode();
+    #endregion
 }

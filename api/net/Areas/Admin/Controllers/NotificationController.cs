@@ -120,7 +120,8 @@ public class NotificationController : ControllerBase
     public IActionResult Update(NotificationModel model)
     {
         var result = _notificationService.UpdateAndSave(model.ToEntity(_serializerOptions));
-        return new JsonResult(new NotificationModel(result, _serializerOptions));
+        var notification = _notificationService.FindById(result.Id);
+        return new JsonResult(new NotificationModel(notification!, _serializerOptions));
     }
 
     /// <summary>
@@ -166,7 +167,8 @@ public class NotificationController : ControllerBase
             ContentId = contentId,
             RequestorId = user.Id,
             To = to,
-            UpdateCache = true
+            UpdateCache = true,
+            IgnoreValidation = true,
         };
         await _kafkaProducer.SendMessageAsync(_kafkaOptions.NotificationTopic, $"notification-{notification.Id}-test", request);
         return new JsonResult(new NotificationModel(notification, _serializerOptions));
