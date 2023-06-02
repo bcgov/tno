@@ -61,7 +61,7 @@ export const Wysiwyg = <T extends object>({
     if (!!fieldName) {
       setState({
         ...state,
-        html: (values[fieldName] as string)?.replace(/\n\n/g, '<br>').replace(/\n/g, '<br>') ?? '',
+        html: (values[fieldName] as string)?.replace(/\n+/g, '<br>') ?? '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
