@@ -678,7 +678,7 @@ export const ContentForm: React.FC<IContentFormProps> = ({
                   >
                     <Show visible={contentType === ContentTypeName.Snippet}>
                       <Row className="multi-group">
-                        <TimeLogSection />
+                        <TimeLogSection prepTimeRequired={true} />
                       </Row>
                     </Show>
                   </Row>

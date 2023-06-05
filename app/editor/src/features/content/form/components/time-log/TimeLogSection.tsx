@@ -19,12 +19,14 @@ import { TimeLogTable } from '../../TimeLogTable';
 import { getTotalTime } from '../../utils';
 import * as styled from './styled';
 
-export interface ITimeLogSectionProps {}
+export interface ITimeLogSectionProps {
+  prepTimeRequired?: boolean;
+}
 
 /**
  * TimeLogSection contains the input for time tracking gor a content item.
  */
-export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
+export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequired = false }) => {
   const keycloak = useKeycloakWrapper();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
@@ -40,7 +42,13 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
 
   return (
     <styled.TimeLogSection>
-      <FormikText width={FieldSize.Small} name="prep" label="Prep time (minutes)" type="number" />
+      <FormikText
+        width={FieldSize.Small}
+        name="prep"
+        label="Prep time (minutes)"
+        type="number"
+        required={prepTimeRequired}
+      />
       <FaArrowAltCircleRight
         className="action-button"
         onClick={() => {
