@@ -1,8 +1,9 @@
 import React from 'react';
-import * as styled from './styled';
-import { IContentModel } from 'tno-core';
-import { useContent } from 'store/hooks';
 import { useNavigate } from 'react-router-dom';
+import { useContent } from 'store/hooks';
+import { IContentModel } from 'tno-core';
+
+import * as styled from './styled';
 
 /** simple component used to display front pages on the landing page */
 export const FrontPages = () => {
@@ -30,7 +31,7 @@ export const FrontPages = () => {
         }
       });
     }
-  }, [frontPages]);
+  }, [frontPages, stream]);
 
   return (
     <styled.FrontPages>
@@ -39,6 +40,7 @@ export const FrontPages = () => {
         {srcUrls.map((s) => (
           <img
             key={s.url}
+            alt={s.id}
             className="front-page"
             src={s.url}
             onClick={() => navigate(`/view/${s.id}`)}

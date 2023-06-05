@@ -5,6 +5,7 @@ import {
 import { SearchWithLogout } from 'components/search-with-logout';
 import { Commentary } from 'features/commentary';
 import { ViewContent } from 'features/content/view-content';
+import { FrontPages } from 'features/front-page';
 import { Home } from 'features/home';
 import { MyMinister } from 'features/my-minister/MyMinister';
 import { MyMinisterSettings } from 'features/settings';
@@ -14,7 +15,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
-import { FrontPages } from 'features/front-page';
 
 /**
  * Main landing page for the subscriber app.
