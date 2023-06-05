@@ -3,6 +3,7 @@ import { Col } from 'tno-core';
 
 export const FrontPages = styled(Col)`
   max-width: fit-content;
+  min-width: 35em;
   background-color: ${(props) => props.theme.css.lightGray};
 
   img {
