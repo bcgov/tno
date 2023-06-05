@@ -119,7 +119,7 @@ public class ContentController : ControllerBase
         var uri = new Uri(this.Request.GetDisplayUrl());
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
         var filter = new ContentFilter(query);
-        var result = await _contentService.FindWithElasticsearchAsync(_elasticOptions.PublishedIndex, filter);
+        var result = await _contentService.FindWithElasticsearchAsync(_elasticOptions.UnpublishedIndex, filter);
         var page = new Paged<Services.Models.Content.ContentModel>(
             result.Items,
             result.Page,
@@ -144,6 +144,22 @@ public class ContentController : ControllerBase
 
         if (result == null) return new NoContentResult();
         return new JsonResult(new ContentModel(result));
+    }
+
+    /// <summary>
+    /// Find todays front pages.
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("frontpages")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(ContentModel), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(string), (int)HttpStatusCode.NoContent)]
+    [SwaggerOperation(Tags = new[] { "Content" })]
+    public IActionResult FindFrontPages()
+    {
+        var result = _contentService.FindFrontPages();
+        var page = new Paged<ContentModel>(result.Items.Select(i => new ContentModel(i)), result.Page, result.Quantity, result.Total);
+        return new JsonResult(page);
     }
 
     /// <summary>

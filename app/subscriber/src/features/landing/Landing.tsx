@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Row, Show } from 'tno-core';
 
 import * as styled from './styled';
+import { FrontPages } from 'features/front-page';
 
 /**
  * Main landing page for the subscriber app.
@@ -70,10 +71,7 @@ export const Landing: React.FC = () => {
         {/* unsure of whether these items will change depedning on selected item */}
         <Col className="right-panel">
           <Commentary />
-          <div className="front-pages">
-            <div className="title">Front Pages</div>
-            <div className="content"></div>
-          </div>
+          <FrontPages />
         </Col>
       </Row>
     </styled.Landing>

@@ -20,23 +20,15 @@ export const Landing = styled(Col)`
 
   /* The panel containing Commentary and front pages */
   .right-panel {
-    min-width: 39%;
+    max-width: fit-content;
     margin-left: 0.5%;
+    margin-right: 0.5%;
     flex-grow: 1;
     .title {
       background-color: ${(props) => props.theme.css.darkHeaderColor};
       padding: 0.5em;
       font-size: 1.25em;
       color: white;
-    }
-
-    .front-pages {
-      width: 99%;
-      margin-bottom: 2%;
-      .content {
-        background-color: #f9f9f9;
-        min-height: 10em;
-      }
     }
     display: flex;
 

@@ -1,11 +1,8 @@
 import styled from 'styled-components';
 
 export const Commentary = styled.div`
-  width: 99%;
+  max-width: 100%;
   margin-bottom: 5%;
-  div {
-    margin-right: 0.5em;
-  }
 
   .headline {
     color: #3847aa;
@@ -22,7 +19,7 @@ export const Commentary = styled.div`
 
   .content {
     padding-top: 0.5em;
-    background-color: #f9f9f9;
+    background-color: ${(props) => props.theme.css.lightGray};
     min-height: 20em;
   }
 `;
