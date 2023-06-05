@@ -384,7 +384,7 @@ public class SyndicationAction : IngestAction<SyndicationOptions>
         }
         catch (Exception ex)
         {
-            this.Logger.LogInformation(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
+            this.Logger.LogWarning(ex, "Syndication feed for ingest '{name}' is invalid.", manager.Ingest.Name);
 
             var settings = new XmlReaderSettings()
             {

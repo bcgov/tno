@@ -12,6 +12,8 @@ import { CustomToolbar } from './CustomToolbar';
 import * as styled from './styled';
 
 export interface IWysiwygProps<T extends object> {
+  /** The element class name */
+  className?: string;
   /** the formik field that is being used within the WYSIWYG */
   fieldName?: keyof T;
   /** optional label to appear above the WYSIWYG */
@@ -39,6 +41,7 @@ export interface IWysiwygProps<T extends object> {
  * @returns A WYSIWYG editor for the content summary form
  */
 export const Wysiwyg = <T extends object>({
+  className,
   fieldName,
   label,
   required,
@@ -131,7 +134,7 @@ export const Wysiwyg = <T extends object>({
   ];
 
   return (
-    <styled.Wysiwyg viewRaw={showRaw} hasHeight={hasHeight}>
+    <styled.Wysiwyg viewRaw={showRaw} hasHeight={hasHeight} className={className}>
       {label && <label className={required ? 'required' : ''}>{label}</label>}
       <CustomToolbar
         onClickRaw={onClickRaw}
