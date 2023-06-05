@@ -9,6 +9,10 @@ export const ContentFormSchema = object().shape(
         return number().required('Either source or other source is required.');
       return number();
     }),
+    prep: number().when('contentType', (value: string[]) => {
+      if (value[0] === ContentTypeName.Snippet) return number().required('Prep time is required.');
+      return number();
+    }),
     tempSource: string().when('sourceId', (value: string[]) => {
       if (value[0] === undefined)
         return string().required('Either source or other source is required.');
