@@ -187,6 +187,9 @@ public class ContentService : BaseService<Content, long>, IContentService
         foreach (var sourceId in filter.SourceIds)
             sourceQueries.Add(s => s.Term(t => t.SourceId, sourceId));
 
+        foreach (var sourceId in filter.ExcludeSourceIds)
+            sourceQueries.Add(s => !s.Term(t => t.SourceId, sourceId));
+
         var productQueries = new List<Func<QueryContainerDescriptor<API.Areas.Services.Models.Content.ContentModel>, QueryContainer>>();
         foreach (var productId in filter.ProductIds)
             productQueries.Add(s => s.Term(t => t.ProductId, productId));

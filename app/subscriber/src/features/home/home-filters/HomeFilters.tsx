@@ -24,19 +24,32 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
     return type === active ? 'active' : 'inactive';
   };
 
+  console.log(filter);
+
   React.useEffect(() => {
     switch (active) {
       case HomeFilterType.Papers:
-        storeFilter({ ...filter, contentTypes: [ContentTypeName.PrintContent], sourceIds: [] });
+        storeFilter({
+          ...filter,
+          contentTypes: [ContentTypeName.PrintContent],
+          sourceIds: [],
+          excludeSourceIds: [],
+        });
         break;
       case HomeFilterType.RadioTV:
-        storeFilter({ ...filter, contentTypes: [ContentTypeName.Snippet], sourceIds: [] });
+        storeFilter({
+          ...filter,
+          contentTypes: [ContentTypeName.Snippet],
+          sourceIds: [],
+          excludeSourceIds: [],
+        });
         break;
       case HomeFilterType.Internet:
         storeFilter({
           ...filter,
           contentTypes: [ContentTypeName.Story],
-          sourceIds: sources.filter((s) => s.code !== 'CPNEWS').map((s) => s.id),
+          sourceIds: [],
+          excludeSourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
         });
         break;
       case HomeFilterType.CPNews:
@@ -44,6 +57,7 @@ export const HomeFilters: React.FC<IHomeFilterProps> = () => {
           ...filter,
           contentTypes: [ContentTypeName.Story],
           sourceIds: [sources.find((s) => s.code === 'CPNEWS')?.id ?? 0],
+          excludeSourceIds: [],
         });
         break;
       default:

@@ -19,6 +19,7 @@ export const makeFilter = (
     quantity: filter.pageSize,
     productIds: filter.productIds ?? undefined,
     sourceIds: filter.sourceIds ?? undefined,
+    excludeSourceIds: filter.excludeSourceIds ?? undefined,
     contentTypes: filter.contentTypes ?? undefined,
     ownerId: +filter.ownerId !== 0 ? +filter.ownerId : undefined,
     userId: +filter.userId !== 0 ? +filter.userId : undefined,
