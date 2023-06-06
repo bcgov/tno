@@ -146,6 +146,11 @@ public class ContentFilter : PageFilter
     public string? Keyword { get; set; }
 
     /// <summary>
+    /// get/set - Get/set the source ids to exlude from the search.
+    /// </summary>
+    public long[] ExcludeSourceIds { get; set; } = Array.Empty<long>();
+
+    /// <summary>
     /// get/set - An array of content IDs.
     /// </summary>
     public long[] ContentIds { get; set; } = Array.Empty<long>();
@@ -207,6 +212,7 @@ public class ContentFilter : PageFilter
         this.ContentIds = filter.GetLongArrayValue(nameof(this.ContentIds));
         this.ProductIds = filter.GetLongArrayValue(nameof(this.ProductIds));
         this.SourceIds = filter.GetLongArrayValue(nameof(this.SourceIds));
+        this.ExcludeSourceIds = filter.GetLongArrayValue(nameof(this.ExcludeSourceIds));
         this.Actions = filter.GetStringArrayValue(nameof(this.Actions));
         this.Sort = filter.GetStringArrayValue(nameof(this.Sort));
     }
