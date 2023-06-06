@@ -105,6 +105,20 @@ public class IngestActionManager<TOptions> : ServiceActionManager<TOptions>, IIn
     }
 
     /// <summary>
+    /// Update Ingest config at runtime.
+    /// </summary>
+    /// <param name="propName"></param>
+    /// <param name="propValue"></param>
+    /// <returns></returns>
+    public override async Task UpdateIngestConfigAsync(string propName, object propValue)
+    {
+        this.Ingest.Configuration[propName] = propValue;
+        var headers = new HttpRequestMessage().Headers;
+        headers.Add("User-Agent", GetType().FullName);
+        this.Ingest = await this.Api.UpdateIngestAsync(Ingest, headers) ?? Ingest;
+    }
+
+    /// <summary>
     /// Verify that the specified ingest ingestion action should be run.
     /// </summary>
     /// <returns></returns>
