@@ -9,8 +9,26 @@ export const ContentFormSchema = object().shape(
         return number().required('Either source or other source is required.');
       return number();
     }),
-    prep: number().when('contentType', (value: string[]) => {
-      if (value[0] === ContentTypeName.Snippet) return number().required('Prep time is required.');
+    prep: string().when('contentType', (value: string[]) => {
+      if (value[0] === ContentTypeName.Snippet) {
+        return number().when('efforts', (efforts: number[]) => {
+          if (!efforts[0] || efforts[0] <= 0) {
+            return number().required('Prep time is required.');
+          }
+          return number();
+        });
+      }
+      return number();
+    }),
+    total: string().when('contentType', (value: string[]) => {
+      if (value[0] === ContentTypeName.Snippet) {
+        return number().when('efforts', (efforts: number[]) => {
+          if (!efforts[0] || efforts[0] <= 0) {
+            return number().required('Total minutes are required.');
+          }
+          return number();
+        });
+      }
       return number();
     }),
     tempSource: string().when('sourceId', (value: string[]) => {
