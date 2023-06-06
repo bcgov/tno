@@ -136,5 +136,11 @@ public abstract class ServiceActionManager<TOptions> : IServiceActionManager
     /// </summary>
     /// <returns></returns>
     public abstract Task RecordFailureAsync();
+
+    /// <summary>
+    /// Updates service config/state.
+    /// </summary>
+    /// <returns></returns>
+    public abstract Task UpdateIngestConfigAsync(string propName, object propValue);
     #endregion
 }
