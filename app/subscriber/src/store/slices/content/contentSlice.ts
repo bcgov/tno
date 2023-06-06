@@ -21,6 +21,7 @@ export const initialContentState: IContentState = {
     userId: 0,
     productIds: [],
     sourceIds: [],
+    excludeSourceIds: [],
     contentTypes: [],
     timeFrame: 0,
     onTicker: '',

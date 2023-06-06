@@ -13,6 +13,7 @@ export interface IContentListFilter {
   otherSource: string;
   productIds: number[];
   sourceIds: number[];
+  excludeSourceIds: number[];
   ownerId: number | '';
   userId: number | '';
   timeFrame: number | '';
