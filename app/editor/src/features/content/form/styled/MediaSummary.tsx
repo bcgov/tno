@@ -2,20 +2,33 @@ import styled from 'styled-components';
 import { Row } from 'tno-core';
 
 export const MediaSummary = styled(Row)`
-  justify-content: space-evenly;
-  flex-wrap: row;
+  flex-wrap: wrap-reverse;
 
   hr {
     height: 0.05em;
   }
 
   .summary {
-    width: 65%;
-    .ql-editor {
-      min-height: 18rem;
+    flex: 1;
+    display: flex;
+    flex-flow: column;
+    padding-right: 0.5rem;
+    min-width: 500px;
+
+    .quill {
+      flex: 1;
     }
-    .raw-editor {
-      min-height: 18rem;
+  }
+
+  .media {
+    flex: 0 0 0;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 350px;
+
+    video {
+      max-height: 300px;
     }
   }
 `;

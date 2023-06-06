@@ -4,6 +4,9 @@ import { Row } from 'tno-core';
 export const Tags = styled(Row)`
   align-items: center;
   position: relative;
+  padding: 0.5em;
+  border-radius: 0.25em;
+
   label {
     font-weight: bold;
   }
@@ -21,10 +24,8 @@ export const Tags = styled(Row)`
     align-self: center;
     margin-left: 0.5em;
   }
-  position: relative;
   svg {
     align-self: center;
-    margin-right: 0.5em;
   }
   .tag-list-header {
     border-top-left-radius: 0.25em;
@@ -46,9 +47,6 @@ export const Tags = styled(Row)`
     min-width: 30em;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
   }
-  padding: 0.5em;
-  border-radius: 0.25em;
-  margin: 0 0.5em 0 0.5em;
   .btn {
     max-height: 2.4em;
   }

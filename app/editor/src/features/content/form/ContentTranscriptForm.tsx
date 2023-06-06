@@ -1,7 +1,7 @@
+import { Wysiwyg } from 'components/wysiwyg';
 import React from 'react';
 import { Button, ButtonVariant, Modal } from 'tno-core';
 
-import { Tags, Wysiwyg } from '.';
 import * as styled from './styled';
 
 /**
@@ -14,9 +14,8 @@ export const ContentTranscriptForm: React.FC = () => {
   return (
     <styled.ContentTranscriptForm>
       <Wysiwyg fieldName="body" expandModal={setShowExpandModal} />
-      <Tags />
       <Modal
-        body={<Wysiwyg fieldName="body" />}
+        body={<Wysiwyg className="modal-quill" fieldName="body" />}
         isShowing={showExpandModal}
         hide={onCloseOrHide}
         customButtons={

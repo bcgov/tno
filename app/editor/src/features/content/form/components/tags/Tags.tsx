@@ -63,12 +63,12 @@ export const Tags: React.FC<ITagsProps> = () => {
             }}
           />
           <Button
+            tooltip="Show tag list"
             onClick={() => {
               setShowList(!showList);
             }}
           >
             <FaListAlt />
-            SHOW LIST
           </Button>
         </Row>
       </Col>

@@ -1,9 +1,10 @@
+import { Wysiwyg } from 'components/wysiwyg';
 import { useFormikContext } from 'formik';
 import React from 'react';
 import { useContent } from 'store/hooks';
-import { Col, ContentTypeName, IFileReferenceModel, Row, Show } from 'tno-core';
+import { ContentTypeName, IFileReferenceModel } from 'tno-core';
 
-import { IFile, Tags, ToningGroup, Upload, Wysiwyg } from '.';
+import { IFile, Upload } from '.';
 import { IContentForm } from './interfaces';
 import * as styled from './styled';
 
@@ -36,45 +37,37 @@ export const MediaSummary: React.FC<IMediaSummaryProps> = ({
 
   return (
     <styled.MediaSummary>
-      <Col className="media">
-        <Upload
-          contentType={contentType}
-          id="upload"
-          name="file"
-          file={file}
-          stream={stream}
-          downloadable={fileReference?.isUploaded}
-          onSelect={(e) => {
-            const file = (e as IFile).name ? (e as IFile) : undefined;
-            setFieldValue('file', file);
-            // Remove file reference.
-            setFieldValue('fileReferences', []);
-          }}
-          onDownload={() => {
-            download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
-          }}
-          onDelete={() => {
-            setStream(undefined);
-            if (!!videoRef.current) {
-              videoRef.current.src = '';
-            }
-          }}
-        />
-      </Col>
-      <Col className="summary">
-        <Wysiwyg
-          label="Summary"
-          required={isSummaryRequired}
-          fieldName="summary"
-          expandModal={setShowExpandModal}
-        />
-        <Show visible={contentType !== ContentTypeName.Image}>
-          <Row wrap="nowrap">
-            <Tags />
-            <ToningGroup fieldName="tonePools" />
-          </Row>
-        </Show>
-      </Col>
+      <Wysiwyg
+        className="summary"
+        label="Summary"
+        required={isSummaryRequired}
+        fieldName="summary"
+        expandModal={setShowExpandModal}
+      />
+      <Upload
+        className="media"
+        contentType={contentType}
+        id="upload"
+        name="file"
+        file={file}
+        stream={stream}
+        downloadable={fileReference?.isUploaded}
+        onSelect={(e) => {
+          const file = (e as IFile).name ? (e as IFile) : undefined;
+          setFieldValue('file', file);
+          // Remove file reference.
+          setFieldValue('fileReferences', []);
+        }}
+        onDownload={() => {
+          download(values.id, file?.name ?? `${values.otherSource}-${values.id}`);
+        }}
+        onDelete={() => {
+          setStream(undefined);
+          if (!!videoRef.current) {
+            videoRef.current.src = '';
+          }
+        }}
+      />
     </styled.MediaSummary>
   );
 };

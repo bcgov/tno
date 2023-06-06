@@ -93,13 +93,11 @@ export const TopicList = styled.div`
     }
   }
 
-  .form {
-    div {
-      height: 100%;
-      form {
-        position: sticky;
-        top: 0;
-      }
+  .form > div {
+    height: 100%;
+    form {
+      position: sticky;
+      top: 0;
     }
   }
 `;

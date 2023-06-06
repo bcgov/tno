@@ -1,5 +1,6 @@
 import 'react-quill/dist/quill.snow.css';
 
+import { Wysiwyg } from 'components/wysiwyg';
 import { IStream } from 'features/storage/interfaces';
 import { useFormikContext } from 'formik';
 import moment from 'moment';
@@ -23,8 +24,8 @@ import {
   TimeInput,
 } from 'tno-core';
 
-import { IFile, Tags, ToningGroup, Wysiwyg } from '.';
-import { TimeLogSection, Topic } from './components';
+import { IFile } from '.';
+import { Topic } from './components';
 import { IContentForm } from './interfaces';
 import { MediaSummary } from './MediaSummary';
 import * as styled from './styled';
@@ -210,9 +211,20 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           isSummaryRequired={isSummaryRequired}
         />
       </Show>
+      <Show
+        visible={contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image}
+      >
+        <Wysiwyg
+          className="content-body"
+          label="Story"
+          fieldName="body"
+          expandModal={setShowExpandModal}
+        />
+      </Show>
       <Modal
         body={
           <Wysiwyg
+            className="modal-quill"
             label={contentType === ContentTypeName.PrintContent ? 'Story' : 'Summary'}
             required={isSummaryRequired}
             hasHeight
@@ -230,22 +242,6 @@ export const ContentStoryForm: React.FC<IContentStoryFormProps> = ({
           </Button>
         }
       />
-      <Row>
-        <Col flex="1 1 0">
-          <Show
-            visible={
-              contentType !== ContentTypeName.Snippet && contentType !== ContentTypeName.Image
-            }
-          >
-            <Wysiwyg label="Story" fieldName="body" expandModal={setShowExpandModal} />
-            <Row>
-              <TimeLogSection />
-              <Tags />
-              <ToningGroup fieldName="tonePools" />
-            </Row>
-          </Show>
-        </Col>
-      </Row>
     </styled.ContentStoryForm>
   );
 };

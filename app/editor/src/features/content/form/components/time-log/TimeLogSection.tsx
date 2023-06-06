@@ -19,12 +19,14 @@ import { TimeLogTable } from '../../TimeLogTable';
 import { getTotalTime } from '../../utils';
 import * as styled from './styled';
 
-export interface ITimeLogSectionProps {}
+export interface ITimeLogSectionProps {
+  prepTimeRequired?: boolean;
+}
 
 /**
  * TimeLogSection contains the input for time tracking gor a content item.
  */
-export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
+export const TimeLogSection: React.FC<ITimeLogSectionProps> = ({ prepTimeRequired = false }) => {
   const keycloak = useKeycloakWrapper();
   const { values, setFieldValue } = useFormikContext<IContentForm>();
   const { isShowing, toggle } = useModal();
@@ -35,17 +37,26 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
   const userId = users.find((u: IUserModel) => u.username === keycloak.getUsername())?.id;
 
   React.useEffect(() => {
-    setEffort(getTotalTime(values.timeTrackings ?? []));
-  }, [values.timeTrackings]);
+    const value = getTotalTime(values.timeTrackings ?? []);
+    setEffort(value);
+    setFieldValue('efforts', value);
+  }, [setFieldValue, values.timeTrackings]);
 
   return (
-    <styled.TimeLogSection>
-      <FormikText width={FieldSize.Small} name="prep" label="Prep time (minutes)" type="number" />
+    <styled.TimeLogSection className="multi-group">
+      <FormikText
+        width={FieldSize.Small}
+        name="prep"
+        label="Prep time (minutes)"
+        type="number"
+        required={prepTimeRequired && effort <= 0}
+      />
       <FaArrowAltCircleRight
         className="action-button"
         onClick={() => {
           if (!!values.timeTrackings) {
-            setEffort(effort!! + Number((values as any).prep));
+            const value = effort!! + Number((values as any).prep);
+            setEffort(value);
             setFieldValue('timeTrackings', [
               ...values.timeTrackings,
               {
@@ -56,6 +67,7 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
               },
             ]);
             setFieldValue('prep', '');
+            setFieldValue('efforts', value);
           }
         }}
       />
@@ -67,6 +79,7 @@ export const TimeLogSection: React.FC<ITimeLogSectionProps> = () => {
           name="total"
           label="Total minutes"
           value={effort?.toString()}
+          required={prepTimeRequired && effort <= 0}
         />
         <FaRegListAlt
           className="action-button"
